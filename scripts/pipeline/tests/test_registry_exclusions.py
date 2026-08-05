@@ -20,6 +20,9 @@ if str(_PIPELINE) not in sys.path:
     sys.path.insert(0, str(_PIPELINE))
 
 import update_product_registry as upr  # noqa: E402
+
+# ST-058: scan_orgs returns (repos, outcomes); a reached org yields an "ok" outcome.
+_OK = {"org": "test-org", "status": "ok", "repo_count": 1, "detail": ""}
 import repo_patrol  # noqa: E402
 
 
@@ -109,8 +112,8 @@ class TestUpdateRegistryDiscoveryTimeSkip:
             {"match": "repo_name", "value": "Aspose-PDF-FOSS-for-Go-MCP"},
         ])
         repo = _make_repo("Aspose-PDF-FOSS-for-Go-MCP")
-        with patch("org_scanner.scan_orgs", return_value=[repo]):
-            products = upr._discover_from_github(["test-org"], token=None)
+        with patch("org_scanner.scan_orgs", return_value=([repo], [_OK])):
+            products, _ = upr._discover_from_github(["test-org"], token=None)
         assert products == []
 
     def test_non_excluded_repo_still_discovered(self, tmp_path):
@@ -118,8 +121,8 @@ class TestUpdateRegistryDiscoveryTimeSkip:
             {"match": "repo_name", "value": "Aspose-PDF-FOSS-for-Go-MCP"},
         ])
         repo = _make_repo("Aspose.Cells-FOSS-for-Go")
-        with patch("org_scanner.scan_orgs", return_value=[repo]):
-            products = upr._discover_from_github(["test-org"], token=None)
+        with patch("org_scanner.scan_orgs", return_value=([repo], [_OK])):
+            products, _ = upr._discover_from_github(["test-org"], token=None)
         assert len(products) == 1
         assert products[0]["family"] == "cells"
 
@@ -187,7 +190,7 @@ class TestUpdateRegistryPostMergeEnforcement:
 
         repo = _make_repo("Aspose.Cells-FOSS-for-TypeScript", pushed_days=5, archived=False)
         with patch.object(upr, "REGISTRY_PATH", registry_path), \
-             patch("org_scanner.scan_orgs", return_value=[repo]):
+             patch("org_scanner.scan_orgs", return_value=([repo], [_OK])):
             rc = upr.main(["--org", "test-org", "--force"])
 
         assert rc == 0
@@ -203,7 +206,7 @@ class TestUpdateRegistryPostMergeEnforcement:
         repo = _make_repo("Aspose-PDF-FOSS-for-Go-MCP")
         registry_path = tmp_path / "data" / "products.json"
         with patch.object(upr, "REGISTRY_PATH", registry_path), \
-             patch("org_scanner.scan_orgs", return_value=[repo]):
+             patch("org_scanner.scan_orgs", return_value=([repo], [_OK])):
             rc = upr.main(["--org", "test-org", "--dry-run"])
         assert rc == 0
         assert not registry_path.exists()
@@ -221,7 +224,7 @@ class TestRepoPatrolExclusion:
             {"match": "repo_name", "value": "Aspose-PDF-FOSS-for-Go-MCP"},
         ])
         repos = [_make_repo("Aspose-PDF-FOSS-for-Go-MCP")]
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=(repos, [_OK])):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=False)
 
         assert report["summary"]["unclassifiable"] == 0
@@ -234,7 +237,7 @@ class TestRepoPatrolExclusion:
             {"match": "family_platform", "family": "cells", "platform": "typescript"},
         ])
         repos = [_make_repo("Aspose.Cells-FOSS-for-TypeScript")]
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=(repos, [_OK])):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=True)
 
         assert report["summary"]["new_candidates"] == 0

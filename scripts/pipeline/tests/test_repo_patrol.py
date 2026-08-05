@@ -37,6 +37,19 @@ def _ago(days: int) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _ok_outcome(org: str = "test-org", repo_count: int = 0) -> dict:
+    return {"org": org, "status": "ok", "repo_count": repo_count, "detail": ""}
+
+
+def _fail_outcome(org: str = "test-org", status: str = "auth_denied") -> dict:
+    return {"org": org, "status": status, "repo_count": 0, "detail": "HTTP 403 ..."}
+
+
+def _scan_ok(repos: list) -> tuple:
+    """scan_orgs return shape for a fully successful single-org scan (ST-058)."""
+    return repos, [_ok_outcome(repo_count=len(repos))]
+
+
 def _make_repo(name, *, description="A FOSS lib", pushed_days=10, archived=False):
     return {
         "name": name,
@@ -138,7 +151,7 @@ class TestCmdScan:
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
         # T3-MOCK: target=org_scanner.scan_orgs reason="HTTP boundary" removal=PERMANENT
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=False)
 
         assert report["summary"]["new_candidates"] == 1
@@ -152,7 +165,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text("[]")
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=True)
 
         reg = json.loads((tmp_path / "data" / "products.json").read_text())
@@ -165,7 +178,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["new_candidates"] == 0
@@ -177,7 +190,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"], force=False)
 
         assert report["summary"]["skipped"] == 1
@@ -186,7 +199,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text("[]")
         repos = [_make_repo("random-unrelated-repo")]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["unclassifiable"] >= 1
@@ -196,7 +209,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", archived=True)]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["status_changes"] == 1
@@ -207,7 +220,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=200)]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["status_changes"] == 1
@@ -218,7 +231,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=50)]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
             report = repo_patrol.cmd_scan(orgs=["test-org"], inactive_days=30)
 
         assert report["summary"]["status_changes"] == 1
@@ -445,13 +458,158 @@ class TestGetStoredSha:
 
 
 # ---------------------------------------------------------------------------
+# Scan health + fail-closed write policy (ST-058)
+# ---------------------------------------------------------------------------
+
+class TestScanHealth:
+    """A failed scan must never be indistinguishable from 'nothing found'."""
+
+    def _report_path(self, tmp_path):
+        return tmp_path / "reports" / "discovery" / "patrol_report.json"
+
+    def test_healthy_scan_records_ok(self, tmp_path):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        repos = [_make_repo("Aspose.3D-FOSS-for-Python")]
+        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)), \
+             patch("lib.org_scanner.preflight"):
+            report = repo_patrol.cmd_scan(orgs=["test-org"], token="t", auth_mode="GH_TOKEN")
+
+        health = report["scan_health"]
+        assert health["status"] == "ok"
+        assert health["orgs_ok"] == 1 and health["orgs_failed"] == 0
+        assert health["auth_mode"] == "GH_TOKEN"
+        assert self._report_path(tmp_path).is_file()
+
+    def test_total_failure_preserves_last_good_report(self, tmp_path):
+        """REGRESSION GATE (ST-058): fail-closed.
+
+        The old code wrote total_repos:0 over the last good report AND archived
+        it, which also reset the 7-day staleness clock the session-start advisory
+        keys on — the failure silenced its own detector.
+        """
+        (tmp_path / "data" / "products.json").write_text("[]")
+        path = self._report_path(tmp_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        sentinel = '{"generated_at": "2026-01-01T00:00:00+00:00", "total_repos": 33}\n'
+        path.write_text(sentinel, encoding="utf-8")
+
+        failures = [_fail_outcome("org-a"), _fail_outcome("org-b")]
+        with patch("lib.org_scanner.scan_orgs", return_value=([], failures)), \
+             patch("lib.org_scanner.preflight"):
+            report = repo_patrol.cmd_scan(orgs=["org-a", "org-b"], token="bad",
+                                          auth_mode="GITHUB_TOKEN")
+
+        assert report["scan_health"]["status"] == "failed"
+        assert report["report_written"] is False
+        # The last trustworthy report is byte-identical.
+        assert path.read_text(encoding="utf-8") == sentinel
+
+    def test_total_failure_does_not_apply_to_registry(self, tmp_path):
+        registry = tmp_path / "data" / "products.json"
+        registry.write_text("[]")
+        failures = [_fail_outcome("org-a")]
+        with patch("lib.org_scanner.scan_orgs", return_value=([], failures)), \
+             patch("lib.org_scanner.preflight"):
+            report = repo_patrol.cmd_scan(orgs=["org-a"], token="bad", apply=True)
+        assert report["registry_applied"] is False
+        assert registry.read_text() == "[]"
+
+    def test_partial_failure_is_degraded_and_still_writes(self, tmp_path):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        repos = [_make_repo("Aspose.3D-FOSS-for-Python")]
+        outcomes = [_ok_outcome("good", 1), _fail_outcome("bad", "network_error")]
+        with patch("lib.org_scanner.scan_orgs", return_value=(repos, outcomes)), \
+             patch("lib.org_scanner.preflight"):
+            report = repo_patrol.cmd_scan(orgs=["good", "bad"], token="t")
+
+        health = report["scan_health"]
+        assert health["status"] == "degraded"
+        assert health["orgs_ok"] == 1 and health["orgs_failed"] == 1
+        assert [f["org"] for f in health["failures"]] == ["bad"]
+        assert self._report_path(tmp_path).is_file()   # partial data is still useful
+
+    def test_empty_org_list_is_total_failure_not_a_written_report(self, tmp_path):
+        """No org attempted is not the same as no repos found."""
+        (tmp_path / "data" / "products.json").write_text("[]")
+        with patch("lib.org_scanner.scan_orgs", return_value=([], [])), \
+             patch("lib.org_scanner.preflight"):
+            report = repo_patrol.cmd_scan(orgs=[], token="t")
+        assert report["scan_health"]["status"] == "failed"
+        assert report["report_written"] is False
+        assert not self._report_path(tmp_path).exists()
+
+    def test_preflight_rejection_fails_before_scanning(self, tmp_path):
+        """A refused token costs one request, not one per org."""
+        (tmp_path / "data" / "products.json").write_text("[]")
+        import lib.org_scanner as osc
+        with patch("lib.org_scanner.preflight",
+                   side_effect=osc.TokenRejected("HTTP 403 ... 366 days ... GH_TOKEN")), \
+             patch("lib.org_scanner.scan_orgs") as mock_scan:
+            report = repo_patrol.cmd_scan(orgs=["a", "b", "c"], token="bad",
+                                          auth_mode="GITHUB_TOKEN")
+
+        mock_scan.assert_not_called()
+        assert report["scan_health"]["status"] == "failed"
+        assert report["report_written"] is False
+
+
+class TestScanExitCodes:
+    """Exit-code contract: 0 ok / 1 degraded / 2 total failure."""
+
+    def _run(self, tmp_path, monkeypatch, scan_return):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        monkeypatch.setenv("GH_TOKEN", "ghp_fake")
+        with patch("lib.org_scanner.scan_orgs", return_value=scan_return), \
+             patch("lib.org_scanner.preflight"):
+            return repo_patrol.main(["scan", "--orgs", "test-org"])
+
+    def test_exit_0_on_healthy(self, tmp_path, monkeypatch):
+        assert self._run(tmp_path, monkeypatch, ([], [_ok_outcome()])) == 0
+
+    def test_exit_2_on_total_failure(self, tmp_path, monkeypatch):
+        assert self._run(tmp_path, monkeypatch, ([], [_fail_outcome()])) == 2
+
+    def test_exit_1_on_degraded(self, tmp_path, monkeypatch):
+        rc = self._run(tmp_path, monkeypatch,
+                       ([], [_ok_outcome("good"), _fail_outcome("bad")]))
+        assert rc == 1
+
+    def test_allow_degraded_suppresses_exit_1(self, tmp_path, monkeypatch):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        monkeypatch.setenv("GH_TOKEN", "ghp_fake")
+        with patch("lib.org_scanner.scan_orgs",
+                   return_value=([], [_ok_outcome("good"), _fail_outcome("bad")])), \
+             patch("lib.org_scanner.preflight"):
+            rc = repo_patrol.main(["scan", "--orgs", "a,b", "--allow-degraded"])
+        assert rc == 0
+
+    def test_exit_2_when_no_credential(self, tmp_path, monkeypatch):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        monkeypatch.delenv("GH_TOKEN", raising=False)
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+        assert repo_patrol.main(["scan", "--orgs", "test-org"]) == 2
+
+    def test_no_auth_flag_scans_unauthenticated(self, tmp_path, monkeypatch):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        monkeypatch.delenv("GH_TOKEN", raising=False)
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+        with patch("lib.org_scanner.scan_orgs", return_value=([], [_ok_outcome()])) as m, \
+             patch("lib.org_scanner.preflight"):
+            rc = repo_patrol.main(["scan", "--orgs", "test-org", "--no-auth"])
+        assert rc == 0
+        assert m.call_args.kwargs["token"] is None
+
+
+# ---------------------------------------------------------------------------
 # CLI parse
 # ---------------------------------------------------------------------------
 
 class TestCLI:
-    def test_scan_dry_run_default(self, tmp_path):
+    def test_scan_dry_run_default(self, tmp_path, monkeypatch):
         (tmp_path / "data" / "products.json").write_text("[]")
-        with patch("org_scanner.scan_orgs", return_value=[]):
+        monkeypatch.setenv("GH_TOKEN", "ghp_fake")
+        with patch("lib.org_scanner.scan_orgs", return_value=([], [_ok_outcome()])), \
+             patch("lib.org_scanner.preflight"):
             rc = repo_patrol.main(["scan", "--orgs", "test-org"])
         assert rc == 0
 

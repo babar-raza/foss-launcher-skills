@@ -11,10 +11,10 @@ This pipeline extracts the API surface, format support, code snippets, and struc
 pip install -r scripts/requirements.txt
 
 # 2. Set environment variables
-cp .env.example .env          # then fill in GITHUB_TOKEN, PROFESSIONALIZE_API_KEY
+cp .env.example .env          # then fill in GH_TOKEN, PROFESSIONALIZE_API_KEY
 
 # 3. Populate the product registry from GitHub
-python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
+python scripts/pipeline/commands/ops/update_product_registry.py --token $GH_TOKEN
 
 # 4. Clone product repos (auto-clone from products.json)
 python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check
@@ -143,7 +143,7 @@ knowledge/
 |------|---------|
 | `scripts/requirements.txt` | Python dependencies: tree-sitter, pyyaml, requests |
 | `data/products.json` | Product registry: family, platform, clone_url, active flag |
-| `.env` | `GITHUB_TOKEN`, `PROFESSIONALIZE_API_KEY` |
+| `.env` | `GH_TOKEN`, `PROFESSIONALIZE_API_KEY` |
 | `runs/.clone_cache/` | FOSS repo shallow clones (git-ignored) |
 
 ## Common Workflows
@@ -151,7 +151,7 @@ knowledge/
 ### (a) Bootstrap a new product
 
 ```bash
-python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
+python scripts/pipeline/commands/ops/update_product_registry.py --token $GH_TOKEN
 python scripts/pipeline/commands/knowledge/refresh_knowledge.py 3d python
 python scripts/pipeline/commands/knowledge/index.py 3d python
 python scripts/pipeline/commands/content/audit.py 3d python
@@ -201,7 +201,7 @@ python scripts/pipeline/commands/content/remediate.py fix reports/content_eval/e
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `GITHUB_TOKEN` | For `update_product_registry.py` | GitHub PAT to scan FOSS orgs |
+| `GH_TOKEN` | For `update_product_registry.py` and `repo_patrol.py` | GitHub **classic** PAT to scan FOSS orgs. `GITHUB_TOKEN` is a fine-grained PAT the orgs reject with 403 (ST-058) and is only a fallback. |
 | `PROFESSIONALIZE_API_KEY` | Optional | API-tier embedding endpoint; TF-IDF fallback if absent |
 | `ASPOSE_CLONE_CACHE` | Optional | Override default `runs/.clone_cache/` clone location |
 | `ASPOSE_ORG` | Optional | Comma-separated GitHub orgs to scan (default: 5 aspose-*-foss orgs) |

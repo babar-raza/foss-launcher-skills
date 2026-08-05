@@ -15,8 +15,16 @@ Default behaviour:
     sweep:  read-only — fetches upstream clones, compares SHAs, writes sweep_report.json.
     report: read-only — reads latest reports and generates combined_report.md.
 
+Exit codes (scan; ST-058 outcome contract):
+    0  every org reached (scan_health.status == "ok")
+    1  some orgs unreachable — report written and marked "degraded"
+       (suppress with --allow-degraded)
+    2  no org reached, or no credential — nothing written, last good report preserved
+
 Environment:
-    GITHUB_TOKEN   GitHub personal access token (needed for scan).
+    GH_TOKEN       GitHub classic PAT — preferred credential for scan.
+    GITHUB_TOKEN   Fallback only. The aspose-*-foss orgs reject fine-grained PATs
+                   with a lifetime over 366 days, so this variable 403s here (ST-058).
     ASPOSE_ORG     Comma-separated GitHub organisations (overrides default 25).
 
 Output:
@@ -70,6 +78,15 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
 # Constants
 # ---------------------------------------------------------------------------
 _DEFAULT_INACTIVE_DAYS = 180
+
+# Cap on a single rate-limit backoff, passed through to org_scanner. Keeps a
+# throttled sweep bounded by (orgs x this) instead of by X-RateLimit-Reset.
+_DEFAULT_MAX_RATE_WAIT = 300
+
+# Exit codes (ST-058 outcome contract)
+_EXIT_OK = 0
+_EXIT_DEGRADED = 1
+_EXIT_FAILED = 2
 
 
 # ---------------------------------------------------------------------------
@@ -229,6 +246,77 @@ def _is_recently_pushed(pushed_at: str, days: int = _DEFAULT_INACTIVE_DAYS) -> b
 
 
 # ---------------------------------------------------------------------------
+# Scan health (ST-058 failure contract)
+# ---------------------------------------------------------------------------
+
+def _scan_health(orgs: list[str], outcomes: list[dict], auth_mode: str) -> dict:
+    """Summarise per-org outcomes into the report's scan_health block.
+
+    status is "ok" (every org reached), "degraded" (some reached), or "failed"
+    (none reached). Consumers — S-95 discovery-triage and the session-start
+    advisory — key off this rather than assuming an empty finding list means
+    "nothing to find".
+    """
+    failures = [o for o in outcomes if o["status"] != "ok"]
+    ok_count = len(outcomes) - len(failures)
+    if not outcomes or ok_count == 0:
+        status = "failed"
+    elif failures:
+        status = "degraded"
+    else:
+        status = "ok"
+    return {
+        "status": status,
+        "orgs_requested": len(orgs),
+        "orgs_ok": ok_count,
+        "orgs_failed": len(failures),
+        "auth_mode": auth_mode,
+        "failures": failures,
+    }
+
+
+def _failed_scan_report(
+    orgs: list[str],
+    now: str,
+    auth_mode: str,
+    error: str,
+    inactive_days: int,
+    apply: bool,
+    *,
+    outcomes: list[dict] | None = None,
+) -> dict:
+    """Build a total-failure report WITHOUT persisting it.
+
+    Deliberately does not call _write_report/_archive_report: overwriting
+    patrol_report.json on a total outage would destroy the last trustworthy
+    result AND reset the 7-day staleness clock the session-start advisory uses,
+    silencing the only monitor that would prompt a re-run (ST-058).
+    """
+    if outcomes is None:
+        outcomes = [{"org": o, "status": "auth_denied", "repo_count": 0, "detail": error}
+                    for o in orgs]
+    print("  Last good patrol_report.json left untouched (fail-closed).", file=sys.stderr)
+    return {
+        "generated_at": now,
+        "orgs_scanned": orgs,
+        "total_repos": 0,
+        "registry_applied": False,
+        "inactive_days_threshold": inactive_days,
+        "new_candidates": [],
+        "status_changes": [],
+        "unclassifiable": [],
+        "skipped_count": 0,
+        "excluded_count": 0,
+        "report_written": False,
+        "scan_health": _scan_health(orgs, outcomes, auth_mode),
+        "summary": {
+            "new_candidates": 0, "status_changes": 0, "unclassifiable": 0,
+            "skipped": 0, "excluded": 0,
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
 # Scan subcommand
 # ---------------------------------------------------------------------------
 
@@ -239,12 +327,19 @@ def cmd_scan(
     apply: bool = False,
     inactive_days: int = _DEFAULT_INACTIVE_DAYS,
     force: bool = False,
+    auth_mode: str = "unknown",
+    max_rate_wait: int = _DEFAULT_MAX_RATE_WAIT,
 ) -> dict:
     """Scan GitHub orgs and produce a patrol report.
 
-    Returns the patrol report dict.
+    Returns the patrol report dict, which always carries a ``scan_health`` block.
+
+    Failure contract (ST-058): when EVERY org fails, the scan is a total failure —
+    no report is written and no registry entry is applied, so the previous
+    (trustworthy) report is preserved and keeps ageing. A partial failure writes
+    a report marked ``degraded`` listing exactly which orgs were missed.
     """
-    from lib.org_scanner import scan_orgs
+    from lib.org_scanner import scan_orgs, preflight, TokenRejected
     from commands.ops.update_product_registry import _classify_repo, _DEFAULT_ORGS
 
     if orgs is None:
@@ -255,11 +350,36 @@ def cmd_scan(
     registry_index = {_key(e): e for e in registry}
     exclusions = _load_exclusions()
 
-    print(f"Scanning {len(orgs)} GitHub orgs...", file=sys.stderr)
-    all_repos = scan_orgs(orgs, token=token)
-    print(f"  Found {len(all_repos)} total repos", file=sys.stderr)
-
     now = datetime.now(tz=timezone.utc).isoformat()
+
+    print(f"Scanning {len(orgs)} GitHub orgs (auth: {auth_mode})...", file=sys.stderr)
+
+    # Validate the credential against a single org first: a rejected token then
+    # costs one request instead of one per org.
+    if orgs:
+        try:
+            preflight(orgs[0], token=token)
+        except TokenRejected as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return _failed_scan_report(orgs, now, auth_mode, str(exc), inactive_days, apply)
+
+    all_repos, outcomes = scan_orgs(orgs, token=token, max_rate_wait=max_rate_wait)
+
+    failures = [o for o in outcomes if o["status"] != "ok"]
+    for f in failures:
+        print(f"  {f['status'].upper()} {f['org']}: {f['detail'][:160]}", file=sys.stderr)
+
+    # Branch on the computed health, not on the failure count directly, so the
+    # "no org was even attempted" case (empty --orgs) is also treated as a total
+    # failure rather than writing a report labelled "failed".
+    if _scan_health(orgs, outcomes, auth_mode)["status"] == "failed":
+        print(f"ERROR: no org was successfully scanned ({len(failures)}/{len(outcomes)} "
+              f"failed); scan produced no usable data.", file=sys.stderr)
+        return _failed_scan_report(orgs, now, auth_mode, "", inactive_days, apply,
+                                   outcomes=outcomes)
+
+    print(f"  Found {len(all_repos)} total repos "
+          f"({len(outcomes) - len(failures)}/{len(outcomes)} orgs ok)", file=sys.stderr)
 
     new_candidates: list[dict] = []
     status_changes: list[dict] = []
@@ -397,6 +517,7 @@ def cmd_scan(
         "unclassifiable": unclassifiable,
         "skipped_count": len(skipped),
         "excluded_count": excluded_count,
+        "scan_health": _scan_health(orgs, outcomes, auth_mode),
         "summary": {
             "new_candidates": len(new_candidates),
             "status_changes": len(status_changes),
@@ -408,6 +529,10 @@ def cmd_scan(
 
     _write_report("patrol_report.json", report)
     _archive_report("patrol_report.json", report)
+
+    if report["scan_health"]["status"] == "degraded":
+        print(f"  WARNING: scan DEGRADED — {len(failures)} of {len(outcomes)} orgs "
+              f"unreachable; findings are incomplete.", file=sys.stderr)
 
     if apply:
         sorted_reg = sorted(registry, key=lambda e: (e["family"], e["platform"]))
@@ -599,7 +724,35 @@ def cmd_report() -> str:
         lines.append(f"- **Orgs scanned**: {len(patrol.get('orgs_scanned', []))}")
         lines.append(f"- **Total repos found**: {patrol.get('total_repos', 0)}")
         lines.append(f"- **Registry applied**: {patrol.get('registry_applied', False)}")
+
+        health = patrol.get("scan_health")
+        if health:
+            status = health.get("status", "unknown")
+            marker = {"ok": "OK", "degraded": "**DEGRADED**", "failed": "**FAILED**"}.get(
+                status, status)
+            lines.append(
+                f"- **Scan health**: {marker} — {health.get('orgs_ok', 0)}/"
+                f"{health.get('orgs_requested', 0)} orgs reached "
+                f"(auth: {health.get('auth_mode', 'unknown')})"
+            )
+            if status != "ok":
+                lines.append("")
+                lines.append("> Findings below are INCOMPLETE — orgs listed under "
+                             "Scan Failures were never reached. Do not read an empty "
+                             "candidate list as \"nothing new exists\".")
+        else:
+            lines.append("- **Scan health**: not recorded (report predates ST-058)")
         lines.append("")
+
+        if health and health.get("failures"):
+            lines.append("### Scan Failures")
+            lines.append("")
+            lines.append("| Org | Status | Detail |")
+            lines.append("|-----|--------|--------|")
+            for f in health["failures"]:
+                detail = str(f.get("detail", "")).replace("|", "\\|")[:160]
+                lines.append(f"| {f.get('org', '')} | {f.get('status', '')} | {detail} |")
+            lines.append("")
 
         summary = patrol.get("summary", {})
         lines.append("| Metric | Count |")
@@ -731,7 +884,15 @@ def main(argv: list[str] | None = None) -> int:
     p_scan.add_argument("--orgs", default=None,
                         help="Comma-separated GitHub orgs to scan (overrides default)")
     p_scan.add_argument("--token", default=None,
-                        help="GitHub token (falls back to GITHUB_TOKEN env var)")
+                        help="GitHub token (falls back to GH_TOKEN, then GITHUB_TOKEN)")
+    p_scan.add_argument("--no-auth", action="store_true",
+                        help="Scan unauthenticated (public API, 60 req/hr). Explicit "
+                             "degraded mode — never used as an automatic fallback.")
+    p_scan.add_argument("--allow-degraded", action="store_true",
+                        help="Exit 0 even when some orgs were unreachable (for scripted use)")
+    p_scan.add_argument("--max-rate-wait", type=int, default=_DEFAULT_MAX_RATE_WAIT,
+                        help=f"Cap in seconds on a single rate-limit backoff "
+                             f"(default: {_DEFAULT_MAX_RATE_WAIT})")
 
     sub.add_parser("sweep", help="Batch SHA comparison across active launched products")
 
@@ -740,21 +901,39 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "scan":
+        from lib.org_scanner import resolve_token
+
         orgs = [o.strip() for o in args.orgs.split(",") if o.strip()] if args.orgs else None
-        token = args.token or os.environ.get("GITHUB_TOKEN")
-        cmd_scan(
+        if args.no_auth:
+            token, auth_mode = None, "unauthenticated"
+        else:
+            token, auth_mode = resolve_token(args.token)
+            if token is None:
+                print("ERROR: no GitHub credential found. Set GH_TOKEN (classic PAT), "
+                      "pass --token, or use --no-auth for the 60 req/hr public API.",
+                      file=sys.stderr)
+                return _EXIT_FAILED
+        report = cmd_scan(
             orgs=orgs,
             token=token,
             apply=args.apply,
             inactive_days=args.inactive_days,
             force=args.force,
+            auth_mode=auth_mode,
+            max_rate_wait=args.max_rate_wait,
         )
+        status = report.get("scan_health", {}).get("status", "ok")
+        if status == "failed":
+            return _EXIT_FAILED
+        if status == "degraded" and not args.allow_degraded:
+            return _EXIT_DEGRADED
+        return _EXIT_OK
     elif args.command == "sweep":
         cmd_sweep()
     elif args.command == "report":
         cmd_report()
 
-    return 0
+    return _EXIT_OK
 
 
 if __name__ == "__main__":

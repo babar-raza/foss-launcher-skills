@@ -136,30 +136,103 @@ class TestMerge:
 # ---------------------------------------------------------------------------
 
 class TestPaginateRateLimit:
+    """403 classification (ST-058).
+
+    GitHub returns 403 for BOTH throttling and authorization denial. Conflating
+    them made a policy-rejected token sleep until X-RateLimit-Reset — measured
+    live at ~54 minutes per org, ~21 hours across the 25 orgs — and then report
+    an empty success. These tests pin the discrimination.
+    """
+
     def _make_response(self, status, body, headers=None):
         r = MagicMock()
         r.status_code = status
         r.json.return_value = body
         r.headers = headers or {}
-        r.raise_for_status = MagicMock()
         return r
 
-    def test_403_triggers_sleep_and_retry(self):
-        rate_resp = self._make_response(
-            403, [],
-            {"X-RateLimit-Reset": str(int(time.time()) + 5)}
-        )
-        ok_resp = self._make_response(200, [{"name": "repo1"}], {"Link": ""})
-        ok_resp.raise_for_status = MagicMock()
+    def test_403_auth_denial_fails_fast_without_sleeping(self):
+        """REGRESSION GATE (ST-058): a 403 with quota REMAINING is not throttling.
 
+        This is the exact live response shape: the aspose-*-foss orgs reject a
+        fine-grained PAT over 366 days old while thousands of requests remain.
+        It must raise immediately — never sleep, never retry.
+        """
+        denial = self._make_response(
+            403,
+            {"message": "The 'aspose-3d-foss' organization forbids access via a "
+                        "fine-grained personal access tokens if the token's lifetime "
+                        "is greater than 366 days."},
+            {"X-RateLimit-Remaining": "4993",
+             "X-RateLimit-Reset": str(int(time.time()) + 3251)},
+        )
         # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
         with patch.object(org_scanner, "requests") as mock_req, \
              patch("org_scanner.time.sleep") as mock_sleep:
-            mock_req.get.side_effect = [rate_resp, ok_resp]
-            repos = list(org_scanner._paginate("https://api.github.com/orgs/test/repos", {}, None))
+            mock_req.get.return_value = denial
+            with pytest.raises(org_scanner.TokenRejected) as exc:
+                list(org_scanner._paginate("https://api.github.com/orgs/test/repos",
+                                           {}, None, org="aspose-3d-foss"))
 
-        assert mock_sleep.called
+        mock_sleep.assert_not_called()          # the whole point
+        assert mock_req.get.call_count == 1     # no retry against a refused token
+        assert "366 days" in str(exc.value)
+        assert "GH_TOKEN" in str(exc.value)     # actionable remedy surfaced
+
+    def test_401_fails_fast_without_sleeping(self):
+        bad = self._make_response(401, {"message": "Bad credentials"}, {})
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
+        with patch.object(org_scanner, "requests") as mock_req, \
+             patch("org_scanner.time.sleep") as mock_sleep:
+            mock_req.get.return_value = bad
+            with pytest.raises(org_scanner.TokenRejected):
+                list(org_scanner._paginate("https://api.github.com/orgs/test/repos",
+                                           {}, None, org="test"))
+        mock_sleep.assert_not_called()
+
+    def test_403_genuine_rate_limit_sleeps_capped_then_retries(self):
+        """Quota exhausted IS throttling — sleep, but bounded by max_rate_wait."""
+        throttled = self._make_response(
+            403, {"message": "API rate limit exceeded"},
+            {"X-RateLimit-Remaining": "0",
+             "X-RateLimit-Reset": str(int(time.time()) + 3600)},
+        )
+        ok_resp = self._make_response(200, [{"name": "repo1"}], {"Link": ""})
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
+        with patch.object(org_scanner, "requests") as mock_req, \
+             patch("org_scanner.time.sleep") as mock_sleep:
+            mock_req.get.side_effect = [throttled, ok_resp]
+            repos = list(org_scanner._paginate("https://api.github.com/orgs/test/repos",
+                                               {}, None, org="test", max_rate_wait=300))
+
         assert repos == [{"name": "repo1"}]
+        mock_sleep.assert_called_once()
+        # Capped: without the cap this would have been ~3602s.
+        assert mock_sleep.call_args[0][0] <= 300
+
+    def test_429_is_rate_limited(self):
+        throttled = self._make_response(429, {"message": "Too Many Requests"},
+                                        {"Retry-After": "5"})
+        ok_resp = self._make_response(200, [{"name": "r"}], {"Link": ""})
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
+        with patch.object(org_scanner, "requests") as mock_req, \
+             patch("org_scanner.time.sleep") as mock_sleep:
+            mock_req.get.side_effect = [throttled, ok_resp]
+            repos = list(org_scanner._paginate("https://api.github.com/orgs/test/repos",
+                                               {}, None, org="test"))
+        assert len(repos) == 1
+        assert mock_sleep.call_args[0][0] == 5
+
+    def test_404_is_not_found_not_auth(self):
+        missing = self._make_response(404, {"message": "Not Found"}, {})
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
+        with patch.object(org_scanner, "requests") as mock_req:
+            mock_req.get.return_value = missing
+            with pytest.raises(org_scanner.OrgScanError) as exc:
+                list(org_scanner._paginate("https://api.github.com/orgs/dead/repos",
+                                           {}, None, org="dead"))
+        assert not isinstance(exc.value, org_scanner.TokenRejected)
+        assert "404" in str(exc.value)
 
     def test_no_403_no_sleep_between_single_page(self):
         ok_resp = self._make_response(200, [{"name": "r1"}, {"name": "r2"}], {"Link": ""})
@@ -167,10 +240,80 @@ class TestPaginateRateLimit:
         with patch.object(org_scanner, "requests") as mock_req, \
              patch("org_scanner.time.sleep") as mock_sleep:
             mock_req.get.return_value = ok_resp
-            repos = list(org_scanner._paginate("https://api.github.com/orgs/test/repos", {}, None))
+            repos = list(org_scanner._paginate("https://api.github.com/orgs/test/repos",
+                                               {}, None, org="test"))
 
         mock_sleep.assert_not_called()
         assert len(repos) == 2
+
+
+# ---------------------------------------------------------------------------
+# Token resolution (ST-058)
+# ---------------------------------------------------------------------------
+
+class TestResolveToken:
+    def test_gh_token_wins_over_github_token(self, monkeypatch):
+        """GH_TOKEN holds the classic PAT the orgs accept; GITHUB_TOKEN 403s."""
+        monkeypatch.setenv("GH_TOKEN", "ghp_classic")
+        monkeypatch.setenv("GITHUB_TOKEN", "github_pat_finegrained")
+        assert org_scanner.resolve_token() == ("ghp_classic", "GH_TOKEN")
+
+    def test_explicit_token_wins_over_both(self, monkeypatch):
+        monkeypatch.setenv("GH_TOKEN", "ghp_classic")
+        monkeypatch.setenv("GITHUB_TOKEN", "github_pat_finegrained")
+        assert org_scanner.resolve_token("explicit") == ("explicit", "explicit --token")
+
+    def test_falls_back_to_github_token(self, monkeypatch):
+        monkeypatch.delenv("GH_TOKEN", raising=False)
+        monkeypatch.setenv("GITHUB_TOKEN", "github_pat_finegrained")
+        assert org_scanner.resolve_token() == ("github_pat_finegrained", "GITHUB_TOKEN")
+
+    def test_none_when_unset(self, monkeypatch):
+        monkeypatch.delenv("GH_TOKEN", raising=False)
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+        assert org_scanner.resolve_token() == (None, "unauthenticated")
+
+
+# ---------------------------------------------------------------------------
+# scan_orgs outcome contract (ST-058) — failure must never look like empty success
+# ---------------------------------------------------------------------------
+
+class TestScanOrgsOutcomes:
+    def test_failed_org_is_recorded_not_swallowed(self):
+        """REGRESSION GATE (ST-058): the old code returned [] and lost the error."""
+        with patch.object(org_scanner, "scan_org",
+                          side_effect=org_scanner.TokenRejected("403 policy")):
+            repos, outcomes = org_scanner.scan_orgs(["org-a", "org-b"], token="t")
+
+        assert repos == []
+        assert [o["status"] for o in outcomes] == ["auth_denied", "auth_denied"]
+        assert [o["org"] for o in outcomes] == ["org-a", "org-b"]
+
+    def test_partial_failure_reports_both(self):
+        def _side_effect(org, **kw):
+            if org == "bad":
+                raise org_scanner.OrgScanError("HTTP 404 on org 'bad': Not Found")
+            return [{"name": "aspose-3d-python"}]
+
+        with patch.object(org_scanner, "scan_org", side_effect=_side_effect):
+            repos, outcomes = org_scanner.scan_orgs(["good", "bad"], token="t")
+
+        assert len(repos) == 1
+        assert outcomes[0]["status"] == "ok" and outcomes[0]["repo_count"] == 1
+        assert outcomes[1]["status"] == "not_found"
+
+    def test_all_ok_yields_all_ok_outcomes(self):
+        with patch.object(org_scanner, "scan_org", return_value=[{"name": "r"}]):
+            repos, outcomes = org_scanner.scan_orgs(["a", "b"], token="t")
+        assert len(repos) == 2
+        assert all(o["status"] == "ok" for o in outcomes)
+
+    def test_outcome_detail_never_contains_token(self):
+        secret = "ghp_supersecretvalue"
+        with patch.object(org_scanner, "scan_org",
+                          side_effect=org_scanner.TokenRejected("HTTP 403: forbidden")):
+            _, outcomes = org_scanner.scan_orgs(["org-a"], token=secret)
+        assert secret not in json.dumps(outcomes)
 
 
 # ---------------------------------------------------------------------------

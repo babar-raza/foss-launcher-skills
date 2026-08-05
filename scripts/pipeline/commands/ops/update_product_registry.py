@@ -30,8 +30,16 @@ Schema:
       ...
     ]
 
+Exit codes:
+    0  registry written (or dry-run/reconcile OK)
+    1  --reconcile found a MISSING/STALE signal, or a read error
+    2  no credential, or the GitHub scan reached no org — the tracked registry is
+       left UNCHANGED rather than rewritten from unverified data (ST-058)
+
 Environment:
-    GITHUB_TOKEN  GitHub personal access token (alternative to --token).
+    GH_TOKEN      GitHub classic PAT — preferred credential (alternative to --token).
+    GITHUB_TOKEN  Fallback only. The aspose-*-foss orgs reject fine-grained PATs with
+                  a lifetime over 366 days, so this variable 403s here (ST-058).
     ASPOSE_ORG    Comma-separated GitHub organisations to scan
                   (default: all 25 aspose-{family}-foss orgs).
 """
@@ -255,10 +263,11 @@ def _is_recently_pushed(pushed_at: str, days: int = _ACTIVE_PUSH_DAYS) -> bool:
         return False
 
 
-def _discover_from_github(orgs: list[str], token: str | None) -> list[dict]:
-    """Return products discovered by scanning one or more GitHub orgs."""
+def _import_org_scanner():
+    """Import org_scanner, tolerating invocation from the repo root."""
     try:
-        from org_scanner import scan_orgs  # noqa: PLC0415  (local import)
+        import org_scanner  # noqa: PLC0415  (local import)
+        return org_scanner
     except ImportError:
         # fallback-import guard: when invoked from repo root, scripts/pipeline/ is not on sys.path.
         # Try absolute import when running from repo root; also add lib/ since org_scanner lives there.
@@ -266,11 +275,22 @@ def _discover_from_github(orgs: list[str], token: str | None) -> list[dict]:
         for _fb_p in (str(_pipeline), str(_pipeline / "lib")):
             if _fb_p not in sys.path:
                 sys.path.insert(0, _fb_p)
-        from org_scanner import scan_orgs  # type: ignore[no-redef]
+        import org_scanner  # type: ignore[no-redef]
+        return org_scanner
+
+
+def _discover_from_github(orgs: list[str], token: str | None) -> tuple[list[dict], list[dict]]:
+    """Return ``(products, outcomes)`` discovered by scanning one or more GitHub orgs.
+
+    *outcomes* is the per-org result list from ``org_scanner.scan_orgs``; callers
+    MUST inspect it before treating an empty product list as "no products exist"
+    (ST-058).
+    """
+    scan_orgs = _import_org_scanner().scan_orgs
 
     products: list[dict] = []
     exclusions = _load_exclusions()
-    repos = scan_orgs(orgs, token=token)
+    repos, outcomes = scan_orgs(orgs, token=token)
     for repo in repos:
         pair = _classify_repo(repo["name"])
         if pair is None:
@@ -290,7 +310,7 @@ def _discover_from_github(orgs: list[str], token: str | None) -> list[dict]:
                 "discovered_via": "github",
             }
         )
-    return products
+    return products, outcomes
 
 
 # ---------------------------------------------------------------------------
@@ -566,7 +586,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     _env_orgs = os.environ.get("ASPOSE_ORG", "")
     _default_orgs_str = ",".join(_env_orgs.split(",") if _env_orgs else _DEFAULT_ORGS)
-    parser.add_argument("--token", help="GitHub PAT (falls back to GITHUB_TOKEN env var)")
+    parser.add_argument("--token", help="GitHub PAT (falls back to GH_TOKEN, then GITHUB_TOKEN)")
     parser.add_argument("--org", default=_default_orgs_str,
                         help="Comma-separated GitHub organisations to scan (default: %(default)s)")
     parser.add_argument("--local-only", action="store_true",
@@ -580,7 +600,12 @@ def main(argv: list[str] | None = None) -> int:
                              "signals for each registered product. Exit 0 if all OK, exit 1 if any MISSING.")
     args = parser.parse_args(argv)
 
-    token = args.token or os.environ.get("GITHUB_TOKEN")
+    token, auth_mode = _import_org_scanner().resolve_token(args.token)
+    if token is None and not args.local_only and not args.reconcile:
+        print("ERROR: no GitHub credential found. Set GH_TOKEN (classic PAT) or pass "
+              "--token; use --local-only to build from knowledge/ dirs without GitHub.",
+              file=sys.stderr)
+        return 2
 
     # --reconcile: read-only signal check against the existing registry
     if args.reconcile:
@@ -614,14 +639,37 @@ def main(argv: list[str] | None = None) -> int:
     incoming: list[dict] = []
 
     if not args.local_only:
-        print(f"Scanning GitHub orgs: {orgs}…", file=sys.stderr)
+        print(f"Scanning GitHub orgs: {orgs} (auth: {auth_mode})…", file=sys.stderr)
         try:
-            github_products = _discover_from_github(orgs, token)
-            incoming.extend(github_products)
-            print(f"  Found {len(github_products)} repos matching aspose-{{family}}-{{platform}}",
-                  file=sys.stderr)
+            github_products, outcomes = _discover_from_github(orgs, token)
         except Exception as exc:  # noqa: BLE001
-            print(f"WARN: GitHub scan failed ({exc}); falling back to local-only", file=sys.stderr)
+            print(f"ERROR: GitHub scan failed ({exc})", file=sys.stderr)
+            print("Refusing to rewrite the tracked registry from an unverified scan. "
+                  "Fix the cause, or pass --local-only to build from knowledge/ dirs "
+                  "deliberately.", file=sys.stderr)
+            return 2
+
+        failures = [o for o in outcomes if o["status"] != "ok"]
+        for f in failures:
+            print(f"  {f['status'].upper()} {f['org']}: {f['detail'][:160]}", file=sys.stderr)
+
+        if failures and len(failures) == len(outcomes):
+            # Total failure. data/products.json is TRACKED — overwriting it from a
+            # scan that reached nothing would silently launder a failure into
+            # committed state (ST-058).
+            print(f"ERROR: all {len(outcomes)} orgs failed; no GitHub data obtained.",
+                  file=sys.stderr)
+            print(f"Refusing to rewrite {REGISTRY_PATH.name}; it is left unchanged. "
+                  "Fix the credential (GH_TOKEN, classic PAT) or pass --local-only.",
+                  file=sys.stderr)
+            return 2
+
+        incoming.extend(github_products)
+        print(f"  Found {len(github_products)} repos matching aspose-{{family}}-{{platform}} "
+              f"({len(outcomes) - len(failures)}/{len(outcomes)} orgs ok)", file=sys.stderr)
+        if failures:
+            print(f"  WARNING: scan DEGRADED — {len(failures)} org(s) unreachable; "
+                  "registry merge is based on incomplete data.", file=sys.stderr)
 
     # Always add knowledge_dir entries as fallback for anything not on GitHub
     kd_products = _discover_from_knowledge()
