@@ -861,6 +861,22 @@ scripts:
     deprecated_since: null
     notes: "CI parity check: canonical skills/ must match all provider copies"
 
+  - path: scripts/pipeline/commands/ops/optimize_media_assets.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: media-assets
+    backing:
+      kind: skill
+      ref: media-optimize
+    test_targets:
+      - scripts/pipeline/tests/test_optimize_media_assets.py
+    requires_test: true
+    deprecated_since: null
+    notes: "rename static/media/{family}/{platform}/*.png to icon.png/banner.png convention and losslessly compress under 1MB via oxipng"
+
   - path: scripts/pipeline/commands/ops/translation_coverage.py
     kind: entrypoint
     lifecycle: active

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 107,
+  "skill_count": 108,
   "skills": [
     {
       "id": "S-01",
@@ -807,6 +807,14 @@
       "description": "Maven has its own watcher (`publish_watcher.py`, Mission MT008 D-03) because",
       "internal": false,
       "canonical_path": "skills/package-publish-watch.md"
+    },
+    {
+      "id": "S-119",
+      "slug": "media-optimize",
+      "name": "Media Optimize — Rename and Compress Product Image Assets",
+      "description": "Product icons and banner (social-preview) images dropped under",
+      "internal": false,
+      "canonical_path": "skills/media-optimize.md"
     },
     {
       "id": "S-HT-02",

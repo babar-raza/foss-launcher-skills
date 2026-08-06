@@ -93,6 +93,7 @@
 | regression-classification | S-114 | Classify every grade regression JUSTIFIED/UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so it cannot be silently lost (RPR-A-01) |
 | workflow-harden | S-115 | GitHub Actions CI forensic audit and hardening — trigger/permission/secret/cache correctness plus CI-weight reduction across `.github/workflows/**` |
 | package-publish-watch | S-118 | Multi-registry (pypi/nuget/npm/go_modules/cargo) publish detection with 2-consecutive-check debounce + operator-confirmed content healing via package_install_migrator.py; Maven's own sibling is S-110/publish_watcher.py (Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-09) |
+| media-optimize | S-119 | Rename static/media/{family}/{platform} product images to a fixed convention (icon.png/banner.png) and losslessly compress them under 1MB via oxipng, with per-file pixel-identity verification |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

@@ -90,6 +90,13 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     # prefix was never added, so every run required a fresh override token including
     # the one that wrote the precedent file this convention is based on.
     ".supervisor/state/",
+    # Product image assets (icons, banner/social-preview PNGs), written by the
+    # S-119 media-optimize skill. Added 2026-08-06: static/ was previously
+    # entirely absent from this allowlist, so every write here — including the
+    # skill's own normal runs — required a fresh override token. Scoped to
+    # static/media/ only, not all of static/ (translations, theme assets, etc.
+    # under static/ have no governed writer and should stay default-deny).
+    "static/media/",
 )
 
 FORBIDDEN_PREFIXES: tuple[str, ...] = (
