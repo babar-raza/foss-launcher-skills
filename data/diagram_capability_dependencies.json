@@ -131,5 +131,82 @@
     "pipeline_edges": [["C5", "C1b"], ["C5", "C3b"]],
     "evidence": "ShapeCollection::add_picture_frame(ShapeType, x, y, w, h, PPImage&) (include/.../shape_collection.h:130) takes PPImage& by non-optional reference; add_picture_frame_impl (shape_collection.cpp:1091) immediately calls image.part_name(). PictureFillFormat::picture().set_image(&img) has the same pattern. Grepped every reference to images_ (ImageCollection's backing vector) across src/ -- the ONLY writer is ImageCollection::add_image() itself (image_collection.cpp:35); presentation.cpp never populates it when a file is opened (unlike shapes_, which load_shapes() does populate from a real Input .pptx). Confirmed by 100% of real test call sites (images_test.cpp, image_test.cpp, picture_utilities_test.cpp, fill_format_test.cpp, i_picture_fill_format_test.cpp) always calling add_image() first. C1 ('Slide, shape, and table creation') and C3 ('Fill, line, and visual effects') both had their picture-handling sub-feature split out (Rule 1c) into new nodes C1b/C3b, each wired from C5; C1/C3's other real, independent entry points (AutoShape/Table/Connector; solid/gradient/pattern fill/line/effects) keep their direct PRODUCT edges unchanged.",
     "verified_at": "2026-08-06"
+  },
+  {
+    "family": "slides",
+    "platform": "net",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. Confirmed the OPPOSITE architecture from slides/cpp: ImageCollection.InitInternal (ImageCollection.cs:19-40) actively scans the OPC package for existing ppt/media/* parts and materializes real PPImage objects on load, invoked lazily from Presentation.Images against the already-opened _opcPackage. Both picture-consuming entry points (ShapeCollection.AddPictureFrame, Picture.Image setter via PictureFillFormat) take IPPImage, which per the discriminating test is native, serialized Input-format data here (embedded image bytes inside an opened .pptx), not a derived artifact only AddImage can produce. All 7 capabilities pass 1a. Two orthogonal implementation quirks noted (RelsManager fabricating relationship targets; ImagesInternal ordering) -- neither creates a differential capability dependency, out of scope.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "words",
+    "platform": "net",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 6 capabilities (Document creation/editing, Text/styles/tables/lists/sections, Tracked-changes engine, Field evaluation engine, Document protection+signature verification, DOCX/Markdown/plain-text conversion) verified via real C# source. No separate Images capability node exists (InsertImage/InsertChart are API surface under other nodes, not their own node), so the slides/cpp-style defect pattern doesn't apply. Field engine's internal list-label sync is self-triggered inside UpdateFields, not a separate capability the caller must run first. Mail merge/LINQ Reporting/document comparison explicitly excluded from this edition.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "words",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. Single shared Light Document Model (LDM) populated entirely at Document() construction, including ShapeNode.image_data for embedded images (docx_reader/shapes.py:117-121, doc_reader/doc_file_reader.py:337-342) -- confirmed images are extracted as native Input data during the single read step, not by a separate explicitly-invoked capability (rules out the slides/cpp-style defect specifically). All 4 capabilities (multi-format reading+DOCX round-trip, Markdown export, PDF export, plain-text extraction) are independent writers/readers over the same LDM with zero sibling-to-sibling data flow.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "font",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities verified via real Python source. Key finding: SmartInstancer (variable-font instancing) is a lazily-built property of the loaded TtfFont object itself (ttf/font.py:571), populated at load time before any capability runs -- so C6 (QA/compat/delta) and C7 (animation), both of which read font.smart_instancer, satisfy the shared-substrate clause rather than requiring C5's own call to have executed first. Grepped every public method for parameters typed as another capability's output class -- all cross-capability-shaped hits were same-capability recombination methods, none crossed a real capability boundary as a required input.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "html",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities verified via real Python source. The one genuinely ambiguous candidate, C7 (JS execution)'s JSContext(document: Document) constructor, resolved via multiple doctests demonstrating it works against a freshly-constructed, empty Document() -- the dependency is on the shared substrate class, not on any sibling capability's actual output having executed (rules out a defect analogous to page/python's RenderDocument case, since Document here is genuinely the shared hub every capability accepts, confirmed independently constructible).",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "note",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 6 capabilities (MS-ONE/OneStore parsing, DOM traversal, text/hyperlink extraction, image/attachment extraction, table/tag/list inspection, PDF export) verified via real Python source. write_pdf() (saving/pdf_writer.py:1743-1829) -- the capability most likely to hide a cross-capability dependency, since PDF export is the classic place a renderer might reuse a sibling's derived output -- independently walks the same Document/Page tree itself rather than consuming C3/C4/C5's output objects, confirmed by reading the function body directly.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "page",
+    "platform": "python",
+    "pipeline_edges": [["C3", "C4"]],
+    "evidence": "PdfWriter.write(document: RenderDocument), RasterRenderer.render(document: RenderDocument, ...), and RenderModelRasterWriter.write(document: RenderDocument, ...) (pdf/writer.py:180, image/raster_renderer.py:106, image/raster_writer.py:22) all strictly require a RenderDocument argument -- confirmed by grep that neither pdf/writer.py nor image/raster_writer.py has any alternate entry point accepting raw PS/EPS/XPS Input bytes directly. RenderDocument exists in no declared Input format; the only real producer is RenderModelBuilder.document() (common/render_model.py:407-412), C3's defining method. C4 ('PDF and raster writing') rewired from PRODUCT---C4 to C3---C4 -- confirmed C4 has no alternate independent entry point, so this is a full replacement, not an additive/split fix. Corroborated by the README's own 'Build a PDF directly from the render model' example demonstrating the C3-to-C4 chain working end-to-end with no PS/XPS input at all.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "3d",
+    "platform": "java",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 6 capabilities (scene-graph construction, primitive geometry, materials, NURBS curves/vector math, STL export/import) verified via real Java source. Node.setMaterial(Material) confirmed to require nothing beyond the material class itself -- materials never require a Mesh created by a different capability, confirmed directly against MaterialTests.java which never touches Node/Mesh. Each primitive's toMesh() (Box/Cylinder/Dish) allocates its own internal Mesh rather than consuming one from Scene-graph construction.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "3d",
+    "platform": "net",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 5 capabilities verified via real C# source. Materials attach only to Node (Node.cs:19,148,153,229-235), never to Mesh/Entity directly (confirmed by grep showing zero Material references in Mesh.cs/Entity.cs) -- so 'assigning a material to a mesh' is actually 'assigning a material to a Node', the same shared substrate every sibling uses. TransformBuilder produces a Matrix4 assigned to node.Transform.TransformMatrix, using the Transform every Node already has by default (Node.cs:39-40) -- not a sibling's derived output.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "3d",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities verified via real Python source. Node.material setter (Node.py:78-82) traced line-by-line and confirmed entirely independent of Node.entity/mesh state -- a material can legally be assigned to a node with no entity at all. No render capability exists in this diagram (Scene.render() raises NotImplementedError, already disclosed and out of scope), so the export-requires-materials/cameras/lights pattern this defect class targets doesn't apply here.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "3d",
+    "platform": "typescript",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 6 capabilities verified via real TypeScript source. Node.material setter (Node.ts:84-89) is a plain array push with no entity/mesh check. Every exporter checked (GltfExporter, ColladaExporter, and by extension StlExporter/ObjExporter/ThreeMfExporter/FbxExporter) treats materials as optional serialized data with empty-collection branches (no throws) and does its own internal geometry prep (triangulation) rather than requiring the caller to have exercised another capability first -- GltfExporter/StlExporter confirmed to do their own inline polygon fan-triangulation, so export doesn't secretly require the mesh-triangulation capability either.",
+    "verified_at": "2026-08-06"
   }
 ]
