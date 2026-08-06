@@ -1,0 +1,30 @@
+[
+  {
+    "family": "barcode",
+    "platform": "python",
+    "archetype": "generative",
+    "evidence": "Scope and limitations: 'does not read or decode existing barcode images for any symbology'.",
+    "decided_at": "2026-08-06"
+  },
+  {
+    "family": "tex",
+    "platform": "python",
+    "archetype": "compile",
+    "evidence": "Inputs are caller-authored TeX/LaTeX source, not a pre-existing binary format.",
+    "decided_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "cpp",
+    "archetype": "hybrid",
+    "evidence": "Dedicated 'Document creation from scratch' Capability backed by TextBuilder/Table/Graph/WatermarkArtifact/AcroForm construction APIs.",
+    "decided_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "go",
+    "archetype": "hybrid",
+    "evidence": "Dedicated 'Content authoring' Capability backed by Document.NewFlow's chainable authoring API.",
+    "decided_at": "2026-08-06"
+  }
+]
