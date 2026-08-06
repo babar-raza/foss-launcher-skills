@@ -19,5 +19,61 @@
     "pipeline_edges": [["C3", "C6a"]],
     "evidence": "MapiMessage.to_email_message() (msg/mapi_message.py:908) is an instance method requiring an already-built MapiMessage from C3. MapiMessage.from_email_message() (msg/mapi_message.py:619) is a classmethod taking the raw EmailMessage Input directly, and MapiMessage.save() (msg/mapi_message.py:902) confirms its returned MapiMessage can be saved to a real .msg file -- C6 ('MSG and EmailMessage conversion') split into C6a (to_email_message, dependent on C3, feeds O5) and C6b (from_email_message, independent, direct PRODUCT edge, feeds O2) per Rule 1c.",
     "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "cpp",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. Workbook/WorksheetCollection/Cells/Cell/Style/PageSetup/DefinedNameCollection (include/aspose/cells_foss/*.h) are all public, independently-callable entry points hanging off the same already-open Workbook object graph. Cell::GetStyle()/SetStyle() (Cell.cpp:233-245) auto-create a blank style record if none exists -- no dependency on C2's cell-value output. Worksheet::GetPageSetup() and Workbook::GetDefinedNames() likewise need only the shared substrate. Genuine flat star, Rule 1a throughout.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "cpp",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN (independently re-derived, not re-confirmed from an earlier spot-check). Text::TextAbsorber, image devices (ImageDevice::GetBitmap), Document creation from scratch (Document(), TextBuilder/Table/Graph/WatermarkArtifact/Annotations/Forms/OutlineCollection), Encryption/signing (Document::Encrypt, PdfFileSignature::Sign), and all 5 Facades (PdfConverter/PdfExtractor/PdfFileSecurity/PdfFileSignature/PdfBookmarkEditor, include/aspose/pdf/facades/*.hpp) each bind independently to a bare Document& (Input or from-scratch) with no read of another capability's output object. A staged-vs-eager Document::Save() write nuance was investigated (document.cpp:1560-1725) and confirmed NOT a capability-dependency defect -- it's a general library characteristic, not a specific-capability prerequisite.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "slides",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN (independently re-derived). All 6 capabilities (Slide/shape creation, Text formatting, Charts, Animations/transitions, Themes/fills/effects, Tables/notes/comments) bind to Shape/Slide/ShapeCollection objects that are either freshly created (same substrate as C1) or native OOXML constructs already present in any real Input .pptx (p:sp, chart parts, p:timing) -- unlike tex/python's C1-to-C3 dependency, where the prerequisite (typeset boxes) exists in no declared Input format, PPTX-as-container makes shapes/charts/animations 'already there' the moment a file is opened. Sequence.add_effect(shape,...) (animation/Sequence.py:509) was specifically stress-tested and resolves to shared substrate, not a Rule 1b dependency on C1.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "java",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 8 capabilities (Document generation, Text extraction, Image extraction/rasterization, AcroForm/XFA, Annotations/bookmarks/outlines, Digital signatures/encryption, Facades/PdfFileEditor, PDF/A validation) verified against real method signatures in src/main/java/org/aspose/pdf/. Facades uniformly expose bindPdf(String)/bindPdf(InputStream)/bindPdf(Document) -- independently constructible from raw Input, the Document overload is a convenience not a requirement. PdfFileSignature.sign(int,...) (facades/PdfFileSignature.java:497) specifically checked and confirmed to self-create its signature field rather than depending on C4's AcroForm work.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "slides",
+    "platform": "java",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities (Slide/shape/table creation, Text frames, Fill/line/effect/3D formatting, Comments/notes, Connectors/document properties, Round-trip fidelity, Images) verified via IShape/IThreeDFormat/IConnector/IAutoShape/ICommentCollection/INotesSlideManager/IImageCollection real signatures. IThreeDFormat (bevel/camera/light-rig/material) specifically stress-tested per the special-focus request -- reached purely via shape.getThreeDFormat(), no dependency on shape-creation as a distinct capability output. IShapeCollection.addPictureFrame's nullable image parameter (ShapeCollection.java:539-617) considered and rejected as a defect -- image is optional, and real Input .pptx files already contain embedded images independent of any addImage action.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "email",
+    "platform": "cpp",
+    "pipeline_edges": [["C3", "C4a"]],
+    "evidence": "mapi_message::save_to_eml() (src/msg/mapi_message.cpp:852-877) is a const instance method serializing whatever *this already contains -- confirmed by every real call site (examples/create_msg_and_eml.cpp:84, tests/test_msg.cpp:30-84) that the object always comes from C3 (create()/from_file()/from_stream()). mapi_message::load_from_eml() (mapi_message.hpp:34-35) is a static factory taking raw .eml Input directly, zero dependency. C4 ('EML load/save bridge') split into C4a (save_to_eml, dependent on C3, feeds O3) and C4b (load_from_eml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real C++ source, not assumed from the sibling.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "email",
+    "platform": "net",
+    "pipeline_edges": [["C3", "C4a"]],
+    "evidence": "MapiMessage.SaveToEml() (src/Aspose.Email.Foss/Msg/MapiMessage.Codec.cs:432-449) calls EmlMessageMapper.ToMimeMessage(this), reading Subject/SenderEmailAddress/Recipients/Attachments/HtmlBody off an already-built MapiMessage from C3; confirmed by test usage (tests/.../MapiMessageEmlTests.cs:96-110). MapiMessage.LoadFromEml() (MapiMessage.Codec.cs:249-268) is static, takes raw EML Input directly via EmlMessageMapper.ToMapiMessage, zero dependency. C4 ('EML <-> MSG bridging') split into C4a (SaveToEml, dependent on C3, feeds O3) and C4b (LoadFromEml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real .NET source.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "go",
+    "pipeline_edges": [["C2", "C3b"]],
+    "evidence": "(*Document).ApplyRedactions() (redact_apply.go:45) scans page.Annotations() for *RedactAnnotation instances and is a documented no-op when none exist (redact_apply.go:78-80). The only public way to create one is NewRedactAnnotation(page, rect) (annotation_redact.go:20) followed by page.Annotations().Add(ra) (annotation.go) -- the same public entry point used for every other annotation type, which Key Capabilities' own bullet groups under C2's 'Add and manage annotations... redactions...'. This is a genuine Rule 1b dependency: ApplyRedactions requires a specific artifact only C2's own Add() produces. C3 ('Security: encrypt, sign, redact') split -- redact moved to new node C3b ('Redaction: mark and apply'), wired C2---C3b; C3 keeps its direct PRODUCT edge for encrypt/sign (both independently 1a-clean, confirmed against SetEncryption/Sign signatures).",
+    "verified_at": "2026-08-06"
   }
 ]
