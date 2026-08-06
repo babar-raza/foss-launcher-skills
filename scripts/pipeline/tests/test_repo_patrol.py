@@ -601,6 +601,136 @@ class TestScanExitCodes:
 
 
 # ---------------------------------------------------------------------------
+# Discovery health gate (MT021 TC-MT021-01/03)
+# ---------------------------------------------------------------------------
+
+def _report(status=None, ok=25, req=25, failures=None, include_health=True):
+    r = {
+        "generated_at": "2026-08-05T12:00:00+00:00",
+        "orgs_scanned": [f"org{i}" for i in range(req)],
+        "total_repos": 33,
+        "new_candidates": [], "status_changes": [], "unclassifiable": [],
+        "summary": {"new_candidates": 0},
+    }
+    if include_health:
+        r["scan_health"] = {"status": status, "orgs_ok": ok, "orgs_requested": req,
+                            "auth_mode": "GH_TOKEN", "failures": failures or []}
+    return r
+
+
+class TestGateDecisionLogic:
+    """evaluate_gate is a pure function -- decision logic tested without I/O."""
+
+    def test_ok_allows_triage(self):
+        v = repo_patrol.evaluate_gate(_report("ok"))
+        assert v["exit_code"] == 0 and v["verdict"] == "ok" and v["triage_allowed"] is True
+
+    def test_degraded_allows_triage_but_demands_a_stamp(self):
+        v = repo_patrol.evaluate_gate(
+            _report("degraded", ok=24, req=25,
+                    failures=[{"org": "aspose-zip-foss", "status": "not_found"}]))
+        assert v["exit_code"] == 1
+        assert v["triage_allowed"] is True
+        assert "aspose-zip-foss" in v["provenance_stamp"]
+        assert "24/25" in v["provenance_stamp"]
+        # The reason must forbid the specific wrong conclusion, not just say "incomplete".
+        assert "nothing new" in v["reason"]
+
+    def test_failed_blocks_triage(self):
+        v = repo_patrol.evaluate_gate(_report("failed", ok=0, req=25))
+        assert v["exit_code"] == 2 and v["triage_allowed"] is False
+
+    def test_absent_scan_health_is_unknown_and_blocked(self):
+        """REGRESSION GATE (MT021): a pre-ST-058 report must never read as healthy.
+
+        This is the negative control. Such a report has total_repos > 0 and an empty
+        candidate list -- exactly the shape of a healthy scan -- but a partial scan of
+        that era looks identical, so nothing in the document can prove health.
+        """
+        v = repo_patrol.evaluate_gate(_report(include_health=False))
+        assert v["exit_code"] == 2
+        assert v["status"] == "unknown"
+        assert v["triage_allowed"] is False
+
+    def test_missing_report_is_blocked(self):
+        v = repo_patrol.evaluate_gate(None)
+        assert v["exit_code"] == 2 and v["status"] == "missing"
+        assert v["triage_allowed"] is False
+
+    def test_unrecognised_status_fails_closed(self):
+        """An unknown future status must block, not fall through to allowed."""
+        v = repo_patrol.evaluate_gate(_report("weird-new-status"))
+        assert v["exit_code"] == 2 and v["triage_allowed"] is False
+
+    def test_scan_health_wrong_type_is_blocked(self):
+        r = _report("ok"); r["scan_health"] = "ok"          # string, not dict
+        assert repo_patrol.evaluate_gate(r)["exit_code"] == 2
+
+    def test_no_input_shape_allows_triage_of_an_untrustworthy_report(self):
+        """Acceptance criterion, asserted exhaustively over every shape we model."""
+        untrustworthy = [
+            _report("failed"), _report("weird"), _report(include_health=False), None,
+        ]
+        for r in untrustworthy:
+            assert repo_patrol.evaluate_gate(r)["triage_allowed"] is False
+
+
+class TestGateCommand:
+    def _write(self, tmp_path, report):
+        d = tmp_path / "reports" / "discovery"; d.mkdir(parents=True, exist_ok=True)
+        (d / "patrol_report.json").write_text(json.dumps(report), encoding="utf-8")
+        return d
+
+    def test_exit_codes_end_to_end(self, tmp_path):
+        d = self._write(tmp_path, _report("ok"))
+        assert repo_patrol.cmd_gate() == 0
+        (d / "patrol_report.json").write_text(json.dumps(_report("degraded", ok=1, req=2)), encoding="utf-8")
+        assert repo_patrol.cmd_gate() == 1
+        (d / "patrol_report.json").write_text(json.dumps(_report("failed", ok=0)), encoding="utf-8")
+        assert repo_patrol.cmd_gate() == 2
+
+    def test_missing_report_exits_2(self, tmp_path):
+        assert repo_patrol.cmd_gate() == 2
+
+    def test_writes_verdict_artifact(self, tmp_path):
+        self._write(tmp_path, _report("degraded", ok=1, req=2,
+                                      failures=[{"org": "bad", "status": "network_error"}]))
+        repo_patrol.cmd_gate()
+        vf = tmp_path / "reports" / "discovery" / "discovery_verdict.yaml"
+        assert vf.is_file()
+        import yaml
+        v = yaml.safe_load(vf.read_text(encoding="utf-8"))["discovery_verdict"]
+        assert v["verdict"] == "degraded" and v["exit_code"] == 1
+        assert v["failures"][0]["org"] == "bad"
+
+    def test_gate_never_mutates_the_input_report(self, tmp_path):
+        d = self._write(tmp_path, _report("degraded", ok=1, req=2))
+        before = (d / "patrol_report.json").read_bytes()
+        repo_patrol.cmd_gate()
+        assert (d / "patrol_report.json").read_bytes() == before
+
+    def test_gate_is_idempotent(self, tmp_path):
+        self._write(tmp_path, _report("ok"))
+        vf = tmp_path / "reports" / "discovery" / "discovery_verdict.yaml"
+        assert repo_patrol.cmd_gate() == 0
+        import yaml
+        a = yaml.safe_load(vf.read_text(encoding="utf-8"))["discovery_verdict"]
+        assert repo_patrol.cmd_gate() == 0
+        b = yaml.safe_load(vf.read_text(encoding="utf-8"))["discovery_verdict"]
+        a.pop("verdict_at"); b.pop("verdict_at")
+        assert a == b
+
+    def test_json_mode(self, tmp_path, capsys):
+        self._write(tmp_path, _report("ok"))
+        repo_patrol.cmd_gate(as_json=True)
+        assert json.loads(capsys.readouterr().out)["verdict"] == "ok"
+
+    def test_cli_routes_gate_subcommand(self, tmp_path):
+        self._write(tmp_path, _report("failed", ok=0))
+        assert repo_patrol.main(["gate"]) == 2
+
+
+# ---------------------------------------------------------------------------
 # CLI parse
 # ---------------------------------------------------------------------------
 

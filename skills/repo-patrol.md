@@ -88,9 +88,21 @@ reports as if complete until the follow-up audit caught it (MT020-L2-01).
 
 | Consumer | Reads | Must honour |
 |----------|-------|-------------|
-| S-95 `/discovery-triage` | `new_candidates`, `status_changes`, `unclassifiable` | `scan_health.status` gate (its Step 0) — hard stop on `failed`, annotate on `degraded` |
-| S-77 `/session-start` discovery advisory | `generated_at`, `scan_health.status` | health-first, never `Discovery: clear` on degraded/failed/unknown |
+| S-95 `/discovery-triage` | `new_candidates`, `status_changes`, `unclassifiable` | **must run `repo_patrol.py gate`** (its Step 0) — exit 2 hard-stops, exit 1 requires the provenance stamp on every row |
+| S-77 `/session-start` discovery advisory | gate exit code, `generated_at` | health-first; never `Discovery: clear` on a non-zero gate exit; never let the gate fail the session |
 | `repo_patrol.py report` (`cmd_report`) | whole report | renders the DEGRADED/FAILED banner + `Scan Failures` table |
+| `repo_patrol.py gate` (`evaluate_gate`) | `scan_health` | the enforcement point — absent `scan_health` is **unknown → blocked**, never healthy |
+
+## The gate
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+  scripts/pipeline/commands/diagnostics/repo_patrol.py gate [--json]
+```
+
+Exit **0** ok / **1** degraded / **2** blocked. Writes `reports/discovery/discovery_verdict.yaml`.
+Deterministic, read-only, idempotent — no network, no LLM. It exists because the same rules
+shipped first as a prose table in S-95 and were still bypassable (MT020-L2-01 → MT021).
 
 ## Notes
 

@@ -5,9 +5,8 @@ purpose: Read patrol and sweep reports; create backlog items for all findings. M
 preconditions:
   - reports/discovery/patrol_report.json exists (from S-93) OR
   - reports/discovery/sweep_report.json exists (from S-94)
-  - the patrol report's scan_health.status is "ok" (or "degraded" with the
-    incompleteness carried onto every row created) — see Step 0. A "failed"
-    report is never triaged.
+  - `repo_patrol.py gate` exits 0 or 1 (exit 1 = degraded, requires the provenance
+    stamp on every row created). Exit 2 blocks triage entirely — see Step 0.
 postcondition: backlog/inbox.md updated with new items for each finding
 idempotent: no (creates backlog items; check for duplicates before re-running)
 verified: '2026-08-05'
@@ -39,21 +38,33 @@ sweep-only, or both reports present.
 
 ## Steps
 
-### Step 0 (MANDATORY): check scan health before reading any findings
+### Step 0 (MANDATORY GATE): run the discovery health gate
 
 A patrol report can be produced by a scan that never reached some or all GitHub orgs.
 An empty `new_candidates` list from such a scan means **"we did not look"**, not
 **"there is nothing new"**. Triaging it creates a backlog set that silently understates
 reality — the exact failure ST-058 was filed for.
 
-Read `scan_health` from `reports/discovery/patrol_report.json`:
+**This is a real gate, not a judgement call. Run it and obey the exit code:**
 
-| `scan_health.status` | Action |
-|----------------------|--------|
-| `ok` | Proceed normally. Findings are complete. |
-| `degraded` | Proceed, but **every** backlog row created from this report must state that the scan was degraded and name the unreachable orgs from `scan_health.failures[]`. Do **not** record "no new products found" as a conclusion. Recommend a re-run once the cause is cleared. |
-| `failed` | **HARD STOP.** Do not create any backlog rows from this report. Report the failure and the remedy from `scan_health.failures[].detail` (commonly a rejected credential — use a classic PAT in `GH_TOKEN`). Re-run `/repo-patrol` first. |
-| *absent* | The report predates ST-058. Treat health as **unknown**: do not conclude absence of findings; recommend a fresh `/repo-patrol` before triaging. |
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+  scripts/pipeline/commands/diagnostics/repo_patrol.py gate
+```
+
+| Exit | Verdict | Action |
+|------|---------|--------|
+| **0** | `ok` | Proceed normally. Findings are complete. |
+| **1** | `degraded` | Proceed, but **every** backlog row created from this report MUST carry the provenance stamp the gate prints, e.g. `discovery_health: degraded (24/25 orgs, missed: aspose-zip-foss)`. Do **not** record "no new products found" as a conclusion. Recommend a re-run once the cause is cleared. |
+| **2** | `blocked` | **HARD STOP.** Create no backlog rows from this report. Covers `failed`, an unrecognised status, a missing report, and a report with no `scan_health` block (predates ST-058 → health **unknown**, never assume healthy). Report the remedy from the gate's `reason` (commonly a rejected credential — use a classic PAT in `GH_TOKEN`) and re-run `/repo-patrol`. |
+
+The full verdict, including `failures[]` and the exact `provenance_stamp` string, is
+written to `reports/discovery/discovery_verdict.yaml`. Use `--json` for machine-readable
+output.
+
+Do not substitute your own reading of `scan_health` for this command: the gate exists
+because the prose version of this table shipped first and was still bypassable
+(MT020-L2-01 → MT021).
 
 `sweep_report.json` has no `scan_health` block; its `fetch_failures[]` is the
 equivalent signal and is already surfaced in Step 5.

@@ -1450,7 +1450,7 @@ scripts:
     requires_test: true
     deprecated_since: null
     change_impact: null
-    notes: "S-93/S-94: repo discovery scan, change sweep, combined reporting; subcommands: scan, sweep, report"
+    notes: "S-93/S-94: repo discovery scan, change sweep, combined reporting, discovery health gate; subcommands: scan, sweep, report, gate (MT021: gate is the deterministic exit-0/1/2 precondition for S-95 triage)"
 
   - path: scripts/pipeline/lib/path_utils.py
     kind: library

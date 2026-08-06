@@ -4,11 +4,14 @@ Subcommands:
     scan   Scan GitHub orgs, diff against registry, score confidence for new repos.
     sweep  Batch SHA comparison across all active launched products.
     report Generate a combined human-readable markdown report from latest scan+sweep.
+    gate   Deterministic health gate over the latest patrol report; the required
+           precondition for S-95 /discovery-triage (exit 0 ok / 1 degraded / 2 blocked).
 
 Usage:
     python scripts/pipeline/commands/diagnostics/repo_patrol.py scan  [--apply] [--inactive-days N] [--force] [--orgs ORG,...]
     python scripts/pipeline/commands/diagnostics/repo_patrol.py sweep
     python scripts/pipeline/commands/diagnostics/repo_patrol.py report
+    python scripts/pipeline/commands/diagnostics/repo_patrol.py gate [--json]
 
 Default behaviour:
     scan:   dry-run — produces patrol_report.json only; --apply also writes to products.json.
@@ -31,6 +34,7 @@ Output:
     reports/discovery/patrol_report.json
     reports/discovery/sweep_report.json
     reports/discovery/combined_report.md
+    reports/discovery/discovery_verdict.yaml   (gate)
     reports/discovery/history/YYYY-MM-DD-patrol.json
     reports/discovery/history/YYYY-MM-DD-sweep.json
 """
@@ -177,6 +181,133 @@ def _read_report(filename: str) -> dict | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return None
+
+
+# ---------------------------------------------------------------------------
+# Gate subcommand (MT021 TC-MT021-01) — deterministic discovery health gate
+# ---------------------------------------------------------------------------
+# Why this exists: ST-058 gave the PRODUCER a real failure contract (scan_health +
+# exit codes + fail-closed writes), all enforced in code. The most consequential
+# CONSUMER -- S-95 /discovery-triage, which turns the report into backlog items --
+# was left enforcing that contract by reading a prose table in its skill doc. An
+# agent that skips or misreads that table triages a degraded (incomplete) scan as
+# complete, which is the same silent under-reporting ST-058 exists to eliminate,
+# one layer downstream. This turns the consumer side into a real exit code too.
+#
+# Design mirrors S-112 triage-verdict-gate (skills/triage-verdict-gate.md):
+# fully deterministic, no LLM, no network, read-only over a persisted artifact,
+# idempotent, and it emits a verdict file alongside its exit code.
+#
+# It lives as a subcommand on this already-registered entrypoint rather than a new
+# lib/ module because PIPELINE.md sets the extraction threshold at 3+ consumers and
+# this has 2 (S-95, session-start); a new file would also trigger the New File
+# Protocol. Tradeoff accepted knowingly: the producer hosts its own gate. It is
+# mitigated because the gate reads only the persisted report (never in-memory scan
+# state) and its behaviour is pinned by tests, including a negative control.
+
+_GATE_OK = 0
+_GATE_DEGRADED = 1
+_GATE_BLOCKED = 2
+
+
+def evaluate_gate(report: "dict | None") -> dict:
+    """Return a verdict dict for *report* without touching the filesystem.
+
+    Pure function so the decision logic is testable without I/O mocking.
+
+    Absent ``scan_health`` is treated as UNKNOWN -> blocked, never as healthy: a
+    report predating ST-058 cannot express whether its scan reached every org, and
+    a partial scan of that era also has total_repos > 0, so nothing in the document
+    can be used to infer health.
+    """
+    now = datetime.now(tz=timezone.utc).isoformat()
+
+    if report is None:
+        return {
+            "verdict": "blocked", "exit_code": _GATE_BLOCKED, "status": "missing",
+            "reason": "patrol_report.json is missing or unreadable — run /repo-patrol first.",
+            "triage_allowed": False, "orgs_ok": 0, "orgs_requested": 0,
+            "auth_mode": None, "failures": [], "report_generated_at": None,
+            "verdict_at": now,
+        }
+
+    health = report.get("scan_health")
+    if not isinstance(health, dict):
+        return {
+            "verdict": "blocked", "exit_code": _GATE_BLOCKED, "status": "unknown",
+            "reason": ("report has no scan_health block (predates ST-058); its health is "
+                       "UNKNOWN and it must not be triaged as complete — re-run /repo-patrol."),
+            "triage_allowed": False, "orgs_ok": 0,
+            "orgs_requested": len(report.get("orgs_scanned", [])),
+            "auth_mode": None, "failures": [],
+            "report_generated_at": report.get("generated_at"), "verdict_at": now,
+        }
+
+    status = health.get("status")
+    failures = health.get("failures", []) or []
+    common = {
+        "status": status,
+        "orgs_ok": health.get("orgs_ok", 0),
+        "orgs_requested": health.get("orgs_requested", 0),
+        "auth_mode": health.get("auth_mode"),
+        "failures": failures,
+        "report_generated_at": report.get("generated_at"),
+        "verdict_at": now,
+    }
+
+    if status == "ok":
+        return {**common, "verdict": "ok", "exit_code": _GATE_OK,
+                "reason": "every org was reached; findings are complete.",
+                "triage_allowed": True}
+
+    if status == "degraded":
+        missed = ", ".join(f.get("org", "?") for f in failures) or "unknown"
+        return {**common, "verdict": "degraded", "exit_code": _GATE_DEGRADED,
+                "reason": (f"{common['orgs_ok']}/{common['orgs_requested']} orgs reached; "
+                           f"unreachable: {missed}. Findings are INCOMPLETE — every backlog "
+                           f"row derived from this report must carry the degraded stamp, and "
+                           f"absence of candidates must not be recorded as 'nothing new'."),
+                "triage_allowed": True,
+                "provenance_stamp": (f"discovery_health: degraded "
+                                     f"({common['orgs_ok']}/{common['orgs_requested']} orgs, "
+                                     f"missed: {missed})")}
+
+    # status == "failed", or any unrecognised value -> fail closed.
+    return {**common, "verdict": "blocked", "exit_code": _GATE_BLOCKED,
+            "reason": (f"scan_health.status={status!r}; no usable discovery data. "
+                       f"Do not create backlog rows from this report — fix the cause and "
+                       f"re-run /repo-patrol."),
+            "triage_allowed": False}
+
+
+def cmd_gate(*, as_json: bool = False) -> int:
+    """Deterministic gate over the latest patrol report. Returns the exit code.
+
+    0 = ok (triage freely) | 1 = degraded (triage WITH provenance) | 2 = blocked.
+    """
+    verdict = evaluate_gate(_read_report("patrol_report.json"))
+
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    out = REPORTS_DIR / "discovery_verdict.yaml"
+    try:
+        import yaml  # type: ignore[import]
+        out.write_text(yaml.safe_dump({"discovery_verdict": verdict}, sort_keys=False,
+                                      allow_unicode=True), encoding="utf-8")
+    except ImportError:  # pragma: no cover - yaml ships with the pipeline venv
+        out.write_text(json.dumps({"discovery_verdict": verdict}, indent=2) + "\n",
+                       encoding="utf-8")
+
+    if as_json:
+        print(json.dumps(verdict, indent=2, ensure_ascii=False))
+    else:
+        label = {0: "OK", 1: "DEGRADED", 2: "BLOCKED"}[verdict["exit_code"]]
+        print(f"DISCOVERY GATE: {label} — {verdict['reason']}", file=sys.stderr)
+        if verdict.get("provenance_stamp"):
+            print(f"  stamp every derived row with: {verdict['provenance_stamp']}",
+                  file=sys.stderr)
+        print(f"  verdict written to {out.relative_to(REPO_ROOT)}", file=sys.stderr)
+
+    return verdict["exit_code"]
 
 
 # ---------------------------------------------------------------------------
@@ -898,6 +1029,13 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("report", help="Generate combined markdown report")
 
+    p_gate = sub.add_parser(
+        "gate",
+        help="Deterministic health gate over the latest patrol report "
+             "(exit 0 ok / 1 degraded / 2 blocked). Required before S-95 triage.")
+    p_gate.add_argument("--json", action="store_true", dest="as_json",
+                        help="Emit the verdict as JSON on stdout")
+
     args = parser.parse_args(argv)
 
     if args.command == "scan":
@@ -932,6 +1070,8 @@ def main(argv: list[str] | None = None) -> int:
         cmd_sweep()
     elif args.command == "report":
         cmd_report()
+    elif args.command == "gate":
+        return cmd_gate(as_json=args.as_json)
 
     return _EXIT_OK
 
