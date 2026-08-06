@@ -280,22 +280,51 @@ def evaluate_gate(report: "dict | None") -> dict:
             "triage_allowed": False}
 
 
-def cmd_gate(*, as_json: bool = False) -> int:
-    """Deterministic gate over the latest patrol report. Returns the exit code.
+def _read_report_path(path: "Path") -> "dict | None":
+    """Read an arbitrary report file, returning None when absent or unparseable."""
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def cmd_gate(*, as_json: bool = False, report_path: "str | Path | None" = None) -> int:
+    """Deterministic gate over a patrol report. Returns the exit code.
 
     0 = ok (triage freely) | 1 = degraded (triage WITH provenance) | 2 = blocked.
-    """
-    verdict = evaluate_gate(_read_report("patrol_report.json"))
 
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    out = REPORTS_DIR / "discovery_verdict.yaml"
-    try:
-        import yaml  # type: ignore[import]
-        out.write_text(yaml.safe_dump({"discovery_verdict": verdict}, sort_keys=False,
-                                      allow_unicode=True), encoding="utf-8")
-    except ImportError:  # pragma: no cover - yaml ships with the pipeline venv
-        out.write_text(json.dumps({"discovery_verdict": verdict}, indent=2) + "\n",
-                       encoding="utf-8")
+    *report_path* evaluates an arbitrary report instead of the current one. This is
+    what makes the "no archived report can be read as verified healthy" guarantee
+    checkable rather than assumed (TC-MT021-08): every `history/` archive predating
+    ST-058 lacks `scan_health` and must therefore gate as unknown -> blocked. The
+    archives are gitignored local artifacts, so stamping them would only bind this
+    one clone; enforcing it in the gate binds every clone.
+    """
+    if report_path is not None:
+        source = Path(report_path)
+        verdict = evaluate_gate(_read_report_path(source))
+    else:
+        source = REPORTS_DIR / "patrol_report.json"
+        verdict = evaluate_gate(_read_report("patrol_report.json"))
+    verdict["report_path"] = str(source)
+
+    # Only the operative report produces the canonical verdict artifact. Inspecting an
+    # archive with --report must NOT clobber the live verdict: that would let a
+    # read-only inspection silently overwrite the state S-95 and session-start consume
+    # -- the same class of quiet state corruption this whole mission exists to remove.
+    out = None
+    if report_path is None:
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        out = REPORTS_DIR / "discovery_verdict.yaml"
+        try:
+            import yaml  # type: ignore[import]
+            out.write_text(yaml.safe_dump({"discovery_verdict": verdict}, sort_keys=False,
+                                          allow_unicode=True), encoding="utf-8")
+        except ImportError:  # pragma: no cover - yaml ships with the pipeline venv
+            out.write_text(json.dumps({"discovery_verdict": verdict}, indent=2) + "\n",
+                           encoding="utf-8")
 
     if as_json:
         print(json.dumps(verdict, indent=2, ensure_ascii=False))
@@ -305,7 +334,11 @@ def cmd_gate(*, as_json: bool = False) -> int:
         if verdict.get("provenance_stamp"):
             print(f"  stamp every derived row with: {verdict['provenance_stamp']}",
                   file=sys.stderr)
-        print(f"  verdict written to {out.relative_to(REPO_ROOT)}", file=sys.stderr)
+        if out is not None:
+            print(f"  verdict written to {out.relative_to(REPO_ROOT)}", file=sys.stderr)
+        else:
+            print(f"  inspection of {source.name} — live verdict left untouched",
+                  file=sys.stderr)
 
     return verdict["exit_code"]
 
@@ -1035,6 +1068,9 @@ def main(argv: list[str] | None = None) -> int:
              "(exit 0 ok / 1 degraded / 2 blocked). Required before S-95 triage.")
     p_gate.add_argument("--json", action="store_true", dest="as_json",
                         help="Emit the verdict as JSON on stdout")
+    p_gate.add_argument("--report", dest="report_path", default=None,
+                        help="Evaluate an arbitrary report file (e.g. a history/ archive) "
+                             "instead of the current patrol_report.json")
 
     args = parser.parse_args(argv)
 
@@ -1071,7 +1107,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "report":
         cmd_report()
     elif args.command == "gate":
-        return cmd_gate(as_json=args.as_json)
+        return cmd_gate(as_json=args.as_json, report_path=args.report_path)
 
     return _EXIT_OK
 

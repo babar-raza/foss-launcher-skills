@@ -730,6 +730,51 @@ class TestGateCommand:
         assert repo_patrol.main(["gate"]) == 2
 
 
+class TestGateArbitraryReport:
+    """--report evaluates any file (TC-MT021-08), without disturbing live state."""
+
+    def _archive(self, tmp_path, name, report):
+        h = tmp_path / "reports" / "discovery" / "history"; h.mkdir(parents=True, exist_ok=True)
+        p = h / name; p.write_text(json.dumps(report), encoding="utf-8")
+        return p
+
+    def test_pre_st058_archive_is_blocked(self, tmp_path):
+        """The real-world case: an archive with no scan_health must never read healthy."""
+        p = self._archive(tmp_path, "2026-05-15-patrol.json", _report(include_health=False))
+        assert repo_patrol.cmd_gate(report_path=p) == 2
+
+    def test_healthy_archive_passes(self, tmp_path):
+        p = self._archive(tmp_path, "2026-08-05-patrol.json", _report("ok"))
+        assert repo_patrol.cmd_gate(report_path=p) == 0
+
+    def test_nonexistent_path_is_blocked(self, tmp_path):
+        assert repo_patrol.cmd_gate(report_path=tmp_path / "nope.json") == 2
+
+    def test_unparseable_report_is_blocked(self, tmp_path):
+        p = tmp_path / "broken.json"; p.write_text("{not json", encoding="utf-8")
+        assert repo_patrol.cmd_gate(report_path=p) == 2
+
+    def test_inspection_does_not_clobber_the_live_verdict(self, tmp_path):
+        """REGRESSION GATE: a read-only inspection must not overwrite operative state.
+
+        The live verdict is what S-95 and session-start consume; letting an archive
+        inspection silently replace it would reintroduce exactly the quiet state
+        corruption this mission removed.
+        """
+        d = tmp_path / "reports" / "discovery"; d.mkdir(parents=True, exist_ok=True)
+        (d / "patrol_report.json").write_text(json.dumps(_report("ok")), encoding="utf-8")
+        assert repo_patrol.cmd_gate() == 0                      # writes the live verdict
+        live = (d / "discovery_verdict.yaml").read_bytes()
+
+        arch = self._archive(tmp_path, "old.json", _report(include_health=False))
+        assert repo_patrol.cmd_gate(report_path=arch) == 2      # inspection only
+        assert (d / "discovery_verdict.yaml").read_bytes() == live
+
+    def test_cli_accepts_report_flag(self, tmp_path):
+        p = self._archive(tmp_path, "a.json", _report("degraded", ok=1, req=2))
+        assert repo_patrol.main(["gate", "--report", str(p)]) == 1
+
+
 # ---------------------------------------------------------------------------
 # CLI parse
 # ---------------------------------------------------------------------------
