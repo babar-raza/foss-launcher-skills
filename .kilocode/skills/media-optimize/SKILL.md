@@ -7,7 +7,7 @@ description: >
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# S-119: Media Optimize — Rename and Compress Product Image Assets
+# S-119: Media Optimize — Ensure Every Icon/Banner Slot Has Both WebP and PNG
 
 **Arguments**: $ARGUMENTS
 Expected format:
@@ -18,46 +18,57 @@ Expected format:
 ## Purpose
 
 Product icons and banner (social-preview) images dropped under
-`static/media/{family}/{platform}/*.png` arrive with arbitrary filenames and
-are frequently over GitHub's 1MB upload limit. This skill renames each file to
-a fixed convention and compresses it under 1MB with WebP — verified per file
-via a mandatory visual review, not assumed.
+`static/media/{family}/{platform}/` need to satisfy two constraints at once:
+stay under GitHub's 1MB per-file guidance, and render reliably everywhere they
+might be consumed. Neither WebP nor PNG alone is the complete answer — this
+skill produces **both** `{name}.webp` and `{name}.png` for every slot, each
+independently under 1MB, and lets a downstream consumer choose (e.g. a future
+`<picture>` element with a WebP `<source>` and a PNG `<img>` fallback).
 
-**Naming convention** (directory already encodes family/platform, so filenames
-don't repeat it). WebP is the only target format (operator decision,
-2026-08-06 — see rationale below):
-- Family-level icon (no platform subfolder): `static/media/{family}/icon.webp`
-- Platform icon (square: 1024×1024 or 1254×1254): `static/media/{family}/{platform}/icon.webp`
-- Platform banner (landscape ~2:1: 1774×887): `static/media/{family}/{platform}/banner.webp`
+**Why both, not one** (researched, not assumed — 2026-08-06): git and GitHub
+have no image-format restriction of their own (GitHub's own UI added native
+WebP rendering in August 2025), so that is not the constraint. The real one is
+Open Graph (`og:image`) crawler compatibility for social-preview banners —
+by 2026 most major platforms support WebP, but every source surveyed
+describes it the same way: *"safe as a primary, risky as the only format."*
+PNG remains the safe universal fallback. Rather than betting the whole asset
+on either format, this skill produces both.
+
+**Naming convention** (directory already encodes family/platform, so
+filenames don't repeat it). Every slot has up to two canonical files:
+- Family-level icon (no platform subfolder): `static/media/{family}/icon.png` + `icon.webp`
+- Platform icon (square: 1024×1024 or 1254×1254): `static/media/{family}/{platform}/icon.png` + `icon.webp`
+- Platform banner (landscape ~2:1: 1774×887): `static/media/{family}/{platform}/banner.png` + `banner.webp`
 
 Classification is by pixel dimensions, not filename — square = icon, ~2:1
-landscape = banner. This has been confirmed reliable across every file in the
-tree (only two square sizes and one wide size occur, with zero overlap).
+landscape = banner.
 
-**Why WebP, not PNG** (calibrated empirically, not assumed): lossless PNG
-recompression (`oxipng -o max --strip safe`, plus a Zopfli second pass) was
-tried first. It only saved 9–13% on these AI-generated, detail-rich images —
-nowhere near enough from ~1.3–1.7MB originals to reach 1MB — and Zopfli added
-just 0–0.7% more for 60–140 seconds per file. WebP (Pillow's bundled libwebp
-1.6.0, which matches the current upstream `webmproject/libwebp` release
-exactly — not a stale wrapper, chosen the same way `oxipng` was, by comparing
-GitHub star count and maintenance activity) reliably lands both calibration
-samples at 150–230KB, ~80% under budget. Given that headroom and that PNG
-essentially never wins on this content, WebP is the only path — no lossless
-PNG attempt is made at all.
+## The two techniques (each independently validated against the real corpus, 2026-08-06)
 
-**Alpha transparency is preserved.** Verified by round-tripping a real icon
-through Pillow's WebP encoder: `has_transparency_data=True`, alpha extrema
-and a fully-transparent corner pixel matched exactly before/after. No special
-flag is needed — Pillow's default WebP save already keeps the alpha channel
-for RGBA input.
+- **Missing `.webp`**: quality ladder `95 → 90 → 85 → 80`, method 6. Size is
+  the sole automated acceptance criterion — PSNR/SSIM are computed and
+  reported for context only. They were tried as a gate and abandoned: two
+  independently confirmed visually-perfect results measured 21.6dB/0.948 and
+  14.8dB/0.770, too wide and unpredictable a range on this sharp-edged,
+  mostly-flat-color content to serve as a rejection threshold.
+- **Missing `.png`**: lossless attempt first (rarely fits this content, costs
+  little to try), then **palette-quantization** — `256 → 192 → 128 → 96 → 64`
+  colors, Floyd–Steinberg dithered, alpha quantized and reattached separately
+  from RGB so transparency stays exact — then `oxipng -o max --strip safe`
+  polish. **A literal "decode WebP, re-encode PNG" round trip was tested
+  against all 72 real files and rejected**: it left 2 files over 1MB and
+  several within 1–6% of the cap, because re-encoding truecolor PNG doesn't
+  change PNG's color *mode* — the file still balloons 2.5–4x larger than the
+  WebP regardless of the source path. Palette quantization is PNG's own
+  mechanism for this problem (color type 3), not a round trip through an
+  unrelated codec, and fit all 72 real files with 42–96% headroom.
 
 ## Pre-conditions
 
-1. `static/media/` exists and contains at least one `.png`/`.webp` file in
-   scope
-2. `.venv` is present (`scripts/pipeline/commands/ops/optimize_media_assets.py`
-   requires Pillow)
+1. `static/media/` exists and contains at least one image file in scope
+2. `.venv` is present with Pillow installed
+3. `oxipng` is on PATH, or the script can reach GitHub to download the
+   official release binary into its local cache (`cache/oxipng/`)
 
 ## Steps
 
@@ -66,63 +77,55 @@ for RGBA input.
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-119 --scope "*"
 > ```
 
-1. **Dry-run first** — always review the classification and rename/compress
-   plan before touching any file:
+1. **Dry-run first**:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py [family] [platform] --dry-run
    ```
-   This prints, per file: current path, classified shape (icon/banner), target
-   `.webp` path, current size, and whether that target already exists (in
-   which case this source is redundant — reported `PENDING_REVIEW`, see Hard
-   Constraints — rather than reprocessed).
+   For each classified file, reports: current path, which sibling(s) are
+   missing, and target path(s). A file already named `icon.png`/`icon.webp`/
+   `banner.png`/`banner.webp` (a canonical artifact — true for all 72 files as
+   of 2026-08-06) is treated as a keeper: only its missing sibling is planned,
+   never its own replacement. A raw/temp-named upload plans both targets.
 
-2. **Review the plan** with the operator. Confirm:
-   - No unexpected classification (a file that isn't cleanly square or ~2:1
-     landscape is reported as `UNCLASSIFIED` and skipped, never guessed)
-   - No `PENDING_REVIEW` file is silently ignored
+2. **Review the plan**: confirm no unexpected `UNCLASSIFIED` (dimensions
+   matching neither shape — never guessed) and no `PENDING_REVIEW` silently
+   ignored (a target already exists for a slot a *different* file also maps
+   to — see Hard Constraints).
 
 3. **Apply**:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py [family] [platform] --apply
    ```
-   For each in-scope file: re-encode the original as WebP at quality 95
-   (method 6), stepping down through 90/85/80 only as needed, never lower.
-   **Size is the only automated acceptance criterion.** PSNR/SSIM are
-   computed and reported alongside the result for context, but do not gate
-   acceptance (see Hard Constraints for why). The first quality level that
-   fits under budget is staged as `icon.webp`/`banner.webp` **without
-   deleting the original**. Status `NEEDS_VISUAL_REVIEW`. If no quality
-   level in the ladder fits budget: leave the original untouched, status
-   `STILL_OVER_BUDGET`.
+   For each source: if it's already a canonical artifact, only the missing
+   sibling is generated from its decoded pixels — **the canonical source
+   itself is never modified or deleted.** If it's a raw upload, both
+   `icon.png`/`banner.png` and `icon.webp`/`banner.webp` are generated from
+   it; the raw source is left in place pending review, not deleted
+   automatically.
 
-4. **Verify — visual review is the only real gate.** An automated PSNR/SSIM
-   floor was tried and abandoned: it was found, empirically and **twice**,
-   to swing across too wide and unpredictable a range on this sharp-edged,
-   mostly-flat-color content to serve as a rejection threshold — two
-   independently confirmed visually-perfect results measured 21.6dB/0.948
-   and 14.8dB/0.770. A floor set to pass the first would have rejected the
-   second, and vice versa; there is no safe numeric cutoff for this content
-   type. Render the before/after pair for every `NEEDS_VISUAL_REVIEW` file
-   and look at them side by side before accepting. Only after this passes,
-   run:
+4. **Verify — visual review is the only real gate, for either format.**
+   PSNR/SSIM are reported per generated file for context but do not decide
+   acceptance (see the evidence above). Render every `NEEDS_VISUAL_REVIEW`
+   (and `TRANSPARENCY_EXTRACTED_NEEDS_REVIEW` — see Hard Constraints) file's
+   before/after pair and look at them side by side. For a canonical source,
+   "before" is the untouched sibling that already exists; for a raw upload,
+   "before" is the raw source itself. Only after this passes, run:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed <reported source path> [<path> ...]
    ```
-   which deletes the original now that its WebP replacement is confirmed. Do
-   not run `--confirm-reviewed` on a file you have not actually looked at.
+   For a canonical source this only marks the sibling accepted (nothing to
+   delete — the source was never going anywhere). For a raw upload, this
+   deletes the raw source now that both derivatives are confirmed. Do not run
+   `--confirm-reviewed` on a file you have not actually looked at.
 
-5. **Report** any file the script lists as `STILL_OVER_BUDGET` (over 1MB
-   after the full quality ladder) or `PENDING_REVIEW` (a target already
-   exists for this slot — normally this source's own not-yet-confirmed
-   prior output; run `--confirm-reviewed` on it once reviewed, same as any
-   other `NEEDS_VISUAL_REVIEW` file, or investigate manually if it looks
-   like a genuine unexpected duplicate) to the operator. Do not push WebP
-   quality below 80 or resize to resolve `STILL_OVER_BUDGET` without an
+5. **Report** any `STILL_OVER_BUDGET` (over 1MB after the full ladder for
+   that format) or `PENDING_REVIEW` (target collision) to the operator. Do
+   not push WebP quality below 80, PNG colors below 64, or resize, without an
    explicit operator decision.
 
-6. **Commit** via `/commit` (S-76). No override token is needed for the
-   `static/media/` changes themselves — `path_guard.py`'s `ALLOWED_PREFIXES`
-   permanently allows this path (added alongside this skill's own creation).
+6. **Commit** via `/commit` (S-76). No override token is needed for
+   `static/media/` — `path_guard.py`'s `ALLOWED_PREFIXES` permanently allows
+   this path.
 
 > **Skill context close** — run after the last step:
 > ```bash
@@ -131,55 +134,66 @@ for RGBA input.
 
 ## Hard Constraints
 
-- **WebP quality floor is 80, never lower, and never automatic-only.** Step
-  down the ladder `95 → 90 → 85 → 80` only as needed. If quality 80 still
-  doesn't fit budget, stop and report `STILL_OVER_BUDGET` — do not go lower,
-  do not resize, do not switch to another lossy format, without a fresh
+- **A canonical artifact (`icon.png`/`icon.webp`/`banner.png`/`banner.webp`)
+  is never modified or deleted**, regardless of what else runs against its
+  slot. Only its missing sibling is generated.
+- **WebP quality floor is 80; PNG color floor is 64 colors — never lower,
+  never automatic-only.** Step down each ladder only as needed. If the floor
+  still doesn't fit budget for a format, report `STILL_OVER_BUDGET` for that
+  format and stop — no resizing, no format substitution, without a fresh
   operator decision.
-- **A WebP result is never self-certified — no numeric metric decides this.**
-  PSNR/SSIM are reported for context but never gate acceptance: they were
-  tried as a floor and abandoned after two independently confirmed
-  visually-perfect results measured 21.6dB/0.948 and 14.8dB/0.770 — a range
-  wide enough that no single cutoff could pass both without also passing
-  much worse cases, or reject one without also rejecting the other. Every
-  `NEEDS_VISUAL_REVIEW` file requires an actual visual comparison before
-  `--confirm-reviewed` deletes the original.
-- **Never silently overwrite** an existing `icon.webp`/`banner.webp` when a
-  *different* source file also maps to that slot. Report it as
-  `PENDING_REVIEW` and leave both files untouched — WebP output is never
-  pixel-identical to its own lossy source, so pixel comparison can't
-  distinguish "this is that source's own prior output" from "a genuinely
-  different duplicate wants this slot"; both get the same safe non-action.
-- **Never invent a missing icon or banner.** If a platform only has one of the
-  two, convert what exists; do not synthesize or duplicate the other.
-- **Resolution (pixel dimensions) must stay identical.** Pixel *values*
-  change by design — WebP here is lossy — but dimensions never do; the
-  visual-review step is what stands in for "no perceptible loss," not a
-  pixel-exact check.
+- **Neither format's result is ever self-certified.** The automated
+  PSNR/SSIM computation exists only for context — it has been shown to read
+  as "mediocre" on results that are visually perfect, in both directions.
+  Every `NEEDS_VISUAL_REVIEW` file requires an actual visual comparison
+  before `--confirm-reviewed`.
+- **Target collisions are never guessed through.** If a slot's target already
+  exists and the current source is a *different* file than whatever produced
+  it, report `PENDING_REVIEW` and touch neither file — a lossy format can
+  never be pixel-identical to its own source by construction, so pixel
+  comparison cannot distinguish "this is that source's own prior output" from
+  "a genuinely different file wants this slot."
+- **Never invent a missing icon or banner.** If a platform only has one
+  shape's source, generate that shape's two artifacts; do not synthesize the
+  other shape.
+- **Transparency extraction (for a future non-alpha source, e.g. a JPG) is a
+  heuristic, not a solved problem.** Only attempted when a border-strip
+  sample is uniform and close to pure black or pure white; otherwise convert
+  straight to an opaque artifact and flag for manual review rather than
+  guessing. Results get the distinct `TRANSPARENCY_EXTRACTED_NEEDS_REVIEW`
+  status for extra scrutiny during visual review.
+- **Resolution (pixel dimensions) never changes** in either format. Pixel
+  *values* change by design for the lossy paths — the visual-review step is
+  what stands in for "no perceptible loss," not a pixel-exact check (which
+  does still apply to the lossless PNG path when it succeeds).
 
 ## Post-conditions
 
-- Every file processed in scope is `< 1,048,576` bytes
-- Filenames match the convention (`icon.webp` / `banner.webp` per directory)
-- Every `NEEDS_VISUAL_REVIEW` file has either been confirmed via
-  `--confirm-reviewed` (original deleted) or is still explicitly pending
-  review (original still present) — never silently left ambiguous
-- `git status` shows changes only under `static/media/` for this run
-- Any file that couldn't be brought under budget is reported, not silently
-  left in a half-renamed state
+- Every generated file is `< 1,048,576` bytes
+- Every slot with a source has both `icon.png`+`icon.webp` or
+  `banner.png`+`banner.webp` — never just one, once processing completes
+- Existing canonical files are untouched — verify via hash comparison, not
+  just "the file still exists"
+- Every `NEEDS_VISUAL_REVIEW`/`TRANSPARENCY_EXTRACTED_NEEDS_REVIEW` file has
+  either been confirmed (raw-upload source deleted, or canonical-source
+  sibling marked accepted) or is still explicitly pending — never silently
+  left ambiguous
+- `git status` shows changes only under `static/media/` for this run —
+  additions only when the source was already canonical (no deletions, no
+  renames)
 
 ## Error handling
 
-- Source file dimensions don't match either the square-icon or ~2:1-banner
-  shape: report as `UNCLASSIFIED`, skip it, continue with the rest of the
-  batch
-- A target already exists for this slot from a different source file: report
-  as `PENDING_REVIEW`, skip it, continue with the rest of the batch
-- File still `>= 1MB` after the full WebP quality ladder (95/90/85/80):
-  report as `STILL_OVER_BUDGET`, leave it under its original name/location,
-  continue with the rest of the batch
-- `--confirm-reviewed` called on a path with no corresponding `.webp` target:
-  report `NO_TARGET_FOUND`, do not delete anything
-- `--confirm-reviewed` called on a path whose WebP replacement was written
-  in place (same filename, just re-encoded — nothing separate to delete):
-  report `ALREADY_FINALIZED`, do not delete anything
+- Source dimensions match neither shape: `UNCLASSIFIED`, skip, continue
+- A different file already occupies a target this source also maps to:
+  `PENDING_REVIEW`, skip, continue
+- A format's full ladder still exceeds budget: `STILL_OVER_BUDGET` for that
+  format; if it's a raw upload and either format failed, the whole file is
+  `STILL_OVER_BUDGET` (both derivatives must succeed before review is
+  possible)
+- `--confirm-reviewed` on a canonical source: `ALREADY_FINALIZED`, nothing
+  deleted
+- `--confirm-reviewed` on a raw upload missing one or both targets:
+  `NO_TARGET_FOUND`, nothing deleted
+- `oxipng` unreachable (not on PATH and download fails): halt the whole run
+  with a clear error rather than silently skipping the lossless/polish steps

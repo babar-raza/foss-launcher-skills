@@ -811,7 +811,7 @@
     {
       "id": "S-119",
       "slug": "media-optimize",
-      "name": "Media Optimize — Rename and Compress Product Image Assets",
+      "name": "Media Optimize — Ensure Every Icon/Banner Slot Has Both WebP and PNG",
       "description": "Product icons and banner (social-preview) images dropped under",
       "internal": false,
       "canonical_path": "skills/media-optimize.md"
