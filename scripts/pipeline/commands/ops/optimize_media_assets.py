@@ -1,27 +1,41 @@
 """
 optimize_media_assets.py — S-119: Rename static/media product images to a
-fixed convention (icon.png / banner.png per family/platform directory) and
-losslessly compress them under a byte-size budget using the official oxipng
-CLI (downloaded on demand from its GitHub release if not already on PATH).
+fixed convention (icon/banner per family/platform directory) and compress
+them under a byte-size budget.
 
 Classification is by pixel dimensions only, never by filename:
-  - square 1024x1024 or 1254x1254  -> icon.png
-  - landscape 1774x887 (~2:1)      -> banner.png
+  - square 1024x1024 or 1254x1254  -> icon
+  - landscape 1774x887 (~2:1)      -> banner
 Anything else is reported UNCLASSIFIED and left untouched.
 
-Compression is two-pass, both genuinely lossless (oxipng re-optimizes DEFLATE
-encoding and filter selection only, never pixel data):
-  1. oxipng -o max --strip safe
-  2. oxipng -o max -z --strip safe   (Zopfli backend, only if still over budget)
+Compression tries lossless first, falls back to WebP only if needed. Both
+oxipng and Pillow's WebP encoder (linking libwebp 1.6.0, the current release
+of Google's reference codec) were chosen by comparing GitHub star count and
+maintenance activity against the alternatives -- see skills/media-optimize.md.
 
-Every write is verified pixel-identical to its source before the original is
-replaced. A file still over budget after both passes is reported
-STILL_OVER_BUDGET and left under its original name -- never silently
-compressed lossily.
+  1. oxipng -o max --strip safe (single pass; Zopfli was tried and dropped --
+     calibrated empirically at 0-0.7% additional savings for 60-140s/file on
+     this image set, not worth the cost). If this alone gets the file under
+     budget: keep it as PNG (icon.png/banner.png), pixel-identical to source,
+     verified automatically.
+  2. If still over budget: re-encode the ORIGINAL as WebP (quality=95,
+     method=6, stepping down through 90/85/80 only if needed; never below
+     80). This is genuinely lossy. A coarse automated PSNR/SSIM floor catches
+     gross encoder failures, but the real quality gate is a mandatory human/
+     agent visual review -- PSNR and even approximate SSIM were found to
+     correlate poorly with perceived quality on this sharp-edged graphic
+     content (a demonstrably fine result measured 21.6dB/0.948). The script
+     never self-certifies a lossy result: it stages the new icon.webp /
+     banner.webp file and reports NEEDS_VISUAL_REVIEW without deleting the
+     original. Run --confirm-reviewed on the reported source paths only
+     after visually confirming no perceptible difference.
+  3. If WebP at quality 80 still doesn't fit budget: STILL_OVER_BUDGET,
+     original left untouched.
 
 CLI:
     .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --dry-run
     .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf python --apply
+    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed PATH [PATH ...]
 """
 
 from pathlib import Path
@@ -36,12 +50,13 @@ if _LIB_DIR not in sys.path:
 
 import argparse
 import io
+import math
 import shutil
 import subprocess
 import urllib.request
 import zipfile
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -54,12 +69,16 @@ OXIPNG_RELEASE_URL = (
     f"v{OXIPNG_VERSION}/oxipng-{OXIPNG_VERSION}-x86_64-pc-windows-msvc.zip"
 )
 
+WEBP_QUALITY_LADDER = (95, 90, 85, 80)
+
 # ── Configurable defaults (testing seam — see AGENTS.md §16) ────────────────
 
 _cfg_media_root: str = "static/media"
 _cfg_oxipng_bin: str | None = None
 _cfg_cache_dir: str = "cache/oxipng"
 _cfg_max_bytes: int = 1_048_576
+_cfg_min_psnr: float = 18.0
+_cfg_min_ssim: float = 0.90
 
 
 def configure(
@@ -67,9 +86,12 @@ def configure(
     oxipng_bin: str | None = None,
     cache_dir: str | None = None,
     max_bytes: int | None = None,
+    min_psnr: float | None = None,
+    min_ssim: float | None = None,
 ) -> None:
     """Override module-level path/behavior constants for testing."""
     global _cfg_media_root, _cfg_oxipng_bin, _cfg_cache_dir, _cfg_max_bytes
+    global _cfg_min_psnr, _cfg_min_ssim
     if media_root is not None:
         _cfg_media_root = media_root
     if oxipng_bin is not None:
@@ -78,6 +100,10 @@ def configure(
         _cfg_cache_dir = cache_dir
     if max_bytes is not None:
         _cfg_max_bytes = max_bytes
+    if min_psnr is not None:
+        _cfg_min_psnr = min_psnr
+    if min_ssim is not None:
+        _cfg_min_ssim = min_ssim
 
 
 # ── Classification ───────────────────────────────────────────────────────────
@@ -91,11 +117,22 @@ def classify(width: int, height: int) -> str | None:
     return None
 
 
-def target_path(source: Path, shape: str) -> Path:
-    """Compute the destination path for a classified file: same directory,
-    generic name -- the directory already encodes family/platform."""
-    name = "icon.png" if shape == "icon" else "banner.png"
-    return source.parent / name
+def target_candidates(source: Path, shape: str) -> tuple[Path, Path]:
+    """Return (png_path, webp_path) -- the two possible destinations for this
+    slot. Same directory, generic name -- the directory already encodes
+    family/platform."""
+    base = "icon" if shape == "icon" else "banner"
+    return source.parent / f"{base}.png", source.parent / f"{base}.webp"
+
+
+def existing_target_conflict(source: Path, png_path: Path, webp_path: Path) -> Path | None:
+    """Return the conflicting path if either candidate target already exists
+    with different pixel content than source, else None."""
+    for candidate in (png_path, webp_path):
+        if candidate.exists() and candidate != source:
+            if not pixels_identical(source, candidate):
+                return candidate
+    return None
 
 
 # ── oxipng resolution ────────────────────────────────────────────────────────
@@ -125,11 +162,11 @@ def resolve_oxipng() -> str:
     return str(exe_path)
 
 
-def run_oxipng(oxipng_bin: str, path: Path, use_zopfli: bool) -> None:
-    cmd = [oxipng_bin, "-o", "max", "--strip", "safe"]
-    if use_zopfli:
-        cmd.append("-z")
-    cmd.append(str(path))
+def run_oxipng(oxipng_bin: str, path: Path) -> None:
+    """Single-pass max-effort lossless recompression + safe metadata strip.
+    Deliberately no Zopfli backend (-z) -- calibrated on this image set to
+    add 0-0.7% for 60-140s/file, not worth the cost (see skills/media-optimize.md)."""
+    cmd = [oxipng_bin, "-o", "max", "--strip", "safe", str(path)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(f"oxipng failed on {path}: {result.stderr}")
@@ -145,6 +182,49 @@ def pixels_identical(path_a: Path, path_b: Path) -> bool:
         return img_a.convert("RGBA").tobytes() == img_b.convert("RGBA").tobytes()
 
 
+def psnr(img_a: Image.Image, img_b: Image.Image) -> float:
+    """Peak signal-to-noise ratio in dB between two images (RGB comparison).
+
+    NOTE: found (empirically, see skills/media-optimize.md) to correlate
+    poorly with perceived quality on sharp-edged graphic-design content --
+    used only as a coarse floor to catch gross encoder failures, never as
+    the sole quality gate.
+    """
+    a = img_a.convert("RGB")
+    b = img_b.convert("RGB")
+    diff = ImageChops.difference(a, b)
+    hist = diff.histogram()
+    n = a.size[0] * a.size[1] * 3
+    sq_sum = 0
+    for ch in range(3):
+        for i, count in enumerate(hist[ch * 256:(ch + 1) * 256]):
+            sq_sum += (i * i) * count
+    mse = sq_sum / n
+    if mse == 0:
+        return float("inf")
+    return 10 * math.log10((255.0 ** 2) / mse)
+
+
+def global_ssim(img_a: Image.Image, img_b: Image.Image, resize_to: int = 256) -> float:
+    """Whole-image (non-windowed) SSIM approximation, Pillow-only (no numpy/
+    scikit-image dependency). Same correlation caveat as psnr() above."""
+    a = img_a.convert("L").resize((resize_to, resize_to))
+    b = img_b.convert("L").resize((resize_to, resize_to))
+    stat_a, stat_b = ImageStat.Stat(a), ImageStat.Stat(b)
+    mu_a, mu_b = stat_a.mean[0], stat_b.mean[0]
+    var_a, var_b = stat_a.var[0], stat_b.var[0]
+    data_a = list(a.getdata())
+    data_b = list(b.getdata())
+    n = len(data_a)
+    cov = sum((data_a[i] - mu_a) * (data_b[i] - mu_b) for i in range(n)) / n
+    c1, c2 = (0.01 * 255) ** 2, (0.03 * 255) ** 2
+    return ((2 * mu_a * mu_b + c1) * (2 * cov + c2)) / ((mu_a ** 2 + mu_b ** 2 + c1) * (var_a + var_b + c2))
+
+
+def meets_quality_floor(orig: Image.Image, candidate: Image.Image) -> bool:
+    return psnr(orig, candidate) >= _cfg_min_psnr and global_ssim(orig, candidate) >= _cfg_min_ssim
+
+
 # ── Discovery ────────────────────────────────────────────────────────────────
 
 def discover(media_root: Path, family: str | None, platform_name: str | None) -> list[Path]:
@@ -156,7 +236,7 @@ def discover(media_root: Path, family: str | None, platform_name: str | None) ->
         base = media_root
     if not base.exists():
         return []
-    return sorted(base.rglob("*.png"))
+    return sorted(p for p in base.rglob("*") if p.suffix.lower() in (".png", ".webp") and p.is_file())
 
 
 # ── Core processing ──────────────────────────────────────────────────────────
@@ -176,46 +256,97 @@ def process_file(source: Path, oxipng_bin: str, apply: bool) -> dict:
         record["status"] = "UNCLASSIFIED"
         return record
 
-    dest = target_path(source, shape)
-    record["target"] = str(dest)
-
-    if dest.exists() and dest != source and not pixels_identical(source, dest):
+    png_path, webp_path = target_candidates(source, shape)
+    conflict = existing_target_conflict(source, png_path, webp_path)
+    if conflict is not None:
         record["status"] = "BLOCKED"
+        record["target"] = str(conflict)
         return record
 
     if not apply:
         record["status"] = "PLANNED"
+        record["target"] = str(png_path)
         return record
 
-    tmp_path = dest.parent / f"__optimize_tmp__{dest.name}"
+    # --- Attempt 1: lossless PNG ---
+    tmp_png = png_path.parent / f"__optimize_tmp__{png_path.name}"
     try:
-        shutil.copy2(source, tmp_path)
-        run_oxipng(oxipng_bin, tmp_path, use_zopfli=False)
-        if not pixels_identical(source, tmp_path):
-            raise RuntimeError(f"oxipng pass 1 changed pixel data for {source}")
-        size_after = tmp_path.stat().st_size
+        shutil.copy2(source, tmp_png)
+        run_oxipng(oxipng_bin, tmp_png)
+        if not pixels_identical(source, tmp_png):
+            raise RuntimeError(f"oxipng changed pixel data for {source}")
+        size_after = tmp_png.stat().st_size
+        if size_after < _cfg_max_bytes:
+            shutil.move(str(tmp_png), str(png_path))
+            if webp_path.exists() and webp_path != source:
+                webp_path.unlink()
+            if source != png_path and source.exists():
+                source.unlink()
+            record.update(status="OK", method="lossless-png", target=str(png_path), size_after=size_after)
+            return record
+    finally:
+        if tmp_png.exists():
+            tmp_png.unlink()
 
-        if size_after >= _cfg_max_bytes:
-            run_oxipng(oxipng_bin, tmp_path, use_zopfli=True)
-            if not pixels_identical(source, tmp_path):
-                raise RuntimeError(f"oxipng pass 2 changed pixel data for {source}")
-            size_after = tmp_path.stat().st_size
-
-        if size_after >= _cfg_max_bytes:
-            record["status"] = "STILL_OVER_BUDGET"
-            record["size_after"] = size_after
+    # --- Attempt 2: WebP fallback (lossy; requires visual review before the
+    #     original is deleted -- see confirm_reviewed()) ---
+    with Image.open(source) as orig_img:
+        orig_img.load()
+        for quality in WEBP_QUALITY_LADDER:
+            tmp_webp = webp_path.parent / f"__optimize_tmp__{webp_path.name}"
+            try:
+                orig_img.save(tmp_webp, "WEBP", quality=quality, method=6)
+                size_after = tmp_webp.stat().st_size
+                if size_after >= _cfg_max_bytes:
+                    continue
+                with Image.open(tmp_webp) as candidate_img:
+                    p = psnr(orig_img, candidate_img)
+                    s = global_ssim(orig_img, candidate_img)
+                if p < _cfg_min_psnr or s < _cfg_min_ssim:
+                    continue
+                shutil.move(str(tmp_webp), str(webp_path))
+            finally:
+                if tmp_webp.exists():
+                    tmp_webp.unlink()
+            if png_path.exists() and png_path != source:
+                png_path.unlink()
+            record.update(
+                status="NEEDS_VISUAL_REVIEW",
+                method="webp",
+                quality=quality,
+                target=str(webp_path),
+                size_after=size_after,
+                psnr=round(p, 1),
+                ssim=round(s, 3),
+            )
             return record
 
-        shutil.move(str(tmp_path), str(dest))
-        if source != dest and source.exists():
-            source.unlink()
-    finally:
-        if tmp_path.exists():
-            tmp_path.unlink()
-
-    record["status"] = "OK"
-    record["size_after"] = size_after
+    record["status"] = "STILL_OVER_BUDGET"
     return record
+
+
+def confirm_reviewed(paths: list[str]) -> list[dict]:
+    """After a human/agent has visually compared a NEEDS_VISUAL_REVIEW file's
+    before/after pair and found no perceptible difference, delete the
+    original. Never called automatically by process_file()."""
+    results = []
+    for p in paths:
+        source = Path(p)
+        if not source.exists():
+            results.append({"source": p, "status": "ALREADY_GONE"})
+            continue
+        with Image.open(source) as img:
+            shape = classify(*img.size)
+        if shape is None:
+            results.append({"source": p, "status": "UNCLASSIFIED"})
+            continue
+        _, webp_path = target_candidates(source, shape)
+        if not webp_path.exists() or webp_path == source:
+            results.append({"source": p, "status": "NO_TARGET_FOUND"})
+            continue
+        source.unlink()
+        results.append({"source": p, "status": "DELETED", "target": str(webp_path)})
+    return results
 
 
 def run(family: str | None, platform_name: str | None, apply: bool) -> list[dict]:
@@ -224,7 +355,7 @@ def run(family: str | None, platform_name: str | None, apply: bool) -> list[dict
     oxipng_bin = resolve_oxipng() if apply else (_cfg_oxipng_bin or "oxipng")
     results = []
     for f in files:
-        if f.name in ("icon.png", "banner.png") and f.stat().st_size < _cfg_max_bytes:
+        if f.stem in ("icon", "banner") and f.suffix.lower() in (".png", ".webp") and f.stat().st_size < _cfg_max_bytes:
             results.append({"source": str(f), "status": "SKIP_ALREADY_DONE"})
             continue
         results.append(process_file(f, oxipng_bin, apply))
@@ -237,13 +368,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "optimize_media_assets — S-119: rename static/media product images "
-            "to a fixed convention and losslessly compress them under 1MB."
+            "to a fixed convention and compress them under 1MB."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --dry-run
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf python --apply
+  .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed static/media/pdf/icon-old.png
         """,
     )
     parser.add_argument("family", nargs="?", help="Product family (optional scope)")
@@ -251,7 +383,19 @@ Examples:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--dry-run", action="store_true", help="Print the plan; touch nothing")
     mode.add_argument("--apply", action="store_true", help="Perform the rename + compression")
+    mode.add_argument(
+        "--confirm-reviewed",
+        nargs="+",
+        metavar="PATH",
+        help="Delete original files after manual visual review of their WebP replacement",
+    )
     args = parser.parse_args()
+
+    if args.confirm_reviewed:
+        results = confirm_reviewed(args.confirm_reviewed)
+        for r in results:
+            print(f"  [{r['status']}] {r['source']}" + (f" -> {r['target']}" if "target" in r else ""))
+        return
 
     results = run(args.family, args.platform, apply=args.apply)
 
@@ -274,6 +418,8 @@ Examples:
             if "size_after" in r:
                 line += f" -> {r['size_after']} bytes"
             line += ")"
+        if "psnr" in r:
+            line += f"  [psnr={r['psnr']}dB ssim={r['ssim']} q={r['quality']}]"
         print(line)
 
     if any(r["status"] in ("STILL_OVER_BUDGET", "BLOCKED", "UNCLASSIFIED") for r in results):
