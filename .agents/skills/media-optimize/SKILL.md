@@ -72,13 +72,14 @@ for RGBA input.
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py [family] [platform] --dry-run
    ```
    This prints, per file: current path, classified shape (icon/banner), target
-   `.webp` path, current size, and whether that target already exists with
-   different content (which blocks that file — see Hard Constraints).
+   `.webp` path, current size, and whether that target already exists (in
+   which case this source is redundant — reported `PENDING_REVIEW`, see Hard
+   Constraints — rather than reprocessed).
 
 2. **Review the plan** with the operator. Confirm:
    - No unexpected classification (a file that isn't cleanly square or ~2:1
      landscape is reported as `UNCLASSIFIED` and skipped, never guessed)
-   - No blocked overwrite is silently ignored
+   - No `PENDING_REVIEW` file is silently ignored
 
 3. **Apply**:
    ```bash
@@ -107,9 +108,13 @@ for RGBA input.
    not run `--confirm-reviewed` on a file you have not actually looked at.
 
 5. **Report** any file the script lists as `STILL_OVER_BUDGET` (over 1MB
-   after the full quality ladder) or `BLOCKED` (target name collision with
-   differing content) to the operator. Do not push WebP quality below 80 or
-   resize to resolve these without an explicit operator decision.
+   after the full quality ladder) or `PENDING_REVIEW` (a target already
+   exists for this slot — normally this source's own not-yet-confirmed
+   prior output; run `--confirm-reviewed` on it once reviewed, same as any
+   other `NEEDS_VISUAL_REVIEW` file, or investigate manually if it looks
+   like a genuine unexpected duplicate) to the operator. Do not push WebP
+   quality below 80 or resize to resolve `STILL_OVER_BUDGET` without an
+   explicit operator decision.
 
 6. **Commit** via `/commit` (S-76). No override token is needed for the
    `static/media/` changes themselves — `path_guard.py`'s `ALLOWED_PREFIXES`
@@ -132,9 +137,12 @@ for RGBA input.
   approve quality — it has been shown to read as "mediocre" on a result that
   is visually perfect. Every `NEEDS_VISUAL_REVIEW` file requires an actual
   visual comparison before `--confirm-reviewed` deletes the original.
-- **Never silently overwrite** an existing `icon.webp`/`banner.webp` that has
-  different content than the file being converted into that slot. Report it
-  as `BLOCKED` and leave both files untouched.
+- **Never silently overwrite** an existing `icon.webp`/`banner.webp` when a
+  *different* source file also maps to that slot. Report it as
+  `PENDING_REVIEW` and leave both files untouched — WebP output is never
+  pixel-identical to its own lossy source, so pixel comparison can't
+  distinguish "this is that source's own prior output" from "a genuinely
+  different duplicate wants this slot"; both get the same safe non-action.
 - **Never invent a missing icon or banner.** If a platform only has one of the
   two, convert what exists; do not synthesize or duplicate the other.
 - **Resolution (pixel dimensions) must stay identical.** Pixel *values*
@@ -158,8 +166,8 @@ for RGBA input.
 - Source file dimensions don't match either the square-icon or ~2:1-banner
   shape: report as `UNCLASSIFIED`, skip it, continue with the rest of the
   batch
-- Target name collision with differing content: report as `BLOCKED`, skip it,
-  continue with the rest of the batch
+- A target already exists for this slot from a different source file: report
+  as `PENDING_REVIEW`, skip it, continue with the rest of the batch
 - File still `>= 1MB` after the full WebP quality ladder (95/90/85/80):
   report as `STILL_OVER_BUDGET`, leave it under its original name/location,
   continue with the rest of the batch

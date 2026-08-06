@@ -107,14 +107,6 @@ def target_path(source: Path, shape: str) -> Path:
 
 # ── Verification ─────────────────────────────────────────────────────────────
 
-def pixels_identical(path_a: Path, path_b: Path) -> bool:
-    """True iff both files decode to the exact same dimensions and pixel data."""
-    with Image.open(path_a) as img_a, Image.open(path_b) as img_b:
-        if img_a.size != img_b.size:
-            return False
-        return img_a.convert("RGBA").tobytes() == img_b.convert("RGBA").tobytes()
-
-
 def psnr(img_a: Image.Image, img_b: Image.Image) -> float:
     """Peak signal-to-noise ratio in dB between two images (RGB comparison).
 
@@ -190,8 +182,15 @@ def process_file(source: Path, apply: bool) -> dict:
         return record
 
     webp_path = target_path(source, shape)
-    if webp_path.exists() and webp_path != source and not pixels_identical(source, webp_path):
-        record["status"] = "BLOCKED"
+    if webp_path.exists() and webp_path != source:
+        # WebP is lossy, so a source can never be pixel-identical to its own
+        # already-converted target -- pixel comparison can't distinguish
+        # "this IS that source's prior output, just awaiting confirm_reviewed"
+        # from "a genuinely different file wants this slot". Either way the
+        # safe move is the same: don't touch either file, surface it for a
+        # human decision (confirm_reviewed for the expected case; manual
+        # investigation if this is a real, unexpected duplicate).
+        record["status"] = "PENDING_REVIEW"
         record["target"] = str(webp_path)
         return record
 
@@ -337,7 +336,7 @@ Examples:
             line += f"  [psnr={r['psnr']}dB ssim={r['ssim']} q={r['quality']}]"
         print(line)
 
-    if any(r["status"] in ("STILL_OVER_BUDGET", "BLOCKED", "UNCLASSIFIED") for r in results):
+    if any(r["status"] in ("STILL_OVER_BUDGET", "PENDING_REVIEW", "UNCLASSIFIED") for r in results):
         sys.exit(1)
 
 

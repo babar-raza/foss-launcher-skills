@@ -196,7 +196,13 @@ def test_skip_already_done_leaves_compliant_webp_untouched(tmp_path):
     assert source.exists()
 
 
-def test_overwrite_guard_blocks_differing_target(tmp_path):
+def test_pending_review_when_target_already_exists(tmp_path):
+    """A pre-existing target slot means this source is redundant -- either
+    it's this exact source's own not-yet-confirmed prior output (the normal
+    case), or a genuinely different duplicate. Either way: don't touch
+    anything, don't guess via pixel comparison (WebP is lossy, so a source
+    is never pixel-identical to its own converted output anyway), surface
+    it for a human decision."""
     media_root = tmp_path / "media"
     webp_dir = media_root / "email" / "python"
     webp_dir.mkdir(parents=True, exist_ok=True)
@@ -207,7 +213,7 @@ def test_overwrite_guard_blocks_differing_target(tmp_path):
     results = oma.run(family="email", platform_name="python", apply=True)
 
     stray_result = next(r for r in results if r["source"] == str(stray))
-    assert stray_result["status"] == "BLOCKED"
+    assert stray_result["status"] == "PENDING_REVIEW"
     assert stray.exists()  # neither file touched
 
 
