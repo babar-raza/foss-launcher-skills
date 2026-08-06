@@ -1,18 +1,35 @@
 """CONTRACT: deterministic checks for the /readme-refresh skill (plan:
 C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md).
 
-Currently implements: check_diagram_connectivity(), check_diagram_known_subgraph_ids(),
-check_diagram_matches_capability_dependencies(), check_diagram_suspicious_direct_product_edge(),
-check_diagram_capability_unreachable_from_product(), and check_only_mermaid_block_changed()
--- all "At a glance" Mermaid flowchart checks. Other checks (compute_link_caps,
-count_aspose_links, check_enterprise_edition_naming, check_required_sections,
-surgical_diff_check, check_license_link_target, check_process_narration_smells,
-check_no_undisclosed_blocking_commands, check_dropped_content,
-check_no_excluded_domain_links, check_named_member_accuracy,
-check_api_reference_intro_names_classes,
-check_diagram_no_mechanism_duplicate_output) are specified in the plan but
-not yet implemented; this module grows into the skill's full checks module
-as those land.
+Full checks module for the /readme-refresh skill (S-ID assigned at registration; see
+skills/readme-refresh.md), called from readme_refresh_run.py's ingest-candidate/recheck/push
+subcommands. Two tiers throughout, consistent across every function below:
+  - HARD GATE: a non-empty/True result blocks the state-machine transition. Used only where
+    the check is genuinely unambiguous (a link target either exists on disk or doesn't; a
+    command either matches upstream-issues.md's exact BLOCKING text or doesn't).
+  - HEURISTIC / TWO-TIER: a non-empty result is a prompt for the mandatory human/agent
+    judgment pass, never an automatic fail. Used wherever "is this actually a problem" is a
+    content-quality judgment call a script can't fully automate (tone, member-list accuracy,
+    diagram node duplication).
+
+Diagram checks (Mermaid "## At a glance" flowchart, all real, implemented, hard-gate or
+heuristic per function): check_diagram_connectivity() [hard gate], check_diagram_known_
+subgraph_ids() [heuristic], check_diagram_matches_capability_dependencies() [hard gate once a
+product has a data/diagram_capability_dependencies.json entry], check_diagram_suspicious_
+direct_product_edge() [heuristic], check_diagram_capability_unreachable_from_product()
+[heuristic], check_diagram_no_mechanism_duplicate_output() [heuristic], and check_only_
+mermaid_block_changed() [hard gate for mermaid-only refresh runs].
+
+Content checks (whole-README, all real, implemented): compute_link_caps(), count_aspose_
+links(), check_enterprise_edition_naming() [heuristic], check_required_sections() [hard gate],
+surgical_diff_check() [hard gate], check_license_link_target() [hard gate], check_process_
+narration_smells() [heuristic], check_no_undisclosed_blocking_commands() [hard gate],
+check_dropped_content() [hard gate at ingest-candidate -- a flagged item needs an explicit
+disposition in dropped_claims.json before the transition can pass], check_no_excluded_domain_
+links() [hard gate], check_named_member_accuracy() [heuristic -- see its own docstring for an
+honest statement of what this heuristic implementation can and cannot verify, versus the
+full per-language compiler-grade extraction the plan's Verification pass section describes],
+check_api_reference_intro_names_classes() [heuristic].
 
 check_diagram_matches_capability_dependencies (spec'd 2026-08-06, plan section
 "Capability-dependency edges") is a hard gate once a product has a recorded
@@ -151,6 +168,7 @@ import argparse
 import json
 import re
 import sys
+from pathlib import Path
 from dataclasses import dataclass, field
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
@@ -431,6 +449,447 @@ def check_only_mermaid_block_changed(old_markdown_text: str, new_markdown_text: 
     old_stripped = _MERMAID_BLOCK_FULL_RE.sub(_MERMAID_BLOCK_PLACEHOLDER, old_markdown_text, count=1)
     new_stripped = _MERMAID_BLOCK_FULL_RE.sub(_MERMAID_BLOCK_PLACEHOLDER, new_markdown_text, count=1)
     return old_stripped == new_stripped
+
+
+_MD_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
+# "Additional examples" deliberately excluded: the Template section makes it vacuously
+# optional ("If a product has no 'Additional examples' section at all (too few real snippets
+# to justify one), this requirement is vacuously satisfied") -- confirmed real, not
+# hypothetical: cells/cpp is the one product in the current 30-file portfolio with no such
+# section, and it is not a defect. "Enough real snippets to justify one" is a content-quality
+# judgment call this check cannot responsibly automate, so it stays outside the hard gate.
+_REQUIRED_SECTIONS = [
+    "At a glance",
+    "Key capabilities",
+    "Installation",
+    "Quick start",
+    "API reference",
+    "Documentation & resources",
+    "Scope and limitations",
+    "Development and testing",
+    "License",
+]
+_ASPOSE_LINK_HOST_RE = re.compile(r"https?://(?:[\w-]+\.)*aspose\.(?:org|com)\b")
+_ENTERPRISE_LINK_HOST_RE = re.compile(r"https?://(?:[\w-]+\.)*products\.aspose\.com\b")
+
+
+def compute_link_caps(readme_text: str) -> dict:
+    """Count markdown links by category for the link-density-ceiling rule (Template section,
+    "no repeated Enterprise mention... to respect the link-density ceiling").
+
+    Returns {"total_links", "aspose_org_links", "enterprise_edition_links",
+    "enterprise_edition_link_contexts"} -- the last is a list of ~60-char text snippets
+    surrounding each Enterprise link, so a caller can confirm every one is confined to the
+    Scope and limitations section without re-parsing the file.
+    """
+    links = _MD_LINK_RE.findall(readme_text)
+    total = len(links)
+    aspose_org = sum(1 for _, href in links if _ASPOSE_LINK_HOST_RE.search(href))
+    enterprise_contexts = []
+    for match in re.finditer(_MD_LINK_RE, readme_text):
+        href = match.group(2)
+        if _ENTERPRISE_LINK_HOST_RE.search(href):
+            start = max(0, match.start() - 30)
+            end = min(len(readme_text), match.end() + 30)
+            enterprise_contexts.append(readme_text[start:end].replace("\n", " "))
+    return {
+        "total_links": total,
+        "aspose_org_links": aspose_org,
+        "enterprise_edition_links": len(enterprise_contexts),
+        "enterprise_edition_link_contexts": enterprise_contexts,
+    }
+
+
+def count_aspose_links(readme_text: str) -> int:
+    """Count markdown links whose href targets an aspose.org or aspose.com subdomain."""
+    return sum(
+        1 for _, href in _MD_LINK_RE.findall(readme_text) if _ASPOSE_LINK_HOST_RE.search(href)
+    )
+
+
+def check_enterprise_edition_naming(readme_text: str) -> list[dict]:
+    """Flag any products.aspose.com link whose visible anchor text doesn't contain
+    "Enterprise Edition" -- the plan's own established naming convention (deliberately not
+    backlink_targets.py's "Enterprise Product"/"Enterprise Product Family" phrasing, which is
+    a different convention for a different consumer). Heuristic: a hit is a prompt for review,
+    since a handful of legitimate phrasings ("...for the Enterprise Edition of...") may still
+    satisfy intent without matching the literal substring check here.
+    """
+    findings = []
+    for match in _MD_LINK_RE.finditer(readme_text):
+        anchor_text, href = match.group(1), match.group(2)
+        if _ENTERPRISE_LINK_HOST_RE.search(href) and "Enterprise Edition" not in anchor_text:
+            findings.append({"anchor_text": anchor_text, "href": href})
+    return findings
+
+
+def check_required_sections(readme_text: str) -> list[str]:
+    """Return the list of required H2 section names missing from the README. Hard gate --
+    every product's candidate must carry the full Template section list, always."""
+    missing = []
+    for section in _REQUIRED_SECTIONS:
+        if not re.search(rf"^##\s+{re.escape(section)}\s*$", readme_text, re.MULTILINE):
+            missing.append(section)
+    return missing
+
+
+def surgical_diff_check(declared_file_set: list[str], changed_files: list[str]) -> list[str]:
+    """Return any path in changed_files not present in declared_file_set -- an undeclared
+    change. Hard gate at push time: the file set is fixed at plan time and shown during
+    review (Design section, "surgical_diff_check (declared file-set only...)"); anything
+    outside it must never silently ride along in the same push.
+    """
+    declared = set(declared_file_set)
+    return [path for path in changed_files if path not in declared]
+
+
+def check_license_link_target(readme_text: str, clone_cache_root: str) -> list[dict]:
+    """Verify the ## License section's link target (if any) exists on disk, case-sensitively,
+    under clone_cache_root. Hard gate -- catches both a fabricated path (words/python's real
+    License/license.txt vs the candidate's claimed License/license.txt casing/name mismatch)
+    and a missing-license-file case that should carry no link at all (3d/typescript).
+
+    Returns [] when the section either has no link (plain-text "MIT License", the correct
+    form when no license file exists) or the linked path resolves case-sensitively on disk.
+    Returns a one-item list with the bad target when the link is present but doesn't resolve.
+    """
+    license_match = re.search(r"^##\s+License\s*$(.*?)(?=^##\s|\Z)", readme_text, re.MULTILINE | re.DOTALL)
+    if not license_match:
+        return []
+    section_text = license_match.group(1)
+    link_match = _MD_LINK_RE.search(section_text)
+    if not link_match:
+        return []
+    target = link_match.group(2)
+    if target.startswith(("http://", "https://")):
+        return []
+    root = Path(clone_cache_root)
+    candidate = root / target
+    if candidate.is_file():
+        try:
+            real_name = next(p.name for p in candidate.parent.iterdir() if p.name == candidate.name)
+        except StopIteration:
+            real_name = None
+        if real_name != candidate.name:
+            return [{"target": target, "reason": "case mismatch on disk"}]
+        return []
+    return [{"target": target, "reason": "target does not exist under clone cache"}]
+
+
+_PROCESS_NARRATION_PATTERNS = [
+    r"\bat the time of writing\b",
+    r"\bas of this writing\b",
+    r"\bconsult the repository directly\b",
+    r"\bas declared in\b",
+    r"\bseems to\b",
+    r"\bpresumably\b",
+    r"\bpasses cleanly\b",
+    r"\bcurrently fails\b",
+    r"\bwas verified\b",
+    r"\bverified with\b",
+    r"\bverified against\b",
+    r"\bconfirmed against this checkout\b",
+    r"\bno match under\b",
+    r"\bfound directly in source\b",
+    r"\breproduced independently\b",
+    r"\bthis reproduces with\b",
+    r"\bfails identically\b",
+    r"\breproduced from its own\b",
+    r"\bthe upstream repository'?s own\b",
+    r"\bthe source repository\b",
+    r"\(per the\b",
+    r"\bwithout obscuring the primary\b",
+]
+_PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
+
+
+def check_process_narration_smells(readme_text: str) -> list[dict]:
+    """Flag sentences narrating the generation/verification *process* instead of stating a
+    product fact (Template section, "No process/investigation-log narration anywhere in the
+    README"). Heuristic, cheap regex tripwire feeding the mandatory tone-review judgment pass
+    during verify-examples -- a hit is a prompt to look, never an automatic fail (a plain
+    present-tense limitation sentence in Scope and limitations is fine; the smell is the
+    audit-trail *voice*, not the presence of a caveat).
+    """
+    findings = []
+    for match in _PROCESS_NARRATION_RE.finditer(readme_text):
+        start = max(0, match.start() - 40)
+        end = min(len(readme_text), match.end() + 40)
+        findings.append({"phrase": match.group(0), "context": readme_text[start:end].replace("\n", " ")})
+    return findings
+
+
+_FENCED_CODE_RE = re.compile(r"```(?:bash|sh|shell|powershell|cmd)?\n(.*?)```", re.DOTALL)
+_BLOCKING_ISSUE_RE = re.compile(
+    r"-\s+\*\*Severity\*\*:\s*BLOCKING.*?-\s+\*\*Evidence\*\*:\s*(.+?)\n",
+    re.DOTALL,
+)
+
+
+def check_no_undisclosed_blocking_commands(readme_text: str, upstream_issues_text: str) -> list[dict]:
+    """Cross-check every fenced install/build command in the README against upstream-issues.md's
+    BLOCKING-severity entries for that exact command. Hard gate -- the html/python and words/net
+    incidents (a documented BLOCKING command shipped as the standard Installation step, with no
+    warning) were a correctness/safety defect, not a style one, so this one blocks the
+    transition rather than just prompting review.
+    """
+    blocking_commands = []
+    for match in _BLOCKING_ISSUE_RE.finditer(upstream_issues_text):
+        evidence = match.group(1).strip().strip("`")
+        blocking_commands.append(evidence)
+    if not blocking_commands:
+        return []
+    findings = []
+    for code_match in _FENCED_CODE_RE.finditer(readme_text):
+        block = code_match.group(1)
+        for blocking_cmd in blocking_commands:
+            if blocking_cmd and blocking_cmd in block:
+                findings.append({"command": blocking_cmd, "block": block.strip()})
+    return findings
+
+
+_HEADING_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
+
+
+def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cache_root: str) -> dict:
+    """Diff the old (upstream) README against the new candidate for links and H2/H3 headings
+    present in the old file with no match anywhere in the new one. Hard gate at
+    ingest-candidate -- a flagged item needs an explicit disposition in dropped_claims.json
+    (carried forward / dropped with a verified reason) before the transition can pass, per
+    the "Never drop original-README content without a verified reason" rule.
+
+    Returns {"dropped_links": [...], "dropped_headings": [...]}. A link is "dropped" only if
+    its exact target string doesn't appear anywhere in new_readme_text (a real move to a
+    different section still counts as carried forward, correctly). clone_cache_root is
+    accepted for API-shape parity with check_license_link_target (a caller may wish to filter
+    out links to files that no longer exist upstream either) but this heuristic-diff pass does
+    not itself require it to detect a drop.
+    """
+    del clone_cache_root  # accepted for signature parity; presence-diffing needs only the two texts
+    old_links = {href for _, href in _MD_LINK_RE.findall(old_readme_text) if not href.startswith(("http://", "https://"))}
+    dropped_links = sorted(href for href in old_links if href not in new_readme_text)
+
+    old_headings = {m.group(2) for m in _HEADING_RE.finditer(old_readme_text)}
+    new_headings_and_body = new_readme_text
+    dropped_headings = sorted(h for h in old_headings if h not in new_headings_and_body)
+
+    return {"dropped_links": dropped_links, "dropped_headings": dropped_headings}
+
+
+_EXCLUDED_DOMAINS_RE = re.compile(r"https?://(?:[\w-]+\.)*(?:forum\.aspose\.com|[\w-]+\.aspose\.app)\b")
+
+
+def check_no_excluded_domain_links(readme_text: str) -> list[str]:
+    """Hard gate: reject any link whose host is forum.aspose.com or matches *.aspose.app --
+    a standing policy ("we will not link to forum.aspose.com or any subdomain at aspose.app
+    at this stage"), not a per-run judgment call. Returns the list of matched URLs.
+    """
+    return [m.group(0) for m in _EXCLUDED_DOMAINS_RE.finditer(readme_text)]
+
+
+_CLASS_BULLET_RE = re.compile(
+    r"^(?P<indent> *)-\s+`([A-Za-z_][\w.]*)`(?:\s*/\s*`([A-Za-z_][\w.]*)`)?(?:\s*[—-]+.*)?$",
+    re.MULTILINE,
+)
+_BACKTICK_MEMBER_RE = re.compile(r"`([A-Za-z_]\w*(?:\([^)]*\))?)`")
+_SUB_BULLET_LINE_RE = re.compile(r"^ +-\s+(.+)$")
+
+
+def check_named_member_accuracy(readme_text: str, clone_cache_root: str) -> list[dict]:
+    """Heuristic accuracy check for the API reference's real on-disk bullet convention: a
+    top-level `` - `ClassName` [— description] `` bullet followed by zero or more MORE-INDENTED
+    sub-bullet lines listing that class's real members (either one signature per line, e.g.
+    `` - `create(subject, body) -> "MapiMessage"` ``, or a single `properties: `a`, `b`, `c`
+    ``-style comma line) -- does every member named in those sub-bullets plausibly exist on the
+    named class's real source?
+
+    Deliberately does NOT treat a bare single-line "`ClassName` — prose mentioning `a_term()`"
+    bullet (no indented sub-bullets following it, e.g. an Exceptions-list one-liner) as a
+    member-list claim -- confirmed via a real false-positive during this function's own
+    development (barcode/python's "`SymbologyNotFoundError` — unknown symbology name passed to
+    `generate()`" is a description, not a claim that `generate()` is SymbologyNotFoundError's
+    own member; only genuinely indented sub-bullets count as the member list).
+
+    HONEST SCOPE STATEMENT (do not treat a clean pass from this function as compiler-grade
+    proof): this is a grep-based heuristic, not the full per-language extraction the plan's
+    Verification pass section describes (`javap -public` for Java, real introspection for
+    Python, compiler diagnostics for C#/Go/Rust/C++, `tsc` for TypeScript). It locates
+    candidate source files for a named class via a simple `class ClassName`/`struct
+    ClassName`/`interface ClassName` grep across clone_cache_root, then checks whether each
+    named member token appears anywhere in that file's text. This can miss real member-name
+    typos hidden by fuzzy matching, can under-report on classes split across multiple files
+    (partial classes, extension methods, trait impls), and does NOT trace inheritance -- a
+    member declared once on a base class and inherited (confirmed live: words/net's
+    `Document.GetText()`, real and callable, declared only on the base `Node` class) will be
+    flagged as "not found" even though it's genuinely valid. A member absent from every
+    candidate file is a real, worth-flagging signal, but presence in the file text is not proof
+    the member is real, public, and matches the exact bullet's claimed shape. Treat every
+    finding as a prompt for the same real per-language verification this check cannot fully
+    automate, never as a substitute for it.
+
+    Returns a list of {"class_name", "member", "reason"} findings for members not found in any
+    candidate source file for their class. Returns [] (not an error) if a class name has zero
+    candidate source files -- that's a "couldn't verify" case for the human/agent pass, not a
+    fabrication claim this heuristic can respons­ibly make on no evidence.
+    """
+    root = Path(clone_cache_root)
+    if not root.is_dir():
+        return []
+
+    lines = readme_text.splitlines()
+    findings = []
+    for match in _CLASS_BULLET_RE.finditer(readme_text):
+        class_a, class_b = match.group(2), match.group(3)
+        bullet_indent = len(match.group("indent"))
+        bullet_line_idx = readme_text.count("\n", 0, match.start())
+
+        members: list[str] = []
+        for line in lines[bullet_line_idx + 1:]:
+            sub_match = _SUB_BULLET_LINE_RE.match(line)
+            if not sub_match:
+                break
+            sub_indent = len(line) - len(line.lstrip(" "))
+            if sub_indent <= bullet_indent:
+                break
+            members.extend(_BACKTICK_MEMBER_RE.findall(sub_match.group(1)))
+        if not members:
+            continue
+
+        for class_name in filter(None, (class_a, class_b)):
+            candidate_files = _find_class_source_files(root, class_name)
+            if not candidate_files:
+                continue  # no evidence either way -- not a fabrication claim, skip silently
+            combined_text = "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in candidate_files)
+            for member in members:
+                member_token = member.split("(")[0].split(":")[0].strip()
+                if member_token and member_token not in combined_text:
+                    findings.append({
+                        "class_name": class_name,
+                        "member": member,
+                        "reason": f"not found in {len(candidate_files)} candidate source file(s)",
+                    })
+    return findings
+
+
+def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) -> list[Path]:
+    """Locate up to max_files real source files plausibly DEFINING class_name (not merely
+    forward-declaring it), via a cheap grep-style scan -- not a real per-language parse.
+    Skips common non-source directories.
+
+    The `(?!\\s*;)` negative lookahead is load-bearing, not decorative: a real bug found
+    during this function's own development -- `class Worksheet;` forward declarations (C++
+    headers routinely forward-declare a type before using it by reference/pointer) matched the
+    same naive "class ClassName" regex as the real `class Worksheet final { ... }` definition,
+    and since several forward-declaring headers sort alphabetically before the real definition
+    file, they filled max_files before the real file was ever reached -- producing false
+    "member not found" findings for members that are genuinely declared, just in a file this
+    function never got to.
+    """
+    declare_re = re.compile(
+        rf"\b(?:class|struct|interface|def)\s+{re.escape(class_name)}\b(?!\s*;)"
+    )
+    skip_dirs = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
+    found: list[Path] = []
+    for path in root.rglob("*"):
+        if len(found) >= max_files:
+            break
+        if not path.is_file() or path.suffix not in {
+            ".py", ".java", ".cs", ".go", ".rs", ".cpp", ".hpp", ".h", ".ts", ".c"
+        }:
+            continue
+        if skip_dirs & set(path.parts):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if declare_re.search(text):
+            found.append(path)
+    return found
+
+
+_API_REF_INTRO_BAD_A_RE = re.compile(r"ships \d+ public types\.\s*Selected entry points:", re.IGNORECASE)
+_API_REF_INTRO_BAD_B_RE = re.compile(r"`\w[\w.]*\.\*`?\s*\.?\s*$")
+_API_REF_SECTION_RE = re.compile(
+    r"^##\s+API reference\s*$(.*?)(?=<details>|\Z)", re.MULTILINE | re.DOTALL
+)
+
+
+def check_api_reference_intro_names_classes(readme_text: str) -> bool:
+    """Flag the "## API reference" intro sentence (text between the H2 heading and its
+    <details> fold) when it matches either confirmed bad form: a bare "ships N public types.
+    Selected entry points:" filler, or a bare trailing `namespace.*`/`package.*` wildcard with
+    no backtick-quoted class name elsewhere in the sentence. Heuristic -- a hit is a prompt for
+    the mandatory judgment pass to rewrite the sentence naming the product's real hub class(es),
+    never an automatic fail (naming a real hub class is a content-quality judgment call).
+    """
+    section_match = _API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return False
+    intro = section_match.group(1)
+    if _API_REF_INTRO_BAD_A_RE.search(intro):
+        return True
+    if _API_REF_INTRO_BAD_B_RE.search(intro.strip()):
+        # Only a defect if no OTHER backtick-quoted class name appears earlier in the sentence.
+        other_backticks = _BACKTICK_MEMBER_RE.findall(intro)
+        if len(other_backticks) <= 1:
+            return True
+    return False
+
+
+_DELIVERY_MECHANISM_KEYWORDS_RE = re.compile(
+    r"\b(?:path|stream|buffer|bytes|in-memory)\b", re.IGNORECASE
+)
+_WORD_RE = re.compile(r"[A-Za-z]{4,}")
+# Generic/structural nouns that recur across genuinely-different Output labels (".msg files" vs
+# ".eml files") -- excluded from "shared significant word" consideration so a coincidental shared
+# noun alone never triggers this heuristic; the real 2026-08-05 incidents (cells/cpp, cells/rust)
+# shared a specific format token (".xlsx workbook"), not a generic container word.
+_GENERIC_LABEL_WORDS = {
+    "file", "files", "document", "documents", "object", "objects", "data", "content",
+    "contents", "output", "outputs", "format", "formats", "with", "from", "into",
+}
+
+
+def check_diagram_no_mechanism_duplicate_output(markdown_text: str) -> list[dict]:
+    """Heuristic pre-filter for the "never split one output artifact into multiple Output
+    nodes purely by delivery mechanism" rule (the cells/cpp and cells/rust incident). Flags
+    any pair of Outputs-subgraph nodes whose labels share a significant word (>=4 letters) and
+    where at least one label contains a delivery-mechanism keyword, while their inbound
+    Capability-edge sets differ. A hit prompts the mandatory judgment pass ("same artifact,
+    different mechanism" vs. "genuinely different content"), never an automatic fail -- several
+    genuinely-different-content near-misses (3d/net's OBJ/STL/glTF vs FBX/COLLADA/3MF pair,
+    among others) were checked and correctly left alone during the incident this exists to
+    catch, so a hit here is not itself proof of a defect.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+
+    output_nodes = [nid for nid, kind in graph.node_subgraph.items() if kind == "outputs"]
+    inbound: dict[str, set] = {nid: set() for nid in output_nodes}
+    for a, b in graph.edges:
+        if b in inbound:
+            inbound[b].add(a)
+
+    findings = []
+    for i, node_a in enumerate(output_nodes):
+        label_a = graph.node_label.get(node_a, "")
+        words_a = {w.lower() for w in _WORD_RE.findall(label_a)} - _GENERIC_LABEL_WORDS
+        has_mechanism_a = bool(_DELIVERY_MECHANISM_KEYWORDS_RE.search(label_a))
+        for node_b in output_nodes[i + 1:]:
+            label_b = graph.node_label.get(node_b, "")
+            words_b = {w.lower() for w in _WORD_RE.findall(label_b)} - _GENERIC_LABEL_WORDS
+            has_mechanism_b = bool(_DELIVERY_MECHANISM_KEYWORDS_RE.search(label_b))
+            shared_words = words_a & words_b
+            if shared_words and (has_mechanism_a or has_mechanism_b) and inbound[node_a] != inbound[node_b]:
+                findings.append({
+                    "node_a": node_a, "label_a": label_a,
+                    "node_b": node_b, "label_b": label_b,
+                    "shared_words": sorted(shared_words),
+                })
+    return findings
 
 
 def main(argv: list[str] | None = None) -> int:

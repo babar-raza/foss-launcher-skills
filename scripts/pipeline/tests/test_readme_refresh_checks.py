@@ -538,3 +538,293 @@ def test_only_mermaid_block_changed_false_when_only_prose_edited():
 def test_only_mermaid_block_changed_false_when_block_disappears():
     new_text = DEFECTIVE_BARCODE_PYTHON.split("## At a glance")[0] + "## Key capabilities\n\n- Does a thing.\n"
     assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, new_text) is False
+
+
+# --- Content checks (whole-README) -- fixtures below intentionally minimal, not full READMEs ---
+
+_ENTERPRISE_LINK = "[Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/python-net/)"
+_ENTERPRISE_LINK_BAD_ANCHOR = "[Aspose.Foo Enterprise Product](https://products.aspose.com/foo/python-net/)"
+_ASPOSE_ORG_LINK = "[Getting started](https://docs.aspose.org/foo/python/)"
+
+_ALL_SECTIONS_README = """# Foo
+
+## At a glance
+## Key capabilities
+## Installation
+## Quick start
+## Additional examples
+## API reference
+## Documentation & resources
+## Scope and limitations
+## Development and testing
+## License
+"""
+
+
+def test_compute_link_caps_counts_correctly():
+    text = f"See {_ENTERPRISE_LINK} and {_ASPOSE_ORG_LINK} and [external](https://example.com)."
+    result = checks.compute_link_caps(text)
+    assert result["total_links"] == 3
+    assert result["aspose_org_links"] == 2  # products.aspose.com + docs.aspose.org
+    assert result["enterprise_edition_links"] == 1
+
+
+def test_count_aspose_links():
+    text = f"{_ASPOSE_ORG_LINK} and [external](https://example.com)"
+    assert checks.count_aspose_links(text) == 1
+
+
+def test_check_enterprise_edition_naming_passes_correct_anchor():
+    assert checks.check_enterprise_edition_naming(_ENTERPRISE_LINK) == []
+
+
+def test_check_enterprise_edition_naming_flags_wrong_anchor():
+    findings = checks.check_enterprise_edition_naming(_ENTERPRISE_LINK_BAD_ANCHOR)
+    assert len(findings) == 1
+    assert "Enterprise Product" in findings[0]["anchor_text"]
+
+
+def test_check_required_sections_all_present():
+    assert checks.check_required_sections(_ALL_SECTIONS_README) == []
+
+
+def test_check_required_sections_flags_missing():
+    text = _ALL_SECTIONS_README.replace("## License\n", "")
+    missing = checks.check_required_sections(text)
+    assert missing == ["License"]
+
+
+def test_surgical_diff_check_no_undeclared_changes():
+    assert checks.surgical_diff_check(["README.md"], ["README.md"]) == []
+
+
+def test_surgical_diff_check_flags_undeclared_file():
+    result = checks.surgical_diff_check(["README.md"], ["README.md", "SECURITY.md"])
+    assert result == ["SECURITY.md"]
+
+
+def test_check_license_link_target_no_link_is_fine(tmp_path):
+    text = "## License\n\nThis project is licensed under the MIT License.\n"
+    assert checks.check_license_link_target(text, str(tmp_path)) == []
+
+
+def test_check_license_link_target_real_file_passes(tmp_path):
+    (tmp_path / "LICENSE").write_text("MIT License\n", encoding="utf-8")
+    text = "## License\n\nThis project is licensed under the [MIT License](LICENSE).\n"
+    assert checks.check_license_link_target(text, str(tmp_path)) == []
+
+
+def test_check_license_link_target_missing_file_fails(tmp_path):
+    text = "## License\n\nThis project is licensed under the [MIT License](LICENSE).\n"
+    findings = checks.check_license_link_target(text, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["target"] == "LICENSE"
+
+
+def test_check_process_narration_smells_flags_known_phrases():
+    text = "This was verified against the published package, and passes cleanly on Linux."
+    findings = checks.check_process_narration_smells(text)
+    phrases = {f["phrase"].lower() for f in findings}
+    assert "was verified" in phrases
+    assert "passes cleanly" in phrases
+
+
+def test_check_process_narration_smells_clean_text():
+    text = "Convert PostScript files to PDF with a single call."
+    assert checks.check_process_narration_smells(text) == []
+
+
+_UPSTREAM_ISSUES_WITH_BLOCKING = """# Upstream issues
+
+## Broken pip install
+
+- **Severity**: BLOCKING (install/build/import fails for any user)
+- **Evidence**: `pip install -e .`
+- **Impact**: every user hits this
+- **Not fixable here because**: upstream packaging bug
+"""
+
+
+def test_check_no_undisclosed_blocking_commands_flags_real_match():
+    readme = "```bash\npip install -e .\n```\n"
+    findings = checks.check_no_undisclosed_blocking_commands(readme, _UPSTREAM_ISSUES_WITH_BLOCKING)
+    assert len(findings) == 1
+    assert findings[0]["command"] == "pip install -e ."
+
+
+def test_check_no_undisclosed_blocking_commands_clean_when_command_absent():
+    readme = "```bash\npip install real-package\n```\n"
+    findings = checks.check_no_undisclosed_blocking_commands(readme, _UPSTREAM_ISSUES_WITH_BLOCKING)
+    assert findings == []
+
+
+def test_check_no_undisclosed_blocking_commands_noop_with_no_upstream_issues():
+    readme = "```bash\npip install -e .\n```\n"
+    assert checks.check_no_undisclosed_blocking_commands(readme, "No upstream issues identified.") == []
+
+
+def test_check_dropped_content_flags_dropped_link_and_heading():
+    old_readme = "See [AGENTS.md](AGENTS.md) for details.\n\n## TypeScript Version Support\n\nSupported.\n"
+    new_readme = "## API reference\n\nNothing here.\n"
+    result = checks.check_dropped_content(old_readme, new_readme, "irrelevant")
+    assert "AGENTS.md" in result["dropped_links"]
+    assert "TypeScript Version Support" in result["dropped_headings"]
+
+
+def test_check_dropped_content_clean_when_carried_forward():
+    old_readme = "See [AGENTS.md](AGENTS.md) for details.\n\n## TypeScript Version Support\n\nSupported.\n"
+    new_readme = "## Documentation & resources\n\nSee [AGENTS.md](AGENTS.md).\n\n## TypeScript Version Support\n\nStill supported.\n"
+    result = checks.check_dropped_content(old_readme, new_readme, "irrelevant")
+    assert result == {"dropped_links": [], "dropped_headings": []}
+
+
+def test_check_no_excluded_domain_links_flags_forum():
+    text = "See the [forum](https://forum.aspose.com/c/barcode) for help."
+    findings = checks.check_no_excluded_domain_links(text)
+    assert len(findings) == 1
+    assert "forum.aspose.com" in findings[0]
+
+
+def test_check_no_excluded_domain_links_flags_aspose_app():
+    text = "Try the [free converter](https://products.aspose.app/barcode/generator)."
+    findings = checks.check_no_excluded_domain_links(text)
+    assert len(findings) == 1
+
+
+def test_check_no_excluded_domain_links_clean_on_docs_aspose_org():
+    text = "See [docs](https://docs.aspose.org/barcode/python/)."
+    assert checks.check_no_excluded_domain_links(text) == []
+
+
+def test_check_named_member_accuracy_ignores_single_line_prose_bullet(tmp_path):
+    # Regression test for the real false positive found during development: a flat,
+    # single-line "`ClassName` -- prose mentioning `a_term()`" bullet (no indented
+    # sub-bullets following it) must NOT be treated as a member-list claim.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "errors.py").write_text("class SymbologyNotFoundError(Exception):\n    pass\n", encoding="utf-8")
+    readme = "- `SymbologyNotFoundError` — unknown symbology name passed to `generate()`\n"
+    assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
+
+
+def test_check_named_member_accuracy_catches_real_fabrication(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "message.py").write_text(
+        "class MapiMessage:\n    def create(self):\n        pass\n    def save(self):\n        pass\n",
+        encoding="utf-8",
+    )
+    readme = (
+        "- `MapiMessage`\n"
+        "  - `create() -> MapiMessage`\n"
+        "  - `totally_fabricated_method()`\n"
+    )
+    findings = checks.check_named_member_accuracy(readme, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["member"] == "totally_fabricated_method()"
+
+
+def test_check_named_member_accuracy_clean_when_all_members_real(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "message.py").write_text(
+        "class MapiMessage:\n    def create(self):\n        pass\n    def save(self):\n        pass\n",
+        encoding="utf-8",
+    )
+    readme = "- `MapiMessage`\n  - `create() -> MapiMessage`\n  - `save()`\n"
+    assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
+
+
+def test_check_named_member_accuracy_skips_class_with_no_candidate_files(tmp_path):
+    readme = "- `NeverDeclaredClass`\n  - `some_method()`\n"
+    assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
+
+
+def test_check_api_reference_intro_names_classes_flags_type_count_filler():
+    text = '## API reference\n\nThe library ships 193 public types. Selected entry points:\n\n<details>\n'
+    assert checks.check_api_reference_intro_names_classes(text) is True
+
+
+def test_check_api_reference_intro_names_classes_flags_bare_wildcard():
+    text = "## API reference\n\nThe supported public entry point is `aspose.email_foss.msg.*`.\n\n<details>\n"
+    assert checks.check_api_reference_intro_names_classes(text) is True
+
+
+def test_check_api_reference_intro_names_classes_passes_real_hub_class():
+    text = "## API reference\n\nThe primary entry point is `Workbook`, which owns a `WorksheetCollection`.\n\n<details>\n"
+    assert checks.check_api_reference_intro_names_classes(text) is False
+
+
+_MECHANISM_DUPLICATE_DIAGRAM = _wrap(
+    """flowchart LR
+  PRODUCT["P"]
+  subgraph Capabilities["Core"]
+    C1["Worksheet management"]
+    C2["Cell values"]
+  end
+  subgraph Outputs["Outputs"]
+    O1[".xlsx workbook (path)"]
+    O2[".xlsx workbook (binary stream)"]
+  end
+  PRODUCT --- C1
+  PRODUCT --- C2
+  C1 --- O1
+  C1 --- O2
+  C2 --- O1"""
+)
+
+
+def test_check_diagram_no_mechanism_duplicate_output_flags_real_incident_shape():
+    findings = checks.check_diagram_no_mechanism_duplicate_output(_MECHANISM_DUPLICATE_DIAGRAM)
+    assert len(findings) == 1
+    assert {findings[0]["node_a"], findings[0]["node_b"]} == {"O1", "O2"}
+
+
+def test_check_diagram_no_mechanism_duplicate_output_clean_on_uniform_wiring():
+    # Same two Output nodes, but both reachable from the same Capability set -- not a defect.
+    assert checks.check_diagram_no_mechanism_duplicate_output(CLEAN_CELLS_CPP) == []
+
+
+def test_check_diagram_no_mechanism_duplicate_output_ignores_generic_shared_noun():
+    # Regression test for a real false positive found during development: ".msg files" and
+    # ".eml files" share only the generic word "files" (and naive substring matching found
+    # "file" inside "files", falsely tripping the mechanism-keyword check too) -- these are
+    # genuinely different content (different formats), not a delivery-mechanism duplicate.
+    text = _wrap(
+        """flowchart LR
+  PRODUCT["P"]
+  subgraph Capabilities["Core"]
+    C1["MSG writing"]
+    C2["EML writing"]
+  end
+  subgraph Outputs["Outputs"]
+    O1[".msg files"]
+    O2[".eml files"]
+  end
+  PRODUCT --- C1
+  PRODUCT --- C2
+  C1 --- O1
+  C2 --- O2"""
+    )
+    assert checks.check_diagram_no_mechanism_duplicate_output(text) == []
+
+
+def test_check_named_member_accuracy_ignores_forward_declarations(tmp_path):
+    # Regression test for a real false positive found during development: a C++ forward
+    # declaration ("class Worksheet;", common in headers that reference a type by pointer/
+    # reference) matched the same naive "class ClassName" search as the real definition, and
+    # since forward-declaring files can sort before the real definition file, they starved out
+    # the real file within max_files -- producing false "member not found" findings for members
+    # that are genuinely declared, just in a file the search never reached.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    # Alphabetically-earlier files that only forward-declare the class (as real C++ headers do).
+    for name in ("aaa_cell.h", "bbb_cells.h", "ccc_column.h", "ddd_row.h"):
+        (src_dir / name).write_text("class Worksheet;\n", encoding="utf-8")
+    # The real definition, alphabetically last, must still be found and searched.
+    (src_dir / "zzz_worksheet.h").write_text(
+        "class Worksheet final {\npublic:\n    void SetName(std::string_view value);\n};\n",
+        encoding="utf-8",
+    )
+    readme = "- `Worksheet`\n  - `SetName(value)`\n"
+    assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
