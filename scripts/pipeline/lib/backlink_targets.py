@@ -268,6 +268,44 @@ def load_target_map(repo_root: "Path | str | None" = None) -> dict:
     return data
 
 
+def target_map_age_days(target_map: dict, *, now: "datetime.datetime | None" = None) -> "float | None":
+    """
+    Age in days of target_map['provenance']['generated_at'], or None if the
+    field is missing/unparseable.
+
+    Added 2026-08-06 (MT022 TC-03): `provenance.generated_at` was written by
+    fetch_aspose_com_targets.py on every run but read by zero consumers --
+    confirmed live: a redirect-bug-fix commit (e40ed6b509) found 5 entries had
+    silently gone stale/dead over 6 weeks with nothing noticing, because
+    nothing anywhere checked this field. This is the read half of that gap;
+    callers decide what to do with the age (warn, gate, report) -- this
+    function only computes it, matching load_target_map's own no-side-effects
+    contract.
+    """
+    import datetime as _datetime
+
+    generated_at = target_map.get("provenance", {}).get("generated_at")
+    if not generated_at:
+        return None
+    try:
+        generated_dt = _datetime.datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return None
+    now = now or _datetime.datetime.now(_datetime.timezone.utc)
+    if generated_dt.tzinfo is None:
+        generated_dt = generated_dt.replace(tzinfo=_datetime.timezone.utc)
+    return (now - generated_dt).total_seconds() / 86400.0
+
+
+# Thresholds for target_map_age_days() consumers (MT022 TC-03). WARN is
+# advisory (content generation logs and proceeds); BLOCK is the harder
+# threshold a CI-style gate should fail on -- deliberately not wired into a
+# hard-fail here, since load_target_map()/this module never raises on
+# freshness (only on missing/corrupt data), matching its documented contract.
+STALE_WARN_DAYS = 14
+STALE_BLOCK_DAYS = 30
+
+
 # ── Page type classification (§Q.3) ──────────────────────────────────────────
 
 def classify_page_type(

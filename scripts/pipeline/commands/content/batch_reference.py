@@ -63,7 +63,7 @@ load_env()
 from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
 from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
-from lib.backlink_targets import load_target_map, resolve_backlink  # noqa: E402
+from lib.backlink_targets import load_target_map, resolve_backlink, target_map_age_days, STALE_WARN_DAYS  # noqa: E402
 from lib.reference_filter import (  # noqa: E402
     _passes_platform_scope,
     _CPP_ABSTRACT_BASES,
@@ -85,6 +85,20 @@ def _get_backlink_target_map() -> dict | None:
         except Exception as exc:
             LOG.warning("backlink: could not load target map: %s", exc)
             _backlink_target_map = {}
+        else:
+            # MT022 TC-03: provenance.generated_at was written but never read by
+            # any consumer -- this is the read half of that gap. Advisory only
+            # (generation must still proceed on stale data rather than hard-fail
+            # mid-run); the CI-enforceable hard gate lives in
+            # scripts/ci/checks/check_backlink_target_map_freshness.py.
+            age_days = target_map_age_days(_backlink_target_map)
+            if age_days is not None and age_days > STALE_WARN_DAYS:
+                LOG.warning(
+                    "backlink: data/aspose_com_targets.json is %.1f days old "
+                    "(warn threshold: %d) -- run fetch_aspose_com_targets.py "
+                    "to refresh before trusting its resolved targets",
+                    age_days, STALE_WARN_DAYS,
+                )
     return _backlink_target_map or None
 
 # ---------------------------------------------------------------------------

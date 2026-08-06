@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from lib.backlink_targets import (
     PageType,
+    target_map_age_days, STALE_WARN_DAYS, STALE_BLOCK_DAYS,
     MISSING, COMPLIANT, WRONG_TARGET, OVER_LIMIT, BLOCKED_TARGET,
     FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
     ACCEPTABLE_LEGACY_KB_PRE_P0, CANONICAL_KB_POST_P0, UPGRADE_CANDIDATE_NOT_YET_FIXED,
@@ -2185,3 +2186,50 @@ class TestBlogResolutionNegativeControls:
         """TC-BL-NEG-008: validate_anchor_suffix rejects 'Enterprise Documentation' for products URL."""
         errs = validate_anchor_suffix("PDF — Enterprise Documentation", "https://products.aspose.com/pdf/", "family")
         assert len(errs) > 0, "Expected validation errors for Enterprise Documentation on products URL"
+
+
+# ---------------------------------------------------------------------------
+# target_map_age_days (MT022-2026-08-06-ASPOSE-COM-TARGETS-HARDENING, TC-03)
+#
+# provenance.generated_at was written by fetch_aspose_com_targets.py on every
+# run but read by zero consumers -- confirmed live: a redirect-bug-fix commit
+# (e40ed6b509) found 5 entries had gone stale over 6 weeks with nothing
+# noticing, precisely because nothing checked this field's age. This is the
+# read half of that gap.
+# ---------------------------------------------------------------------------
+
+import datetime as _dt  # noqa: E402
+
+
+class TestTargetMapAgeDays:
+    def test_returns_none_when_generated_at_missing(self):
+        assert target_map_age_days({"provenance": {}}) is None
+        assert target_map_age_days({}) is None
+
+    def test_returns_none_for_unparseable_timestamp(self):
+        assert target_map_age_days({"provenance": {"generated_at": "not-a-date"}}) is None
+
+    def test_computes_age_in_days(self):
+        now = _dt.datetime(2026, 8, 6, tzinfo=_dt.timezone.utc)
+        tm = {"provenance": {"generated_at": "2026-06-19T18:15:04.205521+00:00"}}
+        age = target_map_age_days(tm, now=now)
+        assert age is not None
+        assert 47.0 < age < 48.0, f"Expected ~47.2 days between 2026-06-19 and 2026-08-06, got {age}"
+
+    def test_zero_age_for_just_generated(self):
+        now = _dt.datetime(2026, 8, 6, 12, 0, 0, tzinfo=_dt.timezone.utc)
+        tm = {"provenance": {"generated_at": "2026-08-06T12:00:00+00:00"}}
+        age = target_map_age_days(tm, now=now)
+        assert age == pytest.approx(0.0, abs=0.01)
+
+    def test_handles_z_suffix_timestamp(self):
+        """fetch_aspose_com_targets.py writes datetime.now(timezone.utc).isoformat(),
+        which does NOT use a Z suffix -- but tolerate it defensively in case any
+        producer (or hand-authored test fixture) does."""
+        now = _dt.datetime(2026, 1, 2, tzinfo=_dt.timezone.utc)
+        tm = {"provenance": {"generated_at": "2026-01-01T00:00:00Z"}}
+        age = target_map_age_days(tm, now=now)
+        assert age == pytest.approx(1.0, abs=0.01)
+
+    def test_stale_thresholds_are_ordered(self):
+        assert STALE_WARN_DAYS < STALE_BLOCK_DAYS
