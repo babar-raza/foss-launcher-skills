@@ -3292,17 +3292,36 @@ scripts:
     lifecycle: active
     canonical_impl_path: null
     public_entrypoint: true
-    cli_contract: "python fetch_aspose_com_targets.py [--dry-run] [--skip-http-verify] [--families FAMILY ...]"
+    cli_contract: "python fetch_aspose_com_targets.py [--dry-run] [--skip-http-verify] [--families FAMILY ...] [--products-sitemap] [--force]"
     owner_domain: backlinks
     backing:
       kind: internal
       ref: null
-    requires_test: false
-    test_targets: []
-    test_exempt_reason: "TC-BL-001: sitemap fetch + HTTP verify; integration-tested via dry-run against live sitemaps; unit tests planned post-pilot"
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_fetch_aspose_com_targets.py
+    test_exempt_reason: null
     deprecated_since: null
     change_impact: null
-    notes: "TC-BL-001 + TC-BL-DEPTH-002 + TC-BL-TARGET-MAP-HUGO-SYNC: fetch aspose.com sitemaps, normalize, classify, HTTP-verify, write data/aspose_com_targets.json + data/backlinks/aspose_com_targets.yaml"
+    notes: "TC-BL-001 + TC-BL-DEPTH-002 + TC-BL-TARGET-MAP-HUGO-SYNC + MT022-2026-08-06-ASPOSE-COM-TARGETS-HARDENING TC-01: fetch aspose.com sitemaps, normalize, classify, HTTP-verify (now retries transient 429/500/502/503/504 statuses, not just network exceptions), write data/aspose_com_targets.json + data/backlinks/aspose_com_targets.yaml. --force overrides the write-time concurrency guard (compares provenance.output_hash before writing; aborts if another session wrote to the file mid-run). Registry entry corrected 2026-08-06: test_targets already existed on disk (regression tests for TC-01/G-01 + the redirect fix) but this entry still claimed requires_test:false -- found during MT022's governance research, fixed alongside the retry-hardening change it was blocking visibility into."
+
+  - path: scripts/pipeline/commands/ops/aspose_com_targets_watch.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.aspose_com_targets_watch [--issue-body-out PATH] [--repo-root PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_aspose_com_targets_watch.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "MT022-2026-08-06-ASPOSE-COM-TARGETS-HARDENING TC-04: scheduled drift-detection watcher for data/aspose_com_targets.json (no scheduled re-verification existed before this -- the direct mechanism by which 5 status regressions accumulated silently for 6+ weeks, see ASPOSE-COM-TARGETS-STATUS-001 in backlog/BACKLOG.md). Same-run multi-check confirmation, not a cross-run persisted debounce counter (deliberately not copying package_publish_watch.py's counter -- see the module's own docstring for why). Detection-only, never writes the registry itself. Wired into .github/workflows/aspose-com-targets-watch.yml (daily cron + workflow_dispatch), which also runs check_backlink_target_map_freshness.py in the same job. backing.kind left as internal (not skill) -- no dedicated skill exists for this pipeline area yet; see reports/skill-gaps/2026-08-06-aspose-com-targets-hardening.md and taskcard TC-06 (deferred, non-blocking)."
 
   - path: scripts/pipeline/commands/ops/build_page_depth_inventory.py
     kind: entrypoint
