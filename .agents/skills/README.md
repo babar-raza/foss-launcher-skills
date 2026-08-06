@@ -35,7 +35,7 @@ Directory structure:
 
 ## Skill List (72 skills — full canonical set)
 
-All 106 registered skills are present in this tree. Internal sub-routines are included here
+All 109 registered skills are present in this tree. Internal sub-routines are included here
 (unlike the Claude Code tree) because Codex invokes them directly when orchestrating skill chains.
 
 | ID | Slug | Category | Internal? |

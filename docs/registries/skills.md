@@ -96,6 +96,7 @@
 | media-optimize | S-119 | Ensure every static/media/{family}/{platform} icon/banner slot has both a .png and a .webp artifact, each under 1MB (WebP quality ladder; PNG lossless-then-palette-quantization ladder), with mandatory visual review for any lossy result |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
+| readme-refresh | S-120 | Generate, verify, and (on explicit approval) push a production-grade README.md refresh for one FOSS product repository via the run-bound readme_refresh_run.py state machine |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org page |
 | register-human-content | S-66 | Onboard a human-authored page into quality systems |
