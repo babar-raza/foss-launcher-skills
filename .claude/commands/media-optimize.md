@@ -85,20 +85,24 @@ for RGBA input.
    ```
    For each in-scope file: re-encode the original as WebP at quality 95
    (method 6), stepping down through 90/85/80 only as needed, never lower.
-   Run the automated PSNR/SSIM floor (≥18dB / ≥0.90 — a coarse gate for
-   gross encoder failures only, see Hard Constraints) at each quality level.
-   If a level passes both the size and floor checks: stage it as
-   `icon.webp`/`banner.webp` **without deleting the original**. Status
-   `NEEDS_VISUAL_REVIEW`. If no quality level in the ladder fits budget:
-   leave the original untouched, status `STILL_OVER_BUDGET`.
+   **Size is the only automated acceptance criterion.** PSNR/SSIM are
+   computed and reported alongside the result for context, but do not gate
+   acceptance (see Hard Constraints for why). The first quality level that
+   fits under budget is staged as `icon.webp`/`banner.webp` **without
+   deleting the original**. Status `NEEDS_VISUAL_REVIEW`. If no quality
+   level in the ladder fits budget: leave the original untouched, status
+   `STILL_OVER_BUDGET`.
 
-4. **Verify — the automated floor is not the real gate.** The PSNR/SSIM
-   check was found, empirically, to correlate poorly with perceived quality
-   on this sharp-edged graphic-design content (a demonstrably fine result
-   measured 21.6dB/0.948, well below common "visually lossless" numeric
-   guidance). Render the before/after pair for every `NEEDS_VISUAL_REVIEW`
-   file and look at them side by side before accepting. Only after this
-   passes, run:
+4. **Verify — visual review is the only real gate.** An automated PSNR/SSIM
+   floor was tried and abandoned: it was found, empirically and **twice**,
+   to swing across too wide and unpredictable a range on this sharp-edged,
+   mostly-flat-color content to serve as a rejection threshold — two
+   independently confirmed visually-perfect results measured 21.6dB/0.948
+   and 14.8dB/0.770. A floor set to pass the first would have rejected the
+   second, and vice versa; there is no safe numeric cutoff for this content
+   type. Render the before/after pair for every `NEEDS_VISUAL_REVIEW` file
+   and look at them side by side before accepting. Only after this passes,
+   run:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed <reported source path> [<path> ...]
    ```
@@ -130,11 +134,14 @@ for RGBA input.
   doesn't fit budget, stop and report `STILL_OVER_BUDGET` — do not go lower,
   do not resize, do not switch to another lossy format, without a fresh
   operator decision.
-- **A WebP result is never self-certified.** The automated PSNR/SSIM floor
-  (≥18dB / ≥0.90) exists only to catch gross encoder failures, not to
-  approve quality — it has been shown to read as "mediocre" on a result that
-  is visually perfect. Every `NEEDS_VISUAL_REVIEW` file requires an actual
-  visual comparison before `--confirm-reviewed` deletes the original.
+- **A WebP result is never self-certified — no numeric metric decides this.**
+  PSNR/SSIM are reported for context but never gate acceptance: they were
+  tried as a floor and abandoned after two independently confirmed
+  visually-perfect results measured 21.6dB/0.948 and 14.8dB/0.770 — a range
+  wide enough that no single cutoff could pass both without also passing
+  much worse cases, or reject one without also rejecting the other. Every
+  `NEEDS_VISUAL_REVIEW` file requires an actual visual comparison before
+  `--confirm-reviewed` deletes the original.
 - **Never silently overwrite** an existing `icon.webp`/`banner.webp` when a
   *different* source file also maps to that slot. Report it as
   `PENDING_REVIEW` and leave both files untouched — WebP output is never

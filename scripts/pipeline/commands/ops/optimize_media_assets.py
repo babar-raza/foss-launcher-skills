@@ -18,16 +18,18 @@ skills/media-optimize.md) preserves alpha transparency by default -- verified
 by round-tripping a real icon (has_transparency_data=True, alpha extrema and
 a fully-transparent corner pixel matched exactly before/after).
 
-Quality ladder: 95, stepping down through 90/85/80 only if still over budget;
-never below 80. This is genuinely lossy. A coarse automated PSNR/SSIM floor
-catches gross encoder failures, but the real quality gate is a mandatory
-human/agent visual review -- both metrics were found to correlate poorly
-with perceived quality on this sharp-edged graphic content (a demonstrably
-fine result measured 21.6dB/0.948). The script never self-certifies a lossy
-result: it stages the new icon.webp/banner.webp file and reports
-NEEDS_VISUAL_REVIEW without deleting the original. Run --confirm-reviewed on
-the reported source paths only after visually confirming no perceptible
-difference.
+Quality ladder: 95, stepping down through 90/85/80 only if still over budget
+(size is the only automated acceptance criterion); never below 80. This is
+genuinely lossy. PSNR/SSIM are computed and reported alongside each result
+for context, but do NOT gate acceptance -- both were found, empirically and
+twice, to swing across too wide and unpredictable a range on this
+sharp-edged, mostly-flat-color content to serve as a rejection threshold
+(two independently confirmed visually-perfect results measured 21.6dB/0.948
+and 14.8dB/0.770 -- using either as a floor produced false rejections of
+genuinely fine images). The script never self-certifies a lossy result: it
+stages the new icon.webp/banner.webp file and reports NEEDS_VISUAL_REVIEW
+without deleting the original. Run --confirm-reviewed on the reported source
+paths only after visually confirming no perceptible difference.
 
 If WebP at quality 80 still doesn't fit budget: STILL_OVER_BUDGET, original
 left untouched.
@@ -64,26 +66,18 @@ WEBP_QUALITY_LADDER = (95, 90, 85, 80)
 
 _cfg_media_root: str = "static/media"
 _cfg_max_bytes: int = 1_048_576
-_cfg_min_psnr: float = 18.0
-_cfg_min_ssim: float = 0.90
 
 
 def configure(
     media_root: str | None = None,
     max_bytes: int | None = None,
-    min_psnr: float | None = None,
-    min_ssim: float | None = None,
 ) -> None:
     """Override module-level path/behavior constants for testing."""
-    global _cfg_media_root, _cfg_max_bytes, _cfg_min_psnr, _cfg_min_ssim
+    global _cfg_media_root, _cfg_max_bytes
     if media_root is not None:
         _cfg_media_root = media_root
     if max_bytes is not None:
         _cfg_max_bytes = max_bytes
-    if min_psnr is not None:
-        _cfg_min_psnr = min_psnr
-    if min_ssim is not None:
-        _cfg_min_ssim = min_ssim
 
 
 # ── Classification ───────────────────────────────────────────────────────────
@@ -112,8 +106,8 @@ def psnr(img_a: Image.Image, img_b: Image.Image) -> float:
 
     NOTE: found (empirically, see skills/media-optimize.md) to correlate
     poorly with perceived quality on sharp-edged graphic-design content --
-    used only as a coarse floor to catch gross encoder failures, never as
-    the sole quality gate.
+    reported alongside each result for context only, never used to gate
+    acceptance.
     """
     a = img_a.convert("RGB")
     b = img_b.convert("RGB")
@@ -144,10 +138,6 @@ def global_ssim(img_a: Image.Image, img_b: Image.Image, resize_to: int = 256) ->
     cov = sum((data_a[i] - mu_a) * (data_b[i] - mu_b) for i in range(n)) / n
     c1, c2 = (0.01 * 255) ** 2, (0.03 * 255) ** 2
     return ((2 * mu_a * mu_b + c1) * (2 * cov + c2)) / ((mu_a ** 2 + mu_b ** 2 + c1) * (var_a + var_b + c2))
-
-
-def meets_quality_floor(orig: Image.Image, candidate: Image.Image) -> bool:
-    return psnr(orig, candidate) >= _cfg_min_psnr and global_ssim(orig, candidate) >= _cfg_min_ssim
 
 
 # ── Discovery ────────────────────────────────────────────────────────────────
@@ -208,11 +198,18 @@ def process_file(source: Path, apply: bool) -> dict:
                 size_after = tmp_webp.stat().st_size
                 if size_after >= _cfg_max_bytes:
                     continue
+                # PSNR/SSIM are computed and reported for the record, but do
+                # NOT gate acceptance here -- both were found (empirically,
+                # twice: 21.6dB/0.948 and 14.8dB/0.770, on two independently
+                # confirmed visually-perfect results) to swing across too
+                # wide and unpredictable a range for this sharp-edged,
+                # mostly-flat-color content to serve as a rejection
+                # threshold. Using either as a gate produced false rejections
+                # of genuinely fine images. The real gate is the mandatory
+                # human/agent visual review before --confirm-reviewed.
                 with Image.open(tmp_webp) as candidate_img:
                     p = psnr(orig_img, candidate_img)
                     s = global_ssim(orig_img, candidate_img)
-                if p < _cfg_min_psnr or s < _cfg_min_ssim:
-                    continue
                 # source == webp_path is possible (already-named file that's
                 # merely oversized): the move below overwrites it in place.
                 # orig_img was fully loaded into memory above, independent of

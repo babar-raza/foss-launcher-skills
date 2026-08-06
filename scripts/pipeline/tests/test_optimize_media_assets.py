@@ -19,8 +19,6 @@ def reset_config():
     oma.configure(
         media_root="static/media",
         max_bytes=1_048_576,
-        min_psnr=18.0,
-        min_ssim=0.90,
     )
 
 
@@ -36,9 +34,8 @@ _REAL_SAMPLE = Path(__file__).resolve().parents[3] / "static" / "media" / "3d" /
 def _copy_real_sample_over_budget(dest: Path) -> Path:
     """Copy a real, already-in-repo product icon known (calibrated manually,
     see skills/media-optimize.md) to need WebP quality ~90 to fit under 1MB
-    (~150KB result, psnr=21.6dB/ssim=0.948, comfortably above this module's
-    floor) -- a small solid-color synthetic image compresses too well under
-    any format to exercise the real quality-ladder/floor behavior."""
+    (~150KB result) -- a small solid-color synthetic image compresses too
+    well under any format to exercise the real quality-ladder behavior."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(_REAL_SAMPLE, dest)
     return dest
@@ -75,7 +72,7 @@ def test_target_path_family_level_same_as_platform_level(tmp_path):
     assert oma.target_path(source, "icon") == tmp_path / "pdf" / "icon.webp"
 
 
-# ── PSNR / SSIM floor ────────────────────────────────────────────────────────
+# ── PSNR / SSIM (reported for context only -- do not gate acceptance) ───────
 
 def test_psnr_identical_images_is_infinite():
     img = Image.new("RGB", (32, 32), (10, 20, 30))
@@ -85,11 +82,6 @@ def test_psnr_identical_images_is_infinite():
 def test_global_ssim_identical_images_is_near_one():
     img = Image.new("RGB", (64, 64), (50, 100, 150))
     assert oma.global_ssim(img, img) > 0.999
-
-
-def test_meets_quality_floor_true_for_identical_images():
-    img = Image.new("RGB", (64, 64), (1, 2, 3))
-    assert oma.meets_quality_floor(img, img) is True
 
 
 # ── dry-run ──────────────────────────────────────────────────────────────────
