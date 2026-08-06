@@ -1,0 +1,23 @@
+[
+  {
+    "family": "barcode",
+    "platform": "python",
+    "pipeline_edges": [["C1", "C5"], ["C2", "C5"], ["C3", "C5"], ["C4", "C5"]],
+    "evidence": "Barcode.render()/.to_svg()/.to_png() (result.py:27-92) require self=Barcode, produced only by the encode functions (service.py:66-72). No code path exists from any encode function to a Renderer. RenderOptions (originally modeled as Capability C6, 'RenderOptions styling and layout') fails the Step-0 independently-callable-entry-point precondition -- OptionsResolver.resolve()/.merge_options() never execute except inside Barcode.render() (result.py:34-42) -- reclassified into Inputs (I3) rather than kept as a Capability.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "tex",
+    "platform": "python",
+    "pipeline_edges": [["C1", "C3"], ["C3", "C4"]],
+    "evidence": "PageBuilder.contribute(node) (_engine/page_builder.py:70+) only accepts already-typeset nodes from C1's exec_par(), called inside TeXInterpreter (_engine/interpreter.py). PdfWriter/DviWriter/SvgWriter.shipout(page_number, box) (_output/{pdf,dvi,svg}_writer.py) require a finalised page only C3 produces. C2 (FontManager, _fonts/font_manager.py:23-41) is confirmed genuinely standalone-callable (own docstring shows independent usage with zero dependency on C1/C3/C4) so its direct PRODUCT edge is correct per Rule 1a; C2 was NOT wired into the C1-C3-C4 pipeline. Instead, a new Output node (O4, 'Font and glyph metrics') was added and wired C2---O4, per the Outputs-test exception (font-metric resolution is a genuine standalone deliverable, traces to Key Capabilities' 'Resolve font metrics with FontManager and FontMetrics' bullet) -- same pattern as pdf/cpp's Text-extraction/Plain-text exception.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "email",
+    "platform": "python",
+    "pipeline_edges": [["C3", "C6a"]],
+    "evidence": "MapiMessage.to_email_message() (msg/mapi_message.py:908) is an instance method requiring an already-built MapiMessage from C3. MapiMessage.from_email_message() (msg/mapi_message.py:619) is a classmethod taking the raw EmailMessage Input directly, and MapiMessage.save() (msg/mapi_message.py:902) confirms its returned MapiMessage can be saved to a real .msg file -- C6 ('MSG and EmailMessage conversion') split into C6a (to_email_message, dependent on C3, feeds O5) and C6b (from_email_message, independent, direct PRODUCT edge, feeds O2) per Rule 1c.",
+    "verified_at": "2026-08-06"
+  }
+]
