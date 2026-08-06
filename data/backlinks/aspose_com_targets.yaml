@@ -1,5 +1,5 @@
-generated_at: '2026-06-19T18:15:04.205521+00:00'
-source_json_hash: sha256:8e6e8eb6608a7b5cfc94854c1e5e39a87a0af2867ef0c4fb3ffdea386f654c27
+generated_at: '2026-08-06T08:57:58.165494+00:00'
+source_json_hash: sha256:21c3bf5ccb4d0f867e17d311b04c731ded5ff05ae7c9c6fe2a08aa2dc37c88d6
 targets:
   3d:
     http_status: 200
@@ -31,6 +31,9 @@ targets:
   cells/cpp:
     http_status: 200
     url: https://products.aspose.com/cells/cpp/
+  cells/go:
+    http_status: 200
+    url: https://products.aspose.com/cells/go-cpp/
   cells/java:
     http_status: 200
     url: https://products.aspose.com/cells/java/
@@ -39,13 +42,10 @@ targets:
     url: https://products.aspose.com/cells/net/
   cells/python:
     http_status: 200
-    url: https://products.aspose.com/cells/python/
+    url: https://products.aspose.com/cells/python-java/
   cells/python-net:
     http_status: 200
     url: https://products.aspose.com/cells/python-net/
-  cells/typescript:
-    http_status: 200
-    url: https://products.aspose.com/cells/typescript/
   diagram:
     http_status: 200
     url: https://products.aspose.com/diagram/
@@ -61,9 +61,6 @@ targets:
   email/net:
     http_status: 200
     url: https://products.aspose.com/email/net/
-  email/python:
-    http_status: 200
-    url: https://products.aspose.com/email/python/
   email/python-net:
     http_status: 200
     url: https://products.aspose.com/email/python-net/
@@ -100,12 +97,12 @@ targets:
   page:
     http_status: 200
     url: https://products.aspose.com/page/
-  page/python:
-    http_status: 200
-    url: https://products.aspose.com/page/python/
   pdf:
     http_status: 200
     url: https://products.aspose.com/pdf/
+  pdf/go:
+    http_status: 200
+    url: https://products.aspose.com/pdf/go-cpp/
   pdf/go-cpp:
     http_status: 200
     url: https://products.aspose.com/pdf/go-cpp/
@@ -135,7 +132,7 @@ targets:
     url: https://products.aspose.com/slides/net/
   slides/python:
     http_status: 200
-    url: https://products.aspose.com/slides/python/
+    url: https://products.aspose.com/slides/python-net/
   slides/python-net:
     http_status: 200
     url: https://products.aspose.com/slides/python-net/
@@ -148,15 +145,12 @@ targets:
   tex:
     http_status: 200
     url: https://products.aspose.com/tex/
-  tex/python:
-    http_status: 200
-    url: https://products.aspose.com/tex/python/
   words:
     http_status: 200
     url: https://products.aspose.com/words/
   words/python:
     http_status: 200
-    url: https://products.aspose.com/words/python/
+    url: https://products.aspose.com/words/python-net/
   words/python-net:
     http_status: 200
     url: https://products.aspose.com/words/python-net/
