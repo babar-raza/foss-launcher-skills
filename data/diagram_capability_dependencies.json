@@ -75,5 +75,61 @@
     "pipeline_edges": [["C2", "C3b"]],
     "evidence": "(*Document).ApplyRedactions() (redact_apply.go:45) scans page.Annotations() for *RedactAnnotation instances and is a documented no-op when none exist (redact_apply.go:78-80). The only public way to create one is NewRedactAnnotation(page, rect) (annotation_redact.go:20) followed by page.Annotations().Add(ra) (annotation.go) -- the same public entry point used for every other annotation type, which Key Capabilities' own bullet groups under C2's 'Add and manage annotations... redactions...'. This is a genuine Rule 1b dependency: ApplyRedactions requires a specific artifact only C2's own Add() produces. C3 ('Security: encrypt, sign, redact') split -- redact moved to new node C3b ('Redaction: mark and apply'), wired C2---C3b; C3 keeps its direct PRODUCT edge for encrypt/sign (both independently 1a-clean, confirmed against SetEncryption/Sign signatures).",
     "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "go",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities (Cell read/write, Styling, Formulas+local engine, Data validation/tables/pictures, CSV import/export, Streaming reader, Password protection) verified via real Go source (cell.go/cells.go/style.go/formula_engine.go/datavalidation.go/table.go/picture.go/csv_handler.go/streaming_reader.go/workbook.go). CalculateFormula(formula, ws) takes the shared *Worksheet, not a derived artifact. AddPicture takes raw image bytes (Input). Streaming reader bypasses the shared Workbook entirely, reading straight off the Input path. Password protection confirmed hooked into the real save path (xmlsaver.go:224-225).",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "java",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities verified via real Java source (Workbook/Cell/Cells/AutoFilter/FormatConditionCollection/ValidationCollection/ChartCollection/ShapeCollection/ListObjectCollection/CommentCollection/HyperlinkCollection/PictureCollection/DefinedNameCollection). ChartCollection.add's dataRange is an unvalidated range-formula string never dereferenced against actual cell values (only fed to template building). ListObjectCollection.add's optional header-name lookup degrades gracefully to 'Column'+i if cells are empty -- does not require C1 to have run.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "net",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. Same flat-star architecture as cells/cpp -- Workbook eagerly constructs WorksheetCollection, each Worksheet eagerly constructs Cells/HyperlinkCollection/ValidationCollection/ConditionalFormattingCollection/PageSetup/ListObjectCollection/PictureCollection/ShapeCollection/ChartCollection/CommentCollection in its constructor (Worksheet.cs:40-56). All 6 capability entry points take primitives, CellArea structs, or native cell-coordinate strings -- never a derived artifact from a sibling capability.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 7 capabilities verified via real Python source; confirmed via grep that no capability implementation module (chart.py/table.py/shape.py/data_validation.py/conditional_format.py/auto_filter.py/sparkline.py/xlsx_encryptor.py/csv_handler.py/markdown_handler.py/json_handler.py) imports another's model classes -- each is constructed with a worksheet/workbook instance passed at call time (shared substrate), not a sibling-produced artifact. NSeries.add's area/category_data are A1 range strings (native reference into shared substrate), not derived objects.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "cells",
+    "platform": "rust",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. Same flat-star pattern as cells/cpp. Every collection getter (get_cells/get_page_setup/get_auto_filter/get_pictures/get_shapes/get_charts/get_list_objects/get_sparkline_groups/get_validations/get_conditional_formattings) hangs off &mut Worksheet/&mut Workbook. ChartCollection::add's data_range is a string formula reference; when the range has no populated data, the builder gracefully falls through to a generic template-only chart (ChartLive.rs:132-136) rather than requiring cell data to exist first. ListObjectCollection::add opportunistically reads header cells if present, else falls back to 'Column{N}'.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "net",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 8 capabilities verified via real C# source. Facades (PdfFileEditor/PdfFileSecurity/PdfFileSignature/PdfBookmarkEditor/PdfContentEditor/PdfAnnotationEditor/PdfFileStamp/PdfFileInfo/PdfFileMend/PdfPageEditor/PdfConverter/PdfExtractor/PdfViewer/Form/FormEditor/AutoFiller/FacadeStamp/PdfXmpMetadata) all expose BindPdf(string|byte[]|Stream|Document) overloads binding independently to a bare Document -- same pattern as pdf/java and pdf/cpp. Specifically confirmed pdf/net does NOT reproduce pdf/go's redaction defect: RedactionAnnotation.Redact() (Annotations/Annotation.cs:3818) builds its own TextFragmentAbsorber internally and calls a private/internal TextFragment.RedactFromContent() helper -- not part of C2's public surface, so redaction here is self-contained, not a caller-facing dependency on another capability's output. PdfFileSignature.SignCore confirmed to self-create its signature field, matching the already-verified pdf/java pattern.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "pdf",
+    "platform": "python",
+    "pipeline_edges": [],
+    "evidence": "TRACED, CLEAN. All 6 capabilities verified via real Python source (document.py/pages.py/forms.py/signature.py/pdfa.py/pdfua.py/engine/simple_pdf.py/engine/signing.py). Specifically confirmed pdf/python does NOT reproduce pdf/go's redaction defect: Document.redact_text()/Page.redact_text() delegate to SimplePdf.redact_text() (engine/simple_pdf.py:4427), which does its own text-location and content-stream rewrite entirely inside the call -- no pre-existing annotation from another capability's entry point required. PdfSignature.validate() reads native signature-dictionary/PKCS#7 data lifted straight from the signed PDF's own Input bytes, not a derived artifact.",
+    "verified_at": "2026-08-06"
+  },
+  {
+    "family": "slides",
+    "platform": "cpp",
+    "pipeline_edges": [["C5", "C1b"], ["C5", "C3b"]],
+    "evidence": "ShapeCollection::add_picture_frame(ShapeType, x, y, w, h, PPImage&) (include/.../shape_collection.h:130) takes PPImage& by non-optional reference; add_picture_frame_impl (shape_collection.cpp:1091) immediately calls image.part_name(). PictureFillFormat::picture().set_image(&img) has the same pattern. Grepped every reference to images_ (ImageCollection's backing vector) across src/ -- the ONLY writer is ImageCollection::add_image() itself (image_collection.cpp:35); presentation.cpp never populates it when a file is opened (unlike shapes_, which load_shapes() does populate from a real Input .pptx). Confirmed by 100% of real test call sites (images_test.cpp, image_test.cpp, picture_utilities_test.cpp, fill_format_test.cpp, i_picture_fill_format_test.cpp) always calling add_image() first. C1 ('Slide, shape, and table creation') and C3 ('Fill, line, and visual effects') both had their picture-handling sub-feature split out (Rule 1c) into new nodes C1b/C3b, each wired from C5; C1/C3's other real, independent entry points (AutoShape/Table/Connector; solid/gradient/pattern fill/line/effects) keep their direct PRODUCT edges unchanged.",
+    "verified_at": "2026-08-06"
   }
 ]
