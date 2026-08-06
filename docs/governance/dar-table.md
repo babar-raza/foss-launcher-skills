@@ -44,6 +44,9 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/page-draft` (S-19) | `/knowledge-bootstrap` | Requires knowledge for draft grounding |
 | `/page-plan` (S-18) | `/knowledge-bootstrap` | Requires knowledge for page planning |
 | `/publish-readiness-review` (S-90) | `/knowledge-bootstrap` | Requires knowledge for publish verification |
+| `/readme-refresh` (S-120) | `data/package_registry.json` | `plan_run()`'s factpack step reads this directly for install-command/package-identity rendering, the same read-only-consumer boundary every other skill in this table respects — never written by S-120 (Dependency section, plan: `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`). |
+| `/readme-refresh` (S-120) | `data/diagram_archetypes.json` | `plan_run()` reads the product's archetype (transform/hybrid/generative/compile) to decide the At-a-glance diagram's structural/title shape, defaulting to `transform` when no override row exists (MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY). |
+| `/readme-refresh` (S-120) | `data/diagram_capability_dependencies.json` | `plan_run()`/`ingest_candidate()` read the product's recorded pipeline_edges (or `None` if never traced — a real, deliberate absence-semantics distinct from `diagram_archetypes.json`'s, never read as "confirmed independent") to hard-gate `check_diagram_matches_capability_dependencies` (MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY). |
 | `/refresh-product` (S-84) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
 | `/register-human-content` (S-66) | `/knowledge-bootstrap` | Requires knowledge for evidence attachment |
 | `/seo-review` (S-116) | `/knowledge-bootstrap` | Grounding-check step independently re-verifies each recommendation against claims.json/formats.json before approving |
