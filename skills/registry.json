@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 108,
+  "skill_count": 109,
   "skills": [
     {
       "id": "S-01",
@@ -815,6 +815,14 @@
       "description": "Product icons and banner (social-preview) images dropped under",
       "internal": false,
       "canonical_path": "skills/media-optimize.md"
+    },
+    {
+      "id": "S-120",
+      "slug": "readme-refresh",
+      "name": "README Refresh",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/readme-refresh.md"
     },
     {
       "id": "S-HT-02",
