@@ -1,17 +1,25 @@
 """CONTRACT: deterministic checks for the /readme-refresh skill (plan:
 C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md).
 
-Currently implements check_diagram_connectivity() only — the "At a glance" Mermaid
-flowchart orphan-node check described in the plan's "Deterministic connectivity
-checker" section. Other checks (compute_link_caps, count_aspose_links,
-check_enterprise_edition_naming, check_required_sections, surgical_diff_check,
-check_license_link_target, check_process_narration_smells,
+Currently implements check_diagram_connectivity() and check_diagram_known_subgraph_ids()
+-- both "At a glance" Mermaid flowchart checks. Other checks (compute_link_caps,
+count_aspose_links, check_enterprise_edition_naming, check_required_sections,
+surgical_diff_check, check_license_link_target, check_process_narration_smells,
 check_no_undisclosed_blocking_commands, check_dropped_content,
 check_no_excluded_domain_links, check_named_member_accuracy,
 check_api_reference_intro_names_classes,
 check_diagram_no_mechanism_duplicate_output) are specified in the plan but
 not yet implemented; this module grows into the skill's full checks module
 as those land.
+
+check_diagram_known_subgraph_ids (spec'd 2026-08-06, plan section "Archetype-aware
+structure and content rules") is a non-blocking tripwire: flags any `## At a glance`
+subgraph ID outside the canonical set {Inputs, FromScratch, Capabilities, Outputs}
+-- either a typo'd canonical ID or a genuinely new archetype shape not yet added to
+the canonical set. check_diagram_connectivity's ID-based classifier (below) is a
+strict allow-list, so an unrecognized ID would otherwise silently drop out of
+connectivity checking rather than erroring; this check exists specifically to
+surface that silent-drop case for human/agent judgment, never an automatic fail.
 
 check_diagram_no_mechanism_duplicate_output (spec'd 2026-08-05, plan section
 "Never split one output artifact into multiple Output nodes purely by
@@ -71,17 +79,36 @@ present topic actually true of the real source) -- a different failure mode
 needing a different check, not wider coverage of the same one.
 
 check_diagram_connectivity parses the ```mermaid flowchart``` block in a README,
-classifies each `subgraph` by its label (Inputs / Capabilities / Outputs), and
-verifies every node declared inside the Capabilities subgraph has a path (via the
-diagram's edges) to at least one node in the Outputs subgraph. A capability node
-with no such path is an "orphan" -- the diagram visually claims the capability
-exists but never shows it producing anything.
+classifies each `subgraph` by its ID (Inputs / FromScratch / Capabilities / Outputs
+-- changed 2026-08-06 from classifying by label text, see below), and verifies
+every node declared inside the Capabilities subgraph has a path (via the diagram's
+edges) to at least one node in the Outputs subgraph. A capability node with no such
+path is an "orphan" -- the diagram visually claims the capability exists but never
+shows it producing anything.
 
 This check is purely structural. It cannot tell whether a node's claim is true
 (fabricated node) or stale (correct at generation time, false after a later
 correction) -- those require comparing against the README's own Key Capabilities /
 Scope and limitations sections and the paired upstream-issues.md, which stays
 agent judgment, not a script.
+
+ID-based classification (2026-08-06): originally this classified by matching
+substrings ("input"/"capabilit"/"output") in the subgraph's display LABEL text.
+That stopped being a safe signal once the plan's archetype system (Template
+section, "Archetype-aware structure and content rules") started allowing display
+labels to vary per product archetype -- e.g. a generative product's Inputs
+subgraph is titled "Input data and options", not "Inputs and formats". The
+subgraph ID (`subgraph Inputs[...]` -- the bare word before the `[`) stays a
+stable, non-prose anchor regardless of what the label says, so classification now
+keys off group(1) (the ID) instead of group(2) (the label). Verified backward
+compatible against the full 30-file corpus before this landed: every existing
+diagram already writes an ID that equals its own label text verbatim, so this is
+a no-op for all pre-existing files. `Inputs` and `FromScratch` (the new subgraph
+a hybrid-archetype product's diagram may add, per the Template section) are both
+classified into a single "source" bucket -- the connectivity check's BFS logic
+never enumerated Inputs subgraphs in the first place (it only walks forward from
+Capabilities to Outputs), so folding FromScratch into the same bucket needed no
+change to that logic, only to classification.
 """
 
 from __future__ import annotations
@@ -108,16 +135,19 @@ class DiagramGraph:
     subgraph_kinds_seen: set = field(default_factory=set)
 
 
-def _classify_subgraph(label: str) -> str | None:
-    if not label:
+_SOURCE_IDS = {"Inputs", "FromScratch"}
+_CANONICAL_SUBGRAPH_IDS = _SOURCE_IDS | {"Capabilities", "Outputs"}
+
+
+def _classify_subgraph(subgraph_id: str) -> str | None:
+    if not subgraph_id:
         return None
-    lower = label.lower()
-    if "input" in lower:
-        return "inputs"
-    if "capabilit" in lower:
+    if subgraph_id == "Capabilities":
         return "capabilities"
-    if "output" in lower:
+    if subgraph_id == "Outputs":
         return "outputs"
+    if subgraph_id in _SOURCE_IDS:
+        return "source"
     return None
 
 
@@ -139,7 +169,7 @@ def parse_diagram(mermaid_text: str) -> DiagramGraph:
 
         start_match = _SUBGRAPH_START_RE.match(line)
         if start_match:
-            current_kind = _classify_subgraph(start_match.group(2) or "")
+            current_kind = _classify_subgraph(start_match.group(1))
             if current_kind:
                 graph.subgraph_kinds_seen.add(current_kind)
             continue
@@ -218,6 +248,28 @@ def check_diagram_connectivity(markdown_text: str) -> list[dict]:
     return orphans
 
 
+def check_diagram_known_subgraph_ids(markdown_text: str) -> list[str]:
+    """Return any `## At a glance` subgraph IDs outside the canonical set.
+
+    Canonical set: {Inputs, FromScratch, Capabilities, Outputs}. A non-blocking
+    tripwire -- an unrecognized ID is either a typo'd canonical ID or a
+    genuinely new archetype shape not yet added to the canonical set, and
+    since check_diagram_connectivity's classifier is a strict allow-list, an
+    unrecognized ID would otherwise silently drop out of connectivity
+    checking instead of erroring. Returns [] if there's no mermaid block.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+
+    unknown = []
+    for raw_line in mermaid_text.splitlines():
+        match = _SUBGRAPH_START_RE.match(raw_line.strip())
+        if match and match.group(1) not in _CANONICAL_SUBGRAPH_IDS:
+            unknown.append(match.group(1))
+    return unknown
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check At-a-glance Mermaid diagram connectivity (orphaned Capabilities nodes)."
@@ -227,6 +279,10 @@ def main(argv: list[str] | None = None) -> int:
 
     with open(args.readme_path, "r", encoding="utf-8") as fh:
         text = fh.read()
+
+    unknown_ids = check_diagram_known_subgraph_ids(text)
+    if unknown_ids:
+        print(f"WARN: {args.readme_path} -- unrecognized subgraph ID(s): {', '.join(unknown_ids)}")
 
     orphans = check_diagram_connectivity(text)
     if not orphans:
