@@ -1,8 +1,10 @@
 """CONTRACT: deterministic checks for the /readme-refresh skill (plan:
 C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md).
 
-Currently implements check_diagram_connectivity() and check_diagram_known_subgraph_ids()
--- both "At a glance" Mermaid flowchart checks. Other checks (compute_link_caps,
+Currently implements: check_diagram_connectivity(), check_diagram_known_subgraph_ids(),
+check_diagram_matches_capability_dependencies(), check_diagram_suspicious_direct_product_edge(),
+check_diagram_capability_unreachable_from_product(), and check_only_mermaid_block_changed()
+-- all "At a glance" Mermaid flowchart checks. Other checks (compute_link_caps,
 count_aspose_links, check_enterprise_edition_naming, check_required_sections,
 surgical_diff_check, check_license_link_target, check_process_narration_smells,
 check_no_undisclosed_blocking_commands, check_dropped_content,
@@ -11,6 +13,38 @@ check_api_reference_intro_names_classes,
 check_diagram_no_mechanism_duplicate_output) are specified in the plan but
 not yet implemented; this module grows into the skill's full checks module
 as those land.
+
+check_diagram_matches_capability_dependencies (spec'd 2026-08-06, plan section
+"Capability-dependency edges") is a hard gate once a product has a recorded
+pipeline_edges list (data/diagram_capability_dependencies.json) -- a no-op,
+always-pass when pipeline_edges is None (nothing recorded to contradict).
+Compares the drawn diagram's edges against the recorded [from, to] pairs:
+every recorded pair must have a real from---to edge, `to` must not also carry
+a direct PRODUCT---to edge (the barcode/python C5/C6 contradiction this exists
+to catch), and any drawn Capability-to-Capability edge absent from the record
+is flagged as undeclared (either a real find not yet recorded, or drift).
+
+check_diagram_suspicious_direct_product_edge and
+check_diagram_capability_unreachable_from_product (both spec'd 2026-08-06) are
+heuristic, non-blocking tripwires. The former flags a Capabilities node wired
+both directly from PRODUCT and from a sibling Capability -- the contradictory
+double-path shape found live in barcode/python's 2026-08-05 fix (honest recall:
+catches only defects with *some* existing Capability-to-Capability edge to
+contradict, not the far more common "edge simply never drawn" shape). The
+latter flags a Capabilities node with zero inbound edges from PRODUCT or a
+sibling Capability -- a regression tripwire for future edits, harmless no-op
+against pre-fix diagrams.
+
+check_only_mermaid_block_changed (spec'd 2026-08-06, "Hardened design" section
+-- the mermaid-only-refresh enforcement mechanism) extracts the full fenced
+```mermaid ... ``` block (fences included) from both an old and new copy of a
+README, replaces it with a fixed placeholder in each, and asserts the
+remainder is byte-identical. This is the mechanical gate for "a diagram
+refresh must touch only the diagram" -- it exists specifically because no
+such mechanism existed anywhere in this repo before, and this session already
+observed 5 of 8 parallel agents pick up a contaminated pre-edit snapshot once
+(a different, complementary risk this check does not itself prevent -- it
+only catches a bad *result*, not a bad starting snapshot).
 
 check_diagram_known_subgraph_ids (spec'd 2026-08-06, plan section "Archetype-aware
 structure and content rules") is a non-blocking tripwire: flags any `## At a glance`
@@ -114,11 +148,14 @@ change to that logic, only to classification.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from dataclasses import dataclass, field
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
+_MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
+_MERMAID_BLOCK_PLACEHOLDER = "```mermaid\n<MERMAID_BLOCK_CHECKED_SEPARATELY>\n```"
 _SUBGRAPH_START_RE = re.compile(r'^\s*subgraph\s+([A-Za-z0-9_]+)(?:\["(.*?)"\])?\s*$')
 _SUBGRAPH_END_RE = re.compile(r"^\s*end\s*$")
 _NODE_DECL_RE = re.compile(r'^\s*([A-Za-z0-9_]+)\s*\["(.*?)"\]\s*$')
@@ -270,24 +307,182 @@ def check_diagram_known_subgraph_ids(markdown_text: str) -> list[str]:
     return unknown
 
 
+def check_diagram_matches_capability_dependencies(
+    markdown_text: str, pipeline_edges: list[list[str]] | None
+) -> list[dict]:
+    """Compare the drawn diagram's edges against a recorded pipeline_edges list.
+
+    `pipeline_edges` is the `[[from_capability_id, to_capability_id], ...]` value
+    from a product's `data/diagram_capability_dependencies.json` entry, or None
+    if that product has no entry at all -- absence means "never traced", never
+    "confirmed independent" (the opposite convention from diagram_archetypes.json),
+    so None always returns [] (a no-op, correctly, since there's nothing recorded
+    to contradict). An empty list ([]) means "traced, confirmed no dependencies" --
+    a real, positive record -- and IS checked (against undeclared C-to-C edges).
+
+    Findings, each a dict with a "type" key:
+      - "missing_edge": a recorded [from, to] pair has no real from---to edge drawn.
+      - "contradictory_direct_edge": a recorded pair's `to` node also carries a
+        direct PRODUCT---to edge (the barcode/python C5/C6 shape).
+      - "undeclared_edge": a drawn Capability-to-Capability edge not present in
+        the recorded pipeline_edges (either a real find not yet recorded, or drift).
+    """
+    if pipeline_edges is None:
+        return []
+
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+
+    graph = parse_diagram(mermaid_text)
+    drawn_edges = set(graph.edges)
+    recorded_pairs = {(pair[0], pair[1]) for pair in pipeline_edges}
+
+    findings: list[dict] = []
+    contradicted_targets: set[str] = set()
+    for from_id, to_id in recorded_pairs:
+        if (from_id, to_id) not in drawn_edges:
+            findings.append(
+                {"type": "missing_edge", "from": from_id, "to": to_id}
+            )
+        if ("PRODUCT", to_id) in drawn_edges and to_id not in contradicted_targets:
+            contradicted_targets.add(to_id)
+            findings.append(
+                {"type": "contradictory_direct_edge", "from": "PRODUCT", "to": to_id}
+            )
+
+    for a, b in graph.edges:
+        if graph.node_subgraph.get(a) != "capabilities":
+            continue
+        if graph.node_subgraph.get(b) != "capabilities":
+            continue
+        if (a, b) not in recorded_pairs:
+            findings.append({"type": "undeclared_edge", "from": a, "to": b})
+
+    return findings
+
+
+def check_diagram_suspicious_direct_product_edge(markdown_text: str) -> list[dict]:
+    """Flag a Capabilities node wired both directly from PRODUCT and from a sibling.
+
+    Heuristic, non-blocking. Honest recall: catches only the shape where *some*
+    Capability-to-Capability edge already exists to contradict (barcode/python's
+    C5, uniquely among the pre-fix corpus). Misses the far more common "the
+    correct edge was simply never drawn" shape (barcode's C6, both tex/python
+    cases, email/python's C6) -- a clean pass here must never be read as
+    "verified", only "no contradiction of this specific shape found".
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+
+    graph = parse_diagram(mermaid_text)
+    findings = []
+    for node_id, kind in graph.node_subgraph.items():
+        if kind != "capabilities":
+            continue
+        has_direct_product_edge = ("PRODUCT", node_id) in graph.edges
+        has_sibling_edge = any(
+            b == node_id and graph.node_subgraph.get(a) == "capabilities"
+            for a, b in graph.edges
+        )
+        if has_direct_product_edge and has_sibling_edge:
+            findings.append({"node_id": node_id, "label": graph.node_label.get(node_id, "")})
+    return findings
+
+
+def check_diagram_capability_unreachable_from_product(markdown_text: str) -> list[dict]:
+    """Flag a Capabilities node with zero inbound edges from PRODUCT or a sibling.
+
+    Heuristic, non-blocking. Harmless no-op against a pre-Rule-1-fix diagram
+    (every node still has its PRODUCT edge); becomes load-bearing as Direct-edge
+    fixes land and start replacing PRODUCT edges with Capability-to-Capability
+    edges, catching the slip of deleting a PRODUCT edge without wiring the
+    real upstream Capability in its place.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+
+    graph = parse_diagram(mermaid_text)
+    findings = []
+    for node_id, kind in graph.node_subgraph.items():
+        if kind != "capabilities":
+            continue
+        has_inbound = any(
+            b == node_id and (a == "PRODUCT" or graph.node_subgraph.get(a) == "capabilities")
+            for a, b in graph.edges
+        )
+        if not has_inbound:
+            findings.append({"node_id": node_id, "label": graph.node_label.get(node_id, "")})
+    return findings
+
+
+def check_only_mermaid_block_changed(old_markdown_text: str, new_markdown_text: str) -> bool:
+    """Return True iff the only difference between old and new is inside the
+    ```mermaid ... ``` fenced block (fences included).
+
+    Both texts have their fenced mermaid block (if any) replaced with an
+    identical fixed placeholder, then compared for exact equality. If a text
+    has no mermaid block, the placeholder substitution is a no-op for it --
+    so a mermaid block appearing/disappearing between old and new correctly
+    fails this check (that is not "only the diagram changed").
+    """
+    old_stripped = _MERMAID_BLOCK_FULL_RE.sub(_MERMAID_BLOCK_PLACEHOLDER, old_markdown_text, count=1)
+    new_stripped = _MERMAID_BLOCK_FULL_RE.sub(_MERMAID_BLOCK_PLACEHOLDER, new_markdown_text, count=1)
+    return old_stripped == new_stripped
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check At-a-glance Mermaid diagram connectivity (orphaned Capabilities nodes)."
     )
     parser.add_argument("readme_path", help="Path to a readme.md file")
+    parser.add_argument(
+        "--pipeline-edges",
+        default=None,
+        help=(
+            'JSON array of [from, to] capability-id pairs for this product, e.g. '
+            '\'[["C1","C5"],["C2","C5"]]\'. Omit for products with no recorded entry '
+            "in data/diagram_capability_dependencies.json (the check is a no-op then)."
+        ),
+    )
     args = parser.parse_args(argv)
 
     with open(args.readme_path, "r", encoding="utf-8") as fh:
         text = fh.read()
 
+    exit_code = 0
+
     unknown_ids = check_diagram_known_subgraph_ids(text)
     if unknown_ids:
         print(f"WARN: {args.readme_path} -- unrecognized subgraph ID(s): {', '.join(unknown_ids)}")
 
+    suspicious = check_diagram_suspicious_direct_product_edge(text)
+    if suspicious:
+        labels = ", ".join(f"{f['node_id']} ({f['label']})" for f in suspicious)
+        print(f"WARN: {args.readme_path} -- suspicious direct-PRODUCT-edge node(s): {labels}")
+
+    unreachable = check_diagram_capability_unreachable_from_product(text)
+    if unreachable:
+        labels = ", ".join(f"{f['node_id']} ({f['label']})" for f in unreachable)
+        print(f"WARN: {args.readme_path} -- unreachable-from-PRODUCT node(s): {labels}")
+
+    if args.pipeline_edges is not None:
+        pipeline_edges = json.loads(args.pipeline_edges)
+        dependency_findings = check_diagram_matches_capability_dependencies(text, pipeline_edges)
+        if dependency_findings:
+            exit_code = 1
+            print(f"FAIL: {args.readme_path} -- {len(dependency_findings)} capability-dependency mismatch(es):")
+            for finding in dependency_findings:
+                print(f"  {finding['type']}: {finding['from']} -> {finding['to']}")
+        else:
+            print(f"PASS: {args.readme_path} -- diagram matches recorded capability dependencies")
+
     orphans = check_diagram_connectivity(text)
     if not orphans:
         print(f"PASS: {args.readme_path} -- no orphaned capability nodes")
-        return 0
+        return exit_code
 
     print(f"FAIL: {args.readme_path} -- {len(orphans)} orphaned capability node(s):")
     for orphan in orphans:
