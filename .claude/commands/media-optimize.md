@@ -60,6 +60,15 @@ landscape = banner.
   WebP regardless of the source path. Palette quantization is PNG's own
   mechanism for this problem (color type 3), not a round trip through an
   unrelated codec, and fit all 72 real files with 42–96% headroom.
+  Quantization method is **MaxCoverage**, not MedianCut — found live
+  2026-08-06 that MedianCut visibly discolors small, high-saturation
+  multi-color detail (e.g. the Aspose swirl logo on banner images) when it
+  competes for palette slots against a large uniform background: MedianCut
+  partitions by pixel population, so a rarely-occurring but perceptually
+  important region can be out-voted entirely. MaxCoverage passes the same
+  72-file corpus test with zero budget failures while producing smaller
+  files on average (227KB vs 352KB mean) and preserving that detail
+  correctly.
 
 ## Pre-conditions
 
@@ -94,12 +103,20 @@ landscape = banner.
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py [family] [platform] --apply
    ```
-   For each source: if it's already a canonical artifact, only the missing
-   sibling is generated from its decoded pixels — **the canonical source
-   itself is never modified or deleted.** If it's a raw upload, both
-   `icon.png`/`banner.png` and `icon.webp`/`banner.webp` are generated from
-   it; the raw source is left in place pending review, not deleted
-   automatically.
+   For each source: if it's already a canonical artifact **and already fits
+   the byte budget**, only the missing sibling is generated from its decoded
+   pixels — the canonical source itself is untouched. If a canonical source
+   arrives **over budget** (an operator/tool drops freshly-updated content
+   straight at its canonical path — found live 2026-08-06 on
+   `static/media/email/{cpp,net,python}`), it is recompressed **in place**
+   from its own pixels, never from its sibling, and the sibling is refreshed
+   from the same pixels too so both stay in sync. Before that in-place
+   overwrite, a `{name}.png.bak`/`{name}.webp.bak` copy of the pristine
+   pre-overwrite file is created — `--confirm-reviewed` clears it once
+   accepted; to reject, manually restore from the `.bak` instead of calling
+   confirm. If the source is a raw upload, both `icon.png`/`banner.png` and
+   `icon.webp`/`banner.webp` are generated from it; the raw source is left in
+   place pending review, not deleted automatically.
 
 4. **Verify — visual review is the only real gate, for either format.**
    PSNR/SSIM are reported per generated file for context but do not decide
@@ -111,9 +128,12 @@ landscape = banner.
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed <reported source path> [<path> ...]
    ```
-   For a canonical source this only marks the sibling accepted (nothing to
-   delete — the source was never going anywhere). For a raw upload, this
-   deletes the raw source now that both derivatives are confirmed. Do not run
+   For a canonical source that was recompressed in place, this clears its
+   `.bak` backup (status `BACKUP_CLEARED`) — do this only after confirming
+   the recompressed result, since the backup is the only way back if you
+   don't. For a canonical source that was never over budget, there's nothing
+   to confirm (`ALREADY_FINALIZED`, no-op). For a raw upload, this deletes
+   the raw source now that both derivatives are confirmed. Do not run
    `--confirm-reviewed` on a file you have not actually looked at.
 
 5. **Report** any `STILL_OVER_BUDGET` (over 1MB after the full ladder for
@@ -132,9 +152,11 @@ landscape = banner.
 
 ## Hard Constraints
 
-- **A canonical artifact (`icon.png`/`icon.webp`/`banner.png`/`banner.webp`)
-  is never modified or deleted**, regardless of what else runs against its
-  slot. Only its missing sibling is generated.
+- **A canonical artifact that already fits budget is never modified or
+  deleted.** Only its missing sibling is generated. A canonical artifact
+  that arrives *over* budget is the one exception: it is recompressed in
+  place from its own pixels (never from its sibling), with a `.bak` backup
+  of the pristine pre-overwrite file created first — see Steps 3–4.
 - **WebP quality floor is 80; PNG color floor is 64 colors — never lower,
   never automatic-only.** Step down each ladder only as needed. If the floor
   still doesn't fit budget for a format, report `STILL_OVER_BUDGET` for that
@@ -170,15 +192,18 @@ landscape = banner.
 - Every generated file is `< 1,048,576` bytes
 - Every slot with a source has both `icon.png`+`icon.webp` or
   `banner.png`+`banner.webp` — never just one, once processing completes
-- Existing canonical files are untouched — verify via hash comparison, not
-  just "the file still exists"
+- Existing canonical files that were already under budget are untouched —
+  verify via hash comparison, not just "the file still exists"
 - Every `NEEDS_VISUAL_REVIEW`/`TRANSPARENCY_EXTRACTED_NEEDS_REVIEW` file has
-  either been confirmed (raw-upload source deleted, or canonical-source
-  sibling marked accepted) or is still explicitly pending — never silently
-  left ambiguous
+  either been confirmed (raw-upload source deleted, canonical-source sibling
+  marked accepted, or an in-place-recompressed canonical source's `.bak`
+  cleared) or is still explicitly pending — never silently left ambiguous
+- No `.bak` file survives past the confirm step — a leftover `.bak` means an
+  in-place recompression is still pending review, not finished
 - `git status` shows changes only under `static/media/` for this run —
-  additions only when the source was already canonical (no deletions, no
-  renames)
+  additions when the source was already canonical and under budget; content
+  changes (not renames) for a canonical source that was over budget and got
+  recompressed in place, plus its regenerated sibling
 
 ## Error handling
 
@@ -189,8 +214,11 @@ landscape = banner.
   format; if it's a raw upload and either format failed, the whole file is
   `STILL_OVER_BUDGET` (both derivatives must succeed before review is
   possible)
-- `--confirm-reviewed` on a canonical source: `ALREADY_FINALIZED`, nothing
-  deleted
+- `--confirm-reviewed` on a canonical source that was never over budget:
+  `ALREADY_FINALIZED`, nothing deleted
+- `--confirm-reviewed` on a canonical source that was recompressed in place:
+  `BACKUP_CLEARED`, its `.bak` is deleted (the canonical file itself is
+  untouched by confirm — only the backup is removed)
 - `--confirm-reviewed` on a raw upload missing one or both targets:
   `NO_TARGET_FOUND`, nothing deleted
 - `oxipng` unreachable (not on PATH and download fails): halt the whole run

@@ -141,6 +141,22 @@ def test_dry_run_plans_missing_sibling_for_canonical_source(tmp_path):
     assert source.exists()
 
 
+def test_dry_run_reports_sibling_target_for_over_budget_canonical_source(tmp_path):
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "email" / "testplat"
+    old_webp = _make_webp(icon_dir / "icon.webp", (1024, 1024), (255, 0, 0, 255))
+    new_png = _make_png(icon_dir / "icon.png", (1024, 1024), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root), max_bytes=3000)
+
+    results = oma.run(family="email", platform_name="testplat", apply=False)
+
+    png_result = next(r for r in results if r["source"] == str(new_png))
+    assert png_result["status"] == "PLANNED"
+    assert png_result["target"] == str(new_png)  # recompress itself, not the sibling
+    assert png_result["sibling_target"] == str(old_webp)
+    assert old_webp.exists() and new_png.exists()  # dry-run touches nothing
+
+
 def test_dry_run_plans_both_targets_for_raw_upload(tmp_path):
     media_root = tmp_path / "media"
     source = _make_png(media_root / "pdf" / "python" / "10a46301-uuid.png", (1024, 1024), (255, 0, 0, 255))
@@ -202,6 +218,98 @@ def test_apply_generates_missing_webp_sibling_for_png_source(tmp_path):
     assert webp_path.exists()
     assert source.exists()
     assert _sha256(source) == original_hash
+
+
+def test_over_budget_canonical_source_recompresses_itself_not_sibling(tmp_path):
+    # Replicates the live 2026-08-06 static/media/email/{cpp,net,python} case:
+    # an existing small, budget-compliant .webp (old design) sits next to a
+    # freshly-dropped, over-budget .png (new design, different content). The
+    # fix must recompress the .png from ITS OWN pixels (never regenerate it
+    # from the stale .webp, which would silently discard the update), and
+    # must also refresh the stale .webp sibling to match the new content.
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "email" / "testplat"
+    old_webp = _make_webp(icon_dir / "icon.webp", (1024, 1024), (255, 0, 0, 255))  # old design: red
+    new_png = _make_png(icon_dir / "icon.png", (1024, 1024), (0, 0, 255, 255))     # new design: blue
+    oma.configure(media_root=str(media_root), max_bytes=3000)  # webp(1956) fits, plain png(6489) doesn't
+
+    results = oma.run(family="email", platform_name="testplat", apply=True)
+
+    png_result = next(r for r in results if r["source"] == str(new_png))
+    webp_result = next(r for r in results if r["source"] == str(old_webp))
+
+    assert png_result["status"] in ("OK", "NEEDS_VISUAL_REVIEW")
+    assert png_result["target"] == str(new_png)  # recompressed itself, not overwritten by the sibling
+    assert "sibling_regenerated" in png_result
+    assert png_result["sibling_regenerated"]["status"] in ("OK", "NEEDS_VISUAL_REVIEW")
+
+    # The second loop iteration (old_webp as its own "source" entry) is a
+    # redundant no-op: the sibling was already fixed inside the png's own
+    # turn, so by the time the webp's own turn runs both already match.
+    assert webp_result["status"] == "SKIP_ALREADY_DONE"
+
+    with Image.open(new_png) as im:
+        assert im.convert("RGB").getpixel((0, 0)) == (0, 0, 255)  # still the NEW design
+    with Image.open(old_webp) as im:
+        assert im.convert("RGB").getpixel((0, 0)) == (0, 0, 255)  # refreshed to match, not left red
+    assert new_png.stat().st_size < 3000
+    assert old_webp.stat().st_size < 3000
+
+    # A pre-overwrite backup of the fresh content must survive the apply,
+    # since it's the only way to retry if a human/agent rejects the result
+    # on visual review. Found live 2026-08-06: this exact gap nearly
+    # destroyed unrecoverable user-provided content.
+    backup = new_png.with_name(new_png.name + ".bak")
+    assert backup.exists()
+    with Image.open(backup) as im:
+        assert im.convert("RGB").getpixel((0, 0)) == (0, 0, 255)  # backup holds the pristine pre-overwrite pixels
+    assert png_result["backup"] == str(backup)
+
+
+def test_confirm_reviewed_clears_backup_after_over_budget_recompress(tmp_path):
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "email" / "testplat"
+    new_png = _make_png(icon_dir / "icon.png", (1024, 1024), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root), max_bytes=3000)
+    oma.run(family="email", platform_name="testplat", apply=True)
+    backup = new_png.with_name(new_png.name + ".bak")
+    assert backup.exists()
+
+    results = oma.confirm_reviewed([str(new_png)])
+
+    assert results[0]["status"] == "BACKUP_CLEARED"
+    assert not backup.exists()
+    assert new_png.exists()  # the canonical file itself is untouched by confirm
+
+
+def test_confirm_reviewed_canonical_source_without_backup_is_unchanged(tmp_path):
+    # A canonical source that was never over budget has no backup to clear --
+    # must still report the pre-existing ALREADY_FINALIZED no-op.
+    media_root = tmp_path / "media"
+    source = _make_webp(media_root / "pdf" / "python" / "icon.webp", (1024, 1024), (1, 2, 3, 255))
+    oma.configure(media_root=str(media_root))
+
+    results = oma.confirm_reviewed([str(source)])
+
+    assert results[0]["status"] == "ALREADY_FINALIZED"
+    assert source.exists()
+
+
+def test_over_budget_canonical_source_with_no_sibling_recompresses_alone(tmp_path):
+    # Simpler case: only the over-budget canonical file exists (no sibling to
+    # refresh yet). Must still recompress in place rather than erroring.
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "email" / "testplat2"
+    new_png = _make_png(icon_dir / "icon.png", (1024, 1024), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root), max_bytes=3000)
+
+    results = oma.run(family="email", platform_name="testplat2", apply=True)
+
+    assert results[0]["status"] in ("OK", "NEEDS_VISUAL_REVIEW")
+    assert results[0]["target"] == str(new_png)
+    assert "sibling_regenerated" in results[0]  # sibling webp gets created too
+    assert (icon_dir / "icon.webp").exists()
+    assert new_png.stat().st_size < 3000
 
 
 def test_skip_already_done_when_both_siblings_present(tmp_path):

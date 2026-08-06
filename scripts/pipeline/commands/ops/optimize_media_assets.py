@@ -18,9 +18,17 @@ Unit of work is a SLOT (a directory + shape), not a file: a slot is complete
 when both `{name}.png` and `{name}.webp` exist under budget. For each
 classified source found:
   - If the source is already one of the two canonical names (icon.png,
-    icon.webp, banner.png, banner.webp) -- true for all 72 files as of
-    2026-08-06 -- it is NEVER modified or deleted. Only its missing sibling
-    is generated from its decoded pixels.
+    icon.webp, banner.png, banner.webp) and already fits the byte budget, it
+    is a keeper: never modified or deleted. Only its missing sibling (if
+    any) is generated from its decoded pixels.
+  - If a canonical source arrives OVER budget (an operator/tool drops
+    freshly-updated content straight at its canonical path), it is treated
+    as the fresh content and recompressed in place from its own pixels --
+    never regenerated from its sibling, which may predate it and depict
+    different content. Its sibling is then regenerated from those same
+    pixels too, even if the sibling already fit budget by size alone, since
+    size compliance doesn't imply content correspondence with newly-changed
+    content. Found live 2026-08-06 on static/media/email/{cpp,net,python}.
   - If the source is a raw/temp upload (some other filename), BOTH targets
     are generated from it, and the original is deleted only via
     --confirm-reviewed once both derivatives are confirmed acceptable.
@@ -224,15 +232,26 @@ def global_ssim(img_a: Image.Image, img_b: Image.Image, resize_to: int = 256) ->
 
 def quantize_preserving_alpha(img: Image.Image, colors: int) -> Image.Image:
     """Palette-quantize RGB; quantize/reattach alpha separately so
-    transparency stays exact rather than being posterized into the palette."""
+    transparency stays exact rather than being posterized into the palette.
+
+    Method is MAXCOVERAGE, not MEDIANCUT -- found live 2026-08-06 that
+    MedianCut visibly discolors small, high-saturation multi-color detail
+    (the Aspose swirl logo on banner images) when it competes for palette
+    slots against a huge uniform background: MedianCut partitions by pixel
+    population, so a rarely-occurring but perceptually important region can
+    be out-voted entirely. Verified across the full 72-file real corpus:
+    MaxCoverage produces zero budget failures (same as MedianCut) while also
+    being smaller on average (227KB vs 352KB mean) and visually correct on
+    the logo region where MedianCut was not.
+    """
     if img.mode == "RGBA":
         alpha = img.getchannel("A")
         rgb = img.convert("RGB")
-        q = rgb.quantize(colors=colors, method=Image.MEDIANCUT, dither=Image.FLOYDSTEINBERG)
+        q = rgb.quantize(colors=colors, method=Image.MAXCOVERAGE, dither=Image.FLOYDSTEINBERG)
         q = q.convert("RGBA")
         q.putalpha(alpha)
         return q
-    return img.convert("RGB").quantize(colors=colors, method=Image.MEDIANCUT, dither=Image.FLOYDSTEINBERG)
+    return img.convert("RGB").quantize(colors=colors, method=Image.MAXCOVERAGE, dither=Image.FLOYDSTEINBERG)
 
 
 # ── Transparency extraction for non-alpha sources (untested against real
@@ -398,23 +417,71 @@ def process_file(source: Path, oxipng_bin: str, apply: bool) -> dict:
     png_target, webp_target = target_paths(source, shape)
 
     if source in (png_target, webp_target):
-        # source IS one of the two final artifacts already -- never touch or
-        # delete it. Only its missing sibling (if any) gets generated.
+        # source IS one of the two final artifacts already. Normally (source
+        # already under budget) it is a keeper: never touched, only its
+        # missing sibling gets generated. But a canonical file CAN arrive
+        # over budget -- an operator drops a freshly-updated icon.png/
+        # banner.png straight at its canonical path -- and size compliance
+        # doesn't imply content correspondence with a same-named sibling
+        # that predates it. Found live 2026-08-06 on
+        # static/media/email/{cpp,net,python}: a redesigned banner/icon.png
+        # was dropped in over budget while the old, smaller, still-
+        # budget-compliant .webp from hours earlier depicted the previous
+        # design -- the original "other fits => skip" rule would have used
+        # that stale .webp to regenerate the new .png, discarding the
+        # update. Source-over-budget is the signal that source itself, not
+        # its sibling, is the fresh content.
         other = webp_target if source == png_target else png_target
-        if other.exists() and other.stat().st_size < _cfg_max_bytes:
-            record["status"] = "SKIP_ALREADY_DONE"
-            return record
+        source_fits = source.stat().st_size < _cfg_max_bytes
+
+        if source_fits:
+            if other.exists() and other.stat().st_size < _cfg_max_bytes:
+                record["status"] = "SKIP_ALREADY_DONE"
+                return record
+            regen_target = other
+        else:
+            regen_target = source
 
         if not apply:
             record["status"] = "PLANNED"
-            record["target"] = str(other)
+            record["target"] = str(regen_target)
+            if not source_fits:
+                record["sibling_target"] = str(other)
             return record
+
+        backup_path = None
+        if not source_fits:
+            # About to overwrite `source` in place with a lossy recompression
+            # -- unlike the raw-upload path (which never touches its source
+            # until --confirm-reviewed), there is no surviving pristine copy
+            # to retry from if a human/agent rejects the result on visual
+            # review. Found live 2026-08-06: this exact gap nearly destroyed
+            # unrecoverable original content for static/media/email/{cpp,
+            # net,python} (recovered only because the sibling .webp happened
+            # to be regenerated from the same pre-overwrite pixels at
+            # near-lossless quality -- not a guarantee for every future
+            # case). Back up first; --confirm-reviewed clears it once
+            # accepted. Uses a non-image extension so discover() (which
+            # matches only SOURCE_EXTENSIONS) never picks it up as its own
+            # source.
+            backup_path = source.with_name(source.name + ".bak")
+            if not backup_path.exists():
+                shutil.copy2(source, backup_path)
 
         with Image.open(source) as orig_img:
             orig_img.load()
-            result = _generate_for_target(orig_img, other, oxipng_bin)
-        record.update(result)
-        record["target"] = str(other)
+            result = _generate_for_target(orig_img, regen_target, oxipng_bin)
+            record.update(result)
+            record["target"] = str(regen_target)
+            if not source_fits:
+                # source's content just changed size/encoding -- its sibling
+                # may now be stale even where it still fits budget by size
+                # alone. Regenerate it too, from the SAME pristine pixels
+                # already held in orig_img (not by re-reading `source`,
+                # which by now holds the just-written, possibly-quantized
+                # replacement).
+                record["sibling_regenerated"] = _generate_for_target(orig_img, other, oxipng_bin)
+                record["backup"] = str(backup_path)
         return record
 
     # source is a raw/temp upload -- both targets may need generating.
@@ -465,7 +532,11 @@ def confirm_reviewed(paths: list[str]) -> list[dict]:
     delete the raw source now that both derivatives exist -- unless the
     source is itself a canonical artifact (icon.png/icon.webp/etc.), in
     which case there is nothing to delete; it was never going anywhere.
-    Never called automatically by process_file()."""
+    If a canonical source was recompressed in place (the over-budget path
+    in process_file()), a `.bak` pre-overwrite copy exists alongside it --
+    clear it now that the result is accepted. To reject instead, manually
+    restore from the `.bak` file rather than calling this. Never called
+    automatically by process_file()."""
     results = []
     for p in paths:
         source = Path(p)
@@ -473,7 +544,12 @@ def confirm_reviewed(paths: list[str]) -> list[dict]:
             results.append({"source": p, "status": "ALREADY_GONE"})
             continue
         if is_canonical(source):
-            results.append({"source": p, "status": "ALREADY_FINALIZED"})
+            backup = source.with_name(source.name + ".bak")
+            if backup.exists():
+                backup.unlink()
+                results.append({"source": p, "status": "BACKUP_CLEARED"})
+            else:
+                results.append({"source": p, "status": "ALREADY_FINALIZED"})
             continue
         with Image.open(source) as img:
             shape = classify(*img.size)
@@ -519,6 +595,13 @@ def _format_result_line(r: dict) -> str:
             line += f"\n      {sub_key}: [{sub['status']}]"
             if "size_after" in sub:
                 line += f" {sub['size_after']} bytes"
+    if "sibling_target" in r:
+        line += f"\n      sibling (will also regenerate): {r['sibling_target']}"
+    if "sibling_regenerated" in r:
+        sub = r["sibling_regenerated"]
+        line += f"\n      sibling regenerated: [{sub['status']}]"
+        if "size_after" in sub:
+            line += f" {sub['size_after']} bytes"
     return line
 
 
