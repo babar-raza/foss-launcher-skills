@@ -8,7 +8,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from commands.ops.fetch_aspose_com_targets import (  # noqa: E402
     merge_preserved_families, verify_url, _redirect_changed_path,
+    configure, _read_output_hash, main,
 )
+import commands.ops.fetch_aspose_com_targets as fetch_targets_mod  # noqa: E402
 from unittest.mock import MagicMock
 
 
@@ -172,3 +174,201 @@ def test_verify_url_resolved_equals_request_when_no_redirect():
     assert status == 200
     assert resolved_url == original
     assert chain == []
+
+
+# ---------------------------------------------------------------------------
+# Retry-on-transient-status hardening (TC-01, MT022-2026-08-06)
+#
+# Found live (2026-08-06, re-reading verify_url() while investigating the
+# untracked "5 status regressions" finding from commit e40ed6b509): the retry
+# loop only fired on network EXCEPTIONS (Timeout/ConnError/RequestException) --
+# a *successful* HTTP response carrying 429/500/502/503/504 returned
+# immediately on the first attempt, indistinguishable from a confirmed-dead
+# page. A single CDN gateway hiccup (502) or rate-limit (429) got recorded as
+# permanent fact with zero retry. Fixed: these statuses now retry through the
+# same backoff loop as network exceptions; 404 remains terminal on first
+# observation (a real "not found" signal, not transient).
+#
+# configure(sleep_fn=...) is the seam used here instead of monkeypatching
+# time.sleep directly (AGENTS.md 16 -- avoids a T1/T2 monkeypatch-lint hit).
+# ---------------------------------------------------------------------------
+
+def setup_function(_fn):
+    # Reset the module-level sleep seam before every test in this file so a
+    # prior test's injected fake never leaks into an unrelated one.
+    configure()
+
+
+def teardown_function(_fn):
+    configure()
+
+
+def test_verify_url_retries_on_transient_502_then_succeeds():
+    url = "https://docs.aspose.com/cad/net/"
+    session = MagicMock()
+    session.head.side_effect = [
+        _mock_response(502, url, history=[]),
+        _mock_response(200, url, history=[]),
+    ]
+    sleeps = []
+    configure(sleep_fn=lambda seconds: sleeps.append(seconds))
+
+    status, chain, resolved_url, via, attempt = verify_url(url, session)
+
+    assert status == 200
+    assert via == "head"
+    assert session.head.call_count == 2
+    assert session.get.call_count == 0, "a HEAD-level transient retry must not fall through to GET"
+    assert sleeps == [2], "must sleep once between the two attempts, via the injected seam not real time.sleep"
+
+
+def test_verify_url_404_is_terminal_no_retry():
+    url = "https://docs.aspose.com/cells/typescript/"
+    session = MagicMock()
+    session.head.return_value = _mock_response(404, url, history=[])
+    sleeps = []
+    configure(sleep_fn=lambda seconds: sleeps.append(seconds))
+
+    status, chain, resolved_url, via, attempt = verify_url(url, session)
+
+    assert status == 404
+    assert attempt == 0
+    assert session.head.call_count == 1
+    assert sleeps == [], "404 must not trigger any retry sleep"
+
+
+def test_verify_url_exhausts_retries_on_persistent_502():
+    url = "https://docs.aspose.com/page/python/"
+    session = MagicMock()
+    session.head.return_value = _mock_response(502, url, history=[])
+    sleeps = []
+    configure(sleep_fn=lambda seconds: sleeps.append(seconds))
+
+    status, chain, resolved_url, via, attempt = verify_url(url, session, max_retries=3)
+
+    assert status == 502, "a persistently-failing endpoint must still end up correctly recorded as 502"
+    assert session.head.call_count == 3
+    assert session.get.call_count == 0
+    assert sleeps == [2, 4], "2 sleeps between 3 attempts, using the real backoff schedule"
+
+
+def test_verify_url_transient_status_via_get_fallback_also_retries():
+    """403 triggers the existing GET fallback; if GET itself then returns a
+    transient status, the outer retry loop must still fire (not just the
+    HEAD-side transient branch)."""
+    url = "https://docs.aspose.com/email/python/"
+    session = MagicMock()
+    session.head.return_value = _mock_response(403, url, history=[])
+    session.get.side_effect = [
+        _mock_response(503, url, history=[]),
+        _mock_response(200, url, history=[]),
+    ]
+    sleeps = []
+    configure(sleep_fn=lambda seconds: sleeps.append(seconds))
+
+    status, chain, resolved_url, via, attempt = verify_url(url, session)
+
+    assert status == 200
+    assert via == "get"
+    assert session.get.call_count == 2
+    assert sleeps == [2]
+
+
+def test_configure_resets_to_real_time_sleep_by_default():
+    configure(sleep_fn=lambda seconds: None)
+    configure()  # no args -> resets to time.sleep
+    assert fetch_targets_mod._sleep_fn is fetch_targets_mod.time.sleep
+
+
+# ---------------------------------------------------------------------------
+# Write-path concurrency guard (TC-01, MT022-2026-08-06)
+#
+# main()'s write step used to be a bare write_text() with no check that the
+# on-disk file was unchanged since this run started -- exactly the class of
+# bug that already let commit d2dce37de5 silently clobber commit e40ed6b509's
+# fix (backlog G-49/TC-MT018-06). _read_output_hash() is the pure comparison
+# primitive both the pre-run capture and the pre-write check now share.
+# ---------------------------------------------------------------------------
+
+def test_read_output_hash_returns_none_for_missing_file(tmp_path):
+    assert _read_output_hash(tmp_path / "does_not_exist.json") is None
+
+
+def test_read_output_hash_returns_none_for_corrupt_json(tmp_path):
+    p = tmp_path / "corrupt.json"
+    p.write_text("{not valid json", encoding="utf-8")
+    assert _read_output_hash(p) is None
+
+
+def test_read_output_hash_reads_real_value(tmp_path):
+    p = tmp_path / "aspose_com_targets.json"
+    p.write_text(json.dumps({"provenance": {"output_hash": "sha256:abc123"}}), encoding="utf-8")
+    assert _read_output_hash(p) == "sha256:abc123"
+
+
+def test_main_aborts_when_registry_changed_underneath_it(tmp_path):
+    """Simulates: this run captured a starting hash, then -- while the run was
+    doing its (mocked) work -- another session wrote a different hash to disk.
+    main() must abort (return 1) rather than silently overwrite it, and must
+    NOT write when it aborts."""
+    data_dir = tmp_path / "data"
+    data_dir.mkdir(parents=True)
+    json_path = data_dir / "aspose_com_targets.json"
+    json_path.write_text(json.dumps({
+        "schema_version": "1.0",
+        "provenance": {"generated_at": "2026-01-01T00:00:00Z", "output_hash": "sha256:original", "total_targets": 0},
+        "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {},
+    }), encoding="utf-8")
+
+    def fake_build_target_map(args, session):
+        # Simulate a concurrent session writing a DIFFERENT hash while this
+        # (mocked, instantaneous-in-test) run was "in flight".
+        json_path.write_text(json.dumps({
+            "schema_version": "1.0",
+            "provenance": {"generated_at": "2026-01-01T00:05:00Z", "output_hash": "sha256:concurrent-write", "total_targets": 1},
+            "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {},
+        }), encoding="utf-8")
+        return (
+            {"schema_version": "1.0",
+             "provenance": {"generated_at": "2026-01-01T00:10:00Z", "output_hash": "sha256:this-run-result", "total_targets": 0},
+             "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {}},
+            [],
+        )
+
+    exit_code = main(["--repo-root", str(tmp_path), "--skip-http-verify"], build_fn=fake_build_target_map)
+
+    assert exit_code == 1
+    on_disk = json.loads(json_path.read_text(encoding="utf-8"))
+    assert on_disk["provenance"]["output_hash"] == "sha256:concurrent-write", (
+        "the concurrent session's write must survive -- this run's result must NOT be written"
+    )
+
+
+def test_main_force_overwrites_despite_concurrent_change(tmp_path):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir(parents=True)
+    json_path = data_dir / "aspose_com_targets.json"
+    json_path.write_text(json.dumps({
+        "schema_version": "1.0",
+        "provenance": {"generated_at": "2026-01-01T00:00:00Z", "output_hash": "sha256:original", "total_targets": 0},
+        "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {},
+    }), encoding="utf-8")
+
+    def fake_build_target_map(args, session):
+        json_path.write_text(json.dumps({
+            "schema_version": "1.0",
+            "provenance": {"generated_at": "2026-01-01T00:05:00Z", "output_hash": "sha256:concurrent-write", "total_targets": 1},
+            "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {},
+        }), encoding="utf-8")
+        return (
+            {"schema_version": "1.0",
+             "provenance": {"generated_at": "2026-01-01T00:10:00Z", "output_hash": "sha256:this-run-result", "total_targets": 0},
+             "targets": {}, "all_urls": {}, "unavailable_sources": [], "family_platform_matrix": {}},
+            [],
+        )
+
+    exit_code = main(["--repo-root", str(tmp_path), "--skip-http-verify", "--force"], build_fn=fake_build_target_map)
+
+    assert exit_code == 0
+    on_disk = json.loads(json_path.read_text(encoding="utf-8"))
+    assert on_disk["provenance"]["output_hash"] == "sha256:this-run-result"

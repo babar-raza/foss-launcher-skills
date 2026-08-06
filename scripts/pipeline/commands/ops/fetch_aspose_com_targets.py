@@ -251,6 +251,39 @@ def _redirect_changed_path(requested_url: str, resolved_url: str) -> bool:
     return req.path.rstrip("/") != res.path.rstrip("/")
 
 
+# Status codes worth retrying: transient/gateway-level failures where a single
+# observation must not be trusted as permanent (429 rate-limit, 500/502/503/504
+# origin/gateway hiccups). 403/405 are handled separately (HEAD->GET fallback,
+# not a retry) since they often mean "method not supported here", not "flaky".
+_TRANSIENT_RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
+
+# configure() seam (AGENTS.md 16): overridable for tests so verify_url()'s retry
+# loop can be exercised deterministically without real time.sleep() calls or a
+# live network -- monkeypatching time.sleep/requests.Session directly at module
+# level is a T1/T2 lint violation; this indirection is the sanctioned seam.
+_sleep_fn = time.sleep
+
+
+def configure(*, sleep_fn=None) -> None:
+    """configure() seam (AGENTS.md 16) -- override the retry-loop's sleep
+    function for testing (e.g. a no-op) without monkeypatching time.sleep."""
+    global _sleep_fn
+    _sleep_fn = sleep_fn if sleep_fn is not None else time.sleep
+
+
+def _read_output_hash(json_path: Path) -> Optional[str]:
+    """Read provenance.output_hash from an on-disk target-map file. Returns
+    None if the file doesn't exist or can't be parsed -- callers treat a
+    missing/unreadable hash as "no known prior state to compare against",
+    never as a reason to block (used by the write-time concurrency guard)."""
+    if not json_path.exists():
+        return None
+    try:
+        return json.loads(json_path.read_text(encoding="utf-8")).get("provenance", {}).get("output_hash")
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tuple[int, list[str], str, str, int]:
     """
     Returns (final_http_status, redirect_chain, resolved_url, validated_via, retry_count).
@@ -266,6 +299,14 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
     URLs must be compared by the caller to catch this).
 
     Uses HEAD first; falls back to GET on 403/405/timeout/suspicious.
+
+    Retries on transient HTTP statuses (429/500/502/503/504), not just network
+    exceptions: a *successful* HTTP response carrying one of these was
+    previously returned immediately on the first attempt, indistinguishable in
+    the caller from a confirmed-dead page -- a single CDN gateway hiccup (502)
+    or rate-limit (429) got recorded as permanent fact. 404 is left untouched
+    (a real "not found" signal, not transient) and is still terminal on the
+    first observation.
     """
     redirect_chain: list[str] = []
     retry_delays = [2, 4, 8]
@@ -280,10 +321,18 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
                 redirect_chain.append(r.url)
             last_status = resp.status_code
             resolved_url = resp.url
-            # HEAD succeeded with a usable status
-            if last_status not in (403, 405, 0):
+            # HEAD succeeded with a usable, non-transient status
+            if last_status not in (403, 405, 0) and last_status not in _TRANSIENT_RETRY_STATUSES:
                 return last_status, redirect_chain, resolved_url, "head", attempt
-            # Fall through to GET
+            if last_status not in (403, 405, 0):
+                # Transient status from HEAD -- retry the whole attempt rather
+                # than falling through to GET on the same attempt (GET would
+                # likely see the same transient failure from the same origin).
+                if attempt < max_retries - 1:
+                    _sleep_fn(retry_delays[attempt])
+                    continue
+                return last_status, redirect_chain, resolved_url, "head", attempt
+            # 403/405 -- fall through to GET on this same attempt
         except (Timeout, ConnError, RequestException):
             pass
 
@@ -299,12 +348,15 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
             redirect_chain = redirect_chain_get
             resolved_url = resp.url
             validated_via = "get"
-            return resp.status_code, redirect_chain, resolved_url, "get", attempt
+            last_status = resp.status_code
+            if last_status not in _TRANSIENT_RETRY_STATUSES:
+                return last_status, redirect_chain, resolved_url, "get", attempt
+            # Transient status from GET too -- fall through to the retry sleep below
         except (Timeout, ConnError, RequestException):
             pass
 
         if attempt < max_retries - 1:
-            time.sleep(retry_delays[attempt])
+            _sleep_fn(retry_delays[attempt])
 
     return last_status, redirect_chain, resolved_url, validated_via, max_retries
 
@@ -928,7 +980,13 @@ def generate_report(output_data: dict, warnings: list[str]) -> str:
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, *, build_fn=None) -> int:
+    """`build_fn` is test-only dependency injection (defaults to the real
+    build_target_map) -- lets tests exercise main()'s concurrency-guard
+    read/compare/write sequence without monkeypatching build_target_map
+    directly (AGENTS.md 16 DI-over-monkeypatch convention, matching
+    package_publish_watch.py's own adapters/scan_fn injection points)."""
+    build_fn = build_fn if build_fn is not None else build_target_map
     parser = argparse.ArgumentParser(
         description="Fetch aspose.com sitemaps and build the canonical backlink target map.",
     )
@@ -959,9 +1017,28 @@ def main(argv: list[str] | None = None) -> int:
             "Requires live HTTP access. Default: synthesize from local content (TC-002)."
         ),
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Write even if data/aspose_com_targets.json changed on disk since this run "
+            "started (see concurrency guard below). Confirms you have reviewed and want "
+            "to overwrite a concurrent session's write."
+        ),
+    )
     args = parser.parse_args(argv)
 
     repo_root: Path = args.repo_root
+    json_path_early = repo_root / "data" / "aspose_com_targets.json"
+
+    # Concurrency guard (TC-01 hardening): a full run can take minutes (live HTTP
+    # verification of 288+ URLs). If another session writes data/aspose_com_targets.json
+    # while this run is in flight, a bare write_text() at the end would silently clobber
+    # it -- exactly the failure class that already hit this file three times (commits
+    # e40ed6b509/d2dce37de5/94e2f01a02, backlog G-49/TC-MT018-06; a second, separate,
+    # self-healed incident filed as INV-013). Capture the starting hash now; compare
+    # immediately before writing.
+    starting_output_hash = _read_output_hash(json_path_early)
 
     session = requests.Session()  # metrics-scan-exempt: web-scraping transport, not professionalize LLM
     session.headers.update({"User-Agent": USER_AGENT})
@@ -975,7 +1052,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Fetch + build
     try:
-        output_data, warnings = build_target_map(args, session)
+        output_data, warnings = build_fn(args, session)
     except SystemExit as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -995,8 +1072,27 @@ def main(argv: list[str] | None = None) -> int:
         print("\nDRY RUN complete — no files written.", file=sys.stderr)
         return 0 if not warnings else 2
 
-    # Write data/aspose_com_targets.json
+    # Concurrency guard, continued: re-check the on-disk hash immediately before
+    # writing. A full run's live HTTP verification can take minutes; if the file
+    # changed underneath us, our in-memory output_data was built against a stale
+    # base and would silently discard whatever the other session wrote.
     json_path = repo_root / "data" / "aspose_com_targets.json"
+    if json_path.exists() and not args.force:
+        current_on_disk_hash = _read_output_hash(json_path)
+        if (
+            starting_output_hash is not None
+            and current_on_disk_hash is not None
+            and current_on_disk_hash != starting_output_hash
+        ):
+            print(
+                f"\nABORT: {json_path} changed on disk since this run started "
+                f"(another session wrote to it while this run was in flight). "
+                f"Re-run to pick up the new base, or pass --force to overwrite.",
+                file=sys.stderr,
+            )
+            return 1
+
+    # Write data/aspose_com_targets.json
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(
         json.dumps(output_data, indent=2, ensure_ascii=False),
