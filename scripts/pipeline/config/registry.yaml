@@ -875,7 +875,7 @@ scripts:
       - scripts/pipeline/tests/test_optimize_media_assets.py
     requires_test: true
     deprecated_since: null
-    notes: "rename static/media/{family}/{platform}/*.png to icon.png/banner.png convention and losslessly compress under 1MB via oxipng"
+    notes: "dual-format: ensure every static/media/{family}/{platform} icon/banner slot has both icon.png+icon.webp (or banner.png+banner.webp) under 1MB -- WebP quality ladder 95-80, PNG lossless-then-palette-quantization ladder 256-64 colors + oxipng polish; a canonical-named source is never modified/deleted, only its missing sibling is generated; raw uploads generate both and are deleted only via --confirm-reviewed"
 
   - path: scripts/pipeline/commands/ops/translation_coverage.py
     kind: entrypoint
