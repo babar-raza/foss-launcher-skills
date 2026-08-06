@@ -65,7 +65,7 @@ Each taskcard must include:
 - `taskcard_id`, `title`
 - `source_issue_ids`, `source_issue_level`, `source_audit_finding`
 - `why_it_matters`, `risk_addressed`
-- `status` (valid enum from taskcard-state-machine.schema.json)
+- `status` (free string; see note below — there is no repo-wide taskcard status enum)
 - `lane_owner`, `supervisor_role`
 - `required_implementation`, `required_verification`, `required_evidence`
 - `quality_dimensions`, `scoring_rubric`
@@ -74,6 +74,15 @@ Each taskcard must include:
 - `allowed_paths`, `forbidden_paths`
 - `dependencies`, `closeout_rules`, `machine_state`
 - `validation_commands`
+
+> **Note on `status` (MT021 TC-MT021-07, ST-060).** This prompt previously required the
+> status to come from `taskcard-state-machine.schema.json`. That file has never existed,
+> and no authoritative taskcard status enum exists anywhere in the repo —
+> `scripts/pipeline/lib/taskcard_store.py` does compare-and-set on arbitrary status
+> strings and defines no valid set. Inventing one would have been guessing at intent, so
+> the reference was removed rather than satisfied with a fabricated enum. State the enum
+> your plan actually uses, in the plan. The other three stage schemas this prompt suite
+> declares **do** now exist under `.supervisor/schemas/`.
 
 Every issue must map to one of:
 - `fixed_by_existing_plan_item`

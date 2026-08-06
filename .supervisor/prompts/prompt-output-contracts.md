@@ -5,17 +5,32 @@
 
 ## Schema Registry
 
-| Stage | Schema | Location |
-|-------|--------|----------|
-| Stage 1 (Audit) | Issue Model | `.supervisor/schemas/stage1-issue-model.schema.json` |
-| Stage 2 (Harden) | Taskcard Contract | `.supervisor/schemas/stage2-taskcard-contract.schema.json` |
-| Stage 3 (Execute) | Quality Scoring Rubric | `.supervisor/schemas/stage3-quality-scoring-rubric.schema.json` |
-| Summary Classifier | Parser Contract | `.supervisor/schemas/summary-parser-contract.schema.json` |
-| Loop Controller | Decision State Machine | `.supervisor/schemas/loop-decision-state-machine.schema.json` |
-| Taskcard States | State Machine | `.supervisor/schemas/taskcard-state-machine.schema.json` |
-| Evidence Bundle | Bundle Contract | `.supervisor/schemas/evidence-bundle-contract.schema.json` |
-| Project Adapter | Adapter Contract | `.supervisor/schemas/project-adapter-contract.schema.json` |
-| Governance | Governance Contract | `.supervisor/schemas/governance-contract.schema.json` |
+> **Status annotated 2026-08-05 (MT021 TC-MT021-07, backlog ST-060).** Until then every
+> row below asserted a contract, and **none of the files existed** — so "schema-conformant"
+> was an unenforceable claim across every mission that used this loop. Three schemas were
+> authored, derived strictly from the field lists and enums the stage prompts themselves
+> enumerate. The remaining six are declared here but specified nowhere: authoring them
+> would have meant guessing intent, so they are marked NOT AUTHORED rather than invented
+> or silently deleted. Do not treat a NOT AUTHORED row as an active contract.
+
+| Stage | Schema | Location | Status |
+|-------|--------|----------|--------|
+| Stage 1 (Audit) | Issue Model | `.supervisor/schemas/stage1-issue-model.schema.json` | **AUTHORED** (from prompt1's Issue Record Format) |
+| Stage 2 (Harden) | Taskcard Contract | `.supervisor/schemas/stage2-taskcard-contract.schema.json` | **AUTHORED** (from prompt2's Taskcard Requirements) |
+| Stage 3 (Execute) | Quality Scoring Rubric | `.supervisor/schemas/stage3-quality-scoring-rubric.schema.json` | **AUTHORED** (from prompt3's 15 dimensions) |
+| Summary Classifier | Parser Contract | `.supervisor/schemas/summary-parser-contract.schema.json` | NOT AUTHORED — no field spec exists |
+| Loop Controller | Decision State Machine | `.supervisor/schemas/loop-decision-state-machine.schema.json` | NOT AUTHORED — no field spec exists |
+| Taskcard States | State Machine | `.supervisor/schemas/taskcard-state-machine.schema.json` | NOT AUTHORED — no authoritative status enum in the repo (`taskcard_store.py` defines none); prompt2's requirement on it was removed |
+| Evidence Bundle | Bundle Contract | `.supervisor/schemas/evidence-bundle-contract.schema.json` | NOT AUTHORED — no field spec exists |
+| Project Adapter | Adapter Contract | `.supervisor/schemas/project-adapter-contract.schema.json` | NOT AUTHORED — no field spec exists |
+| Governance | Governance Contract | `.supervisor/schemas/governance-contract.schema.json` | NOT AUTHORED — no field spec exists |
+
+Completeness and conformance of a mission's artifacts against the stage prompts' own
+declared output lists are checkable with:
+
+```bash
+python scripts/ci/checks/check_supervisor_artifacts.py --mission <mission_id>
+```
 
 ## Stage 1 Output Requirements
 
