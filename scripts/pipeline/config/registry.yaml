@@ -1686,6 +1686,45 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: forbidden write-path enforcement oracle; DO NOT MOVE OR RENAME"
 
+  - path: scripts/pipeline/commands/governance/root_docs_checks.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_root_docs_checks.py
+    requires_test: true
+    deprecated_since: null
+    notes: "S-121 (/root-docs-refresh): deterministic HARD_GATE/HEURISTIC checks for the
+      seven root operator/governance docs. Imported directly (not reimplemented) by
+      scripts/ci/checks/check_root_docs_truth.py's commit-time gate — the manual skill
+      and the automated gate call the same functions, by design (plan:
+      moonlit-strolling-sunset.md)."
+
+  - path: scripts/pipeline/commands/governance/root_docs_refresh_run.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_root_docs_refresh_run.py
+    requires_test: true
+    deprecated_since: null
+    notes: "S-121 (/root-docs-refresh): run-bound state machine (CREATED -> FACTS_PINNED ->
+      AWAITING_REVIEW -> APPROVED -> COMMITTED), right-sized from readme_refresh_run.py's
+      architecture (single global lock, no cross-repo push -- see plan
+      moonlit-strolling-sunset.md Design section for rationale)."
+
   - path: scripts/pipeline/commands/launch/plan_check.py
     kind: entrypoint
     lifecycle: active
