@@ -131,3 +131,9 @@ scripts:
     purpose: "Repair locale content whose YAML frontmatter no longer parses — restores description blocks from last parseable committed version (wave-3 incident 2026-07-13)"
     created: "2026-07-13"
     status: done
+
+  - path: scripts/maintenance/generate_missing_product_icons.py
+    kind: one-shot
+    purpose: "Backfill missing static/media/{family}/{platform}/icon.webp for launched platforms with zero icon (5 families, Tier A) plus best-effort page/html root icons and html/python icon+banner (Tier B) — see reports/skill-gaps/2026-08-06-media-composite-generation.md"
+    created: "2026-08-06"
+    status: pending
