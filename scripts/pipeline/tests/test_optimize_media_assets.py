@@ -4,6 +4,8 @@ Tests for scripts/pipeline/commands/ops/optimize_media_assets.py (S-119).
 
 import hashlib
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -44,6 +46,7 @@ def _sha256(path: Path) -> str:
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _REAL_MEDIA_ROOT = _REPO_ROOT / "static" / "media"
 _REAL_SAMPLE_WEBP = _REAL_MEDIA_ROOT / "3d" / "icon.webp"
+_OMA_SCRIPT = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "optimize_media_assets.py"
 
 
 # ── Classification ───────────────────────────────────────────────────────────
@@ -444,6 +447,60 @@ def test_confirm_reviewed_clears_backup_after_replace(tmp_path):
     assert not png_backup.exists()
     assert not webp_backup.exists()
     assert old_png.exists()  # canonical files themselves untouched by confirm
+
+
+# ── --replace CLI wiring (real subprocess, matches test_git_plumb_commit.py's
+#    house convention of exercising the actual CLI rather than only the
+#    library function -- no existing mode in this module had this coverage
+#    before, an MT024 audit finding fixed inline) ───────────────────────────
+
+def test_cli_replace_requires_family_argument(tmp_path):
+    source = _make_png(tmp_path / "new-icon.png", (1024, 1024), (1, 2, 3, 255))
+
+    result = subprocess.run(
+        [sys.executable, str(_OMA_SCRIPT), "--replace", str(source)],
+        cwd=str(_REPO_ROOT), capture_output=True, text=True,
+    )
+
+    assert result.returncode != 0
+    assert "--replace requires the family positional argument" in result.stderr
+
+
+def test_cli_replace_end_to_end(tmp_path):
+    # Uses a disposable family name under the REAL static/media/ root (not
+    # tmp_path) because the CLI has no --media-root override and
+    # resolve_oxipng() needs the already-cached binary at
+    # <repo_root>/cache/oxipng/ -- a fresh cwd would force a network
+    # download. Always cleaned up, never left behind on any exit path.
+    fake_family = "__test_cli_replace_e2e__"
+    fake_dir = _REAL_MEDIA_ROOT / fake_family
+    if fake_dir.exists():
+        shutil.rmtree(fake_dir)
+    try:
+        source = _make_png(tmp_path / "new-icon.png", (1024, 1024), (5, 100, 200, 255))
+
+        result = subprocess.run(
+            [sys.executable, str(_OMA_SCRIPT), fake_family, "--replace", str(source)],
+            cwd=str(_REPO_ROOT), capture_output=True, text=True,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert "NEEDS_VISUAL_REVIEW" in result.stdout
+        assert (fake_dir / "icon.png").exists()
+        assert (fake_dir / "icon.webp").exists()
+
+        # Second invocation of the CLI's own --confirm-reviewed clears the
+        # (nonexistent, nothing-to-back-up) state cleanly -- ALREADY_FINALIZED.
+        confirm = subprocess.run(
+            [sys.executable, str(_OMA_SCRIPT), "--confirm-reviewed",
+             str(fake_dir / "icon.png"), str(fake_dir / "icon.webp")],
+            cwd=str(_REPO_ROOT), capture_output=True, text=True,
+        )
+        assert confirm.returncode == 0, confirm.stderr
+        assert "ALREADY_FINALIZED" in confirm.stdout
+    finally:
+        if fake_dir.exists():
+            shutil.rmtree(fake_dir)
 
 
 # ── confirm_reviewed ─────────────────────────────────────────────────────────
