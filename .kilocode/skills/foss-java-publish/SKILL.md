@@ -186,7 +186,7 @@ Use `-C {repo-path}` for all subsequent git operations. Do NOT rely on `cd` pers
 Read `pom.xml` and extract `<maven.compiler.source>`. Compare to `--java` arg (default `17`).
 
 ```bash
-POM_JAVA=$(python -c "import xml.etree.ElementTree as ET; t=ET.parse('{path}/pom.xml'); \
+POM_JAVA=$(.venv/Scripts/python -c "import xml.etree.ElementTree as ET; t=ET.parse('{path}/pom.xml'); \
   ns={'m':'http://maven.apache.org/POM/4.0.0'}; \
   print(t.find('m:properties/m:maven.compiler.source', ns).text)")
 echo "pom compiler source: $POM_JAVA, --java arg: {java-arg}"
@@ -805,9 +805,9 @@ Before committing to aspose.org:
 hook to fail with "Declared skills do not match skill run record":
 
 ```bash
-python scripts/pipeline/commands/ops/skill_run_manager.py find-pending
+.venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py find-pending
 # For each stale record found:
-python scripts/pipeline/commands/ops/skill_run_manager.py finalize \
+.venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py finalize \
   --record-id {id} --outcome success
 ```
 
@@ -816,7 +816,7 @@ excluded from `find-pending` by the script code (`if "retroactive" not in f.name
 Create WITHOUT `--retroactive`:
 
 ```bash
-python scripts/pipeline/commands/ops/skill_run_manager.py create \
+.venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py create \
   --skills S-73 S-76 S-110 --run-type targeted
 ```
 

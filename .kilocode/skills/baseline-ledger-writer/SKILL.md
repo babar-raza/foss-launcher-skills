@@ -63,7 +63,7 @@ case (previously documented but never implemented — plan §2.3 found 0 impleme
 
 3. **Backfill** (one-time, for products predating the ledger):
    ```bash
-   python scripts/pipeline/commands/knowledge/migrate_baseline_ledger.py [--apply]
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/migrate_baseline_ledger.py [--apply]
    ```
    Classifies each active product CONFIRMED / RECONSTRUCTED / UNCERTAIN / NO_BASELINE — never
    silently CONFIRMED (plan §13). Default is dry-run; `--apply` writes rows.

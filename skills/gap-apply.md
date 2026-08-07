@@ -133,7 +133,7 @@ skill chain.
 ### Step 6: Re-run gap-eval to verify
 
 ```bash
-python scripts/gap-eval/src/run.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform}
 ```
 
 The delta section must show prior Wave 1/2 findings as `fixed` with 0 regressions. If
