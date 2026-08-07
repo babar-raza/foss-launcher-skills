@@ -1218,4 +1218,46 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "media asset size"
+# ---------------------------------------------------------------------------
+# Step 31 (2026-08-07): media asset size guard. Blocks a commit that
+# introduces a static/media/ file over S-119's 1,048,576-byte budget.
+#
+# Found live twice in two days: an operator drops a freshly-updated
+# icon.png/banner.png straight at its canonical path, over budget, before
+# running S-119's own optimize_media_assets.py -- first static/media/email/*
+# (2026-08-06, 6 files), then static/media/html/* and static/media/page/*
+# (2026-08-07, 7 files). S-119 itself handles this correctly once someone
+# remembers to run it; nothing previously stopped the oversized bytes from
+# reaching git history if that step were skipped. This closes that gap at
+# the one point that can't be skipped by forgetting a manual step.
+#
+# Deliberately narrow: byte-size only, against the SAME budget constant
+# S-119 itself uses (imported directly, not duplicated). Does not replace
+# S-119's own mandatory visual review for a lossy result -- see
+# skills/media-optimize.md.
+# ---------------------------------------------------------------------------
+staged_media_files=()
+while IFS= read -r _mafline; do staged_media_files+=("$_mafline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep '^static/media/' || true
+)
+if [ ${#staged_media_files[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_media_asset_size.py" ]; then
+        _mas_out=$(printf '%s\n' "${staged_media_files[@]}" | PYTHONPATH=scripts/pipeline \
+            "$_HOOK_PYTHON" scripts/ci/checks/check_media_asset_size.py 2>&1)
+        _mas_exit=$?
+        if [ $_mas_exit -ne 0 ]; then
+            echo "$_mas_out" | sed 's/^/[Step 31] /' >&2
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 31] SKIP: .venv not found or check_media_asset_size.py missing." >&2
+    fi
+else
+    echo "[Step 31] No staged static/media/ files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

@@ -136,7 +136,13 @@ landscape = banner.
 
 6. **Commit** via `/commit` (S-76). No override token is needed for
    `static/media/` — `path_guard.py`'s `ALLOWED_PREFIXES` permanently allows
-   this path.
+   this path. Pre-commit Step 31 (`check_media_asset_size.py`) independently
+   re-checks every staged `static/media/` file against the same byte budget
+   and blocks the commit if any is still over — a backstop for the case
+   where this skill was skipped or an oversized file was staged by some
+   other means (added 2026-08-07 after this happened twice in two days:
+   `static/media/email/*`, then `static/media/html/*` and
+   `static/media/page/*`).
 
 > **Skill context close** — run after the last step:
 > ```bash
