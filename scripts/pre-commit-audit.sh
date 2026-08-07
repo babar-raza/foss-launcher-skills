@@ -436,7 +436,17 @@ if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agent
         _venv_py=""
     fi
     if [ -n "$_venv_py" ]; then
-        "$_venv_py" scripts/ci/checks/enforce_venv_python.py --check
+        # Scope the skill-markdown scan to staged files only (--files), matching this
+        # step's own comment above ("Only checks staged skill files to avoid false
+        # positives on unmodified legacy files") -- the unscoped call previously let a
+        # pre-existing violation in ANY skill file block a commit that never touched
+        # that file (found live 2026-08-07). Settings-file scanning stays unconditional
+        # (enforce_venv_python.py always scans .claude/settings*.json regardless of
+        # --files — that's a separate, always-on governance safety net, not a
+        # staged-file check).
+        _staged_skill_md=$(git diff --cached --name-only --diff-filter=ACM -- \
+            'skills/*.md' '.agents/skills/*/SKILL.md' '.kilocode/skills/*/SKILL.md' '.claude/commands/*.md')
+        "$_venv_py" scripts/ci/checks/enforce_venv_python.py --check --files $_staged_skill_md
         if [ $? -ne 0 ]; then
             echo ""
             echo "BLOCKED: Staged file(s) contain bare python/pip or --user violations."

@@ -309,6 +309,91 @@ def test_yaml_tagged_fence_not_scanned(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# Regression: a ```yaml (or other non-bash/sh tagged) fence followed by a LATER
+# real ```bash fence must not mis-pair and swallow the prose in between.
+# Found live 2026-08-07 against skills/new-blog-post.md: a ```yaml fence's
+# closing ``` was mismatched with a later ```bash fence's opening ```, causing
+# 91 lines of pure prose -- including "never write `pip install`..." -- to be
+# scanned as shell content and flagged as a bare-python violation.
+# ---------------------------------------------------------------------------
+
+def test_yaml_fence_followed_by_bash_fence_does_not_swallow_prose(tmp_path):
+    src = (
+        "# Skill\n\n"
+        "```yaml\n"
+        "key: value\n"
+        "```\n\n"
+        "Some prose here that mentions `pip install` and `python` as inline code, "
+        "not as a real command to run.\n\n"
+        "```bash\n"
+        "python -m real_command\n"
+        "```\n"
+    )
+    out, viols = _run_fix(tmp_path, "skills/foo.md", src)
+    # The prose's inline-code mentions must NOT be treated as violations.
+    assert "mentions `pip install` and `python`" in out
+    # Only the real bash-fence violation should be fixed.
+    assert len(viols) == 1
+    assert ".venv/Scripts/python -m real_command" in out
+
+
+def test_yaml_fence_followed_by_bash_fence_check_mode(tmp_path):
+    """Same scenario in --check mode: exactly one real violation, not a
+    prose-swallowing false positive."""
+    src = (
+        "# Skill\n\n"
+        "```yaml\n"
+        "key: value\n"
+        "```\n\n"
+        "Never write `pip install`/`npm install` literally -- use the shortcode.\n\n"
+        "```bash\n"
+        "pip install real-thing\n"
+        "```\n"
+    )
+    viols, _deny = _run_check(tmp_path, "skills/foo.md", src)
+    assert len(viols) == 1
+    assert "pip install real-thing" in viols[0]
+
+
+# ---------------------------------------------------------------------------
+# --files scoping (pre-commit-audit.sh Step 7b staged-files-only fix)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def _reset_evp_configure():
+    yield
+    enforce_venv_python.configure()
+
+
+def test_collect_files_explicit_scopes_to_given_paths(tmp_path):
+    enforce_venv_python.configure(repo_root=tmp_path)
+    (tmp_path / "skills").mkdir()
+    (tmp_path / "skills" / "a.md").write_text("```bash\npython -m a\n```\n", encoding="utf-8")
+    (tmp_path / "skills" / "b.md").write_text("```bash\npython -m b\n```\n", encoding="utf-8")
+
+    scoped = enforce_venv_python.collect_files(explicit=["skills/a.md"])
+    assert [p.name for p in scoped] == ["a.md"]
+
+
+def test_collect_files_explicit_ignores_paths_outside_scan_dirs(tmp_path):
+    enforce_venv_python.configure(repo_root=tmp_path)
+    (tmp_path / "other").mkdir()
+    (tmp_path / "other" / "c.md").write_text("```bash\npython -m c\n```\n", encoding="utf-8")
+
+    scoped = enforce_venv_python.collect_files(explicit=["other/c.md"])
+    assert scoped == []
+
+
+def test_collect_files_explicit_none_scans_everything(tmp_path):
+    enforce_venv_python.configure(repo_root=tmp_path)
+    (tmp_path / "skills").mkdir()
+    (tmp_path / "skills" / "a.md").write_text("```bash\npython -m a\n```\n", encoding="utf-8")
+
+    scoped = enforce_venv_python.collect_files(explicit=None)
+    assert [p.name for p in scoped] == ["a.md"]
+
+
+# ---------------------------------------------------------------------------
 # DENY_PATTERNS (--user, USER_SITE)
 # ---------------------------------------------------------------------------
 
