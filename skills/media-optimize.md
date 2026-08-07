@@ -111,6 +111,30 @@ landscape = banner.
    `icon.webp`/`banner.webp` are generated from it; the raw source is left in
    place pending review, not deleted automatically.
 
+3b. **Explicit replace (deliberate rebrand)** — for the one case Apply
+   deliberately declines to handle on its own: swapping in brand-new
+   icon/banner artwork for a slot whose canonical pair *already fits
+   budget*. Apply's over-budget-in-place-recompression path (step 3) only
+   fires when the arriving content is over budget — that's a strong,
+   self-evident signal of "this is fresh content." When both formats
+   already fit budget, same-size content changes are invisible to it by
+   design (same-size ≠ same content, but the tool can't tell without a
+   human saying so). Use this when a human is deliberately replacing a
+   slot's art, not filling a gap or fixing a budget violation:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py <family> [platform] --replace <path-to-new-source-image>
+   ```
+   Classifies the source by pixel dimensions exactly like every other path
+   (rejects `UNCLASSIFIED` untouched). Backs up any existing canonical
+   `icon.png`/`icon.webp` (or `banner.*`) to `.bak` first, creates the
+   target family/platform directory if it doesn't exist yet (a brand-new
+   family with no prior icon at all is just the case with nothing to back
+   up), then regenerates both formats from the new source's pixels via the
+   same `generate_png()`/`generate_webp()` every other path uses — no
+   separate image-processing logic. Reports `NEEDS_VISUAL_REVIEW` like any
+   other lossy generation; `--confirm-reviewed` (unmodified) clears the
+   `.bak` once accepted, exactly as in step 4 below.
+
 4. **Verify — visual review is the only real gate, for either format.**
    PSNR/SSIM are reported per generated file for context but do not decide
    acceptance (see the evidence above). Render every `NEEDS_VISUAL_REVIEW`
@@ -152,10 +176,13 @@ landscape = banner.
 ## Hard Constraints
 
 - **A canonical artifact that already fits budget is never modified or
-  deleted.** Only its missing sibling is generated. A canonical artifact
-  that arrives *over* budget is the one exception: it is recompressed in
-  place from its own pixels (never from its sibling), with a `.bak` backup
-  of the pristine pre-overwrite file created first — see Steps 3–4.
+  deleted by the automated Dry-run/Apply path.** Only its missing sibling is
+  generated. A canonical artifact that arrives *over* budget is recompressed
+  in place from its own pixels (never from its sibling), with a `.bak`
+  backup of the pristine pre-overwrite file created first — see Steps 3–4.
+  The only other exception is the explicit `--replace` step (3b) — always
+  human-directed, never auto-triggered by discovery — which follows the
+  same backup-first pattern for the same reason.
 - **WebP quality floor is 80; PNG color floor is 64 colors — never lower,
   never automatic-only.** Step down each ladder only as needed. If the floor
   still doesn't fit budget for a format, report `STILL_OVER_BUDGET` for that

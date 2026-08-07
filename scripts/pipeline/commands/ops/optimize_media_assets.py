@@ -64,6 +64,21 @@ CLI:
     .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --dry-run
     .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf python --apply
     .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed PATH [PATH ...]
+    .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf --replace new-icon.png
+
+--replace is a distinct, always-explicit fourth mode: an operator names an
+exact family (and optional platform) and a new source image to deliberately
+swap into that slot, even when the existing canonical pair already fits
+budget. The other three modes never do this on their own -- process_file()
+only recompresses a canonical pair in place when it arrives OVER budget
+(a strong, self-evident signal of fresh content); when both formats already
+fit budget, same-size content changes are invisible to it. That's correct
+default caution, not a bug -- but it means a deliberate rebrand (all-new
+artwork, same dimensions, same or smaller size) needs a human to say so
+explicitly. --replace is that explicit path: back up any existing canonical
+targets to `.bak`, regenerate both formats from the new source's pixels via
+the same generate_png()/generate_webp() every other mode uses, and leave
+--confirm-reviewed (unmodified) to clear the backup once visually accepted.
 """
 
 from pathlib import Path
@@ -220,8 +235,8 @@ def global_ssim(img_a: Image.Image, img_b: Image.Image, resize_to: int = 256) ->
     stat_a, stat_b = ImageStat.Stat(a), ImageStat.Stat(b)
     mu_a, mu_b = stat_a.mean[0], stat_b.mean[0]
     var_a, var_b = stat_a.var[0], stat_b.var[0]
-    data_a = list(a.getdata())
-    data_b = list(b.getdata())
+    data_a = list(a.get_flattened_data())
+    data_b = list(b.get_flattened_data())
     n = len(data_a)
     cov = sum((data_a[i] - mu_a) * (data_b[i] - mu_b) for i in range(n)) / n
     c1, c2 = (0.01 * 255) ** 2, (0.03 * 255) ** 2
@@ -293,7 +308,7 @@ def extract_transparency(img: Image.Image) -> Image.Image | None:
     rgb = img.convert("RGB")
     inner, outer = 12, 40
     alpha_data = []
-    for pixel in rgb.getdata():
+    for pixel in rgb.get_flattened_data():
         dist = math.sqrt(sum((pixel[c] - bg[c]) ** 2 for c in range(3)))
         if dist <= inner:
             alpha_data.append(0)
@@ -566,6 +581,55 @@ def confirm_reviewed(paths: list[str]) -> list[dict]:
     return results
 
 
+def process_replace(
+    source: Path, family: str, platform_name: str | None, media_root: Path, oxipng_bin: str,
+) -> dict:
+    """Explicit operator-directed replace: regenerate a slot's canonical
+    icon/banner pair from a brand-new source image, even though the
+    existing pair (if any) already fits budget. Unlike process_file(), this
+    path is never auto-triggered by discover() -- a human names the exact
+    family/platform and source file. Any existing canonical target is
+    backed up to `.bak` first (same naming/mechanism as the over-budget
+    in-place-recompression path in process_file()); --confirm-reviewed
+    (unmodified) clears it once the result is visually accepted.
+    """
+    with Image.open(source) as img:
+        width, height = img.size
+
+    shape = classify(width, height)
+    record: dict = {"source": str(source), "shape": shape}
+    if shape is None:
+        record["status"] = "UNCLASSIFIED"
+        return record
+
+    target_dir = media_root / family / platform_name if platform_name else media_root / family
+    target_dir.mkdir(parents=True, exist_ok=True)
+    base = "icon" if shape == "icon" else "banner"
+    png_target = target_dir / f"{base}.png"
+    webp_target = target_dir / f"{base}.webp"
+
+    backups: dict[str, str] = {}
+    for target in (png_target, webp_target):
+        if target.exists():
+            backup_path = target.with_name(target.name + ".bak")
+            if not backup_path.exists():
+                shutil.copy2(target, backup_path)
+            backups[str(target)] = str(backup_path)
+
+    with Image.open(source) as orig_img:
+        orig_img.load()
+        png_result = generate_png(orig_img, png_target, oxipng_bin)
+        webp_result = generate_webp(orig_img, webp_target)
+
+    record["png"] = png_result
+    record["webp"] = webp_result
+    record["backups"] = backups
+    both_ok = png_result["status"] in ("OK", "NEEDS_VISUAL_REVIEW") and \
+        webp_result["status"] in ("OK", "NEEDS_VISUAL_REVIEW")
+    record["status"] = "NEEDS_VISUAL_REVIEW" if both_ok else "STILL_OVER_BUDGET"
+    return record
+
+
 def run(family: str | None, platform_name: str | None, apply: bool) -> list[dict]:
     media_root = Path(_cfg_media_root)
     files = discover(media_root, family, platform_name)
@@ -617,6 +681,7 @@ Examples:
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --dry-run
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf python --apply
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed static/media/pdf/uuid-upload.png
+  .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf --replace new-icon.png
         """,
     )
     parser.add_argument("family", nargs="?", help="Product family (optional scope)")
@@ -630,6 +695,16 @@ Examples:
         metavar="PATH",
         help="Delete raw-upload sources after manual visual review of their derivatives",
     )
+    mode.add_argument(
+        "--replace",
+        metavar="SOURCE_PATH",
+        help=(
+            "Explicit operator decision: regenerate this slot's canonical "
+            "icon/banner pair from a new source image, even if the existing "
+            "pair already fits budget. Requires the family positional arg. "
+            "Backs up existing canonical files to .bak first."
+        ),
+    )
     args = parser.parse_args()
 
     if args.confirm_reviewed:
@@ -637,6 +712,17 @@ Examples:
         for r in results:
             extra = f" -> {', '.join(r['targets'])}" if "targets" in r else ""
             print(f"  [{r['status']}] {r['source']}{extra}")
+        return
+
+    if args.replace:
+        if not args.family:
+            parser.error("--replace requires the family positional argument")
+        media_root = Path(_cfg_media_root)
+        oxipng_bin = resolve_oxipng()
+        result = process_replace(Path(args.replace), args.family, args.platform, media_root, oxipng_bin)
+        print(_format_result_line(result))
+        if result["status"] in ("STILL_OVER_BUDGET", "UNCLASSIFIED"):
+            sys.exit(1)
         return
 
     results = run(args.family, args.platform, apply=args.apply)

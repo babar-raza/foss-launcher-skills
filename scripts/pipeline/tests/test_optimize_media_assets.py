@@ -368,6 +368,84 @@ def test_still_over_budget_reported_for_canonical_source(tmp_path):
     assert not (media_root / "pdf" / "go" / "icon.png").exists()
 
 
+# ── process_replace (explicit operator-directed swap) ───────────────────────
+
+def test_replace_backs_up_and_regenerates_existing_pair(tmp_path):
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "pdf"
+    old_png = _make_png(icon_dir / "icon.png", (1024, 1024), (255, 0, 0, 255))
+    old_webp = _make_webp(icon_dir / "icon.webp", (1024, 1024), (255, 0, 0, 255))
+    old_png_bytes, old_webp_bytes = old_png.read_bytes(), old_webp.read_bytes()
+    new_source = _make_png(tmp_path / "incoming" / "new-icon.png", (1024, 1024), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace(new_source, "pdf", None, media_root, oma.resolve_oxipng())
+
+    assert result["status"] == "NEEDS_VISUAL_REVIEW"
+    assert result["png"]["status"] in ("OK", "NEEDS_VISUAL_REVIEW")
+    assert result["webp"]["status"] == "NEEDS_VISUAL_REVIEW"
+
+    with Image.open(old_png) as im:
+        assert im.convert("RGB").getpixel((0, 0)) == (0, 0, 255)  # new content, not the old red
+    with Image.open(old_webp) as im:
+        assert im.convert("RGB").getpixel((0, 0)) == (0, 0, 255)
+
+    png_backup = old_png.with_name("icon.png.bak")
+    webp_backup = old_webp.with_name("icon.webp.bak")
+    assert png_backup.exists() and webp_backup.exists()
+    assert png_backup.read_bytes() == old_png_bytes  # backup holds pristine pre-replace bytes
+    assert webp_backup.read_bytes() == old_webp_bytes
+    assert result["backups"] == {str(old_png): str(png_backup), str(old_webp): str(webp_backup)}
+
+
+def test_replace_creates_new_family_dir(tmp_path):
+    media_root = tmp_path / "media"  # diagram/ocr-style case: no folder yet
+    new_source = _make_png(tmp_path / "incoming" / "new-icon.png", (1024, 1024), (10, 200, 30, 255))
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace(new_source, "diagram", None, media_root, oma.resolve_oxipng())
+
+    assert result["status"] == "NEEDS_VISUAL_REVIEW"
+    assert result["backups"] == {}  # nothing existed to back up
+    assert (media_root / "diagram" / "icon.png").exists()
+    assert (media_root / "diagram" / "icon.webp").exists()
+    assert not (media_root / "diagram" / "icon.png.bak").exists()
+
+
+def test_replace_unclassified_source_rejected(tmp_path):
+    media_root = tmp_path / "media"
+    old_png = _make_png(media_root / "pdf" / "icon.png", (1024, 1024), (255, 0, 0, 255))
+    original_hash = _sha256(old_png)
+    new_source = _make_png(tmp_path / "incoming" / "odd-size.png", (500, 500), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace(new_source, "pdf", None, media_root, oma.resolve_oxipng())
+
+    assert result["status"] == "UNCLASSIFIED"
+    assert _sha256(old_png) == original_hash  # untouched
+    assert not old_png.with_name("icon.png.bak").exists()
+
+
+def test_confirm_reviewed_clears_backup_after_replace(tmp_path):
+    media_root = tmp_path / "media"
+    icon_dir = media_root / "pdf"
+    old_png = _make_png(icon_dir / "icon.png", (1024, 1024), (255, 0, 0, 255))
+    _make_webp(icon_dir / "icon.webp", (1024, 1024), (255, 0, 0, 255))
+    new_source = _make_png(tmp_path / "incoming" / "new-icon.png", (1024, 1024), (0, 0, 255, 255))
+    oma.configure(media_root=str(media_root))
+    oma.process_replace(new_source, "pdf", None, media_root, oma.resolve_oxipng())
+    png_backup = old_png.with_name("icon.png.bak")
+    webp_backup = icon_dir / "icon.webp.bak"
+    assert png_backup.exists() and webp_backup.exists()
+
+    results = oma.confirm_reviewed([str(old_png), str(icon_dir / "icon.webp")])
+
+    assert all(r["status"] == "BACKUP_CLEARED" for r in results)
+    assert not png_backup.exists()
+    assert not webp_backup.exists()
+    assert old_png.exists()  # canonical files themselves untouched by confirm
+
+
 # ── confirm_reviewed ─────────────────────────────────────────────────────────
 
 def test_confirm_reviewed_canonical_source_is_never_deleted(tmp_path):
