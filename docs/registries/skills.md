@@ -97,6 +97,7 @@
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | readme-refresh | S-120 | Generate, verify, and (on explicit approval) push a production-grade README.md refresh for one FOSS product repository via the run-bound readme_refresh_run.py state machine |
+| root-docs-refresh | S-121 | Repeatable, deterministic-check-driven refresh of the seven root-level operator/governance docs (OPERATOR_GUIDE.md, RUNBOOK.md, CODEX.md, GRADE_CONTRACT.md, LAYMAN_SYSTEM_STATUS_REVIEW.md, TASK_BACKLOG.md, TASK_BACKLOG_20260521.md) via the run-bound root_docs_refresh_run.py state machine; the same check functions back scripts/ci/checks/check_root_docs_truth.py's commit-time gate |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org page |
 | register-human-content | S-66 | Onboard a human-authored page into quality systems |

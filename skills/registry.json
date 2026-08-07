@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 109,
+  "skill_count": 110,
   "skills": [
     {
       "id": "S-01",
@@ -823,6 +823,15 @@
       "description": "Skill description pending",
       "internal": false,
       "canonical_path": "skills/readme-refresh.md"
+    },
+    {
+      "id": "S-121",
+      "slug": "root-docs-refresh",
+      "name": "Root Docs Refresh",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/root-docs-refresh.md",
+      "args": "none — always operates on the fixed seven-file set."
     },
     {
       "id": "S-HT-02",
