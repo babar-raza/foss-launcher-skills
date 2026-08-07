@@ -1009,6 +1009,88 @@ class TestMalformedEnrichedWarning:
 
 
 # ---------------------------------------------------------------------------
+# G22 (concurrent-toasting-biscuit): LLM output cache hit/miss counters
+# persisted into the enrichment report -- previously tracked only in-memory
+# on the LLMOutputCache instance and discarded when enrich() returned.
+# ---------------------------------------------------------------------------
+
+class TestEnrichmentReportCacheStats:
+    def _setup_scout_dir(self, tmp_path: Path) -> Path:
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        return scout_dir
+
+    def test_no_llm_report_shows_zero_cache_activity(self, tmp_path):
+        """Empty-cache negative control: a run with no LLM/cache activity at
+        all must show cache_hits: 0, not a missing key or a stale value."""
+        self._setup_scout_dir(tmp_path)
+        reports_root = tmp_path / "reports"
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"),
+               no_llm=True, reports_root=str(reports_root))
+        report_files = list((reports_root / "enrichment").glob("cells-python-*.json"))
+        assert report_files, "enrichment report must be written even in --no-llm mode"
+        report = json.loads(report_files[0].read_text(encoding="utf-8"))
+        assert report["run_stats"]["cache_hits"] == 0
+        assert report["run_stats"]["cache_misses"] == 0
+
+    def test_rehash_only_report_shows_zero_cache_activity(self, tmp_path):
+        """--rehash-only never calls the LLM either -- same empty-cache
+        expectation as --no-llm, exercised via a different early-return path."""
+        scout_dir = self._setup_scout_dir(tmp_path)
+        existing = {
+            "generated_at": "2026-04-04T00:00:00", "model": "gpt-oss",
+            "source": "enrich.py (S-37)", "family": "cells", "platform": "python",
+            "api_surface_sha": "abc123", "claim_count": 1,
+            "claims": [{"id": "CLM-1", "text": "Workbook.save persists data.",
+                        "kind": "api", "confidence": 0.8, "grounding": ["Workbook"]}],
+        }
+        (scout_dir / "enriched_claims.json").write_text(json.dumps(existing), encoding="utf-8")
+        reports_root = tmp_path / "reports"
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"),
+               rehash_only=True, reports_root=str(reports_root))
+        report_files = list((reports_root / "enrichment").glob("cells-python-*.json"))
+        assert report_files
+        report = json.loads(report_files[0].read_text(encoding="utf-8"))
+        assert report["run_stats"]["cache_hits"] == 0
+        assert report["run_stats"]["cache_misses"] == 0
+
+    def test_write_enrichment_report_persists_nonzero_cache_stats(self, tmp_path):
+        """Positive case, exercising the real LLMOutputCache + the real report
+        writer (not a synthetic re-implementation of either): populate one
+        cache entry via LLMOutputCache.save(), load() it once (a real hit)
+        and load() a second, never-written key (a real miss), assign into
+        run_stats exactly as enrich() now does at each write site, and
+        confirm _write_enrichment_report persists the non-zero values."""
+        from lib.llm_output_cache import LLMOutputCache
+        from enrich import _write_enrichment_report
+
+        cache_root = tmp_path / "reports"
+        cache = LLMOutputCache("cells", "python", "enrich", reports_root=cache_root)
+        cache.save("realkey000", {"claims": []}, "professionalize/gpt-oss")
+        assert cache.load("realkey000") is not None  # real hit
+        assert cache.load("nonexistentkey111") is None  # real miss
+        assert cache.hits == 1
+        assert cache.misses == 1
+
+        run_stats = {"batches_attempted": 1, "cache_hits": cache.hits,
+                     "cache_misses": cache.misses}
+        report_path = _write_enrichment_report(
+            "cells", "python", run_stats, "success",
+            tmp_path / "knowledge" / "cells" / "python" / "scout" / "enriched_claims.json",
+            reports_root=str(cache_root),
+        )
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert report["run_stats"]["cache_hits"] == 1
+        assert report["run_stats"]["cache_misses"] == 1
+
+
+# ---------------------------------------------------------------------------
 # TC-09T: Pipeline state manifest observability
 # ---------------------------------------------------------------------------
 

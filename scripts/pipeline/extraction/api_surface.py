@@ -1734,11 +1734,26 @@ def _flatten_inheritance(classes: list[dict]) -> None:
             # Confirmed root cause of ST-013 (3d/java truth audit 2026-07-14):
             # identical wrong doc text appeared on ~37 unrelated pages because
             # they all rendered the same shared, mutated dict.
-            child_method_names = {m["name"] for m in cls.get("methods", [])}
+            # Dedup by (name, param-type-signature), not name alone -- a
+            # name-only key silently drops real overloads sharing a name
+            # with different parameter types (confirmed: Node.ToString
+            # declares both ToString(SaveFormat) and ToString(SaveOptions);
+            # flattening kept only whichever the parent's own list listed
+            # first, for every subclass). Two methods can't share both name
+            # AND identical param types in one class, so this key is exact,
+            # not a heuristic.
+            def _method_key(entry: dict) -> tuple:
+                return (
+                    entry["name"],
+                    tuple(p.get("type", "") for p in entry.get("params", [])),
+                )
+
+            child_method_keys = {_method_key(m) for m in cls.get("methods", [])}
             for m in parent.get("methods", []):
-                if m["name"] not in child_method_names:
+                key = _method_key(m)
+                if key not in child_method_keys:
                     cls.setdefault("methods", []).append(copy.deepcopy(m))
-                    child_method_names.add(m["name"])
+                    child_method_keys.add(key)
             child_prop_names = {p["name"] for p in cls.get("properties", [])}
             for p in parent.get("properties", []):
                 if p["name"] not in child_prop_names:
@@ -2521,6 +2536,30 @@ def extract_api_surface(
                 bases, methods, properties, language)
             methods = methods + _synth_methods
             properties = properties + _synth_properties
+
+            # G-21: every method/property dict built above (13+ append sites
+            # across this function and the per-language helpers it calls --
+            # _extract_python_properties, _synthesize_java_properties,
+            # _synthesize_cpp_properties, _extract_go_struct_fields,
+            # _extract_go_interface_methods, _extract_rust_struct_fields, and
+            # the inline appends in this loop) carries "line" but never
+            # "file" -- only the class-level record does (cls_record["file"]
+            # below). _flatten_inheritance() deep-copies these dicts verbatim
+            # into every subclass, so a consumer pairing a subclass's own
+            # cls["file"] with an INHERITED member's "line" gets a bogus
+            # (subclass-file, base-class-line) citation -- confirmed on
+            # words/net: 94/617 classes (every direct Field subclass) cite a
+            # base-class method's real line number against the subclass's own
+            # file. Single backfill point here (after every append/extend for
+            # this class has already happened, before cls_record is built)
+            # is comprehensive by construction: every method/property in
+            # `methods`/`properties` by this point, regardless of which
+            # helper produced it, gets its true declaring file recorded once,
+            # before any inheritance copying can happen.
+            for _m in methods:
+                _m.setdefault("file", rel)
+            for _p in properties:
+                _p.setdefault("file", rel)
 
             # Extract class-level modifiers (C#/Java: static, abstract, sealed)
             # Uses the same tree-sitter pattern as _extract_const_fields (L664).

@@ -1150,12 +1150,16 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
             )
             run_stats["preserved_existing"] = True
             run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+            run_stats["cache_hits"] = llm_cache.hits
+            run_stats["cache_misses"] = llm_cache.misses
             _write_enrichment_report(family, platform, run_stats, "scout-only-explicit",
                                      out_path, reports_root=reports_root)
             return True
         log.info("--no-llm: writing empty enriched_claims.json (no existing claims to preserve)")
         _write_output(out_path, [], family, platform, "none (--no-llm)", api_surface)
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+        run_stats["cache_hits"] = llm_cache.hits
+        run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "scout-only-explicit",
                                  out_path, reports_root=reports_root)
         return True
@@ -1166,6 +1170,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         _write_output(out_path, rehashed, family, platform, "rehash-only", api_surface)
         run_stats["claims_final"] = len(rehashed)
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+        run_stats["cache_hits"] = llm_cache.hits
+        run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "rehash-only",
                                  out_path, reports_root=reports_root)
         return True
@@ -1202,6 +1208,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         else:
             log.info("No existing enriched claims to preserve.")
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+        run_stats["cache_hits"] = llm_cache.hits
+        run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "preflight-failed",
                                  out_path, reports_root=reports_root)
         return False
@@ -1452,6 +1460,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["claims_final"] = 0
         run_stats["model_used"] = model_used
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+        run_stats["cache_hits"] = llm_cache.hits
+        run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "failed",
                                  out_path, reports_root=reports_root)
         _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
@@ -1467,6 +1477,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["model_used"] = model_used
         run_stats["preserved_existing"] = True
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+        run_stats["cache_hits"] = llm_cache.hits
+        run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "partial",
                                  out_path, reports_root=reports_root)
         _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
@@ -1475,6 +1487,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     run_stats["claims_final"] = len(final_claims)
     run_stats["model_used"] = model_used
     run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
+    run_stats["cache_hits"] = llm_cache.hits
+    run_stats["cache_misses"] = llm_cache.misses
 
     coverage_ratio = len(final_claims) / len(public_classes) if public_classes else 0.0
     log.info("Wrote %d enriched claims to %s (coverage %.1f%% of %d public classes)",
