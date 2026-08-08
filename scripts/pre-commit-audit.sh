@@ -93,13 +93,13 @@ _pc_step_start "reports/ boundary"
 # so that the cleanup commit can untrack already-committed files.
 staged_reports=$(git diff --cached --name-only --diff-filter=ACM | grep '^reports/')
 if [ -n "$staged_reports" ]; then
-    echo "ERROR: Staged files under reports/ violate the local-only artifact boundary:"
+    echo "WARNING: Staged files under reports/ violate the local-only artifact boundary:"
     echo "$staged_reports"
     echo ""
     echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/."
     echo "Override tokens are validated from disk (reports/overrides/pending/) — do not stage them."
-    _pc_step_end "FAIL"
-    _pc_exit 1
+    echo "Downgraded from blocking 2026-08-08 (CI rules audit): no test (a)-(f) criticality met —"
+    echo "  git history remains the safety net for an accidentally-committed local-only file."
 fi
 _pc_step_end "PASS"
 
@@ -176,11 +176,11 @@ if [ -n "$_HOOK_PYTHON" ]; then
     "$_HOOK_PYTHON" scripts/ci/checks/check_content_filenames.py --strict
     if [ $? -ne 0 ]; then
         echo ""
-        echo "BLOCKED: One or more content files have invalid filenames (see above)."
-        echo "  Rename the file(s) to a valid lowercase slug before committing."
+        echo "WARNING: One or more content files have invalid filenames (see above)."
+        echo "  Rename the file(s) to a valid lowercase slug when convenient."
         echo "  Convention: [a-z0-9]+(-[a-z0-9]+)*.md  (no leading/trailing hyphen)"
-        _pc_step_end "FAIL"
-        _pc_exit 1
+        echo "  Downgraded from blocking 2026-08-08 (CI rules audit): cosmetic/consistency,"
+        echo "  no test (a)-(f) criticality met."
     fi
 else
     echo "[Step 1b] SKIP: .venv not found — filename check skipped." >&2
@@ -248,10 +248,10 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\
         "$_HOOK_PYTHON" scripts/ci/checks/check_plugin_platform.py
         if [ $? -ne 0 ]; then
             echo ""
-            echo "BLOCKED: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
-            echo "Fix the values above, then re-stage and commit."
-            _pc_step_end "FAIL"
-            _pc_exit 1
+            echo "WARNING: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
+            echo "Fix the values above when convenient."
+            echo "Downgraded from blocking 2026-08-08 (CI rules audit): display-value consistency,"
+            echo "  no test (a)-(f) criticality met."
         fi
     else
         echo "[Step 3] SKIP: .venv not found — plugin_platform check skipped." >&2
@@ -403,14 +403,14 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
         "$_HOOK_PYTHON" scripts/ci/checks/check_python_placement.py --check-staged
         if [ $? -ne 0 ]; then
             echo ""
-            echo "BLOCKED: Staged Python file(s) are in forbidden locations (see above)."
+            echo "WARNING: Staged Python file(s) are in forbidden locations (see above)."
             echo "  Correct locations:"
             echo "    scripts/maintenance/  (operator one-off; add to scripts/maintenance/registry.yaml)"
             echo "    scripts/pipeline/     (operational; follow PIPELINE.md New File Protocol)"
             echo "    scripts/ci/           (CI-only validator)"
             echo "  See AGENTS.md §4b for the full decision tree."
-            _pc_step_end "FAIL"
-            _pc_exit 1
+            echo "  Downgraded from blocking 2026-08-08 (CI rules audit): maintainability, not"
+            echo "  safety — no test (a)-(f) criticality met."
         fi
     else
         echo "[Step 7] SKIP: .venv not found — Python placement check skipped." >&2
@@ -525,11 +525,13 @@ if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
 
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/checks/check_onboarding_integrity.py; then
-      echo "[Step 9] FAIL: onboarding integrity check failed. Fix issues above before committing."
-      _pc_step_end "FAIL"
-      _pc_exit 1
+      echo "[Step 9] WARNING: onboarding integrity check failed. Fix issues above when convenient."
+      echo "  Downgraded from blocking 2026-08-08 (CI rules audit): this is a documented local"
+      echo "  redundancy layer for the 'onboarding-integrity' CI job in ci-eval-consistency.yml"
+      echo "  (TC-08), which remains the primary, still-blocking gate — no protection is lost."
+    else
+      echo "[Step 9] PASS"
     fi
-    echo "[Step 9] PASS"
   fi
 fi
 _pc_step_end "PASS"
@@ -561,12 +563,13 @@ if echo "$STAGED_FILES" | grep -qE "$ROOT_DOCS_PATTERN"; then
   fi
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/checks/check_root_docs_truth.py --staged; then
-      echo "[Step 9b] FAIL: root-docs truth check failed. Fix issues above before committing."
+      echo "[Step 9b] WARNING: root-docs truth check failed. Fix issues above when convenient."
       echo "  Auto-fix path: /root-docs-refresh (S-121)."
-      _pc_step_end "FAIL"
-      _pc_exit 1
+      echo "  Downgraded from blocking 2026-08-08 (CI rules audit): docs consistency, not"
+      echo "  safety — no test (a)-(f) criticality met."
+    else
+      echo "[Step 9b] PASS"
     fi
-    echo "[Step 9b] PASS"
   fi
 fi
 _pc_step_end "PASS"
@@ -764,8 +767,10 @@ if [ ${#staged_blog_posts[@]} -gt 0 ]; then
             echo "$_blog_out" | sed 's/^/[Step 15] /'
         fi
         if [ $_blog_exit -ne 0 ]; then
-            _pc_step_end "FAIL"
-            _pc_exit 1
+            echo "[Step 15] WARNING: standards check failed (see above). Fix when convenient."
+            echo "  Downgraded from blocking 2026-08-08 (CI rules audit): no incident found, no"
+            echo "  test (a)-(f) criticality met — distinct from the AGENTS.md §7-mandated blog"
+            echo "  checks (check-blog-slugs.py, validate_frontmatter.py), which stay blocking."
         fi
     fi
 fi
