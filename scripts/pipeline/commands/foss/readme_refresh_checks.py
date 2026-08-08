@@ -673,9 +673,16 @@ def count_aspose_links(readme_text: str) -> int:
     )
 
 
+# 2026-08-08: order-agnostic (was qualifier-then-target only). A real, live false positive
+# found via portfolio inventory: 3d/net's real, already-correct sentence -- "For proprietary
+# formats (A3DW, PDF, USD, JT), rendering, and advanced mesh operations, see [...]" -- has
+# the target-class word ("formats") appear BEFORE the qualifier ("advanced"), which natural
+# English sentences do about as often as the reverse order; a directional-only regex missed
+# this real, well-written explanation entirely.
+_QUALIFIER_WORD = r"\b(?:broader|full|complete|additional|advanced|commercial)\b"
+_FUNCTIONALITY_WORD = r"\b(?:functionality|feature|format|support|coverage|capabilit)"
 _BROADER_FUNCTIONALITY_CONTEXT_RE = re.compile(
-    r"\b(?:broader|full|complete|additional|advanced|commercial)\b.{0,60}"
-    r"\b(?:functionality|feature|format|support|coverage|capabilit)",
+    rf"{_QUALIFIER_WORD}.{{0,80}}{_FUNCTIONALITY_WORD}|{_FUNCTIONALITY_WORD}.{{0,80}}{_QUALIFIER_WORD}",
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -714,8 +721,18 @@ def check_enterprise_edition_naming(readme_text: str) -> list[dict]:
                 "anchor_text": anchor_text, "href": href, "reason": "missing_naming",
                 "detail": 'anchor text must contain "Enterprise Edition"',
             })
-        start = max(0, match.start() - 60)
-        end = min(len(readme_text), match.end() + 60)
+        # Paragraph-aware window (2026-08-08 fix): a real, significant false-positive source
+        # found via live inventory against all 30 products -- a fixed 60-char-before lookback
+        # is centered on the LINK, not the SENTENCE, so it routinely cuts off the qualifying
+        # word in real, already-well-written explanatory sentences (e.g. "For rendering, the
+        # broader exchange-format set (FBX, glTF, USD, PDF, JT, and more), and advanced mesh
+        # operations, see [Aspose.3D for Java Enterprise Edition](...)." -- "broader" sits ~90
+        # characters before the link, well outside the old 60-char window). Look back to the
+        # nearest paragraph boundary (blank line) instead, capped generously so one giant
+        # paragraph can't pull in unrelated prior content.
+        para_start = readme_text.rfind("\n\n", 0, match.start())
+        start = max(0, match.start() - 400, (para_start + 2) if para_start != -1 else 0)
+        end = min(len(readme_text), match.end() + 100)
         context = readme_text[start:end].replace("\n", " ")
         if not _BROADER_FUNCTIONALITY_CONTEXT_RE.search(context):
             findings.append({

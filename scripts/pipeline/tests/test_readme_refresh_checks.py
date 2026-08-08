@@ -776,6 +776,33 @@ def test_check_enterprise_edition_naming_flags_naked_cta_missing_context():
     assert any(f["reason"] == "missing_context" for f in findings)
 
 
+def test_check_enterprise_edition_naming_context_window_is_paragraph_aware():
+    # Regression test for a real false positive found via a 30-product portfolio run: a
+    # fixed 60-char-before lookback (centered on the link, not the sentence) cut off the
+    # qualifying word in real, already-well-written explanatory sentences.
+    text = (
+        "Some other paragraph entirely, unrelated content that goes on for a while "
+        "so the old 60-character window would never have reached back this far.\n\n"
+        "For rendering, the broader exchange-format set (FBX, glTF, USD, PDF, JT, and more), "
+        "and advanced mesh operations, see "
+        "[Aspose.3D for Java Enterprise Edition](https://products.aspose.com/3d/java/)."
+    )
+    findings = checks.check_enterprise_edition_naming(text)
+    assert not any(f["reason"] == "missing_context" for f in findings)
+
+
+def test_check_enterprise_edition_naming_context_is_order_agnostic():
+    # Regression test for a real false positive: the target-class word ("formats") appears
+    # BEFORE the qualifier ("advanced") in this real sentence -- natural English doesn't
+    # have a fixed order here.
+    text = (
+        "For proprietary formats (A3DW, PDF, USD, JT), rendering, and advanced mesh "
+        "operations, see [Aspose.3D for .NET — Enterprise Edition](https://products.aspose.com/3d/net/)."
+    )
+    findings = checks.check_enterprise_edition_naming(text)
+    assert not any(f["reason"] == "missing_context" for f in findings)
+
+
 def test_check_required_sections_all_present():
     assert checks.check_required_sections(_ALL_SECTIONS_README) == []
 
