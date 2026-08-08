@@ -1,0 +1,7 @@
+#!/bin/sh
+# Thin wrapper — the real logic lives in scripts/pre-commit-audit.sh, which is tracked
+# and editable directly. This wrapper exists only so `core.hooksPath` (see
+# scripts/install-hooks.sh) can point git at a tracked directory instead of the
+# untracked, copy-based .git/hooks/ — editing the source now takes effect on the very
+# next commit, with no separate install step and no possibility of drift.
+exec "$(git rev-parse --show-toplevel)/scripts/pre-commit-audit.sh" "$@"

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Thin wrapper — see scripts/githooks/pre-commit for rationale.
+exec "$(git rev-parse --show-toplevel)/scripts/commit-msg-skills.sh" "$@"

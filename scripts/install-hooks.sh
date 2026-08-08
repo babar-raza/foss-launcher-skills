@@ -1,12 +1,21 @@
 #!/bin/bash
-# install-hooks.sh � Install all governance hooks into .git/hooks/
-# Run once after cloning: bash scripts/install-hooks.sh
+# install-hooks.sh — Point git at the tracked scripts/githooks/ directory via
+# core.hooksPath. Run once after cloning: bash scripts/install-hooks.sh
 #
-# Installs:
-#   pre-commit  <- scripts/pre-commit-audit.sh  (forbidden-path guard + API audit)
-#   commit-msg  <- scripts/commit-msg-skills.sh  (Skills invoked field validation)
-#   post-commit <- scripts/post-commit-override.sh (override token consumption)
-#   reference-transaction <- scripts/maintenance/reference-transaction-unshallow.sh (auto-unshallow)
+# Design (2026-08-08): previously this script copied each hook source into the
+# untracked .git/hooks/ directory, which meant every edit to a hook's source had to
+# be followed by re-running this installer or the installed copy silently went stale
+# — confirmed live: the installed copy was missing a bug fix and an entire safety
+# step (media asset size guard) that had already landed in scripts/pre-commit-audit.sh.
+# core.hooksPath eliminates the copy: git executes the tracked wrapper directly, which
+# execs the real source, so there is nothing left to fall behind. See
+# docs/operations/hook-installation.md for the full rationale.
+#
+# Wrappers (in scripts/githooks/, each execs its real script directly):
+#   pre-commit  -> scripts/pre-commit-audit.sh  (forbidden-path guard + API audit)
+#   commit-msg  -> scripts/commit-msg-skills.sh  (Skills invoked field validation)
+#   post-commit -> scripts/post-commit-override.sh (override token consumption)
+#   reference-transaction -> tracked verbatim (self-contained, no exec wrapper needed)
 
 set -e
 
@@ -15,10 +24,10 @@ set -e
 source "$(dirname "$0")/ci/hooks/check_shell_bash.sh" || exit 1
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-HOOKS_DIR="$REPO_ROOT/.git/hooks"
+GITHOOKS_DIR="$REPO_ROOT/scripts/githooks"
 
-if [ ! -d "$HOOKS_DIR" ]; then
-    echo "ERROR: .git/hooks/ not found. Are you inside a git repository?"
+if [ ! -d "$GITHOOKS_DIR" ]; then
+    echo "ERROR: scripts/githooks/ not found. Are you inside a git repository?"
     exit 1
 fi
 
@@ -29,59 +38,41 @@ mkdir -p "$REPO_ROOT/reports/overrides/pending"
 mkdir -p "$REPO_ROOT/reports/audit"
 echo "reports/ directories ensured."
 
-echo "Installing governance hooks..."
+echo "Installing governance hooks (core.hooksPath -> scripts/githooks/)..."
 
-cp "$REPO_ROOT/scripts/pre-commit-audit.sh" "$HOOKS_DIR/pre-commit"
-chmod +x "$HOOKS_DIR/pre-commit"
-echo "  pre-commit  -> scripts/pre-commit-audit.sh"
+# core.fileMode=false in this repo: git does not track/restore the executable bit,
+# so chmod +x must still run once per fresh checkout — this is the only remaining
+# per-clone step; it never needs rerunning after a hook *source* edit.
+chmod +x "$GITHOOKS_DIR/pre-commit" "$GITHOOKS_DIR/commit-msg" \
+         "$GITHOOKS_DIR/post-commit" "$GITHOOKS_DIR/reference-transaction"
 
-cp "$REPO_ROOT/scripts/commit-msg-skills.sh" "$HOOKS_DIR/commit-msg"
-chmod +x "$HOOKS_DIR/commit-msg"
-echo "  commit-msg  -> scripts/commit-msg-skills.sh"
+git -C "$REPO_ROOT" config core.hooksPath scripts/githooks
+echo "  core.hooksPath -> scripts/githooks"
 
-cp "$REPO_ROOT/scripts/post-commit-override.sh" "$HOOKS_DIR/post-commit"
-chmod +x "$HOOKS_DIR/post-commit"
-echo "  post-commit -> scripts/post-commit-override.sh"
-
-# reference-transaction: inlined so hook is self-contained (no path dependency).
-# Heredoc (not cp) ensures executable bit on Windows NTFS (core.fileMode=false).
-cat > "$HOOKS_DIR/reference-transaction" << 'HOOKEOF'
-#!/bin/sh
-[ "$1" = "committed" ] || exit 0
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
-SHALLOW="$GIT_DIR/shallow"
-GUARD="$GIT_DIR/.unshallow-in-progress"
-[ -f "$SHALLOW" ] || exit 0
-if [ -f "$GUARD" ]; then
-    guard_pid=$(cat "$GUARD" 2>/dev/null)
-    if [ -n "$guard_pid" ] && kill -0 "$guard_pid" 2>/dev/null; then exit 0; fi
-    rm -f "$GUARD"
-fi
-echo $$ > "$GUARD"
-trap 'rm -f "$GUARD"' EXIT
-i=0
-while [ -f "${SHALLOW}.lock" ] && [ $i -lt 30 ]; do sleep 1; i=$((i+1)); done
-rm -f "$SHALLOW"
-HOOKEOF
-echo "  reference-transaction -> scripts/maintenance/reference-transaction-unshallow.sh"
 echo ""
 echo "=== Hook installation verification ==="
 ALL_OK=1
 for hook in pre-commit commit-msg post-commit reference-transaction; do
-    if [ -x "$HOOKS_DIR/$hook" ]; then
+    if [ -x "$GITHOOKS_DIR/$hook" ]; then
         echo "  OK  $hook"
     else
-        echo "  MISSING  $hook � installation failed"
+        echo "  MISSING  $hook -- installation failed"
         ALL_OK=0
     fi
 done
+
+CONFIGURED_PATH=$(git -C "$REPO_ROOT" config --get core.hooksPath || true)
+if [ "$CONFIGURED_PATH" != "scripts/githooks" ]; then
+    echo "  MISMATCH  core.hooksPath is '$CONFIGURED_PATH', expected 'scripts/githooks'"
+    ALL_OK=0
+fi
 
 if [ "$ALL_OK" -eq 0 ]; then
     echo "ERROR: One or more hooks failed to install."
     exit 1
 fi
 
-echo "All hooks installed and executable."
+echo "All hooks installed, executable, and wired via core.hooksPath."
 echo ""
 echo "Requirements:"
 echo "  - Python .venv must be activated: source .venv/bin/activate (Unix) or .venv/Scripts/activate (Windows)"
