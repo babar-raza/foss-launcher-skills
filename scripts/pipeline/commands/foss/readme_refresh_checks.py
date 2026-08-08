@@ -180,6 +180,44 @@ _NODE_DECL_RE = re.compile(r'^\s*([A-Za-z0-9_]+)\s*\["(.*?)"\]\s*$')
 _CHAIN_ARROW_SPLIT_RE = re.compile(r"-{1,3}>?")
 _CHAIN_NODE_TOKEN_RE = re.compile(r'^\s*([A-Za-z0-9_]+)\s*(?:\["(.*?)"\])?\s*$')
 
+# Eleventh incident / MT025 (2026-08-08): Starting Points / Outputs format-purity check
+# constants. See check_diagram_container_format_purity's docstring for the full design
+# rationale -- this is a *seed* list harvested from 10 of 30 real products during the
+# forensic investigation, deliberately not claimed complete (plan section "Tradeoffs, risks,
+# and honest limits").
+_CONTAINER_CONNECTOR_ALLOWLIST = frozenset({
+    "a", "an", "the", "and", "or", "existing",
+    "document", "documents", "file", "files",
+    "workbook", "workbooks", "package", "packages",
+    "container", "containers", "string", "strings",
+    "byte", "bytes", "text", "plain",
+    "image", "images", "raster",
+    "presentation", "presentations",
+    "stream", "path", "single", "multi", "page", "pages",
+    "serialized", "serialised", "flat", "storage", "storages",
+})
+# Eleventh incident / MT025 sanity pass (2026-08-08): running the purity check against all 30
+# real candidates found `data/format_descriptions.json` (56 entries, a full multi-language site
+# content registry, not owned by this plan) is genuinely missing several formats this exact
+# portfolio legitimately produces/consumes -- confirmed by direct lookup, not assumed. Adding
+# real, full-content entries to that registry (16 locales/format) is out of this plan's scope;
+# this is a small, diagram-purity-scoped supplement, names only, sourced directly from this
+# sanity pass's own confirmed findings (never guessed). Expect real additions here as Phase 1/2
+# execution reaches products outside the 10 sampled during the original investigation.
+_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES = frozenset({
+    "PPTX", "OOXML", "CFB", "MSG", "EML", "STL", "OBJ", "GLTF", "GLB", "FBX", "COLLADA", "3MF",
+    "CSV", "JSON", "OPC", "MARKDOWN", "DVI", "WOFF", "WOFF2", "APNG", "PLY", "U3D", "RVM", "JT",
+    "A3DW", "AMF", "DRACO", "USD",
+})
+_HYBRID_FROM_SCRATCH_LITERAL = "Nothing — authored from scratch"
+# Tolerant of the ASCII "--" a composing agent (or a test fixture) may write in place of the
+# real em dash "--" used in production content -- both are real, observed forms, not just a
+# test-vs-prod inconsistency to paper over.
+_HYBRID_FROM_SCRATCH_RE = re.compile(r"^Nothing\s*(?:--|—)\s*authored from scratch$")
+_PURITY_TOKEN_RE = re.compile(r"[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*")
+_VERSION_TOKEN_RE = re.compile(r"^\d+(?:\.\d+)*$")
+_ARCHETYPES_REQUIRING_STARTING_POINTS = frozenset({"transform", "compile"})
+
 
 def _parse_edge_chain(line: str) -> list[tuple[str, str | None]] | None:
     """Parse a possibly-chained edge line -- 'A --> B', 'A --- B', or an N-hop chain like
@@ -370,6 +408,69 @@ def check_diagram_shape(markdown_text: str) -> list[dict]:
     return findings
 
 
+def check_diagram_starting_points_presence(markdown_text: str, archetype: str) -> list[dict]:
+    """Hard gate (2026-08-08, Eleventh incident / MT025). Enforces the archetype -> Starting
+    Points presence rule that check_diagram_hybrid_reverification's old universal "only hybrid"
+    clause used to (wrongly) also enforce as a side effect:
+
+      - generative: the container must be ABSENT (barcode/python has no format-based input at
+        all -- unchanged from the original design, now actively gated instead of true only by
+        omission).
+      - transform / compile: the container must be PRESENT with >= 1 node -- the actual
+        Eleventh-incident defect this check exists to close. Direct investigation confirmed 9 of
+        9 sampled non-hybrid, non-generative products had silently lost this container entirely.
+      - hybrid: the container must be PRESENT with exactly 2 nodes (the existing, unchanged,
+        already-approved "An existing X document" / "Nothing -- authored from scratch" shape).
+
+    This check answers "is a Starting Points container appropriate at all, and how big" --
+    check_diagram_hybrid_reverification (below) answers a narrower, hybrid-only question ("is
+    THIS hybrid classification fresh"). The two used to be conflated in one function; splitting
+    them is what makes it possible for a transform-archetype product to have a Starting Points
+    container at all (previously hard-blocked, see that function's docstring).
+
+    Returns a list of {"reason": ...} findings, empty if presence/count matches the archetype's
+    rule.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return [{"reason": "no mermaid block found"}]
+    graph = parse_diagram(mermaid_text)
+    present = "starting_points" in graph.subgraph_kinds_seen
+    node_count = sum(1 for kind in graph.node_subgraph.values() if kind == "starting_points")
+
+    if archetype == "generative":
+        if present:
+            return [{
+                "reason": "generative archetype must have NO Starting Points container (no "
+                          f"format-based input exists) -- found one with {node_count} node(s)",
+            }]
+        return []
+
+    if archetype in _ARCHETYPES_REQUIRING_STARTING_POINTS:
+        if not present or node_count == 0:
+            return [{
+                "reason": f"'{archetype}' archetype requires a Starting Points container "
+                          "listing the product's real, distinct input formats -- none found "
+                          "(this is the Eleventh-incident defect: 'no input block')",
+            }]
+        return []
+
+    if archetype == "hybrid":
+        if not present:
+            return [{
+                "reason": "hybrid archetype requires a 2-line Starting Points container -- "
+                          "none found",
+            }]
+        if node_count != 2:
+            return [{
+                "reason": "hybrid archetype requires exactly 2 Starting Points nodes (an "
+                          f"existing-format line + a from-scratch line), found {node_count}",
+            }]
+        return []
+
+    return [{"reason": f"unrecognized archetype {archetype!r}"}]
+
+
 def check_diagram_column_balance(markdown_text: str) -> list[dict]:
     """Hard gate (2026-08-08): up to 5 Core Capabilities lines use a single column; 6 or
     more must split into exactly 2 columns whose sizes differ by at most 1 (a "balanced"
@@ -489,23 +590,33 @@ def check_diagram_matches_capability_dependencies(
 def check_diagram_hybrid_reverification(
     markdown_text: str, archetype_entry: dict | None, plan_run_date: str
 ) -> list[dict]:
-    """Hard gate (2026-08-08, Rule 2 refinement #2 -- "confirm if an API allows building a
-    format from scratch, don't assume"). A diagram may render a `Starting Points` container
-    only when the product's `hybrid` archetype classification has been freshly re-confirmed
-    as part of THIS `plan` run, never silently carried forward from an old decision.
+    """Hard gate (2026-08-08, Rule 2 refinement #2; NARROWED 2026-08-08, Eleventh incident /
+    MT025). A diagram may render a `Starting Points` container for a HYBRID-archetype product
+    only when that classification has been freshly re-confirmed as part of THIS `plan` run,
+    never silently carried forward from an old decision.
+
+    Narrowed scope (MT025): this function used to ALSO hard-reject any Starting Points
+    container found on a non-hybrid product ("archetype is 'X', not 'hybrid'" -> fail). Direct
+    code investigation during the Eleventh-incident forensic pass confirmed this was the
+    literal, coded mechanism blocking every attempt to add a real Starting Points container to
+    a transform/compile-archetype product -- not a missing rule, an actively wrong one. That
+    presence/absence/count responsibility now belongs entirely to
+    check_diagram_starting_points_presence (archetype-general, covers all four archetypes).
+    This function narrows to ONLY hybrid's own freshness/evidence requirement -- a no-op for
+    every other archetype regardless of whether a Starting Points container is present, since
+    presence-appropriateness is no longer this function's job.
 
     `archetype_entry` is the product's own matching row from `data/diagram_archetypes.json`
-    (or None if no override entry exists -- absence defaults to `transform`, which never
-    gets a Starting Points container). `plan_run_date` is the current run's own pinned date
-    (`YYYY-MM-DD`). The 3-condition hybrid test itself (reads an existing format for
-    editing AND has a dedicated from-scratch capability AND that capability takes real
-    structured construction parameters) is unchanged from the Template section's original
-    spec -- this check only enforces that its evidence citation is fresh, not the test
-    itself, which stays real human/agent verification against current source.
+    (or None if no override entry exists -- absence defaults to `transform`). `plan_run_date`
+    is the current run's own pinned date (`YYYY-MM-DD`). The 3-condition hybrid test itself
+    (reads an existing format for editing AND has a dedicated from-scratch capability AND that
+    capability takes real structured construction parameters) is unchanged from the Template
+    section's original spec -- this check only enforces that its evidence citation is fresh,
+    not the test itself, which stays real human/agent verification against current source.
 
-    Returns a list of {"reason": ...} findings; empty means either no Starting Points
-    container is present (nothing to reverify) or the container is present and its
-    archetype evidence is fresh and correctly classified.
+    Returns a list of {"reason": ...} findings; empty when either no Starting Points container
+    is present, the archetype isn't (recorded as) hybrid, or it is hybrid with fresh, evidenced
+    classification.
     """
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
@@ -513,17 +624,9 @@ def check_diagram_hybrid_reverification(
     graph = parse_diagram(mermaid_text)
     if "starting_points" not in graph.subgraph_kinds_seen:
         return []
+    if archetype_entry is None or archetype_entry.get("archetype") != "hybrid":
+        return []
 
-    if archetype_entry is None:
-        return [{
-            "reason": "diagram has a Starting Points container but no archetype override "
-                      "entry exists (default archetype is transform, which never gets one)"
-        }]
-    if archetype_entry.get("archetype") != "hybrid":
-        return [{
-            "reason": f"diagram has a Starting Points container but archetype is "
-                      f"'{archetype_entry.get('archetype')}', not 'hybrid'"
-        }]
     if not (archetype_entry.get("evidence") or "").strip():
         return [{"reason": "hybrid archetype entry has no evidence citation"}]
     if archetype_entry.get("decided_at") != plan_run_date:
@@ -580,6 +683,148 @@ def check_diagram_format_support_claims(
                     "reason": f"'{canonical}' named in the diagram but not found in this "
                               f"product's verified formats.md",
                 })
+    return findings
+
+
+def check_diagram_container_format_purity(
+    markdown_text: str,
+    container_kind: str,
+    known_format_names: set[str] | None = None,
+    connector_allowlist: set[str] | None = None,
+) -> list[dict]:
+    """Hard gate (2026-08-08, Eleventh incident / MT025, Rule B). Every Starting Points /
+    Outputs node's CORE text (the part before its first parenthetical qualifier, if any) must
+    tokenize entirely into: a recognized format name, a small connector-noun/article word, a
+    version-number token, or (Starting Points only) the fixed hybrid literal "Nothing --
+    authored from scratch". Anything else is flagged by name -- this is what "output block
+    mentions a lot of other things where as it should be output formats only" (the user's own
+    words, verbatim) becomes mechanically testable instead of a subjective judgment call.
+
+    Distinct from check_diagram_format_support_claims (above): that function asks "if this
+    node claims a KNOWN format, is it genuinely supported by this product" (accuracy); this
+    function asks "is every node in this container a format claim AT ALL, and nothing else"
+    (purity/membership). A label like "Traversable DOM document tree" never trips the accuracy
+    check (none of its tokens match any known format name, so it's silently skipped there) but
+    fails this one outright -- exactly the gap that let 6 of 10 sampled products' Outputs
+    containers mix real formats with non-format capability-return descriptions (extracted
+    data, in-memory object graphs, QA reports, API-response framing) while every existing check
+    reported 100% PASS.
+
+    Parenthetical qualifiers are deliberately NOT checked -- validated directly against the
+    real corpus that motivated this check: every legitimate qualifier found there (`"(file path
+    or binary stream)"`, `"(widths, kerning, ligatures)"`, `"(including encrypted)"`) sits
+    inside parens, and every real violation found in the 2026-08-08 investigation fails on its
+    core text alone, so constraining only the core avoids false-positiving on legitimate
+    supplementary detail.
+
+    `container_kind` is `"starting_points"` or `"outputs"`. `known_format_names` should be the
+    union of `check_diagram_format_support_claims`'s vocabulary (`data/format_descriptions.
+    json`'s keys) and `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES` (below) -- confirmed necessary by
+    this check's own 2026-08-08 sanity pass against all 30 real candidates: `format_descriptions
+    .json` alone is missing several formats this portfolio genuinely produces (PPTX, CFB, MSG,
+    EML, STL, OBJ, GLTF, ...), which would otherwise make this a hard gate that blocks
+    already-correct content. A trailing plural "s" is stripped before matching (`"PDFs"` ->
+    `"PDF"`) -- found live in `pdf/python`'s real, correct "Encrypted PDFs" node, which would
+    otherwise false-positive on exact-match alone. `connector_allowlist` defaults to
+    `_CONTAINER_CONNECTOR_ALLOWLIST` -- a seed list, explicitly not claimed complete; expect
+    real additions as Phase 1/2 execution reaches products outside the original sample (see the
+    plan's "Tradeoffs, risks, and honest limits").
+
+    Returns a list of {"node_id", "label", "container", "unrecognized_tokens"} findings, empty
+    if every node in the given container is format-pure.
+    """
+    known_format_names = known_format_names or set()
+    connector_allowlist = connector_allowlist or _CONTAINER_CONNECTOR_ALLOWLIST
+    format_upper = {f.upper() for f in known_format_names}
+
+    def _is_known_format(token: str) -> bool:
+        upper = token.upper()
+        if upper in format_upper:
+            return True
+        if upper.endswith("S") and upper[:-1] in format_upper:
+            return True
+        return False
+
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+
+    findings = []
+    for node_id, kind in graph.node_subgraph.items():
+        if kind != container_kind:
+            continue
+        label = graph.node_label.get(node_id, "")
+        if container_kind == "starting_points" and _HYBRID_FROM_SCRATCH_RE.match(label.strip()):
+            continue
+        core = label.split("(", 1)[0].strip()
+        unrecognized = []
+        for token in _PURITY_TOKEN_RE.findall(core):
+            if _is_known_format(token):
+                continue
+            if token.lower() in connector_allowlist:
+                continue
+            if _VERSION_TOKEN_RE.match(token):
+                continue
+            unrecognized.append(token)
+        if unrecognized:
+            findings.append({
+                "node_id": node_id, "label": label, "container": container_kind,
+                "unrecognized_tokens": unrecognized,
+            })
+    return findings
+
+
+def check_diagram_format_completeness_hint(
+    markdown_text: str, formats_md_text: str, archetype: str
+) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-08, Eleventh incident / MT025). Cross-references
+    formats.md's Import=Yes / Export=Yes rows against the diagram's Starting Points / Outputs
+    node text and flags a real, supported format with zero mention anywhere in the
+    corresponding container -- the `3d/net` gap found during this investigation (10
+    import-capable formats recorded in formats.md, 0 shown as diagram inputs before this fix).
+
+    Deliberately heuristic, never a hard gate: `formats.md` is confirmed unreliable in at least
+    one real case (`tex/python`'s PDF/DVI/SVG rows are all marked Export=No despite the product
+    genuinely producing all three, per its own README and diagram) -- a hard gate here would
+    sometimes fail an honestly-correct diagram over stale source data, which this plan has never
+    done to any other check keyed off a source already known to have real staleness.
+
+    Returns a list of {"format", "container", "reason"} findings.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None or not formats_md_text:
+        return []
+    graph = parse_diagram(mermaid_text)
+
+    def _container_text(kind: str) -> str:
+        return " ".join(
+            label for node_id, label in graph.node_label.items()
+            if graph.node_subgraph.get(node_id) == kind
+        )
+
+    starting_text = _container_text("starting_points").upper()
+    outputs_text = _container_text("outputs").upper()
+
+    findings = []
+    for row_match in re.finditer(
+        r"^\|\s*([A-Za-z0-9_.+-]+)\s*\|\s*(Yes|-)\s*\|\s*(Yes|-)\s*\|",
+        formats_md_text, re.MULTILINE,
+    ):
+        fmt = row_match.group(1).upper()
+        import_flag, export_flag = row_match.group(2), row_match.group(3)
+        if archetype != "generative" and import_flag == "Yes" and fmt not in starting_text:
+            findings.append({
+                "format": fmt, "container": "starting_points",
+                "reason": f"formats.md marks {fmt} Import=Yes but it is not named in the "
+                          "Starting Points container",
+            })
+        if export_flag == "Yes" and fmt not in outputs_text:
+            findings.append({
+                "format": fmt, "container": "outputs",
+                "reason": f"formats.md marks {fmt} Export=Yes but it is not named in the "
+                          "Outputs container",
+            })
     return findings
 
 

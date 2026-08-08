@@ -53,14 +53,17 @@ _GOOD_CANDIDATE = """# Test Product
 
 ```mermaid
 flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing TXT file"]
+  end
   PRODUCT["Test Product"]
   subgraph Capabilities["Core Capabilities"]
     C1["Does a thing"]
   end
   subgraph Outputs["Outputs"]
-    O1["A result"]
+    O1["TXT files"]
   end
-  PRODUCT --> Capabilities --> Outputs
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
 ```
 
 ## Key Capabilities
@@ -151,6 +154,17 @@ def _make_scratch_repo(tmp_path):
     (data_dir / "package_registry.json").write_text("{}", encoding="utf-8")
     (data_dir / "diagram_archetypes.json").write_text("[]", encoding="utf-8")
     (data_dir / "diagram_capability_dependencies.json").write_text("[]", encoding="utf-8")
+    # MT025 (Eleventh incident): a real format vocabulary is needed for the fixture's Starting
+    # Points/Outputs nodes to pass check_diagram_format_support_claims and the new
+    # check_diagram_container_format_purity hard gates.
+    (data_dir / "format_descriptions.json").write_text(json.dumps({"TXT": {}}), encoding="utf-8")
+    knowledge_dir = repo_root / "knowledge" / "testfam" / "testplat" / "merged"
+    knowledge_dir.mkdir(parents=True)
+    (knowledge_dir / "formats.md").write_text(
+        "# Format Support\n\n| Format | Import | Export |\n|--------|--------|--------|\n"
+        "| TXT | Yes | Yes |\n",
+        encoding="utf-8",
+    )
 
     # Real local git repo standing in for the upstream product repo -- clone_url points here,
     # and it's ALSO what gets mirrored into runs/.clone_cache/ below (a real git clone --local

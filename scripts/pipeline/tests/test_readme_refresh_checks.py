@@ -354,15 +354,20 @@ def test_hybrid_reverification_noop_when_no_starting_points():
     ) == []
 
 
-def test_hybrid_reverification_flags_missing_archetype_entry():
-    findings = checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, None, "2026-08-08")
-    assert findings and "no archetype override entry" in findings[0]["reason"]
+def test_hybrid_reverification_no_longer_flags_missing_archetype_entry():
+    # Eleventh incident / MT025: this function used to hard-reject a Starting Points
+    # container whenever archetype_entry was None (the default/transform case) -- the exact
+    # coded mechanism that blocked transform-archetype products from ever having one. That
+    # presence/absence judgment moved entirely to check_diagram_starting_points_presence;
+    # this function is now a no-op for a missing archetype entry, regardless of the diagram.
+    assert checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, None, "2026-08-08") == []
 
 
-def test_hybrid_reverification_flags_wrong_archetype():
+def test_hybrid_reverification_no_longer_flags_non_hybrid_archetype():
+    # Same narrowing: a non-hybrid archetype with a Starting Points container is no longer
+    # this function's concern (check_diagram_starting_points_presence owns that now).
     entry = {"archetype": "transform", "evidence": "x", "decided_at": "2026-08-08"}
-    findings = checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08")
-    assert findings and "not 'hybrid'" in findings[0]["reason"]
+    assert checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08") == []
 
 
 def test_hybrid_reverification_flags_stale_decided_at():
@@ -1104,3 +1109,328 @@ def test_check_named_member_accuracy_ignores_forward_declarations(tmp_path):
     )
     readme = "- `Worksheet`\n  - `SetName(value)`\n"
     assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
+
+
+# --- Eleventh incident / MT025 (2026-08-08): Starting-Points presence + Outputs/Starting
+# Points format purity ------------------------------------------------------------------------
+#
+# Ground-truth violation fixtures below are captured VERBATIM from real candidate READMEs
+# read during the forensic investigation (html/python, tex/python, 3d/net, note/python) --
+# not synthesized -- so these tests double as proof the new gates fail closed on the exact
+# real content that motivated them, per the plan's "prove the check against real content
+# before trusting it" discipline.
+
+_KNOWN_FORMATS = {
+    "PDF", "XLSX", "DVI", "SVG", "OBJ", "STL", "GLTF", "GLB", "FBX", "COLLADA", "3MF", "HTML",
+}
+
+# Real html/python Outputs (2026-08-08 candidate): 4 of 5 nodes are non-format capability-
+# return descriptions ("Traversable DOM document tree", "CSS rules and stylesheet objects",
+# "Resolved computed style values", "Parsed URLs and decoded text"); only the serialized-HTML
+# node is a genuine format claim.
+HTML_PYTHON_OUTPUTS_VIOLATION = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.HTML FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["WHATWG HTML tokenizing and tree construction"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Traversable DOM document tree"]
+    o2["CSS rules and stylesheet objects"]
+    o3["Resolved computed style values"]
+    o4["Serialized HTML strings"]
+    o5["Parsed URLs and decoded text"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+)
+
+# Real tex/python Outputs: 3 genuine formats plus one non-format node ("Font and glyph
+# metrics") describing structured data, not a deliverable format.
+TEX_PYTHON_OUTPUTS_VIOLATION = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.TeX FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["TeX/LaTeX markup interpretation and typesetting"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents"]
+    o2["DVI files"]
+    o3["SVG 1.1 documents (single- or multi-page)"]
+    o4["Font and glyph metrics (widths, kerning, ligatures)"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+)
+
+# Real 3d/net Outputs: 2 genuine format-group nodes plus 2 non-format nodes ("Round-tripped
+# scene graphs", "Extracted watermark text").
+THREE_D_NET_OUTPUTS_VIOLATION = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.3D FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Multi-format load and save"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["OBJ, STL, and glTF/GLB files"]
+    o2["FBX, COLLADA, and 3MF files"]
+    o3["Round-tripped scene graphs"]
+    o4["Extracted watermark text"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+)
+
+# Real note/python Outputs: 4 of 5 nodes are "Extracted ..." descriptions of structured data,
+# not formats; only the PDF-export node is a genuine format claim.
+NOTE_PYTHON_OUTPUTS_VIOLATION = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.Note FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Read .one documents"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Extracted pages, outlines, and metadata"]
+    o2["Extracted rich text and formatting"]
+    o3["Extracted images and attached files"]
+    o4["Extracted tables, tags, and numbered lists"]
+    o5["PDF documents"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+)
+
+# A corrected, post-fix transform-archetype diagram: real Starting Points container added,
+# both containers format-pure. Used as the "target state passes cleanly" regression anchor.
+TRANSFORM_CELLS_CPP_WITH_STARTING_POINTS = _wrap(
+    """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing .xlsx workbook"]
+  end
+  PRODUCT["Aspose.Cells FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Workbook and worksheet management"]
+    C2["Cell values and formulas"]
+  end
+  subgraph Outputs["Outputs"]
+    O1[".xlsx workbook (file path or binary stream)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+)
+
+# A generative-archetype diagram (barcode/python shape): correctly has NO Starting Points
+# container at all.
+GENERATIVE_BARCODE_PYTHON = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.BarCode FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Generate Code 128 barcodes"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["SVG strings"]
+    O2["PNG bytes"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+)
+
+# The same generative shape, WRONGLY given a Starting Points container -- regression guard.
+GENERATIVE_BARCODE_PYTHON_WITH_WRONG_STARTING_POINTS = _wrap(
+    """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing barcode image"]
+  end
+  PRODUCT["Aspose.BarCode FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Generate Code 128 barcodes"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["SVG strings"]
+    O2["PNG bytes"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+)
+
+
+# --- check_diagram_starting_points_presence ----------------------------------------------------
+
+
+def test_starting_points_presence_flags_missing_container_for_transform():
+    # This is literally today's real portfolio state for ~27 of 30 products -- proof the old
+    # silently-passing behavior is now correctly rejected.
+    findings = checks.check_diagram_starting_points_presence(TRANSFORM_CELLS_CPP, "transform")
+    assert findings and "requires a Starting Points container" in findings[0]["reason"]
+
+
+def test_starting_points_presence_flags_missing_container_for_compile():
+    findings = checks.check_diagram_starting_points_presence(TRANSFORM_CELLS_CPP, "compile")
+    assert findings and "requires a Starting Points container" in findings[0]["reason"]
+
+
+def test_starting_points_presence_passes_transform_with_container():
+    assert checks.check_diagram_starting_points_presence(
+        TRANSFORM_CELLS_CPP_WITH_STARTING_POINTS, "transform"
+    ) == []
+
+
+def test_starting_points_presence_passes_generative_with_no_container():
+    assert checks.check_diagram_starting_points_presence(
+        GENERATIVE_BARCODE_PYTHON, "generative"
+    ) == []
+
+
+def test_starting_points_presence_flags_generative_with_wrong_container():
+    findings = checks.check_diagram_starting_points_presence(
+        GENERATIVE_BARCODE_PYTHON_WITH_WRONG_STARTING_POINTS, "generative"
+    )
+    assert findings and "must have NO Starting Points container" in findings[0]["reason"]
+
+
+def test_starting_points_presence_passes_hybrid_with_exactly_two_nodes():
+    assert checks.check_diagram_starting_points_presence(HYBRID_PDF_CPP, "hybrid") == []
+
+
+def test_starting_points_presence_flags_hybrid_with_wrong_node_count():
+    findings = checks.check_diagram_starting_points_presence(
+        TRANSFORM_CELLS_CPP_WITH_STARTING_POINTS, "hybrid"
+    )
+    assert findings and "exactly 2 Starting Points nodes" in findings[0]["reason"]
+
+
+# --- check_diagram_container_format_purity -------------------------------------------------
+
+
+def test_container_format_purity_flags_html_python_real_violations():
+    findings = checks.check_diagram_container_format_purity(
+        HTML_PYTHON_OUTPUTS_VIOLATION, "outputs", _KNOWN_FORMATS
+    )
+    flagged_ids = {f["node_id"] for f in findings}
+    assert flagged_ids == {"o1", "o2", "o3", "o5"}, flagged_ids
+    # The one genuine format node (serialized HTML strings) must NOT be flagged.
+    assert "o4" not in flagged_ids
+
+
+def test_container_format_purity_flags_tex_python_real_violation():
+    findings = checks.check_diagram_container_format_purity(
+        TEX_PYTHON_OUTPUTS_VIOLATION, "outputs", _KNOWN_FORMATS
+    )
+    flagged_ids = {f["node_id"] for f in findings}
+    assert flagged_ids == {"o4"}, flagged_ids
+    assert "metrics" in findings[0]["unrecognized_tokens"]
+
+
+def test_container_format_purity_flags_3d_net_real_violations():
+    findings = checks.check_diagram_container_format_purity(
+        THREE_D_NET_OUTPUTS_VIOLATION, "outputs", _KNOWN_FORMATS
+    )
+    flagged_ids = {f["node_id"] for f in findings}
+    assert flagged_ids == {"o3", "o4"}, flagged_ids
+    # o1/o2 (real, grouped format lists) must not be flagged.
+    assert "o1" not in flagged_ids and "o2" not in flagged_ids
+
+
+def test_container_format_purity_flags_note_python_real_violations():
+    findings = checks.check_diagram_container_format_purity(
+        NOTE_PYTHON_OUTPUTS_VIOLATION, "outputs", _KNOWN_FORMATS
+    )
+    flagged_ids = {f["node_id"] for f in findings}
+    assert flagged_ids == {"o1", "o2", "o3", "o4"}, flagged_ids
+    assert "o5" not in flagged_ids
+
+
+def test_container_format_purity_clean_on_fixed_transform_fixture():
+    assert checks.check_diagram_container_format_purity(
+        TRANSFORM_CELLS_CPP_WITH_STARTING_POINTS, "starting_points", _KNOWN_FORMATS
+    ) == []
+    assert checks.check_diagram_container_format_purity(
+        TRANSFORM_CELLS_CPP_WITH_STARTING_POINTS, "outputs", _KNOWN_FORMATS
+    ) == []
+
+
+def test_container_format_purity_clean_on_existing_hybrid_fixture():
+    # Regression guard: the already-correct, already-approved hybrid shape (including its
+    # fixed "Nothing -- authored from scratch" literal) must not be disturbed by this new gate.
+    assert checks.check_diagram_container_format_purity(
+        HYBRID_PDF_CPP, "starting_points", {"PDF"}
+    ) == []
+
+
+def test_container_format_purity_does_not_check_parenthetical_qualifiers():
+    # "(save or incremental update)" contains words that are neither formats nor in the
+    # connector allowlist -- must not be flagged, since only the core (pre-parenthesis) text
+    # is checked.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Save"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents (save or incremental update)"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    assert checks.check_diagram_container_format_purity(text, "outputs", {"PDF"}) == []
+
+
+# --- check_diagram_format_completeness_hint --------------------------------------------------
+
+
+def test_format_completeness_hint_flags_unmentioned_exported_format():
+    formats_md = (
+        "# Format Support\n\n"
+        "| Format | Import | Export |\n"
+        "|--------|--------|--------|\n"
+        "| PDF | Yes | Yes |\n"
+        "| DOCX | - | Yes |\n"
+    )
+    text = _wrap(
+        """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing PDF document"]
+  end
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Convert"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_format_completeness_hint(text, formats_md, "transform")
+    assert any(f["format"] == "DOCX" and f["container"] == "outputs" for f in findings)
+
+
+def test_format_completeness_hint_clean_when_all_formats_mentioned():
+    formats_md = (
+        "# Format Support\n\n"
+        "| Format | Import | Export |\n"
+        "|--------|--------|--------|\n"
+        "| PDF | Yes | Yes |\n"
+    )
+    text = _wrap(
+        """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing PDF document"]
+  end
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Convert"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+    )
+    assert checks.check_diagram_format_completeness_hint(text, formats_md, "transform") == []
+
+
+def test_format_completeness_hint_ignores_import_gap_for_generative():
+    # A generative product has no format-based Starting Points by design -- an Import=Yes row
+    # must never be flagged against it.
+    formats_md = (
+        "# Format Support\n\n"
+        "| Format | Import | Export |\n"
+        "|--------|--------|--------|\n"
+        "| PDF | Yes | Yes |\n"
+    )
+    findings = checks.check_diagram_format_completeness_hint(
+        GENERATIVE_BARCODE_PYTHON, formats_md, "generative"
+    )
+    assert not any(f["container"] == "starting_points" for f in findings)

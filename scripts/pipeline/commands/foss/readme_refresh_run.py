@@ -645,6 +645,19 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["diagram_column_balance"] = {
         "hard_gate": True, "findings": checks.check_diagram_column_balance(text),
     }
+    # Eleventh incident / MT025 (2026-08-08): the simplified diagram model shipped with no
+    # mechanism requiring a Starting Points container for transform/compile-archetype products
+    # (27 of 30 products silently lost real Inputs), and no purity constraint stopping non-format
+    # content from entering Outputs (6 of 10 sampled products mixed formats with extracted-data/
+    # object-graph/report descriptions). check_diagram_starting_points_presence and
+    # check_diagram_container_format_purity close both gaps; check_diagram_hybrid_reverification
+    # (below) is narrowed to only hybrid's own freshness question -- see each function's own
+    # docstring for the full forensic trace.
+    archetype = _detect_archetype(family, platform)["archetype"]
+    result["diagram_starting_points_presence"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_starting_points_presence(text, archetype),
+    }
     pipeline_edges = _detect_capability_dependencies(family, platform)
     result["diagram_matches_capability_dependencies"] = {
         "hard_gate": True,
@@ -660,6 +673,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_diagram_format_support_claims(
             text, _product_formats_md(family, platform), set(_canonical_format_casing().values())
+        ),
+    }
+    known_format_names = (
+        set(_canonical_format_casing().values()) | checks._DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES
+    )
+    result["diagram_starting_points_format_purity"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_container_format_purity(
+            text, "starting_points", known_format_names
+        ),
+    }
+    result["diagram_outputs_format_purity"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_container_format_purity(
+            text, "outputs", known_format_names
+        ),
+    }
+    result["diagram_format_completeness_hint"] = {
+        "hard_gate": False,
+        "findings": checks.check_diagram_format_completeness_hint(
+            text, _product_formats_md(family, platform), archetype
         ),
     }
     result["format_name_casing"] = {
