@@ -177,21 +177,52 @@ _MERMAID_BLOCK_PLACEHOLDER = "```mermaid\n<MERMAID_BLOCK_CHECKED_SEPARATELY>\n``
 _SUBGRAPH_START_RE = re.compile(r'^\s*subgraph\s+([A-Za-z0-9_]+)(?:\["(.*?)"\])?\s*$')
 _SUBGRAPH_END_RE = re.compile(r"^\s*end\s*$")
 _NODE_DECL_RE = re.compile(r'^\s*([A-Za-z0-9_]+)\s*\["(.*?)"\]\s*$')
-_EDGE_RE = re.compile(
-    r'^\s*([A-Za-z0-9_]+)\s*(?:\["(.*?)"\])?\s*-{1,3}>?\s*([A-Za-z0-9_]+)\s*(?:\["(.*?)"\])?\s*$'
-)
+_CHAIN_ARROW_SPLIT_RE = re.compile(r"-{1,3}>?")
+_CHAIN_NODE_TOKEN_RE = re.compile(r'^\s*([A-Za-z0-9_]+)\s*(?:\["(.*?)"\])?\s*$')
+
+
+def _parse_edge_chain(line: str) -> list[tuple[str, str | None]] | None:
+    """Parse a possibly-chained edge line -- 'A --> B', 'A --- B', or an N-hop chain like
+    'StartingPoints --> PRODUCT --> Capabilities --> Outputs' (the 2026-08-08 simplified
+    diagram's own fixed container-chain shape) -- into an ordered list of (node_id, label)
+    tuples. Returns None if the line doesn't look like an edge chain at all (every
+    arrow-delimited segment must resolve to a single node token, optionally labeled).
+
+    A single-regex, whole-line-anchored approach (the pre-2026-08-08 `_EDGE_RE`) only ever
+    matched a single A-->B hop -- a real bug found via this module's own smoke-test against
+    a real mockup file: a 3-hop chain line silently matched nothing at all, so
+    check_diagram_shape saw zero edges and reported every chain edge as "missing" even
+    against a correctly-formed diagram.
+    """
+    segments = _CHAIN_ARROW_SPLIT_RE.split(line)
+    if len(segments) < 2:
+        return None
+    nodes: list[tuple[str, str | None]] = []
+    for segment in segments:
+        match = _CHAIN_NODE_TOKEN_RE.match(segment)
+        if not match:
+            return None
+        nodes.append((match.group(1), match.group(2)))
+    return nodes
 
 
 @dataclass
 class DiagramGraph:
-    node_subgraph: dict = field(default_factory=dict)  # node_id -> subgraph kind
+    node_subgraph: dict = field(default_factory=dict)  # node_id -> top-level container kind
     node_label: dict = field(default_factory=dict)  # node_id -> label text
     edges: list = field(default_factory=list)  # list of (a, b)
     subgraph_kinds_seen: set = field(default_factory=set)
+    top_level_subgraph_order: list = field(default_factory=list)  # e.g. ["starting_points", "capabilities", "outputs"]
+    capability_columns: list = field(default_factory=list)  # list of [node_id, ...] in document order
 
 
-_SOURCE_IDS = {"Inputs", "FromScratch"}
-_CANONICAL_SUBGRAPH_IDS = _SOURCE_IDS | {"Capabilities", "Outputs"}
+# 2026-08-08 diagram simplification (Tenth incident): the diagram shrinks to exactly
+# Product -> Core Capabilities -> Outputs, with an optional 2-line Starting Points
+# container ahead of Product for hybrid-archetype products only. `Inputs`/`FromScratch`
+# (the pre-2026-08-08 archetype-system subgraph IDs) are retired -- a diagram still using
+# them fails check_diagram_shape below and needs re-rendering under MT024, not a silent
+# migration shim.
+_CANONICAL_SUBGRAPH_IDS = {"StartingPoints", "Capabilities", "Outputs"}
 
 
 def _classify_subgraph(subgraph_id: str) -> str | None:
@@ -201,8 +232,8 @@ def _classify_subgraph(subgraph_id: str) -> str | None:
         return "capabilities"
     if subgraph_id == "Outputs":
         return "outputs"
-    if subgraph_id in _SOURCE_IDS:
-        return "source"
+    if subgraph_id == "StartingPoints":
+        return "starting_points"
     return None
 
 
@@ -214,138 +245,220 @@ def extract_mermaid_block(markdown_text: str) -> str | None:
 
 
 def parse_diagram(mermaid_text: str) -> DiagramGraph:
+    """Parse a `## At a glance` Mermaid flowchart into a DiagramGraph.
+
+    Nesting-aware (2026-08-08): the 2-column capability layout uses a nested subgraph
+    inside `Capabilities` per column (e.g. `subgraph capl[" "]` / `subgraph capr[" "]`).
+    A stack tracks the currently-open container so a nested, non-canonical subgraph ID
+    directly inside `Capabilities` is treated as a column boundary (not an unknown top-
+    level container) -- its nodes still classify as "capabilities" and get appended to
+    `capability_columns` as their own column list. A product with 5 or fewer
+    capabilities has no nested column subgraph at all; its nodes are declared directly
+    inside `Capabilities` and all land in `capability_columns[0]` (a single, implicit
+    column) in declaration order.
+    """
     graph = DiagramGraph()
-    current_kind: str | None = None
+    stack: list[str] = []  # "starting_points" | "capabilities" | "outputs" | "_column" | "_unknown"
 
     for raw_line in mermaid_text.splitlines():
         line = raw_line.strip()
-        if not line or line.startswith("flowchart"):
+        if not line or line.startswith("flowchart") or line.startswith("direction"):
             continue
 
         start_match = _SUBGRAPH_START_RE.match(line)
         if start_match:
-            current_kind = _classify_subgraph(start_match.group(1))
-            if current_kind:
-                graph.subgraph_kinds_seen.add(current_kind)
+            sid = start_match.group(1)
+            kind = _classify_subgraph(sid)
+            if kind is not None:
+                graph.subgraph_kinds_seen.add(kind)
+                graph.top_level_subgraph_order.append(kind)
+                stack.append(kind)
+            elif stack and stack[-1] == "capabilities":
+                graph.capability_columns.append([])
+                stack.append("_column")
+            else:
+                stack.append("_unknown")
             continue
 
         if _SUBGRAPH_END_RE.match(line):
-            current_kind = None
+            if stack:
+                stack.pop()
             continue
 
         node_match = _NODE_DECL_RE.match(line)
         if node_match:
             node_id, label = node_match.group(1), node_match.group(2)
             graph.node_label[node_id] = label
-            if current_kind:
-                graph.node_subgraph[node_id] = current_kind
+            if stack:
+                top = stack[-1]
+                effective_kind = "capabilities" if top == "_column" else top
+                if effective_kind in ("starting_points", "capabilities", "outputs"):
+                    graph.node_subgraph[node_id] = effective_kind
+                if effective_kind == "capabilities":
+                    if top == "_column":
+                        graph.capability_columns[-1].append(node_id)
+                    else:
+                        if not graph.capability_columns:
+                            graph.capability_columns.append([])
+                        graph.capability_columns[0].append(node_id)
             continue
 
-        edge_match = _EDGE_RE.match(line)
-        if edge_match:
-            a, a_label, b, b_label = edge_match.groups()
-            if a_label:
-                graph.node_label.setdefault(a, a_label)
-            if b_label:
-                graph.node_label.setdefault(b, b_label)
-            graph.edges.append((a, b))
+        chain = _parse_edge_chain(line)
+        if chain:
+            for node_id, label in chain:
+                if label:
+                    graph.node_label.setdefault(node_id, label)
+            for (from_id, _), (to_id, _) in zip(chain, chain[1:]):
+                graph.edges.append((from_id, to_id))
             continue
         # Anything else (comments, styling directives) is ignored -- not our concern.
 
     return graph
 
 
-def _bfs_reaches_kind(graph: DiagramGraph, start: str, target_kind: str) -> bool:
-    # Directed reachability, following edges only in the direction they're written
-    # (left operand -> right operand). This matches the diagrams' left-to-right
-    # flow semantics (Input -> PRODUCT -> Capability -> Output). An UNDIRECTED
-    # graph would be wrong here: PRODUCT is a shared hub every Input/Capability
-    # connects to, so undirected BFS would call every node "reachable" from every
-    # other node through PRODUCT regardless of real downstream connectivity.
-    adjacency: dict[str, list[str]] = {}
-    for a, b in graph.edges:
-        adjacency.setdefault(a, []).append(b)
+def check_diagram_shape(markdown_text: str) -> list[dict]:
+    """Hard gate (2026-08-08 diagram simplification, replaces the pre-simplification
+    check_diagram_connectivity orphan-reachability check, which no longer applies once
+    there are no per-node edges to be unreachable through).
 
-    seen = {start}
-    queue = [start]
-    while queue:
-        node = queue.pop(0)
-        if graph.node_subgraph.get(node) == target_kind:
-            return True
-        for neighbor in adjacency.get(node, []):
-            if neighbor not in seen:
-                seen.add(neighbor)
-                queue.append(neighbor)
-    return False
+    The At-a-glance diagram must be exactly `Product -> Core Capabilities -> Outputs`,
+    with an optional `Starting Points -> Product` prefix (hybrid archetype only, exactly
+    one Starting Points container, never more). No individual capability-to-output edges,
+    no duplicate containers, no missing containers. Returns a list of {"reason": ...}
+    findings, empty if the diagram matches this shape exactly.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return [{"reason": "no mermaid block found"}]
+
+    graph = parse_diagram(mermaid_text)
+    findings: list[dict] = []
+
+    kinds = graph.top_level_subgraph_order
+    starting_count = kinds.count("starting_points")
+    cap_count = kinds.count("capabilities")
+    out_count = kinds.count("outputs")
+
+    if cap_count != 1:
+        findings.append({"reason": f"expected exactly 1 Capabilities container, found {cap_count}"})
+    if out_count != 1:
+        findings.append({"reason": f"expected exactly 1 Outputs container, found {out_count}"})
+    if starting_count > 1:
+        findings.append({"reason": f"expected at most 1 Starting Points container, found {starting_count}"})
+
+    has_product = bool(re.search(r'^\s*PRODUCT\s*\["', mermaid_text, re.MULTILINE))
+    if not has_product:
+        findings.append({"reason": "no PRODUCT node found"})
+
+    if cap_count == 1 and out_count == 1 and has_product:
+        expected_chain = (["StartingPoints"] if starting_count == 1 else []) + [
+            "PRODUCT", "Capabilities", "Outputs"
+        ]
+        chain_edges = set(graph.edges)
+        for a, b in zip(expected_chain, expected_chain[1:]):
+            if (a, b) not in chain_edges:
+                findings.append({"reason": f"missing chain edge {a} --> {b}"})
+
+        allowed_edges = set(zip(expected_chain, expected_chain[1:]))
+        extra_edges = [e for e in graph.edges if e not in allowed_edges]
+        if extra_edges:
+            findings.append({
+                "reason": f"edge(s) outside the fixed container chain (individual node "
+                          f"wiring is retired under the 2026-08-08 simplification): {extra_edges}"
+            })
+
+    return findings
 
 
-def check_diagram_connectivity(markdown_text: str) -> list[dict]:
-    """Return a list of orphan findings: [{"node_id", "label"}], empty if none.
-
-    Each finding is a Capabilities-subgraph node with no path to any
-    Outputs-subgraph node. Returns [] if there's no mermaid block, or no
-    recognized Capabilities/Outputs subgraphs (nothing to check).
+def check_diagram_column_balance(markdown_text: str) -> list[dict]:
+    """Hard gate (2026-08-08): up to 5 Core Capabilities lines use a single column; 6 or
+    more must split into exactly 2 columns whose sizes differ by at most 1 (a "balanced"
+    split). Returns a list of {"reason": ...} findings, empty if the layout is correct.
     """
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
         return []
-
     graph = parse_diagram(mermaid_text)
-    if "capabilities" not in graph.subgraph_kinds_seen or "outputs" not in graph.subgraph_kinds_seen:
+    total = sum(len(col) for col in graph.capability_columns)
+    if total == 0:
+        return [{"reason": "no capability nodes found"}]
+    if total <= 5:
+        if len(graph.capability_columns) != 1:
+            return [{
+                "reason": f"{total} capabilities should use exactly 1 column, "
+                          f"found {len(graph.capability_columns)}"
+            }]
         return []
-
-    orphans = []
-    for node_id, kind in graph.node_subgraph.items():
-        if kind != "capabilities":
-            continue
-        if not _bfs_reaches_kind(graph, node_id, "outputs"):
-            orphans.append({"node_id": node_id, "label": graph.node_label.get(node_id, "")})
-    return orphans
+    if len(graph.capability_columns) != 2:
+        return [{
+            "reason": f"{total} capabilities should split into exactly 2 balanced columns, "
+                      f"found {len(graph.capability_columns)}"
+        }]
+    sizes = sorted(len(c) for c in graph.capability_columns)
+    if sizes[1] - sizes[0] > 1:
+        return [{"reason": f"columns not balanced: sizes {sizes}"}]
+    return []
 
 
 def check_diagram_known_subgraph_ids(markdown_text: str) -> list[str]:
-    """Return any `## At a glance` subgraph IDs outside the canonical set.
-
-    Canonical set: {Inputs, FromScratch, Capabilities, Outputs}. A non-blocking
-    tripwire -- an unrecognized ID is either a typo'd canonical ID or a
-    genuinely new archetype shape not yet added to the canonical set, and
-    since check_diagram_connectivity's classifier is a strict allow-list, an
-    unrecognized ID would otherwise silently drop out of connectivity
-    checking instead of erroring. Returns [] if there's no mermaid block.
+    """Return any TOP-LEVEL `## At a glance` subgraph ID outside the canonical set
+    {StartingPoints, Capabilities, Outputs}. A non-blocking tripwire. Nested column
+    subgraphs used for the 2-column capability layout are expected to be non-canonical
+    (e.g. `capl`/`capr`) and are deliberately not flagged -- only nesting depth 0 is
+    checked. Returns [] if there's no mermaid block.
     """
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
         return []
 
     unknown = []
+    depth = 0
     for raw_line in mermaid_text.splitlines():
-        match = _SUBGRAPH_START_RE.match(raw_line.strip())
-        if match and match.group(1) not in _CANONICAL_SUBGRAPH_IDS:
-            unknown.append(match.group(1))
+        line = raw_line.strip()
+        match = _SUBGRAPH_START_RE.match(line)
+        if match:
+            if depth == 0 and match.group(1) not in _CANONICAL_SUBGRAPH_IDS:
+                unknown.append(match.group(1))
+            depth += 1
+            continue
+        if _SUBGRAPH_END_RE.match(line):
+            depth = max(0, depth - 1)
     return unknown
 
 
 def check_diagram_matches_capability_dependencies(
     markdown_text: str, pipeline_edges: list[list[str]] | None
 ) -> list[dict]:
-    """Compare the drawn diagram's edges against a recorded pipeline_edges list.
+    """Hard gate once a product has a recorded pipeline_edges list (rewritten 2026-08-08:
+    the pre-simplification diagram compared drawn EDGES against recorded edges; the
+    simplified diagram has no per-capability edges left to compare, so this now compares
+    COLUMN ORDER instead).
 
-    `pipeline_edges` is the `[[from_capability_id, to_capability_id], ...]` value
-    from a product's `data/diagram_capability_dependencies.json` entry, or None
-    if that product has no entry at all -- absence means "never traced", never
-    "confirmed independent" (the opposite convention from diagram_archetypes.json),
-    so None always returns [] (a no-op, correctly, since there's nothing recorded
-    to contradict). An empty list ([]) means "traced, confirmed no dependencies" --
-    a real, positive record -- and IS checked (against undeclared C-to-C edges).
+    `pipeline_edges` is the `[[from_capability_id, to_capability_id], ...]` value from a
+    product's `data/diagram_capability_dependencies.json` entry, keyed to the CURRENT
+    diagram's own node IDs (re-recorded during MT024 Phase 1 when a product's diagram is
+    redrawn under the new model -- the old C1..C6b-style IDs from the pre-simplification
+    per-node-edge diagrams no longer exist as separate nodes once siblings merge into one
+    Core Capabilities line, so a stale pre-simplification pipeline_edges entry will report
+    every pair as "capability_not_found" until re-recorded against the new node IDs; this
+    is the intended fail-loud behavior, not a bug to silently work around). None means
+    "never traced" (a no-op, correctly -- nothing recorded to contradict); [] means
+    "traced, confirmed no dependencies" and is still checked (there's nothing to verify
+    against an empty list, so it also returns [] in practice, but the distinction from
+    None is preserved for the same reason diagram_archetypes.json's absence-semantics are).
 
-    Findings, each a dict with a "type" key:
-      - "missing_edge": a recorded [from, to] pair has no real from---to edge drawn.
-      - "contradictory_direct_edge": a recorded pair's `to` node also carries a
-        direct PRODUCT---to edge (the barcode/python C5/C6 shape).
-      - "undeclared_edge": a drawn Capability-to-Capability edge not present in
-        the recorded pipeline_edges (either a real find not yet recorded, or drift).
+    For every recorded [from, to] pair, `from` must appear at or before `to`'s position
+    within `to`'s own column's node list -- an upstream capability must never be listed
+    below the capability that depends on it, within the same column. Cross-column
+    ordering is unconstrained (columns are independent visual tracks, not one strict
+    sequence); a dependency between two capabilities in different columns is not itself
+    a defect, so this only flags a same-column mis-ordering or a referenced ID that
+    doesn't exist in either column at all.
+
+    Findings, each a dict with a "type" key: "capability_not_found" (from/to isn't any
+    known capability node) or "wrong_order" (from appears after to in the same column).
     """
-    if pipeline_edges is None:
+    if not pipeline_edges:
         return []
 
     mermaid_text = extract_mermaid_block(markdown_text)
@@ -353,86 +466,120 @@ def check_diagram_matches_capability_dependencies(
         return []
 
     graph = parse_diagram(mermaid_text)
-    drawn_edges = set(graph.edges)
-    recorded_pairs = {(pair[0], pair[1]) for pair in pipeline_edges}
+    position: dict[str, tuple[int, int]] = {}
+    for col_idx, column in enumerate(graph.capability_columns):
+        for row_idx, node_id in enumerate(column):
+            position[node_id] = (col_idx, row_idx)
 
     findings: list[dict] = []
-    contradicted_targets: set[str] = set()
-    for from_id, to_id in recorded_pairs:
-        if (from_id, to_id) not in drawn_edges:
-            findings.append(
-                {"type": "missing_edge", "from": from_id, "to": to_id}
-            )
-        if ("PRODUCT", to_id) in drawn_edges and to_id not in contradicted_targets:
-            contradicted_targets.add(to_id)
-            findings.append(
-                {"type": "contradictory_direct_edge", "from": "PRODUCT", "to": to_id}
-            )
-
-    for a, b in graph.edges:
-        if graph.node_subgraph.get(a) != "capabilities":
+    for from_id, to_id in pipeline_edges:
+        from_pos = position.get(from_id)
+        to_pos = position.get(to_id)
+        if from_pos is None or to_pos is None:
+            findings.append({"type": "capability_not_found", "from": from_id, "to": to_id})
             continue
-        if graph.node_subgraph.get(b) != "capabilities":
-            continue
-        if (a, b) not in recorded_pairs:
-            findings.append({"type": "undeclared_edge", "from": a, "to": b})
-
+        if from_pos[0] == to_pos[0] and from_pos[1] > to_pos[1]:
+            findings.append({
+                "type": "wrong_order", "from": from_id, "to": to_id,
+                "detail": f"{from_id} listed after {to_id} in the same column",
+            })
     return findings
 
 
-def check_diagram_suspicious_direct_product_edge(markdown_text: str) -> list[dict]:
-    """Flag a Capabilities node wired both directly from PRODUCT and from a sibling.
+def check_diagram_hybrid_reverification(
+    markdown_text: str, archetype_entry: dict | None, plan_run_date: str
+) -> list[dict]:
+    """Hard gate (2026-08-08, Rule 2 refinement #2 -- "confirm if an API allows building a
+    format from scratch, don't assume"). A diagram may render a `Starting Points` container
+    only when the product's `hybrid` archetype classification has been freshly re-confirmed
+    as part of THIS `plan` run, never silently carried forward from an old decision.
 
-    Heuristic, non-blocking. Honest recall: catches only the shape where *some*
-    Capability-to-Capability edge already exists to contradict (barcode/python's
-    C5, uniquely among the pre-fix corpus). Misses the far more common "the
-    correct edge was simply never drawn" shape (barcode's C6, both tex/python
-    cases, email/python's C6) -- a clean pass here must never be read as
-    "verified", only "no contradiction of this specific shape found".
+    `archetype_entry` is the product's own matching row from `data/diagram_archetypes.json`
+    (or None if no override entry exists -- absence defaults to `transform`, which never
+    gets a Starting Points container). `plan_run_date` is the current run's own pinned date
+    (`YYYY-MM-DD`). The 3-condition hybrid test itself (reads an existing format for
+    editing AND has a dedicated from-scratch capability AND that capability takes real
+    structured construction parameters) is unchanged from the Template section's original
+    spec -- this check only enforces that its evidence citation is fresh, not the test
+    itself, which stays real human/agent verification against current source.
+
+    Returns a list of {"reason": ...} findings; empty means either no Starting Points
+    container is present (nothing to reverify) or the container is present and its
+    archetype evidence is fresh and correctly classified.
     """
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
         return []
-
     graph = parse_diagram(mermaid_text)
-    findings = []
-    for node_id, kind in graph.node_subgraph.items():
-        if kind != "capabilities":
-            continue
-        has_direct_product_edge = ("PRODUCT", node_id) in graph.edges
-        has_sibling_edge = any(
-            b == node_id and graph.node_subgraph.get(a) == "capabilities"
-            for a, b in graph.edges
-        )
-        if has_direct_product_edge and has_sibling_edge:
-            findings.append({"node_id": node_id, "label": graph.node_label.get(node_id, "")})
-    return findings
+    if "starting_points" not in graph.subgraph_kinds_seen:
+        return []
+
+    if archetype_entry is None:
+        return [{
+            "reason": "diagram has a Starting Points container but no archetype override "
+                      "entry exists (default archetype is transform, which never gets one)"
+        }]
+    if archetype_entry.get("archetype") != "hybrid":
+        return [{
+            "reason": f"diagram has a Starting Points container but archetype is "
+                      f"'{archetype_entry.get('archetype')}', not 'hybrid'"
+        }]
+    if not (archetype_entry.get("evidence") or "").strip():
+        return [{"reason": "hybrid archetype entry has no evidence citation"}]
+    if archetype_entry.get("decided_at") != plan_run_date:
+        return [{
+            "reason": f"hybrid archetype entry's decided_at "
+                      f"({archetype_entry.get('decided_at')}) was not refreshed for this "
+                      f"run ({plan_run_date}) -- re-verify the 3-condition hybrid test "
+                      f"against real, current source before trusting this classification"
+        }]
+    return []
 
 
-def check_diagram_capability_unreachable_from_product(markdown_text: str) -> list[dict]:
-    """Flag a Capabilities node with zero inbound edges from PRODUCT or a sibling.
+def check_diagram_format_support_claims(
+    markdown_text: str, formats_md_text: str, known_format_names: set[str] | None = None
+) -> list[dict]:
+    """Hard gate (2026-08-08, Rule 2 refinement #1 -- "only add input/output formats which
+    are actually supported"). Every recognized format token named anywhere in the At-a-
+    glance diagram (Starting Points, Core Capabilities, or Outputs) must appear in this
+    product's own `knowledge/{family}/{platform}/merged/formats.md` -- the same source
+    `plan`'s factpack step already reads, so this is real reuse, not a new dependency.
 
-    Heuristic, non-blocking. Harmless no-op against a pre-Rule-1-fix diagram
-    (every node still has its PRODUCT edge); becomes load-bearing as Direct-edge
-    fixes land and start replacing PRODUCT edges with Capability-to-Capability
-    edges, catching the slip of deleting a PRODUCT edge without wiring the
-    real upstream Capability in its place.
+    `known_format_names` is the canonical vocabulary used to recognize which diagram-label
+    tokens are format claims at all (sourced from `data/format_descriptions.json`'s keys),
+    distinguishing a real format claim from an ordinary word in a capability description.
+    Distinct from `check_format_name_casing` (below) -- a format can be spelled with
+    perfect canonical casing and still not be genuinely supported by this specific
+    product; the two checks verify different properties and are not redundant.
+
+    Returns a list of {"node_id", "label", "format", "reason"} findings for every format
+    named in the diagram but absent from the verified formats list -- this plan's own
+    single worst defect class (a fabricated capability claim), restated for format tokens.
     """
+    known_format_names = known_format_names or set()
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
         return []
-
     graph = parse_diagram(mermaid_text)
+
     findings = []
-    for node_id, kind in graph.node_subgraph.items():
-        if kind != "capabilities":
+    for node_id, label in graph.node_label.items():
+        kind = graph.node_subgraph.get(node_id)
+        if kind not in ("starting_points", "capabilities", "outputs"):
             continue
-        has_inbound = any(
-            b == node_id and (a == "PRODUCT" or graph.node_subgraph.get(a) == "capabilities")
-            for a, b in graph.edges
-        )
-        if not has_inbound:
-            findings.append({"node_id": node_id, "label": graph.node_label.get(node_id, "")})
+        tokens = set(re.findall(r"[A-Za-z][A-Za-z0-9+]{1,9}", label))
+        for token in tokens:
+            canonical = next(
+                (f for f in known_format_names if f.upper() == token.upper()), None
+            )
+            if canonical is None:
+                continue
+            if not re.search(rf"\b{re.escape(canonical)}\b", formats_md_text, re.IGNORECASE):
+                findings.append({
+                    "node_id": node_id, "label": label, "format": canonical,
+                    "reason": f"'{canonical}' named in the diagram but not found in this "
+                              f"product's verified formats.md",
+                })
     return findings
 
 
@@ -458,15 +605,20 @@ _MD_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
 # hypothetical: cells/cpp is the one product in the current 30-file portfolio with no such
 # section, and it is not a defect. "Enough real snippets to justify one" is a content-quality
 # judgment call this check cannot responsibly automate, so it stays outside the hard gate.
+# 2026-08-08 (Rule 6): title-cased to match check_heading_title_case -- these two hard gates
+# must agree on the canonical heading text, or they directly contradict each other (one
+# requiring exact sentence-case text, the other requiring title case). A real bug found
+# via this module's own test suite when check_heading_title_case landed: the old sentence-
+# case list here silently stopped matching once a fixture's headings were title-cased.
 _REQUIRED_SECTIONS = [
-    "At a glance",
-    "Key capabilities",
+    "At a Glance",
+    "Key Capabilities",
     "Installation",
-    "Quick start",
-    "API reference",
-    "Documentation & resources",
-    "Scope and limitations",
-    "Development and testing",
+    "Quick Start",
+    "API Reference",
+    "Documentation & Resources",
+    "Scope and Limitations",
+    "Development and Testing",
     "License",
 ]
 _ASPOSE_LINK_HOST_RE = re.compile(r"https?://(?:[\w-]+\.)*aspose\.(?:org|com)\b")
@@ -507,19 +659,56 @@ def count_aspose_links(readme_text: str) -> int:
     )
 
 
+_BROADER_FUNCTIONALITY_CONTEXT_RE = re.compile(
+    r"\b(?:broader|full|complete|additional|advanced|commercial)\b.{0,60}"
+    r"\b(?:functionality|feature|format|support|coverage|capabilit)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
 def check_enterprise_edition_naming(readme_text: str) -> list[dict]:
-    """Flag any products.aspose.com link whose visible anchor text doesn't contain
-    "Enterprise Edition" -- the plan's own established naming convention (deliberately not
-    backlink_targets.py's "Enterprise Product"/"Enterprise Product Family" phrasing, which is
-    a different convention for a different consumer). Heuristic: a hit is a prompt for review,
-    since a handful of legitimate phrasings ("...for the Enterprise Edition of...") may still
-    satisfy intent without matching the literal substring check here.
+    """Two checks in one, both against every `products.aspose.com` link found:
+
+    1. **Naming** (as before): the visible anchor text must contain "Enterprise Edition" --
+       the decided, single portfolio-wide standard (2026-08-08, via AskUserQuestion,
+       matching this function's own name; deliberately not `backlink_targets.py`'s
+       "Enterprise Product"/"Enterprise Product Family" phrasing, a different convention
+       for a different consumer: docs/kb/reference/products pages, not GitHub READMEs).
+       Confirmed live 3-way drift across a 6-file sample this decision closes: "Enterprise
+       Edition" (majority), "Enterprise Product" (`pdf/cpp`, `cells/cpp`), and no qualifier
+       at all (`words/net`, a real gap).
+    2. **Context** (2026-08-08, Rule 4 -- "the anchor explains access to broader/full
+       product functionality, rather than using a naked brand or promotional CTA"): the
+       ~120 characters surrounding the link must contain language explaining what broader
+       functionality is gained (a `broader`/`full`/`complete`/`additional`/`advanced`/
+       `commercial` word near a `functionality`/`feature`/`format`/`support`/`coverage`/
+       `capability` word) -- distinguishing a real explanatory sentence from a bare "See
+       [Enterprise Edition](...)" CTA with no stated reason to click.
+
+    Findings carry a "reason" of "missing_naming", "missing_context", or both (as separate
+    findings) so a caller can tell which half failed. Hard gate for naming (mechanically
+    unambiguous once the standard is decided); the context half stays a heuristic prompt,
+    since "does this sentence really explain the value" is a content-quality judgment call.
     """
     findings = []
     for match in _MD_LINK_RE.finditer(readme_text):
         anchor_text, href = match.group(1), match.group(2)
-        if _ENTERPRISE_LINK_HOST_RE.search(href) and "Enterprise Edition" not in anchor_text:
-            findings.append({"anchor_text": anchor_text, "href": href})
+        if not _ENTERPRISE_LINK_HOST_RE.search(href):
+            continue
+        if "Enterprise Edition" not in anchor_text:
+            findings.append({
+                "anchor_text": anchor_text, "href": href, "reason": "missing_naming",
+                "detail": 'anchor text must contain "Enterprise Edition"',
+            })
+        start = max(0, match.start() - 60)
+        end = min(len(readme_text), match.end() + 60)
+        context = readme_text[start:end].replace("\n", " ")
+        if not _BROADER_FUNCTIONALITY_CONTEXT_RE.search(context):
+            findings.append({
+                "anchor_text": anchor_text, "href": href, "reason": "missing_context",
+                "detail": "surrounding text doesn't explain the broader/full functionality gained",
+                "context": context,
+            })
     return findings
 
 
@@ -599,17 +788,31 @@ _PROCESS_NARRATION_PATTERNS = [
     r"\bthe source repository\b",
     r"\(per the\b",
     r"\bwithout obscuring the primary\b",
+    # 2026-08-08 (Rule 3): broadened past the original 22 incident-specific literal
+    # phrases into four named categories the rule calls out explicitly -- internal
+    # receipts, execution notes, provenance, and confidence language -- rather than
+    # only ever growing this list one past incident at a time.
+    r"\baccording to (?:our|this) (?:audit|scan|sweep|review|analysis)\b",  # internal receipts
+    r"\b(?:this|the) (?:session|run|pass) (?:found|confirmed|verified|checked)\b",  # execution notes
+    r"\bgenerated (?:by|from|via) (?:the|this) (?:pipeline|skill|script|tool)\b",  # provenance
+    r"\bwe (?:confirmed|verified|checked|found) that\b",  # confidence language
+    r"\bhas been (?:verified|confirmed|validated) to\b",  # confidence language
 ]
 _PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
 
 
 def check_process_narration_smells(readme_text: str) -> list[dict]:
-    """Flag sentences narrating the generation/verification *process* instead of stating a
-    product fact (Template section, "No process/investigation-log narration anywhere in the
-    README"). Heuristic, cheap regex tripwire feeding the mandatory tone-review judgment pass
-    during verify-examples -- a hit is a prompt to look, never an automatic fail (a plain
-    present-tense limitation sentence in Scope and limitations is fine; the smell is the
-    audit-trail *voice*, not the presence of a caveat).
+    """HARD GATE as of 2026-08-08 (Rule 3: "verification facts... never leak into
+    visitor-facing prose... internal receipts, execution notes, provenance, and confidence
+    language are blocked") -- elevated from its original heuristic status, a materially
+    stronger requirement than the prior "surfaced for judgment" framing. Flags sentences
+    narrating the generation/verification *process*, an internal receipt, an execution
+    note, a provenance citation, or confidence-language about the README's own accuracy,
+    instead of stating a plain product fact (Template section, "No process/investigation-
+    log narration anywhere in the README"). A plain present-tense limitation sentence in
+    Scope and limitations is fine; the smell is the audit-trail *voice*, not the presence
+    of a caveat -- "useful limitations are rewritten as user guidance" per Rule 3, not
+    deleted.
     """
     findings = []
     for match in _PROCESS_NARRATION_RE.finditer(readme_text):
@@ -619,7 +822,19 @@ def check_process_narration_smells(readme_text: str) -> list[dict]:
     return findings
 
 
-_FENCED_CODE_RE = re.compile(r"```(?:bash|sh|shell|powershell|cmd)?\n(.*?)```", re.DOTALL)
+# 2026-08-08: the language tag is now MANDATORY (was optional). A real, significant bug
+# found via this module's own test suite once a real Mermaid diagram was added ahead of an
+# Installation section's bash block (now true of every README under the 2026-08-08
+# simplified diagram model, which requires an ## At a Glance diagram on every product):
+# with the tag optional, the regex failed to match the ```mermaid opening fence (since
+# "mermaid" isn't a recognized tag), then incorrectly treated the mermaid block's own
+# UNTAGGED closing "```\n" as a fresh opening fence for an untagged block, silently
+# swallowing everything up to the *next* ``` as "code content" and desyncing every match
+# after it -- the real ```bash blocks were never found at all. Requiring the tag means an
+# untagged/other-language fence (like mermaid's own closing ```) can never be mistaken for
+# an opening delimiter. Also adds "cmake" -- C++ products' real Installation/Development
+# sections use ```cmake fenced blocks, which this hard gate had never recognized before.
+_FENCED_CODE_RE = re.compile(r"```(?:bash|sh|shell|powershell|cmd|cmake)\n(.*?)```", re.DOTALL)
 _BLOCKING_ISSUE_RE = re.compile(
     r"-\s+\*\*Severity\*\*:\s*BLOCKING.*?-\s+\*\*Evidence\*\*:\s*(.+?)\n",
     re.DOTALL,
@@ -651,6 +866,18 @@ def check_no_undisclosed_blocking_commands(readme_text: str, upstream_issues_tex
 _HEADING_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
 
 
+_INTERNAL_LABEL_PATTERNS = [
+    r"\bpreserved repository details\b",
+    r"\bdropped claims?\b",
+    r"\bcarried forward from (?:the )?old readme\b",
+    r"\bverification status\b",
+    r"\bdisposition\b",
+    r"\bcandidate readme\b",
+    r"\bthis readme(?:'s)? (?:generation|generated)\b",
+]
+_INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECASE)
+
+
 def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cache_root: str) -> dict:
     """Diff the old (upstream) README against the new candidate for links and H2/H3 headings
     present in the old file with no match anywhere in the new one. Hard gate at
@@ -658,12 +885,22 @@ def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cach
     (carried forward / dropped with a verified reason) before the transition can pass, per
     the "Never drop original-README content without a verified reason" rule.
 
-    Returns {"dropped_links": [...], "dropped_headings": [...]}. A link is "dropped" only if
-    its exact target string doesn't appear anywhere in new_readme_text (a real move to a
-    different section still counts as carried forward, correctly). clone_cache_root is
-    accepted for API-shape parity with check_license_link_target (a caller may wish to filter
-    out links to files that no longer exist upstream either) but this heuristic-diff pass does
-    not itself require it to detect a drop.
+    Returns {"dropped_links": [...], "dropped_headings": [...], "internal_labels": [...]}.
+    A link is "dropped" only if its exact target string doesn't appear anywhere in
+    new_readme_text (a real move to a different section still counts as carried forward,
+    correctly). clone_cache_root is accepted for API-shape parity with
+    check_license_link_target (a caller may wish to filter out links to files that no
+    longer exist upstream either) but this heuristic-diff pass does not itself require it
+    to detect a drop.
+
+    `internal_labels` is the 2026-08-08 (Rule 7) addition -- "meaning is preserved... but
+    internal labels such as 'Preserved repository details' are forbidden" -- a hard-gate
+    scan of new_readme_text for meta/process labels that describe the README's OWN
+    generation or internal bookkeeping rather than the product itself (a heading or bullet
+    reading "Preserved repository details", "Dropped claims", "Verification status", etc.).
+    This closes the loophole where the meaning-preservation half of Rule 7 (already covered
+    by dropped_links/dropped_headings above) could technically pass while the preserved
+    content was labeled with exactly this kind of internal, non-visitor-facing language.
     """
     del clone_cache_root  # accepted for signature parity; presence-diffing needs only the two texts
     old_links = {href for _, href in _MD_LINK_RE.findall(old_readme_text) if not href.startswith(("http://", "https://"))}
@@ -673,7 +910,13 @@ def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cach
     new_headings_and_body = new_readme_text
     dropped_headings = sorted(h for h in old_headings if h not in new_headings_and_body)
 
-    return {"dropped_links": dropped_links, "dropped_headings": dropped_headings}
+    internal_labels = sorted({m.group(0) for m in _INTERNAL_LABEL_RE.finditer(new_readme_text)})
+
+    return {
+        "dropped_links": dropped_links,
+        "dropped_headings": dropped_headings,
+        "internal_labels": internal_labels,
+    }
 
 
 _EXCLUDED_DOMAINS_RE = re.compile(r"https?://(?:[\w-]+\.)*(?:forum\.aspose\.com|[\w-]+\.aspose\.app)\b")
@@ -892,18 +1135,261 @@ def check_diagram_no_mechanism_duplicate_output(markdown_text: str) -> list[dict
     return findings
 
 
+_BARE_WORD_RE = re.compile(r"(?<![./\w])([A-Za-z]{2,10})\b")
+
+
+def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] | None = None) -> list[dict]:
+    """Hard gate (2026-08-08, Rule 1). A bare (non-extension) format-name word must use one
+    consistent casing throughout the file, and where the format is a known entry in
+    `canonical_casing` (sourced from `data/format_descriptions.json`'s keys, e.g.
+    `{"XLSX": "XLSX", "PDF": "PDF", "HTML": "HTML"}`), that casing must match the registry's
+    canonical form.
+
+    Scope, stated precisely: only bare, standalone format words in PROSE are checked -- a
+    dotted file-extension reference (`.xlsx`, `.msg`) is a separate, legitimate, always-
+    lowercase convention (the literal on-disk suffix) and is never compared against the
+    bare form; a markdown link TARGET (the `(...)` half of `[text](target)`, e.g. the bare
+    filename `(LICENSE)`) and inline-code spans (`` `Xlsx` ``) are stripped before scanning
+    entirely, since those are filename/identifier references, not prose format-name claims
+    -- a real false positive found via this function's own test suite: the link target
+    `(LICENSE)` (all-caps, a filename) was being compared against prose "License" as if
+    they were the same format-name claim. Candidate words are further limited to those that
+    are either a known registry format OR appear genuinely all-caps at least once in the
+    remaining prose (a strong signal of being treated as an acronym/format name, not
+    ordinary text) -- this is load-bearing, not decorative: an unrestricted bare-word scan
+    would flag ordinary sentence-initial capitalization ("The" vs. "the") as a false
+    "casing inconsistency" on every common English word.
+
+    Returns a list of {"format", "found"/"found_variants", "canonical"?, "reason"}
+    findings.
+    """
+    canonical_casing = canonical_casing or {}
+    prose_only = _MD_LINK_RE.sub(lambda m: f"[{m.group(1)}]", readme_text)
+    prose_only = re.sub(r"`[^`]*`", "", prose_only)
+    occurrences: dict[str, set[str]] = {}
+    all_caps_seen: set[str] = set()
+    for match in _BARE_WORD_RE.finditer(prose_only):
+        word = match.group(1)
+        key = word.upper()
+        occurrences.setdefault(key, set()).add(word)
+        if word.isupper() and len(word) >= 2:
+            all_caps_seen.add(key)
+
+    findings: list[dict] = []
+    for key in sorted(set(canonical_casing) | all_caps_seen):
+        variants = occurrences.get(key, set())
+        if not variants:
+            continue
+        if key in canonical_casing:
+            correct = canonical_casing[key]
+            for variant in sorted(variants):
+                if variant != correct:
+                    findings.append({
+                        "format": key, "found": variant, "canonical": correct,
+                        "reason": "bare format-name casing does not match the canonical registry form",
+                    })
+        elif len(variants) > 1:
+            findings.append({
+                "format": key, "found_variants": sorted(variants),
+                "reason": "multiple different casings of the same bare format word used within this file",
+            })
+    return findings
+
+
+_OWN_PRODUCT_LINE_RE = re.compile(r"^\[!\[|^#\s+", re.MULTILINE)
+
+
+def check_no_cross_product_citation(readme_text: str, own_family: str) -> list[dict]:
+    """Hard gate (2026-08-08). Flags a mention of a DIFFERENT product family's own name,
+    package, or link inside a README that's supposed to describe only its own product --
+    e.g. `pdf/cpp`'s Installation section citing `Aspose.Cells FOSS for C++`'s real NuGet
+    package as "proof C++ can publish to NuGet." Found live, real, in exactly 3 files
+    (`pdf/cpp`, `email/cpp`, `slides/cpp`, all citing `cells/cpp`) during the 2026-08-08
+    Mermaid-simplification review -- the user's own verdict: a sibling product's own
+    package name and link has no place inside a different product's own installation
+    instructions, regardless of well-intentioned original reasoning ("proof the registry
+    exists"). A visitor installing product A has no use for a citation about product B.
+
+    `own_family` is this README's own product family slug (e.g. "pdf"), used to build the
+    set of OTHER known family display names to search for -- sourced from the caller's
+    own `data/families.json` read, not hardcoded here, so this stays correct as the
+    product portfolio grows. Returns a list of {"family", "context"} findings for every
+    mention of a different family's own `Aspose.{Family}` product name found outside a
+    `Documentation & resources`-style cross-reference (the one legitimate place a sibling
+    product might reasonably be mentioned, e.g. a "see also" pointer -- never inside
+    Installation/Quick start/API reference, which are strictly about THIS product).
+    """
+    findings: list[dict] = []
+    exempt_section = re.search(
+        r"^##\s+Documentation & resources\s*$(.*?)(?=^##\s|\Z)", readme_text,
+        re.MULTILINE | re.DOTALL,
+    )
+    exempt_span = exempt_section.span(1) if exempt_section else (-1, -1)
+
+    for match in re.finditer(r"\bAspose\.([A-Z][A-Za-z]*)\b", readme_text):
+        cited_family = match.group(1)
+        if cited_family.lower() == own_family.lower():
+            continue
+        if exempt_span[0] <= match.start() < exempt_span[1]:
+            continue
+        start = max(0, match.start() - 40)
+        end = min(len(readme_text), match.end() + 40)
+        findings.append({
+            "family": cited_family,
+            "context": readme_text[start:end].replace("\n", " "),
+        })
+    return findings
+
+
+_EXAMPLES_SECTION_RE = re.compile(
+    r"^##\s+Additional examples\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL
+)
+_EXAMPLES_TABLE_RE = re.compile(r"^\|.+\|\s*$", re.MULTILINE)
+_DETAILS_BLOCK_RE = re.compile(r"<details>.*?</details>", re.DOTALL)
+
+
+def check_examples_table_collapsed(readme_text: str) -> list[dict]:
+    """Hard gate (2026-08-08). The `## Additional examples` section's exhaustive per-item
+    table (the "12 runnable examples" style `| Example | Shows |` table found live in
+    `pdf/cpp` and several other products) must live INSIDE the same `<details>` block that
+    already collapses the remaining worked-example prose walkthroughs -- not above it,
+    always visible. The existing flagship-example rule already shows one example directly
+    and collapses the rest; this closes the gap where the SUMMARY TABLE was exempted from
+    that same treatment, working against the "simple at a glance" philosophy just applied
+    to the diagram.
+
+    Returns a list of {"reason": ...} findings; empty if the section has no such table, or
+    the table is genuinely inside a `<details>` block.
+    """
+    section_match = _EXAMPLES_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    section_text = section_match.group(1)
+
+    table_match = _EXAMPLES_TABLE_RE.search(section_text)
+    if not table_match:
+        return []
+
+    for details_match in _DETAILS_BLOCK_RE.finditer(section_text):
+        if details_match.start() <= table_match.start() < details_match.end():
+            return []
+
+    return [{
+        "reason": "the Additional examples table is not inside a <details> block -- it "
+                  "must be collapsed alongside the remaining worked-example walkthroughs, "
+                  "not always visible above the fold",
+    }]
+
+
+_TITLE_CASE_MINOR_WORDS = {
+    "a", "an", "the", "and", "or", "but", "nor", "for", "so", "yet",
+    "at", "by", "in", "of", "on", "to", "up", "as", "vs", "vs.", "via",
+}
+
+
+def _is_title_case(heading_text: str) -> bool:
+    """A heading is title case when every "major" word starts with an uppercase letter.
+    Minor words (articles, short prepositions/conjunctions) may stay lowercase except as
+    the first word. A word that's already all-caps (an acronym like "API", "PDF") or
+    contains internal capitals (a code identifier in backticks, "DocumentBuilder") always
+    counts as correctly cased -- this check is about capitalization pattern, not spelling.
+    """
+    words = re.findall(r"[A-Za-z][A-Za-z0-9'.]*", heading_text)
+    if not words:
+        return True
+    for index, word in enumerate(words):
+        if word[0].islower() and word.lower() not in _TITLE_CASE_MINOR_WORDS:
+            return False
+        if index == 0 and word[0].islower():
+            return False
+    return True
+
+
+def check_heading_title_case(readme_text: str) -> list[dict]:
+    """Hard gate (2026-08-08, Rule 6). Every `##`/`###` heading and every `<summary>...
+    </summary>` collapsible-heading text must be title case. Confirmed live: a 6-file
+    sample found every heading in every file was sentence case ("At a glance", "Key
+    capabilities", "View additional examples") -- a systemic pattern across the whole
+    portfolio, not a one-off. Returns a list of {"heading", "kind"} findings for every
+    non-title-case heading found; empty if all headings are already title case.
+    """
+    findings: list[dict] = []
+    for match in _HEADING_RE.finditer(readme_text):
+        text = match.group(2)
+        if not _is_title_case(text):
+            findings.append({"heading": text, "kind": "section"})
+    for match in re.finditer(r"<summary>(.*?)</summary>", readme_text, re.DOTALL):
+        text = match.group(1).strip()
+        if not _is_title_case(text):
+            findings.append({"heading": text, "kind": "summary"})
+    return findings
+
+
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def check_section_job_distinctness(readme_text: str) -> list[dict]:
+    """Heuristic (2026-08-08, Rule 5). Flags substantial sentence-level overlap between the
+    intro paragraph (the README's implicit "why use this" content, before the first `##`
+    heading) and the `## Key capabilities` section (the "features" content) -- a prompt for
+    the mandatory judgment pass to merge or deduplicate, never an automatic fail, since
+    genuine rhetorical restatement (a one-line hook echoing a capability) is often fine and
+    "substantial overlap" is a content-quality judgment call a script can't fully automate.
+
+    Overlap is measured per intro-sentence as word-set Jaccard similarity against each
+    Key-capabilities bullet; a sentence sharing more than half its significant words
+    (4+ letters, case-insensitive) with some bullet is flagged. Returns a list of
+    {"intro_sentence", "overlapping_bullet", "similarity"} findings.
+    """
+    first_heading = re.search(r"^##\s", readme_text, re.MULTILINE)
+    intro_text = readme_text[: first_heading.start()] if first_heading else readme_text
+
+    caps_match = re.search(
+        r"^##\s+Key capabilities\s*$(.*?)(?=^##\s|\Z)", readme_text, re.MULTILINE | re.DOTALL
+    )
+    if not caps_match:
+        return []
+    bullets = re.findall(r"^-\s+(.+)$", caps_match.group(1), re.MULTILINE)
+    if not bullets:
+        return []
+
+    def significant_words(text: str) -> set[str]:
+        return {w.lower() for w in re.findall(r"[A-Za-z]{4,}", text)}
+
+    findings: list[dict] = []
+    for sentence in _SENTENCE_SPLIT_RE.split(intro_text.strip()):
+        sentence_words = significant_words(sentence)
+        if len(sentence_words) < 4:
+            continue
+        for bullet in bullets:
+            bullet_words = significant_words(bullet)
+            if not bullet_words:
+                continue
+            overlap = sentence_words & bullet_words
+            similarity = len(overlap) / min(len(sentence_words), len(bullet_words))
+            if similarity > 0.5:
+                findings.append({
+                    "intro_sentence": sentence.strip(),
+                    "overlapping_bullet": bullet.strip(),
+                    "similarity": round(similarity, 2),
+                })
+    return findings
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Check At-a-glance Mermaid diagram connectivity (orphaned Capabilities nodes)."
+        description="Check At-a-glance Mermaid diagram shape (2026-08-08 simplified model: "
+                     "Product -> Core Capabilities -> Outputs, optional Starting Points)."
     )
     parser.add_argument("readme_path", help="Path to a readme.md file")
     parser.add_argument(
         "--pipeline-edges",
         default=None,
         help=(
-            'JSON array of [from, to] capability-id pairs for this product, e.g. '
-            '\'[["C1","C5"],["C2","C5"]]\'. Omit for products with no recorded entry '
-            "in data/diagram_capability_dependencies.json (the check is a no-op then)."
+            'JSON array of [from, to] capability-id pairs for this product, keyed to the '
+            'CURRENT diagram\'s own node IDs, e.g. \'[["c1","c2"]]\'. Omit for products with '
+            "no recorded entry in data/diagram_capability_dependencies.json (the check is a "
+            "no-op then)."
         ),
     )
     args = parser.parse_args(argv)
@@ -917,15 +1403,12 @@ def main(argv: list[str] | None = None) -> int:
     if unknown_ids:
         print(f"WARN: {args.readme_path} -- unrecognized subgraph ID(s): {', '.join(unknown_ids)}")
 
-    suspicious = check_diagram_suspicious_direct_product_edge(text)
-    if suspicious:
-        labels = ", ".join(f"{f['node_id']} ({f['label']})" for f in suspicious)
-        print(f"WARN: {args.readme_path} -- suspicious direct-PRODUCT-edge node(s): {labels}")
-
-    unreachable = check_diagram_capability_unreachable_from_product(text)
-    if unreachable:
-        labels = ", ".join(f"{f['node_id']} ({f['label']})" for f in unreachable)
-        print(f"WARN: {args.readme_path} -- unreachable-from-PRODUCT node(s): {labels}")
+    column_findings = check_diagram_column_balance(text)
+    if column_findings:
+        exit_code = 1
+        print(f"FAIL: {args.readme_path} -- column-balance violation(s):")
+        for finding in column_findings:
+            print(f"  {finding['reason']}")
 
     if args.pipeline_edges is not None:
         pipeline_edges = json.loads(args.pipeline_edges)
@@ -938,14 +1421,14 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"PASS: {args.readme_path} -- diagram matches recorded capability dependencies")
 
-    orphans = check_diagram_connectivity(text)
-    if not orphans:
-        print(f"PASS: {args.readme_path} -- no orphaned capability nodes")
+    shape_findings = check_diagram_shape(text)
+    if not shape_findings:
+        print(f"PASS: {args.readme_path} -- diagram matches the Product -> Core Capabilities -> Outputs shape")
         return exit_code
 
-    print(f"FAIL: {args.readme_path} -- {len(orphans)} orphaned capability node(s):")
-    for orphan in orphans:
-        print(f"  {orphan['node_id']}: {orphan['label']}")
+    print(f"FAIL: {args.readme_path} -- {len(shape_findings)} diagram-shape violation(s):")
+    for finding in shape_findings:
+        print(f"  {finding['reason']}")
     return 1
 
 

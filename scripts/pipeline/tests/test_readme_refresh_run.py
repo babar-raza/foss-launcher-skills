@@ -47,13 +47,23 @@ _GOOD_CANDIDATE = """# Test Product
 
 ## Navigation
 
-- [At a glance](#at-a-glance)
+- [At a Glance](#at-a-glance)
 
-## At a glance
+## At a Glance
 
-A test product for the round-trip state machine test.
+```mermaid
+flowchart TD
+  PRODUCT["Test Product"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["A result"]
+  end
+  PRODUCT --> Capabilities --> Outputs
+```
 
-## Key capabilities
+## Key Capabilities
 
 - Does a thing.
 
@@ -65,27 +75,27 @@ A PyPI package has not been published yet. Install from source:
 pip install -e ".[dev]"
 ```
 
-## Quick start
+## Quick Start
 
 ```python
 import testproduct
 ```
 
-## API reference
+## API Reference
 
 The primary entry point is `TestClass`.
 
-## Documentation & resources
+## Documentation & Resources
 
 See [AGENTS.md](AGENTS.md) for contributor guidance.
 
 - Found a bug? [Open an issue](https://github.com/test-org/test-repo/issues).
 
-## Scope and limitations
+## Scope and Limitations
 
 This is a minimal test fixture.
 
-## Development and testing
+## Development and Testing
 
 ```bash
 pip install -e ".[dev]"
@@ -103,9 +113,10 @@ _BAD_CANDIDATE = _GOOD_CANDIDATE.replace(
     "See [AGENTS.md](AGENTS.md) for contributor guidance.\n\n- Found a bug?",
     "- Found a bug?",
 ).replace(
-    'pip install -e ".[dev]"\n```\n\n## Quick start',
-    'pip install -e .\n```\n\nThis was verified against the published package.\n\n## Quick start',
+    'pip install -e ".[dev]"\n```\n\n## Quick Start',
+    'pip install -e .\n```\n\nThis was verified against the published package.\n\n## Quick Start',
 )
+assert _BAD_CANDIDATE != _GOOD_CANDIDATE, "fixture construction must actually apply both replacements"
 
 _UPSTREAM_ISSUES_BLOCKING = """# Upstream issues — testfam/testplat
 

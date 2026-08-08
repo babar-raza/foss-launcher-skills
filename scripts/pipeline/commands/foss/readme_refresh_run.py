@@ -441,6 +441,43 @@ def _detect_archetype(family: str, platform: str) -> dict:
     return {"archetype": "transform", "archetype_basis": "default (no override entry)"}
 
 
+def _detect_archetype_entry_raw(family: str, platform: str) -> "dict | None":
+    """The full raw data/diagram_archetypes.json row for this product (archetype, evidence,
+    decided_at), or None if no override entry exists. Distinct from _detect_archetype()
+    (above), which only returns {"archetype", "archetype_basis"} for the factpack -- this
+    keeps the full row, including decided_at, for check_diagram_hybrid_reverification's
+    freshness check (2026-08-08, Rule 2 refinement #2)."""
+    path = _repo_root / "data" / "diagram_archetypes.json"
+    if not path.is_file():
+        return None
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    for row in rows:
+        if row.get("family") == family and row.get("platform") == platform:
+            return row
+    return None
+
+
+def _canonical_format_casing() -> dict:
+    """Uppercase-normalized format name -> canonical casing, sourced from
+    data/format_descriptions.json's keys (2026-08-08, Rule 1). A real, pre-existing wrinkle
+    in that registry (OpenXps not OPENXPS, and both WORDML/WordML present as separate keys)
+    means an uppercase collision is possible -- first-seen wins, a deliberate, disclosed
+    limitation rather than a silent crash on a registry the factpack step doesn't own."""
+    path = _repo_root / "data" / "format_descriptions.json"
+    if not path.is_file():
+        return {}
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    canonical: dict[str, str] = {}
+    for key in registry:
+        canonical.setdefault(key.upper(), key)
+    return canonical
+
+
+def _product_formats_md(family: str, platform: str) -> str:
+    path = _repo_root / "knowledge" / family / platform / "merged" / "formats.md"
+    return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
+
+
 def _detect_capability_dependencies(family: str, platform: str) -> "list | None":
     path = _repo_root / "data" / "diagram_capability_dependencies.json"
     if not path.is_file():
@@ -586,13 +623,45 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["license_link_target"] = {
         "hard_gate": True, "findings": checks.check_license_link_target(text, str(clone_cache)),
     }
-    result["diagram_connectivity"] = {
-        "hard_gate": True, "findings": checks.check_diagram_connectivity(text),
+    # 2026-08-08 simplified diagram model (Tenth incident, MT024): check_diagram_connectivity
+    # (orphan-reachability) is retired -- replaced by check_diagram_shape (fixed Product ->
+    # Core Capabilities -> Outputs container-chain structure) and check_diagram_column_balance
+    # (<=5 capabilities = 1 column, >=6 = 2 balanced columns), both hard gates.
+    result["diagram_shape"] = {
+        "hard_gate": True, "findings": checks.check_diagram_shape(text),
+    }
+    result["diagram_column_balance"] = {
+        "hard_gate": True, "findings": checks.check_diagram_column_balance(text),
     }
     pipeline_edges = _detect_capability_dependencies(family, platform)
     result["diagram_matches_capability_dependencies"] = {
         "hard_gate": True,
         "findings": checks.check_diagram_matches_capability_dependencies(text, pipeline_edges),
+    }
+    result["diagram_hybrid_reverification"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_hybrid_reverification(
+            text, _detect_archetype_entry_raw(family, platform), _now().date().isoformat()
+        ),
+    }
+    result["diagram_format_support_claims"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_format_support_claims(
+            text, _product_formats_md(family, platform), set(_canonical_format_casing().values())
+        ),
+    }
+    result["format_name_casing"] = {
+        "hard_gate": True,
+        "findings": checks.check_format_name_casing(text, _canonical_format_casing()),
+    }
+    result["no_cross_product_citation"] = {
+        "hard_gate": True, "findings": checks.check_no_cross_product_citation(text, family),
+    }
+    result["examples_table_collapsed"] = {
+        "hard_gate": True, "findings": checks.check_examples_table_collapsed(text),
+    }
+    result["heading_title_case"] = {
+        "hard_gate": True, "findings": checks.check_heading_title_case(text),
     }
 
     upstream_path = _upstream_issues_path(family, platform)
@@ -604,30 +673,40 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
 
     old_readme_path = clone_cache / "README.md"
     if old_readme_path.is_file():
-        dropped = checks.check_dropped_content(
-            old_readme_path.read_text(encoding="utf-8", errors="ignore"), text, str(clone_cache)
-        )
-        # check_dropped_content returns a dict ({"dropped_links", "dropped_headings"}), not a
-        # flat list -- normalize to a flat findings list so the generic
-        # "hard_gate and findings" truthiness check in ingest_candidate() works correctly (a
-        # dict with two empty list values is still a truthy dict, which would have silently
-        # made this hard gate un-passable).
+        old_readme_text = old_readme_path.read_text(encoding="utf-8", errors="ignore")
+        dropped = checks.check_dropped_content(old_readme_text, text, str(clone_cache))
+        # check_dropped_content returns a dict ({"dropped_links", "dropped_headings",
+        # "internal_labels" as of 2026-08-08}), not a flat list -- normalize to a flat
+        # findings list so the generic "hard_gate and findings" truthiness check in
+        # ingest_candidate() works correctly (a dict with three empty list values is still
+        # a truthy dict, which would have silently made this hard gate un-passable).
         result["dropped_content"] = {
             "hard_gate": True,
-            "findings": dropped["dropped_links"] + dropped["dropped_headings"],
+            "findings": dropped["dropped_links"] + dropped["dropped_headings"] + dropped["internal_labels"],
             "detail": dropped,
         }
     else:
-        result["dropped_content"] = {"hard_gate": True, "findings": [], "detail": {"source": "no_old_readme_found"}}
+        # No old upstream README to diff against -- dropped_links/dropped_headings are
+        # vacuously empty, but internal-label detection only ever scans the NEW candidate
+        # text, so it must still run here rather than being silently skipped (a real gap
+        # found while wiring this in: the original code hardcoded findings=[] for this
+        # branch entirely, which would have meant internal-label detection never ran at
+        # all for any product missing an old README).
+        dropped = checks.check_dropped_content("", text, str(clone_cache))
+        result["dropped_content"] = {
+            "hard_gate": True,
+            "findings": dropped["internal_labels"],
+            "detail": {"source": "no_old_readme_found", **dropped},
+        }
 
     # Heuristic / two-tier -- surfaced for the mandatory human/agent judgment pass, never
-    # treated as a hard_gate failure by ingest_candidate() above.
+    # treated as a hard_gate failure by ingest_candidate() above. 2026-08-08: check_diagram_
+    # suspicious_direct_product_edge and check_diagram_capability_unreachable_from_product
+    # are retired -- both were tripwires for a per-node-edge defect class that cannot occur
+    # in the simplified container-chain model.
     result["diagram_known_subgraph_ids"] = {"hard_gate": False, "findings": checks.check_diagram_known_subgraph_ids(text)}
-    result["diagram_suspicious_direct_product_edge"] = {
-        "hard_gate": False, "findings": checks.check_diagram_suspicious_direct_product_edge(text),
-    }
-    result["diagram_capability_unreachable_from_product"] = {
-        "hard_gate": False, "findings": checks.check_diagram_capability_unreachable_from_product(text),
+    result["section_job_distinctness"] = {
+        "hard_gate": False, "findings": checks.check_section_job_distinctness(text),
     }
     result["diagram_no_mechanism_duplicate_output"] = {
         "hard_gate": False, "findings": checks.check_diagram_no_mechanism_duplicate_output(text),

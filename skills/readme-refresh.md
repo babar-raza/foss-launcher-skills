@@ -85,19 +85,39 @@ same product concurrently.
    `check_dropped_content` hard gate below enforces this, it is not optional diligence.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 19 functions) against the
-   candidate. **Hard gates** (any finding blocks the transition): required sections present,
-   no `forum.aspose.com`/`*.aspose.app` links, license link target resolves case-sensitively on
-   disk, At-a-glance diagram has no orphaned Capability nodes, the diagram matches the recorded
-   `data/diagram_capability_dependencies.json` entry (no-op when none exists), no undisclosed
-   BLOCKING command from `upstream-issues.md` is repeated as a normal install/build step, and no
-   real old-README link/heading was silently dropped. **Heuristic checks** (surfaced for
-   judgment, never auto-fail): suspicious direct-PRODUCT diagram edges, unreachable capability
-   nodes, mechanism-duplicate output nodes, process-narration smells, Enterprise Edition
-   anchor-text naming, a weak API-reference intro sentence, and named-member accuracy (a
-   grep-based heuristic — see that function's own docstring for its honest, stated scope
-   limits, most importantly that it does not trace inheritance). Transitions
-   `PLANNED → VERIFYING_EXAMPLES` only once every hard gate passes.
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 21 functions) against the
+   candidate. **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
+   diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
+   `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
+   capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability
+   edges. **Hard gates** (any finding blocks the transition): required sections present in title
+   case, no `forum.aspose.com`/`*.aspose.app` links, license link target resolves
+   case-sensitively on disk, the diagram matches the fixed container-chain shape and column-
+   balance rule, the diagram's column order matches the recorded `data/
+   diagram_capability_dependencies.json` entry (no-op when none exists — edges there are now
+   keyed to the *current* diagram's own node IDs, re-recorded whenever a diagram is redrawn), a
+   `Starting Points` container may only appear when the product's `hybrid` archetype has been
+   freshly re-confirmed *this run* (`data/diagram_archetypes.json`'s `decided_at` must match
+   today), every format named in the diagram is genuinely supported (cross-checked against
+   `knowledge/{family}/{platform}/merged/formats.md`), format-name casing is internally
+   consistent and matches `data/format_descriptions.json` where known, no sibling product family
+   is cited inside a section that's supposed to describe only this product, the `## Additional
+   Examples` exhaustive table is collapsed alongside the remaining worked examples (not always
+   visible), every heading (including `<summary>` text) is title case, no undisclosed BLOCKING
+   command from `upstream-issues.md` is repeated as a normal install/build step, and no real
+   old-README link/heading/meaning was silently dropped or hidden behind an internal
+   process-label like "Preserved repository details". **Heuristic checks** (surfaced for
+   judgment, never auto-fail): mechanism-duplicate output nodes, process-narration smells (now
+   covering internal receipts/execution notes/provenance/confidence language, not just the
+   original 22 incident-specific phrases), Enterprise Edition anchor-text naming *and* context
+   (must explain the broader/full functionality gained, not be a naked CTA — standard anchor text
+   is `"Enterprise Edition"`, decided 2026-08-08), section-job distinctness (intro vs. Key
+   Capabilities overlap), a weak API-reference intro sentence, and named-member accuracy (a
+   grep-based heuristic — see that function's own docstring for its honest, stated scope limits,
+   most importantly that it does not trace inheritance). `check_diagram_suspicious_direct_
+   product_edge`/`check_diagram_capability_unreachable_from_product` are retired — both were
+   tripwires for a per-node-edge defect class the simplified model can no longer produce.
+   Transitions `PLANNED → VERIFYING_EXAMPLES` only once every hard gate passes.
 
 5. **`verify-examples`** — runs the (pluggable) per-language compile/run verification pass and
    writes `verification/result.json` plus `upstream-issues.md` (written for every run, including

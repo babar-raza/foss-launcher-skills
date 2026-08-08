@@ -1,13 +1,15 @@
 """Ground-truth pytest suite for scripts/pipeline/commands/foss/readme_refresh_checks.py.
 
-Closes the "not yet written, ad hoc corpus validation only" gap check_diagram_connectivity's
-own module docstring named -- fixtures below are real "## At a glance" Mermaid blocks captured
-verbatim from reports/repo-presenter/{family}/{platform}/readme.md during the MT021 readiness
-audit (2026-08-06), before any capability-dependency fix was applied to them. 3 confirmed-defective
-products (barcode/python, tex/python, email/python) plus 3 confirmed-clean comparators (cells/cpp,
-pdf/cpp, slides/python) -- see plan section "Capability-dependency edges" /
-C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md for the
-source evidence behind each defect.
+Rewritten 2026-08-08 (Tenth incident, MT024) for the simplified diagram model: every
+`## At a glance` diagram is now exactly `Product -> Core Capabilities -> Outputs`, with an
+optional 2-line `Starting Points -> Product` prefix for hybrid-archetype products only.
+The pre-2026-08-08 per-node-edge model (`Inputs`/`FromScratch` subgraphs, individual
+`Cx --- Oy` edges, `check_diagram_suspicious_direct_product_edge`/`check_diagram_
+capability_unreachable_from_product`) is retired along with its fixtures -- those two
+heuristics no longer apply once there are no per-node edges to be suspicious/unreachable
+through. `check_diagram_connectivity` (orphan-reachability) is replaced by
+`check_diagram_shape` (fixed-container-chain structure) and `check_diagram_column_balance`
+(<=5 capabilities = 1 column, >=6 = 2 balanced columns).
 """
 
 import sys
@@ -28,541 +30,608 @@ def _wrap(mermaid_body: str, extra_section: str = "") -> str:
     )
 
 
-# --- Confirmed-defective fixtures (pre-fix, captured 2026-08-06) -----------------------------
+# --- 2026-08-08 simplified-model fixtures -------------------------------------------------
 
-DEFECTIVE_BARCODE_PYTHON = _wrap(
-    """flowchart LR
-  subgraph Inputs["Input data and options"]
-    I1["Text and binary payload data"]
-    I2["Per-symbology encode options"]
+# Hybrid archetype: a Starting Points container, 4 capabilities (1 column).
+HYBRID_PDF_CPP = _wrap(
+    """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    I1["An existing PDF document"]
+    I2["Nothing -- authored from scratch"]
   end
 
-  PRODUCT["Aspose.BarCode FOSS for Python"]
+  PRODUCT["Aspose.PDF FOSS for C++"]
 
-  subgraph Capabilities["Core capabilities"]
-    C1["Code 128 encoding with Set A/B/C selection"]
-    C2["Code 39 and Code 39 Extended encoding"]
-    C3["EAN-13, EAN-8, UPC-A, and UPC-E encoding"]
-    C4["QR Code Model 2 encoding"]
-    C5["SVG and PNG rendering"]
-    C6["RenderOptions styling and layout"]
-  end
-
-  subgraph Outputs["Outputs"]
-    O1["SVG strings"]
-    O2["PNG bytes"]
-  end
-
-  I1 --- PRODUCT
-  I2 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  PRODUCT --- C5
-  PRODUCT --- C6
-  C1 --- C5
-  C2 --- C5
-  C3 --- C5
-  C4 --- C5
-  C5 --- O1
-  C5 --- O2
-  C6 --- O1
-  C6 --- O2"""
-)
-
-# Corrected redraw from the plan's "barcode/python, fully redrawn" block -- used to prove the
-# blocking check also PASSES clean input, not just always fails.
-CORRECTED_BARCODE_PYTHON = _wrap(
-    """flowchart LR
-  subgraph Inputs["Input data and options"]
-    I1["Text and binary payload data"]
-    I2a["Code128Options: mode selection and GS1"]
-    I2b["Code39Options: full ASCII and check digit"]
-    I2c["EAN/UPC check-digit and number-system options"]
-    I2d["QrOptions: version, mask, ECC level, and encoding mode"]
-    I3["RenderOptions: scale, colors, quiet zone, and text styling"]
-  end
-
-  PRODUCT["Aspose.BarCode FOSS for Python"]
-
-  subgraph Capabilities["Core capabilities"]
-    C1["Code 128 encoding with Set A/B/C selection"]
-    C2["Code 39 and Code 39 Extended encoding"]
-    C3["EAN-13, EAN-8, UPC-A, and UPC-E encoding"]
-    C4["QR Code Model 2 encoding"]
-    C5["SVG and PNG rendering, styled by RenderOptions"]
-  end
-
-  subgraph Outputs["Outputs"]
-    O1["SVG strings"]
-    O2["PNG bytes"]
-  end
-
-  I1 --- PRODUCT
-  I2a --- PRODUCT
-  I2b --- PRODUCT
-  I2c --- PRODUCT
-  I2d --- PRODUCT
-  I3 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  C1 --- C5
-  C2 --- C5
-  C3 --- C5
-  C4 --- C5
-  C5 --- O1
-  C5 --- O2"""
-)
-
-BARCODE_PIPELINE_EDGES = [["C1", "C5"], ["C2", "C5"], ["C3", "C5"], ["C4", "C5"]]
-
-DEFECTIVE_TEX_PYTHON = _wrap(
-    """flowchart LR
-  subgraph Inputs["Inputs and formats"]
-    I1["TeX/LaTeX markup (string)"]
-    I2["TeX source files"]
-  end
-
-  PRODUCT["Aspose.TeX FOSS for Python"]
-
-  subgraph Capabilities["Core capabilities"]
-    C1["TeX interpretation and typesetting"]
-    C2["Font and glyph metric resolution"]
-    C3["Page building and box layout"]
-    C4["PDF / DVI / SVG output devices"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Text extraction and page rendering"]
+    C2["Document creation and editing"]
+    C3["Encryption and digital signing"]
+    C4["Facades: convert, extract, secure, sign, bookmark"]
   end
 
   subgraph Outputs["Outputs"]
     O1["PDF documents"]
-    O2["DVI files"]
-    O3["SVG 1.1 documents (single- or multi-page)"]
+    O2["PNG, JPEG, BMP, and TIFF images"]
+    O3["Plain text"]
   end
 
-  I1 --- PRODUCT
-  I2 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  C1 --- O1
-  C1 --- O2
-  C1 --- O3
-  C2 --- O1
-  C2 --- O2
-  C2 --- O3
-  C3 --- O1
-  C3 --- O2
-  C3 --- O3
-  C4 --- O1
-  C4 --- O2
-  C4 --- O3"""
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
 )
 
-DEFECTIVE_EMAIL_PYTHON = _wrap(
-    """flowchart LR
-  subgraph Inputs["Inputs and formats"]
-    I1["Outlook .msg files"]
-    I2["Compound File Binary (CFB) containers"]
-    I3["Python email.message.EmailMessage objects"]
-  end
-
-  PRODUCT["Aspose.Email FOSS for Python"]
-
-  subgraph Capabilities["Core capabilities"]
-    C1["CFB container parsing and writing"]
-    C2["Low-level MSG reading and writing"]
-    C3["High-level mutable message model (MapiMessage)"]
-    C4["MAPI property read/write by ID or name"]
-    C5["Recipients, attachments, and embedded messages"]
-    C6["MSG and EmailMessage conversion"]
-  end
-
-  subgraph Outputs["Outputs"]
-    O1["CFB storages and streams"]
-    O2["New or edited .msg files"]
-    O3["MAPI properties, recipients, and attachments"]
-    O4["Embedded message attachments"]
-    O5["email.message.EmailMessage objects"]
-  end
-
-  I1 --- PRODUCT
-  I2 --- PRODUCT
-  I3 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  PRODUCT --- C5
-  PRODUCT --- C6
-  C1 --- O1
-  C2 --- O2
-  C3 --- O3
-  C4 --- O3
-  C5 --- O4
-  C6 --- O5
-  C6 --- O2"""
-)
-
-# --- Confirmed-clean comparator fixtures (captured 2026-08-06) -------------------------------
-
-CLEAN_CELLS_CPP = _wrap(
-    """flowchart LR
-  subgraph Inputs["Inputs and formats"]
-    I1["Existing .xlsx files (path)"]
-    I2["Existing .xlsx files (binary stream)"]
-  end
-
+# Transform archetype: no Starting Points, 5 capabilities (1 column, the ceiling).
+TRANSFORM_CELLS_CPP = _wrap(
+    """flowchart TD
   PRODUCT["Aspose.Cells FOSS for C++"]
 
-  subgraph Capabilities["Core capabilities"]
+  subgraph Capabilities["Core Capabilities"]
     C1["Workbook and worksheet management"]
     C2["Cell values and formulas"]
     C3["Style, font, fill, and alignment"]
     C4["Page setup and print settings"]
-    C5["Named range management (DefinedNameCollection)"]
+    C5["Named range management"]
   end
 
   subgraph Outputs["Outputs"]
     O1[".xlsx workbook (file path or binary stream)"]
   end
 
-  I1 --- PRODUCT
-  I2 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  PRODUCT --- C5
-  C1 --- O1
-  C2 --- O1
-  C3 --- O1
-  C4 --- O1
-  C5 --- O1"""
+  PRODUCT --> Capabilities --> Outputs"""
 )
 
-CLEAN_PDF_CPP = _wrap(
-    """flowchart LR
-  subgraph Inputs["Inputs and formats"]
-    I1["Existing PDF documents (incl. encrypted)"]
-    I2["SVG content (import)"]
-    I3["PNG / JPEG image bytes (for AddImage)"]
-  end
+# Transform archetype, 6 capabilities: must split into 2 balanced columns.
+TRANSFORM_WORDS_NET = _wrap(
+    """flowchart TD
+  PRODUCT["Aspose.Words FOSS for .NET"]
 
-  subgraph FromScratch["New content authored from scratch"]
-    S1["Positioned, word-wrapped text"]
-    S2["Tables, vector graphics, and watermarks"]
-    S3["Annotations, AcroForm fields, and outline (bookmark) trees"]
-  end
-
-  PRODUCT["Aspose.PDF FOSS for C++"]
-
-  subgraph Capabilities["Core capabilities"]
-    C1["Text extraction"]
-    C2["Page rendering (raster devices)"]
-    C3["Document creation from scratch"]
-    C4["Encryption and digital signing"]
-    C5["Facades (converter/extractor/security/signature/bookmarks)"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Document creation and editing"]
+      c2["Text, styles, tables, and lists"]
+      c3["Tracked-changes engine"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Field evaluation"]
+      c5["Protection and signatures"]
+      c6["DOCX, Markdown, and text conversion"]
+    end
   end
 
   subgraph Outputs["Outputs"]
-    O1["PDF documents (save / incremental update)"]
-    O2["PNG / JPEG / BMP / TIFF raster images"]
-    O3["Plain text"]
+    direction TB
+    o1["DOCX / DOCM / DOTX / DOTM"]
+    o2["Flat OPC, Markdown, and plain text"]
   end
 
-  I1 --- PRODUCT
-  I2 --- PRODUCT
-  I3 --- PRODUCT
-  S1 --- PRODUCT
-  S2 --- PRODUCT
-  S3 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  PRODUCT --- C5
-  C1 --- O3
-  C2 --- O2
-  C3 --- O1
-  C4 --- O1
-  C5 --- O1"""
+  PRODUCT --> Capabilities --> Outputs"""
 )
 
-CLEAN_SLIDES_PYTHON = _wrap(
-    """flowchart LR
-  subgraph Inputs["Inputs and formats"]
-    I1["PPTX + OOXML variants (PPTM/PPSX/PPSM/POTX/POTM)"]
-  end
-
-  PRODUCT["Aspose.Slides FOSS for Python"]
-
-  subgraph Capabilities["Core capabilities"]
-    C1["Slide and shape creation and management"]
-    C2["Text formatting"]
-    C3["Charts (70+ types)"]
-    C4["Animations and transitions"]
-    C5["Themes, fills, and effects"]
-    C6["Tables, notes, and comments"]
-  end
-
-  subgraph Outputs["Outputs"]
-    O1["PPTX + OOXML variants (PPTM/PPSX/PPSM/POTX/POTM)"]
-    O2["Markdown (.md, write-only)"]
-  end
-
-  I1 --- PRODUCT
-  PRODUCT --- C1
-  PRODUCT --- C2
-  PRODUCT --- C3
-  PRODUCT --- C4
-  PRODUCT --- C5
-  PRODUCT --- C6
-  C1 --- O1
-  C2 --- O1
-  C3 --- O1
-  C4 --- O1
-  C5 --- O1
-  C6 --- O1
-  C1 --- O2"""
-)
+WORDS_NET_PIPELINE_EDGES = [["c1", "c3"]]
 
 CLEAN_FIXTURES = {
-    "cells/cpp": CLEAN_CELLS_CPP,
-    "pdf/cpp": CLEAN_PDF_CPP,
-    "slides/python": CLEAN_SLIDES_PYTHON,
-}
-
-DEFECTIVE_FIXTURES = {
-    "barcode/python": DEFECTIVE_BARCODE_PYTHON,
-    "tex/python": DEFECTIVE_TEX_PYTHON,
-    "email/python": DEFECTIVE_EMAIL_PYTHON,
+    "pdf/cpp": HYBRID_PDF_CPP,
+    "cells/cpp": TRANSFORM_CELLS_CPP,
+    "words/net": TRANSFORM_WORDS_NET,
 }
 
 
-# --- check_diagram_connectivity ---------------------------------------------------------------
+# --- check_diagram_shape --------------------------------------------------------------------
 
 
-def test_connectivity_clean_products_have_no_orphans():
+def test_shape_clean_fixtures_all_pass():
     for name, text in CLEAN_FIXTURES.items():
-        assert checks.check_diagram_connectivity(text) == [], name
+        assert checks.check_diagram_shape(text) == [], name
 
 
-def test_connectivity_defective_products_also_have_no_orphans():
-    # Documents a real, load-bearing fact: the capability-dependency defect class (contradictory
-    # dual-path edges) is invisible to check_diagram_connectivity -- every node still reaches an
-    # Output, so orphan-checking alone does not catch this defect class. This is exactly why
-    # check_diagram_matches_capability_dependencies exists as a separate check.
-    for name, text in DEFECTIVE_FIXTURES.items():
-        assert checks.check_diagram_connectivity(text) == [], name
-
-
-# --- check_diagram_known_subgraph_ids -----------------------------------------------------------
-
-
-def test_known_subgraph_ids_all_fixtures_clean():
-    for name, text in {**CLEAN_FIXTURES, **DEFECTIVE_FIXTURES}.items():
-        assert checks.check_diagram_known_subgraph_ids(text) == [], name
-
-
-def test_known_subgraph_ids_flags_unrecognized_id():
+def test_shape_flags_missing_outputs_container():
     text = _wrap(
-        """flowchart LR
-  subgraph Weird["Something new"]
-    X1["A node"]
-  end
+        """flowchart TD
   PRODUCT["P"]
-  subgraph Capabilities["Core"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Cap"]
+  end
+  PRODUCT --> Capabilities"""
+    )
+    findings = checks.check_diagram_shape(text)
+    assert any("Outputs container" in f["reason"] for f in findings)
+
+
+def test_shape_flags_duplicate_capabilities_container():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Cap A"]
+  end
+  subgraph Capabilities["Core Capabilities"]
+    C2["Cap B"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_shape(text)
+    assert any("exactly 1 Capabilities container" in f["reason"] for f in findings)
+
+
+def test_shape_flags_individual_node_edge_outside_the_chain():
+    # The whole point of the 2026-08-08 simplification: no individual capability-to-output
+    # wiring is allowed anymore, even if it's factually harmless.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
     C1["Cap"]
   end
   subgraph Outputs["Outputs"]
     O1["Out"]
   end
-  X1 --- PRODUCT
-  PRODUCT --- C1
+  PRODUCT --> Capabilities --> Outputs
   C1 --- O1"""
+    )
+    findings = checks.check_diagram_shape(text)
+    assert any("outside the fixed container chain" in f["reason"] for f in findings)
+
+
+def test_shape_flags_missing_product_node():
+    text = _wrap(
+        """flowchart TD
+  subgraph Capabilities["Core Capabilities"]
+    C1["Cap"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["Out"]
+  end
+  Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_shape(text)
+    assert any("no PRODUCT node" in f["reason"] for f in findings)
+
+
+def test_shape_no_mermaid_block_is_a_finding_not_a_silent_pass():
+    assert checks.check_diagram_shape("# No diagram here\n") == [
+        {"reason": "no mermaid block found"}
+    ]
+
+
+# --- check_diagram_column_balance -----------------------------------------------------------
+
+
+def test_column_balance_clean_fixtures_all_pass():
+    for name, text in CLEAN_FIXTURES.items():
+        assert checks.check_diagram_column_balance(text) == [], name
+
+
+def test_column_balance_flags_six_capabilities_in_one_column():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["A"]
+    c2["B"]
+    c3["C"]
+    c4["D"]
+    c5["E"]
+    c6["F"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_column_balance(text)
+    assert findings and "should split into exactly 2 balanced columns" in findings[0]["reason"]
+
+
+def test_column_balance_flags_unbalanced_split():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    subgraph capl[" "]
+      c1["A"]
+      c2["B"]
+      c3["C"]
+      c4["D"]
+      c5["E"]
+    end
+    subgraph capr[" "]
+      c6["F"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    o1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_column_balance(text)
+    assert findings and "not balanced" in findings[0]["reason"]
+
+
+# --- check_diagram_known_subgraph_ids ---------------------------------------------------------
+
+
+def test_known_subgraph_ids_clean_fixtures_all_pass():
+    for name, text in CLEAN_FIXTURES.items():
+        assert checks.check_diagram_known_subgraph_ids(text) == [], name
+
+
+def test_known_subgraph_ids_ignores_nested_column_ids():
+    # capl/capr are expected, valid nested column markers -- must never be flagged.
+    assert checks.check_diagram_known_subgraph_ids(TRANSFORM_WORDS_NET) == []
+
+
+def test_known_subgraph_ids_flags_unrecognized_top_level_id():
+    text = _wrap(
+        """flowchart TD
+  subgraph Weird["Something new"]
+    X1["A node"]
+  end
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Cap"]
+  end
+  subgraph Outputs["Outputs"]
+    O1["Out"]
+  end
+  Weird --> PRODUCT --> Capabilities --> Outputs"""
     )
     assert checks.check_diagram_known_subgraph_ids(text) == ["Weird"]
 
 
-# --- check_diagram_suspicious_direct_product_edge -----------------------------------------------
-
-
-def test_suspicious_direct_product_edge_catches_barcode_c5_only():
-    # Honest recall, per spec: catches exactly the 1-of-5 known real defects that has *some*
-    # existing Capability-to-Capability edge to contradict (barcode's C5). Misses C6 (no sibling
-    # edge exists to contradict it) and both tex/email cases (same "edge never drawn" shape).
-    findings = checks.check_diagram_suspicious_direct_product_edge(DEFECTIVE_BARCODE_PYTHON)
-    assert [f["node_id"] for f in findings] == ["C5"]
-
-
-def test_suspicious_direct_product_edge_misses_tex_and_email():
-    assert checks.check_diagram_suspicious_direct_product_edge(DEFECTIVE_TEX_PYTHON) == []
-    assert checks.check_diagram_suspicious_direct_product_edge(DEFECTIVE_EMAIL_PYTHON) == []
-
-
-def test_suspicious_direct_product_edge_clean_on_comparators():
-    for name, text in CLEAN_FIXTURES.items():
-        assert checks.check_diagram_suspicious_direct_product_edge(text) == [], name
-
-
-def test_suspicious_direct_product_edge_clean_on_corrected_barcode():
-    assert checks.check_diagram_suspicious_direct_product_edge(CORRECTED_BARCODE_PYTHON) == []
-
-
-# --- check_diagram_capability_unreachable_from_product ------------------------------------------
-
-
-def test_unreachable_from_product_harmless_noop_pre_fix():
-    for name, text in {**CLEAN_FIXTURES, **DEFECTIVE_FIXTURES}.items():
-        assert checks.check_diagram_capability_unreachable_from_product(text) == [], name
-
-
-def test_unreachable_from_product_catches_dropped_edge_regression():
-    # The specific slip Rule 1b warns about: deleting a PRODUCT edge per the Direct-edge-test
-    # without wiring the real upstream Capability in its place.
+def test_known_subgraph_ids_flags_retired_inputs_id():
+    # Inputs/FromScratch are retired 2026-08-08 -- a diagram still using them must be
+    # flagged for re-rendering, not silently accepted as before.
     text = _wrap(
         """flowchart LR
+  subgraph Inputs["Inputs and formats"]
+    I1["Old-style input"]
+  end
   PRODUCT["P"]
-  subgraph Capabilities["Core"]
-    C1["Cap one"]
-    C2["Cap two, should be fed by C1 but isn't"]
+  subgraph Capabilities["Core Capabilities"]
+    C1["Cap"]
   end
   subgraph Outputs["Outputs"]
     O1["Out"]
   end
+  I1 --- PRODUCT
   PRODUCT --- C1
-  C1 --- O1
-  C2 --- O1"""
+  C1 --- O1"""
     )
-    findings = checks.check_diagram_capability_unreachable_from_product(text)
-    assert [f["node_id"] for f in findings] == ["C2"]
+    assert checks.check_diagram_known_subgraph_ids(text) == ["Inputs"]
 
 
-# --- check_diagram_matches_capability_dependencies -----------------------------------------------
+# --- check_diagram_matches_capability_dependencies (rewritten: column order, not edges) -------
 
 
-def test_matches_capability_dependencies_none_is_noop():
-    for name, text in {**CLEAN_FIXTURES, **DEFECTIVE_FIXTURES}.items():
+def test_matches_capability_dependencies_none_or_empty_is_noop():
+    for name, text in CLEAN_FIXTURES.items():
         assert checks.check_diagram_matches_capability_dependencies(text, None) == [], name
+        assert checks.check_diagram_matches_capability_dependencies(text, []) == [], name
 
 
-def test_matches_capability_dependencies_fails_closed_on_defective_barcode():
-    # The real "prove the gate actually fires" test -- same discipline already required for
-    # check_no_undisclosed_blocking_commands. Must FAIL (non-empty) on the known-defective diagram.
+def test_matches_capability_dependencies_passes_correct_order():
+    # c1 genuinely appears before c3 within the left column of TRANSFORM_WORDS_NET.
     findings = checks.check_diagram_matches_capability_dependencies(
-        DEFECTIVE_BARCODE_PYTHON, BARCODE_PIPELINE_EDGES
-    )
-    assert findings, "blocking check must fail closed on the known-defective diagram"
-    assert {"type": "contradictory_direct_edge", "from": "PRODUCT", "to": "C5"} in findings
-
-
-def test_matches_capability_dependencies_passes_on_corrected_barcode():
-    # Same recorded pipeline_edges, corrected diagram -- must PASS (empty), proving this isn't
-    # an always-fail check.
-    findings = checks.check_diagram_matches_capability_dependencies(
-        CORRECTED_BARCODE_PYTHON, BARCODE_PIPELINE_EDGES
+        TRANSFORM_WORDS_NET, WORDS_NET_PIPELINE_EDGES
     )
     assert findings == []
 
 
-def test_matches_capability_dependencies_missing_edge():
+def test_matches_capability_dependencies_fails_closed_on_wrong_order():
+    # Deliberately-wrong fixture: c3 recorded as upstream of c1, but c1 is listed first.
+    findings = checks.check_diagram_matches_capability_dependencies(
+        TRANSFORM_WORDS_NET, [["c3", "c1"]]
+    )
+    assert findings, "must fail closed on a genuinely wrong-order fixture"
+    assert findings[0]["type"] == "wrong_order"
+
+
+def test_matches_capability_dependencies_flags_unknown_capability_id():
+    findings = checks.check_diagram_matches_capability_dependencies(
+        TRANSFORM_WORDS_NET, [["c1", "does_not_exist"]]
+    )
+    assert findings[0]["type"] == "capability_not_found"
+
+
+def test_matches_capability_dependencies_cross_column_is_unconstrained():
+    # c1 (left column) and c4 (right column) -- cross-column order is never checked.
+    findings = checks.check_diagram_matches_capability_dependencies(
+        TRANSFORM_WORDS_NET, [["c4", "c1"]]
+    )
+    assert findings == []
+
+
+# --- check_diagram_hybrid_reverification -------------------------------------------------------
+
+
+def test_hybrid_reverification_noop_when_no_starting_points():
+    assert checks.check_diagram_hybrid_reverification(
+        TRANSFORM_CELLS_CPP, None, "2026-08-08"
+    ) == []
+
+
+def test_hybrid_reverification_flags_missing_archetype_entry():
+    findings = checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, None, "2026-08-08")
+    assert findings and "no archetype override entry" in findings[0]["reason"]
+
+
+def test_hybrid_reverification_flags_wrong_archetype():
+    entry = {"archetype": "transform", "evidence": "x", "decided_at": "2026-08-08"}
+    findings = checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08")
+    assert findings and "not 'hybrid'" in findings[0]["reason"]
+
+
+def test_hybrid_reverification_flags_stale_decided_at():
+    entry = {"archetype": "hybrid", "evidence": "real evidence", "decided_at": "2026-08-06"}
+    findings = checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08")
+    assert findings and "was not refreshed" in findings[0]["reason"]
+
+
+def test_hybrid_reverification_passes_fresh_entry():
+    entry = {"archetype": "hybrid", "evidence": "real evidence", "decided_at": "2026-08-08"}
+    assert checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08") == []
+
+
+# --- check_diagram_format_support_claims -------------------------------------------------------
+
+
+def test_format_support_claims_flags_unsupported_format():
     text = _wrap(
-        """flowchart LR
+        """flowchart TD
   PRODUCT["P"]
-  subgraph Capabilities["Core"]
-    C1["Cap one"]
-    C2["Cap two"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Convert PDF to XLSX"]
   end
   subgraph Outputs["Outputs"]
-    O1["Out"]
+    o1["PDF output"]
   end
-  PRODUCT --- C1
-  C1 --- O1
-  C2 --- O1"""
+  PRODUCT --> Capabilities --> Outputs"""
     )
-    # Recorded: C1 -> C2 should exist but doesn't (no C1---C2 edge drawn).
-    findings = checks.check_diagram_matches_capability_dependencies(text, [["C1", "C2"]])
-    assert {"type": "missing_edge", "from": "C1", "to": "C2"} in findings
+    findings = checks.check_diagram_format_support_claims(
+        text, "Supported formats: PDF only.", {"PDF", "XLSX"}
+    )
+    assert any(f["format"] == "XLSX" for f in findings)
 
 
-def test_matches_capability_dependencies_undeclared_edge():
+def test_format_support_claims_clean_when_all_formats_verified():
     text = _wrap(
-        """flowchart LR
+        """flowchart TD
   PRODUCT["P"]
-  subgraph Capabilities["Core"]
-    C1["Cap one"]
-    C2["Cap two"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Convert PDF to XLSX"]
   end
   subgraph Outputs["Outputs"]
-    O1["Out"]
+    o1["PDF and XLSX output"]
   end
-  PRODUCT --- C1
-  C1 --- C2
-  C2 --- O1"""
+  PRODUCT --> Capabilities --> Outputs"""
     )
-    # An empty recorded list means "traced, confirmed no dependencies" -- a real drawn C1---C2
-    # edge with nothing recorded is undeclared drift, and must be flagged even though [] is not
-    # None (this is the None-vs-[] asymmetric-absence distinction the store design depends on).
-    findings = checks.check_diagram_matches_capability_dependencies(text, [])
-    assert {"type": "undeclared_edge", "from": "C1", "to": "C2"} in findings
+    findings = checks.check_diagram_format_support_claims(
+        text, "Supported formats: PDF, XLSX.", {"PDF", "XLSX"}
+    )
+    assert findings == []
 
 
-# --- check_only_mermaid_block_changed -----------------------------------------------------------
+def test_format_support_claims_ignores_unrecognized_words():
+    # "Workbook" is not a known format name -- must never be treated as a format claim.
+    assert checks.check_diagram_format_support_claims(
+        TRANSFORM_CELLS_CPP, "Supported formats: XLSX.", {"XLSX"}
+    ) == []
+
+
+# --- check_format_name_casing -------------------------------------------------------------------
+
+
+def test_format_name_casing_flags_inconsistent_bare_casing():
+    text = "The XLSX format is supported. This is not a XLSx problem."
+    findings = checks.check_format_name_casing(text, {"XLSX": "XLSX"})
+    assert any(f["found"] == "XLSx" for f in findings)
+
+
+def test_format_name_casing_passes_consistent_canonical_casing():
+    text = "This library uses .xlsx files consistently. XLSX is the only format."
+    assert checks.check_format_name_casing(text, {"XLSX": "XLSX"}) == []
+
+
+def test_format_name_casing_ignores_dotted_extension_form():
+    # ".xlsx" (extension reference) must never be compared against the bare "XLSX" form.
+    text = "Save as .xlsx. XLSX is the canonical format name."
+    assert checks.check_format_name_casing(text, {"XLSX": "XLSX"}) == []
+
+
+def test_format_name_casing_ignores_ordinary_prose_words():
+    # Sentence-initial capitalization ("The" vs "the") must never be flagged as a
+    # casing inconsistency -- the bug this test guards against would fire on every file.
+    text = "The library is fast. Read the docs for more. The API is stable."
+    assert checks.check_format_name_casing(text, {"XLSX": "XLSX"}) == []
+
+
+def test_format_name_casing_flags_multiple_casings_of_unregistered_word():
+    text = "FOO bar. Foo baz. foo qux."
+    findings = checks.check_format_name_casing(text, {})
+    assert any(f["format"] == "FOO" for f in findings)
+
+
+# --- check_no_cross_product_citation -------------------------------------------------------------
+
+
+def test_no_cross_product_citation_flags_sibling_family_mention():
+    text = (
+        "## Installation\n\n"
+        "(C++ isn't registry-less in general: [Aspose.Cells FOSS for C++]"
+        "(https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/) does publish there.)\n"
+    )
+    findings = checks.check_no_cross_product_citation(text, "pdf")
+    assert any(f["family"] == "Cells" for f in findings)
+
+
+def test_no_cross_product_citation_ignores_own_family():
+    text = "## Installation\n\nAspose.Pdf for C++ builds as a static library.\n"
+    assert checks.check_no_cross_product_citation(text, "pdf") == []
+
+
+def test_no_cross_product_citation_exempts_documentation_resources_section():
+    text = (
+        "## Documentation & resources\n\n"
+        "See also [Aspose.Cells FOSS for C++](https://github.com/aspose-cells-foss).\n"
+    )
+    assert checks.check_no_cross_product_citation(text, "pdf") == []
+
+
+# --- check_examples_table_collapsed ---------------------------------------------------------------
+
+
+def test_examples_table_collapsed_flags_always_visible_table():
+    text = (
+        "## Additional examples\n\n"
+        "12 examples demonstrate the core API.\n\n"
+        "| Example | Shows |\n|---|---|\n| `01` | opens a file |\n\n"
+        "<details><summary>View additional examples</summary>\n\nMore prose.\n</details>\n"
+    )
+    findings = checks.check_examples_table_collapsed(text)
+    assert findings and "not inside a <details> block" in findings[0]["reason"]
+
+
+def test_examples_table_collapsed_passes_when_table_is_inside_details():
+    text = (
+        "## Additional examples\n\n"
+        "12 examples demonstrate the core API.\n\n"
+        "<details><summary>View additional examples</summary>\n\n"
+        "| Example | Shows |\n|---|---|\n| `01` | opens a file |\n\n"
+        "</details>\n"
+    )
+    assert checks.check_examples_table_collapsed(text) == []
+
+
+def test_examples_table_collapsed_noop_when_no_table():
+    text = "## Additional examples\n\nOne example, shown directly.\n\n```python\nx = 1\n```\n"
+    assert checks.check_examples_table_collapsed(text) == []
+
+
+# --- check_heading_title_case ----------------------------------------------------------------------
+
+
+def test_heading_title_case_flags_sentence_case_headings():
+    text = "## At a glance\n\n## Key capabilities\n\n## Documentation & resources\n"
+    findings = checks.check_heading_title_case(text)
+    headings = {f["heading"] for f in findings}
+    assert "At a glance" in headings
+    assert "Key capabilities" in headings
+
+
+def test_heading_title_case_passes_real_title_case():
+    text = "## At a Glance\n\n## Key Capabilities\n\n## Documentation & Resources\n"
+    assert checks.check_heading_title_case(text) == []
+
+
+def test_heading_title_case_flags_summary_text_too():
+    text = "<details>\n<summary>View additional examples</summary>\n</details>\n"
+    findings = checks.check_heading_title_case(text)
+    assert any(f["kind"] == "summary" for f in findings)
+
+
+def test_heading_title_case_allows_minor_words_lowercase():
+    text = "## Development and Testing\n"
+    assert checks.check_heading_title_case(text) == []
+
+
+def test_heading_title_case_allows_all_caps_acronyms():
+    text = "## API Reference\n"
+    assert checks.check_heading_title_case(text) == []
+
+
+# --- check_section_job_distinctness --------------------------------------------------------------
+
+
+def test_section_job_distinctness_flags_real_overlap():
+    text = (
+        "This library provides fast PDF text extraction and page rendering for developers.\n\n"
+        "## Key capabilities\n\n"
+        "- Fast PDF text extraction and page rendering for developers using this library.\n"
+    )
+    findings = checks.check_section_job_distinctness(text)
+    assert findings and findings[0]["similarity"] > 0.5
+
+
+def test_section_job_distinctness_clean_when_genuinely_distinct():
+    text = (
+        "This library is the open-source core of a commercial Aspose product family.\n\n"
+        "## Key capabilities\n\n"
+        "- Encrypts documents with AES-256.\n"
+        "- Renders pages to PNG and JPEG.\n"
+    )
+    assert checks.check_section_job_distinctness(text) == []
+
+
+def test_section_job_distinctness_noop_without_key_capabilities_section():
+    assert checks.check_section_job_distinctness("Just an intro paragraph.\n") == []
+
+
+# --- check_only_mermaid_block_changed (unchanged function, new-model fixtures) -----------------
 
 
 def test_only_mermaid_block_changed_true_for_identical_text():
-    assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, DEFECTIVE_BARCODE_PYTHON)
+    assert checks.check_only_mermaid_block_changed(HYBRID_PDF_CPP, HYBRID_PDF_CPP)
 
 
 def test_only_mermaid_block_changed_true_when_only_diagram_edited():
-    new_text = DEFECTIVE_BARCODE_PYTHON.replace("C5 --- O1", "C5 --- O1\n  %% a comment")
-    assert new_text != DEFECTIVE_BARCODE_PYTHON
-    assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, new_text)
+    new_text = HYBRID_PDF_CPP.replace(
+        "StartingPoints --> PRODUCT", "StartingPoints --> PRODUCT\n  %% a comment"
+    )
+    assert new_text != HYBRID_PDF_CPP
+    assert checks.check_only_mermaid_block_changed(HYBRID_PDF_CPP, new_text)
 
 
 def test_only_mermaid_block_changed_false_when_prose_also_edited():
-    new_text = DEFECTIVE_BARCODE_PYTHON.replace(
-        "C5 --- O1", "C5 --- O1\n  %% a comment"
+    new_text = HYBRID_PDF_CPP.replace(
+        "StartingPoints --> PRODUCT", "StartingPoints --> PRODUCT\n  %% a comment"
     ).replace("- Does a thing.", "- Does a different thing.")
-    assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, new_text) is False
+    assert checks.check_only_mermaid_block_changed(HYBRID_PDF_CPP, new_text) is False
 
 
 def test_only_mermaid_block_changed_false_when_only_prose_edited():
-    new_text = DEFECTIVE_BARCODE_PYTHON.replace("- Does a thing.", "- Does a different thing.")
-    assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, new_text) is False
+    new_text = HYBRID_PDF_CPP.replace("- Does a thing.", "- Does a different thing.")
+    assert checks.check_only_mermaid_block_changed(HYBRID_PDF_CPP, new_text) is False
 
 
 def test_only_mermaid_block_changed_false_when_block_disappears():
-    new_text = DEFECTIVE_BARCODE_PYTHON.split("## At a glance")[0] + "## Key capabilities\n\n- Does a thing.\n"
-    assert checks.check_only_mermaid_block_changed(DEFECTIVE_BARCODE_PYTHON, new_text) is False
+    new_text = HYBRID_PDF_CPP.split("## At a glance")[0] + "## Key capabilities\n\n- Does a thing.\n"
+    assert checks.check_only_mermaid_block_changed(HYBRID_PDF_CPP, new_text) is False
 
 
 # --- Content checks (whole-README) -- fixtures below intentionally minimal, not full READMEs ---
 
-_ENTERPRISE_LINK = "[Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/python-net/)"
-_ENTERPRISE_LINK_BAD_ANCHOR = "[Aspose.Foo Enterprise Product](https://products.aspose.com/foo/python-net/)"
+_ENTERPRISE_LINK_WITH_CONTEXT = (
+    "For workflows that require broader format coverage or full feature completeness, "
+    "see [Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/python-net/)."
+)
+_ENTERPRISE_LINK_BAD_ANCHOR_WITH_CONTEXT = (
+    "For workflows that require broader format coverage or full feature completeness, "
+    "see [Aspose.Foo Enterprise Product](https://products.aspose.com/foo/python-net/)."
+)
+_ENTERPRISE_LINK_NAKED_CTA = "See [Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/python-net/)."
 _ASPOSE_ORG_LINK = "[Getting started](https://docs.aspose.org/foo/python/)"
 
 _ALL_SECTIONS_README = """# Foo
 
-## At a glance
-## Key capabilities
+## At a Glance
+## Key Capabilities
 ## Installation
-## Quick start
-## Additional examples
-## API reference
-## Documentation & resources
-## Scope and limitations
-## Development and testing
+## Quick Start
+## Additional Examples
+## API Reference
+## Documentation & Resources
+## Scope and Limitations
+## Development and Testing
 ## License
 """
 
 
 def test_compute_link_caps_counts_correctly():
-    text = f"See {_ENTERPRISE_LINK} and {_ASPOSE_ORG_LINK} and [external](https://example.com)."
+    text = f"See {_ENTERPRISE_LINK_WITH_CONTEXT} and {_ASPOSE_ORG_LINK} and [external](https://example.com)."
     result = checks.compute_link_caps(text)
     assert result["total_links"] == 3
     assert result["aspose_org_links"] == 2  # products.aspose.com + docs.aspose.org
@@ -574,14 +643,22 @@ def test_count_aspose_links():
     assert checks.count_aspose_links(text) == 1
 
 
-def test_check_enterprise_edition_naming_passes_correct_anchor():
-    assert checks.check_enterprise_edition_naming(_ENTERPRISE_LINK) == []
+def test_check_enterprise_edition_naming_passes_correct_anchor_with_context():
+    assert checks.check_enterprise_edition_naming(_ENTERPRISE_LINK_WITH_CONTEXT) == []
 
 
 def test_check_enterprise_edition_naming_flags_wrong_anchor():
-    findings = checks.check_enterprise_edition_naming(_ENTERPRISE_LINK_BAD_ANCHOR)
-    assert len(findings) == 1
-    assert "Enterprise Product" in findings[0]["anchor_text"]
+    findings = checks.check_enterprise_edition_naming(_ENTERPRISE_LINK_BAD_ANCHOR_WITH_CONTEXT)
+    naming_findings = [f for f in findings if f["reason"] == "missing_naming"]
+    assert len(naming_findings) == 1
+    assert "Enterprise Product" in naming_findings[0]["anchor_text"]
+
+
+def test_check_enterprise_edition_naming_flags_naked_cta_missing_context():
+    # 2026-08-08 (Rule 4): correct naming alone is not enough -- the surrounding text must
+    # explain the broader/full functionality gained, not just be a bare "See [...]" CTA.
+    findings = checks.check_enterprise_edition_naming(_ENTERPRISE_LINK_NAKED_CTA)
+    assert any(f["reason"] == "missing_context" for f in findings)
 
 
 def test_check_required_sections_all_present():
@@ -629,6 +706,22 @@ def test_check_process_narration_smells_flags_known_phrases():
     assert "passes cleanly" in phrases
 
 
+def test_check_process_narration_smells_flags_broadened_categories():
+    # 2026-08-08 (Rule 3): internal receipts, execution notes, provenance, confidence
+    # language -- named categories added beyond the original 22 incident-specific phrases.
+    assert checks.check_process_narration_smells(
+        "According to our audit, this module is stable."
+    )
+    assert checks.check_process_narration_smells(
+        "This session found no issues with the build."
+    )
+    assert checks.check_process_narration_smells(
+        "This file was generated by the pipeline automatically."
+    )
+    assert checks.check_process_narration_smells("We confirmed that the API works correctly.")
+    assert checks.check_process_narration_smells("This behavior has been verified to work.")
+
+
 def test_check_process_narration_smells_clean_text():
     text = "Convert PostScript files to PDF with a single call."
     assert checks.check_process_narration_smells(text) == []
@@ -663,6 +756,30 @@ def test_check_no_undisclosed_blocking_commands_noop_with_no_upstream_issues():
     assert checks.check_no_undisclosed_blocking_commands(readme, "No upstream issues identified.") == []
 
 
+def test_check_no_undisclosed_blocking_commands_not_desynced_by_mermaid_block():
+    # Regression test for a real, significant production bug found via this module's own
+    # test suite once a real diagram was added ahead of an Installation section (now true
+    # of every README under the 2026-08-08 simplified model): with the fenced-code regex's
+    # language tag optional, an untagged ```mermaid block's own closing fence was mistaken
+    # for a fresh opening delimiter, desyncing every match after it -- the real ```bash
+    # block was never found, silently disabling this hard gate for the entire portfolio.
+    readme = (
+        "## At a Glance\n\n```mermaid\nflowchart TD\n  A --> B\n```\n\n"
+        "## Installation\n\n```bash\npip install -e .\n```\n"
+    )
+    findings = checks.check_no_undisclosed_blocking_commands(readme, _UPSTREAM_ISSUES_WITH_BLOCKING)
+    assert len(findings) == 1
+    assert findings[0]["command"] == "pip install -e ."
+
+
+def test_check_no_undisclosed_blocking_commands_recognizes_cmake_blocks():
+    # A second real gap found alongside the mermaid-desync bug: C++ products' real
+    # Installation sections use ```cmake fenced blocks, never previously recognized.
+    readme = "```cmake\npip install -e .\n```\n"
+    findings = checks.check_no_undisclosed_blocking_commands(readme, _UPSTREAM_ISSUES_WITH_BLOCKING)
+    assert len(findings) == 1
+
+
 def test_check_dropped_content_flags_dropped_link_and_heading():
     old_readme = "See [AGENTS.md](AGENTS.md) for details.\n\n## TypeScript Version Support\n\nSupported.\n"
     new_readme = "## API reference\n\nNothing here.\n"
@@ -675,7 +792,15 @@ def test_check_dropped_content_clean_when_carried_forward():
     old_readme = "See [AGENTS.md](AGENTS.md) for details.\n\n## TypeScript Version Support\n\nSupported.\n"
     new_readme = "## Documentation & resources\n\nSee [AGENTS.md](AGENTS.md).\n\n## TypeScript Version Support\n\nStill supported.\n"
     result = checks.check_dropped_content(old_readme, new_readme, "irrelevant")
-    assert result == {"dropped_links": [], "dropped_headings": []}
+    assert result == {"dropped_links": [], "dropped_headings": [], "internal_labels": []}
+
+
+def test_check_dropped_content_flags_internal_label():
+    # 2026-08-08 (Rule 7): forbidden internal/process labels, distinct from the
+    # meaning-preservation half already covered by dropped_links/dropped_headings above.
+    new_readme = "## Preserved repository details\n\nSome content carried forward.\n"
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("preserved repository details" in label.lower() for label in result["internal_labels"])
 
 
 def test_check_no_excluded_domain_links_flags_forum():
@@ -780,9 +905,11 @@ def test_check_diagram_no_mechanism_duplicate_output_flags_real_incident_shape()
     assert {findings[0]["node_a"], findings[0]["node_b"]} == {"O1", "O2"}
 
 
-def test_check_diagram_no_mechanism_duplicate_output_clean_on_uniform_wiring():
-    # Same two Output nodes, but both reachable from the same Capability set -- not a defect.
-    assert checks.check_diagram_no_mechanism_duplicate_output(CLEAN_CELLS_CPP) == []
+def test_check_diagram_no_mechanism_duplicate_output_clean_on_simplified_diagram():
+    # The simplified model's single Outputs container rarely has mechanism-duplicate
+    # pairs left (no per-capability wiring to compare), but the function itself is
+    # unchanged and must still run cleanly against a real simplified fixture.
+    assert checks.check_diagram_no_mechanism_duplicate_output(TRANSFORM_CELLS_CPP) == []
 
 
 def test_check_diagram_no_mechanism_duplicate_output_ignores_generic_shared_noun():
