@@ -38,6 +38,16 @@ kind of change to the right *automated* sweep, not to describe manual re-run com
 | An enrichment/scout step (`knowledge_enrich`, LLM credential/routing changes) changes what claims get generated | `/mechanism-sweep` (S-117) | Same mechanism-drift axis — the fix is in *our* code, not upstream. |
 | A `content_eval` evaluator's logic changes (new FAIL/WARN conditions, or a false-positive fix) | Re-run `content_eval` for all products with the affected evaluator category; see §9a (Evaluator Change Checklist) | Not a knowledge-layer change — content re-grading, not re-scouting. |
 | `site_planner.py` / delta logic changes | `/delta-site-plan` (S-82) per affected product | Determines actual page-level add/update/remove impact once knowledge is current. |
+| A `scripts/{package}/` directory is deleted (e.g. `scripts/translator/`) | `check_root_docs_truth.py` (no `--staged`) against all seven root operator/governance docs, or `/root-docs-refresh` (S-121) | The commit-time gate (`--staged` mode, wired into pre-commit Step 9b) only catches this if the deleting commit *also* touches one of the seven files — it usually won't. This is a documentation-drift axis, added 2026-08-08 after a real incident: `scripts/translator/` was deleted 2026-07-02 and left seven dead references live in `OPERATOR_GUIDE.md`/`RUNBOOK.md` for five weeks, undetected. |
+| `EVALUATOR_FREEZE_VERSION` bumps in `content_eval/__init__.py` (an evaluator graduates experimental → canonical) | `GRADE_CONTRACT.md` must update in the same PR — enforced by `check_grade_contract_sync` (part of `root_docs_checks.py`, S-121); run `/root-docs-refresh` if it wasn't updated inline | Same root cause as the row above: `evidence_depth` graduated 2026-07-14 but `GRADE_CONTRACT.md`'s changelog wasn't touched until 2026-08-08, three weeks later. |
+
+**On documentation drift as its own axis**: the two rows above are deliberately narrow —
+they only cover the specific drift *shapes* a real incident already exposed (dead paths,
+frozen-value mismatch). This document's own history (see the "original 2026-05-30 archived
+version" note above) is that a *finite, enumerated* trigger list always eventually misses
+something new. Treat these two rows as the fast path for known shapes, not a complete
+defense — `/root-docs-refresh` (S-121), run periodically or whenever a root doc "feels"
+stale, is the backstop for drift shapes this table doesn't yet name.
 
 ## Relationship to `/refresh-product` (S-84)
 
