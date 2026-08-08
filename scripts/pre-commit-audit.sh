@@ -535,6 +535,43 @@ fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "root docs truth"
+# Step 9b: root-docs truth gate — runs ONLY when one of the seven root operator/
+# governance docs is staged. Imports the SAME deterministic check functions the
+# /root-docs-refresh skill (S-121) uses (root_docs_checks.py) — the manual refresh
+# tool and this automated gate can never disagree, by construction. Only HARD_GATE
+# findings block; HEURISTIC findings print as non-blocking advisory output. See
+# plan moonlit-strolling-sunset.md, Design section D3, for the full rationale.
+# --staged scopes to files this commit actually touches — it will NOT catch drift
+# left behind in an untouched file by an unrelated change (e.g. deleting a
+# scripts/ package without touching RUNBOOK.md's references to it); that's Layer
+# 2's job (docs/workflows/change-trigger-matrix.md + a scheduled sweep), not this
+# commit-time gate's.
+# ---------------------------------------------------------------------------
+ROOT_DOCS_PATTERN='^(OPERATOR_GUIDE\.md|RUNBOOK\.md|CODEX\.md|GRADE_CONTRACT\.md|LAYMAN_SYSTEM_STATUS_REVIEW\.md|TASK_BACKLOG_20260521\.md)$'
+if echo "$STAGED_FILES" | grep -qE "$ROOT_DOCS_PATTERN"; then
+  echo "[Step 9b] Root operator/governance doc staged — running root-docs truth check..."
+  if [ -f ".venv/Scripts/python" ]; then
+    venv_python=".venv/Scripts/python"
+  elif [ -f ".venv/bin/python" ]; then
+    venv_python=".venv/bin/python"
+  else
+    echo "[Step 9b] WARN: .venv not found — skipping root-docs truth check."
+    venv_python=""
+  fi
+  if [ -n "$venv_python" ]; then
+    if ! "$venv_python" scripts/ci/checks/check_root_docs_truth.py --staged; then
+      echo "[Step 9b] FAIL: root-docs truth check failed. Fix issues above before committing."
+      echo "  Auto-fix path: /root-docs-refresh (S-121)."
+      _pc_step_end "FAIL"
+      _pc_exit 1
+    fi
+    echo "[Step 9b] PASS"
+  fi
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
 _pc_step_start "graded_at reversion"
 # Step 10: graded_at-only reversion
 # Auto-revert staged .md files where the only diff from HEAD is graded_at:.
