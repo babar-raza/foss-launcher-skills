@@ -57,7 +57,6 @@ source .venv/bin/activate       # Unix/macOS
 
 # 2. Install dependencies
 pip install -r scripts/pipeline/requirements.txt
-pip install -r scripts/translator/requirements.txt
 
 # 3. Configure environment
 cp .env.example .env
@@ -245,20 +244,24 @@ to `[]` so they no longer reference removed classes.
 
 ## 5. Translate Content
 
-```bash
-# Audit existing translations
-.venv/Scripts/python scripts/translator/cli.py audit --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
+The internal `scripts/translator/` package was permanently deleted 2026-07-02. The only
+authorized translation mechanism is the external `hugo-translator` tool, invoked through an
+agent session — there is no bare-script equivalent to run outside one:
 
-# Translate single page
-.venv/Scripts/python scripts/translator/cli.py page {file} --locales fa --dry-run
-.venv/Scripts/python scripts/translator/cli.py page {file} --locales fa
-
-# Batch translate
-.venv/Scripts/python scripts/translator/cli.py batch --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
-
-# Cache stats
-.venv/Scripts/python scripts/translator/cli.py cache-stats
 ```
+# Single page
+/ht-translate {src_path} {site} {locales}
+# e.g. /ht-translate content/docs.aspose.org/en/slides/net/getting-started/_index.md docs.aspose.org fr,de,ar
+
+# Batch (family/platform)
+/ht-translate-batch {family} {platform} {site} {locales}
+# e.g. /ht-translate-batch slides net docs.aspose.org fr,de,ar
+```
+
+See `.claude/commands/translate.md` for the full retirement notice and
+`.claude/commands/ht-translate.md` / `ht-translate-batch.md` for valid site-profile IDs and
+hard-stop preconditions (both require the target `{site}` profile explicitly — no default,
+no `all`).
 
 **Healing loop**: audit -> translate failed pages -> re-audit -> verify improvement.
 
@@ -299,30 +302,28 @@ The pre-commit hook runs automatically if installed (Step 1.4).
 | `content_eval` returns "0 pages found" | Running from wrong directory | Run from repo root: `.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {f} {p}` |
 | `model.yaml` shows `stale_since != null` | Knowledge is outdated | Run `/knowledge-update {family} {platform}` |
 | Pre-commit hook blocks commit | Staged files have API accuracy failures | Fix issues shown in hook output, re-stage |
-| Translation audit finds failures | Structure drift or English leakage | Retranslate failed pages with `/translate {file} --locales {locale}` |
+| Translation audit finds failures | Structure drift or English leakage | Retranslate failed pages with `/ht-translate {file} {site} {locale}` |
 | `no-downgrade-guard` blocks write | Proposed content is structurally smaller than existing | Review proposed content -- likely missing sections or code blocks |
 | `change-guard` blocks write | Claim references unknown format or API | Verify claim against `knowledge/{f}/{p}/merged/` artifacts |
 | Grade is D or F after evaluation | Multiple quality issues | Run `/heal-page {path}` to rescue the page |
 | Locale file has no `provenance:` block after clone | Pre-provenance file; backfill not run | Run `python scripts/pipeline/commands/migration/provenance_backfill.py` (see §1) |
-| Translator sync skips a file with `auto_updatable=false` | File is explicitly protected from auto-overwrite | Intentional. To re-enable: set `auto_updatable: true` in the file's provenance block |
+| Translation skips a file with `auto_updatable=false` | File is explicitly protected from auto-overwrite | Intentional. To re-enable: set `auto_updatable: true` in the file's provenance block |
 | `provenance_backfill.py` reports "no English source" for a file | Structural orphan (e.g., reference.aspose.org kebab-case topic pages) | These are legacy locale files with no current English counterpart. File is safe to leave; set `auto_updatable: false` to prevent accidental overwrite |
 
 ## 9. Provenance Operations
 
-See AGENTS.md §10b (full detail: docs/governance/provenance-rules.md) for the full provenance model. Quick reference:
+See AGENTS.md §10b (full detail:
+docs/_archive/pre-refactor/governance/provenance-rules.md) for the full provenance model.
+Quick reference:
 
 ```bash
 # Backfill provenance on files that lack it (idempotent, safe to re-run)
 .venv/Scripts/python scripts/pipeline/commands/migration/provenance_backfill.py
 
-# Protect a file from automated translator overwrite
+# Protect a file from automated translation overwrite
 # Edit the file's frontmatter:
 #   provenance:
 #     auto_updatable: false
-
-# Check why a translator sync skipped a file
-# Look for: [SKIP] {path} -- auto_updatable=false, requires review
-.venv/Scripts/python -m translator sync --family {f} --platform {p} --site docs.aspose.org --locales {locale}
 
 # Verify provenance fields in a translated file
 grep -A8 "^provenance:" content/docs.aspose.org/{locale}/{family}/{platform}/_index.md
@@ -338,7 +339,7 @@ grep -rn "translation_origin: translator-" content/docs.aspose.org/{locale}/{fam
 
 ## 10. Discovery: Patrol, Sweep, Triage
 
-See `docs/discovery-workflow.md` for the full operator guide. Quick reference:
+See `docs/operations/discovery-operations.md` for the full operator guide. Quick reference:
 
 ### 10a. Scan for new repos (S-93)
 

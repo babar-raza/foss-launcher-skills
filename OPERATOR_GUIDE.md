@@ -28,8 +28,8 @@ enforcement needed in CI).
 
 ## §1 — What Is This System?
 
-The aspose.org content system uses AI agents (Claude) to generate, validate, and repair
-Aspose FOSS product documentation across five subdomains:
+The aspose.org content system uses AI agents (Claude, Codex, and Kilo Code) to generate,
+validate, and repair Aspose FOSS product documentation across five subdomains:
 `docs`, `blog`, `kb`, `products`, and `reference`.
 
 Content is grounded in **knowledge models** (per product/platform) that are built from FOSS
@@ -55,9 +55,11 @@ a procedure that an AI agent follows step by step.
 
 ## §3 — How to Invoke a Skill
 
-1. Open a Claude agent session in this repository:
+1. Open an agent session in this repository:
    - Claude Code CLI: run `claude` in the repo root
-   - IDE extension: open the repo folder, open the Claude sidebar
+   - Codex CLI: run `codex` in the repo root (reads `CODEX.md` for setup)
+   - Kilo Code: open the repo folder in the IDE extension
+   - Claude Code IDE extension: open the repo folder, open the Claude sidebar
 2. Type the slash command with arguments:
    ```
    /knowledge-update 3d python
@@ -113,7 +115,7 @@ repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {f
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
 ```
 
-### content-check (S-32)
+### content-check (S-23)
 ```bash
 .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
@@ -133,16 +135,22 @@ repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {f
 .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform} --json
 ```
 
-### translate
-```bash
-.venv/Scripts/python scripts/translator/cli.py batch {family} {platform} --locales all
-```
+### ht-translate / ht-translate-batch (S-HT-01 / S-HT-02)
+The internal `scripts/translator/` package was permanently deleted 2026-07-02. The only
+authorized translation mechanism is the external `hugo-translator` tool, invoked via
+`/ht-translate` (single page) or `/ht-translate-batch` (family/platform batch) — see
+`.claude/commands/translate.md` for the full retirement notice and
+`.claude/commands/ht-translate.md` / `ht-translate-batch.md` for invocation syntax and valid
+site-profile IDs. There is no script-only equivalent to run outside an agent session.
 
 ---
 
 ## §6 — Audit FAIL Baseline
 
-Running `python scripts/pipeline/commands/content/audit.py all` currently shows **0 FAILs** across all 13 products.
+Running `.venv/Scripts/python scripts/pipeline/commands/content/audit.py all` currently shows
+**0 FAILs** across all active products (see `data/products.json` for the current count — 31
+active family/platform entries as of 2026-08-07; this number changes independently of this
+doc, don't trust a hardcoded figure here).
 For the current baseline (count and root causes), see `reports/audit/baseline-fail-counts.json`.
 
 If FAILs appear after a knowledge model update or content generation sprint, check
@@ -205,8 +213,9 @@ environment uses UTF-8 locale. On Windows: set `PYTHONUTF8=1` or use `.venv/Scri
 - **Single product**: Run `/knowledge-diff {family} {platform}` — fetches the clone cache and compares SHAs.
   If SHAs differ: `stale_since` is auto-set in `model.yaml`; follow "Knowledge model is stale" below.
   If SHAs match: no action needed; the command exits cleanly.
-- **All products at once**: Run `/change-sweep` (S-94) — batch SHA comparison across all 15 active products
-  with structured JSON output. See `docs/discovery-workflow.md` §3 for full workflow and CLI reference.
+- **All products at once**: Run `/change-sweep` (S-94) — batch SHA comparison across all
+  active products (see `data/products.json`) with structured JSON output. See
+  `docs/operations/discovery-operations.md` for full workflow and CLI reference.
 
 ### Knowledge model is stale
 1. Check `knowledge/{family}/{platform}/merged/model.yaml` → `stale_since` field

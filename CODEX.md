@@ -5,9 +5,15 @@
 
 ## Read Order
 
-1. `AGENTS.md` — constitutional governance root (slim version with routing matrix)
-   - Detailed governance: `docs/governance/` (write boundaries, evidence, provenance, DAR, testing seam)
-   - Detailed workflows: `docs/workflows/` (skill chains, maintenance, evaluator changes, gap escalation)
+1. `AGENTS.md` — constitutional governance root. Its own Section Index (top of the file)
+   is the authoritative map of which topic lives in which child document under
+   `docs/governance/`, `docs/workflows/`, and `docs/reference/` — follow that table rather
+   than a paraphrase here, since child-doc locations move independently of this file and a
+   second description of them just drifts (found live 2026-08-07: this line previously
+   claimed `docs/governance/` covered "write boundaries, evidence, provenance, DAR, testing
+   seam," but that directory now holds only `dar-table.md`, `planning-methodology.md`, and
+   `backlink-policy.md` — the rest moved inline into AGENTS.md itself or into
+   `docs/_archive/pre-refactor/governance/` during an earlier refactor).
 2. This file (`CODEX.md`)
 3. `knowledge/{family}/{platform}/model.yaml` — for the target product
 4. `knowledge/{family}/{platform}/claims.md` — verify claims are current

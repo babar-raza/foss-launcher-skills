@@ -1,6 +1,6 @@
 # GRADE_CONTRACT.md — Content Quality Grade System Contract
 
-Version: 1.1
+Version: 1.2
 Effective: 2026-04-24
 Status: FROZEN (schema and canonical model)
 
@@ -67,6 +67,7 @@ may be adjusted within the evaluator change protocol (AGENTS.md section 9a).
 | CF | WARN, FAIL | C | capability_claim_check |
 | SG | WARN | C | api_accuracy (signature) |
 | US | WARN | B | consumer_usefulness |
+| EG | WARN | B | evidence_depth (EG_GROUNDING) |
 
 ---
 
@@ -175,6 +176,17 @@ To modify a frozen item:
 
 ## Changelog
 
+### v1.2 (2026-08-07)
+- Evaluator graduation: `evidence_depth` moved from `EXPERIMENTAL_EVALUATORS` to
+  `CANONICAL_EVALUATORS` (TC-SFH-003, 2026-07-14) per the §6 Graduation Policy and §9
+  Evaluator Graduation Protocol. Added the `EG` (`EG_GROUNDING`) category ceiling row to §3
+  (WARN → B, per `grade_config.yaml`). This graduation happened in code on 2026-07-14 but was
+  never logged here until now — the gap was found by `root_docs_checks.py`'s
+  `check_grade_contract_sync` (S-121), which compares this document's stated frozen baseline
+  against the live `content_eval/__init__.py` constant on every `/root-docs-refresh` run.
+- ELV bumped 17->18 to reflect the `evidence_depth` graduation. `EVALUATOR_FREEZE_VERSION`
+  updated to `"18"`. Current frozen baseline: EVALUATOR_FREEZE_VERSION = 18.
+
 ### v1.1 (2026-04-24)
 - Removed `graded_at` from canonical frontmatter schema (§4). `graded_at` is operational
   state; it belongs in the external grade manifest only. Aligns with the D-1 code fix
@@ -184,7 +196,9 @@ To modify a frozen item:
   in `content_eval/__init__.py`.
 
 ### v1.1 amendment (2026-04-24, same day - post-freeze ELV bump)
-- ELV bumped 16->17 for encoding_check addition. EVALUATOR_FREEZE_VERSION updated to "17". Current frozen baseline: EVALUATOR_FREEZE_VERSION = "17".
+- ELV bumped 16->17 for encoding_check addition. EVALUATOR_FREEZE_VERSION updated to "17"
+  (superseded by the v1.2 entry above — kept here only as historical record, not a current
+  baseline claim).
 
 ### v1.0 (2026-04-21)
 - Initial frozen version.
