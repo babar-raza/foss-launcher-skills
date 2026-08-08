@@ -4715,3 +4715,39 @@ scripts:
     deprecated_since: null
     change_impact: "Post-sprint review decisions; fail-closed — only STRUCTURED_ALL_GREEN with passing scores produces ACCEPT"
     notes: "Reads stage3 summary YAML, classifies outcome, validates evidence bundle, checks quality scores, emits loop decision"
+
+  # ── S-120 readme-refresh — README.md generation state machine ──────────────
+
+  - path: scripts/pipeline/commands/foss/readme_refresh_run.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: foss-repo-presentation
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_readme_refresh_run.py
+    deprecated_since: null
+    change_impact: "S-120 execution boundary: CREATED -> INPUTS_PINNED -> PLANNED -> VERIFYING_EXAMPLES -> AWAITING_REVIEW -> APPROVED -> PUSHING -> PUSHED state machine for one run-bound README.md refresh per FOSS product repo. Real gh api pre-flight access check, disposable-clone git-plumbing push, draft-PR-only, human-approval-gated. verify-examples' per-language compile/run pass is a pluggable seam (default: honest TOOLCHAIN-UNAVAILABLE stub), not yet wired to real toolchains."
+    notes: "Commands: start, plan, ingest-candidate, verify-examples, recheck, approve, push, verify, abandon, recover, status. Registered late (2026-08-08) -- found unregistered by check_pipeline_registration.py despite being built and committed 2026-08-06."
+
+  - path: scripts/pipeline/commands/foss/readme_refresh_checks.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: foss-repo-presentation
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_readme_refresh_checks.py
+    deprecated_since: null
+    change_impact: "21 deterministic hard-gate/heuristic checks readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
+    notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
