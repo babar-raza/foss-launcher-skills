@@ -17,14 +17,14 @@
     "family": "pdf",
     "platform": "cpp",
     "archetype": "hybrid",
-    "evidence": "Dedicated 'Document creation from scratch' Capability backed by TextBuilder/Table/Graph/WatermarkArtifact/AcroForm construction APIs.",
-    "decided_at": "2026-08-06"
+    "evidence": "Dedicated 'Document creation from scratch' Capability backed by TextBuilder/Table/Graph/WatermarkArtifact/AcroForm construction APIs. Freshly re-verified 2026-08-08 against this file's own Key Capabilities/API Reference sections per check_diagram_hybrid_reverification's standing re-confirmation requirement -- still holds.",
+    "decided_at": "2026-08-08"
   },
   {
     "family": "pdf",
     "platform": "go",
     "archetype": "hybrid",
-    "evidence": "Dedicated 'Content authoring' Capability backed by Document.NewFlow's chainable authoring API.",
-    "decided_at": "2026-08-06"
+    "evidence": "Dedicated 'Content authoring' Capability backed by Document.NewFlow's chainable authoring API (AddParagraph/AddHeading/AddTable with real TextStyle/FlowOptions parameters). Freshly re-verified 2026-08-08 per check_diagram_hybrid_reverification's standing re-confirmation requirement -- still holds.",
+    "decided_at": "2026-08-08"
   }
 ]

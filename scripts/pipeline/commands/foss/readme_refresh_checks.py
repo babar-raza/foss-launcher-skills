@@ -598,7 +598,21 @@ def check_only_mermaid_block_changed(old_markdown_text: str, new_markdown_text: 
     return old_stripped == new_stripped
 
 
-_MD_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
+# 2026-08-08: handles the "badge" pattern -- [![alt](img-url)](link-url), used at the top of
+# nearly every README in this portfolio for CI/license/contributor badges -- as well as a
+# plain [text](target) link. A real bug found via a sub-agent's own investigation of a
+# check_format_name_casing false positive on html/python: the original pattern's
+# `[^\]]*` greedily stopped at the FIRST `]`, which for a badge is the INNER image alt
+# text's own closing bracket, not the outer link's -- the regex then matched only the
+# inner `![alt](img-url)` as if it were the whole link, leaving the real OUTER href
+# (containing the repo slug, e.g. "aspose-html-foss") completely unmatched and therefore
+# never stripped before prose scanning. The alternation lets a nested `![...](...)` be
+# consumed as one unit before the real closing `]`, so group(2) is always the real,
+# outermost href. Group(1) ("anchor text") is the badge's own `![alt](img-url)` markdown
+# for a badge link (not real visible text, but never coincidentally matches a phrase like
+# "Enterprise Edition" either, so existing anchor-text callers stay correct) or the real
+# visible text for a plain link, unchanged from before.
+_MD_LINK_RE = re.compile(r"\[((?:!\[[^\]]*\]\([^)]*\)|[^\]])*)\]\(([^)\s]+)\)")
 # "Additional examples" deliberately excluded: the Template section makes it vacuously
 # optional ("If a product has no 'Additional examples' section at all (too few real snippets
 # to justify one), this requirement is vacuously satisfied") -- confirmed real, not
@@ -1054,7 +1068,7 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
 _API_REF_INTRO_BAD_A_RE = re.compile(r"ships \d+ public types\.\s*Selected entry points:", re.IGNORECASE)
 _API_REF_INTRO_BAD_B_RE = re.compile(r"`\w[\w.]*\.\*`?\s*\.?\s*$")
 _API_REF_SECTION_RE = re.compile(
-    r"^##\s+API reference\s*$(.*?)(?=<details>|\Z)", re.MULTILINE | re.DOTALL
+    r"^##\s+API reference\s*$(.*?)(?=<details>|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
 
 
@@ -1136,6 +1150,32 @@ def check_diagram_no_mechanism_duplicate_output(markdown_text: str) -> list[dict
 
 
 _BARE_WORD_RE = re.compile(r"(?<![./\w])([A-Za-z]{2,10})\b")
+# Generic project/doc acronyms that are NOT format names but routinely appear all-caps
+# somewhere in a README (a repo name, a link target, a directory name) and in ordinary
+# lowercase prose elsewhere -- confirmed real noise via this function's own 30-product
+# portfolio test run: "FOSS" (29/30 files, from things like the `aspose-pdf-foss` org/repo
+# slug and `aspose_pdf_foss` CMake target names) and "LICENSE" (from the bare filename,
+# even after stripping link targets/inline-code -- e.g. "see the LICENSE file" in plain
+# prose) together accounted for nearly every finding, drowning out genuine format-casing
+# defects (COLLADA, PDF, HTML) in noise. Same stoplist pattern already established for
+# check_diagram_no_mechanism_duplicate_output's _GENERIC_LABEL_WORDS.
+_GENERIC_ACRONYM_STOPLIST = {
+    "FOSS", "LICENSE", "API", "CLI", "URL", "SDK", "README", "CI", "FAQ", "TODO",
+    "GUI", "MIT", "OSI", "ID",
+}
+# A different, narrower kind of exception (2026-08-08, found live in 3d/python/3d/typescript
+# after a portfolio-wide diagram-redraw + heading-title-case pass): a format whose real,
+# official canonical spelling is genuinely mixed-case (glTF, styled by the Khronos Group
+# the same way "iPhone"/"eBay" are -- a lowercase leading letter is the *correct* form, not
+# a defect) collides with Rule 6's mechanical title-case-every-heading requirement, which
+# cannot represent that spelling inside a heading at all. The resolution applied portfolio-
+# wide: "glTF" everywhere in prose/code/diagram labels (its real canonical form), "GLTF"
+# (all-caps) only where it's the first word of a title-cased heading -- a deliberate,
+# narrow, single-word exception, not an unnoticed inconsistency. Format names listed here
+# are exempt from the "multiple different casings" finding specifically for the GLTF/glTF
+# pair; any OTHER casing variant of the same word (e.g. "Gltf", "gltf" in prose) is still a
+# real defect and still flagged.
+_KNOWN_HEADING_CASE_EXCEPTIONS = {"GLTF": {"GLTF", "glTF"}}
 
 
 def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] | None = None) -> list[dict]:
@@ -1164,13 +1204,26 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     findings.
     """
     canonical_casing = canonical_casing or {}
-    prose_only = _MD_LINK_RE.sub(lambda m: f"[{m.group(1)}]", readme_text)
+    # Strip every `](target)` occurrence, not just the outermost one via _MD_LINK_RE's
+    # capture groups -- a real residual leak found via two independent sub-agents' own
+    # investigation of a badge-link false positive on pdf/*/html/python: for a nested badge
+    # `[![CI](inner-href)](outer-href)`, replacing the whole match with `[{group(1)}]`
+    # (the earlier fix) correctly drops the OUTER href but leaves the INNER image's own
+    # href sitting untouched inside what becomes the "anchor text" placeholder -- e.g.
+    # `[![CI](https://github.com/aspose-pdf-foss/...)]`, still containing "pdf" in a URL
+    # path. `](...)` is unambiguous markdown link/image target syntax at ANY nesting depth
+    # (real prose never contains a literal "](" sequence), so a single global sweep
+    # removing every occurrence -- not just the outermost -- correctly clears both the
+    # inner and outer href in one pass, with no recursion needed.
+    prose_only = re.sub(r"\]\([^()\s]+\)", "]", readme_text)
     prose_only = re.sub(r"`[^`]*`", "", prose_only)
     occurrences: dict[str, set[str]] = {}
     all_caps_seen: set[str] = set()
     for match in _BARE_WORD_RE.finditer(prose_only):
         word = match.group(1)
         key = word.upper()
+        if key in _GENERIC_ACRONYM_STOPLIST and key not in canonical_casing:
+            continue
         occurrences.setdefault(key, set()).add(word)
         if word.isupper() and len(word) >= 2:
             all_caps_seen.add(key)
@@ -1189,6 +1242,8 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
                         "reason": "bare format-name casing does not match the canonical registry form",
                     })
         elif len(variants) > 1:
+            if variants <= _KNOWN_HEADING_CASE_EXCEPTIONS.get(key, set()):
+                continue
             findings.append({
                 "format": key, "found_variants": sorted(variants),
                 "reason": "multiple different casings of the same bare format word used within this file",
@@ -1199,7 +1254,9 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
 _OWN_PRODUCT_LINE_RE = re.compile(r"^\[!\[|^#\s+", re.MULTILINE)
 
 
-def check_no_cross_product_citation(readme_text: str, own_family: str) -> list[dict]:
+def check_no_cross_product_citation(
+    readme_text: str, own_family: str, known_family_display_names: "set[str] | None" = None
+) -> list[dict]:
     """Hard gate (2026-08-08). Flags a mention of a DIFFERENT product family's own name,
     package, or link inside a README that's supposed to describe only its own product --
     e.g. `pdf/cpp`'s Installation section citing `Aspose.Cells FOSS for C++`'s real NuGet
@@ -1210,25 +1267,42 @@ def check_no_cross_product_citation(readme_text: str, own_family: str) -> list[d
     instructions, regardless of well-intentioned original reasoning ("proof the registry
     exists"). A visitor installing product A has no use for a citation about product B.
 
-    `own_family` is this README's own product family slug (e.g. "pdf"), used to build the
-    set of OTHER known family display names to search for -- sourced from the caller's
-    own `data/families.json` read, not hardcoded here, so this stays correct as the
-    product portfolio grows. Returns a list of {"family", "context"} findings for every
-    mention of a different family's own `Aspose.{Family}` product name found outside a
-    `Documentation & resources`-style cross-reference (the one legitimate place a sibling
-    product might reasonably be mentioned, e.g. a "see also" pointer -- never inside
-    Installation/Quick start/API reference, which are strictly about THIS product).
+    `own_family` is this README's own product family slug (e.g. "pdf").
+    `known_family_display_names` is the bounded set of real family names this repo actually
+    tracks (sourced from `data/families.json`'s values, e.g. `{"Words", "PDF", "Cells", ...,
+    "3D", ...}`, stripped of their "Aspose." prefix) -- **load-bearing, not optional in
+    practice**: a real false-positive found via this function's own portfolio-wide test run
+    confirms an unrestricted `Aspose\\.\\w+` scan matches far more than sibling PRODUCTS --
+    `3d/net`'s own C# namespace `Aspose.ThreeD` (the digit-safe spelling of its own family,
+    since C# identifiers can't start with "3" -- `data/families.json` itself only ever
+    spells this family "Aspose.3D", so "ThreeD" isn't a registered family name at all and is
+    correctly excluded once matching is restricted to the known set) and `words/net`'s
+    internal tooling names (`Aspose.EnumExtensionsGenerator`, `Aspose.Foundation` -- neither
+    a product family) were both being flagged as if citing a sibling product. Passing `None`
+    here reverts to the old unrestricted-match behavior and will reproduce that noise --
+    callers should always pass the real registry.
+
+    Returns a list of {"family", "context"} findings for every mention of a different,
+    KNOWN family's own `Aspose.{Family}` product name found outside a "Documentation &
+    Resources"-style cross-reference section (matched case-insensitively, so this stays
+    correct whether or not that heading has been title-cased yet -- the one legitimate
+    place a sibling product might reasonably be mentioned, e.g. a "see also" pointer --
+    never inside Installation/Quick start/API reference, which are strictly about THIS
+    product).
     """
     findings: list[dict] = []
     exempt_section = re.search(
-        r"^##\s+Documentation & resources\s*$(.*?)(?=^##\s|\Z)", readme_text,
-        re.MULTILINE | re.DOTALL,
+        r"^##\s+Documentation\s*&\s*[Rr]esources\s*$(.*?)(?=^##\s|\Z)", readme_text,
+        re.MULTILINE | re.DOTALL | re.IGNORECASE,
     )
     exempt_span = exempt_section.span(1) if exempt_section else (-1, -1)
+    known = {name.lower() for name in (known_family_display_names or set())}
 
     for match in re.finditer(r"\bAspose\.([A-Z][A-Za-z]*)\b", readme_text):
         cited_family = match.group(1)
         if cited_family.lower() == own_family.lower():
+            continue
+        if known_family_display_names is not None and cited_family.lower() not in known:
             continue
         if exempt_span[0] <= match.start() < exempt_span[1]:
             continue
@@ -1241,8 +1315,16 @@ def check_no_cross_product_citation(readme_text: str, own_family: str) -> list[d
     return findings
 
 
+# 2026-08-08: IGNORECASE is load-bearing, not decorative -- a real regression found via a
+# sub-agent's own investigation while title-casing headings portfolio-wide: this pattern
+# was hardcoded to match only lowercase "## Additional examples". Once Rule 6 (title-case
+# headings) landed and every file's heading became "## Additional Examples", the match
+# would silently fail everywhere, making this hard gate permanently inert -- not just for
+# the files this sprint touched, but for every future run, since no file will ever again
+# have the old lowercase heading text. Same fix applied to the two sibling section-heading
+# regexes below (API reference, Key capabilities) that had the identical defect.
 _EXAMPLES_SECTION_RE = re.compile(
-    r"^##\s+Additional examples\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL
+    r"^##\s+Additional examples\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
 _EXAMPLES_TABLE_RE = re.compile(r"^\|.+\|\s*$", re.MULTILINE)
 _DETAILS_BLOCK_RE = re.compile(r"<details>.*?</details>", re.DOTALL)
@@ -1345,7 +1427,8 @@ def check_section_job_distinctness(readme_text: str) -> list[dict]:
     intro_text = readme_text[: first_heading.start()] if first_heading else readme_text
 
     caps_match = re.search(
-        r"^##\s+Key capabilities\s*$(.*?)(?=^##\s|\Z)", readme_text, re.MULTILINE | re.DOTALL
+        r"^##\s+Key capabilities\s*$(.*?)(?=^##\s|\Z)",
+        readme_text, re.MULTILINE | re.DOTALL | re.IGNORECASE,
     )
     if not caps_match:
         return []

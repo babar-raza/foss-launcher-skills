@@ -473,6 +473,18 @@ def _canonical_format_casing() -> dict:
     return canonical
 
 
+def _known_family_display_names() -> "set[str]":
+    """Real family names (e.g. {"Words", "PDF", "Cells", ..., "3D", ...}), stripped of their
+    "Aspose." prefix, sourced from data/families.json -- the bounded allowlist check_no_
+    cross_product_citation needs to avoid the false positives an unrestricted Aspose\\.\\w+
+    scan produces (a product's own C#-safe namespace spelling, internal tooling names)."""
+    path = _repo_root / "data" / "families.json"
+    if not path.is_file():
+        return set()
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    return {value.split(".", 1)[1] for value in registry.values() if value.startswith("Aspose.")}
+
+
 def _product_formats_md(family: str, platform: str) -> str:
     path = _repo_root / "knowledge" / family / platform / "merged" / "formats.md"
     return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
@@ -655,7 +667,8 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "findings": checks.check_format_name_casing(text, _canonical_format_casing()),
     }
     result["no_cross_product_citation"] = {
-        "hard_gate": True, "findings": checks.check_no_cross_product_citation(text, family),
+        "hard_gate": True,
+        "findings": checks.check_no_cross_product_citation(text, family, _known_family_display_names()),
     }
     result["examples_table_collapsed"] = {
         "hard_gate": True, "findings": checks.check_examples_table_collapsed(text),

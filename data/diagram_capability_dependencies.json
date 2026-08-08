@@ -2,23 +2,23 @@
   {
     "family": "barcode",
     "platform": "python",
-    "pipeline_edges": [["C1", "C5"], ["C2", "C5"], ["C3", "C5"], ["C4", "C5"]],
-    "evidence": "Barcode.render()/.to_svg()/.to_png() (result.py:27-92) require self=Barcode, produced only by the encode functions (service.py:66-72). No code path exists from any encode function to a Renderer. RenderOptions (originally modeled as Capability C6, 'RenderOptions styling and layout') fails the Step-0 independently-callable-entry-point precondition -- OptionsResolver.resolve()/.merge_options() never execute except inside Barcode.render() (result.py:34-42) -- reclassified into Inputs (I3) rather than kept as a Capability.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [["c1", "c5"], ["c2", "c5"], ["c3", "c5"], ["c4", "c5"]],
+    "evidence": "Barcode.render()/.to_svg()/.to_png() (result.py:27-92) require self=Barcode, produced only by the encode functions (service.py:66-72). No code path exists from any encode function to a Renderer. RenderOptions (originally modeled as Capability C6, 'RenderOptions styling and layout') fails the Step-0 independently-callable-entry-point precondition -- OptionsResolver.resolve()/.merge_options() never execute except inside Barcode.render() (result.py:34-42) -- reclassified into Inputs (I3) rather than kept as a Capability. IDs re-keyed 2026-08-08 to the simplified diagram's own node IDs (c1-c4=encoders, c5=renderer) -- same real dependency, node IDs only.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "tex",
     "platform": "python",
-    "pipeline_edges": [["C1", "C3"], ["C3", "C4"]],
-    "evidence": "PageBuilder.contribute(node) (_engine/page_builder.py:70+) only accepts already-typeset nodes from C1's exec_par(), called inside TeXInterpreter (_engine/interpreter.py). PdfWriter/DviWriter/SvgWriter.shipout(page_number, box) (_output/{pdf,dvi,svg}_writer.py) require a finalised page only C3 produces. C2 (FontManager, _fonts/font_manager.py:23-41) is confirmed genuinely standalone-callable (own docstring shows independent usage with zero dependency on C1/C3/C4) so its direct PRODUCT edge is correct per Rule 1a; C2 was NOT wired into the C1-C3-C4 pipeline. Instead, a new Output node (O4, 'Font and glyph metrics') was added and wired C2---O4, per the Outputs-test exception (font-metric resolution is a genuine standalone deliverable, traces to Key Capabilities' 'Resolve font metrics with FontManager and FontMetrics' bullet) -- same pattern as pdf/cpp's Text-extraction/Plain-text exception.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [["c1", "c3"], ["c3", "c4"]],
+    "evidence": "PageBuilder.contribute(node) (_engine/page_builder.py:70+) only accepts already-typeset nodes from C1's exec_par(), called inside TeXInterpreter (_engine/interpreter.py). PdfWriter/DviWriter/SvgWriter.shipout(page_number, box) (_output/{pdf,dvi,svg}_writer.py) require a finalised page only C3 produces. C2 (FontManager, _fonts/font_manager.py:23-41) is confirmed genuinely standalone-callable (own docstring shows independent usage with zero dependency on C1/C3/C4) so its direct PRODUCT edge is correct per Rule 1a; C2 was NOT wired into the C1-C3-C4 pipeline. Instead, a new Output node (O4, 'Font and glyph metrics') was added and wired C2---O4, per the Outputs-test exception (font-metric resolution is a genuine standalone deliverable, traces to Key Capabilities' 'Resolve font metrics with FontManager and FontMetrics' bullet) -- same pattern as pdf/cpp's Text-extraction/Plain-text exception. IDs re-keyed 2026-08-08 to the simplified diagram's own node IDs (c1=interpretation, c3=page-building, c4=output devices) -- same real dependency, node IDs only.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "email",
     "platform": "python",
-    "pipeline_edges": [["C3", "C6a"]],
-    "evidence": "MapiMessage.to_email_message() (msg/mapi_message.py:908) is an instance method requiring an already-built MapiMessage from C3. MapiMessage.from_email_message() (msg/mapi_message.py:619) is a classmethod taking the raw EmailMessage Input directly, and MapiMessage.save() (msg/mapi_message.py:902) confirms its returned MapiMessage can be saved to a real .msg file -- C6 ('MSG and EmailMessage conversion') split into C6a (to_email_message, dependent on C3, feeds O5) and C6b (from_email_message, independent, direct PRODUCT edge, feeds O2) per Rule 1c.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [["c3", "c4"]],
+    "evidence": "MapiMessage.to_email_message() (msg/mapi_message.py:908) is an instance method requiring an already-built MapiMessage from C3. MapiMessage.from_email_message() (msg/mapi_message.py:619) is a classmethod taking the raw EmailMessage Input directly, and MapiMessage.save() (msg/mapi_message.py:902) confirms its returned MapiMessage can be saved to a real .msg file -- C6 ('MSG and EmailMessage conversion') split into C6a (to_email_message, dependent on C3, feeds O5) and C6b (from_email_message, independent, direct PRODUCT edge, feeds O2) per Rule 1c. IDs re-keyed 2026-08-08 to the simplified diagram's own node IDs -- c3=high-level MapiMessage API, c4=export-to-EmailMessage (the dependent half, C6a); the independent half (C6b, import-from-EmailMessage) is now c7, no ordering constraint. Same real dependency, node IDs only.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "cells",
@@ -58,23 +58,23 @@
   {
     "family": "email",
     "platform": "cpp",
-    "pipeline_edges": [["C3", "C4a"]],
-    "evidence": "mapi_message::save_to_eml() (src/msg/mapi_message.cpp:852-877) is a const instance method serializing whatever *this already contains -- confirmed by every real call site (examples/create_msg_and_eml.cpp:84, tests/test_msg.cpp:30-84) that the object always comes from C3 (create()/from_file()/from_stream()). mapi_message::load_from_eml() (mapi_message.hpp:34-35) is a static factory taking raw .eml Input directly, zero dependency. C4 ('EML load/save bridge') split into C4a (save_to_eml, dependent on C3, feeds O3) and C4b (load_from_eml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real C++ source, not assumed from the sibling.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [],
+    "evidence": "mapi_message::save_to_eml() (src/msg/mapi_message.cpp:852-877) is a const instance method serializing whatever *this already contains -- confirmed by every real call site (examples/create_msg_and_eml.cpp:84, tests/test_msg.cpp:30-84) that the object always comes from C3 (create()/from_file()/from_stream()). mapi_message::load_from_eml() (mapi_message.hpp:34-35) is a static factory taking raw .eml Input directly, zero dependency. C4 ('EML load/save bridge') split into C4a (save_to_eml, dependent on C3, feeds O3) and C4b (load_from_eml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real C++ source, not assumed from the sibling. 2026-08-08: the simplified diagram merged the export/import pair back into ONE combined capability line (the real Key Capabilities bullet already describes both as one grammatical unit, matching how the MSG read/write bullet is treated) -- the dependency is now internal to a single node, so pipeline_edges is correctly empty; the underlying real dependency fact above is preserved as historical evidence, not stale.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "email",
     "platform": "net",
-    "pipeline_edges": [["C3", "C4a"]],
-    "evidence": "MapiMessage.SaveToEml() (src/Aspose.Email.Foss/Msg/MapiMessage.Codec.cs:432-449) calls EmlMessageMapper.ToMimeMessage(this), reading Subject/SenderEmailAddress/Recipients/Attachments/HtmlBody off an already-built MapiMessage from C3; confirmed by test usage (tests/.../MapiMessageEmlTests.cs:96-110). MapiMessage.LoadFromEml() (MapiMessage.Codec.cs:249-268) is static, takes raw EML Input directly via EmlMessageMapper.ToMapiMessage, zero dependency. C4 ('EML <-> MSG bridging') split into C4a (SaveToEml, dependent on C3, feeds O3) and C4b (LoadFromEml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real .NET source.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [],
+    "evidence": "MapiMessage.SaveToEml() (src/Aspose.Email.Foss/Msg/MapiMessage.Codec.cs:432-449) calls EmlMessageMapper.ToMimeMessage(this), reading Subject/SenderEmailAddress/Recipients/Attachments/HtmlBody off an already-built MapiMessage from C3; confirmed by test usage (tests/.../MapiMessageEmlTests.cs:96-110). MapiMessage.LoadFromEml() (MapiMessage.Codec.cs:249-268) is static, takes raw EML Input directly via EmlMessageMapper.ToMapiMessage, zero dependency. C4 ('EML <-> MSG bridging') split into C4a (SaveToEml, dependent on C3, feeds O3) and C4b (LoadFromEml, independent, direct PRODUCT edge, feeds O2) per Rule 1c -- identical shape to email/python's C6a/C6b, independently confirmed against the real .NET source. 2026-08-08: the simplified diagram merged the export/import pair back into ONE combined capability line, matching email/cpp's identical resolution -- the dependency is now internal to a single node, pipeline_edges correctly empty; the underlying real dependency fact above is preserved as historical evidence.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "pdf",
     "platform": "go",
-    "pipeline_edges": [["C2", "C3b"]],
-    "evidence": "(*Document).ApplyRedactions() (redact_apply.go:45) scans page.Annotations() for *RedactAnnotation instances and is a documented no-op when none exist (redact_apply.go:78-80). The only public way to create one is NewRedactAnnotation(page, rect) (annotation_redact.go:20) followed by page.Annotations().Add(ra) (annotation.go) -- the same public entry point used for every other annotation type, which Key Capabilities' own bullet groups under C2's 'Add and manage annotations... redactions...'. This is a genuine Rule 1b dependency: ApplyRedactions requires a specific artifact only C2's own Add() produces. C3 ('Security: encrypt, sign, redact') split -- redact moved to new node C3b ('Redaction: mark and apply'), wired C2---C3b; C3 keeps its direct PRODUCT edge for encrypt/sign (both independently 1a-clean, confirmed against SetEncryption/Sign signatures).",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [["c2", "c3"]],
+    "evidence": "(*Document).ApplyRedactions() (redact_apply.go:45) scans page.Annotations() for *RedactAnnotation instances and is a documented no-op when none exist (redact_apply.go:78-80). The only public way to create one is NewRedactAnnotation(page, rect) (annotation_redact.go:20) followed by page.Annotations().Add(ra) (annotation.go) -- the same public entry point used for every other annotation type, which Key Capabilities' own bullet groups under C2's 'Add and manage annotations... redactions...'. This is a genuine Rule 1b dependency: ApplyRedactions requires a specific artifact only C2's own Add() produces. C3 ('Security: encrypt, sign, redact') split -- redact moved to new node C3b ('Redaction: mark and apply'), wired C2---C3b; C3 keeps its direct PRODUCT edge for encrypt/sign (both independently 1a-clean, confirmed against SetEncryption/Sign signatures). IDs re-keyed 2026-08-08 to the simplified diagram's own node IDs (c2=content-authoring, c3=redaction) -- same real dependency, node IDs only. Archetype re-verified fresh the same day, see data/diagram_archetypes.json.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "cells",
@@ -128,9 +128,9 @@
   {
     "family": "slides",
     "platform": "cpp",
-    "pipeline_edges": [["C5", "C1b"], ["C5", "C3b"]],
-    "evidence": "ShapeCollection::add_picture_frame(ShapeType, x, y, w, h, PPImage&) (include/.../shape_collection.h:130) takes PPImage& by non-optional reference; add_picture_frame_impl (shape_collection.cpp:1091) immediately calls image.part_name(). PictureFillFormat::picture().set_image(&img) has the same pattern. Grepped every reference to images_ (ImageCollection's backing vector) across src/ -- the ONLY writer is ImageCollection::add_image() itself (image_collection.cpp:35); presentation.cpp never populates it when a file is opened (unlike shapes_, which load_shapes() does populate from a real Input .pptx). Confirmed by 100% of real test call sites (images_test.cpp, image_test.cpp, picture_utilities_test.cpp, fill_format_test.cpp, i_picture_fill_format_test.cpp) always calling add_image() first. C1 ('Slide, shape, and table creation') and C3 ('Fill, line, and visual effects') both had their picture-handling sub-feature split out (Rule 1c) into new nodes C1b/C3b, each wired from C5; C1/C3's other real, independent entry points (AutoShape/Table/Connector; solid/gradient/pattern fill/line/effects) keep their direct PRODUCT edges unchanged.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [],
+    "evidence": "ShapeCollection::add_picture_frame(ShapeType, x, y, w, h, PPImage&) (include/.../shape_collection.h:130) takes PPImage& by non-optional reference; add_picture_frame_impl (shape_collection.cpp:1091) immediately calls image.part_name(). PictureFillFormat::picture().set_image(&img) has the same pattern. Grepped every reference to images_ (ImageCollection's backing vector) across src/ -- the ONLY writer is ImageCollection::add_image() itself (image_collection.cpp:35); presentation.cpp never populates it when a file is opened (unlike shapes_, which load_shapes() does populate from a real Input .pptx). Confirmed by 100% of real test call sites (images_test.cpp, image_test.cpp, picture_utilities_test.cpp, fill_format_test.cpp, i_picture_fill_format_test.cpp) always calling add_image() first. C1 ('Slide, shape, and table creation') and C3 ('Fill, line, and visual effects') both had their picture-handling sub-feature split out (Rule 1c) into new nodes C1b/C3b, each wired from C5; C1/C3's other real, independent entry points (AutoShape/Table/Connector; solid/gradient/pattern fill/line/effects) keep their direct PRODUCT edges unchanged. 2026-08-08: the simplified diagram's 12 capabilities (one per Key Capabilities bullet, incl. a dedicated Images line placed first in its column) did not preserve the C1b/C3b sub-feature split -- the picture-frame/picture-fill sub-features folded back into their broader Shapes/Fill capability lines, so the strict same-column ordering condition no longer has a distinct pair to constrain; pipeline_edges correctly empty. The underlying real dependency fact (Images must exist before picture-frame/picture-fill can consume one) is preserved as historical evidence and remains true of the real API -- worth re-splitting into distinct nodes if a future regeneration reintroduces separate picture-frame/picture-fill capability lines.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "slides",
@@ -177,9 +177,9 @@
   {
     "family": "page",
     "platform": "python",
-    "pipeline_edges": [["C3", "C4"]],
-    "evidence": "PdfWriter.write(document: RenderDocument), RasterRenderer.render(document: RenderDocument, ...), and RenderModelRasterWriter.write(document: RenderDocument, ...) (pdf/writer.py:180, image/raster_renderer.py:106, image/raster_writer.py:22) all strictly require a RenderDocument argument -- confirmed by grep that neither pdf/writer.py nor image/raster_writer.py has any alternate entry point accepting raw PS/EPS/XPS Input bytes directly. RenderDocument exists in no declared Input format; the only real producer is RenderModelBuilder.document() (common/render_model.py:407-412), C3's defining method. C4 ('PDF and raster writing') rewired from PRODUCT---C4 to C3---C4 -- confirmed C4 has no alternate independent entry point, so this is a full replacement, not an additive/split fix. Corroborated by the README's own 'Build a PDF directly from the render model' example demonstrating the C3-to-C4 chain working end-to-end with no PS/XPS input at all.",
-    "verified_at": "2026-08-06"
+    "pipeline_edges": [["c3", "c4"]],
+    "evidence": "PdfWriter.write(document: RenderDocument), RasterRenderer.render(document: RenderDocument, ...), and RenderModelRasterWriter.write(document: RenderDocument, ...) (pdf/writer.py:180, image/raster_renderer.py:106, image/raster_writer.py:22) all strictly require a RenderDocument argument -- confirmed by grep that neither pdf/writer.py nor image/raster_writer.py has any alternate entry point accepting raw PS/EPS/XPS Input bytes directly. RenderDocument exists in no declared Input format; the only real producer is RenderModelBuilder.document() (common/render_model.py:407-412), C3's defining method. C4 ('PDF and raster writing') rewired from PRODUCT---C4 to C3---C4 -- confirmed C4 has no alternate independent entry point, so this is a full replacement, not an additive/split fix. Corroborated by the README's own 'Build a PDF directly from the render model' example demonstrating the C3-to-C4 chain working end-to-end with no PS/XPS input at all. IDs re-keyed 2026-08-08 to the simplified diagram's own node IDs (c3=document-building, c4=output-producing) -- same real dependency, node IDs only.",
+    "verified_at": "2026-08-08"
   },
   {
     "family": "3d",

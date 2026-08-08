@@ -449,10 +449,65 @@ def test_format_name_casing_ignores_ordinary_prose_words():
     assert checks.check_format_name_casing(text, {"XLSX": "XLSX"}) == []
 
 
+def test_format_name_casing_allows_the_known_gltf_heading_exception():
+    # Real, found-live tension (3d/python, 3d/typescript): glTF's genuine official spelling
+    # is mixed-case (like "iPhone"), which Rule 6's mechanical title-case-every-heading
+    # requirement can't represent -- the resolved portfolio convention is "glTF" in prose
+    # and "GLTF" only where it's the first word of a title-cased heading.
+    text = "glTF is supported. glTF import and export.\n\n### Assign a PBR Material and Export to GLTF\n"
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_still_flags_a_genuine_third_gltf_variant():
+    text = "GLTF and glTF and Gltf all appear in this file."
+    findings = checks.check_format_name_casing(text, {})
+    assert any(f["format"] == "GLTF" for f in findings)
+
+
 def test_format_name_casing_flags_multiple_casings_of_unregistered_word():
     text = "FOO bar. Foo baz. foo qux."
     findings = checks.check_format_name_casing(text, {})
     assert any(f["format"] == "FOO" for f in findings)
+
+
+def test_format_name_casing_ignores_html_in_a_badge_link_url():
+    # Regression test for a real bug found by a sub-agent's own investigation: the shared
+    # _MD_LINK_RE used to stop at the FIRST "]" (the inner image alt text's own closing
+    # bracket in a "[![alt](img)](target)" badge link), leaving the real OUTER href
+    # completely unstripped -- "html" inside a repo-slug URL like
+    # ".../aspose-html-foss/..." then leaked into the bare-word prose scan.
+    text = (
+        "This is HTML.\n\n"
+        "[![Contributors](https://img.shields.io/badge/x.svg)]"
+        "(https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python/graphs/contributors)\n"
+    )
+    assert checks.check_format_name_casing(text, {"HTML": "HTML"}) == []
+
+
+def test_md_link_re_captures_real_outer_href_for_badge_links():
+    text = "[![CI](https://img.shields.io/badge/ci.svg)](https://github.com/org/repo/actions)"
+    match = checks._MD_LINK_RE.search(text)
+    assert match.group(2) == "https://github.com/org/repo/actions"
+
+
+def test_md_link_re_still_matches_plain_links():
+    text = "[Getting started](https://docs.aspose.org/foo/python/)"
+    match = checks._MD_LINK_RE.search(text)
+    assert match.group(1) == "Getting started"
+    assert match.group(2) == "https://docs.aspose.org/foo/python/"
+
+
+def test_format_name_casing_ignores_generic_project_acronyms():
+    # Regression test for a real false positive found via a 30-product portfolio run: FOSS
+    # (from repo/CMake-target slugs like aspose-pdf-foss / aspose_pdf_foss) and LICENSE
+    # (from plain-prose filename mentions) accounted for the overwhelming majority of
+    # findings across the whole corpus, drowning out genuine format-casing defects.
+    text = (
+        "This is Aspose.PDF FOSS for C++, part of the aspose-pdf-foss organization. "
+        "See the LICENSE file. This project is licensed under the MIT License."
+    )
+    findings = checks.check_format_name_casing(text, {})
+    assert not any(f.get("format") in ("FOSS", "LICENSE") for f in findings)
 
 
 # --- check_no_cross_product_citation -------------------------------------------------------------
@@ -479,6 +534,38 @@ def test_no_cross_product_citation_exempts_documentation_resources_section():
         "See also [Aspose.Cells FOSS for C++](https://github.com/aspose-cells-foss).\n"
     )
     assert checks.check_no_cross_product_citation(text, "pdf") == []
+
+
+def test_no_cross_product_citation_exempts_title_cased_documentation_resources_section():
+    # The exempt-section match must stay case-insensitive on "resources" specifically --
+    # once Rule 6 (title-case headings) lands, "## Documentation & Resources" (capital R)
+    # must still be recognized as the same exempt section.
+    text = (
+        "## Documentation & Resources\n\n"
+        "See also [Aspose.Cells FOSS for C++](https://github.com/aspose-cells-foss).\n"
+    )
+    assert checks.check_no_cross_product_citation(text, "pdf") == []
+
+
+def test_no_cross_product_citation_restricted_to_known_families_ignores_own_namespace_spelling():
+    # Regression test for a real false positive found via a 30-product portfolio run:
+    # 3d/net's own C# namespace "Aspose.ThreeD" (digit-safe spelling of its own family --
+    # data/families.json only ever spells this family "Aspose.3D") and words/net's internal
+    # tooling names ("Aspose.EnumExtensionsGenerator", "Aspose.Foundation") were both being
+    # flagged as if citing a sibling PRODUCT, once matching is restricted to a real, bounded
+    # family allowlist neither is a member of.
+    known = {"3D", "PDF", "Cells", "Words"}
+    text = "The Aspose.ThreeD namespace contains Scene, Node, and Entity."
+    assert checks.check_no_cross_product_citation(text, "3d", known) == []
+    text2 = "Comment out the Aspose.EnumExtensionsGenerator PackageReference to build."
+    assert checks.check_no_cross_product_citation(text2, "words", known) == []
+
+
+def test_no_cross_product_citation_still_flags_real_sibling_when_restricted():
+    known = {"3D", "PDF", "Cells", "Words"}
+    text = "(C++ isn't registry-less: [Aspose.Cells FOSS for C++](https://example.com) does publish.)"
+    findings = checks.check_no_cross_product_citation(text, "pdf", known)
+    assert any(f["family"] == "Cells" for f in findings)
 
 
 # --- check_examples_table_collapsed ---------------------------------------------------------------
@@ -509,6 +596,22 @@ def test_examples_table_collapsed_passes_when_table_is_inside_details():
 def test_examples_table_collapsed_noop_when_no_table():
     text = "## Additional examples\n\nOne example, shown directly.\n\n```python\nx = 1\n```\n"
     assert checks.check_examples_table_collapsed(text) == []
+
+
+def test_examples_table_collapsed_matches_title_cased_heading():
+    # Regression test for a real, significant regression found by a sub-agent while
+    # title-casing headings portfolio-wide: this section matcher was hardcoded to lowercase
+    # "## Additional examples" with no re.IGNORECASE. Once Rule 6 landed and every real
+    # file's heading became "## Additional Examples", the match would silently fail on
+    # every single file, making this hard gate permanently inert going forward.
+    text = (
+        "## Additional Examples\n\n"
+        "12 examples demonstrate the core API.\n\n"
+        "| Example | Shows |\n|---|---|\n| `01` | opens a file |\n\n"
+        "<details><summary>View Additional Examples</summary>\n\nMore prose.\n</details>\n"
+    )
+    findings = checks.check_examples_table_collapsed(text)
+    assert findings and "not inside a <details> block" in findings[0]["reason"]
 
 
 # --- check_heading_title_case ----------------------------------------------------------------------
@@ -568,6 +671,18 @@ def test_section_job_distinctness_clean_when_genuinely_distinct():
 
 def test_section_job_distinctness_noop_without_key_capabilities_section():
     assert checks.check_section_job_distinctness("Just an intro paragraph.\n") == []
+
+
+def test_section_job_distinctness_matches_title_cased_heading():
+    # Same regression class as check_examples_table_collapsed above: this section matcher
+    # was hardcoded to lowercase "## Key capabilities".
+    text = (
+        "This library provides fast PDF text extraction and page rendering for developers.\n\n"
+        "## Key Capabilities\n\n"
+        "- Fast PDF text extraction and page rendering for developers using this library.\n"
+    )
+    findings = checks.check_section_job_distinctness(text)
+    assert findings and findings[0]["similarity"] > 0.5
 
 
 # --- check_only_mermaid_block_changed (unchanged function, new-model fixtures) -----------------
@@ -878,6 +993,13 @@ def test_check_api_reference_intro_names_classes_flags_bare_wildcard():
 def test_check_api_reference_intro_names_classes_passes_real_hub_class():
     text = "## API reference\n\nThe primary entry point is `Workbook`, which owns a `WorksheetCollection`.\n\n<details>\n"
     assert checks.check_api_reference_intro_names_classes(text) is False
+
+
+def test_check_api_reference_intro_names_classes_matches_title_cased_heading():
+    # Same regression class as check_examples_table_collapsed/check_section_job_distinctness:
+    # this section matcher was hardcoded to lowercase "## API reference".
+    text = "## API Reference\n\nThe library ships 193 public types. Selected entry points:\n\n<details>\n"
+    assert checks.check_api_reference_intro_names_classes(text) is True
 
 
 _MECHANISM_DUPLICATE_DIAGRAM = _wrap(
