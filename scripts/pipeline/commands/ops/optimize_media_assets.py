@@ -79,6 +79,17 @@ explicitly. --replace is that explicit path: back up any existing canonical
 targets to `.bak`, regenerate both formats from the new source's pixels via
 the same generate_png()/generate_webp() every other mode uses, and leave
 --confirm-reviewed (unmodified) to clear the backup once visually accepted.
+
+--replace also accepts a .svg source (added 2026-08-08) -- a third canonical
+artifact per icon slot, `icon.svg`, alongside icon.png/icon.webp. Vector
+content has no pixel dimensions and no lossy ladder, so this path never
+touches PIL: process_replace_svg() validates (well-formed XML, <svg> root,
+no <script>/external href -- see SVG_DANGEROUS_PATTERNS) and copies the
+source bytes to the target EXACTLY as given, never re-serializing. Same
+backup-to-.bak-then-confirm-reviewed discipline as the raster path, even
+though there's no lossy transform to distrust -- the review is about
+content correctness (right glyph, right family), not compression artifacts.
+No banner.svg support yet -- the current source set has none.
 """
 
 from pathlib import Path
@@ -97,6 +108,7 @@ import math
 import shutil
 import subprocess
 import urllib.request
+import xml.etree.ElementTree as ET
 import zipfile
 
 from PIL import Image, ImageChops, ImageStat
@@ -110,6 +122,13 @@ SOURCE_EXTENSIONS = (".png", ".webp", ".jpg", ".jpeg")
 
 WEBP_QUALITY_LADDER = (95, 90, 85, 80)
 PNG_COLOR_LADDER = (256, 192, 128, 96, 64)
+
+# SVG is copy-as-is (never re-serialized -- see process_replace_svg()), so the
+# only defense against embedded active content is a raw-text scan before that
+# copy happens. Case-insensitive substring match, deliberately broad (would
+# also flag a legitimate but unusual href) -- see PENDING_REVIEW/UNCLASSIFIED
+# elsewhere in this module for the same "never guess, flag instead" policy.
+SVG_DANGEROUS_PATTERNS = ("<script", "javascript:", 'href="http://', 'href="https://')
 
 OXIPNG_VERSION = "10.1.1"
 OXIPNG_RELEASE_URL = (
@@ -164,8 +183,11 @@ def target_paths(source: Path, shape: str) -> tuple[Path, Path]:
 
 def is_canonical(path: Path) -> bool:
     """True if path is already one of the two final artifact names for some
-    slot -- such a file is a keeper, never modified or deleted."""
-    return path.stem in ("icon", "banner") and path.suffix.lower() in (".png", ".webp")
+    slot -- such a file is a keeper, never modified or deleted. Includes
+    .svg -- a third, vector-only canonical artifact handled by
+    process_replace_svg(), never by the raster dry-run/apply/process_file()
+    path."""
+    return path.stem in ("icon", "banner") and path.suffix.lower() in (".png", ".webp", ".svg")
 
 
 # ── oxipng resolution (PNG lossless attempt + polish pass) ──────────────────
@@ -630,6 +652,85 @@ def process_replace(
     return record
 
 
+def _validate_svg(source: Path) -> str | None:
+    """Return None if `source` is an acceptable SVG to copy as-is, else a
+    human-readable rejection reason. Never guesses -- an unparseable file or
+    a non-<svg> root is rejected outright, same policy as classify()
+    returning None for unrecognized raster dimensions.
+
+    The raw-text security scan runs BEFORE the XML well-formedness check,
+    deliberately: it's a plain substring match that doesn't depend on the
+    file parsing at all, so a file that is both malformed AND dangerous
+    (e.g. an intentionally-broken-XML payload smuggling a <script> tag)
+    is still caught as SECURITY_FLAGGED rather than masked as INVALID_SVG
+    by a parse failure that happens to occur first.
+    """
+    try:
+        text = source.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError) as exc:
+        return f"could not read as UTF-8 text: {exc}"
+
+    lowered = text.lower()
+    for pattern in SVG_DANGEROUS_PATTERNS:
+        if pattern in lowered:
+            return f"contains disallowed pattern: {pattern!r}"
+
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError as exc:
+        return f"XML parse error: {exc}"
+
+    tag = root.tag.rsplit("}", 1)[-1]  # strip any XML namespace prefix
+    if tag != "svg":
+        return f"root element is <{tag}>, not <svg>"
+
+    return None
+
+
+def process_replace_svg(
+    source: Path, family: str, platform_name: str | None, media_root: Path,
+) -> dict:
+    """SVG counterpart to process_replace() -- explicit operator-directed
+    replace only, never auto-triggered. Vector content has no pixel
+    dimensions to classify and no lossy ladder to run, so this never touches
+    PIL: validate, back up any existing icon.svg to .svg.bak (identical
+    mechanism to the raster path), then copy the source bytes to the
+    canonical target EXACTLY as given -- parsing in _validate_svg() is
+    validation-only, never a re-serialization, so formatting/attribute order
+    in the shipped file always matches the source precisely.
+    Always targets `icon.svg` -- this module has no banner-shaped SVG source
+    as of 2026-08-08; a shape-classification scheme (e.g. by viewBox aspect
+    ratio) can be added if that need arises.
+    """
+    record: dict = {"source": str(source), "shape": "icon"}
+
+    reason = _validate_svg(source)
+    if reason is not None:
+        record["status"] = "SECURITY_FLAGGED" if "disallowed pattern" in reason else "INVALID_SVG"
+        record["reason"] = reason
+        return record
+
+    target_dir = media_root / family / platform_name if platform_name else media_root / family
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / "icon.svg"
+
+    backups: dict[str, str] = {}
+    if target.exists():
+        backup_path = target.with_name(target.name + ".bak")
+        if not backup_path.exists():
+            shutil.copy2(target, backup_path)
+        backups[str(target)] = str(backup_path)
+
+    shutil.copy2(source, target)
+
+    record["status"] = "NEEDS_VISUAL_REVIEW"
+    record["format"] = "svg"
+    record["target"] = str(target)
+    record["size_after"] = target.stat().st_size
+    record["backups"] = backups
+    return record
+
+
 def run(family: str | None, platform_name: str | None, apply: bool) -> list[dict]:
     media_root = Path(_cfg_media_root)
     files = discover(media_root, family, platform_name)
@@ -650,6 +751,8 @@ def _format_result_line(r: dict) -> str:
         if "size_after" in r:
             line += f" -> {r['size_after']} bytes"
         line += ")"
+    if "reason" in r:
+        line += f"  ({r['reason']})"
     if "psnr" in r:
         extra = f"q={r['quality']}" if "quality" in r else f"colors={r['colors']}"
         line += f"  [{r['format']} {extra} psnr={r['psnr']}dB ssim={r['ssim']}]"
@@ -682,6 +785,7 @@ Examples:
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf python --apply
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py --confirm-reviewed static/media/pdf/uuid-upload.png
   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf --replace new-icon.png
+  .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py pdf --replace new-icon.svg
         """,
     )
     parser.add_argument("family", nargs="?", help="Product family (optional scope)")
@@ -718,10 +822,14 @@ Examples:
         if not args.family:
             parser.error("--replace requires the family positional argument")
         media_root = Path(_cfg_media_root)
-        oxipng_bin = resolve_oxipng()
-        result = process_replace(Path(args.replace), args.family, args.platform, media_root, oxipng_bin)
+        source = Path(args.replace)
+        if source.suffix.lower() == ".svg":
+            result = process_replace_svg(source, args.family, args.platform, media_root)
+        else:
+            oxipng_bin = resolve_oxipng()
+            result = process_replace(source, args.family, args.platform, media_root, oxipng_bin)
         print(_format_result_line(result))
-        if result["status"] in ("STILL_OVER_BUDGET", "UNCLASSIFIED"):
+        if result["status"] in ("STILL_OVER_BUDGET", "UNCLASSIFIED", "SECURITY_FLAGGED", "INVALID_SVG"):
             sys.exit(1)
         return
 

@@ -39,6 +39,17 @@ def _make_webp(path: Path, size: tuple[int, int], color) -> Path:
     return path
 
 
+def _make_svg(path: Path, body: str = '<rect width="10" height="10" fill="#5B6B78"/>') -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        f'<?xml version="1.0" encoding="utf-8"?>\n'
+        f'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" '
+        f'xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10 10">{body}</svg>\n',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -494,6 +505,144 @@ def test_cli_replace_end_to_end(tmp_path):
         confirm = subprocess.run(
             [sys.executable, str(_OMA_SCRIPT), "--confirm-reviewed",
              str(fake_dir / "icon.png"), str(fake_dir / "icon.webp")],
+            cwd=str(_REPO_ROOT), capture_output=True, text=True,
+        )
+        assert confirm.returncode == 0, confirm.stderr
+        assert "ALREADY_FINALIZED" in confirm.stdout
+    finally:
+        if fake_dir.exists():
+            shutil.rmtree(fake_dir)
+
+
+# ── --replace with an .svg source (process_replace_svg) ─────────────────────
+
+def test_replace_svg_creates_new_family_icon(tmp_path):
+    media_root = tmp_path / "media"  # no prior static/media/pdf/ dir at all
+    source = _make_svg(tmp_path / "incoming" / "new-icon.svg")
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(source, "pdf", None, media_root)
+
+    assert result["status"] == "NEEDS_VISUAL_REVIEW"
+    assert result["format"] == "svg"
+    assert result["backups"] == {}  # nothing existed to back up
+    target = media_root / "pdf" / "icon.svg"
+    assert target.exists()
+    assert target.read_bytes() == source.read_bytes()  # copy-as-is, never re-serialized
+
+
+def test_replace_svg_backs_up_existing_and_replaces(tmp_path):
+    media_root = tmp_path / "media"
+    old_svg = _make_svg(media_root / "pdf" / "icon.svg", body='<circle r="1" fill="#FF0000"/>')
+    old_bytes = old_svg.read_bytes()
+    new_source = _make_svg(tmp_path / "incoming" / "new-icon.svg", body='<circle r="2" fill="#00FF00"/>')
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(new_source, "pdf", None, media_root)
+
+    assert result["status"] == "NEEDS_VISUAL_REVIEW"
+    assert old_svg.read_bytes() == new_source.read_bytes()  # canonical now holds new content
+    backup = old_svg.with_name("icon.svg.bak")
+    assert backup.exists()
+    assert backup.read_bytes() == old_bytes  # backup holds the pristine pre-replace bytes
+    assert result["backups"] == {str(old_svg): str(backup)}
+
+
+def test_replace_svg_rejects_script_tag(tmp_path):
+    media_root = tmp_path / "media"
+    old_svg = _make_svg(media_root / "pdf" / "icon.svg")
+    original_hash = _sha256(old_svg)
+    malicious = _make_svg(
+        tmp_path / "incoming" / "evil.svg",
+        body='<script>alert(1)</script><rect width="1" height="1"/>',
+    )
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(malicious, "pdf", None, media_root)
+
+    assert result["status"] == "SECURITY_FLAGGED"
+    assert "script" in result["reason"].lower()
+    assert _sha256(old_svg) == original_hash  # untouched
+    assert not old_svg.with_name("icon.svg.bak").exists()
+
+
+def test_replace_svg_rejects_external_href(tmp_path):
+    media_root = tmp_path / "media"
+    source = _make_svg(
+        tmp_path / "incoming" / "evil.svg",
+        body='<image xlink:href="http://evil.example/x.png" width="1" height="1"/>',
+    )
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(source, "pdf", None, media_root)
+
+    assert result["status"] == "SECURITY_FLAGGED"
+    assert not (media_root / "pdf" / "icon.svg").exists()
+
+
+def test_replace_svg_rejects_malformed_xml(tmp_path):
+    media_root = tmp_path / "media"
+    source = tmp_path / "incoming" / "broken.svg"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('<svg><rect width="1"</svg>', encoding="utf-8")  # unclosed tag
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(source, "pdf", None, media_root)
+
+    assert result["status"] == "INVALID_SVG"
+    assert not (media_root / "pdf" / "icon.svg").exists()
+
+
+def test_replace_svg_rejects_non_svg_root(tmp_path):
+    media_root = tmp_path / "media"
+    source = tmp_path / "incoming" / "not-svg.svg"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('<html><body>not an svg</body></html>', encoding="utf-8")
+    oma.configure(media_root=str(media_root))
+
+    result = oma.process_replace_svg(source, "pdf", None, media_root)
+
+    assert result["status"] == "INVALID_SVG"
+    assert "root element" in result["reason"]
+
+
+def test_confirm_reviewed_clears_svg_backup(tmp_path):
+    media_root = tmp_path / "media"
+    old_svg = _make_svg(media_root / "pdf" / "icon.svg")
+    new_source = _make_svg(tmp_path / "incoming" / "new-icon.svg", body='<circle r="3"/>')
+    oma.configure(media_root=str(media_root))
+    oma.process_replace_svg(new_source, "pdf", None, media_root)
+    backup = old_svg.with_name("icon.svg.bak")
+    assert backup.exists()
+
+    results = oma.confirm_reviewed([str(old_svg)])
+
+    assert results[0]["status"] == "BACKUP_CLEARED"
+    assert not backup.exists()
+    assert old_svg.exists()  # canonical file itself untouched by confirm
+
+
+def test_cli_replace_svg_end_to_end(tmp_path):
+    fake_family = "__test_cli_replace_svg_e2e__"
+    fake_dir = _REAL_MEDIA_ROOT / fake_family
+    if fake_dir.exists():
+        shutil.rmtree(fake_dir)
+    try:
+        source = _make_svg(tmp_path / "new-icon.svg")
+
+        result = subprocess.run(
+            [sys.executable, str(_OMA_SCRIPT), fake_family, "--replace", str(source)],
+            cwd=str(_REPO_ROOT), capture_output=True, text=True,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert "NEEDS_VISUAL_REVIEW" in result.stdout
+        target = fake_dir / "icon.svg"
+        assert target.exists()
+        assert target.read_bytes() == source.read_bytes()
+
+        confirm = subprocess.run(
+            [sys.executable, str(_OMA_SCRIPT), "--confirm-reviewed", str(target)],
             cwd=str(_REPO_ROOT), capture_output=True, text=True,
         )
         assert confirm.returncode == 0, confirm.stderr

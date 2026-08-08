@@ -33,13 +33,20 @@ PNG remains the safe universal fallback. Rather than betting the whole asset
 on either format, this skill produces both.
 
 **Naming convention** (directory already encodes family/platform, so
-filenames don't repeat it). Every slot has up to two canonical files:
+filenames don't repeat it). Every slot has up to two raster canonical files:
 - Family-level icon (no platform subfolder): `static/media/{family}/icon.png` + `icon.webp`
 - Platform icon (square: 1024×1024 or 1254×1254): `static/media/{family}/{platform}/icon.png` + `icon.webp`
 - Platform banner (landscape ~2:1: 1774×887): `static/media/{family}/{platform}/banner.png` + `banner.webp`
 
 Classification is by pixel dimensions, not filename — square = icon, ~2:1
 landscape = banner.
+
+A family-level icon slot can additionally have a **third, vector** canonical
+file (added 2026-08-08): `static/media/{family}/icon.svg`. Vector content has
+no pixel dimensions to classify, so it's handled by a separate, always-explicit
+path — step 3c below — never by the automated dry-run/apply discovery loop.
+No `banner.svg` support yet (no banner-shaped SVG source exists as of this
+writing).
 
 ## The two techniques (each independently validated against the real corpus, 2026-08-06)
 
@@ -142,6 +149,27 @@ landscape = banner.
    other lossy generation; `--confirm-reviewed` (unmodified) clears the
    `.bak` once accepted, exactly as in step 4 below.
 
+3c. **Explicit SVG replace** — the vector counterpart to step 3b, for the
+   family-level `icon.svg` slot only. `--replace` auto-detects a `.svg`
+   source by extension and routes to a dedicated path that never touches
+   PIL (no pixel dimensions, no lossy ladder to run):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/optimize_media_assets.py <family> --replace <path-to-new-source.svg>
+   ```
+   Validates the source before touching anything: well-formed XML, a `<svg>`
+   root element (namespace-stripped), and a raw-text scan rejecting
+   `<script`, `javascript:`, and `href="http(s)://`/`xlink:href="http(s)://`
+   (case-insensitive) — the security scan runs *before* the XML-parse check,
+   so a file that is both malformed and dangerous is still caught as
+   `SECURITY_FLAGGED` rather than masked as `INVALID_SVG`. On success: backs
+   up any existing `icon.svg` to `icon.svg.bak` (identical mechanism to the
+   raster path), then copies the source bytes to the target **exactly as
+   given — never re-serialized**. Reports `NEEDS_VISUAL_REVIEW` like every
+   other generation path, even though there's no lossy transform to distrust
+   — the review is about content correctness (right glyph, right family),
+   not compression artifacts. `--confirm-reviewed` (unmodified) clears the
+   `.bak` once accepted.
+
 4. **Verify — visual review is the only real gate, for either format.**
    PSNR/SSIM are reported per generated file for context but do not decide
    acceptance (see the evidence above). Render every `NEEDS_VISUAL_REVIEW`
@@ -215,10 +243,18 @@ landscape = banner.
   straight to an opaque artifact and flag for manual review rather than
   guessing. Results get the distinct `TRANSPARENCY_EXTRACTED_NEEDS_REVIEW`
   status for extra scrutiny during visual review.
-- **Resolution (pixel dimensions) never changes** in either format. Pixel
-  *values* change by design for the lossy paths — the visual-review step is
-  what stands in for "no perceptible loss," not a pixel-exact check (which
-  does still apply to the lossless PNG path when it succeeds).
+- **Resolution (pixel dimensions) never changes** in either raster format.
+  Pixel *values* change by design for the lossy paths — the visual-review
+  step is what stands in for "no perceptible loss," not a pixel-exact check
+  (which does still apply to the lossless PNG path when it succeeds).
+- **An SVG source is never re-serialized.** XML parsing in the SVG path
+  (step 3c) is validation-only — the shipped `icon.svg` is always a
+  byte-for-byte copy of the source, so formatting/attribute order always
+  matches exactly what the operator supplied.
+- **An SVG source is never guessed safe.** `<script`, `javascript:`, and any
+  `http(s)://` href are hard rejections (`SECURITY_FLAGGED`), not warnings —
+  there is no floor to step down and no partial-acceptance path, unlike the
+  WebP-quality/PNG-color ladders.
 
 ## Post-conditions
 
@@ -232,7 +268,8 @@ landscape = banner.
   marked accepted, or an in-place-recompressed canonical source's `.bak`
   cleared) or is still explicitly pending — never silently left ambiguous
 - No `.bak` file survives past the confirm step — a leftover `.bak` means an
-  in-place recompression is still pending review, not finished
+  in-place recompression is still pending review, not finished (applies to
+  `.svg.bak` too)
 - `git status` shows changes only under `static/media/` for this run —
   additions when the source was already canonical and under budget; content
   changes (not renames) for a canonical source that was over budget and got
@@ -256,3 +293,7 @@ landscape = banner.
   `NO_TARGET_FOUND`, nothing deleted
 - `oxipng` unreachable (not on PATH and download fails): halt the whole run
   with a clear error rather than silently skipping the lossless/polish steps
+- SVG source contains `<script`/`javascript:`/an `http(s)://` href:
+  `SECURITY_FLAGGED`, nothing written, reason reported
+- SVG source is not well-formed XML or its root element isn't `<svg>`:
+  `INVALID_SVG`, nothing written, reason reported
