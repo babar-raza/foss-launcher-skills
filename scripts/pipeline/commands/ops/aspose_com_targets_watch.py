@@ -54,14 +54,17 @@ CLI:
     PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.ops.aspose_com_targets_watch --issue-body-out path.md
 
 Exit codes:
-    0   no confirmed regression (nothing to report)
-    1   at least one confirmed regression (report to stdout / issue body)
+    0   no confirmed regression, full coverage (nothing to report)
+    1   at least one confirmed regression, OR the internal time budget was
+        exceeded (partial coverage -- reported even with zero regressions
+        among the entries actually checked; see TC-09/RegressionCheckResult)
 """
 from __future__ import annotations
 
 import argparse
 import sys
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
@@ -90,14 +93,45 @@ USER_AGENT = "aspose-backlink-governance-watch/1.0"
 _RECHECK_DELAY_SECONDS = 5
 _sleep_fn = time.sleep
 
+# Wall-clock budget (TC-09, MT022 pilot-rerun Finding C): live-observed in
+# production -- a real workflow_dispatch run (31120889071, 2026-08-06) was
+# auto-CANCELLED by GitHub Actions' own timeout-minutes:15 after the retry +
+# same-run-recheck logic (TC-01 x TC-04) compounded with no internal bound,
+# during a window where a meaningful fraction of the ~282 registered entries
+# hit transient conditions. A cancelled job produces ZERO output -- no clean
+# result, no regression report, nothing -- exactly on the days (broad
+# aspose.com slowness) a signal matters most. Two calm runs on either side of
+# it took 2m22s and 1m44s; this one hit 15m03s. Default kept safely below the
+# workflow's own 15-minute job timeout, leaving margin for checkout/pip-
+# install/freshness-check/issue-creation steps that also share that budget.
+_TIME_BUDGET_SECONDS = 600  # 10 minutes
+_now_fn = time.monotonic
 
-def configure(*, sleep_fn=None, recheck_delay=None) -> None:
-    """configure() seam (AGENTS.md 16) -- override the same-run recheck delay
-    and its sleep function for testing, without monkeypatching time.sleep."""
-    global _sleep_fn, _RECHECK_DELAY_SECONDS
+
+def configure(*, sleep_fn=None, recheck_delay=None, time_budget_seconds=None, now_fn=None) -> None:
+    """configure() seam (AGENTS.md 16) -- override the same-run recheck delay,
+    its sleep function, the wall-clock time budget, and the clock function,
+    for testing, without monkeypatching time.sleep/time.monotonic."""
+    global _sleep_fn, _RECHECK_DELAY_SECONDS, _TIME_BUDGET_SECONDS, _now_fn
     _sleep_fn = sleep_fn if sleep_fn is not None else time.sleep
     if recheck_delay is not None:
         _RECHECK_DELAY_SECONDS = recheck_delay
+    _TIME_BUDGET_SECONDS = time_budget_seconds if time_budget_seconds is not None else 600
+    _now_fn = now_fn if now_fn is not None else time.monotonic
+
+
+@dataclass
+class RegressionCheckResult:
+    """Return type for check_for_regressions() (TC-09). Replaces a bare list
+    so a budget-exceeded partial run is structurally distinguishable from a
+    complete run that simply found nothing -- silently returning an empty
+    list either way would hide exactly the failure mode this taskcard exists
+    to surface."""
+    regressions: list[dict[str, Any]] = field(default_factory=list)
+    entries_checked: int = 0
+    entries_skipped: int = 0
+    total_entries: int = 0
+    budget_exceeded: bool = False
 
 
 def _iter_entries(target_map: dict):
@@ -114,22 +148,42 @@ def check_for_regressions(
     session: "requests.Session",
     *,
     verify_fn: "Callable[..., tuple] | None" = None,
-) -> list[dict[str, Any]]:
-    """Re-verify every currently-200 entry in target_map live. Returns a list
-    of confirmed-regression records (both independent checks agreed on
-    non-200). Never mutates target_map; never writes to disk -- pure
-    detection, matching package_publish_watch.py's own discipline.
+) -> RegressionCheckResult:
+    """Re-verify every currently-200 entry in target_map live. Returns a
+    RegressionCheckResult: confirmed-regression records (both independent
+    checks agreed on non-200), plus coverage accounting. Never mutates
+    target_map; never writes to disk -- pure detection, matching
+    package_publish_watch.py's own discipline.
+
+    Enforces _TIME_BUDGET_SECONDS (TC-09): checked once per entry, BEFORE
+    starting that entry's live check(s) -- an entry already in flight is
+    always allowed to finish (never aborted mid-check), only the decision to
+    *start* a new one is gated. Once the budget is exceeded, remaining
+    entries are counted as skipped rather than silently dropped, and
+    budget_exceeded is set so the caller can degrade gracefully (report a
+    partial result) instead of relying on an external job timeout to cancel
+    the whole run with zero output.
     """
     verify_fn = verify_fn if verify_fn is not None else verify_url
+    all_entries = list(_iter_entries(target_map))
     regressions: list[dict[str, Any]] = []
+    entries_checked = 0
+    budget_exceeded = False
+    start = _now_fn()
 
-    for subdomain, section, key, entry in _iter_entries(target_map):
+    for subdomain, section, key, entry in all_entries:
         if entry.get("http_status") != 200:
             continue  # only watching for 200 -> not-200 drift, matching the registry's own gate semantics
 
         url = entry.get("url")
         if not url:
             continue
+
+        if _now_fn() - start >= _TIME_BUDGET_SECONDS:
+            budget_exceeded = True
+            break
+
+        entries_checked += 1
 
         first_status, _chain, _resolved, _via, _retries = verify_fn(url, session)
         if first_status == 200:
@@ -155,10 +209,19 @@ def check_for_regressions(
             "confirmed_status": second_status,
         })
 
-    return regressions
+    checkable_total = sum(1 for _, _, _, e in all_entries if e.get("http_status") == 200 and e.get("url"))
+    entries_skipped = checkable_total - entries_checked
+
+    return RegressionCheckResult(
+        regressions=regressions,
+        entries_checked=entries_checked,
+        entries_skipped=entries_skipped,
+        total_entries=checkable_total,
+        budget_exceeded=budget_exceeded,
+    )
 
 
-def format_issue_body(regressions: list[dict[str, Any]]) -> str:
+def format_issue_body(result: RegressionCheckResult) -> str:
     lines = [
         "## aspose.com Backlink Target Registry — Confirmed Status Regressions",
         "",
@@ -181,10 +244,26 @@ def format_issue_body(regressions: list[dict[str, Any]]) -> str:
         "path (CLAUDE.md isolated-temp-index git-plumbing).",
         "4. File/update a backlog row citing this issue.",
         "",
-        "### Findings",
-        "",
     ]
-    for r in regressions:
+    if result.budget_exceeded:
+        lines += [
+            "### ⚠ Partial run — time budget exceeded",
+            "",
+            f"This run checked {result.entries_checked}/{result.total_entries} "
+            f"live entries before hitting its internal time budget "
+            f"({_TIME_BUDGET_SECONDS}s) and stopped early rather than risk "
+            f"the workflow's own job timeout cancelling it outright (see "
+            f"MT022 pilot-rerun Finding C, run 31120889071, cancelled with "
+            f"zero output after 15m03s). **{result.entries_skipped} entries "
+            f"were not checked this run** and may hide an undetected "
+            f"regression. Re-run `workflow_dispatch` manually, or wait for "
+            f"tomorrow's scheduled run, to get full coverage.",
+            "",
+        ]
+    lines += ["### Findings", ""]
+    if not result.regressions:
+        lines.append("_No confirmed regressions among the entries checked this run._")
+    for r in result.regressions:
         lines.append(
             f"- **{r['subdomain']} / {r['key']}** ({r['section']}): {r['url']} "
             f"— was 200, now confirmed {r['confirmed_status']} "
@@ -217,14 +296,27 @@ def main(
     session = requests.Session()  # metrics-scan-exempt: web-scraping transport, not professionalize LLM
     session.headers.update({"User-Agent": USER_AGENT})
 
-    regressions = check_for_regressions(target_map, session, verify_fn=verify_fn)
+    result = check_for_regressions(target_map, session, verify_fn=verify_fn)
 
-    if not regressions:
+    if not result.regressions and not result.budget_exceeded:
         print("aspose_com_targets_watch: no confirmed regressions (all previously-200 entries still resolve, "
               "or single-observation dips didn't reconfirm on independent recheck). Nothing to report.")
         return 0
 
-    body = format_issue_body(regressions)
+    if result.budget_exceeded:
+        # Report-worthy even with zero confirmed regressions (TC-09): a silent
+        # partial run is exactly the failure mode this exists to prevent --
+        # see RegressionCheckResult's own docstring and MT022 pilot-rerun
+        # Finding C.
+        print(
+            f"aspose_com_targets_watch: TIME BUDGET EXCEEDED -- checked "
+            f"{result.entries_checked}/{result.total_entries} entries, "
+            f"{result.entries_skipped} skipped. {len(result.regressions)} "
+            f"confirmed regression(s) among those checked.",
+            file=sys.stderr,
+        )
+
+    body = format_issue_body(result)
     print(body)
     if args.issue_body_out:
         Path(args.issue_body_out).write_text(body, encoding="utf-8")
