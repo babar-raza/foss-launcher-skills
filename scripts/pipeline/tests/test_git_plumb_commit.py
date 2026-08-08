@@ -156,6 +156,88 @@ def test_no_push_mode_creates_commit_without_pushing(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# .gitignore warnings (TC-H04, found live 2026-08-06: this tool force-tracked
+# 8 gitignored /.supervisor/state/ files with zero feedback)
+# ---------------------------------------------------------------------------
+
+def test_warns_on_gitignored_file_but_still_commits(tmp_path, capsys):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / ".gitignore").write_text("ignored/\n", encoding="utf-8")
+    _git(work, "add", ".gitignore")
+    _git(work, "commit", "-q", "-m", "add gitignore")
+    (work / "ignored").mkdir()
+    (work / "ignored" / "secret.txt").write_text("s", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["ignored/secret.txt"], "force-track a gitignored file",
+        repo_root=work, branch="main", remote=str(bare), skip_stale_check=True,
+    )
+
+    assert result["gitignore_warnings"] == ["ignored/secret.txt"]
+    assert "WARNING" in capsys.readouterr().err
+    assert result["pushed"] is True  # non-fatal -- commit still proceeds
+    show = _git(bare, "show", f"{result['commit_sha']}:ignored/secret.txt")
+    assert show.stdout == "s"
+
+
+def test_ack_gitignored_silences_the_warning(tmp_path, capsys):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / ".gitignore").write_text("ignored/\n", encoding="utf-8")
+    _git(work, "add", ".gitignore")
+    _git(work, "commit", "-q", "-m", "add gitignore")
+    (work / "ignored").mkdir()
+    (work / "ignored" / "secret.txt").write_text("s", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["ignored/secret.txt"], "intentionally force-track",
+        repo_root=work, branch="main", remote=str(bare), skip_stale_check=True,
+        ack_gitignored=["ignored/secret.txt"],
+    )
+
+    assert result["gitignore_warnings"] == []
+    assert "WARNING" not in capsys.readouterr().err
+    assert result["pushed"] is True
+
+
+def test_no_warning_for_a_normal_tracked_path(tmp_path, capsys):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "normal.txt").write_text("v", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["normal.txt"], "normal commit", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True,
+    )
+
+    assert result["gitignore_warnings"] == []
+    assert "WARNING" not in capsys.readouterr().err
+
+
+def test_cli_ack_gitignored_flag_silences_warning(tmp_path, monkeypatch, capsys):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / ".gitignore").write_text("ignored/\n", encoding="utf-8")
+    _git(work, "add", ".gitignore")
+    _git(work, "commit", "-q", "-m", "add gitignore")
+    (work / "ignored").mkdir()
+    (work / "ignored" / "secret.txt").write_text("s", encoding="utf-8")
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text("chore: cli ack test", encoding="utf-8")
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--files", "ignored/secret.txt",
+        "--message-file", str(msg_file),
+        "--skills", "S-99", "--plan", "cli ack test",
+        "--branch", "main", "--remote", str(bare),
+        "--skip-stale-check", "--no-push",
+        "--ack-gitignored", "ignored/secret.txt",
+    ])
+
+    assert rc == 0
+    assert "WARNING" not in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
 # Stale-file regression blocking
 # ---------------------------------------------------------------------------
 

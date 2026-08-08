@@ -134,6 +134,41 @@ def _git(args: list[str], *, repo_root: Path, check: bool = True) -> "subprocess
     return result
 
 
+def _gitignored_files(files: list[str], *, repo_root: Path) -> list[str]:
+    """Return the subset of `files` matched by .gitignore. `git add -f`
+    (used below) silently overrides .gitignore by design -- that is
+    sometimes exactly right (e.g. this repo's own /knowledge/_overrides
+    precedent) and sometimes a mistake with no feedback at all. Found live
+    2026-08-06: this exact tool force-tracked 8 files under
+    /.supervisor/state/ -- documented in this repo's own .gitignore as
+    "Local Supervisor Control Plane, runtime state only" -- into git and
+    pushed them, because --files was never checked against .gitignore
+    before staging. `git check-ignore` exits 1 (not an error) when none of
+    the given paths are ignored -- checked via returncode, not raised.
+
+    Paths are passed as ARGUMENTS, not via --stdin: on Windows,
+    subprocess text-mode stdin translates a "\\n"-joined input to "\\r\\n"
+    before git ever sees it, embedding a literal "\\r" into each path git
+    reads -- which git then C-quotes in its output as an "unusual"
+    filename character (e.g. `"ignored/secret.txt\\r"`), breaking exact-
+    match comparison against ack_gitignored. Found live via this change's
+    own tests. Passing paths as argv sidesteps the whole translation path.
+    """
+    if not files:
+        return []
+    result = _COMMAND_RUNNER(
+        ["git", "check-ignore", *files], cwd=str(repo_root),
+        capture_output=True, text=True,
+    )
+    if result.returncode not in (0, 1):
+        # check-ignore itself failed (e.g. not a git repo) -- fail open,
+        # same policy as the stale-file regression check's own base_sha
+        # resolution failure: this tool's own infrastructure being
+        # unavailable must never block an unrelated commit.
+        return []
+    return [line for line in result.stdout.splitlines() if line]
+
+
 def _check_for_regressions(
     files: list[str], base_sha: "str | None", *, repo_root: Path,
 ) -> list[dict]:
@@ -166,6 +201,7 @@ def plumb_commit(
     session_id: "str | None" = None,
     skip_stale_check: bool = False,
     push: bool = True,
+    ack_gitignored: "list[str] | None" = None,
 ) -> dict[str, Any]:
     """Perform the full isolated git-plumbing commit sequence atomically:
     stale-file regression check -> temp-index build -> write-tree ->
@@ -187,13 +223,23 @@ def plumb_commit(
         name). Defaults to "origin" -- this repo has exactly one configured
         remote in every real production use of this tool.
 
-    Returns a result dict: {head_sha, tree_sha, commit_sha, pushed, files}.
-    Raises PlumbCommitBlocked if an uncovered regression is found, or
-    PlumbCommitError for any git operation failure.
+    ack_gitignored: paths the caller explicitly knows are .gitignore-matched
+        and intends to force-track anyway (e.g. a legitimate override
+        precedent like /knowledge/_overrides). Any OTHER staged path that
+        matches .gitignore prints a non-fatal WARNING to stderr and is
+        listed in the returned dict's "gitignore_warnings" -- found live
+        2026-08-06: this tool force-tracked 8 files under the gitignored
+        /.supervisor/state/ with zero feedback, because .gitignore was
+        never checked against --files before staging.
+
+    Returns a result dict: {head_sha, tree_sha, commit_sha, pushed, files,
+    gitignore_warnings}. Raises PlumbCommitBlocked if an uncovered
+    regression is found, or PlumbCommitError for any git operation failure.
     """
     root = Path(repo_root) if repo_root is not None else _REPO_ROOT
     if remote_name is None:
         remote_name = "origin"
+    ack_set = set(ack_gitignored or [])
 
     head_sha = _git(["rev-parse", "HEAD"], repo_root=root).stdout.strip()
 
@@ -202,6 +248,15 @@ def plumb_commit(
         uncovered = _check_for_regressions(files, resolved_base_sha, repo_root=root)
         if uncovered:
             raise PlumbCommitBlocked(uncovered)
+
+    gitignore_warnings = [f for f in _gitignored_files(files, repo_root=root) if f not in ack_set]
+    for f in gitignore_warnings:
+        print(
+            f"WARNING: {f} matches .gitignore and will be force-tracked by this commit "
+            f"(git add -f). If this is intentional, pass --ack-gitignored {f} to silence "
+            f"this warning; if not, remove it from --files.",
+            file=sys.stderr,
+        )
 
     tmp_index_fd, tmp_index_path = tempfile.mkstemp(prefix="git_plumb_index_")
     os.close(tmp_index_fd)
@@ -245,6 +300,7 @@ def plumb_commit(
         "commit_sha": commit_sha,
         "pushed": pushed,
         "files": list(files),
+        "gitignore_warnings": gitignore_warnings,
     }
 
 
@@ -302,6 +358,10 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--session-id", default=None)
     parser.add_argument("--skip-stale-check", action="store_true")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
+    parser.add_argument("--ack-gitignored", nargs="+", default=None,
+                        help="Paths in --files that are intentionally .gitignore-matched "
+                             "(e.g. a legitimate override precedent) -- silences the "
+                             "warning for exactly these paths, not the whole run.")
     args = parser.parse_args(argv)
 
     if args.message and args.message_file:
@@ -321,6 +381,7 @@ def main(argv: "list[str] | None" = None) -> int:
             branch=args.branch, remote=args.remote,
             base_sha=args.base_sha, session_id=args.session_id,
             skip_stale_check=args.skip_stale_check, push=not args.no_push,
+            ack_gitignored=args.ack_gitignored,
         )
     except PlumbCommitBlocked as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)
