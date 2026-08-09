@@ -499,6 +499,20 @@ def _product_api_surface(family: str, platform: str) -> str:
     return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
 
 
+def _product_reference_dir(family: str, platform: str) -> Path:
+    """MT027 (2026-08-09): the real, already-graded reference.aspose.org content directory for
+    this product. May not exist for every product -- callers must check/handle absence, same
+    posture as every other best-effort source in this module."""
+    return _repo_root / "content" / "reference.aspose.org" / "en" / family / platform
+
+
+def _product_reference_index_md(family: str, platform: str) -> str:
+    """MT027 (2026-08-09): raw `_index.md` text for `parse_reference_api_index`. `""` if
+    absent -- graceful degradation, same posture as `_product_formats_md`/`_product_api_surface`."""
+    path = _product_reference_dir(family, platform) / "_index.md"
+    return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
+
+
 def _detect_capability_dependencies(family: str, platform: str) -> "list | None":
     path = _repo_root / "data" / "diagram_capability_dependencies.json"
     if not path.is_file():
@@ -626,6 +640,9 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "old_readme_inventory": _old_readme_inventory(clone_cache),
             "homepage": f"https://products.aspose.org/{family}/{platform}/",
             "banner_url": f"https://products.aspose.org/media/{family}/{platform}/banner-readme.png",
+            "reference_api_index": checks.parse_reference_api_index(
+                _product_reference_index_md(family, platform)
+            ),
             "documentation_links": {
                 "docs": f"https://docs.aspose.org/{family}/{platform}/",
                 "kb": f"https://kb.aspose.org/{family}/{platform}/",
@@ -827,11 +844,31 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     }
     result["process_narration_smells"] = {"hard_gate": False, "findings": checks.check_process_narration_smells(text)}
     result["enterprise_edition_naming"] = {"hard_gate": False, "findings": checks.check_enterprise_edition_naming(text)}
-    result["api_reference_intro_names_classes"] = {
-        "hard_gate": False, "findings": checks.check_api_reference_intro_names_classes(text),
+
+    # MT027 (2026-08-09): API Reference grounded in reference.aspose.org's own graded content.
+    # check_api_reference_intro_names_classes is retired -- absorbed into check_api_reference_
+    # classes_exist_in_reference_site (now a hard gate; see that function's own docstring for
+    # why real class-name verification justifies the elevation from the old heuristic).
+    reference_index = checks.parse_reference_api_index(
+        _product_reference_index_md(family, platform)
+    )
+    reference_class_names = {
+        row["class"] for rows in reference_index.values() for row in rows
+    }
+    result["api_reference_classes_exist"] = {
+        "hard_gate": True,
+        "findings": checks.check_api_reference_classes_exist_in_reference_site(
+            text, reference_class_names, str(clone_cache)
+        ),
+    }
+    result["no_leaked_docstring_artifacts"] = {
+        "hard_gate": False, "findings": checks.check_no_leaked_docstring_artifacts(text),
     }
     result["named_member_accuracy"] = {
-        "hard_gate": False, "findings": checks.check_named_member_accuracy(text, str(clone_cache)),
+        "hard_gate": False,
+        "findings": checks.check_named_member_accuracy(
+            text, str(clone_cache), reference_dir=str(_product_reference_dir(family, platform))
+        ),
     }
     return result
 

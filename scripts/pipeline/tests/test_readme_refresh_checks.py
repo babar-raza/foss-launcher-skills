@@ -1300,26 +1300,34 @@ def test_check_named_member_accuracy_skips_class_with_no_candidate_files(tmp_pat
     assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
 
 
-def test_check_api_reference_intro_names_classes_flags_type_count_filler():
+# check_api_reference_intro_names_classes was retired 2026-08-09 (MT027), absorbed into
+# check_api_reference_classes_exist_in_reference_site -- ported below, same intent, called with
+# reference_class_names=None so only the (unchanged-logic) bad-pattern half runs.
+
+
+def test_check_api_reference_classes_flags_type_count_filler():
     text = '## API reference\n\nThe library ships 193 public types. Selected entry points:\n\n<details>\n'
-    assert checks.check_api_reference_intro_names_classes(text) is True
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, None)
+    assert any("bare type-count filler" in f["reason"] for f in findings)
 
 
-def test_check_api_reference_intro_names_classes_flags_bare_wildcard():
+def test_check_api_reference_classes_flags_bare_wildcard():
     text = "## API reference\n\nThe supported public entry point is `aspose.email_foss.msg.*`.\n\n<details>\n"
-    assert checks.check_api_reference_intro_names_classes(text) is True
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, None)
+    assert any("bare namespace/package wildcard" in f["reason"] for f in findings)
 
 
-def test_check_api_reference_intro_names_classes_passes_real_hub_class():
+def test_check_api_reference_classes_passes_real_hub_class():
     text = "## API reference\n\nThe primary entry point is `Workbook`, which owns a `WorksheetCollection`.\n\n<details>\n"
-    assert checks.check_api_reference_intro_names_classes(text) is False
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, None) == []
 
 
-def test_check_api_reference_intro_names_classes_matches_title_cased_heading():
+def test_check_api_reference_classes_matches_title_cased_heading():
     # Same regression class as check_examples_table_collapsed/check_section_job_distinctness:
     # this section matcher was hardcoded to lowercase "## API reference".
     text = "## API Reference\n\nThe library ships 193 public types. Selected entry points:\n\n<details>\n"
-    assert checks.check_api_reference_intro_names_classes(text) is True
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, None)
+    assert any("bare type-count filler" in f["reason"] for f in findings)
 
 
 _MECHANISM_DUPLICATE_DIAGRAM = _wrap(
@@ -1784,3 +1792,303 @@ def test_banner_present_flags_wrong_position():
     )
     findings = checks.check_banner_present(text, "cells", "cpp")
     assert findings and "expected a banner image line" in findings[0]["reason"]
+
+
+# --- MT027 (2026-08-09): ground API Reference in reference.aspose.org's own graded content ----
+
+# Real content shape, captured from a direct read of content/reference.aspose.org/en/tex/python/
+# _index.md and TeXJob.md (frontmatter trimmed to the essentials needed to exercise
+# _strip_frontmatter; body content reproduced close to verbatim, including the real confirmed
+# leaked-docstring defect in the TeXOptions row).
+_REAL_TEX_PYTHON_INDEX_MD = """---
+linkTitle: Python
+title: Aspose.TeX FOSS for Python
+grade: A
+evidence:
+  claims: []
+  apis: []
+---
+
+API reference for **Aspose.Tex FOSS for Python** v26.5. 11 public types organized by module.
+
+## Core API
+
+| Class | Description |
+|---|---|
+| `AsposeTeXError` | Base exception for all aspose_tex errors. |
+| `EngineError` | Raised for TeX engine errors. |
+
+---
+
+## Presentation
+
+| Class | Description |
+|---|---|
+| `DviDevice` | DVI output device -- wraps ``DviWriter``. |
+| `TeXJob` | Main entry point for processing TeX input. |
+| `TeXOptions` | r\"\"\"Configuration for a TeX processing job. |
+
+### Enumerations
+
+| Enumeration | Description |
+|---|---|
+| `OutputFormat` | Supported output formats. |
+
+---
+
+## See Also
+
+- [Aspose.Tex -- Enterprise API Reference](https://reference.aspose.com/tex/)
+"""
+
+_REAL_TEXJOB_CLASS_PAGE_MD = """---
+linkTitle: TeXJob
+title: TeXJob
+grade: A
+evidence:
+  apis:
+  - TeXJob
+  - TeXJob.__init__
+  - TeXJob.messages
+  - TeXJob.run
+---
+
+## Overview
+
+`TeXJob` is a class in Aspose.Tex FOSS for Python.
+
+## Properties
+
+| Name | Type | Access | Description |
+|------|------|--------|-------------|
+| `messages` | `list[str]` | Read | Gets the messages. |
+
+## Methods
+
+| Signature | Description |
+|-----------|-------------|
+| `__init__(source: InputSource, device: OutputDevice, options: TeXOptions \\| None)` |  |
+| `run()` → `bytes \\| None` |  |
+
+## See Also
+
+- [Aspose.TeX for Python -- Enterprise API Reference](https://reference.aspose.com/tex/python-net/)
+"""
+
+
+def test_parse_reference_api_index_real_tex_python_shape():
+    index = checks.parse_reference_api_index(_REAL_TEX_PYTHON_INDEX_MD)
+    # "See Also" is a real ## header too (a bullet list, not a class table) -- it correctly ends
+    # up as an empty-list module rather than being special-cased out, since it pollutes nothing.
+    assert index.get("See Also") == []
+    core_classes = {row["class"] for row in index["Core API"]}
+    assert core_classes == {"AsposeTeXError", "EngineError"}
+    presentation_classes = {row["class"] for row in index["Presentation"]}
+    # Enumerations sub-table folds into the same parent module.
+    assert presentation_classes == {"DviDevice", "TeXJob", "TeXOptions", "OutputFormat"}
+    # Internal-only frontmatter (grade/evidence) must never leak into the parsed result.
+    assert "grade" not in str(index) and "evidence" not in str(index)
+
+
+def test_parse_reference_api_index_empty_on_blank_input():
+    assert checks.parse_reference_api_index("") == {}
+    assert checks.parse_reference_api_index(None) == {}
+
+
+def test_parse_reference_class_page_real_texjob_shape():
+    parsed = checks.parse_reference_class_page(_REAL_TEXJOB_CLASS_PAGE_MD)
+    assert parsed["properties"] == ["messages"]
+    assert parsed["methods"] == ["__init__", "run"]
+
+
+def test_parse_reference_class_page_empty_on_blank_input():
+    assert checks.parse_reference_class_page("") == {"properties": [], "methods": []}
+
+
+def test_api_reference_classes_exist_clean_when_all_cited_classes_are_real():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n"
+            "The primary entry point is `TeXJob`.\n\n"
+            "- `TeXJob`\n  - `run()`\n"
+        ),
+    )
+    reference_names = {"TeXJob", "TeXOptions", "AsposeTeXError"}
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, reference_names) == []
+
+
+def test_api_reference_classes_exist_ignores_method_call_in_intro_sentence():
+    # Regression test: found live during MT027's own Phase 1 pilot sanity pass -- pdf/cpp's
+    # real intro sentence "...and its `Pages()` collection" was false-positived as citing a
+    # fabricated class "Pages", because the method-call parens were stripped before the
+    # PascalCase check. A backtick token WITH invocation parens is a method reference, not a
+    # class-name candidate, even when PascalCase.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n"
+            "The core API is built around the `Document` class and its `Pages()` collection.\n\n"
+            "- `Document`\n  - `Pages() -> PageCollection`\n"
+        ),
+    )
+    reference_names = {"Document"}
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, reference_names)
+    assert not any(f.get("class_name") == "Pages" for f in findings)
+
+
+def test_api_reference_classes_exist_flags_fabricated_class():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n"
+            "The primary entry point is `TeXJob`.\n\n"
+            "- `FakeClassThatDoesNotExist`\n  - `run()`\n"
+        ),
+    )
+    reference_names = {"TeXJob", "TeXOptions", "AsposeTeXError"}
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, reference_names)
+    assert any(f["class_name"] == "FakeClassThatDoesNotExist" for f in findings)
+
+
+def test_api_reference_classes_exist_confirms_via_clone_cache_when_reference_index_incomplete(tmp_path):
+    # Regression test: found live during MT027's own Phase 1 pilot sanity pass -- a class real
+    # and already source-verified (tex/python's FontManager) but genuinely absent from
+    # reference.aspose.org's own generated index for that product must NOT be flagged, as long
+    # as the clone-cache source confirms it's real.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "font_manager.py").write_text("class FontManager:\n    pass\n", encoding="utf-8")
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\n- `FontManager`\n  - `load_font()`\n",
+    )
+    reference_names = {"TeXJob", "TeXOptions"}  # a real, but incomplete, reference index
+    findings = checks.check_api_reference_classes_exist_in_reference_site(
+        text, reference_names, str(tmp_path)
+    )
+    assert findings == []
+
+
+def test_api_reference_classes_exist_flags_fabricated_class_confirmed_by_neither_source(tmp_path):
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\n- `TotallyFakeClass`\n  - `run()`\n",
+    )
+    reference_names = {"TeXJob"}
+    findings = checks.check_api_reference_classes_exist_in_reference_site(
+        text, reference_names, str(tmp_path)  # empty dir -- clone-cache confirms nothing either
+    )
+    assert any(f["class_name"] == "TotallyFakeClass" for f in findings)
+
+
+def test_api_reference_classes_exist_noop_when_no_reference_data():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\n- `AnyClassAtAll`\n  - `run()`\n",
+    )
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, None) == []
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, set()) == []
+
+
+def test_no_leaked_docstring_artifacts_flags_real_texoptions_case():
+    # The real, confirmed defect: a raw-string triple-quote prefix leaked into prose.
+    text = "Some prose.\n\nr\"\"\"Configuration for a TeX processing job.\n\nMore prose."
+    findings = checks.check_no_leaked_docstring_artifacts(text)
+    assert findings and "leaked raw Python docstring delimiter" in findings[0]["reason"]
+
+
+def test_no_leaked_docstring_artifacts_clean_on_ordinary_prose():
+    text = "This library parses TeX/LaTeX source and produces PDF, DVI, and SVG output."
+    assert checks.check_no_leaked_docstring_artifacts(text) == []
+
+
+def test_no_leaked_docstring_artifacts_ignores_fenced_code_blocks():
+    # A real Python code example legitimately showing a docstring must not be flagged.
+    text = '```python\ndef f():\n    r"""A real docstring in a real code example."""\n```\n'
+    assert checks.check_no_leaked_docstring_artifacts(text) == []
+
+
+def test_named_member_accuracy_prefers_reference_page_over_clone_cache(tmp_path):
+    reference_dir = tmp_path / "reference"
+    reference_dir.mkdir()
+    (reference_dir / "TeXJob.md").write_text(_REAL_TEXJOB_CLASS_PAGE_MD, encoding="utf-8")
+    # No clone_cache_root needed -- the reference page must take precedence and be sufficient.
+    readme = "- `TeXJob`\n  - `run()`\n  - `messages`\n"
+    findings = checks.check_named_member_accuracy(
+        readme, str(tmp_path / "nonexistent_clone_cache"), reference_dir=str(reference_dir)
+    )
+    assert findings == []
+
+
+def test_named_member_accuracy_flags_fabricated_member_via_reference_page(tmp_path):
+    reference_dir = tmp_path / "reference"
+    reference_dir.mkdir()
+    (reference_dir / "TeXJob.md").write_text(_REAL_TEXJOB_CLASS_PAGE_MD, encoding="utf-8")
+    readme = "- `TeXJob`\n  - `run()`\n  - `fake_method_not_on_this_class()`\n"
+    findings = checks.check_named_member_accuracy(
+        readme, str(tmp_path / "nonexistent_clone_cache"), reference_dir=str(reference_dir)
+    )
+    assert len(findings) == 1
+    assert "fake_method_not_on_this_class" in findings[0]["member"]
+    assert "reference.aspose.org" in findings[0]["reason"]
+
+
+def test_named_member_accuracy_falls_back_to_clone_cache_when_no_reference_page(tmp_path):
+    # No reference_dir given at all -- must behave exactly as before MT027.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "worksheet.h").write_text(
+        "class Worksheet final {\npublic:\n    void SetName(std::string_view value);\n};\n",
+        encoding="utf-8",
+    )
+    readme = "- `Worksheet`\n  - `SetName(value)`\n"
+    assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []

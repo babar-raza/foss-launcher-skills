@@ -178,6 +178,10 @@ def _make_scratch_repo(tmp_path):
     (upstream_dir / "README.md").write_text(_OLD_UPSTREAM_README, encoding="utf-8")
     (upstream_dir / "AGENTS.md").write_text("# Contributor guide\n", encoding="utf-8")
     (upstream_dir / "LICENSE").write_text("MIT License\n\nCopyright ...\n", encoding="utf-8")
+    # MT027: a real source declaration so check_api_reference_classes_exist_in_reference_site's
+    # clone-cache fallback (and check_named_member_accuracy) can confirm `TestClass` is real --
+    # there is no reference.aspose.org fixture for "testfam/testplat", so this is the only source.
+    (upstream_dir / "test_class.py").write_text("class TestClass:\n    pass\n", encoding="utf-8")
     _run_git(["init", "-q", "-b", "main"], upstream_dir)
     _run_git(["config", "user.email", "test@example.com"], upstream_dir)
     _run_git(["config", "user.name", "Test"], upstream_dir)

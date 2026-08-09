@@ -1525,7 +1525,9 @@ _BACKTICK_MEMBER_RE = re.compile(r"`([A-Za-z_]\w*(?:\([^)]*\))?)`")
 _SUB_BULLET_LINE_RE = re.compile(r"^ +-\s+(.+)$")
 
 
-def check_named_member_accuracy(readme_text: str, clone_cache_root: str) -> list[dict]:
+def check_named_member_accuracy(
+    readme_text: str, clone_cache_root: str, reference_dir: str | None = None
+) -> list[dict]:
     """Heuristic accuracy check for the API reference's real on-disk bullet convention: a
     top-level `` - `ClassName` [— description] `` bullet followed by zero or more MORE-INDENTED
     sub-bullet lines listing that class's real members (either one signature per line, e.g.
@@ -1561,9 +1563,20 @@ def check_named_member_accuracy(readme_text: str, clone_cache_root: str) -> list
     candidate source file for their class. Returns [] (not an error) if a class name has zero
     candidate source files -- that's a "couldn't verify" case for the human/agent pass, not a
     fabrication claim this heuristic can respons­ibly make on no evidence.
+
+    `reference_dir` (added 2026-08-09, MT027): the directory `content/reference.aspose.org/en/
+    {family}/{platform}/`, if given. When a partial-class page (`{reference_dir}/{ClassName}.md`)
+    exists for a cited class, it becomes the PREFERRED evidence source for that class -- real,
+    already-graded `## Properties`/`## Methods` tables (`parse_reference_class_page`) instead of
+    a raw clone-cache grep, since a real signature/property table is stronger evidence than
+    "this token appears somewhere in the file's text." The clone-cache-grep path stays the
+    fallback for any class with no reference-site page, exactly matching MT025's own "primary
+    signal, cheaper fallback" precedent for `api_surface.json` vs. clone-cache filename search.
+    `None` (the default) preserves this function's exact prior behavior, unchanged.
     """
     root = Path(clone_cache_root)
-    if not root.is_dir():
+    ref_dir = Path(reference_dir) if reference_dir else None
+    if not root.is_dir() and not (ref_dir and ref_dir.is_dir()):
         return []
 
     lines = readme_text.splitlines()
@@ -1586,6 +1599,25 @@ def check_named_member_accuracy(readme_text: str, clone_cache_root: str) -> list
             continue
 
         for class_name in filter(None, (class_a, class_b)):
+            reference_page = ref_dir / f"{class_name}.md" if ref_dir else None
+            if reference_page is not None and reference_page.is_file():
+                parsed = parse_reference_class_page(
+                    reference_page.read_text(encoding="utf-8", errors="ignore")
+                )
+                known_members = set(parsed["properties"]) | set(parsed["methods"])
+                for member in members:
+                    member_token = member.split("(")[0].split(":")[0].strip()
+                    if member_token and member_token not in known_members:
+                        findings.append({
+                            "class_name": class_name,
+                            "member": member,
+                            "reason": f"not found in {class_name}'s real reference.aspose.org "
+                                      "Properties/Methods tables",
+                        })
+                continue  # reference-site evidence takes precedence; skip the grep fallback
+
+            if not root.is_dir():
+                continue
             candidate_files = _find_class_source_files(root, class_name)
             if not candidate_files:
                 continue  # no evidence either way -- not a fabrication claim, skip silently
@@ -1638,33 +1670,254 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     return found
 
 
-_API_REF_INTRO_BAD_A_RE = re.compile(r"ships \d+ public types\.\s*Selected entry points:", re.IGNORECASE)
-_API_REF_INTRO_BAD_B_RE = re.compile(r"`\w[\w.]*\.\*`?\s*\.?\s*$")
+# check_api_reference_intro_names_classes (2026-08-05) was RETIRED 2026-08-09 (MT027) --
+# absorbed into check_api_reference_classes_exist_in_reference_site (below), which runs the
+# same two bad-pattern checks PLUS real class-name verification against reference.aspose.org,
+# and was elevated from heuristic to hard gate now that class-name verification makes the
+# underlying question mechanically decidable. See that function's docstring for the full
+# rationale. _API_REF_SECTION_RE (the intro-only section extractor) is kept -- still used there.
 _API_REF_SECTION_RE = re.compile(
     r"^##\s+API reference\s*$(.*?)(?=<details>|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
 
 
-def check_api_reference_intro_names_classes(readme_text: str) -> bool:
-    """Flag the "## API reference" intro sentence (text between the H2 heading and its
-    <details> fold) when it matches either confirmed bad form: a bare "ships N public types.
-    Selected entry points:" filler, or a bare trailing `namespace.*`/`package.*` wildcard with
-    no backtick-quoted class name elsewhere in the sentence. Heuristic -- a hit is a prompt for
-    the mandatory judgment pass to rewrite the sentence naming the product's real hub class(es),
-    never an automatic fail (naming a real hub class is a content-quality judgment call).
+# --- MT027 (2026-08-09): ground `## API Reference` in reference.aspose.org's own graded
+# content. See check_api_reference_classes_exist_in_reference_site's docstring for the full
+# design rationale.
+
+_FRONTMATTER_BOUNDS_RE = re.compile(r"^---\s*$", re.MULTILINE)
+_REF_INDEX_MODULE_HEADER_RE = re.compile(r"^##\s+(.+?)\s*$")
+_REF_INDEX_TABLE_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*(.*?)\s*\|\s*$")
+_REF_CLASS_PROPERTY_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|")
+_REF_CLASS_METHOD_ROW_RE = re.compile(r"^\|\s*`([A-Za-z_][A-Za-z0-9_]*)\s*\(")
+
+
+def _strip_frontmatter(text: str) -> str:
+    """Strip a leading `---\\n...\\n---\\n` YAML frontmatter block, if present. Shared by both
+    reference.aspose.org parsers below -- the `evidence`/`grade`/`provenance` fields inside it
+    are internal-only (this repo's own established rule) and must never reach either parser's
+    output, which ultimately feeds README prose.
     """
-    section_match = _API_REF_SECTION_RE.search(readme_text)
-    if not section_match:
-        return False
-    intro = section_match.group(1)
-    if _API_REF_INTRO_BAD_A_RE.search(intro):
-        return True
-    if _API_REF_INTRO_BAD_B_RE.search(intro.strip()):
-        # Only a defect if no OTHER backtick-quoted class name appears earlier in the sentence.
-        other_backticks = _BACKTICK_MEMBER_RE.findall(intro)
-        if len(other_backticks) <= 1:
-            return True
-    return False
+    matches = list(_FRONTMATTER_BOUNDS_RE.finditer(text))
+    if len(matches) >= 2 and matches[0].start() == 0:
+        return text[matches[1].end():]
+    return text
+
+
+def parse_reference_api_index(index_md_text: str) -> dict[str, list[dict]]:
+    """Parse a `content/reference.aspose.org/en/{family}/{platform}/_index.md`'s real body
+    into `{module_name: [{"class": ..., "description": ...}, ...]}`. Confirmed real structure
+    from 5 direct file reads (2026-08-09): a flat `##`-module-grouped `| Class | Description |`
+    table (module names vary per product -- `Core API`, `Annotations`, `Drawing`, `Facades`,
+    `Forms` for `pdf/cpp`; `Core API`, `Presentation` for `tex/python`), with a `### Enumerations`
+    sub-table nested inside some modules -- folded into the same parent module's list here (both
+    are real, citable public types for the purposes of "does this class/enum name exist").
+
+    Frontmatter (`evidence`/`grade`/`provenance` -- confirmed internal-only, matching this
+    repo's established rule) is stripped before parsing and never appears in the result.
+
+    Returns `{}` for empty input -- callers must treat that as "no reference-site data for this
+    product," never as "this product genuinely has zero public types."
+    """
+    body = _strip_frontmatter(index_md_text or "")
+    index: dict[str, list[dict]] = {}
+    current_module: str | None = None
+    for line in body.splitlines():
+        header_match = _REF_INDEX_MODULE_HEADER_RE.match(line)
+        if header_match:
+            current_module = header_match.group(1).strip()
+            index.setdefault(current_module, [])
+            continue
+        if current_module is None:
+            continue
+        row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
+        if row_match:
+            index[current_module].append({
+                "class": row_match.group(1), "description": row_match.group(2),
+            })
+    return index
+
+
+def parse_reference_class_page(page_md_text: str) -> dict[str, list[str]]:
+    """Parse a `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md` partial-
+    class page's real `## Properties`/`## Methods` tables into `{"properties": [name, ...],
+    "methods": [name, ...]}` -- real, already-graded member names, confirmed from a direct read
+    of `tex/python/TeXJob.md` (real signatures like `` `__init__(source: InputSource, ...)` ``,
+    real property rows like `` `messages` | `list[str]` | Read | ... ``). Frontmatter stripped
+    first, same as `parse_reference_api_index`. Returns `{"properties": [], "methods": []}` for
+    empty/unparseable input.
+    """
+    body = _strip_frontmatter(page_md_text or "")
+    result: dict[str, list[str]] = {"properties": [], "methods": []}
+    section: str | None = None
+    for line in body.splitlines():
+        heading_match = re.match(r"^##\s+(.+?)\s*$", line)
+        if heading_match:
+            title = heading_match.group(1).strip().lower()
+            section = title if title in ("properties", "methods") else None
+            continue
+        if section == "properties":
+            prop_match = _REF_CLASS_PROPERTY_ROW_RE.match(line)
+            if prop_match:
+                result["properties"].append(prop_match.group(1))
+        elif section == "methods":
+            method_match = _REF_CLASS_METHOD_ROW_RE.match(line)
+            if method_match:
+                result["methods"].append(method_match.group(1))
+    return result
+
+
+_FULL_API_REF_SECTION_RE = re.compile(
+    r"^##\s+API Reference\s*$(.*?)(?=^##\s+|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+)
+_PASCAL_CASE_TOKEN_RE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
+
+
+_API_REF_INTRO_BAD_A_RE = re.compile(r"ships \d+ public types\.\s*Selected entry points:", re.IGNORECASE)
+_API_REF_INTRO_BAD_B_RE = re.compile(r"`\w[\w.]*\.\*`?\s*\.?\s*$")
+
+
+def check_api_reference_classes_exist_in_reference_site(
+    readme_text: str,
+    reference_class_names: set[str] | None,
+    clone_cache_root: str | None = None,
+) -> list[dict]:
+    """Hard gate (2026-08-09, MT027; absorbs the retired `check_api_reference_intro_names_
+    classes`, 2026-08-05). Two checks on the `## API Reference` section, combined into one
+    function because both answer the same underlying question -- "is this section's naming of
+    real classes trustworthy" -- at two different strengths:
+
+    1. **Bad-pattern detection** (the original 2026-08-05 heuristic, unchanged logic): the
+       section's intro sentence must not be a bare "ships N public types. Selected entry
+       points:" filler, nor a bare trailing `namespace.*`/`package.*` wildcard with no other
+       backtick-quoted class name elsewhere in the sentence.
+    2. **Real class-name verification** (new, 2026-08-09): every class name cited anywhere in
+       the section (the established `` - `ClassName` [— description] `` bullet convention, plus
+       any backtick-quoted PascalCase token in the intro sentence) must be confirmed by AT LEAST
+       ONE of two independent real sources: this product's own `reference.aspose.org` class
+       index (`reference_class_names`, the flattened `parse_reference_api_index` output), or a
+       real class/struct/interface declaration in the clone-cache source (`clone_cache_root`,
+       reusing `_find_class_source_files` -- the same lookup `check_named_member_accuracy`
+       already uses). This is strictly stronger than (1): a sentence can pass the bad-pattern
+       check by naming a class, while that class is fabricated -- (1) alone would never catch
+       that; this closes the gap, extending this plan's "fabricated capability is the single
+       worst defect class" principle (already enforced for diagram nodes and format claims) to
+       API Reference class citations.
+
+       **Two sources, not one, found live during this function's own Phase 1 pilot sanity pass
+       (2026-08-09) -- not assumed correct on the first design.** A single-source design
+       (reference-index-only) produced real false positives: `tex/python`'s `FontManager`/
+       `FontMetrics`/`InputSource` and `pdf/cpp`'s `IIndexBitmapConverter`/`Pages` are genuine,
+       already-source-verified real classes (confirmed during this plan's own earlier
+       Verification-pass work) that simply don't appear in `reference.aspose.org`'s own
+       generated index for those products -- real coverage gaps in an otherwise-graded source,
+       the same "even structured/graded content isn't infallible" lesson `formats.md` already
+       taught this plan (MT025's Twelfth incident), now confirmed to recur for reference-site
+       coverage too. A class is only flagged as fabricated when NEITHER source confirms it.
+
+    Elevated from (1)'s original heuristic status to a full hard gate now that (2), with its
+    two-source corroboration, makes "is a named class real" reliably decidable, not just a
+    content-quality judgment call -- the same class of elevation this plan already gave
+    `check_process_narration_smells`.
+
+    Class-name verification degrades gracefully when a source is unavailable: `reference_class_
+    names` empty/`None` and/or `clone_cache_root` absent/not-a-directory simply removes that
+    source from consideration (never a hard failure on its own) -- if NEITHER source is
+    available, class-name verification is skipped entirely and only the bad-pattern check runs.
+
+    Returns a list of {"reason": ...} and/or {"class_name", "reason"} findings.
+    """
+    findings: list[dict] = []
+
+    intro_section_match = _API_REF_SECTION_RE.search(readme_text)
+    if intro_section_match:
+        intro = intro_section_match.group(1)
+        if _API_REF_INTRO_BAD_A_RE.search(intro):
+            findings.append({
+                "reason": "API Reference intro sentence is a bare type-count filler "
+                          "('ships N public types. Selected entry points:') -- name the "
+                          "product's real hub class(es) instead",
+            })
+        elif _API_REF_INTRO_BAD_B_RE.search(intro.strip()):
+            other_backticks = _BACKTICK_MEMBER_RE.findall(intro)
+            if len(other_backticks) <= 1:
+                findings.append({
+                    "reason": "API Reference intro sentence is a bare namespace/package "
+                              "wildcard with no real class named elsewhere in the sentence",
+                })
+
+    clone_cache_path = Path(clone_cache_root) if clone_cache_root else None
+    clone_cache_usable = bool(clone_cache_path and clone_cache_path.is_dir())
+    if reference_class_names or clone_cache_usable:
+        section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+        if section_match:
+            section_text = section_match.group(1)
+            cited_classes: set[str] = set()
+            for bullet_match in _CLASS_BULLET_RE.finditer(section_text):
+                for cls in (bullet_match.group(2), bullet_match.group(3)):
+                    if cls:
+                        cited_classes.add(cls)
+            body_intro_text = section_text.split("<details>", 1)[0]
+            for token in _BACKTICK_MEMBER_RE.findall(body_intro_text):
+                # A token WITH invocation parens (e.g. "Pages()") is being cited as a method
+                # call, not a class name, even when it's PascalCase per this API's own naming
+                # convention -- found live in pdf/cpp's real intro sentence ("...and its
+                # `Pages()` collection"), which would otherwise false-positive "Pages" as a
+                # fabricated class. Only a bare token (no parens in the original backtick span)
+                # is treated as a class-name candidate.
+                if "(" in token:
+                    continue
+                if _PASCAL_CASE_TOKEN_RE.match(token):
+                    cited_classes.add(token)
+
+            reference_upper = {c.upper() for c in (reference_class_names or set())}
+            for cls in sorted(cited_classes):
+                if cls.upper() in reference_upper:
+                    continue
+                if clone_cache_usable and _find_class_source_files(clone_cache_path, cls):
+                    continue  # confirmed real by the second source; reference index was just incomplete
+                findings.append({
+                    "class_name": cls,
+                    "reason": f"'{cls}' is named in the API Reference section but is confirmed "
+                              "by neither this product's reference.aspose.org class index nor "
+                              "its real clone-cache source",
+                })
+    return findings
+
+
+_ANY_FENCED_CODE_RE = re.compile(r"```.*?```", re.DOTALL)
+_DOCSTRING_LEAK_RE = re.compile(r'r"""|r\'\'\'|^\s*"""|^\s*\'\'\'', re.MULTILINE)
+
+
+def check_no_leaked_docstring_artifacts(readme_text: str) -> list[dict]:
+    # Heuristic, non-blocking (2026-08-09, MT027) -- same two-tier posture as
+    # check_process_narration_smells. Flags a raw Python docstring delimiter (an r-prefixed
+    # triple-double-quote or triple-single-quote, or a bare triple-quote at the start of a
+    # line) appearing in prose OUTSIDE any fenced code block.
+    #
+    # Generalizes a real, confirmed defect: tex/python/_index.md's own TeXOptions row -- despite
+    # being grade: A in this repo's own reference.aspose.org content -- has its Description
+    # column start with a raw-string triple-quote prefix immediately before real prose text, a
+    # leak from a Python docstring extraction step, undetected by whatever graded that file "A".
+    # If MT027's design copies a reference-site description verbatim into README prose, this
+    # tripwire stops that specific artifact from silently riding along -- the same "verify,
+    # don't blindly trust even a graded/structured source" lesson formats.md already taught this
+    # plan (MT025's Twelfth incident), recurring here for a different content type.
+    #
+    # Returns a list of {"snippet", "reason"} findings.
+    prose_only = _ANY_FENCED_CODE_RE.sub("", readme_text)
+    findings = []
+    for match in _DOCSTRING_LEAK_RE.finditer(prose_only):
+        line_start = prose_only.rfind("\n", 0, match.start()) + 1
+        line_end = prose_only.find("\n", match.end())
+        line_end = line_end if line_end != -1 else len(prose_only)
+        findings.append({
+            "snippet": prose_only[line_start:line_end].strip(),
+            "reason": "prose appears to contain a leaked raw Python docstring delimiter "
+                      f"({match.group(0)!r}) -- likely copied verbatim from a source-extracted "
+                      "description without stripping docstring syntax",
+        })
+    return findings
 
 
 _DELIVERY_MECHANISM_KEYWORDS_RE = re.compile(
