@@ -883,6 +883,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": False,
         "findings": checks.check_no_generic_class_description(text),
     }
+    result["api_reference_truncated_description"] = {
+        "hard_gate": False,
+        "findings": checks.check_no_truncated_class_description(text),
+    }
+    result["api_reference_stripped_example"] = {
+        "hard_gate": False,
+        "findings": checks.check_no_stripped_example_in_description(text),
+    }
     return result
 
 

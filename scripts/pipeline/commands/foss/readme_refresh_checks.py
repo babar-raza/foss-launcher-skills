@@ -1989,8 +1989,14 @@ def check_api_reference_table_completeness(
         }]
     readme_tables = _parse_readme_api_tables(section_match.group(1))
 
+    # A real `##` header in _index.md with zero class rows (e.g. "See Also", a bullet-list
+    # cross-reference section, not a class table -- confirmed real via parse_reference_api_index's
+    # own documented behavior of returning `[]` for such headers) is not a class-table module at
+    # all and has nothing to mirror. Found live during this check's own Phase 1 pilot sanity pass
+    # against tex/python's real content (2026-08-09) -- excluded here rather than assumed away.
     real_modules = {
-        module: {row["class"] for row in rows} for module, rows in reference_index.items()
+        module: {row["class"] for row in rows}
+        for module, rows in reference_index.items() if rows
     }
     table_modules = {module: set(classes) for module, classes in readme_tables.items()}
 
@@ -2027,8 +2033,17 @@ def check_api_reference_table_completeness(
     return findings
 
 
+# Broadened 2026-08-09 during this check's own Phase 1 pilot sanity pass against cells/cpp's
+# real content: reference.aspose.org's filler-text generator has more than one shape, not just
+# "Class with N methods..." -- confirmed real, same file: "Struct with 10 properties.",
+# "Class in the Cells CPP API.", "Struct in the Cells CPP API." (the same fallback pattern
+# applied to structs and to nested/iterator types with no extractable member count at all).
 _GENERIC_CLASS_DESCRIPTION_RE = re.compile(
-    r"^Class with \d+ methods?(?: and \d+ propert(?:y|ies))?\.?$", re.IGNORECASE
+    r"^(?:Class|Struct|Interface|Enumeration)\s+"
+    r"(?:with\s+\d+\s+methods?(?:\s+and\s+\d+\s+propert(?:y|ies))?"
+    r"|with\s+\d+\s+propert(?:y|ies)"
+    r"|in\s+the\s+.+?\s+API)\.?$",
+    re.IGNORECASE,
 )
 
 
@@ -2060,6 +2075,89 @@ def check_no_generic_class_description(readme_text: str) -> list[dict]:
                 "reason": f"'{class_name}' table description is still reference.aspose.org's "
                           "generic filler text -- replace with a real, verified one-line "
                           "description",
+            })
+    return findings
+
+
+# Heuristic, non-blocking (2026-08-09, found live during this check's own Phase 1 pilot sanity
+# pass against html/python's real content -- a 5th confirmed instance, following cells/cpp's
+# DisplayTextLocaleSupport row, of the same defect class: reference.aspose.org's description
+# generator truncates mid-sentence, apparently wherever the original doc comment's example text
+# broke its own table-cell parsing (a literal `[...]`/backtick example). All 5 confirmed
+# instances end in the literal string "e.g." immediately before the closing table cell --
+# `ProcessingInstruction`, `CommentToken`, `EndTagToken`, `StartTagToken` (html/python) plus
+# `DisplayTextLocaleSupport` (cells/cpp, fixed by hand before this pattern was recognized as
+# recurring). A description ending in "e.g." is essentially never a real, complete sentence.
+_TRUNCATED_DESCRIPTION_RE = re.compile(r"\be\.g\.?\s*$", re.IGNORECASE)
+
+
+def check_no_truncated_class_description(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking -- same two-tier posture as `check_no_generic_class_description`.
+    Flags any API Reference table row whose Description column was truncated mid-sentence by
+    reference.aspose.org's own generator (ends in "e.g." with no completing clause) -- a
+    confirmed, recurring defect class, distinct from the generic-filler pattern (this is a
+    *cut-off real sentence*, not a *fallback template*). A hit prompts the composing agent to
+    write the real, complete description (verified against clone-cache source), the same
+    remediation as a generic-filler finding.
+    """
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    findings = []
+    for line in section_match.group(1).splitlines():
+        if _DETAILED_MEMBER_REFERENCE_RE.match(line):
+            break
+        row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
+        if not row_match:
+            continue
+        class_name, description = row_match.group(1), row_match.group(2)
+        if _TRUNCATED_DESCRIPTION_RE.search(description.strip()):
+            findings.append({
+                "class_name": class_name,
+                "reason": f"'{class_name}' table description appears truncated mid-sentence "
+                          "(ends in 'e.g.' with no completing clause) -- replace with the real, "
+                          "complete, verified description",
+            })
+    return findings
+
+
+# Heuristic, non-blocking (2026-08-09, found live during the same Phase 1 pilot sanity pass that
+# found check_no_truncated_class_description's defect class -- a third, distinct reference.
+# aspose.org generator defect, not the same as truncation or generic filler). Confirmed real: 81
+# instances in html/python's own `_index.md` alone, every real `HTMLXxxElement` class whose real
+# RST docstring wraps an HTML-tag example in double backticks (`` `<address>` ``) -- the `<tag>`
+# content is stripped somewhere in the source's own generation pipeline, leaving a bare, visibly
+# broken empty double-backtick span (four consecutive backtick characters) in the rendered
+# description, e.g. "HTML ```` element." instead of "HTML `<address>` element."
+_STRIPPED_EXAMPLE_RE = re.compile(r"````")
+
+
+def check_no_stripped_example_in_description(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking -- same two-tier posture as `check_no_truncated_class_description`.
+    Flags any API Reference table row whose Description column contains an empty double-backtick
+    span (four consecutive backticks) -- reference.aspose.org's generator stripped a real
+    bracketed example (almost always an HTML/XML tag like `<address>`) out of the source
+    docstring, leaving a visibly broken artifact. A hit prompts the composing agent to restore
+    the real example text (verified against clone-cache source), the same remediation as a
+    truncated-description finding.
+    """
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    findings = []
+    for line in section_match.group(1).splitlines():
+        if _DETAILED_MEMBER_REFERENCE_RE.match(line):
+            break
+        row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
+        if not row_match:
+            continue
+        class_name, description = row_match.group(1), row_match.group(2)
+        if _STRIPPED_EXAMPLE_RE.search(description):
+            findings.append({
+                "class_name": class_name,
+                "reason": f"'{class_name}' table description contains an empty double-backtick "
+                          "span (a stripped example, almost always an HTML/XML tag) -- restore "
+                          "the real example text from clone-cache source",
             })
     return findings
 

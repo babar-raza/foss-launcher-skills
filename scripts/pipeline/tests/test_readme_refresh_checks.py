@@ -2149,6 +2149,17 @@ def test_api_reference_table_completeness_noop_when_reference_index_empty():
     assert checks.check_api_reference_table_completeness(text, None) == []
 
 
+def test_api_reference_table_completeness_ignores_real_zero_class_module():
+    # Regression test: found live during this check's own Phase 1 pilot sanity pass against
+    # tex/python's real content (2026-08-09) -- parse_reference_api_index correctly returns a
+    # real "See Also" module with an empty class list (a bullet-list cross-reference section, not
+    # a class table). Requiring the README to mirror it as an empty table would be nonsensical --
+    # a real `##` header with zero rows is not a class-table module at all.
+    reference_index = dict(_API_TABLE_REFERENCE_INDEX, **{"See Also": []})
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_api_reference_table_completeness(text, reference_index) == []
+
+
 def test_api_reference_table_completeness_flags_missing_section_when_reference_data_exists():
     text = _wrap("flowchart TD\n  A --> B")  # no "## API Reference" section at all
     findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
@@ -2197,6 +2208,29 @@ def test_no_generic_class_description_flags_variant_without_properties():
     assert [f["class_name"] for f in findings] == ["Scene"]
 
 
+def test_no_generic_class_description_flags_struct_and_in_the_api_variants():
+    # Regression test: found live during this check's own Phase 1 pilot sanity pass against
+    # cells/cpp's real content (2026-08-09) -- the original regex only matched "Class with N
+    # methods...", missing 3 real, confirmed shapes from the same file: "Struct with N
+    # properties.", "Class in the Cells CPP API.", "Struct in the Cells CPP API." (the same
+    # filler fallback applied to structs and to nested/iterator types with no extractable
+    # member count at all).
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `HuffmanTable` | Struct with 2 methods and 4 properties. |",
+            "| `ParsedNumericFormat` | Struct with 10 properties. |",
+            "| `AutoFilterCustomFilterCollection::Iterator` | Class in the Cells CPP API. |",
+            "| `CaseInsensitiveEqual` | Struct in the Cells CPP API. |",
+        ]),
+    )
+    flagged = {f["class_name"] for f in checks.check_no_generic_class_description(text)}
+    assert flagged == {
+        "HuffmanTable", "ParsedNumericFormat",
+        "AutoFilterCustomFilterCollection::Iterator", "CaseInsensitiveEqual",
+    }
+
+
 def test_no_generic_class_description_clean_on_real_descriptions():
     text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
     assert checks.check_no_generic_class_description(text) == []
@@ -2205,6 +2239,61 @@ def test_no_generic_class_description_clean_on_real_descriptions():
 def test_no_generic_class_description_noop_without_api_reference_section():
     text = _wrap("flowchart TD\n  A --> B")
     assert checks.check_no_generic_class_description(text) == []
+
+
+def test_no_truncated_class_description_flags_real_confirmed_instances():
+    # Regression test: found live during this check's own Phase 1 pilot sanity pass against
+    # html/python's real content (2026-08-09) -- 4 real rows truncated mid-sentence at "e.g.",
+    # a 5th confirmed instance of the same defect class as cells/cpp's DisplayTextLocaleSupport.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `ProcessingInstruction` | A processing instruction node (e.g. |",
+            "| `CommentToken` | A comment token, e.g. |",
+            "| `EndTagToken` | An end tag token, e.g. |",
+            "| `StartTagToken` | A start tag token, e.g. |",
+        ]),
+    )
+    flagged = {f["class_name"] for f in checks.check_no_truncated_class_description(text)}
+    assert flagged == {
+        "ProcessingInstruction", "CommentToken", "EndTagToken", "StartTagToken",
+    }
+
+
+def test_no_truncated_class_description_clean_on_real_descriptions():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_no_truncated_class_description(text) == []
+
+
+def test_no_truncated_class_description_noop_without_api_reference_section():
+    text = _wrap("flowchart TD\n  A --> B")
+    assert checks.check_no_truncated_class_description(text) == []
+
+
+def test_no_stripped_example_in_description_flags_real_confirmed_instances():
+    # Regression test: found live during this check's own Phase 1 pilot sanity pass against
+    # html/python's real content (2026-08-09) -- 81 real rows in that one file had a real
+    # HTML-tag example (e.g. `<address>`) stripped out of a double-backtick RST span somewhere
+    # in reference.aspose.org's own generation pipeline, leaving a visibly broken empty span.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `HTMLAddressElement` | HTML ```` element. |",
+            "| `HTMLOptionsCollection` | Live collection of ```` elements for a ````. |",
+        ]),
+    )
+    flagged = {f["class_name"] for f in checks.check_no_stripped_example_in_description(text)}
+    assert flagged == {"HTMLAddressElement", "HTMLOptionsCollection"}
+
+
+def test_no_stripped_example_in_description_clean_on_real_descriptions():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_no_stripped_example_in_description(text) == []
+
+
+def test_no_stripped_example_in_description_noop_without_api_reference_section():
+    text = _wrap("flowchart TD\n  A --> B")
+    assert checks.check_no_stripped_example_in_description(text) == []
 
 
 def test_find_class_source_files_recognizes_typescript_enum(tmp_path):
