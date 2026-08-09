@@ -1917,6 +1917,153 @@ def check_api_reference_classes_exist_in_reference_site(
     return findings
 
 
+_README_API_MODULE_HEADER_RE = re.compile(r"^###\s+(.+?)\s*$")
+_README_API_SUBHEADER_RE = re.compile(r"^####\s+(.+?)\s*$")
+_DETAILED_MEMBER_REFERENCE_RE = re.compile(r"^####\s+Detailed Member Reference\s*$", re.IGNORECASE)
+
+
+def _parse_readme_api_tables(section_text: str) -> dict[str, list[str]]:
+    """Thirteenth incident / MT028 (2026-08-09). Parses the README's own `## API Reference`
+    section body for the module-grouped `| Class | Description |` table(s) inserted above the
+    untouched curated `#### Detailed Member Reference` bullets (the user's own chosen
+    presentation: table added as new content, existing curated detail preserved unchanged
+    below it). Returns `{module: [class_name, ...]}` -- a real `###` module header starts a new
+    bucket; a `####` sub-header (`Interfaces`/`Enumerations`, when present) does NOT start a new
+    bucket, since `reference_index` (this function's comparison target, from
+    `parse_reference_api_index`) already folds those into their owning module too -- same
+    keying scheme, so this parser mirrors it rather than introducing a second one. Parsing stops
+    at the `#### Detailed Member Reference` marker -- everything after it is the pre-existing
+    curated bullet content this design leaves completely untouched, out of scope here.
+    """
+    tables: dict[str, list[str]] = {}
+    current_module: str | None = None
+    for line in section_text.splitlines():
+        if _DETAILED_MEMBER_REFERENCE_RE.match(line):
+            break
+        module_match = _README_API_MODULE_HEADER_RE.match(line)
+        if module_match:
+            current_module = module_match.group(1).strip()
+            tables.setdefault(current_module, [])
+            continue
+        if _README_API_SUBHEADER_RE.match(line):
+            continue  # Interfaces/Enumerations sub-header -- rows still fold into current_module
+        if current_module is None:
+            continue
+        row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
+        if row_match:
+            tables[current_module].append(row_match.group(1))
+    return tables
+
+
+def check_api_reference_table_completeness(
+    readme_text: str, reference_index: dict[str, list[dict]] | None,
+) -> list[dict]:
+    """Hard gate (2026-08-09, Thirteenth incident / MT028). MT027 grounded API Reference
+    *verification* in reference.aspose.org's own graded `_index.md` content but never adapted
+    the section's *presentation* to match -- direct user review of `3d/java`'s candidate found
+    the section byte-identical to its pre-MT027 shape. This check enforces the fix the user
+    chose (via `AskUserQuestion`, this session): a real, module-grouped table mirroring
+    `_index.md`'s own organization, inserted above the pre-existing, completely-unchanged
+    curated member-detail bullets.
+
+    Verifies the README's own table(s) (`_parse_readme_api_tables`) are a faithful, complete
+    mirror of `reference_index` (`parse_reference_api_index`'s output) in both directions:
+    a real module/class absent from the README's table is a finding (`missing_module`/
+    `missing_class` -- drift or incomplete transcription), and a table module/class not present
+    in `reference_index` is a finding (`unrecognized_module`/`unrecognized_class` -- the
+    fabrication-guard direction; structurally unlikely since the table is meant to be a direct
+    mirror of already-verified data, but checked rather than assumed).
+
+    No-op (empty findings) when `reference_index` is empty/falsy -- a product with no real
+    `_index.md` yet keeps today's intro+curated-bullets-only shape unchanged; nothing is
+    required of it by this check.
+    """
+    if not reference_index:
+        return []
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return [{
+            "reason": "missing_section",
+            "detail": "reference.aspose.org has real API index data for this product, but the "
+                      "README has no '## API Reference' section to hold its table",
+        }]
+    readme_tables = _parse_readme_api_tables(section_match.group(1))
+
+    real_modules = {
+        module: {row["class"] for row in rows} for module, rows in reference_index.items()
+    }
+    table_modules = {module: set(classes) for module, classes in readme_tables.items()}
+
+    findings: list[dict] = []
+    for module, real_classes in real_modules.items():
+        if module not in table_modules:
+            findings.append({
+                "module": module, "reason": "missing_module",
+                "detail": f"real reference.aspose.org module '{module}' has no matching table "
+                          "in the README's API Reference section",
+            })
+            continue
+        for cls in sorted(real_classes - table_modules[module]):
+            findings.append({
+                "module": module, "class_name": cls, "reason": "missing_class",
+                "detail": f"'{cls}' is a real class in reference.aspose.org's '{module}' module "
+                          "but is absent from the README's table for that module",
+            })
+
+    for module, table_classes in table_modules.items():
+        if module not in real_modules:
+            findings.append({
+                "module": module, "reason": "unrecognized_module",
+                "detail": f"README table module '{module}' does not correspond to any real "
+                          "reference.aspose.org module for this product",
+            })
+            continue
+        for cls in sorted(table_classes - real_modules[module]):
+            findings.append({
+                "module": module, "class_name": cls, "reason": "unrecognized_class",
+                "detail": f"'{cls}' appears in the README's '{module}' table but is not a real "
+                          f"class in reference.aspose.org's '{module}' module",
+            })
+    return findings
+
+
+_GENERIC_CLASS_DESCRIPTION_RE = re.compile(
+    r"^Class with \d+ methods?(?: and \d+ propert(?:y|ies))?\.?$", re.IGNORECASE
+)
+
+
+def check_no_generic_class_description(readme_text: str) -> list[dict]:
+    """Heuristic (2026-08-09, Thirteenth incident / MT028), non-blocking -- same two-tier
+    posture as `check_process_narration_smells`. Flags any API Reference table row whose
+    Description column is still reference.aspose.org's own generic, low-information filler
+    text -- what its generator falls back to when it can't extract a real sentence ("Class with
+    N methods and M properties."). Confirmed real: 10 instances in `3d/java`'s own `_index.md`
+    alone (`FileFormat`, `Node`, `Scene`, `Transform`, `Vector3`, `Pose`, plus 3 `*Exporter`/
+    `*Importer` classes). A hit prompts the composing agent to write a real, verified one-line
+    description instead of copying the filler forward -- never a hard fail, since writing a good
+    description is real editorial judgment, not a mechanically decidable property.
+    """
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    findings = []
+    for line in section_match.group(1).splitlines():
+        if _DETAILED_MEMBER_REFERENCE_RE.match(line):
+            break
+        row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
+        if not row_match:
+            continue
+        class_name, description = row_match.group(1), row_match.group(2)
+        if _GENERIC_CLASS_DESCRIPTION_RE.match(description.strip()):
+            findings.append({
+                "class_name": class_name,
+                "reason": f"'{class_name}' table description is still reference.aspose.org's "
+                          "generic filler text -- replace with a real, verified one-line "
+                          "description",
+            })
+    return findings
+
+
 _ANY_FENCED_CODE_RE = re.compile(r"```.*?```", re.DOTALL)
 _DOCSTRING_LEAK_RE = re.compile(r'r"""|r\'\'\'|^\s*"""|^\s*\'\'\'', re.MULTILINE)
 

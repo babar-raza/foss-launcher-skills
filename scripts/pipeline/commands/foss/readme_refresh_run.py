@@ -870,6 +870,19 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             text, str(clone_cache), reference_dir=str(_product_reference_dir(family, platform))
         ),
     }
+
+    # Thirteenth incident / MT028 (2026-08-09): MT027 grounded verification in reference.
+    # aspose.org's own content but never adapted the section's PRESENTATION to match it -- these
+    # two checks enforce the fix (a module-grouped table mirroring _index.md's own organization,
+    # inserted above the untouched curated bullets; user's own chosen design, via AskUserQuestion).
+    result["api_reference_table_completeness"] = {
+        "hard_gate": True,
+        "findings": checks.check_api_reference_table_completeness(text, reference_index),
+    }
+    result["api_reference_generic_description"] = {
+        "hard_gate": False,
+        "findings": checks.check_no_generic_class_description(text),
+    }
     return result
 
 

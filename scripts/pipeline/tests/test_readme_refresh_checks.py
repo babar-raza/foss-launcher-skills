@@ -2027,6 +2027,186 @@ def test_api_reference_classes_exist_skips_package_grouping_bullet():
     assert checks.check_api_reference_classes_exist_in_reference_site(text, set()) == []
 
 
+# --- Thirteenth incident / MT028 (2026-08-09): API Reference PRESENTATION table -----------
+# MT027 grounded verification in reference.aspose.org's content but never adapted the section's
+# presentation to match it -- direct user review of 3d/java found the section unchanged. Per the
+# user's own chosen design (AskUserQuestion, this session): a module-grouped table mirroring
+# _index.md's own organization is inserted above a new "#### Detailed Member Reference" marker;
+# everything below that marker (today's curated bullet detail) is completely untouched.
+
+_API_TABLE_REFERENCE_INDEX = {
+    "Core API": [
+        {"class": "Scene", "description": "The root scene graph container."},
+        {"class": "Node", "description": "A scene-graph node."},
+        {"class": "IExporter", "description": "Returns true when the exporter can export."},
+    ],
+}
+
+
+def _api_table_section(*, core_rows=None, interfaces_rows=None, detailed_after=True):
+    core_rows = core_rows if core_rows is not None else [
+        "| `Scene` | The root scene graph container. |",
+        "| `Node` | A scene-graph node. |",
+    ]
+    interfaces_rows = interfaces_rows if interfaces_rows is not None else [
+        "| `IExporter` | Returns true when the exporter can export. |",
+    ]
+    body = (
+        "## API Reference\n\n"
+        "The primary entry point is `Scene`, which owns a hierarchy of `Node` objects.\n\n"
+        "<details>\n<summary>View the Full API Surface</summary>\n\n"
+        "### Core API\n\n"
+        "| Class | Description |\n|---|---|\n" + "\n".join(core_rows) + "\n\n"
+        "#### Interfaces\n\n"
+        "| Interface | Description |\n|---|---|\n" + "\n".join(interfaces_rows) + "\n\n"
+        "---\n\n"
+    )
+    if detailed_after:
+        body += (
+            "#### Detailed Member Reference\n\n"
+            "### Scene Graph\n\n"
+            "- `Scene`\n  - `fromFile(path) -> Scene`\n"
+            "</details>\n"
+        )
+    return body
+
+
+def test_api_reference_table_completeness_clean_when_table_matches_reference_index():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX) == []
+
+
+def test_api_reference_table_completeness_flags_missing_class():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=["| `Scene` | The root scene graph container. |"]),
+    )
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    assert {"module": "Core API", "class_name": "Node", "reason": "missing_class",
+            "detail": "'Node' is a real class in reference.aspose.org's 'Core API' module "
+                      "but is absent from the README's table for that module"} in findings
+
+
+def test_api_reference_table_completeness_flags_missing_module():
+    reference_index = dict(_API_TABLE_REFERENCE_INDEX, Annotations=[
+        {"class": "PdfAnnotation", "description": "An annotation on a page."},
+    ])
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    findings = checks.check_api_reference_table_completeness(text, reference_index)
+    assert any(f["reason"] == "missing_module" and f["module"] == "Annotations" for f in findings)
+
+
+def test_api_reference_table_completeness_flags_unrecognized_class():
+    # Fabrication-guard direction: a class in the README's table that isn't real per
+    # reference_index -- structurally unlikely (the table is meant to be a direct mirror of
+    # already-verified data) but checked rather than assumed.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `Scene` | The root scene graph container. |",
+            "| `Node` | A scene-graph node. |",
+            "| `FakeClass` | This class does not exist. |",
+        ]),
+    )
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    assert any(
+        f["reason"] == "unrecognized_class" and f["class_name"] == "FakeClass"
+        for f in findings
+    )
+
+
+def test_api_reference_table_completeness_ignores_subheader_as_bucket_boundary():
+    # #### (Interfaces/Enumerations) must never start its own bucket -- rows still fold into the
+    # owning ### module, same keying scheme parse_reference_api_index already uses. Implicitly
+    # proven by the "clean" test above (IExporter, under #### Interfaces, must fold into "Core
+    # API" or that test would fail on an unexpected "Interfaces" module) -- this test makes the
+    # same guarantee explicit and independently checkable.
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    assert not any(f.get("module") == "Interfaces" for f in findings)
+
+
+def test_api_reference_table_completeness_flags_unrecognized_module():
+    text = (
+        _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section(detailed_after=False))
+        + "### Bogus Module\n\n| Class | Description |\n|---|---|\n"
+          "| `Bogus` | Not real. |\n\n"
+          "#### Detailed Member Reference\n\n- `Scene`\n  - `fromFile(path) -> Scene`\n</details>\n"
+    )
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    # A whole unrecognized module is flagged once, at the module level -- individual classes
+    # inside it are not separately flagged too (redundant with the module-level finding).
+    assert findings == [{
+        "module": "Bogus Module", "reason": "unrecognized_module",
+        "detail": "README table module 'Bogus Module' does not correspond to any real "
+                  "reference.aspose.org module for this product",
+    }]
+
+
+def test_api_reference_table_completeness_noop_when_reference_index_empty():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_api_reference_table_completeness(text, {}) == []
+    assert checks.check_api_reference_table_completeness(text, None) == []
+
+
+def test_api_reference_table_completeness_flags_missing_section_when_reference_data_exists():
+    text = _wrap("flowchart TD\n  A --> B")  # no "## API Reference" section at all
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    assert findings == [{
+        "reason": "missing_section",
+        "detail": "reference.aspose.org has real API index data for this product, but the "
+                  "README has no '## API Reference' section to hold its table",
+    }]
+
+
+def test_api_reference_table_completeness_ignores_content_after_detailed_member_reference_marker():
+    # A stray, accidentally table-shaped line placed AFTER the marker (inside the untouched
+    # curated-detail area) must never be parsed as a table row -- parsing stops at the marker.
+    text = (
+        _api_table_section(detailed_after=False)
+        + "#### Detailed Member Reference\n\n"
+          "| `RogueClass` | Looks like a table row but lives in the untouched curated area. |\n"
+          "</details>\n"
+    )
+    text = _wrap("flowchart TD\n  A --> B", extra_section=text)
+    findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
+    assert not any(f.get("class_name") == "RogueClass" for f in findings)
+    assert findings == []
+
+
+def test_no_generic_class_description_flags_filler_text():
+    # Real, confirmed instance: 3d/java's own _index.md, `FileFormat`/`Node` rows.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `Scene` | Class with 20 methods and 61 properties. |",
+            "| `Node` | Class with 48 methods and 16 properties. |",
+        ]),
+    )
+    findings = checks.check_no_generic_class_description(text)
+    flagged = {f["class_name"] for f in findings}
+    assert flagged == {"Scene", "Node"}
+
+
+def test_no_generic_class_description_flags_variant_without_properties():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=["| `Scene` | Class with 2 methods. |"]),
+    )
+    findings = checks.check_no_generic_class_description(text)
+    assert [f["class_name"] for f in findings] == ["Scene"]
+
+
+def test_no_generic_class_description_clean_on_real_descriptions():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_no_generic_class_description(text) == []
+
+
+def test_no_generic_class_description_noop_without_api_reference_section():
+    text = _wrap("flowchart TD\n  A --> B")
+    assert checks.check_no_generic_class_description(text) == []
+
+
 def test_find_class_source_files_recognizes_typescript_enum(tmp_path):
     # Regression test: 3d/typescript's real ExtrapolationType/StepMode are declared as
     # `export enum ExtrapolationType { ... }` -- the original class|struct|interface|def
