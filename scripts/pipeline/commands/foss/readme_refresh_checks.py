@@ -209,6 +209,12 @@ _DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES = frozenset({
     "PPTX", "OOXML", "CFB", "MSG", "EML", "STL", "OBJ", "GLTF", "GLB", "FBX", "COLLADA", "3MF",
     "CSV", "JSON", "OPC", "MARKDOWN", "DVI", "WOFF", "WOFF2", "APNG", "PLY", "U3D", "RVM", "JT",
     "A3DW", "AMF", "DRACO", "USD", "CSS",
+    # Added 2026-08-09, MT025 Phase 2 batches C/D -- confirmed real, currently-supported primary
+    # formats for specific products, found missing from both this list and data/format_
+    # descriptions.json during real content verification (font/python: TTF/OTF/CFF/Type1/EOT
+    # font formats, each backed by a dedicated TtfFont/CffFont/Type1Font/EotFont class; note/
+    # python: OneNote .one files, the product's sole input format).
+    "TTF", "OTF", "CFF", "TYPE1", "EOT", "ONE", "ONENOTE",
 })
 _HYBRID_FROM_SCRATCH_LITERAL = "Nothing — authored from scratch"
 # Tolerant of the ASCII "--" a composing agent (or a test fixture) may write in place of the
@@ -222,17 +228,45 @@ _ARCHETYPES_REQUIRING_STARTING_POINTS = frozenset({"transform", "compile"})
 # Twelfth incident / MT025 Phase 0c (2026-08-09): format-verification constants. See
 # check_diagram_verified_format_claims's docstring for the full design rationale.
 _FORMATS_TABLE_ROW_RE = re.compile(
-    r"^\|\s*([A-Za-z0-9_.+-]+)\s*\|\s*(Yes|-)\s*\|\s*(Yes|-)\s*\|", re.MULTILINE
+    r"^\|\s*([A-Za-z0-9_.+-]+)[^|]*\|\s*(Yes|-)\s*\|\s*(Yes|-)\s*\|", re.MULTILINE
 )
+# The [^|]* after the format token (added 2026-08-09, MT025 Phase 2, found live in batch C):
+# some products' formats.md cells carry trailing descriptive text in the Format column itself,
+# e.g. "| CFB (Compound File Binary) | Yes | Yes |" (email/cpp, email/python) or "| MIME |"
+# style variants (email/net) -- the original regex required the token to be immediately
+# followed by the column-closing "|", so these rows silently matched nothing at all, making
+# formats.md's directional-flag signal permanently absent for every email product regardless
+# of its real content. Only the leading token is captured as the format name.
 # Seed suffix lists, not claimed complete -- derived from real class/file names confirmed in 5
 # products across C#/C++/Python (ObjLoadOptions/ObjSaveOptions, PdfWriter/DviWriter/SvgWriter,
 # PdfConverter/PdfFileEditor). Expect real additions once Phase 2 rollout reaches Go/Rust/Java/
 # TypeScript naming conventions not yet sampled.
 _EXPORT_SUFFIXES = ("WRITER", "SAVEOPTIONS", "EXPORTER", "ENCODER", "SAVER")
 _IMPORT_SUFFIXES = ("READER", "LOADOPTIONS", "IMPORTER", "DECODER", "LOADER")
+# Found live during MT025 Phase 2's portfolio-wide rollup (2026-08-09): 3d/net's formats.md
+# records the same real format under "MICROSOFT3MF" and 3d/typescript's under "THREEMF" (its
+# real source classes are also spelled "ThreeMf" -- most languages can't start an identifier
+# with a digit, forcing the word-spelled form) -- neither matches the "3MF" name every
+# product's own prose and diagram actually use. An exact-match lookup/substring search silently
+# treated real, Yes-flagged rows/classes as absent. A small, seed alias map, not claimed
+# complete; extend as more extraction-vs-common-usage name mismatches are found this way.
+_FORMAT_NAME_ALIASES = {"3MF": ("MICROSOFT3MF", "THREEMF")}
+
+
+def _formats_table_lookup(formats_table: dict, canonical_format: str) -> dict:
+    row = formats_table.get(canonical_format.upper())
+    if row is not None:
+        return row
+    for alias in _FORMAT_NAME_ALIASES.get(canonical_format.upper(), ()):
+        row = formats_table.get(alias)
+        if row is not None:
+            return row
+    return {}
 # Explicit "-only" phrasing only -- disclosed limitation, see check_diagram_verified_format_
 # claims's docstring for why the 2-of-3 threshold is the real mitigation for what this misses.
-_DIRECTION_ONLY_PHRASE_RE = re.compile(r"\b(import|export|read|write)[\s-]*only\b", re.IGNORECASE)
+_DIRECTION_ONLY_PHRASE_RE = re.compile(
+    r"\b(import|export|read|write)[\s-]*only\b(?:\s+([A-Za-z][A-Za-z0-9]*))?", re.IGNORECASE
+)
 _NEGATION_WORD_NEGATES_DIRECTION = {
     "import": "export", "read": "export",
     "export": "import", "write": "import",
@@ -873,20 +907,51 @@ def _prose_direction_signal(prose_text: str, format_token: str, direction: str) 
     stating the same fact differently (e.g. "cannot currently write COLLADA files") won't
     trigger the override. The 2-of-3 threshold in `check_diagram_verified_format_claims` is the
     real mitigation: a wrong prose signal alone can never flip the verdict by itself.
+
+    Window boundary also stops at "; " (added 2026-08-09, MT025 Phase 2 portfolio-wide rollup):
+    found live in 3d/net's real sentence "...COLLADA, and 3MF; PLY is import-only." -- with only
+    ". "/newline as boundaries, the window for "3MF" incorrectly extended across the semicolon
+    into PLY's own clause, so PLY's real "import-only" negation wrongly applied to 3MF's export
+    claim too. A semicolon genuinely separates independent clauses in English (unlike a comma,
+    which can sit inside one legitimate list -- "OBJ, STL, and 3MF" -- so commas are deliberately
+    NOT added as boundaries here).
+
+    Checks EVERY occurrence of `format_token`, not just the first (fixed the same day the
+    semicolon boundary was added -- narrowing to a single clause per mention means a token
+    genuinely mentioned in two different clauses, e.g. this exact PLY sentence: "...and PLY;
+    PLY is import-only, unlike OBJ and STL." needs its SECOND mention's window checked too, or
+    the negation in the second clause would never be seen from the first mention's own,
+    correctly-narrower window). A negation found in ANY occurrence's window is decisive.
     """
-    match = re.search(rf"\b{re.escape(format_token)}\b", prose_text, re.IGNORECASE)
-    if not match:
+    matches = list(re.finditer(rf"\b{re.escape(format_token)}\b", prose_text, re.IGNORECASE))
+    if not matches:
         return False
-    line_start = prose_text.rfind("\n", 0, match.start()) + 1
-    sentence_start = prose_text.rfind(". ", line_start, match.start())
-    start = max(line_start, sentence_start + 2 if sentence_start != -1 else line_start)
-    line_end = prose_text.find("\n", match.end())
-    sentence_end = prose_text.find(". ", match.end())
-    ends = [e for e in (line_end, sentence_end) if e != -1]
-    end = min(ends) if ends else len(prose_text)
-    window = prose_text[start:end]
-    for neg_match in _DIRECTION_ONLY_PHRASE_RE.finditer(window):
-        if _NEGATION_WORD_NEGATES_DIRECTION.get(neg_match.group(1).lower()) == direction:
+    for match in matches:
+        line_start = prose_text.rfind("\n", 0, match.start()) + 1
+        sentence_start = max(
+            prose_text.rfind(". ", line_start, match.start()),
+            prose_text.rfind("; ", line_start, match.start()),
+        )
+        start = max(line_start, sentence_start + 2 if sentence_start != -1 else line_start)
+        line_end = prose_text.find("\n", match.end())
+        period_end = prose_text.find(". ", match.end())
+        semicolon_end = prose_text.find("; ", match.end())
+        ends = [e for e in (line_end, period_end, semicolon_end) if e != -1]
+        end = min(ends) if ends else len(prose_text)
+        window = prose_text[start:end]
+        for neg_match in _DIRECTION_ONLY_PHRASE_RE.finditer(window):
+            if _NEGATION_WORD_NEGATES_DIRECTION.get(neg_match.group(1).lower()) != direction:
+                continue
+            trailing = neg_match.group(2)
+            # An ALL-CAPS trailing word (a cheap proxy for "looks like a format acronym", not
+            # an ordinary continuation word like "here"/"mode"/"via") that differs from our own
+            # token signals the negation is grammatically about THAT format, not ours -- e.g.
+            # "Markdown (import-only XML via ...)": the negation is about XML, not Markdown,
+            # even though both sit in the same clause-bounded window. Found live during MT025
+            # Phase 2's portfolio-wide rollup (pdf/net). The ordinary "TOKEN is import-only"
+            # pattern (no trailing word, or a lowercase continuation word) is unaffected.
+            if trailing and trailing.isupper() and trailing.upper() != format_token.upper():
+                continue
             return False
     return True
 
@@ -902,15 +967,20 @@ def _source_direction_signal(names: list[str], format_token: str, direction: str
     structurally-extracted evidence the product genuinely has format-related code, just not
     which direction. A name matching only the OPPOSITE direction's suffix does not count as
     generic evidence for this direction (e.g. `PdfLoadOptions` corroborates import, not export).
+
+    Also tries `_FORMAT_NAME_ALIASES` (added 2026-08-09, MT025 Phase 2 rollup): 3d/typescript's
+    real "3MF" support is implemented as `ThreeMf`-named classes (most languages can't start an
+    identifier with a digit) -- a literal "3MF" substring search would never find it.
     """
-    if len(format_token) < 3:
+    candidate_tokens = [format_token, *_FORMAT_NAME_ALIASES.get(format_token.upper(), ())]
+    candidate_tokens = [t for t in candidate_tokens if len(t) >= 3]
+    if not candidate_tokens:
         return False
-    token_upper = format_token.upper()
     suffixes = _EXPORT_SUFFIXES if direction == "export" else _IMPORT_SUFFIXES
     opposite_suffixes = _IMPORT_SUFFIXES if direction == "export" else _EXPORT_SUFFIXES
     for name in names:
         name_upper = name.upper()
-        if token_upper not in name_upper:
+        if not any(token.upper() in name_upper for token in candidate_tokens):
             continue
         if any(suffix in name_upper for suffix in suffixes):
             return True
@@ -980,14 +1050,20 @@ def check_diagram_verified_format_claims(
         direction = "import" if kind == "starting_points" else "export"
         label = graph.node_label.get(node_id, "")
         core = label.split("(", 1)[0]
-        tokens = set(re.findall(r"[A-Za-z][A-Za-z0-9+]{1,9}", core))
+        # Found live during MT025 Phase 2 batch A (2026-08-09): a leading-letter-only token
+        # regex silently exempted digit-leading format names (e.g. "3MF") from verification
+        # entirely -- neither confirmed nor rejected, just invisible to this function, unlike
+        # every letter-first format name. Confirmed by direct before/after interpolation test
+        # on a real product. Broadened to allow a leading digit; safe, since a token still only
+        # matters if it case-insensitively equals a real known_format_names entry.
+        tokens = set(re.findall(r"[A-Za-z0-9][A-Za-z0-9+]{1,9}", core))
         for token in tokens:
             canonical = next(
                 (f for f in known_format_names if f.upper() == token.upper()), None
             )
             if canonical is None:
                 continue
-            row = formats_table.get(canonical.upper(), {})
+            row = _formats_table_lookup(formats_table, canonical)
             sig_formats_md = bool(row.get(direction, False))
             sig_prose = _prose_direction_signal(prose_text, canonical, direction)
             sig_source = _source_direction_signal(api_surface_names, canonical, direction)

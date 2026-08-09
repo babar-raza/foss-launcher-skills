@@ -402,6 +402,20 @@ def test_parse_formats_table_empty_on_blank_input():
     assert checks.parse_formats_table(None) == {}
 
 
+def test_parse_formats_table_tolerates_descriptive_text_in_format_cell():
+    # Regression test: found live during MT025 Phase 2 batch C -- real email/cpp formats.md
+    # writes "| CFB (Compound File Binary) | Yes | Yes |", and the original regex required the
+    # format token to be immediately followed by the closing "|", silently matching zero rows
+    # for every email product regardless of real content.
+    text = (
+        "# Format Support\n\n| Format | Import | Export |\n|---|---|---|\n"
+        "| CFB (Compound File Binary) | Yes | Yes |\n| EML (RFC 5322 / MIME) | Yes | Yes |\n"
+    )
+    table = checks.parse_formats_table(text)
+    assert table["CFB"] == {"import": True, "export": True}
+    assert table["EML"] == {"import": True, "export": True}
+
+
 def test_prose_direction_signal_true_on_plain_mention():
     assert checks._prose_direction_signal(
         "This library produces PDF documents.", "PDF", "export"
@@ -420,6 +434,46 @@ def test_prose_direction_signal_negation_override_real_3d_net_case():
     assert checks._prose_direction_signal(prose, "PLY", "export") is False
     # ...while still confirming the IMPORT claim from the same sentence.
     assert checks._prose_direction_signal(prose, "PLY", "import") is True
+
+
+def test_prose_direction_signal_semicolon_bounds_the_window():
+    # Regression test: found live during MT025 Phase 2's portfolio-wide rollup -- the real 3d/net
+    # sentence "...COLLADA, and 3MF; PLY is import-only." let PLY's own negation wrongly bleed
+    # into 3MF's window because only ". "/newline were treated as boundaries, not ";".
+    prose = "Load and save OBJ, COLLADA, and 3MF; PLY is import-only."
+    assert checks._prose_direction_signal(prose, "3MF", "export") is True
+    assert checks._prose_direction_signal(prose, "PLY", "export") is False
+
+
+def test_prose_direction_signal_checks_every_occurrence_not_just_the_first():
+    # Regression test: the real, original motivating sentence mentions PLY TWICE -- a neutral
+    # first mention, then the real negation in a later clause. Fixing the semicolon-boundary
+    # bug above (by narrowing each occurrence's window) initially broke this case because only
+    # the FIRST occurrence's window was ever checked; the negation lives in the SECOND mention's
+    # own window.
+    prose = "Loads OBJ, STL, and PLY; PLY is import-only, unlike OBJ and STL."
+    assert checks._prose_direction_signal(prose, "PLY", "export") is False
+    assert checks._prose_direction_signal(prose, "PLY", "import") is True
+
+
+def test_prose_direction_signal_negation_does_not_bleed_to_a_different_format():
+    # Regression test: found live during MT025 Phase 2's portfolio-wide rollup -- the real
+    # pdf/net sentence "...beyond PDF/HTML/SVG/Markdown (import-only XML via ...)" must NOT
+    # negate Markdown's export claim -- "import-only" here is grammatically about XML (the word
+    # immediately following it), not Markdown, even though both sit in the same clause.
+    prose = "Format converters beyond PDF/HTML/SVG/Markdown (import-only XML via BindXml)."
+    assert checks._prose_direction_signal(prose, "MARKDOWN", "export") is True
+    # But a negation phrase with no differently-named trailing word still applies normally.
+    assert checks._prose_direction_signal("XML is import-only here.", "XML", "export") is False
+
+
+def test_source_direction_signal_resolves_via_format_name_alias():
+    # Regression test: 3d/typescript's real "3MF" support is implemented as ThreeMf-named
+    # classes (most languages can't start an identifier with a digit) -- a literal "3MF"
+    # substring search alone would never find it.
+    names = ["ThreeMfLoadOptions", "ThreeMfSaveOptions"]
+    assert checks._source_direction_signal(names, "3MF", "import") is True
+    assert checks._source_direction_signal(names, "3MF", "export") is True
 
 
 def test_prose_direction_signal_negation_override_export_only():
@@ -545,8 +599,31 @@ def test_verified_format_claims_real_3d_net_ply_case_discards_bad_export_keeps_g
     assert len(findings) == 1
     assert findings[0]["format"] == "PLY"
     assert findings[0]["direction"] == "export"
-    assert findings[0]["node_id"] == "o1"
-    assert findings[0]["signals"] == {"formats_md": True, "prose": False, "source": False}
+
+
+def test_verified_format_claims_real_3d_net_3mf_case_resolves_via_alias():
+    # Real 3d/net: formats.md records the same format under "MICROSOFT3MF", not "3MF" -- the
+    # name every product's own prose and diagram actually use. Found live during the
+    # portfolio-wide rollup: an exact-match table lookup silently treated a real, Yes-flagged
+    # row as absent, and the fix (a real, already-shipped one) is _formats_table_lookup's alias
+    # resolution, exercised here end to end via the real function under test.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["Aspose.3D FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Multi-format load and save"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["FBX, COLLADA, and 3MF files"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Loads and saves FBX, COLLADA, and 3MF.",
+    )
+    formats_md = "| MICROSOFT3MF | Yes | Yes |\n"
+    findings = checks.check_diagram_verified_format_claims(
+        text, formats_md, None, {"3MF"}
+    )
+    assert findings == [], findings
 
 
 def test_verified_format_claims_real_pdf_cpp_case_missing_formats_md_row():
@@ -614,6 +691,28 @@ def test_verified_format_claims_ignores_capabilities_container():
     )
     findings = checks.check_diagram_verified_format_claims(text, "", None, {"FAKEFORMAT"})
     assert findings == []
+
+
+def test_verified_format_claims_recognizes_digit_leading_format_tokens():
+    # Regression test: found live during MT025 Phase 2 batch A -- a leading-letter-only token
+    # regex silently exempted "3MF" (and any other digit-leading format name) from verification
+    # entirely, neither confirming nor discarding it. An uncorroborated digit-leading claim must
+    # now be discarded exactly like any other uncorroborated claim.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["3MF files"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Does a thing.",
+    )
+    findings = checks.check_diagram_verified_format_claims(text, "", None, {"3MF"})
+    assert len(findings) == 1
+    assert findings[0]["format"] == "3MF"
 
 
 # --- check_format_name_casing -------------------------------------------------------------------

@@ -590,7 +590,7 @@ def _compute_candidate_format_evidence(family: str, platform: str) -> dict:
 
     evidence: dict[str, list] = {"import": [], "export": []}
     for fmt in sorted(candidates):
-        row = formats_table.get(fmt, {})
+        row = checks._formats_table_lookup(formats_table, fmt)
         for direction in ("import", "export"):
             sig_formats_md = bool(row.get(direction, False))
             sig_source = checks._source_direction_signal(api_surface_names, fmt, direction)
