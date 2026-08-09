@@ -2568,13 +2568,11 @@ def check_section_job_distinctness(readme_text: str) -> list[dict]:
 
 _ANY_BACKTICK_TOKEN_RE = re.compile(r"`([^`]+)`")
 _COUNT_PHRASE_RE = re.compile(r"\b\d+\s+of\s+(?:the\s+)?\d+\b", re.IGNORECASE)
-# Generic words that recur across many issue titles regardless of subject ("Package Fails to
-# Import", "Build Does Not Work") -- excluded from title-word fingerprinting so a coincidental
-# shared word alone never contributes toward the 2-token flag threshold.
-_GENERIC_ISSUE_TITLE_WORDS = {
-    "package", "fails", "does", "work", "works", "issue", "error", "errors", "problem",
-    "broken", "missing", "cannot", "currently", "upstream", "systemic", "entire", "entirely",
-    "build", "install", "installation", "import", "module", "modules", "source", "repository",
+# Stock built-in exception names, too generic/reusable on their own to safely fingerprint --
+# see _extract_upstream_issue_fingerprints's own docstring for the confirmed real collision
+# (3d/python's real NotImplementedError) this excludes.
+_GENERIC_BACKTICK_EXCLUSIONS = {
+    "NotImplementedError", "NotImplemented", "TypeError", "ValueError", "RuntimeError",
 }
 
 
@@ -2583,23 +2581,52 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
     fingerprint tokens: every backtick-quoted exact term in the entry body (exception/error
     type names, class/method names, exact commands -- the schema's own `- **Evidence**:` line
     already uses backticks for these, confirmed real across every captured instance this
-    session), every `"N of M"`-shaped count phrase (`"35 of the 45"`, `"67 of 69"`), and the
-    title's own significant (5+ letter, non-generic) words. Returns one set per entry --
-    callers require 2+ concurring tokens from the SAME set before flagging a paragraph, so a
-    single coincidentally-shared token (a class name legitimately mentioned elsewhere) is
-    never enough on its own.
+    session) and every `"N of M"`-shaped count phrase (`"35 of the 45"`, `"67 of 69"`). Returns
+    one set per entry -- callers require 2+ concurring tokens from the SAME set before flagging
+    a paragraph, so a single coincidentally-shared token (a class name legitimately mentioned
+    elsewhere) is never enough on its own.
+
+    Deliberately does NOT fingerprint the title's own prose words (an earlier design did, then
+    was reverted -- 2026-08-09, found live during this check's own Phase 1 pilot rollout): a
+    genuinely legitimate, non-forensic pointer sentence for `cells/go`'s real defect --
+    "edit `examples/go.mod`'s version to a valid pseudo-version" -- shares the filename
+    (1 backtick token) plus the generic word "version" with the real issue title ("...has an
+    invalid version string..."), which alone would have wrongly tripped the 2-token threshold
+    on exactly the kind of sentence this check exists to *allow*. Backtick tokens and count
+    phrases are already sufficient to catch every confirmed real leak instance this session
+    found (`tex/python`'s real case alone concurs on 6+ backtick/count tokens with zero title
+    words needed) -- title prose is too generic to safely contribute to the same threshold.
+    Also excludes `_GENERIC_BACKTICK_EXCLUSIONS` -- a small set of stock Python built-in
+    exception names too generic/reusable to safely fingerprint on their own (2026-08-09, found
+    live during this check's own Phase 1 pilot rollout on `3d/python`): a legitimate, accurate
+    Scope-and-Limitations bullet describing FBX's own real stub methods ("`FbxExporter.save()`
+    ... raise `NotImplementedError`") coincidentally shares `FbxExporter` + `NotImplementedError`
+    with a DIFFERENT real entry's evidence (about COLLADA-export dispatch order, not FBX at
+    all) purely because `NotImplementedError` is the standard, ubiquitous way any Python
+    library signals "not implemented" -- it recurs legitimately across unrelated stub methods
+    throughout a single product's own accurate Scope and Limitations, so it is not, on its own,
+    a distinctive signal of forensic duplication.
     """
     fingerprints: list[set[str]] = []
     for match in re.finditer(
         r"^##\s+(.+?)\s*$(.*?)(?=^##\s|\Z)", upstream_issues_text, re.MULTILINE | re.DOTALL
     ):
-        title, body = match.group(1), match.group(2)
-        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body))
+        body = match.group(2)
+        # INFORMATIONAL-severity entries excluded entirely (2026-08-09, found live during
+        # this check's own Phase 1 pilot rollout -- cells/go's golang.org/x/crypto note,
+        # cells/cpp's bundled-sample note, html/python's [js]-extra-on-Windows note): every
+        # one of the 3 confirmed false positives beyond the earlier fixes traced to an
+        # INFORMATIONAL entry, whose own schema definition ("doesn't block anything, still
+        # worth knowing") makes it inherently more likely to describe tangential, reusable
+        # product facts (a real package name, a real optional-extra name) rather than a
+        # uniquely forensic defect narrative. Verified this is safe, not just convenient: all
+        # 7 confirmed real leak instances this session found trace to a BLOCKING or
+        # FUNCTIONAL-DEFECT entry -- zero to an INFORMATIONAL one.
+        severity_match = re.search(r"\*\*Severity\*\*:\s*(\S+)", body)
+        if severity_match and severity_match.group(1).upper() not in ("BLOCKING", "FUNCTIONAL-DEFECT"):
+            continue
+        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body)) - _GENERIC_BACKTICK_EXCLUSIONS
         tokens |= {m.group(0) for m in _COUNT_PHRASE_RE.finditer(body)}
-        tokens |= {
-            w for w in re.findall(r"[A-Za-z]{5,}", title)
-            if w.lower() not in _GENERIC_ISSUE_TITLE_WORDS
-        }
         if tokens:
             fingerprints.append(tokens)
     return fingerprints
@@ -2632,6 +2659,17 @@ def check_no_upstream_issue_leaked_into_readme(
     real NU1101 build failure) still needs a plain, non-forensic pointer sentence in context
     (matching `html/python`'s already-correct "see upstream-issues.md for the root cause"
     pattern) -- only the forensic *specificity* must never appear in the README itself.
+
+    `## Installation` and `## Quick Start` are excluded from scanning, alongside `## API
+    Reference` -- found necessary live during this check's own Phase 1 pilot rollout
+    (`cells/cpp`): these sections exist specifically to give real, accurate instructions using
+    real package/file names, so legitimate overlap with an upstream-issues.md entry's own
+    evidence (which cites those same real names) is structurally expected there, not
+    suspicious -- unlike Scope and Limitations or Development and Testing prose, whose job is
+    to describe facts *about* the product, not to *be* a real, necessarily-specific set of
+    instructions. `check_no_undisclosed_blocking_commands` already separately and more
+    precisely guards the one real risk specific to these two sections (an undisclosed BLOCKING
+    command shipped verbatim); this check's own job is prose narration, not exact commands.
     """
     if not upstream_issues_text:
         return []
@@ -2640,25 +2678,60 @@ def check_no_upstream_issue_leaked_into_readme(
         return []
 
     prose = _ANY_FENCED_CODE_RE.sub("", readme_text)
-    api_ref_match = _FULL_API_REF_SECTION_RE.search(prose)
-    if api_ref_match:
-        prose = prose[: api_ref_match.start()] + prose[api_ref_match.end():]
+    # Badge rows (the top-of-file [![alt](img)](link) line(s)) cite real package
+    # names/URLs by construction -- same "real reference, not narration" reasoning as
+    # Installation/Quick Start below, but scoped to just the badge line(s) rather than the
+    # whole preamble, since the preamble is also where the one real, confirmed leak instance
+    # this check exists to catch (tex/python's top-of-file "Known issue" blockquote) actually
+    # lived -- excluding the whole preamble would have hidden that real case. Found live
+    # during this check's own Phase 1 pilot rollout (cells/cpp's real NuGet badge).
+    prose = "\n".join(
+        line for line in prose.splitlines() if _BADGE_ROW_MARKER not in line
+    )
+    sections = _split_into_sections(prose)
+    for excluded_heading in ("API Reference", "Installation", "Quick Start"):
+        if excluded_heading in sections:
+            prose = prose.replace(sections[excluded_heading], "", 1)
 
     findings = []
-    for paragraph in re.split(r"\n\s*\n", prose):
-        if not paragraph.strip():
-            continue
+    for unit in _iter_leak_scan_units(prose):
         for fp_set in fingerprints:
-            hits = {tok for tok in fp_set if tok in paragraph}
+            hits = {tok for tok in fp_set if tok in unit}
             if len(hits) >= 2:
                 findings.append({
                     "matched_tokens": sorted(hits),
-                    "paragraph": paragraph.strip()[:200],
+                    "paragraph": unit.strip()[:200],
                     "reason": "this paragraph restates specific facts already recorded in "
                               "upstream-issues.md -- forensic defect detail must live only "
                               "there, never in the public README",
                 })
     return findings
+
+
+def _iter_leak_scan_units(prose_text: str) -> list[str]:
+    """Split prose into independently-scannable units for `check_no_upstream_issue_leaked_
+    into_readme`. Each bulleted (`- `) line is its own unit when a blank-line-delimited block
+    consists ENTIRELY of such lines (a pure bulleted list, no other prose mixed in) -- real
+    bulleted content in this portfolio (Key Capabilities, Scope and Limitations) has no blank
+    line between items, so treating a whole bulleted section as one blank-line-delimited
+    paragraph let an unrelated match in one bullet get misattributed to a completely
+    different, unrelated bullet's text (found live, `cells/go`, during this check's own
+    Phase 1 pilot rollout -- a Key Capabilities bullet about `Workbook`/`Worksheet` was
+    flagged because a LATER, unrelated bullet elsewhere in the same list happened to mention
+    `go.mod`). A blockquote or ordinary prose paragraph, by contrast, IS one coherent
+    multi-line claim and stays grouped as a single unit -- only a genuinely blank-line-
+    delimited block that is ENTIRELY bullets gets split.
+    """
+    units: list[str] = []
+    for block in re.split(r"\n\s*\n", prose_text):
+        if not block.strip():
+            continue
+        lines = block.splitlines()
+        if all(not line.strip() or line.lstrip().startswith("- ") for line in lines):
+            units.extend(line for line in lines if line.strip())
+        else:
+            units.append(block)
+    return units
 
 
 _KEY_CAPABILITIES_SECTION_RE = re.compile(

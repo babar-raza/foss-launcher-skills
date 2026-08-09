@@ -221,6 +221,51 @@ def _write_candidate(repo_root, text, upstream_issues=_UPSTREAM_ISSUES_BLOCKING)
     (candidate_dir / "upstream-issues.md").write_text(upstream_issues, encoding="utf-8")
 
 
+# --- _detect_dev_test_artifacts (MT029 Item 5) -------------------------------------------------
+
+
+def test_detect_dev_test_artifacts_finds_real_agents_md(tmp_path):
+    (tmp_path / "AGENTS.md").write_text("# Contributor guide\n", encoding="utf-8")
+    detected = rr._detect_dev_test_artifacts(tmp_path)
+    assert detected == [{
+        "relative_path": "AGENTS.md", "kind": "agents_guide", "section": "Documentation & Resources",
+    }]
+
+
+def test_detect_dev_test_artifacts_no_windows_case_alias_double_count(tmp_path):
+    # Regression test: found live (2026-08-09) on this Windows machine -- AGENTS.md and
+    # agents.md both resolve to the same real file on a case-insensitive filesystem, so a
+    # naive per-candidate is_file() check registered it twice under two different casings.
+    (tmp_path / "AGENTS.md").write_text("# Contributor guide\n", encoding="utf-8")
+    detected = rr._detect_dev_test_artifacts(tmp_path)
+    assert len(detected) == 1
+
+
+def test_detect_dev_test_artifacts_excludes_dotdir_pytest_cache(tmp_path):
+    # Regression test: found live (2026-08-09, html/python) -- pytest itself writes a
+    # boilerplate README.md into `.pytest_cache/` on every test run; "test" is a substring
+    # of "pytest_cache", so the original `"test" in name.lower()` check wrongly matched it.
+    cache_dir = tmp_path / ".pytest_cache"
+    cache_dir.mkdir()
+    (cache_dir / "README.md").write_text("This directory is for pytest's cache.\n", encoding="utf-8")
+    assert rr._detect_dev_test_artifacts(tmp_path) == []
+
+
+def test_detect_dev_test_artifacts_still_finds_real_test_dir_readme(tmp_path):
+    # Regression guard: excluding dot-directories must never exclude a real, non-dot test
+    # directory's own README.md too.
+    tests_dir = tmp_path / "Aspose.Cells.Foss.Cpp.Tests"
+    tests_dir.mkdir()
+    (tests_dir / "README.md").write_text("# Test suite\n", encoding="utf-8")
+    detected = rr._detect_dev_test_artifacts(tmp_path)
+    assert any(a["relative_path"] == "Aspose.Cells.Foss.Cpp.Tests/README.md" for a in detected)
+
+
+def test_detect_dev_test_artifacts_empty_for_bare_repo(tmp_path):
+    (tmp_path / "README.md").write_text("hi\n", encoding="utf-8")
+    assert rr._detect_dev_test_artifacts(tmp_path) == []
+
+
 # --- Full round-trip happy path ---------------------------------------------------------------
 
 

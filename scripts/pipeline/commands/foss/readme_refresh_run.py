@@ -619,7 +619,11 @@ def _detect_dev_test_artifacts(clone_cache: Path) -> list[dict]:
     _add(clone_cache / "examples" / "README.md", "examples_readme", "Development and Testing")
 
     for child in sorted(clone_cache.iterdir()):
-        if child.is_dir() and "test" in child.name.lower():
+        # A leading "." excludes tool-generated cache directories (found live 2026-08-09,
+        # html/python's real `.pytest_cache/` -- pytest itself writes a boilerplate
+        # README.md there on every test run; it's a build artifact, not real, meaningful
+        # contributor-facing documentation, and "test" is a substring of "pytest_cache").
+        if child.is_dir() and "test" in child.name.lower() and not child.name.startswith("."):
             _add(child / "README.md", "test_dir_readme", "Development and Testing")
 
     return found

@@ -2563,6 +2563,205 @@ def test_no_upstream_issue_leaked_requires_two_concurring_tokens():
     ) == []
 
 
+def test_no_upstream_issue_leaked_allows_legitimate_workaround_pointer():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # cells/go) -- a genuinely legitimate, non-forensic pointer sentence with a real
+    # actionable workaround shares the filename and the generic word "version" with the real
+    # issue's own title ("...has an invalid version string..."). Title-word fingerprinting
+    # was removed specifically because it would have flagged exactly this kind of sentence,
+    # which check_no_upstream_issue_leaked_into_readme exists to *allow* (per html/python's
+    # already-correct precedent), not block.
+    real_cells_go_upstream_issues = (
+        "# Upstream issues -- Aspose.Cells FOSS for Go\n\n"
+        "## examples/go.mod has an invalid version string, breaking the repo's own "
+        "example runner\n"
+        "- **Severity**: FUNCTIONAL-DEFECT\n"
+        "- **Evidence**: `examples/go.mod` declares `require .../v26 v0.0.0` -- an invalid "
+        "version string for a `/v26` major-version module path.\n"
+        "- **Impact**: contributors hit an immediate failure.\n"
+        "- **Not fixable here because**: it's the upstream repo's own file.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Does a thing.\n\n## Development and Testing\n\n"
+            "If the example-runner loop above fails on a fresh checkout, edit "
+            "`examples/go.mod`'s version to a valid pseudo-version before running -- see "
+            "[upstream-issues.md](upstream-issues.md) for details.\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(
+        text, real_cells_go_upstream_issues
+    ) == []
+
+
+def test_no_upstream_issue_leaked_scans_bullets_independently():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # cells/go) -- a bulleted list with no blank lines between items was treated as ONE giant
+    # paragraph, so an unrelated match in one bullet got misattributed to a completely
+    # different bullet's own text. Each bullet in a pure bulleted block must be scanned
+    # independently.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## Something breaks\n"
+        "- **Severity**: FUNCTIONAL-DEFECT\n"
+        "- **Evidence**: the real `go.mod` declares zero `require` entries.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Create, load, and save `.xlsx` workbooks with `Workbook`/`Worksheet`.\n"
+            "- Group formatting into reusable `Style` objects.\n"
+            "- Some unrelated bullet mentioning `go.mod` and `require` on its own.\n"
+        ),
+    )
+    findings = checks.check_no_upstream_issue_leaked_into_readme(text, upstream)
+    # The real leak (bullet 3) is still caught...
+    assert any("go.mod" in f["paragraph"] for f in findings)
+    # ...but bullet 1 (Workbook/Worksheet) must never be implicated.
+    assert not any("Workbook" in f["paragraph"] for f in findings)
+
+
+def test_no_upstream_issue_leaked_excludes_generic_builtin_exceptions():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # 3d/python) -- a legitimate, accurate Scope and Limitations bullet describing FBX's own
+    # real stub methods ("`FbxExporter.save()` ... raise `NotImplementedError`") coincidentally
+    # shared `FbxExporter` + `NotImplementedError` with a DIFFERENT real upstream-issues.md
+    # entry (about COLLADA-export dispatch order, not FBX) purely because NotImplementedError
+    # is the standard, ubiquitous way any Python library signals "not implemented" -- too
+    # generic to safely fingerprint on its own.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## Collada export unreachable via the public Scene.save() API\n"
+        "- **Severity**: FUNCTIONAL-DEFECT\n"
+        "- **Evidence**: `FbxExporter` never overrides `Exporter.supports_format()` and is "
+        "registered before `ColladaPlugin`, so `IOService.create_exporter()` raises "
+        "`NotImplementedError` before ever reaching the real Collada exporter.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "## Scope and Limitations\n\n"
+            "- FBX support is experimental: `FbxExporter.save()` and "
+            "`FbxExporter.save_to_stream()` raise `NotImplementedError`.\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, upstream) == []
+
+
+def test_no_upstream_issue_leaked_excludes_installation_and_quick_start():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # cells/cpp) -- a C++ product's real, accurate Installation instructions necessarily cite
+    # the same real package/file names (`Aspose.Cells.Cpp.FOSS`, `.targets`,
+    # `-config.cmake`, `CMakeLists.txt`) that an unrelated INFORMATIONAL upstream-issues.md
+    # entry's own evidence also cites (about the package's bundled SAMPLE not building, not
+    # about the installation instructions themselves). Installation/Quick Start exist to give
+    # real, specific instructions -- overlap there is expected, not suspicious.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## NuGet package's bundled sample doesn't exercise its own packaged CMake config\n"
+        "- **Severity**: INFORMATIONAL\n"
+        "- **Evidence**: the real `Aspose.Cells.Cpp.FOSS` package ships a working "
+        "`aspose.cells.cpp.foss-config.cmake` and `.targets` file, but its own bundled "
+        "`build/native/samples/CMakeLists.txt` does `add_subdirectory(\"../Aspose.Cells."
+        "Foss.Cpp\")` against a sibling source directory not present in the package.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Does a thing.\n\n## Installation\n\n"
+            "In a CMake project targeting MSVC, point at the package's own bundled CMake "
+            "package config instead (`aspose.cells.cpp.foss-config.cmake`, which defines an "
+            "`Aspose.Cells.Cpp.FOSS` imported target).\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, upstream) == []
+
+
+def test_no_upstream_issue_leaked_excludes_badge_row():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # cells/cpp) -- the top-of-file NuGet badge (`[![NuGet version](...Aspose.Cells.Cpp.FOSS...)
+    # ]`) coincidentally shared 2 tokens with the same INFORMATIONAL entry as the Installation
+    # false positive above. Only the badge line itself is excluded, not the whole preamble --
+    # the real, confirmed tex/python leak lived in the preamble (a top-of-file blockquote),
+    # so blanket-excluding the preamble would have hidden that real case.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## NuGet package's bundled sample doesn't exercise its own packaged CMake config\n"
+        "- **Severity**: INFORMATIONAL\n"
+        "- **Evidence**: the real `Aspose.Cells.Cpp.FOSS` package's bundled "
+        "`build/native/samples/CMakeLists.txt` doesn't reference its own config.\n"
+    )
+    text = (
+        "# Some Product\n\n"
+        "[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg)]"
+        "(https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+        "## Key Capabilities\n\n- Does a thing.\n"
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, upstream) == []
+
+
+def test_no_upstream_issue_leaked_still_catches_preamble_blockquote():
+    # Regression guard for the fix above: excluding badge LINES must never accidentally
+    # exclude the rest of the preamble too -- the real, confirmed tex/python leak was a
+    # blockquote in the preamble (before any ## heading), which must still be caught.
+    text = _wrap("flowchart TD\n  A --> B")
+    text = text.replace(
+        "# Some Product\n\n",
+        "# Some Product\n\n" + _REAL_TEX_PYTHON_LEAK_BLOCKQUOTE + "\n",
+    )
+    findings = checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_TEX_PYTHON_UPSTREAM_ISSUES
+    )
+    assert findings
+
+
+def test_no_upstream_issue_leaked_excludes_informational_severity():
+    # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
+    # html/python) -- a third confirmed false positive against an INFORMATIONAL entry (the
+    # `[js]` extra failing to build on Windows), matching legitimate Scope-and-Limitations
+    # prose describing the real, unrelated fact that JSContext requires the `[js]` extra.
+    # All 7 of this session's confirmed real leak instances trace to BLOCKING/
+    # FUNCTIONAL-DEFECT entries, none to INFORMATIONAL ones -- verified directly against
+    # every one of the 7 real upstream-issues.md files before adopting this exclusion.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## [js] extra fails to build on Windows\n"
+        "- **Severity**: INFORMATIONAL\n"
+        "- **Evidence**: the `[js]` extra's `quickjs` dependency fails to build on Windows; "
+        "no block uses `JSContext`.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "## Scope and Limitations\n\n"
+            "- JavaScript execution is opt-in through `JSContext` (requires the `[js]` "
+            "extra).\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, upstream) == []
+
+
+def test_no_upstream_issue_leaked_still_catches_functional_defect_severity():
+    # Regression guard: excluding INFORMATIONAL severity must never accidentally exclude
+    # BLOCKING/FUNCTIONAL-DEFECT entries too.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## Something breaks\n"
+        "- **Severity**: FUNCTIONAL-DEFECT\n"
+        "- **Evidence**: `import aspose_tex` raises `IndentationError` in 35 of the 45 "
+        "modules.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "> `import aspose_tex` raises `IndentationError` in 35 of the 45 modules.\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, upstream) != []
+
+
 def test_no_upstream_issue_leaked_ignores_fenced_code_blocks():
     text = _wrap(
         "flowchart TD\n  A --> B",
