@@ -2562,6 +2562,395 @@ def check_section_job_distinctness(readme_text: str) -> list[dict]:
     return findings
 
 
+# --- Fourteenth incident / MT029 (2026-08-09): five visitor-facing content-quality rules ---
+# (upstream-issue disclosure, Key Capabilities SEO, Scope and Limitations list format, dev/test
+# artifact linkage) plus a general-purpose section-isolation idempotency gate.
+
+_ANY_BACKTICK_TOKEN_RE = re.compile(r"`([^`]+)`")
+_COUNT_PHRASE_RE = re.compile(r"\b\d+\s+of\s+(?:the\s+)?\d+\b", re.IGNORECASE)
+# Generic words that recur across many issue titles regardless of subject ("Package Fails to
+# Import", "Build Does Not Work") -- excluded from title-word fingerprinting so a coincidental
+# shared word alone never contributes toward the 2-token flag threshold.
+_GENERIC_ISSUE_TITLE_WORDS = {
+    "package", "fails", "does", "work", "works", "issue", "error", "errors", "problem",
+    "broken", "missing", "cannot", "currently", "upstream", "systemic", "entire", "entirely",
+    "build", "install", "installation", "import", "module", "modules", "source", "repository",
+}
+
+
+def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[str]]:
+    """Per real `upstream-issues.md` `## {title}` entry, extract a set of specific, rare
+    fingerprint tokens: every backtick-quoted exact term in the entry body (exception/error
+    type names, class/method names, exact commands -- the schema's own `- **Evidence**:` line
+    already uses backticks for these, confirmed real across every captured instance this
+    session), every `"N of M"`-shaped count phrase (`"35 of the 45"`, `"67 of 69"`), and the
+    title's own significant (5+ letter, non-generic) words. Returns one set per entry --
+    callers require 2+ concurring tokens from the SAME set before flagging a paragraph, so a
+    single coincidentally-shared token (a class name legitimately mentioned elsewhere) is
+    never enough on its own.
+    """
+    fingerprints: list[set[str]] = []
+    for match in re.finditer(
+        r"^##\s+(.+?)\s*$(.*?)(?=^##\s|\Z)", upstream_issues_text, re.MULTILINE | re.DOTALL
+    ):
+        title, body = match.group(1), match.group(2)
+        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body))
+        tokens |= {m.group(0) for m in _COUNT_PHRASE_RE.finditer(body)}
+        tokens |= {
+            w for w in re.findall(r"[A-Za-z]{5,}", title)
+            if w.lower() not in _GENERIC_ISSUE_TITLE_WORDS
+        }
+        if tokens:
+            fingerprints.append(tokens)
+    return fingerprints
+
+
+def check_no_upstream_issue_leaked_into_readme(
+    readme_text: str, upstream_issues_text: str
+) -> list[dict]:
+    """Hard gate (2026-08-09, Fourteenth incident / MT029, Items 1+3). Real, confirmed defect:
+    a 30-product portfolio scan found 7 of 30 (23%) README candidates carrying forensic
+    upstream-defect detail (exact error text, exact file/module counts, exact reproduction
+    steps) that duplicates a real, matching entry already correctly recorded in the sibling
+    `upstream-issues.md` -- in two structural forms, an explicit `> **Known issue:**`
+    blockquote (`tex/python`, `cells/go`) and plain bold-lead-in prose with no blockquote at
+    all (`3d/python`, `3d/java`, `3d/typescript`, `slides/java`, `words/net`). The prior
+    defense, `check_process_narration_smells`, is a fixed historical phrase blocklist --
+    structurally reactive, unable to catch a new incident phrased differently. This check is
+    structural instead: it cross-references the README against upstream-issues.md's own real,
+    structured entries (`_extract_upstream_issue_fingerprints`) rather than matching wording.
+
+    A paragraph (fenced code blocks and the `## API Reference` section excluded -- real class
+    names legitimately recur there without describing the defect) is flagged only when it
+    contains 2 or more fingerprint tokens from the SAME upstream-issues.md entry -- a single
+    shared token is not enough (see `_extract_upstream_issue_fingerprints`'s own docstring).
+
+    No-op (empty findings) when `upstream_issues_text` is empty/absent, or has no entries with
+    extractable fingerprints (e.g. a "No upstream issues identified." file) -- nothing to leak.
+
+    Remediation is not always deletion: a real, actionable blocking command (e.g. `words/net`'s
+    real NU1101 build failure) still needs a plain, non-forensic pointer sentence in context
+    (matching `html/python`'s already-correct "see upstream-issues.md for the root cause"
+    pattern) -- only the forensic *specificity* must never appear in the README itself.
+    """
+    if not upstream_issues_text:
+        return []
+    fingerprints = _extract_upstream_issue_fingerprints(upstream_issues_text)
+    if not fingerprints:
+        return []
+
+    prose = _ANY_FENCED_CODE_RE.sub("", readme_text)
+    api_ref_match = _FULL_API_REF_SECTION_RE.search(prose)
+    if api_ref_match:
+        prose = prose[: api_ref_match.start()] + prose[api_ref_match.end():]
+
+    findings = []
+    for paragraph in re.split(r"\n\s*\n", prose):
+        if not paragraph.strip():
+            continue
+        for fp_set in fingerprints:
+            hits = {tok for tok in fp_set if tok in paragraph}
+            if len(hits) >= 2:
+                findings.append({
+                    "matched_tokens": sorted(hits),
+                    "paragraph": paragraph.strip()[:200],
+                    "reason": "this paragraph restates specific facts already recorded in "
+                              "upstream-issues.md -- forensic defect detail must live only "
+                              "there, never in the public README",
+                })
+    return findings
+
+
+_KEY_CAPABILITIES_SECTION_RE = re.compile(
+    r"^##\s+Key Capabilities\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+)
+
+
+def check_key_capabilities_quality(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-09, MT029 Item 2). A 6-product sample found Key
+    Capabilities prose already reasonably strong (full sentences, real keywords, natural
+    language) but with two real, recurring quality issues: bullet count too thin/fragmented,
+    and 3+ bullets sharing the same near-duplicate opening (the confirmed `words/python`
+    shape -- three separate single-clause "Load X via Y" bullets for DOCX/DOC/RTF that read as
+    a broken-apart enumeration rather than distinct capabilities). Flags, never blocks --
+    "is this bullet well-composed" is editorial judgment, the same two-tier posture as every
+    other prose-quality check in this module.
+    """
+    section_match = _KEY_CAPABILITIES_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    bullets = re.findall(r"^-\s+(.+)$", section_match.group(1), re.MULTILINE)
+    findings: list[dict] = []
+    if not (4 <= len(bullets) <= 12):
+        findings.append({
+            "reason": f"{len(bullets)} bullet(s) -- outside the healthy 4-12 range (too thin "
+                      "to be useful, or too fragmented/duplicative)",
+        })
+    # First-word grouping, not a 2-word prefix -- the real words/python instance is "Load
+    # DOCX documents...", "Load legacy DOC files...", "Load RTF files...": the same opening
+    # VERB with a different 2nd word every time, which a 2-word-prefix key would never group
+    # together at all. Found via this check's own test suite before trusting it on real
+    # content, not assumed correct on the first design.
+    openings: dict[str, list[str]] = {}
+    for bullet in bullets:
+        words = bullet.split()
+        key = words[0].lower() if words else ""
+        if key:
+            openings.setdefault(key, []).append(bullet)
+    for key, group in openings.items():
+        if len(group) >= 3:
+            findings.append({
+                "reason": f"{len(group)} bullets all open with '{key}' -- likely fragmented "
+                          "single-format bullets that should consolidate into one",
+                "bullets": group,
+            })
+    for bullet in bullets:
+        if len(bullet) < 40 and "`" not in bullet:
+            findings.append({"reason": "thin bullet (<40 chars, no backtick-quoted keyword)", "bullet": bullet})
+    return findings
+
+
+_SCOPE_LIMITATIONS_SECTION_RE = re.compile(
+    r"^##\s+Scope and Limitations\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+)
+_STUB_INDICATOR_RE = re.compile(
+    r"\bNotImplementedException\b|\bnot implemented\b|\bnot yet implemented\b|\bstub\b|\bthrows\b",
+    re.IGNORECASE,
+)
+
+
+def check_capability_scope_contradiction(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-09, MT029 Item 2). Real, confirmed motivating case:
+    `3d/net`'s Key Capabilities claimed "Embed or extract text watermarks... via the
+    `Watermark` utility class" while its own `Watermark.cs` source has every `EncodeWatermark`/
+    `DecodeWatermark` overload unconditionally `throw new NotImplementedException(...)` -- and
+    its own Scope and Limitations already correctly documented this. No check previously
+    cross-referenced these two sections against each other.
+
+    Extracts the first backtick-quoted token from every Key Capabilities bullet, reduces it to
+    a bare keyword (strips any `.method`/`(args)` suffix), and case-insensitively substring-
+    matches that keyword against every Scope-and-Limitations bullet containing a stub-
+    indicating phrase -- a *substring* match, not an exact backtick-token match, because the
+    real motivating case describes the stub in plain prose, not backticks: `3d/net`'s real
+    Scope-and-Limitations text is "...and text-watermark encode/decode" (no backticks at all)
+    while Key Capabilities names the class as `` `Watermark` ``; an exact-token design would
+    have missed this real instance entirely, confirmed by testing against the real file before
+    finalizing this design, not assumed to work. Deliberately coarse and heuristic -- a class
+    can legitimately be mostly-supported with one specific stub method, which this substring
+    check cannot distinguish from a genuine contradiction; it exists to prompt the same
+    judgment pass that would have caught the real `3d/net` instance, not to auto-block on
+    every hit.
+    """
+    caps_match = _KEY_CAPABILITIES_SECTION_RE.search(readme_text)
+    scope_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
+    if not caps_match or not scope_match:
+        return []
+    cap_bullets = re.findall(r"^-\s+(.+)$", caps_match.group(1), re.MULTILINE)
+    scope_bullets = re.findall(r"^-\s+(.+)$", scope_match.group(1), re.MULTILINE)
+    stub_bullets = [b for b in scope_bullets if _STUB_INDICATOR_RE.search(b)]
+
+    findings = []
+    for bullet in cap_bullets:
+        cap_tokens = _ANY_BACKTICK_TOKEN_RE.findall(bullet)
+        if not cap_tokens:
+            continue
+        keyword = re.split(r"[.(]", cap_tokens[0])[0]
+        if len(keyword) < 4:
+            continue
+        keyword_re = re.compile(re.escape(keyword), re.IGNORECASE)
+        for stub_bullet in stub_bullets:
+            if keyword_re.search(stub_bullet):
+                findings.append({
+                    "capability_bullet": bullet,
+                    "matched_keyword": keyword,
+                    "scope_bullet": stub_bullet,
+                    "reason": f"'{keyword}' is named as a working capability here, but a "
+                              "Scope and Limitations bullet documents related functionality "
+                              "as not-implemented/stub -- verify this isn't a fabricated-"
+                              "capability contradiction",
+                })
+                break
+    return findings
+
+
+def check_scope_limitations_format(readme_text: str) -> list[dict]:
+    """Hard gate (2026-08-09, MT029 Item 4). A 6-product sample found 0 of 6 using a bulleted
+    list -- 5 of 6 were prose paragraphs, and the 1 real exception (`pdf/net`) already showed
+    the target shape: a bulleted list (optionally with bold category sub-labels once there are
+    enough items to group) followed by a plain-prose closing paragraph linking the Enterprise
+    Edition. This check enforces that shape portfolio-wide -- it does not invent a new format,
+    it generalizes the one real product that already had it right.
+
+    Findings:
+    - `not_a_list`: the section has no `- ` bulleted lines at all (the old prose-paragraph
+      shape).
+    - `enterprise_paragraph_is_bulleted`: the closing Enterprise-mention content is itself a
+      bullet -- violates the user's explicit "this para should remain as it is" instruction
+      (a plain paragraph, not absorbed into the limitations list).
+    - `missing_enterprise_paragraph`: no plain-prose paragraph linking a real
+      `products.aspose.com` Enterprise Edition URL follows the limitations list.
+    """
+    section_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    lines = [line for line in section_match.group(1).splitlines() if line.strip()]
+    if not lines:
+        return [{"reason": "empty_section", "detail": "Scope and Limitations section is empty"}]
+
+    bullet_lines = [line for line in lines if line.lstrip().startswith("- ")]
+    if not bullet_lines:
+        return [{
+            "reason": "not_a_list",
+            "detail": "Scope and Limitations must be a bulleted list (one distinct limitation "
+                      "per '- ' line), not prose paragraphs",
+        }]
+
+    # Classify by content, not position -- an earlier position-based design ("everything
+    # after the last bullet is the trailing paragraph") could not tell "no enterprise
+    # paragraph at all" apart from "the enterprise mention IS itself the last bullet" (both
+    # produce an empty trailing region); found via this check's own test suite before
+    # trusting it on real content, not assumed correct on the first design.
+    non_bullet_lines = [line for line in lines if not line.lstrip().startswith("- ")]
+    enterprise_in_bullet = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in bullet_lines)
+    enterprise_in_prose = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in non_bullet_lines)
+
+    findings = []
+    if enterprise_in_bullet:
+        findings.append({
+            "reason": "enterprise_paragraph_is_bulleted",
+            "detail": "the closing Enterprise Edition paragraph must stay plain prose, not be "
+                      "absorbed into the limitations list",
+        })
+    elif not enterprise_in_prose:
+        findings.append({
+            "reason": "missing_enterprise_paragraph",
+            "detail": "Scope and Limitations must close with a plain-prose paragraph linking "
+                      "the Enterprise Edition",
+        })
+    return findings
+
+
+def check_dev_test_artifacts_linked(readme_text: str, detected_artifacts: list[dict]) -> list[dict]:
+    """Hard gate (2026-08-09, MT029 Item 5). An 8-product clone-cache audit found real,
+    recurring gaps: `AGENTS.md`/`agents.md` present but unlinked in 4 of 5 applicable repos;
+    real in-repo `docs/*.md` guides, `PUBLIC_API.md`, `CHANGELOG.md`, `PUBLISHING.md` never
+    referenced at all (`pdf/java`: 9 real docs files, 0 linked); nested test/example
+    `README.md` files unlinked in 3 of 8. Categories confirmed absent from every sampled repo
+    (`CONTRIBUTING.md`, `tox.ini`, `noxfile.py`, `Makefile`, `.coveragerc`,
+    `CODE_OF_CONDUCT.md`, root `SECURITY.md`) are correctly never required -- `detected_
+    artifacts` (from `_detect_dev_test_artifacts`) only ever contains real, on-disk paths,
+    never invented ones, matching this plan's "link IF it exists, never guess" discipline.
+
+    A detected artifact counts as linked when its relative path or basename appears inside
+    some real markdown link href in the README (not just prose mention). No-op when
+    `detected_artifacts` is empty.
+    """
+    if not detected_artifacts:
+        return []
+    hrefs = {href for _, href in _MD_LINK_RE.findall(readme_text)}
+    findings = []
+    for artifact in detected_artifacts:
+        path = artifact["relative_path"]
+        basename = path.rsplit("/", 1)[-1]
+        if any(path in href or basename in href for href in hrefs):
+            continue
+        findings.append({
+            "path": path, "kind": artifact.get("kind"),
+            "reason": f"real artifact '{path}' exists in the source repo but is not linked "
+                      f"anywhere in the README (expected in '{artifact.get('section')}')",
+        })
+    return findings
+
+
+_DEV_TESTING_SECTION_RE = re.compile(
+    r"^##\s+Development and Testing\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+)
+
+
+def check_development_testing_collapse(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-09, MT029 Item 5). Generalizes the same "brief,
+    always-visible summary + `<details>` for the rest" shape already proven twice in this
+    plan (`## Additional Examples`'s flagship-example rule; this session's own MT028 API-
+    Reference-table + Detailed-Member-Reference split) to `## Development and Testing` --
+    once real artifact linking (`check_dev_test_artifacts_linked`) can add several links plus
+    multiple real test/lint/build commands, the section risks the same "wall of detail with
+    nothing collapsed" shape those two precedents already fixed elsewhere.
+
+    Flags a section with more than 2 fenced code blocks or 3+ linked artifacts and no
+    `<details>` wrapper at all -- a prompt to restructure, not an automatic fail, since a
+    genuinely short section (one install command, one test command) never needs collapsing.
+    """
+    section_match = _DEV_TESTING_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    body = section_match.group(1)
+    if "<details>" in body:
+        return []
+    fenced_count = len(_ANY_FENCED_CODE_RE.findall(body))
+    link_count = len(_MD_LINK_RE.findall(body))
+    if fenced_count > 2 or link_count >= 3:
+        return [{
+            "reason": f"Development and Testing has {fenced_count} code block(s) and "
+                      f"{link_count} linked artifact(s) with no <details> wrapper -- consider "
+                      "a brief always-visible summary + collapsed detail, matching the "
+                      "Additional Examples / API Reference sections' established pattern",
+        }]
+    return []
+
+
+def _split_into_sections(markdown_text: str) -> dict[str, str]:
+    """Split into `{heading_text: full_section_text_including_heading}`, plus a
+    `"__preamble__"` key for everything before the first `##` heading (title, badges, banner,
+    intro paragraph). Only `##` (H2) headings are section boundaries -- `###` subsections stay
+    inside their owning `##` section's text, which is exactly what "did this section change"
+    should mean for `check_only_sections_changed`.
+    """
+    matches = list(re.finditer(r"^##\s+(.+?)\s*$", markdown_text, re.MULTILINE))
+    sections: dict[str, str] = {}
+    preamble_end = matches[0].start() if matches else len(markdown_text)
+    sections["__preamble__"] = markdown_text[:preamble_end]
+    for i, match in enumerate(matches):
+        start = match.start()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(markdown_text)
+        sections[match.group(1).strip()] = markdown_text[start:end]
+    return sections
+
+
+def check_only_sections_changed(
+    old_markdown_text: str, new_markdown_text: str, allowed_headings: list[str]
+) -> list[dict]:
+    """General-purpose section-isolation hard gate (2026-08-09, MT029 idempotency
+    requirement), generalizing `check_only_mermaid_block_changed`'s (MT021/MT024) proof
+    technique from one hardcoded region (the Mermaid block) to any named set of `##` sections.
+    Pass `"__preamble__"` in `allowed_headings` to permit the region before the first `##`
+    heading (title/badges/banner/intro paragraph) to change too -- needed for Items 1+3's
+    known-issue relocation, which genuinely spans that preamble and Scope and Limitations
+    together as one coordinated edit.
+
+    Returns a list of `{"heading", "reason"}` findings for every section OUTSIDE
+    `allowed_headings` whose text differs between old and new (including a section added or
+    removed entirely) -- empty iff every section not named in `allowed_headings` is
+    byte-identical. Unlike the boolean `check_only_mermaid_block_changed`, this returns
+    structured findings naming exactly which section unexpectedly changed -- a deliberate
+    API improvement for a check now used across many different single- and multi-section
+    edits, not a regression from the earlier function's shape.
+    """
+    old_sections = _split_into_sections(old_markdown_text)
+    new_sections = _split_into_sections(new_markdown_text)
+    allowed = set(allowed_headings)
+    findings = []
+    for heading in set(old_sections) | set(new_sections):
+        if heading in allowed:
+            continue
+        if old_sections.get(heading) != new_sections.get(heading):
+            findings.append({
+                "heading": heading,
+                "reason": "section changed but is not in the declared allowed_headings set "
+                          "for this edit",
+            })
+    return findings
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check At-a-glance Mermaid diagram shape (2026-08-08 simplified model: "

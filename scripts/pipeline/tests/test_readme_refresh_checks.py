@@ -2478,3 +2478,383 @@ def test_named_member_accuracy_falls_back_to_clone_cache_when_no_reference_page(
     )
     readme = "- `Worksheet`\n  - `SetName(value)`\n"
     assert checks.check_named_member_accuracy(readme, str(tmp_path)) == []
+
+
+# --- Fourteenth incident / MT029 (2026-08-09): five visitor-facing content-quality rules ----
+
+# Real, captured-verbatim upstream-issues.md entry (tex/python, trimmed) -- the confirmed
+# motivating instance for check_no_upstream_issue_leaked_into_readme.
+_REAL_TEX_PYTHON_UPSTREAM_ISSUES = """# Upstream issues -- Aspose.TeX FOSS for Python
+
+Verified: 2026-08-02 against https://github.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python
+
+## Package fails to import entirely -- systemic indentation corruption
+- **Severity**: BLOCKING
+- **Evidence**: `import aspose_tex` raises a real `IndentationError`. Root cause: 35 of the 45
+  `.py` files under `src/aspose_tex/` have every block body indented to exactly one space
+  regardless of true nesting depth.
+- **Impact**: literally none of the documented Python examples in this README can currently
+  execute against this source snapshot.
+- **Not fixable here because**: reconstructing correct indentation is not recoverable by
+  inspection or guesswork.
+"""
+
+# Real, captured-verbatim blockquote (tex/python's actual readme.md, trimmed) -- Form A of the
+# confirmed defect: duplicates the entry above almost verbatim.
+_REAL_TEX_PYTHON_LEAK_BLOCKQUOTE = (
+    "> **Known issue:** the current source tree fails to import.\n"
+    '> `pip install -e ".[dev]"` completes successfully, but\n'
+    "> `import aspose_tex` raises `IndentationError` -- 35 of the 45 modules under\n"
+    "> `src/aspose_tex/` have block bodies indented to a single space\n"
+    "> regardless of nesting depth, which is not valid Python. `pytest` fails to collect\n"
+    "> 67 of 69 test modules for the same reason.\n"
+)
+
+# The already-correct, non-leaking pattern (html/python's real shape) -- a plain pointer with
+# zero forensic specificity.
+_REAL_HTML_PYTHON_CLEAN_POINTER = (
+    "`pip install` currently fails for this repository at any source -- "
+    "see [upstream-issues.md](upstream-issues.md) for the root cause.\n"
+)
+
+
+def test_no_upstream_issue_leaked_flags_real_blockquote_instance():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- Does a thing.\n\n" + _REAL_TEX_PYTHON_LEAK_BLOCKQUOTE,
+    )
+    findings = checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_TEX_PYTHON_UPSTREAM_ISSUES
+    )
+    assert findings
+    assert len(findings[0]["matched_tokens"]) >= 2
+
+
+def test_no_upstream_issue_leaked_clean_on_plain_pointer():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- Does a thing.\n\n" + _REAL_HTML_PYTHON_CLEAN_POINTER,
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_TEX_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_no_upstream_issue_leaked_noop_without_upstream_issues_text():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_REAL_TEX_PYTHON_LEAK_BLOCKQUOTE)
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, "") == []
+
+
+def test_no_upstream_issue_leaked_noop_when_no_extractable_fingerprints():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_REAL_TEX_PYTHON_LEAK_BLOCKQUOTE)
+    clean_upstream = "# Upstream issues\n\nNo upstream issues identified during verification.\n"
+    assert checks.check_no_upstream_issue_leaked_into_readme(text, clean_upstream) == []
+
+
+def test_no_upstream_issue_leaked_requires_two_concurring_tokens():
+    # A single shared token (one class name mentioned legitimately elsewhere) must never
+    # trigger a false positive on its own.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- `IndentationError` is a real Python built-in exception type.\n",
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_TEX_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_no_upstream_issue_leaked_ignores_fenced_code_blocks():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Does a thing.\n\n```python\n# import aspose_tex raises IndentationError\n"
+            "# 35 of the 45 modules are affected\n```\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_TEX_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_key_capabilities_quality_flags_too_few_bullets():
+    text = _wrap("flowchart TD\n  A --> B", extra_section="- Loads a file.\n- Saves a file.\n")
+    findings = checks.check_key_capabilities_quality(text)
+    assert any("bullet(s)" in f["reason"] for f in findings)
+
+
+def test_key_capabilities_quality_flags_fragmented_near_duplicate_openings():
+    # Real, confirmed shape: words/python's 3 near-identical "Load X via Y" bullets.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Load DOCX documents with a pure-Python reader.\n"
+            "- Load legacy DOC files via `olefile`.\n"
+            "- Load RTF files via OLE2 delegation.\n"
+            "- Export to Markdown with rich formatting.\n"
+        ),
+    )
+    findings = checks.check_key_capabilities_quality(text)
+    assert any("fragmented" in f["reason"] for f in findings)
+
+
+def test_key_capabilities_quality_flags_thin_bullet():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Reads files.\n- Writes files.\n- Converts files.\n"
+            "- Encrypts documents with AES-256 via `PdfFileSecurity`.\n"
+        ),
+    )
+    findings = checks.check_key_capabilities_quality(text)
+    assert any(f["reason"].startswith("thin bullet") for f in findings)
+
+
+def test_key_capabilities_quality_clean_on_well_formed_section():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Open and create PDFs with full round-trip save via `Document` and `Page`.\n"
+            "- Extract and search text via `TextAbsorber` and `TextFragmentAbsorber`.\n"
+            "- Fill and build AcroForm fields via `Form` and `FormEditor`.\n"
+            "- Encrypt with AES-128/256 and sign with PKCS#7 via `PdfFileSignature`.\n"
+            "- Render pages to PNG, JPEG, and TIFF via `PngDevice` and `TiffDevice`.\n"
+        ),
+    )
+    assert checks.check_key_capabilities_quality(text) == []
+
+
+def test_key_capabilities_quality_noop_without_section():
+    text = _wrap("flowchart TD\n  A --> B", extra_section="")
+    # _wrap always emits a Key capabilities heading with default content -- confirm a real
+    # absence (different heading entirely) is a true no-op.
+    text_no_section = text.replace("## Key capabilities", "## Something Else")
+    assert checks.check_key_capabilities_quality(text_no_section) == []
+
+
+_3D_NET_WATERMARK_CAPABILITY_BULLET = (
+    "- `Watermark` embeds and extracts text watermarks in 3D files.\n"
+)
+_3D_NET_WATERMARK_SCOPE_BULLET = (
+    "- Several members throw `NotImplementedException` in this edition, including Draco "
+    "decode/encode, and text-watermark encode/decode.\n"
+)
+
+
+def test_capability_scope_contradiction_flags_real_3d_net_case():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            _3D_NET_WATERMARK_CAPABILITY_BULLET
+            + "\n## Scope and Limitations\n\n"
+            + _3D_NET_WATERMARK_SCOPE_BULLET
+            + "\nFor more, see [Enterprise Edition](https://products.aspose.com/3d/net/).\n"
+        ),
+    )
+    findings = checks.check_capability_scope_contradiction(text)
+    assert any(f["matched_keyword"] == "Watermark" for f in findings)
+
+
+def test_capability_scope_contradiction_clean_when_no_overlap():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- `Cylinder` is a parameterized solid primitive convertible to `Mesh`.\n"
+            "\n## Scope and Limitations\n\n"
+            "- Rendering (`Scene.Render`) is not implemented in this edition.\n"
+            "\nFor more, see [Enterprise Edition](https://products.aspose.com/3d/net/).\n"
+        ),
+    )
+    assert checks.check_capability_scope_contradiction(text) == []
+
+
+def test_capability_scope_contradiction_flags_partial_stub_overlap_too():
+    # Documented, accepted heuristic over-inclusion (see the check's own docstring): a class
+    # that's mostly real but has one specific stub method still trips this coarse substring
+    # check -- it is a prompt for judgment, not proof of a genuine contradiction, and this
+    # test exists to pin that documented behavior, not to treat it as a bug.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- `Scene` builds and traverses a scene graph.\n"
+            "\n## Scope and Limitations\n\n"
+            "- Rendering (`Scene.Render`) is not implemented in this edition.\n"
+            "\nFor more, see [Enterprise Edition](https://products.aspose.com/3d/net/).\n"
+        ),
+    )
+    findings = checks.check_capability_scope_contradiction(text)
+    assert any(f["matched_keyword"] == "Scene" for f in findings)
+
+
+def test_capability_scope_contradiction_noop_without_both_sections():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_3D_NET_WATERMARK_CAPABILITY_BULLET)
+    assert checks.check_capability_scope_contradiction(text) == []
+
+
+_REAL_PDF_NET_SCOPE_LIST = (
+    "The following are **not** implemented in this edition.\n\n"
+    "- **Out of scope by design** -- AI/LowCode workflows (`Aspose.Pdf.AI.*`); "
+    "multithreading APIs (`Aspose.Pdf.Multithreading.*`).\n"
+    "- **Partial -- basics work, advanced doesn't** -- digital-signature validation options "
+    "are stored but not active.\n"
+    "- **Renderer fidelity** -- the FOSS rendering output is pixel-close but not "
+    "byte-identical to Aspose.PDF for .NET.\n\n"
+    "For AI-assisted workflows, additional format converters, multithreading, and full "
+    "validation coverage, see [Aspose.PDF for .NET -- Enterprise Edition]"
+    "(https://products.aspose.com/pdf/net/).\n"
+)
+
+
+def test_scope_limitations_format_clean_on_real_pdf_net_shape():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n" + _REAL_PDF_NET_SCOPE_LIST
+    ))
+    assert checks.check_scope_limitations_format(text) == []
+
+
+def test_scope_limitations_format_flags_prose_paragraph_shape():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "This project reads and writes XLSX only. For broader coverage, see "
+        "[Enterprise Edition](https://products.aspose.com/cells/cpp/).\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "not_a_list" for f in findings)
+
+
+def test_scope_limitations_format_flags_bulleted_enterprise_paragraph():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "- Reads and writes XLSX only.\n"
+        "- See [Enterprise Edition](https://products.aspose.com/cells/cpp/) for more.\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "enterprise_paragraph_is_bulleted" for f in findings)
+
+
+def test_scope_limitations_format_flags_missing_enterprise_paragraph():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n- Reads and writes XLSX only.\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "missing_enterprise_paragraph" for f in findings)
+
+
+def test_scope_limitations_format_noop_without_section():
+    text = _wrap("flowchart TD\n  A --> B", extra_section="- Does a thing.\n")
+    assert checks.check_scope_limitations_format(text) == []
+
+
+def test_dev_test_artifacts_linked_flags_missing_link():
+    detected = [{
+        "relative_path": "AGENTS.md", "kind": "agents_guide", "section": "Documentation & Resources",
+    }]
+    text = _wrap("flowchart TD\n  A --> B", extra_section="- Does a thing.\n")
+    findings = checks.check_dev_test_artifacts_linked(text, detected)
+    assert findings and findings[0]["path"] == "AGENTS.md"
+
+
+def test_dev_test_artifacts_linked_clean_when_linked():
+    detected = [{
+        "relative_path": "AGENTS.md", "kind": "agents_guide", "section": "Documentation & Resources",
+    }]
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- See [AGENTS.md](AGENTS.md) for contributor guidance.\n",
+    )
+    assert checks.check_dev_test_artifacts_linked(text, detected) == []
+
+
+def test_dev_test_artifacts_linked_matches_by_basename():
+    detected = [{
+        "relative_path": "docs/testing.md", "kind": "docs_guide", "section": "Documentation & Resources",
+    }]
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- See [the testing guide](docs/testing.md) for details.\n",
+    )
+    assert checks.check_dev_test_artifacts_linked(text, detected) == []
+
+
+def test_dev_test_artifacts_linked_noop_when_none_detected():
+    text = _wrap("flowchart TD\n  A --> B", extra_section="- Does a thing.\n")
+    assert checks.check_dev_test_artifacts_linked(text, []) == []
+
+
+def test_development_testing_collapse_flags_uncollapsed_verbose_section():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Development and Testing\n\n"
+        "```bash\npip install -e .[dev]\n```\n\n```bash\npytest\n```\n\n```bash\nruff check .\n```\n\n"
+        "See [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md), and "
+        "[the CI workflow](.github/workflows/ci.yml).\n"
+    ))
+    findings = checks.check_development_testing_collapse(text)
+    assert findings and "code block" in findings[0]["reason"]
+
+
+def test_development_testing_collapse_clean_when_short():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Development and Testing\n\n"
+        "Install the dev extras and run the test suite:\n\n```bash\npip install -e .[dev]\n"
+        "pytest\n```\n"
+    ))
+    assert checks.check_development_testing_collapse(text) == []
+
+
+def test_development_testing_collapse_clean_when_already_collapsed():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Development and Testing\n\n"
+        "Install the dev extras and run the test suite.\n\n<details>\n<summary>Full test "
+        "matrix</summary>\n\n```bash\npip install -e .[dev]\n```\n\n```bash\npytest\n```\n\n"
+        "```bash\nruff check .\n```\n\nSee [AGENTS.md](AGENTS.md) and "
+        "[CONTRIBUTING.md](CONTRIBUTING.md).\n\n</details>\n"
+    ))
+    assert checks.check_development_testing_collapse(text) == []
+
+
+_SECTION_ISOLATION_BASE = (
+    "# Some Product\n\n"
+    "## Key Capabilities\n\n- Does a thing.\n\n"
+    "## Scope and Limitations\n\n- A limitation.\n\n"
+    "## Installation\n\n- Install it.\n"
+)
+
+
+def test_only_sections_changed_clean_when_only_allowed_section_differs():
+    old_text = _SECTION_ISOLATION_BASE
+    new_text = old_text.replace("- Does a thing.", "- Does a better thing.")
+    findings = checks.check_only_sections_changed(old_text, new_text, ["Key Capabilities"])
+    assert findings == []
+
+
+def test_only_sections_changed_flags_unexpected_section_change():
+    old_text = _SECTION_ISOLATION_BASE
+    new_text = old_text.replace("- Install it.", "- Install it differently.")
+    findings = checks.check_only_sections_changed(old_text, new_text, ["Key Capabilities"])
+    assert any(f["heading"] == "Installation" for f in findings)
+
+
+def test_only_sections_changed_allows_preamble_when_declared():
+    old_text = _SECTION_ISOLATION_BASE
+    new_text = "# Some Product\n\n> A new blockquote.\n\n" + old_text.split("\n\n", 1)[1]
+    findings = checks.check_only_sections_changed(old_text, new_text, ["__preamble__"])
+    assert findings == []
+
+
+def test_only_sections_changed_flags_preamble_when_not_declared():
+    old_text = _SECTION_ISOLATION_BASE
+    new_text = "# Some Product\n\n> A new blockquote.\n\n" + old_text.split("\n\n", 1)[1]
+    findings = checks.check_only_sections_changed(old_text, new_text, ["Key Capabilities"])
+    assert any(f["heading"] == "__preamble__" for f in findings)
+
+
+def test_only_sections_changed_flags_section_added_or_removed():
+    old_text = _SECTION_ISOLATION_BASE
+    new_text = old_text + "\n## Third-Party Notices\n\n- Some notice.\n"
+    findings = checks.check_only_sections_changed(old_text, new_text, ["Key Capabilities"])
+    assert any(f["heading"] == "Third-Party Notices" for f in findings)
+
+
+def test_only_sections_changed_clean_when_identical():
+    assert checks.check_only_sections_changed(
+        _SECTION_ISOLATION_BASE, _SECTION_ISOLATION_BASE, []
+    ) == []

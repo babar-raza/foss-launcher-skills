@@ -100,7 +100,9 @@ See [AGENTS.md](AGENTS.md) for contributor guidance.
 
 ## Scope and Limitations
 
-This is a minimal test fixture.
+- This is a minimal test fixture with a single limitation.
+
+This limitation does not apply to [Test Product — Enterprise Edition](https://products.aspose.com/testfam/testplat/), which adds full production support.
 
 ## Development and Testing
 

@@ -560,6 +560,71 @@ def _detect_license_file(clone_cache: Path) -> "dict | None":
     return None
 
 
+def _detect_dev_test_artifacts(clone_cache: Path) -> list[dict]:
+    """Fourteenth incident / MT029 (2026-08-09), Item 5. Real, deterministic scan for
+    development/testing/governance artifacts that -- when they exist -- must be linked from
+    the README (`check_dev_test_artifacts_linked`). Mirrors `_detect_license_file`'s shape
+    exactly: scan the real clone cache, return real found paths, never invent.
+
+    A confirmed-real, deliberately narrow allowlist (2026-08-09, 8-product audit). Categories
+    NOT in this list (`CONTRIBUTING.md`/`.rst`, `tox.ini`, `noxfile.py`, `Makefile`,
+    `.coveragerc`, `CODE_OF_CONDUCT.md`, root `SECURITY.md`) were confirmed absent from every
+    one of the 8 sampled repos and are deliberately excluded rather than guessed at.
+    """
+    if not clone_cache.is_dir():
+        return []
+    found: list[dict] = []
+
+    seen_real_paths: set[str] = set()
+
+    def _add(path: Path, kind: str, section: str) -> None:
+        if not path.is_file():
+            return
+        # Case-insensitive filesystems (Windows) alias "AGENTS.md" and "agents.md" to the
+        # same real file -- verify the real on-disk name matches what was requested before
+        # adding, so a single physical file is never registered twice under different
+        # casings (found live via this function's own fixture test on Windows; same
+        # discipline _detect_license_file already uses -- "use the exact on-disk path and
+        # casing verbatim").
+        try:
+            real_name = next(p.name for p in path.parent.iterdir() if p.name == path.name)
+        except StopIteration:
+            return
+        if real_name != path.name:
+            return
+        relative_path = str(path.relative_to(clone_cache)).replace("\\", "/")
+        if relative_path in seen_real_paths:
+            return
+        seen_real_paths.add(relative_path)
+        found.append({"relative_path": relative_path, "kind": kind, "section": section})
+
+    for name in ("AGENTS.md", "agents.md"):
+        _add(clone_cache / name, "agents_guide", "Documentation & Resources")
+    for name in ("CONTRIBUTING.md", "CONTRIBUTING.rst"):
+        _add(clone_cache / name, "contributing_guide", "Documentation & Resources")
+    _add(clone_cache / "PUBLIC_API.md", "public_api_doc", "Documentation & Resources")
+    _add(clone_cache / "CHANGELOG.md", "changelog", "Documentation & Resources")
+    _add(clone_cache / "PUBLISHING.md", "publishing_guide", "Documentation & Resources")
+
+    docs_dir = clone_cache / "docs"
+    if docs_dir.is_dir():
+        for md in sorted(docs_dir.glob("*.md")):
+            _add(md, "docs_guide", "Documentation & Resources")
+
+    workflows_dir = clone_cache / ".github" / "workflows"
+    if workflows_dir.is_dir():
+        for wf in sorted(workflows_dir.glob("*.yml")) + sorted(workflows_dir.glob("*.yaml")):
+            _add(wf, "ci_workflow", "Development and Testing")
+
+    _add(clone_cache / "examples" / "README.md", "examples_readme", "Development and Testing")
+
+    for child in sorted(clone_cache.iterdir()):
+        if child.is_dir() and "test" in child.name.lower():
+            _add(child / "README.md", "test_dir_readme", "Development and Testing")
+
+    return found
+
+
 def _old_readme_inventory(clone_cache: Path) -> dict:
     old_readme = clone_cache / "README.md"
     if not old_readme.is_file():
@@ -800,6 +865,33 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["no_undisclosed_blocking_commands"] = {
         "hard_gate": True,
         "findings": checks.check_no_undisclosed_blocking_commands(text, upstream_text),
+    }
+
+    # Fourteenth incident / MT029 (2026-08-09): five visitor-facing content-quality
+    # requirements found live during user review of tex/python's candidate -- Items 1+3
+    # (public upstream-defect disclosure, cross-referenced against the same upstream_text
+    # already loaded above), Item 2 (Key Capabilities SEO + capability/scope contradiction),
+    # Item 4 (Scope and Limitations list format), Item 5 (dev/test artifact linkage).
+    result["no_upstream_issue_leaked"] = {
+        "hard_gate": True,
+        "findings": checks.check_no_upstream_issue_leaked_into_readme(text, upstream_text),
+    }
+    result["key_capabilities_quality"] = {
+        "hard_gate": False, "findings": checks.check_key_capabilities_quality(text),
+    }
+    result["capability_scope_contradiction"] = {
+        "hard_gate": False, "findings": checks.check_capability_scope_contradiction(text),
+    }
+    result["scope_limitations_format"] = {
+        "hard_gate": True, "findings": checks.check_scope_limitations_format(text),
+    }
+    dev_test_artifacts = _detect_dev_test_artifacts(clone_cache)
+    result["dev_test_artifacts_linked"] = {
+        "hard_gate": True,
+        "findings": checks.check_dev_test_artifacts_linked(text, dev_test_artifacts),
+    }
+    result["development_testing_collapse"] = {
+        "hard_gate": False, "findings": checks.check_development_testing_collapse(text),
     }
 
     old_readme_path = clone_cache / "README.md"
