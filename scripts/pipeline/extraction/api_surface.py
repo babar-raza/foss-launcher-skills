@@ -19,6 +19,7 @@ Constants::
 """
 from __future__ import annotations
 
+import ast
 import copy
 import hashlib
 import logging
@@ -122,6 +123,156 @@ def _detect_vendor_files(files: list[Path], pkg_root: Path, language: str = "") 
                 vendor.add(fpath)
                 break
     return vendor
+
+
+# ---------------------------------------------------------------------------
+# RC-W1-004 (MT026 blind-spot audit): reachability tagging
+# ---------------------------------------------------------------------------
+#
+# is_public() (tree_helpers.py) already answers "is this declaration marked
+# public at the syntax level," and for C#/Java that is sufficient to exclude
+# `internal` types entirely -- they never reach api_surface.json in the first
+# place (confirmed: cells/net's `internal class XmlParsingException` never
+# appears in the output, because is_public() requires "public" among the
+# accumulated modifier text). But two other languages positively INCLUDE
+# items that are syntactically public/undecorated yet still unreachable by a
+# real consumer importing the package:
+#
+#   Python: `class Foo` in a deeply-nested module is is_public()==True (no
+#   leading underscore) and gets extracted -- but `from package import Foo`
+#   only works if `package/__init__.py` actually re-exports it. Confirmed
+#   live: words/python's DocumentReader/LdmDocxWriter are real, documented,
+#   is_public()==True classes that are NOT in aspose/words_foss/__init__.py's
+#   __all__ (only Document, SaveFormat, LoadFormat, saving are) --
+#   `from aspose.words_foss import DocumentReader` raises ImportError for a
+#   real reader of the generated docs page.
+#
+#   Rust: `pub struct Foo` inside a private `mod api;` is is_public()==True
+#   (the struct itself carries a bare `pub`) but unreachable from outside the
+#   crate unless `lib.rs` re-exports it via `pub use api::Foo;` (or the
+#   enclosing module chain is itself `pub mod`). Confirmed live: cells/rust's
+#   WorkbookModel is a `pub struct` inside `mod api;` (private) and is NOT in
+#   lib.rs's `pub use api::{...}` list, so no consumer of the crate can ever
+#   name it.
+#
+# Both helpers below are best-effort, single-file, regex-based scans (same
+# spirit as the existing S-1 per-file __all__ extraction below) -- NOT full
+# module-graph resolution. Any pattern they don't recognize (multi-level
+# re-export chains, glob `pub use x::*`, conditional/computed __all__, etc.)
+# makes them return None, and the caller then leaves every entry's
+# `reachable` at the default True -- this is a strictly additive signal that
+# only ever POSITIVELY marks an entry False; an unrecognized pattern must
+# never manufacture a false negative.
+
+
+def _extract_all_from_init(init_path: Path) -> "set[str] | None":
+    """Return the name set from a single __init__.py's top-level __all__.
+
+    Returns None if the file can't be read or has no recognizable top-level
+    ``__all__`` assignment. Does not handle ``__all__ +=``, conditional
+    assignment, or programmatic construction (same documented limitation as
+    the existing per-file S-1 __all__ scan).
+    """
+    try:
+        text = init_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    m = re.search(r"^__all__\s*=\s*[\[\(]([^\]\)]*)[\]\)]", text, re.MULTILINE | re.DOTALL)
+    if not m:
+        return None
+    return set(re.findall(r'["\'](\w+)["\']', m.group(1)))
+
+
+def _python_top_level_exports(pkg_root: Path) -> "tuple[set[str] | None, Path | None]":
+    """Return (export_names, export_root) for the package's real public surface.
+
+    Tries ``pkg_root/__init__.py`` first (the common case). Some Aspose FOSS
+    Python packages use a namespace-parent layout instead -- ``pkg_root``
+    resolves to an outer directory (e.g. ``aspose/``) whose own
+    ``__init__.py`` is empty, with the real package one level down (e.g.
+    ``aspose/words_foss/``, which declares the actual ``__all__``).
+    Confirmed live: words/python's ``package_root.py`` resolves *pkg_root* to
+    ``aspose/`` (empty ``__init__.py``), not ``aspose/words_foss/``.
+
+    When *pkg_root*'s own ``__init__.py`` has no usable ``__all__``, looks
+    for exactly one direct subdirectory whose ``__init__.py`` does -- an
+    unambiguous single-subpackage case. Multiple or zero matches mean
+    "cannot positively determine," returning ``(None, None)`` so the caller
+    defaults every entry's ``reachable`` to True.
+
+    The returned *export_root* is the directory those names are reachable
+    relative to -- callers must only apply the check to classes whose file
+    lives under it; classes elsewhere are out of scope for this signal.
+    """
+    top_init = pkg_root / "__init__.py"
+    if top_init.is_file():
+        names = _extract_all_from_init(top_init)
+        if names is not None:
+            return names, pkg_root
+    try:
+        subdirs_with_all = []
+        for child in sorted(pkg_root.iterdir()):
+            if not child.is_dir():
+                continue
+            child_init = child / "__init__.py"
+            if not child_init.is_file():
+                continue
+            names = _extract_all_from_init(child_init)
+            if names is not None:
+                subdirs_with_all.append((child, names))
+        if len(subdirs_with_all) == 1:
+            return subdirs_with_all[0][1], subdirs_with_all[0][0]
+    except OSError:
+        pass
+    return None, None
+
+
+_RUST_PUB_USE_BRACE_RE = re.compile(r"pub\s+use\s+[\w:]+::\{([^}]*)\}\s*;", re.DOTALL)
+_RUST_PUB_USE_SINGLE_RE = re.compile(r"pub\s+use\s+[\w:]+::(\w+)(?:\s+as\s+\w+)?\s*;")
+_RUST_PUB_USE_GLOB_RE = re.compile(r"pub\s+use\s+[\w:]+::\*\s*;")
+
+
+def _rust_reexported_names(pkg_root: Path) -> "set[str] | None":
+    """Return the set of names re-exported via `pub use` at the crate root.
+
+    Reads ``pkg_root/lib.rs`` -- ``package_root.py``'s ``_detect_rust_root()``
+    always resolves *pkg_root* to the crate's ``src/`` directory, so this is
+    the crate root for every Rust product onboarded so far.  Returns None
+    when lib.rs is missing, contains a glob re-export (``pub use x::*;``)
+    this regex-only pass cannot enumerate, or has no recognizable `pub use`
+    statement at all -- all three cases mean "cannot positively determine,"
+    so the caller defaults every entry's ``reachable`` to True.
+    """
+    lib_rs = pkg_root / "lib.rs"
+    if not lib_rs.is_file():
+        return None
+    try:
+        text = lib_rs.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    if _RUST_PUB_USE_GLOB_RE.search(text):
+        return None  # can't enumerate a glob re-export -- stay safe
+    names: set[str] = set()
+    found_any = False
+    for m in _RUST_PUB_USE_BRACE_RE.finditer(text):
+        found_any = True
+        for item in m.group(1).split(","):
+            item = item.strip()
+            if not item or item == "self":
+                continue
+            # "OrigName" or "OrigName as Alias" -- struct/enum extraction
+            # records the source-side name, so keep the pre-`as` identifier.
+            orig = item.split(" as ")[0].strip()
+            if orig:
+                names.add(orig)
+    for m in _RUST_PUB_USE_SINGLE_RE.finditer(text):
+        found_any = True
+        orig = m.group(1).strip()
+        if orig:
+            names.add(orig)
+    if not found_any:
+        return None  # no recognizable pub-use re-export -- stay safe
+    return names
 
 
 def _is_excluded_java_package(package: str, excluded_segments: frozenset[str]) -> bool:
@@ -1768,7 +1919,9 @@ def _flatten_inheritance(classes: list[dict]) -> None:
             _resolve(name, set())
 
 
-def _mark_package_init_exports(classes: list[dict], source_files: list[Path]) -> None:
+def _mark_package_init_exports(
+    classes: list[dict], source_files: list[Path], pkg_root: "Path | None" = None,
+) -> None:
     """Mark Python classes re-exported via any package __init__.py.__all__.
 
     PY-INIT-001: Packages that define classes in _internal/ and re-export them
@@ -1781,8 +1934,45 @@ def _mark_package_init_exports(classes: list[dict], source_files: list[Path]) ->
     source tree and sets exported_via_package_init=True on matching classes.
     index.py._is_public_api_entry() checks this flag before applying the
     /_internal/ path filter, so re-exported classes are counted as public API.
+
+    PY-INIT-002 (MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL, RC-font-python-02):
+    an __all__ entry is only a real re-export if the name is ALSO actually bound
+    in that same __init__.py (via an import, or a local def/class/assignment) --
+    not merely present as a string literal inside __all__'s list. Upstream
+    packages can and do carry an __all__ entry with no corresponding import (a
+    real, live-verified example: aspose-font-foss-for-python's `BinaryReader`/
+    `BinaryWriter` are listed in __all__ but never imported into the package
+    namespace, so `from aspose_font import BinaryReader` genuinely raises
+    ImportError). Treating such a name as public API mis-informs generated
+    reference content into citing a class that is not actually importable.
+    Verified via AST (ast.parse over the __init__.py source), not another
+    regex, so relative-import forms, parenthesized multi-name imports, and
+    `as`-aliases are all handled correctly, matching how Python itself
+    resolves names -- the previous name-only-in-__all__ regex match is the bug
+    this fixes, not the pattern to preserve. Do not fix the upstream repo
+    itself (runs/.clone_cache/ is read-only per AGENTS.md 2a); this pipeline
+    now correctly reports what the package's own __all__ inaccurately claims.
+
+    PY-INIT-003 (MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL, RC-font-python-01):
+    a boolean "is it exported somewhere" is not enough to construct a correct
+    import statement -- a class can be re-exported by a SUBPACKAGE's
+    __init__.py (e.g. aspose_font/cff/__init__.py re-exporting CffCharset)
+    without being re-exported by the top-level package __init__.py at all.
+    Live-verified against aspose-font-foss-for-python: `from aspose_font import
+    CffCharset` raises ImportError, but `from aspose_font.cff import
+    CffCharset` succeeds -- the class_import field ("cff.charset.CffCharset",
+    the class's OWN defining module) is a different fact from where the class
+    is genuinely re-exported and cannot substitute for it. When *pkg_root* is
+    given, each entry also gets public_import_module: the dotted path (from
+    pkg_root) of the __init__.py that genuinely re-exports it -- "" for the
+    top-level package root, "cff" for a subpackage, etc. -- so a consumer can
+    build `from {package}[.{public_import_module}] import {name}` exactly,
+    instead of guessing from source-file location. When the same name is
+    re-exported by more than one __init__.py, the shallowest (closest to
+    pkg_root) wins, matching normal "prefer the top-level public path" intent.
     """
     package_all_names: set[str] = set()
+    public_import_module: dict[str, str] = {}
     for src_file in source_files:
         if src_file.name != "__init__.py":
             continue
@@ -1795,18 +1985,69 @@ def _mark_package_init_exports(classes: list[dict], source_files: list[Path]) ->
             continue
         try:
             content = src_file.read_text(encoding="utf-8", errors="replace")
-            match = re.search(r"__all__\s*=\s*\[([^\]]*)\]", content, re.DOTALL)
-            if match:
-                package_all_names.update(re.findall(r'["\'](\w+)["\']', match.group(1)))
         except OSError:
-            pass
+            continue
+
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            # An __init__.py that doesn't even parse cannot be trusted for either
+            # its __all__ list or its bindings -- absence of evidence, not
+            # evidence of absence (same principle _resolve_python_shim_collisions
+            # already applies elsewhere in this file). Contribute nothing rather
+            # than falling back to the less-correct name-only match.
+            continue
+
+        declared_all: set[str] = set()
+        bound_names: set[str] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    if alias.name != "*":
+                        bound_names.add(alias.asname or alias.name)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    bound_names.add(alias.asname or alias.name.split(".")[0])
+            elif isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+                bound_names.add(node.name)
+            elif isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "__all__" \
+                            and isinstance(node.value, (ast.List, ast.Tuple)):
+                        for elt in node.value.elts:
+                            if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                declared_all.add(elt.value)
+                    elif isinstance(target, ast.Name):
+                        bound_names.add(target.id)
+
+        # Only names that are BOTH declared in __all__ AND actually bound in this
+        # file count as genuine re-exports -- an __all__ entry with no matching
+        # binding is the upstream bug PY-INIT-002 exists to stop trusting.
+        genuine_reexports = declared_all & bound_names
+        package_all_names.update(genuine_reexports)
+
+        if pkg_root is not None and genuine_reexports:
+            try:
+                rel_dir = src_file.parent.relative_to(pkg_root)
+                module_path = "" if rel_dir == Path(".") else ".".join(rel_dir.parts)
+            except ValueError:
+                continue
+            for name in genuine_reexports:
+                existing = public_import_module.get(name)
+                # Shallower (fewer dotted segments) wins -- "" (top-level) beats
+                # any subpackage path, matching "prefer the most public route".
+                if existing is None or len(module_path) < len(existing):
+                    public_import_module[name] = module_path
 
     if not package_all_names:
         return
 
     for entry in classes:
-        if entry.get("name") in package_all_names:
+        name = entry.get("name")
+        if name in package_all_names:
             entry["exported_via_package_init"] = True
+            if name in public_import_module:
+                entry["public_import_module"] = public_import_module[name]
 
 
 _PY_RELATIVE_IMPORT_RE = re.compile(
@@ -2032,6 +2273,51 @@ def extract_api_surface(
     # H-04d: Pre-compute set of files in vendor/private directories.
     # Classes from these files will be marked visibility="internal".
     _vendor_files = _detect_vendor_files(files, pkg_root, language=language)
+
+    # RC-W1-004: compute the reachability signal once per extraction run
+    # (pkg_root-level, not per-file) instead of once per class.
+    _python_exports: "set[str] | None" = None
+    _python_export_root: "Path | None" = None
+    _python_export_init_rel = ""
+    _rust_reexports: "set[str] | None" = None
+    if language == "python":
+        _python_exports, _python_export_root = _python_top_level_exports(pkg_root)
+        if _python_export_root is not None:
+            try:
+                _python_export_init_rel = str(
+                    (_python_export_root / "__init__.py").relative_to(repo)
+                ).replace("\\", "/")
+            except ValueError:
+                _python_export_init_rel = ""
+    elif language == "rust":
+        _rust_reexports = _rust_reexported_names(pkg_root)
+
+    def _compute_reachable(item_name: str, item_fpath: Path, item_rel: str) -> bool:
+        """RC-W1-004: reachable=True unless a language-specific check above
+        can POSITIVELY determine the item is unreachable from outside the
+        package/crate despite being syntactically public. Shared by both the
+        class loop and the top-level-function loop below. See the helper
+        docstrings above _is_excluded_java_package for the full rationale
+        and known limitations of each check.
+        """
+        if language == "python" and _python_exports is not None:
+            # Only items under the resolved export root are in scope for
+            # this signal -- an item in a sibling subtree the export root
+            # doesn't cover is simply unknown, not unreachable.
+            try:
+                item_fpath.relative_to(_python_export_root)
+            except ValueError:
+                return True
+            # An item defined directly IN the exporting __init__.py is
+            # trivially reachable regardless of __all__ -- __all__ only
+            # gates `from pkg import *`; `from pkg import Name` works for
+            # any name bound in pkg's own namespace.
+            if item_rel == _python_export_init_rel:
+                return True
+            return item_name in _python_exports
+        if language == "rust" and _rust_reexports is not None:
+            return item_name in _rust_reexports
+        return True
 
     class_types = _CLASS_TYPES.get(language, set())
     func_types = _FUNC_TYPES.get(language, set())
@@ -2569,6 +2855,9 @@ def extract_api_surface(
                     if _ch.type in ("modifiers", "modifier"):
                         _cls_mods.update(node_text(_ch).lower().split())
 
+            # RC-W1-004: additive reachability signal (see _compute_reachable).
+            reachable = _compute_reachable(cname, fpath, rel)
+
             cls_record: dict[str, Any] = {
                 "name": cname,
                 "kind": cnode.type,
@@ -2579,6 +2868,7 @@ def extract_api_surface(
                 "methods": methods,
                 "properties": properties,
                 "visibility": vis,
+                "reachable": reachable,
             }
             if "static" in _cls_mods:
                 cls_record["is_static"] = True
@@ -2727,6 +3017,13 @@ def extract_api_surface(
                 "properties": [],
                 "params": params,
                 "return_type": ret,
+                # RC-W1-004: for Rust/Go this entry is usually transient (it
+                # gets relocated into its parent type's methods[] list by
+                # _associate_rust_impl_methods / _associate_go_methods and
+                # dropped from the top-level list below); the field is set
+                # here mainly so genuinely top-level Python module functions
+                # get the same additive signal as classes.
+                "reachable": _compute_reachable(fname, fpath, rel),
             }
             if receiver_type:
                 func_entry["receiver_type"] = receiver_type
@@ -2773,7 +3070,7 @@ def extract_api_surface(
     # _is_public_api_entry() in index.py.  This post-pass adds the field
     # exported_via_package_init: true so index.py can override the path filter.
     if language == "python":
-        _mark_package_init_exports(classes, files)
+        _mark_package_init_exports(classes, files, pkg_root=pkg_root)
 
     scout_report: dict[str, Any] = {
         "files_attempted": files_attempted,
