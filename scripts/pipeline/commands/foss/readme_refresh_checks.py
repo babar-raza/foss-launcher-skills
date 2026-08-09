@@ -2038,10 +2038,18 @@ def check_api_reference_table_completeness(
 # "Class with N methods..." -- confirmed real, same file: "Struct with 10 properties.",
 # "Class in the Cells CPP API.", "Struct in the Cells CPP API." (the same fallback pattern
 # applied to structs and to nested/iterator types with no extractable member count at all).
+#
+# Broadened again 2026-08-09 during the Phase 2 portfolio rollout: two independent agents
+# (pdf/python, email/cpp) each separately found a fourth shape -- "Enum with N members."/
+# "Class with N members." (abbreviated "members" wording, used when the generator can't
+# extract a real method/property split) -- 6 confirmed instances in each of the two products,
+# undetected by the prior pattern because it only recognized "Enumeration" (never the
+# abbreviated "Enum") and only "methods"/"properties" (never "members").
 _GENERIC_CLASS_DESCRIPTION_RE = re.compile(
-    r"^(?:Class|Struct|Interface|Enumeration)\s+"
+    r"^(?:Class|Struct|Interface|Enum(?:eration)?)\s+"
     r"(?:with\s+\d+\s+methods?(?:\s+and\s+\d+\s+propert(?:y|ies))?"
     r"|with\s+\d+\s+propert(?:y|ies)"
+    r"|with\s+\d+\s+members?"
     r"|in\s+the\s+.+?\s+API)\.?$",
     re.IGNORECASE,
 )
@@ -2088,6 +2096,16 @@ def check_no_generic_class_description(readme_text: str) -> list[dict]:
 # `ProcessingInstruction`, `CommentToken`, `EndTagToken`, `StartTagToken` (html/python) plus
 # `DisplayTextLocaleSupport` (cells/cpp, fixed by hand before this pattern was recognized as
 # recurring). A description ending in "e.g." is essentially never a real, complete sentence.
+#
+# Known, disclosed gap (2026-08-09, Phase 2 rollout): the Batch 5 agent reported a 6th real
+# truncated-description instance on pdf/python's `TextObject` row, cut off differently (mid
+# clause, around a `` `BT` `` operator reference, not ending in "e.g.") and fixed it by hand.
+# The original triggering text is not preserved anywhere (this content lives only in the
+# gitignored, non-versioned `reports/repo-presenter/` tree, and the agent's fix already
+# overwrote it) -- broadening this regex from a description alone, without the real triggering
+# string to build and test against, would be exactly the kind of unverified guess this plan's
+# own "verify against real content before trusting" discipline exists to prevent. Left
+# unbroadened; flagged here for whoever next captures a fresh instance of this shape.
 _TRUNCATED_DESCRIPTION_RE = re.compile(r"\be\.g\.?\s*$", re.IGNORECASE)
 
 
@@ -2129,7 +2147,33 @@ def check_no_truncated_class_description(readme_text: str) -> list[dict]:
 # content is stripped somewhere in the source's own generation pipeline, leaving a bare, visibly
 # broken empty double-backtick span (four consecutive backtick characters) in the rendered
 # description, e.g. "HTML ```` element." instead of "HTML `<address>` element."
+#
+# Broadened 2026-08-09 during the Phase 2 portfolio rollout: slides/java surfaced the same
+# generator defect in its narrower, single-backtick form -- a real Javadoc `{@code <tag>}` span
+# collapses to an isolated, empty 2-backtick pair (e.g. "an OOXML `` element." for the real
+# `AdjustValue` row, the stripped `<a:gd>` tag), not the 4-backtick double-span form. A bare
+# "``" substring cannot distinguish this from the opening OR closing delimiter of a legitimate
+# double-backtick span with real content (`` ``Convert(Stream, SaveFormat)`` `` -- its closing
+# delimiter is immediately followed by whitespace just as often as an isolated empty pair is, so
+# a local-context regex alone false-positives on every such closing delimiter (confirmed by a
+# first attempt at this fix that did exactly that, caught by its own negative test before
+# shipping). A legitimate double-backtick span always contributes exactly two "``" occurrences
+# to its description (one open, one close); an isolated stripped-example pair contributes one,
+# unpaired -- so the discriminator is a per-description parity count, not a regex, handled in
+# `_has_stripped_example` below.
 _STRIPPED_EXAMPLE_RE = re.compile(r"````")
+
+
+def _has_stripped_example(description: str) -> bool:
+    """True if `description` contains an empty double-backtick span (`` STRIPPED_EXAMPLE_RE
+    ``) or an odd number of "``" occurrences -- a well-formed set of legitimate double-backtick
+    spans always contributes an even count (open + close per span); an odd count means at least
+    one "``" is unpaired, which only happens when reference.aspose.org's generator stripped a
+    real example out of a single-backtick span, per the module-level comment above.
+    """
+    if _STRIPPED_EXAMPLE_RE.search(description):
+        return True
+    return description.count("``") % 2 == 1
 
 
 def check_no_stripped_example_in_description(readme_text: str) -> list[dict]:
@@ -2152,10 +2196,10 @@ def check_no_stripped_example_in_description(readme_text: str) -> list[dict]:
         if not row_match:
             continue
         class_name, description = row_match.group(1), row_match.group(2)
-        if _STRIPPED_EXAMPLE_RE.search(description):
+        if _has_stripped_example(description):
             findings.append({
                 "class_name": class_name,
-                "reason": f"'{class_name}' table description contains an empty double-backtick "
+                "reason": f"'{class_name}' table description contains an empty backtick "
                           "span (a stripped example, almost always an HTML/XML tag) -- restore "
                           "the real example text from clone-cache source",
             })
@@ -2786,8 +2830,15 @@ def check_key_capabilities_quality(readme_text: str) -> list[dict]:
 _SCOPE_LIMITATIONS_SECTION_RE = re.compile(
     r"^##\s+Scope and Limitations\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
+# Broadened 2026-08-09 during the Phase 2 portfolio rollout: the original pattern only matched
+# the Java/C# stub-exception convention (`NotImplementedException`), silently missing Python's
+# idiomatic `NotImplementedError` -- a real, disclosed false-negative gap for every Python
+# product in this portfolio (found via words/python's real "`LdmDocxWriter` has a documented
+# `NotImplementedError`..." Scope-and-Limitations bullet, which never registered as a stub
+# bullet under the prior pattern).
 _STUB_INDICATOR_RE = re.compile(
-    r"\bNotImplementedException\b|\bnot implemented\b|\bnot yet implemented\b|\bstub\b|\bthrows\b",
+    r"\bNotImplementedException\b|\bNotImplementedError\b|\bnot implemented\b"
+    r"|\bnot yet implemented\b|\bstub\b|\bthrows\b",
     re.IGNORECASE,
 )
 

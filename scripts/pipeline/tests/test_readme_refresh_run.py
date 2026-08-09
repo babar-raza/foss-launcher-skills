@@ -241,6 +241,19 @@ def test_detect_dev_test_artifacts_no_windows_case_alias_double_count(tmp_path):
     assert len(detected) == 1
 
 
+def test_detect_dev_test_artifacts_finds_third_casing_variant(tmp_path):
+    # Regression test: found live during the Phase 2 portfolio rollout (2026-08-09,
+    # cells/java) -- the real file is cased "Agents.md", a third variant neither of the two
+    # literal candidates ("AGENTS.md"/"agents.md") string-equals, so `_add`'s own case-
+    # sensitive on-disk-name verification silently rejected both lookups even though the file
+    # genuinely exists. A case-insensitive directory scan finds it under any casing.
+    (tmp_path / "Agents.md").write_text("# Contributor guide\n", encoding="utf-8")
+    detected = rr._detect_dev_test_artifacts(tmp_path)
+    assert detected == [{
+        "relative_path": "Agents.md", "kind": "agents_guide", "section": "Documentation & Resources",
+    }]
+
+
 def test_detect_dev_test_artifacts_excludes_dotdir_pytest_cache(tmp_path):
     # Regression test: found live (2026-08-09, html/python) -- pytest itself writes a
     # boilerplate README.md into `.pytest_cache/` on every test run; "test" is a substring

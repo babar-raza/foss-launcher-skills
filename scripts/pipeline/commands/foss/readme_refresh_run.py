@@ -598,8 +598,20 @@ def _detect_dev_test_artifacts(clone_cache: Path) -> list[dict]:
         seen_real_paths.add(relative_path)
         found.append({"relative_path": relative_path, "kind": kind, "section": section})
 
-    for name in ("AGENTS.md", "agents.md"):
-        _add(clone_cache / name, "agents_guide", "Documentation & Resources")
+    # Case-insensitive scan, not a fixed casing list: "AGENTS.md"/"agents.md" alone missed a
+    # real third variant found live during the Phase 2 portfolio rollout (cells/java's real
+    # file is cased "Agents.md") -- neither literal candidate string-equals that name, so `_add`'s
+    # own on-disk-name verification (a case-sensitive Python `==`) silently rejected both lookups
+    # even though the file genuinely exists. Scanning the directory once for a case-insensitive
+    # match and handing `_add` the real discovered name closes this for any future casing.
+    try:
+        _agents_entries = list(clone_cache.iterdir()) if clone_cache.is_dir() else []
+    except OSError:
+        _agents_entries = []
+    for _entry in _agents_entries:
+        if _entry.is_file() and _entry.name.lower() == "agents.md":
+            _add(_entry, "agents_guide", "Documentation & Resources")
+            break
     for name in ("CONTRIBUTING.md", "CONTRIBUTING.rst"):
         _add(clone_cache / name, "contributing_guide", "Documentation & Resources")
     _add(clone_cache / "PUBLIC_API.md", "public_api_doc", "Documentation & Resources")

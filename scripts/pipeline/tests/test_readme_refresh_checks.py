@@ -2231,6 +2231,24 @@ def test_no_generic_class_description_flags_struct_and_in_the_api_variants():
     }
 
 
+def test_no_generic_class_description_flags_members_variant():
+    # Regression test: found live during the Phase 2 portfolio rollout (2026-08-09) -- two
+    # independent agents (pdf/python, email/cpp) each separately found a 4th real filler
+    # shape, "Enum with N members."/"Class with N members." (abbreviated "members" wording,
+    # 6 confirmed instances in each product), undetected by the prior pattern because it only
+    # recognized "Enumeration" (never abbreviated "Enum") and only "methods"/"properties"
+    # (never "members").
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `Duplex` | Enum with 4 members. |",
+            "| `PrintRange` | Class with 2 members. |",
+        ]),
+    )
+    flagged = {f["class_name"] for f in checks.check_no_generic_class_description(text)}
+    assert flagged == {"Duplex", "PrintRange"}
+
+
 def test_no_generic_class_description_clean_on_real_descriptions():
     text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
     assert checks.check_no_generic_class_description(text) == []
@@ -2284,6 +2302,35 @@ def test_no_stripped_example_in_description_flags_real_confirmed_instances():
     )
     flagged = {f["class_name"] for f in checks.check_no_stripped_example_in_description(text)}
     assert flagged == {"HTMLAddressElement", "HTMLOptionsCollection"}
+
+
+def test_no_stripped_example_in_description_flags_isolated_two_backtick_span():
+    # Regression test: found live during the Phase 2 portfolio rollout (2026-08-09,
+    # slides/java) -- the same generator defect in its narrower, single-backtick form. A real
+    # Javadoc `{@code <tag>}` span collapsed to an isolated, empty 2-backtick pair (not the
+    # 4-backtick double-span form the original regex required), e.g. the real `AdjustValue`
+    # row's stripped `<a:gd>` tag: "an OOXML `` element."
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `AdjustValue` | Represents an OOXML `` element. |",
+        ]),
+    )
+    flagged = {f["class_name"] for f in checks.check_no_stripped_example_in_description(text)}
+    assert flagged == {"AdjustValue"}
+
+
+def test_no_stripped_example_in_description_does_not_flag_real_double_backtick_span():
+    # Regression guard: a legitimate double-backtick span with real content (`` ``real code`` ``)
+    # also opens with two adjacent backtick characters -- must not be mistaken for the empty-span
+    # defect the broadened 2-backtick alternative was added to catch.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `PdfConverter` | Converts using the ``Convert(Stream, SaveFormat)`` overload. |",
+        ]),
+    )
+    assert checks.check_no_stripped_example_in_description(text) == []
 
 
 def test_no_stripped_example_in_description_clean_on_real_descriptions():
@@ -2887,6 +2934,24 @@ def test_capability_scope_contradiction_flags_partial_stub_overlap_too():
 def test_capability_scope_contradiction_noop_without_both_sections():
     text = _wrap("flowchart TD\n  A --> B", extra_section=_3D_NET_WATERMARK_CAPABILITY_BULLET)
     assert checks.check_capability_scope_contradiction(text) == []
+
+
+def test_capability_scope_contradiction_flags_python_not_implemented_error():
+    # Regression test: found live during the Phase 2 portfolio rollout (2026-08-09,
+    # words/python) -- the original _STUB_INDICATOR_RE only matched the Java/C# convention
+    # (`NotImplementedException`), silently missing Python's idiomatic `NotImplementedError`.
+    # Real motivating bullet: "`LdmDocxWriter` has a documented `NotImplementedError`...".
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- `LdmDocxWriter` serializes the light document model to DOCX.\n"
+            "\n## Scope and Limitations\n\n"
+            "- `LdmDocxWriter` has a documented `NotImplementedError` for footnote export.\n"
+            "\nFor more, see [Enterprise Edition](https://products.aspose.com/words/python/).\n"
+        ),
+    )
+    findings = checks.check_capability_scope_contradiction(text)
+    assert any(f["matched_keyword"] == "LdmDocxWriter" for f in findings)
 
 
 _REAL_PDF_NET_SCOPE_LIST = (
