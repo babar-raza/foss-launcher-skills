@@ -45,6 +45,10 @@ pip install -e .
 
 _GOOD_CANDIDATE = """# Test Product
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+![Test Product](https://products.aspose.org/media/testfam/testplat/banner-readme.png)
+
 ## Navigation
 
 - [At a Glance](#at-a-glance)

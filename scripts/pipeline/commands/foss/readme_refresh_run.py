@@ -625,6 +625,7 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "license_file": _detect_license_file(clone_cache),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
             "homepage": f"https://products.aspose.org/{family}/{platform}/",
+            "banner_url": f"https://products.aspose.org/media/{family}/{platform}/banner-readme.png",
             "documentation_links": {
                 "docs": f"https://docs.aspose.org/{family}/{platform}/",
                 "kb": f"https://kb.aspose.org/{family}/{platform}/",
@@ -683,6 +684,9 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
 
     result["required_sections"] = {
         "hard_gate": True, "findings": checks.check_required_sections(text),
+    }
+    result["banner_present"] = {
+        "hard_gate": True, "findings": checks.check_banner_present(text, family, platform),
     }
     result["no_excluded_domain_links"] = {
         "hard_gate": True, "findings": checks.check_no_excluded_domain_links(text),

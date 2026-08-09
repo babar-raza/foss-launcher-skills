@@ -1252,6 +1252,63 @@ def check_required_sections(readme_text: str) -> list[str]:
     return missing
 
 
+_BADGE_ROW_MARKER = "[!["
+_BANNER_LINE_RE = re.compile(
+    r"^!\[([^\]]*)\]\((https://products\.aspose\.org/media/"
+    r"([A-Za-z0-9]+)/([A-Za-z0-9]+)/banner-readme\.png)\)\s*$"
+)
+
+
+def check_banner_present(readme_text: str, family: str, platform: str) -> list[dict]:
+    """Hard gate (2026-08-09, MT026). Every candidate README must carry the real, live
+    per-product banner asset (`https://products.aspose.org/media/{family}/{platform}/
+    banner-readme.png` -- confirmed live for all 30 current products via direct HTTP check
+    before this rule was written, not assumed) as an image line immediately after the badge
+    row (the first line containing `[![`), with non-empty alt text.
+
+    Also requires the URL's own embedded family/platform segments to match the product actually
+    being checked -- not defensive programming for its own sake: this exact session already
+    found real cross-product content contamination twice (a snapshot-contamination incident
+    during an earlier parallel-agent rollout, and a sibling-product citation bug in an
+    Installation section) -- a banner is exactly the kind of easy-to-copy-paste-wrong element
+    that failure class would produce silently, and this check makes it structurally impossible
+    to ship undetected.
+
+    Returns a list of {"reason": ...} findings, empty if the banner is present, correctly
+    placed, and correctly matches this product.
+    """
+    lines = readme_text.splitlines()
+    badge_idx = next((i for i, line in enumerate(lines) if _BADGE_ROW_MARKER in line), None)
+    if badge_idx is None:
+        return [{"reason": "no badge row found to anchor banner placement"}]
+
+    i = badge_idx + 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines):
+        return [{"reason": "no banner line found after the badge row"}]
+
+    match = _BANNER_LINE_RE.match(lines[i].strip())
+    if not match:
+        return [{
+            "reason": "expected a banner image line "
+                      "(![alt](https://products.aspose.org/media/{family}/{platform}/"
+                      f"banner-readme.png)) immediately after the badge row, found: {lines[i]!r}",
+        }]
+
+    alt_text, url, url_family, url_platform = match.groups()
+    findings = []
+    if not alt_text.strip():
+        findings.append({"reason": "banner image has empty alt text"})
+    if url_family.lower() != family.lower() or url_platform.lower() != platform.lower():
+        findings.append({
+            "reason": f"banner URL family/platform ({url_family}/{url_platform}) does not "
+                      f"match this product ({family}/{platform}) -- likely cross-product "
+                      "contamination",
+        })
+    return findings
+
+
 def surgical_diff_check(declared_file_set: list[str], changed_files: list[str]) -> list[str]:
     """Return any path in changed_files not present in declared_file_set -- an undeclared
     change. Hard gate at push time: the file set is fixed at plan time and shown during

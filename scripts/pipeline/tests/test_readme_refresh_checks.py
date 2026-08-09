@@ -1722,3 +1722,65 @@ def test_format_completeness_hint_ignores_import_gap_for_generative():
         GENERATIVE_BARCODE_PYTHON, formats_md, "generative"
     )
     assert not any(f["container"] == "starting_points" for f in findings)
+
+
+# --- check_banner_present (2026-08-09, MT026) -------------------------------------------------
+
+
+def _readme_with_badge_and_banner(family, platform, *, badge=True, banner_line=None):
+    parts = ["# Test Product", ""]
+    if badge:
+        parts += ["[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)", ""]
+    if banner_line is None:
+        banner_line = (
+            f"![Test Product](https://products.aspose.org/media/{family}/{platform}/"
+            "banner-readme.png)"
+        )
+    parts += [banner_line, "", "Some intro text."]
+    return "\n".join(parts)
+
+
+def test_banner_present_passes_correct_banner():
+    text = _readme_with_badge_and_banner("cells", "cpp")
+    assert checks.check_banner_present(text, "cells", "cpp") == []
+
+
+def test_banner_present_flags_missing_badge_row():
+    text = "# Test Product\n\n![Test Product](https://products.aspose.org/media/cells/cpp/banner-readme.png)\n\nIntro."
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "no badge row" in findings[0]["reason"]
+
+
+def test_banner_present_flags_missing_banner_line():
+    text = "# Test Product\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\nIntro text with no banner."
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "expected a banner image line" in findings[0]["reason"]
+
+
+def test_banner_present_flags_cross_product_contamination():
+    # Regression-shaped test: this repo has already seen real cross-product content
+    # contamination twice; a banner copy-pasted from a different product must be caught.
+    text = _readme_with_badge_and_banner("email", "net")
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "does not match this product" in findings[0]["reason"]
+
+
+def test_banner_present_flags_empty_alt_text():
+    text = _readme_with_badge_and_banner(
+        "cells", "cpp",
+        banner_line="![](https://products.aspose.org/media/cells/cpp/banner-readme.png)",
+    )
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "empty alt text" in findings[0]["reason"]
+
+
+def test_banner_present_flags_wrong_position():
+    # Banner placed after the intro paragraph instead of directly after the badge row.
+    text = (
+        "# Test Product\n\n"
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+        "Some intro text.\n\n"
+        "![Test Product](https://products.aspose.org/media/cells/cpp/banner-readme.png)\n"
+    )
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "expected a banner image line" in findings[0]["reason"]
