@@ -130,7 +130,27 @@ Before generating any content, you MUST:
      `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the
      commercial Aspose package name. This is a separate fact from the Java Maven groupId above
      — do not conflate them.
-   - Class names, method names, package paths must exactly match what you read from reference content — no invented API
+   - **Python import paths — never infer from source-file location.** `class_import` /
+     `canonical_namespace` in `api_surface.json` name where a class is DEFINED (used only for
+     internal same-name disambiguation in `batch_reference.py`), not where it can be imported
+     from — using them to build an import statement produced ~20 wrong-import pages across
+     font/python (MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL, RC-font-python-01: e.g.
+     `from aspose_font.loader import FontLoader` published everywhere instead of the real
+     public `from aspose_font import FontLoader`). Check the class's own entry in
+     `knowledge/{family}/{platform}/merged/api_surface.json` instead:
+     - `exported_via_package_init: true` → genuinely public. Write
+       `from {canonical_import}[.{public_import_module}] import {ClassName}` — omit the
+       `.{public_import_module}` segment when it is `""` (re-exported at the package root);
+       otherwise append it verbatim (e.g. `public_import_module: "cff"` →
+       `from aspose_font.cff import CffCharset`, not `from aspose_font import CffCharset`,
+       which raises `ImportError`).
+     - absent/`false` → not part of the declared public surface. Only use it in an example if
+       the source genuinely demonstrates it; write the real working (submodule) import path
+       and mark it `# internal API — may change between releases` every time it appears —
+       never list such a class in the API Reference Summary table without that disclaimer.
+   - Class names and method names must exactly match what you read from reference content —
+     no invented API. For non-Python platforms (no `__init__.py`/`__all__` convention), the
+     same holds for import/namespace paths too.
    - **Internal links within docs.aspose.org**: use relative paths (`../slug/`)
    - **Cross-subdomain links** (to kb, blog, reference): use absolute `https://` URLs without `/en/` — e.g. `https://kb.aspose.org/{family}/{platform}/slug/`
    - Do not add a `sidebar:` key unless the section `_index.md` uses it
