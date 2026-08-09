@@ -68,7 +68,7 @@ flowchart TD
 
 ## Key Capabilities
 
-- Does a thing.
+- Reads and writes TXT files.
 
 ## Installation
 

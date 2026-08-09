@@ -12,6 +12,7 @@ through. `check_diagram_connectivity` (orphan-reachability) is replaced by
 (<=5 capabilities = 1 column, >=6 = 2 balanced columns).
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -381,50 +382,238 @@ def test_hybrid_reverification_passes_fresh_entry():
     assert checks.check_diagram_hybrid_reverification(HYBRID_PDF_CPP, entry, "2026-08-08") == []
 
 
-# --- check_diagram_format_support_claims -------------------------------------------------------
+# --- Twelfth incident / MT025 Phase 0c (2026-08-09): parse_formats_table, direction signals,
+# check_diagram_verified_format_claims -- replaces the retired check_diagram_format_support_
+# claims. Fixtures below reproduce the 4 real formats.md-vs-reality contradictions found during
+# the forensic investigation (tex/python, 3d/net's PLY, pdf/cpp, html/python), captured with
+# enough real detail to prove the check reaches the correct verdict on each, not just a
+# plausible-looking one. -------------------------------------------------------------------------
 
 
-def test_format_support_claims_flags_unsupported_format():
+def test_parse_formats_table_reads_directional_flags():
+    text = "# Format Support\n\n| Format | Import | Export |\n|---|---|---|\n| PDF | - | Yes |\n| OBJ | Yes | Yes |\n"
+    table = checks.parse_formats_table(text)
+    assert table["PDF"] == {"import": False, "export": True}
+    assert table["OBJ"] == {"import": True, "export": True}
+
+
+def test_parse_formats_table_empty_on_blank_input():
+    assert checks.parse_formats_table("") == {}
+    assert checks.parse_formats_table(None) == {}
+
+
+def test_prose_direction_signal_true_on_plain_mention():
+    assert checks._prose_direction_signal(
+        "This library produces PDF documents.", "PDF", "export"
+    ) is True
+
+
+def test_prose_direction_signal_false_when_token_absent():
+    assert checks._prose_direction_signal(
+        "This library produces DOCX documents.", "PDF", "export"
+    ) is False
+
+
+def test_prose_direction_signal_negation_override_real_3d_net_case():
+    # The real, confirmed 3d/net sentence: PLY is import-only. Must negate the EXPORT claim...
+    prose = "PLY is import-only, unlike OBJ and STL which support both load and save."
+    assert checks._prose_direction_signal(prose, "PLY", "export") is False
+    # ...while still confirming the IMPORT claim from the same sentence.
+    assert checks._prose_direction_signal(prose, "PLY", "import") is True
+
+
+def test_prose_direction_signal_negation_override_export_only():
+    prose = "The HTML5 writer is export-only; there is no HTML5 parser."
+    assert checks._prose_direction_signal(prose, "HTML5", "import") is False
+    assert checks._prose_direction_signal(prose, "HTML5", "export") is True
+
+
+def test_prose_direction_signal_never_sees_the_mermaid_block():
+    # A diagram must not be able to corroborate itself -- callers are required to strip the
+    # mermaid block before calling this function; this test documents that contract directly.
+    full_text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Outputs["Outputs"]
+    o1["FAKEFORMAT files"]
+  end
+  PRODUCT --> Outputs""",
+        extra_section="- Does a thing.",
+    )
+    prose_only = checks._MERMAID_BLOCK_FULL_RE.sub("", full_text)
+    assert "FAKEFORMAT" not in prose_only
+
+
+def test_load_api_surface_names_extracts_name_and_file_fields():
+    text = json.dumps([
+        {"name": "PdfWriter", "file": "src/pdf_writer.py", "kind": "class"},
+        {"name": "DviWriter", "file": "src/dvi_writer.py", "kind": "class"},
+        "not-a-dict",
+    ])
+    names = checks._load_api_surface_names(text)
+    assert "PdfWriter" in names and "src/pdf_writer.py" in names and "DviWriter" in names
+
+
+def test_load_api_surface_names_tolerates_malformed_input():
+    assert checks._load_api_surface_names("") == []
+    assert checks._load_api_surface_names("not json") == []
+    assert checks._load_api_surface_names('{"not": "a list"}') == []
+
+
+def test_source_direction_signal_export_suffix_match():
+    # Real tex/python evidence: PdfWriter/DviWriter/SvgWriter prove export capability directly.
+    names = ["PdfWriter", "TeXInterpreter", "DviFontDef"]
+    assert checks._source_direction_signal(names, "PDF", "export") is True
+    assert checks._source_direction_signal(names, "PDF", "import") is False
+
+
+def test_source_direction_signal_import_suffix_match():
+    names = ["ObjLoadOptions"]
+    assert checks._source_direction_signal(names, "OBJ", "import") is True
+    assert checks._source_direction_signal(names, "OBJ", "export") is False
+
+
+def test_source_direction_signal_generic_match_counts_for_both_directions():
+    # Real pdf/cpp evidence: PdfConverter/PdfFormat have no Load/Save-style suffix at all.
+    names = ["PdfConverter", "PdfFormat"]
+    assert checks._source_direction_signal(names, "PDF", "import") is True
+    assert checks._source_direction_signal(names, "PDF", "export") is True
+
+
+def test_source_direction_signal_short_token_never_matches():
+    assert checks._source_direction_signal(["MdWriter"], "MD", "export") is False
+
+
+def test_source_direction_signal_no_match_returns_false():
+    assert checks._source_direction_signal(["Workbook", "Worksheet"], "PDF", "export") is False
+
+
+def test_verified_format_claims_real_tex_python_case_overrides_stale_formats_md():
+    # Real tex/python: formats.md marks PDF/DVI/SVG Export=No, but the product genuinely
+    # produces all three -- prose + PdfWriter/DviWriter/SvgWriter source evidence must override.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["Aspose.TeX FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Typesetting"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents"]
+    o2["DVI files"]
+    o3["SVG documents"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "- Typesets TeX/LaTeX source and produces PDF documents, DVI files, and SVG "
+            "documents via dedicated output devices."
+        ),
+    )
+    formats_md = "| PDF | - | - |\n| DVI | - | - |\n| SVG | - | - |\n"
+    api_surface = json.dumps([
+        {"name": "PdfWriter", "file": "_output/pdf_writer.py"},
+        {"name": "DviWriter", "file": "_output/dvi_writer.py"},
+        {"name": "SvgWriter", "file": "_output/svg_writer.py"},
+    ])
+    findings = checks.check_diagram_verified_format_claims(
+        text, formats_md, api_surface, {"PDF", "DVI", "SVG"}
+    )
+    assert findings == [], findings
+
+
+def test_verified_format_claims_real_3d_net_ply_case_discards_bad_export_keeps_good_import():
+    # Real 3d/net: formats.md wrongly claims PLY Export=Yes; the file's own prose says
+    # "PLY is import-only" -- export must be discarded, import must be kept.
+    text = _wrap(
+        """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    i1["A PLY file"]
+  end
+  PRODUCT["Aspose.3D FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Multi-format load and save"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PLY files"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Loads OBJ, STL, and PLY; PLY is import-only, unlike OBJ and STL.",
+    )
+    formats_md = "| PLY | Yes | Yes |\n"
+    findings = checks.check_diagram_verified_format_claims(
+        text, formats_md, None, {"PLY"}
+    )
+    assert len(findings) == 1
+    assert findings[0]["format"] == "PLY"
+    assert findings[0]["direction"] == "export"
+    assert findings[0]["node_id"] == "o1"
+    assert findings[0]["signals"] == {"formats_md": True, "prose": False, "source": False}
+
+
+def test_verified_format_claims_real_pdf_cpp_case_missing_formats_md_row():
+    # Real pdf/cpp: formats.md has no PDF row at all (only BMP/JPEG/SCRATCH/SVG/TEXT/TIFF/
+    # UNICODE) despite PDF being the product's own primary format -- prose + source evidence
+    # must still verify it despite formats.md's total silence.
+    text = _wrap(
+        """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    i1["An existing PDF document"]
+  end
+  PRODUCT["Aspose.PDF FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Open and save"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["PDF documents"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Opens and saves PDF documents; text extraction and rendering included.",
+    )
+    formats_md = "| BMP | - | Yes |\n| JPEG | - | Yes |\n"
+    api_surface = json.dumps([{"name": "PdfConverter", "file": "pdf_converter.hpp"}])
+    findings = checks.check_diagram_verified_format_claims(
+        text, formats_md, api_surface, {"PDF"}
+    )
+    assert findings == [], findings
+
+
+def test_verified_format_claims_discards_uncorroborated_fabrication():
+    # Regression proof: the original defect class check_diagram_format_support_claims existed
+    # to catch (a fabricated, uncorroborated format claim) is still caught by the replacement.
     text = _wrap(
         """flowchart TD
   PRODUCT["P"]
   subgraph Capabilities["Core Capabilities"]
-    c1["Convert PDF to XLSX"]
+    c1["Does a thing"]
   end
   subgraph Outputs["Outputs"]
-    o1["PDF output"]
+    o1["XLSX workbook"]
   end
-  PRODUCT --> Capabilities --> Outputs"""
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Does a thing.",
     )
-    findings = checks.check_diagram_format_support_claims(
-        text, "Supported formats: PDF only.", {"PDF", "XLSX"}
-    )
-    assert any(f["format"] == "XLSX" for f in findings)
+    findings = checks.check_diagram_verified_format_claims(text, "", None, {"XLSX"})
+    assert len(findings) == 1
+    assert findings[0]["format"] == "XLSX"
+    assert findings[0]["signals"] == {"formats_md": False, "prose": False, "source": False}
 
 
-def test_format_support_claims_clean_when_all_formats_verified():
+def test_verified_format_claims_ignores_capabilities_container():
+    # Deliberately scoped to Starting Points/Outputs only -- a Capabilities-only mention (no
+    # Starting Points/Outputs claim) is never checked by this function.
     text = _wrap(
         """flowchart TD
   PRODUCT["P"]
   subgraph Capabilities["Core Capabilities"]
-    c1["Convert PDF to XLSX"]
+    c1["Convert to FAKEFORMAT"]
   end
   subgraph Outputs["Outputs"]
-    o1["PDF and XLSX output"]
+    o1["Plain text"]
   end
-  PRODUCT --> Capabilities --> Outputs"""
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="- Does a thing.",
     )
-    findings = checks.check_diagram_format_support_claims(
-        text, "Supported formats: PDF, XLSX.", {"PDF", "XLSX"}
-    )
+    findings = checks.check_diagram_verified_format_claims(text, "", None, {"FAKEFORMAT"})
     assert findings == []
-
-
-def test_format_support_claims_ignores_unrecognized_words():
-    # "Workbook" is not a known format name -- must never be treated as a format claim.
-    assert checks.check_diagram_format_support_claims(
-        TRANSFORM_CELLS_CPP, "Supported formats: XLSX.", {"XLSX"}
-    ) == []
 
 
 # --- check_format_name_casing -------------------------------------------------------------------

@@ -195,6 +195,7 @@ _CONTAINER_CONNECTOR_ALLOWLIST = frozenset({
     "presentation", "presentations",
     "stream", "path", "single", "multi", "page", "pages",
     "serialized", "serialised", "flat", "storage", "storages",
+    "fragment", "fragments",
 })
 # Eleventh incident / MT025 sanity pass (2026-08-08): running the purity check against all 30
 # real candidates found `data/format_descriptions.json` (56 entries, a full multi-language site
@@ -207,7 +208,7 @@ _CONTAINER_CONNECTOR_ALLOWLIST = frozenset({
 _DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES = frozenset({
     "PPTX", "OOXML", "CFB", "MSG", "EML", "STL", "OBJ", "GLTF", "GLB", "FBX", "COLLADA", "3MF",
     "CSV", "JSON", "OPC", "MARKDOWN", "DVI", "WOFF", "WOFF2", "APNG", "PLY", "U3D", "RVM", "JT",
-    "A3DW", "AMF", "DRACO", "USD",
+    "A3DW", "AMF", "DRACO", "USD", "CSS",
 })
 _HYBRID_FROM_SCRATCH_LITERAL = "Nothing — authored from scratch"
 # Tolerant of the ASCII "--" a composing agent (or a test fixture) may write in place of the
@@ -217,6 +218,25 @@ _HYBRID_FROM_SCRATCH_RE = re.compile(r"^Nothing\s*(?:--|—)\s*authored from scr
 _PURITY_TOKEN_RE = re.compile(r"[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*")
 _VERSION_TOKEN_RE = re.compile(r"^\d+(?:\.\d+)*$")
 _ARCHETYPES_REQUIRING_STARTING_POINTS = frozenset({"transform", "compile"})
+
+# Twelfth incident / MT025 Phase 0c (2026-08-09): format-verification constants. See
+# check_diagram_verified_format_claims's docstring for the full design rationale.
+_FORMATS_TABLE_ROW_RE = re.compile(
+    r"^\|\s*([A-Za-z0-9_.+-]+)\s*\|\s*(Yes|-)\s*\|\s*(Yes|-)\s*\|", re.MULTILINE
+)
+# Seed suffix lists, not claimed complete -- derived from real class/file names confirmed in 5
+# products across C#/C++/Python (ObjLoadOptions/ObjSaveOptions, PdfWriter/DviWriter/SvgWriter,
+# PdfConverter/PdfFileEditor). Expect real additions once Phase 2 rollout reaches Go/Rust/Java/
+# TypeScript naming conventions not yet sampled.
+_EXPORT_SUFFIXES = ("WRITER", "SAVEOPTIONS", "EXPORTER", "ENCODER", "SAVER")
+_IMPORT_SUFFIXES = ("READER", "LOADOPTIONS", "IMPORTER", "DECODER", "LOADER")
+# Explicit "-only" phrasing only -- disclosed limitation, see check_diagram_verified_format_
+# claims's docstring for why the 2-of-3 threshold is the real mitigation for what this misses.
+_DIRECTION_ONLY_PHRASE_RE = re.compile(r"\b(import|export|read|write)[\s-]*only\b", re.IGNORECASE)
+_NEGATION_WORD_NEGATES_DIRECTION = {
+    "import": "export", "read": "export",
+    "export": "import", "write": "import",
+}
 
 
 def _parse_edge_chain(line: str) -> list[tuple[str, str | None]] | None:
@@ -639,51 +659,17 @@ def check_diagram_hybrid_reverification(
     return []
 
 
-def check_diagram_format_support_claims(
-    markdown_text: str, formats_md_text: str, known_format_names: set[str] | None = None
-) -> list[dict]:
-    """Hard gate (2026-08-08, Rule 2 refinement #1 -- "only add input/output formats which
-    are actually supported"). Every recognized format token named anywhere in the At-a-
-    glance diagram (Starting Points, Core Capabilities, or Outputs) must appear in this
-    product's own `knowledge/{family}/{platform}/merged/formats.md` -- the same source
-    `plan`'s factpack step already reads, so this is real reuse, not a new dependency.
-
-    `known_format_names` is the canonical vocabulary used to recognize which diagram-label
-    tokens are format claims at all (sourced from `data/format_descriptions.json`'s keys),
-    distinguishing a real format claim from an ordinary word in a capability description.
-    Distinct from `check_format_name_casing` (below) -- a format can be spelled with
-    perfect canonical casing and still not be genuinely supported by this specific
-    product; the two checks verify different properties and are not redundant.
-
-    Returns a list of {"node_id", "label", "format", "reason"} findings for every format
-    named in the diagram but absent from the verified formats list -- this plan's own
-    single worst defect class (a fabricated capability claim), restated for format tokens.
-    """
-    known_format_names = known_format_names or set()
-    mermaid_text = extract_mermaid_block(markdown_text)
-    if mermaid_text is None:
-        return []
-    graph = parse_diagram(mermaid_text)
-
-    findings = []
-    for node_id, label in graph.node_label.items():
-        kind = graph.node_subgraph.get(node_id)
-        if kind not in ("starting_points", "capabilities", "outputs"):
-            continue
-        tokens = set(re.findall(r"[A-Za-z][A-Za-z0-9+]{1,9}", label))
-        for token in tokens:
-            canonical = next(
-                (f for f in known_format_names if f.upper() == token.upper()), None
-            )
-            if canonical is None:
-                continue
-            if not re.search(rf"\b{re.escape(canonical)}\b", formats_md_text, re.IGNORECASE):
-                findings.append({
-                    "node_id": node_id, "label": label, "format": canonical,
-                    "reason": f"'{canonical}' named in the diagram but not found in this "
-                              f"product's verified formats.md",
-                })
-    return findings
+# check_diagram_format_support_claims (2026-08-08, Rule 2 refinement #1) was RETIRED 2026-08-09
+# (Twelfth incident / MT025 Phase 0c), replaced by check_diagram_verified_format_claims (below).
+# Direct code read confirmed the retired function was presence-only and direction-blind: its
+# check `re.search(rf"\b{canonical}\b", formats_md_text, re.IGNORECASE)` matched the format NAME
+# appearing ANYWHERE in the whole formats.md text -- never parsing the Import/Export COLUMN
+# VALUE for that format's own row, and never checking the claim's direction (Starting Points =
+# import, Outputs = export) against the correct column. A format whose real row read
+# `Export: -` still passed as long as its name string appeared anywhere else in the file. This
+# was a real, independent, pre-existing defect (not introduced by MT025) -- it simply never
+# surfaced until formats.md's own unreliability was examined this closely. See
+# check_diagram_verified_format_claims's docstring for the replacement design.
 
 
 def check_diagram_container_format_purity(
@@ -700,9 +686,10 @@ def check_diagram_container_format_purity(
     mentions a lot of other things where as it should be output formats only" (the user's own
     words, verbatim) becomes mechanically testable instead of a subjective judgment call.
 
-    Distinct from check_diagram_format_support_claims (above): that function asks "if this
-    node claims a KNOWN format, is it genuinely supported by this product" (accuracy); this
-    function asks "is every node in this container a format claim AT ALL, and nothing else"
+    Distinct from check_diagram_verified_format_claims (below, retired check_diagram_format_
+    support_claims's successor): that function asks "if this node claims a format, is it
+    genuinely, multiply-corroborated supported by this product" (accuracy); this function asks
+    "is every node in this container a format claim AT ALL, and nothing else"
     (purity/membership). A label like "Traversable DOM document tree" never trips the accuracy
     check (none of its tokens match any known format name, so it's silently skipped there) but
     fails this one outright -- exactly the gap that let 6 of 10 sampled products' Outputs
@@ -718,8 +705,9 @@ def check_diagram_container_format_purity(
     supplementary detail.
 
     `container_kind` is `"starting_points"` or `"outputs"`. `known_format_names` should be the
-    union of `check_diagram_format_support_claims`'s vocabulary (`data/format_descriptions.
-    json`'s keys) and `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES` (below) -- confirmed necessary by
+    union of `data/format_descriptions.json`'s keys (the same vocabulary `check_diagram_
+    verified_format_claims`, below, uses) and `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES` (below) --
+    confirmed necessary by
     this check's own 2026-08-08 sanity pass against all 30 real candidates: `format_descriptions
     .json` alone is missing several formats this portfolio genuinely produces (PPTX, CFB, MSG,
     EML, STL, OBJ, GLTF, ...), which would otherwise make this a hard gate that blocks
@@ -775,6 +763,21 @@ def check_diagram_container_format_purity(
     return findings
 
 
+def parse_formats_table(formats_md_text: str) -> dict[str, dict[str, bool]]:
+    """Parse a `knowledge/{family}/{platform}/merged/formats.md`-style `| Format | Import |
+    Export |` table into `{FORMAT: {"import": bool, "export": bool}}`. Shared by
+    `check_diagram_format_completeness_hint` and `check_diagram_verified_format_claims` -- both
+    used to inline this same regex separately; factored out 2026-08-09 (Twelfth incident /
+    MT025 Phase 0c) so the table is parsed exactly one way, once. Returns `{}` for empty/absent
+    input.
+    """
+    table: dict[str, dict[str, bool]] = {}
+    for match in _FORMATS_TABLE_ROW_RE.finditer(formats_md_text or ""):
+        fmt = match.group(1).upper()
+        table[fmt] = {"import": match.group(2) == "Yes", "export": match.group(3) == "Yes"}
+    return table
+
+
 def check_diagram_format_completeness_hint(
     markdown_text: str, formats_md_text: str, archetype: str
 ) -> list[dict]:
@@ -788,7 +791,10 @@ def check_diagram_format_completeness_hint(
     one real case (`tex/python`'s PDF/DVI/SVG rows are all marked Export=No despite the product
     genuinely producing all three, per its own README and diagram) -- a hard gate here would
     sometimes fail an honestly-correct diagram over stale source data, which this plan has never
-    done to any other check keyed off a source already known to have real staleness.
+    done to any other check keyed off a source already known to have real staleness. (The
+    directional VERIFICATION gate is `check_diagram_verified_format_claims`, below -- that one
+    doesn't trust formats.md alone either, which is exactly why it's safe as a hard gate where
+    this heuristic isn't.)
 
     Returns a list of {"format", "container", "reason"} findings.
     """
@@ -807,24 +813,196 @@ def check_diagram_format_completeness_hint(
     outputs_text = _container_text("outputs").upper()
 
     findings = []
-    for row_match in re.finditer(
-        r"^\|\s*([A-Za-z0-9_.+-]+)\s*\|\s*(Yes|-)\s*\|\s*(Yes|-)\s*\|",
-        formats_md_text, re.MULTILINE,
-    ):
-        fmt = row_match.group(1).upper()
-        import_flag, export_flag = row_match.group(2), row_match.group(3)
-        if archetype != "generative" and import_flag == "Yes" and fmt not in starting_text:
+    for fmt, flags in parse_formats_table(formats_md_text).items():
+        if archetype != "generative" and flags["import"] and fmt not in starting_text:
             findings.append({
                 "format": fmt, "container": "starting_points",
                 "reason": f"formats.md marks {fmt} Import=Yes but it is not named in the "
                           "Starting Points container",
             })
-        if export_flag == "Yes" and fmt not in outputs_text:
+        if flags["export"] and fmt not in outputs_text:
             findings.append({
                 "format": fmt, "container": "outputs",
                 "reason": f"formats.md marks {fmt} Export=Yes but it is not named in the "
                           "Outputs container",
             })
+    return findings
+
+
+def _load_api_surface_names(api_surface_json_text: str) -> list[str]:
+    """Extract every `name` and `file` field from a `knowledge/{family}/{platform}/merged/
+    api_surface.json` array (2026-08-09, Twelfth incident / MT025 Phase 0c) -- real,
+    structurally-extracted class/type names and source paths, confirmed reliable by direct read
+    of 5 real portfolio files (uniform schema: an array of `{"name", "kind", "file", "methods",
+    "properties", ...}` objects, produced by real source parsing, not prose). Returns `[]` for
+    missing/empty/malformed input rather than raising -- this is a best-effort corroboration
+    signal, not a required one; the 2-of-3 model in `check_diagram_verified_format_claims`
+    tolerates its absence.
+    """
+    if not api_surface_json_text:
+        return []
+    try:
+        entries = json.loads(api_surface_json_text)
+    except (json.JSONDecodeError, ValueError):
+        return []
+    if not isinstance(entries, list):
+        return []
+    names: list[str] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("name"):
+            names.append(str(entry["name"]))
+        if entry.get("file"):
+            names.append(str(entry["file"]))
+    return names
+
+
+def _prose_direction_signal(prose_text: str, format_token: str, direction: str) -> bool:
+    """Direction-aware prose corroboration (2026-08-09, Twelfth incident / MT025 Phase 0c).
+    Searches `prose_text` (the candidate README with its Mermaid block already stripped by the
+    caller -- passing raw markdown_text here would let a diagram corroborate itself) for
+    `format_token` as a whole word. If found, checks the same sentence/line for an explicit
+    `"import-only"` / `"export-only"` / `"read-only"` / `"write-only"` phrase that CONTRADICTS
+    `direction`: a negative override (returns False even though the token is present), not just
+    "not found". This is the specific mechanism that correctly discards `3d/net`'s real
+    PLY-export contradiction (`"PLY is import-only"`) while still confirming its PLY-import
+    claim from the same sentence.
+
+    Disclosed limitation, not hidden: this only catches EXPLICIT "-only" phrasing -- a product
+    stating the same fact differently (e.g. "cannot currently write COLLADA files") won't
+    trigger the override. The 2-of-3 threshold in `check_diagram_verified_format_claims` is the
+    real mitigation: a wrong prose signal alone can never flip the verdict by itself.
+    """
+    match = re.search(rf"\b{re.escape(format_token)}\b", prose_text, re.IGNORECASE)
+    if not match:
+        return False
+    line_start = prose_text.rfind("\n", 0, match.start()) + 1
+    sentence_start = prose_text.rfind(". ", line_start, match.start())
+    start = max(line_start, sentence_start + 2 if sentence_start != -1 else line_start)
+    line_end = prose_text.find("\n", match.end())
+    sentence_end = prose_text.find(". ", match.end())
+    ends = [e for e in (line_end, sentence_end) if e != -1]
+    end = min(ends) if ends else len(prose_text)
+    window = prose_text[start:end]
+    for neg_match in _DIRECTION_ONLY_PHRASE_RE.finditer(window):
+        if _NEGATION_WORD_NEGATES_DIRECTION.get(neg_match.group(1).lower()) == direction:
+            return False
+    return True
+
+
+def _source_direction_signal(names: list[str], format_token: str, direction: str) -> bool:
+    """Direction-aware source-evidence corroboration (2026-08-09, Twelfth incident / MT025
+    Phase 0c). `names` is `api_surface.json`'s real class/file names (or a clone-cache filename
+    list as a fallback when that JSON is thin/absent). A name containing `format_token` as a
+    substring (case-insensitive; the token must be >= 3 characters to avoid short-token noise)
+    with a matching directional suffix (`_EXPORT_SUFFIXES` for export, `_IMPORT_SUFFIXES` for
+    import) counts specifically for that direction. A bare match with neither suffix (e.g.
+    `PdfConverter`, `PdfFormat`) counts as weaker, generic evidence for BOTH directions -- real,
+    structurally-extracted evidence the product genuinely has format-related code, just not
+    which direction. A name matching only the OPPOSITE direction's suffix does not count as
+    generic evidence for this direction (e.g. `PdfLoadOptions` corroborates import, not export).
+    """
+    if len(format_token) < 3:
+        return False
+    token_upper = format_token.upper()
+    suffixes = _EXPORT_SUFFIXES if direction == "export" else _IMPORT_SUFFIXES
+    opposite_suffixes = _IMPORT_SUFFIXES if direction == "export" else _EXPORT_SUFFIXES
+    for name in names:
+        name_upper = name.upper()
+        if token_upper not in name_upper:
+            continue
+        if any(suffix in name_upper for suffix in suffixes):
+            return True
+        if not any(suffix in name_upper for suffix in opposite_suffixes):
+            return True
+    return False
+
+
+def check_diagram_verified_format_claims(
+    markdown_text: str,
+    formats_md_text: str,
+    api_surface_json_text: str | None = None,
+    known_format_names: set[str] | None = None,
+) -> list[dict]:
+    """Hard gate (2026-08-09, Twelfth incident / MT025 Phase 0c). REPLACES the retired
+    `check_diagram_format_support_claims`, which only checked whether a format NAME appeared
+    ANYWHERE in formats.md's raw text -- never the Import/Export COLUMN VALUE for that format's
+    own row, and never the claim's DIRECTION (Starting Points = import, Outputs = export)
+    against the correct column. Confirmed by direct code read to be a real, independent,
+    pre-existing defect, not something MT025 introduced.
+
+    A format claim is VERIFIED (kept) only if at least 2 of these 3 independent signals agree
+    for its specific direction; otherwise it is DISCARDED -- a hard-gate finding, never silently
+    dropped and never silently trusted on formats.md's word alone:
+      1. `formats.md`'s own directional flag (`parse_formats_table`).
+      2. The candidate's own prose (README minus the Mermaid block), direction-aware via an
+         explicit "-only" negation override (`_prose_direction_signal`).
+      3. Real source evidence from `api_surface.json` / clone-cache filenames
+         (`_source_direction_signal`).
+
+    This design exists because `formats.md` is real (traces to genuine AST/tree-sitter source
+    parsing) but independently confirmed unreliable for multiple real products in this exact
+    portfolio: stale directional flags (`tex/python`'s PDF/DVI/SVG rows say Export=No despite
+    the product genuinely producing all three -- `PdfWriter`/`DviWriter`/`SvgWriter` are real,
+    confirmed classes), missing rows for a product's own primary format (`pdf/cpp` has no PDF or
+    PNG row at all; `html/python` has no HTML row), spurious rows (`html/python`'s `BLOB`/
+    `START`), and direct self-contradiction against the same file's own prose (`3d/net`'s
+    formats.md claims PLY Export=Yes while the file's own intro and Key Capabilities both
+    explicitly say "PLY is import-only"). `readme-refresh` cannot fix that upstream extractor
+    from its own layer (a different skill's territory -- repo-scout/knowledge-enrich), so this
+    must be permanently robust to formats.md being wrong in either direction, not contingent on
+    someone else fixing it.
+
+    Deliberately scoped to Starting Points (import) and Outputs (export) nodes only -- unlike
+    the retired function, this does not check Capabilities nodes, where a format mention's
+    direction is often genuinely ambiguous ("Multi-format load and save (OBJ, STL, ...)") and
+    over-constraining risks false positives on legitimate descriptive prose.
+
+    Returns a list of {"format", "direction", "node_id", "label", "signals", "reason"} findings
+    for every claim scoring below 2 of 3 -- "signals" names exactly which of the 3 were
+    true/false, so a finding tells a reviewer precisely what evidence is missing, not just that
+    something failed.
+    """
+    known_format_names = known_format_names or set()
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+    formats_table = parse_formats_table(formats_md_text)
+    api_surface_names = _load_api_surface_names(api_surface_json_text or "")
+    prose_text = _MERMAID_BLOCK_FULL_RE.sub("", markdown_text)
+
+    findings = []
+    for node_id, kind in graph.node_subgraph.items():
+        if kind not in ("starting_points", "outputs"):
+            continue
+        direction = "import" if kind == "starting_points" else "export"
+        label = graph.node_label.get(node_id, "")
+        core = label.split("(", 1)[0]
+        tokens = set(re.findall(r"[A-Za-z][A-Za-z0-9+]{1,9}", core))
+        for token in tokens:
+            canonical = next(
+                (f for f in known_format_names if f.upper() == token.upper()), None
+            )
+            if canonical is None:
+                continue
+            row = formats_table.get(canonical.upper(), {})
+            sig_formats_md = bool(row.get(direction, False))
+            sig_prose = _prose_direction_signal(prose_text, canonical, direction)
+            sig_source = _source_direction_signal(api_surface_names, canonical, direction)
+            score = sum((sig_formats_md, sig_prose, sig_source))
+            if score < 2:
+                findings.append({
+                    "format": canonical, "direction": direction,
+                    "node_id": node_id, "label": label,
+                    "signals": {
+                        "formats_md": sig_formats_md, "prose": sig_prose, "source": sig_source,
+                    },
+                    "reason": f"'{canonical}' ({direction}) claimed in {node_id} but only "
+                              f"{score} of 3 corroborating signals are true (need >= 2) -- "
+                              "discard or strengthen evidence before this claim can stay",
+                })
     return findings
 
 

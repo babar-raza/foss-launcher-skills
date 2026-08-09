@@ -490,6 +490,15 @@ def _product_formats_md(family: str, platform: str) -> str:
     return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
 
 
+def _product_api_surface(family: str, platform: str) -> str:
+    """Twelfth incident / MT025 Phase 0c (2026-08-09): raw api_surface.json text, the real
+    source-evidence signal for check_diagram_verified_format_claims. `""` if absent -- the
+    2-of-3 corroboration model tolerates its absence, same as check_diagram_container_format_
+    purity tolerates formats.md gaps."""
+    path = _repo_root / "knowledge" / family / platform / "merged" / "api_surface.json"
+    return path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
+
+
 def _detect_capability_dependencies(family: str, platform: str) -> "list | None":
     path = _repo_root / "data" / "diagram_capability_dependencies.json"
     if not path.is_file():
@@ -547,6 +556,51 @@ def _old_readme_inventory(clone_cache: Path) -> dict:
     return {"links": sorted(set(links)), "headings": headings, "source": "clone_cache/README.md"}
 
 
+def _compute_candidate_format_evidence(family: str, platform: str) -> dict:
+    """Twelfth incident / MT025 Phase 0c (2026-08-09): a compose-time HINT for the agent
+    drafting Starting Points/Outputs content -- NOT the authoritative verification. The
+    candidate's own prose (the third corroboration signal `check_diagram_verified_format_
+    claims` uses) doesn't exist until the candidate itself is composed -- a real
+    chicken-and-egg constraint, not an oversight. This uses only the 2 signals available before
+    composition (formats.md + real source evidence from api_surface.json/clone-cache). The real
+    gate at `ingest_candidate` re-derives all 3 signals fresh against the actual composed text,
+    so a wrong or stale hint here can never itself let an unverified claim through -- it only
+    helps the composing agent start from a better-informed draft instead of guessing blind.
+
+    Covers every format named in EITHER formats.md OR source evidence, not just formats.md's own
+    rows -- so a real, source-confirmed format missing from formats.md entirely (pdf/cpp's real
+    PDF/PNG support, html/python's real HTML support) still surfaces as a real candidate for the
+    agent to consider, rather than silently absent because formats.md happened to omit it.
+
+    Returns `{"import": [{"format", "formats_md", "source"}, ...], "export": [...]}`.
+    """
+    formats_table = checks.parse_formats_table(_product_formats_md(family, platform))
+    api_surface_names = checks._load_api_surface_names(_product_api_surface(family, platform))
+    known_format_names = (
+        set(_canonical_format_casing().values()) | checks._DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES
+    )
+
+    candidates = set(formats_table.keys())
+    for fmt in known_format_names:
+        if (
+            checks._source_direction_signal(api_surface_names, fmt, "import")
+            or checks._source_direction_signal(api_surface_names, fmt, "export")
+        ):
+            candidates.add(fmt.upper())
+
+    evidence: dict[str, list] = {"import": [], "export": []}
+    for fmt in sorted(candidates):
+        row = formats_table.get(fmt, {})
+        for direction in ("import", "export"):
+            sig_formats_md = bool(row.get(direction, False))
+            sig_source = checks._source_direction_signal(api_surface_names, fmt, direction)
+            if sig_formats_md or sig_source:
+                evidence[direction].append({
+                    "format": fmt, "formats_md": sig_formats_md, "source": sig_source,
+                })
+    return evidence
+
+
 def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
     """INPUTS_PINNED -> PLANNED: emit facts/factpack.json (deterministic data only). The agent
     -- not this script -- composes candidate/README.candidate.md from the factpack, then calls
@@ -566,6 +620,7 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "archetype": archetype["archetype"],
             "archetype_basis": archetype["archetype_basis"],
             "capability_dependency_pipeline_edges": _detect_capability_dependencies(family, platform),
+            "candidate_format_evidence": _compute_candidate_format_evidence(family, platform),
             "install": _detect_install_info(family, platform),
             "license_file": _detect_license_file(clone_cache),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
@@ -669,15 +724,23 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             text, _detect_archetype_entry_raw(family, platform), _now().date().isoformat()
         ),
     }
-    result["diagram_format_support_claims"] = {
-        "hard_gate": True,
-        "findings": checks.check_diagram_format_support_claims(
-            text, _product_formats_md(family, platform), set(_canonical_format_casing().values())
-        ),
-    }
     known_format_names = (
         set(_canonical_format_casing().values()) | checks._DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES
     )
+    # Twelfth incident / MT025 Phase 0c (2026-08-09): check_diagram_format_support_claims
+    # retired -- it was presence-only and direction-blind (confirmed by direct code read: it
+    # only checked whether a format name appeared ANYWHERE in formats.md's text, never the
+    # Import/Export column value, never the claim's direction). check_diagram_verified_format_
+    # claims replaces it with a direction-aware, multi-signal (formats.md + prose + real source
+    # evidence) corroboration gate -- formats.md is real but independently confirmed unreliable
+    # for several real products in this portfolio, so this cannot depend on it alone.
+    result["diagram_verified_format_claims"] = {
+        "hard_gate": True,
+        "findings": checks.check_diagram_verified_format_claims(
+            text, _product_formats_md(family, platform), _product_api_surface(family, platform),
+            known_format_names,
+        ),
+    }
     result["diagram_starting_points_format_purity"] = {
         "hard_gate": True,
         "findings": checks.check_diagram_container_format_purity(
