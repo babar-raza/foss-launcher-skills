@@ -1953,6 +1953,93 @@ def test_api_reference_classes_exist_ignores_method_call_in_intro_sentence():
     assert not any(f.get("class_name") == "Pages" for f in findings)
 
 
+def test_api_reference_classes_exist_ignores_property_and_exception_mentions_in_prose():
+    # Regression test: found live during MT027's full-portfolio sanity pass -- pdf/net's real
+    # intro sentence "...exposing `Pages` (a `PageCollection` of `Page` objects)" cites Pages as
+    # a PROPERTY, not a class (no invocation parens to distinguish it, unlike a method call);
+    # 3d/python's real blockquote "...raise `AttributeError` (for saving)" cites a built-in
+    # exception in a caveat, not a product class. Both are prose, not the structured `` -
+    # `ClassName` `` bullet convention -- intro/body prose is no longer scanned at all for class
+    # citations (root fix, not a narrower exclusion rule).
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n"
+            "`Document` is the central entry point, exposing `Pages` (a `PageCollection` of "
+            "`Page` objects), and raises `AttributeError` in some cases.\n\n"
+            "- `Document`\n  - `save()`\n"
+        ),
+    )
+    reference_names = {"Document"}
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, reference_names)
+    assert findings == []
+
+
+def test_api_reference_classes_exist_tolerates_fully_qualified_citation():
+    # Regression test: note/python's real bullets cite classes with a fully-qualified module
+    # path ("aspose.note.saving.PdfSaveOptions"), but reference.aspose.org's own class index
+    # always uses bare names -- the bare last dot-segment must be tried too.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n- `aspose.note.saving.PdfSaveOptions`\n  - `format()`\n"
+        ),
+    )
+    reference_names = {"PdfSaveOptions"}
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, reference_names) == []
+
+
+def test_api_reference_classes_exist_skips_package_grouping_bullet():
+    # Regression test: pdf/java's real bullet "- `org.aspose.pdf.drawing` -- `Line`,
+    # `Rectangle`, ..." groups several real classes under a PACKAGE name, not a single class --
+    # the last dot-segment ("drawing") is lowercase, not PascalCase, so this isn't a real
+    # single-class citation at all and must not be checked as one.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section=(
+            "## API Reference\n\n- `org.aspose.pdf.drawing` -- `Line`, `Rectangle`, `Circle`\n"
+        ),
+    )
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, set()) == []
+
+
+def test_find_class_source_files_recognizes_typescript_enum(tmp_path):
+    # Regression test: 3d/typescript's real ExtrapolationType/StepMode are declared as
+    # `export enum ExtrapolationType { ... }` -- the original class|struct|interface|def
+    # keyword list had no enum/type keyword at all.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "ExtrapolationType.ts").write_text(
+        "export enum ExtrapolationType {\n  CONSTANT,\n  GRADIENT,\n}\n", encoding="utf-8"
+    )
+    found = checks._find_class_source_files(tmp_path, "ExtrapolationType")
+    assert len(found) == 1
+
+
 def test_api_reference_classes_exist_flags_fabricated_class():
     text = _wrap(
         """flowchart TD
@@ -2080,6 +2167,36 @@ def test_named_member_accuracy_flags_fabricated_member_via_reference_page(tmp_pa
     assert len(findings) == 1
     assert "fake_method_not_on_this_class" in findings[0]["member"]
     assert "reference.aspose.org" in findings[0]["reason"]
+
+
+def test_named_member_accuracy_falls_back_to_clone_cache_when_reference_page_is_incomplete(tmp_path):
+    # Regression test: found live during MT027's full-portfolio sanity pass -- email/cpp's real
+    # reference.aspose.org page for mapi_message lists `set_subject` but is genuinely missing
+    # the real `subject()` getter (present in real source) from both its Properties and Methods
+    # tables. A member missing from the reference page must still be confirmed via clone-cache
+    # before being flagged, not flagged on the reference page's incompleteness alone.
+    reference_dir = tmp_path / "reference"
+    reference_dir.mkdir()
+    (reference_dir / "mapi_message.md").write_text(
+        "---\ngrade: A\n---\n\n## Methods\n\n"
+        "| Signature | Description |\n|---|---|\n"
+        "| `set_subject(value: std::string)` | Sets the subject |\n",
+        encoding="utf-8",
+    )
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "mapi_message.hpp").write_text(
+        "class mapi_message {\npublic:\n"
+        "    const std::string& subject() const noexcept;\n"
+        "    void set_subject(std::string value);\n"
+        "};\n",
+        encoding="utf-8",
+    )
+    readme = "- `mapi_message`\n  - `subject()`\n  - `set_subject(value)`\n"
+    findings = checks.check_named_member_accuracy(
+        readme, str(src_dir), reference_dir=str(reference_dir)
+    )
+    assert findings == []
 
 
 def test_named_member_accuracy_falls_back_to_clone_cache_when_no_reference_page(tmp_path):

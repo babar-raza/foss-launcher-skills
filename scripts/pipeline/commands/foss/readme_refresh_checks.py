@@ -1599,37 +1599,52 @@ def check_named_member_accuracy(
             continue
 
         for class_name in filter(None, (class_a, class_b)):
+            known_members: set[str] = set()
             reference_page = ref_dir / f"{class_name}.md" if ref_dir else None
             if reference_page is not None and reference_page.is_file():
                 parsed = parse_reference_class_page(
                     reference_page.read_text(encoding="utf-8", errors="ignore")
                 )
                 known_members = set(parsed["properties"]) | set(parsed["methods"])
-                for member in members:
-                    member_token = member.split("(")[0].split(":")[0].strip()
-                    if member_token and member_token not in known_members:
-                        findings.append({
-                            "class_name": class_name,
-                            "member": member,
-                            "reason": f"not found in {class_name}'s real reference.aspose.org "
-                                      "Properties/Methods tables",
-                        })
-                continue  # reference-site evidence takes precedence; skip the grep fallback
 
-            if not root.is_dir():
-                continue
-            candidate_files = _find_class_source_files(root, class_name)
-            if not candidate_files:
+            candidate_files = _find_class_source_files(root, class_name) if root.is_dir() else []
+            combined_text = (
+                "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in candidate_files)
+                if candidate_files else ""
+            )
+            if not known_members and not candidate_files:
                 continue  # no evidence either way -- not a fabrication claim, skip silently
-            combined_text = "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in candidate_files)
+
             for member in members:
                 member_token = member.split("(")[0].split(":")[0].strip()
-                if member_token and member_token not in combined_text:
-                    findings.append({
-                        "class_name": class_name,
-                        "member": member,
-                        "reason": f"not found in {len(candidate_files)} candidate source file(s)",
-                    })
+                if not member_token:
+                    continue
+                if member_token in known_members:
+                    continue
+                if combined_text and member_token in combined_text:
+                    # Confirmed real by clone-cache source even though it's missing from the
+                    # reference-site page's own Properties/Methods tables -- found live during
+                    # MT027's full-portfolio sanity pass (2026-08-09): reference.aspose.org's
+                    # own extraction systematically missed several real getter methods (e.g.
+                    # email/cpp's `subject()`/`body()`, present only as their `set_X` setter
+                    # counterparts in that class's real, graded page) -- the same "even graded
+                    # content can be incomplete" lesson already applied to the class-existence
+                    # check, now applied at the member level too.
+                    continue
+                source_desc = (
+                    f"{class_name}'s real reference.aspose.org Properties/Methods tables"
+                    if known_members else f"{len(candidate_files)} candidate source file(s)"
+                )
+                if known_members and candidate_files:
+                    source_desc = (
+                        f"{class_name}'s real reference.aspose.org Properties/Methods tables "
+                        f"nor {len(candidate_files)} candidate clone-cache source file(s)"
+                    )
+                findings.append({
+                    "class_name": class_name,
+                    "member": member,
+                    "reason": f"not found in {source_desc}",
+                })
     return findings
 
 
@@ -1646,9 +1661,16 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     file, they filled max_files before the real file was ever reached -- producing false
     "member not found" findings for members that are genuinely declared, just in a file this
     function never got to.
+
+    `enum`/`type` added to the keyword list (2026-08-09, MT027, found live in the full-portfolio
+    sanity pass): 3d/typescript's real `ExtrapolationType`/`StepMode` are declared as `export
+    enum ExtrapolationType { ... }` -- the original `class|struct|interface|def` list has no
+    TypeScript/Rust/Go enum or type-alias keyword at all, so every enum-shaped citation in any
+    product using this pattern was silently unconfirmable by this function regardless of how
+    real it was.
     """
     declare_re = re.compile(
-        rf"\b(?:class|struct|interface|def)\s+{re.escape(class_name)}\b(?!\s*;)"
+        rf"\b(?:class|struct|interface|def|enum|type)\s+{re.escape(class_name)}\b(?!\s*;)"
     )
     skip_dirs = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
     found: list[Path] = []
@@ -1852,29 +1874,39 @@ def check_api_reference_classes_exist_in_reference_site(
         section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
         if section_match:
             section_text = section_match.group(1)
+            # Deliberately scoped to the established `` - `ClassName` `` bullet convention ONLY
+            # -- free-form intro-sentence prose was tried and removed (2026-08-09, found live
+            # during the full-portfolio sanity pass): a bare backtick-quoted PascalCase token in
+            # prose is genuinely ambiguous between "a class name" and "a property name" (C#/Java
+            # properties are PascalCase too, no invocation parens to distinguish them from a
+            # class the way a method call's "()" does -- pdf/net's real intro sentence "exposing
+            # `Pages` (a `PageCollection` of `Page` objects)" cites a PROPERTY named Pages, not a
+            # class) or "an unrelated built-in exception name mentioned in a caveat" (3d/python's
+            # real "...raise `AttributeError` (for saving)" gotcha callout). The structured
+            # bullet convention has no such ambiguity -- every `` - `ClassName` `` line is a
+            # deliberate, unambiguous class citation by construction, which is exactly why
+            # `check_named_member_accuracy` was already scoped to it alone.
             cited_classes: set[str] = set()
             for bullet_match in _CLASS_BULLET_RE.finditer(section_text):
                 for cls in (bullet_match.group(2), bullet_match.group(3)):
                     if cls:
                         cited_classes.add(cls)
-            body_intro_text = section_text.split("<details>", 1)[0]
-            for token in _BACKTICK_MEMBER_RE.findall(body_intro_text):
-                # A token WITH invocation parens (e.g. "Pages()") is being cited as a method
-                # call, not a class name, even when it's PascalCase per this API's own naming
-                # convention -- found live in pdf/cpp's real intro sentence ("...and its
-                # `Pages()` collection"), which would otherwise false-positive "Pages" as a
-                # fabricated class. Only a bare token (no parens in the original backtick span)
-                # is treated as a class-name candidate.
-                if "(" in token:
-                    continue
-                if _PASCAL_CASE_TOKEN_RE.match(token):
-                    cited_classes.add(token)
 
             reference_upper = {c.upper() for c in (reference_class_names or set())}
             for cls in sorted(cited_classes):
-                if cls.upper() in reference_upper:
+                # Tolerate a fully-qualified citation (Java/Python-style "pkg.module.ClassName",
+                # found live in note/python's real bullets) by also trying the bare last
+                # dot-segment -- reference.aspose.org's own class table always uses bare names.
+                # If that last segment isn't itself PascalCase (e.g. pdf/java's real
+                # "org.aspose.pdf.drawing" package-grouping bullet -- "drawing" is a lowercase
+                # package name, not a class), this isn't a real single-class citation at all;
+                # skip it rather than force a same-shape comparison that can't succeed.
+                bare = cls.rsplit(".", 1)[-1]
+                if not _PASCAL_CASE_TOKEN_RE.match(bare):
                     continue
-                if clone_cache_usable and _find_class_source_files(clone_cache_path, cls):
+                if bare.upper() in reference_upper:
+                    continue
+                if clone_cache_usable and _find_class_source_files(clone_cache_path, bare):
                     continue  # confirmed real by the second source; reference index was just incomplete
                 findings.append({
                     "class_name": cls,
