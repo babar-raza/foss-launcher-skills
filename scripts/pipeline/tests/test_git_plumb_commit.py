@@ -372,3 +372,58 @@ def test_cli_requires_exactly_one_message_source(tmp_path):
         "--files", "f.txt", "--skills", "S-99", "--plan", "x",
     ])
     assert rc == 2
+
+
+# ---------------------------------------------------------------------------
+# Credential redaction (TC-CIA-12, found live 2026-08-08: a failed push using
+# this repo's own x-access-token URL convention printed the literal token in
+# the raised PlumbCommitError -- ' '.join(args) embeds the full --remote URL
+# verbatim. Fixed by redacting any URL-embedded credential before it reaches
+# an exception message.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "raw,expected_masked_form",
+    [
+        (
+            "git push https://x-access-token:ghp_abcDEF123456@github.com/Aspose/aspose.org.git "
+            "main failed",
+            "https://<redacted>@github.com/Aspose/aspose.org.git",
+        ),
+        (
+            "fatal: unable to access 'https://user:s3cr3t-tok3n@example.com/repo.git/'",
+            "https://<redacted>@example.com/repo.git/",
+        ),
+        ("git status failed: no credential-shaped text here", None),
+    ],
+)
+def test_redact_credentials_masks_embedded_url_tokens(raw, expected_masked_form):
+    result = gpc._redact_credentials(raw)
+    assert "ghp_abcDEF123456" not in result
+    assert "s3cr3t-tok3n" not in result
+    if expected_masked_form is not None:
+        assert expected_masked_form in result
+    else:
+        assert result == raw  # no credential-shaped substring -- untouched
+
+
+def test_failed_push_with_credentialed_url_does_not_leak_token_in_error(tmp_path):
+    """Real, non-mocked failure path: push to a URL that embeds a fake
+    credential and cannot succeed (connection refused, no network/DNS
+    dependency -- port 1 on localhost refuses immediately). The exact
+    fake token value must never appear in the raised exception's message.
+    """
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    fake_token = "ghp_FAKE_TOKEN_MUST_NOT_LEAK_1234567890"
+    bad_remote = f"https://x-access-token:{fake_token}@127.0.0.1:1/nonexistent.git"
+
+    with pytest.raises(gpc.PlumbCommitError) as exc_info:
+        gpc.plumb_commit(
+            ["f.txt"], "should fail to push", repo_root=work, branch="main",
+            remote=bad_remote, skip_stale_check=True,
+        )
+
+    assert fake_token not in str(exc_info.value)
+    assert "<redacted>" in str(exc_info.value)

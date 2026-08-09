@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -123,13 +124,35 @@ class PlumbCommitBlocked(PlumbCommitError):
         )
 
 
+_CREDENTIAL_URL_RE = re.compile(r"://[^/\s:@]+:[^/\s@]+@")
+
+
+def _redact_credentials(text: str) -> str:
+    """Mask any embedded URL credential (e.g. https://x-access-token:TOKEN@host/...)
+    before a string reaches an exception message, stdout, or stderr.
+
+    Found live 2026-08-08: a failed push (missing OAuth scope) raised a
+    PlumbCommitError built from ' '.join(args), which for a push call
+    includes the full --remote URL verbatim -- printing the literal token
+    to the caller on every push failure that uses the x-access-token
+    convention this repo's own CLAUDE.md documents. Applied at every site
+    that builds an error message from raw subprocess args/output, not just
+    the call site that happened to trigger this the first two times --
+    `git push` isn't the only git subcommand that can embed a URL
+    (e.g. `git ls-remote`, `git fetch` with an explicit URL).
+    """
+    return _CREDENTIAL_URL_RE.sub("://<redacted>@", text)
+
+
 def _git(args: list[str], *, repo_root: Path, check: bool = True) -> "subprocess.CompletedProcess":
     result = _COMMAND_RUNNER(
         ["git", *args], cwd=str(repo_root), capture_output=True, text=True,
     )
     if check and result.returncode != 0:
+        safe_args = _redact_credentials(" ".join(args))
+        safe_stderr = _redact_credentials(result.stderr)
         raise PlumbCommitError(
-            f"git {' '.join(args)} failed (exit {result.returncode}): {result.stderr}"
+            f"git {safe_args} failed (exit {result.returncode}): {safe_stderr}"
         )
     return result
 
@@ -269,8 +292,10 @@ def plumb_commit(
                 ["git", *args], cwd=str(root), capture_output=True, text=True, env=env_index,
             )
             if result.returncode != 0:
+                safe_args = _redact_credentials(" ".join(args))
+                safe_stderr = _redact_credentials(result.stderr)
                 raise PlumbCommitError(
-                    f"git {' '.join(args)} (indexed) failed: {result.stderr}"
+                    f"git {safe_args} (indexed) failed: {safe_stderr}"
                 )
             return result
 
