@@ -137,3 +137,9 @@ scripts:
     purpose: "Backfill missing static/media/{family}/{platform}/icon.webp for launched platforms with zero icon (5 families, Tier A) plus best-effort page/html root icons and html/python icon+banner (Tier B) — see reports/skill-gaps/2026-08-06-media-composite-generation.md"
     created: "2026-08-06"
     status: pending
+
+  - path: scripts/maintenance/git_repo_health_check.py
+    kind: one-shot
+    purpose: "Advisory, read-only git object-store health check (fsck broken-links + loose-object count vs gc.auto threshold); run manually or at session start to catch the reflog-protected-corruption/loose-object-backlog incident class before it needs a live forensic re-investigation — see reports/skill-gaps/2026-08-09-git-object-store-maintenance.md"
+    created: "2026-08-09"
+    status: done
