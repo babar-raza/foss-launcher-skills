@@ -73,8 +73,9 @@ same product concurrently.
    capability-dependency edges (`data/diagram_capability_dependencies.json` — `None` when the
    product has never been traced, which must never be read as "confirmed independent"), real
    install/package data (`data/package_registry.json`), real case-sensitive license-file
-   detection against the clone cache, and the old upstream README's real link/heading
-   inventory. Transitions `INPUTS_PINNED → PLANNED`.
+   detection against the clone cache, and the old upstream README's real link/heading/prose
+   inventory (`old_readme_inventory`, including `content_units` — MT030, see below). Transitions
+   `INPUTS_PINNED → PLANNED`.
 
 3. **Agent composes the candidate.** The script does not write README prose — the agent reads
    `facts/factpack.json` and writes `reports/repo-presenter/{family}/{platform}/readme.md`
@@ -83,9 +84,18 @@ same product concurrently.
    item in the factpack's `old_readme_inventory` (links, headings) must either land somewhere
    real in the candidate or be a deliberate, verified drop — `ingest-candidate`'s
    `check_dropped_content` hard gate below enforces this, it is not optional diligence.
+   **MT030 (Fifteenth incident, 2026-08-09)**: the agent must ALSO write
+   `reports/repo-presenter/{family}/{platform}/content-dispositions.json` — one entry per real
+   prose content unit `old_readme_inventory.content_units` extracted from the old README
+   (mechanism-level explanations and branding/positioning claims, verified against the real
+   product repo and merged/reframed into the appropriate section; pure narrative/origin-story/
+   CTA prose is explicitly out of scope, per the user's own decision, and gets an `excluded`
+   disposition citing that). This is the real, working artifact `dropped_claims.json` was only
+   ever a docstring aspiration for (2026-08-04 through 2026-08-09, never implemented by any
+   code) — see `check_content_unit_disposition_coverage`'s own docstring for the full schema.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 21 functions) against the
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 46 functions) against the
    candidate. **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
@@ -104,9 +114,13 @@ same product concurrently.
    is cited inside a section that's supposed to describe only this product, the `## Additional
    Examples` exhaustive table is collapsed alongside the remaining worked examples (not always
    visible), every heading (including `<summary>` text) is title case, no undisclosed BLOCKING
-   command from `upstream-issues.md` is repeated as a normal install/build step, and no real
+   command from `upstream-issues.md` is repeated as a normal install/build step, no real
    old-README link/heading/meaning was silently dropped or hidden behind an internal
-   process-label like "Preserved repository details". **Heuristic checks** (surfaced for
+   process-label like "Preserved repository details", and (**MT030**, Fifteenth incident)
+   every real old-README content unit has a complete, well-formed disposition record whose
+   cited evidence actually resolves against real product-repo/registry/docs data and whose
+   claimed section-merge is traceable to real text in the candidate (never two disposition
+   entries merging the identical excerpt into the identical section). **Heuristic checks** (surfaced for
    judgment, never auto-fail): mechanism-duplicate output nodes, process-narration smells (now
    covering internal receipts/execution notes/provenance/confidence language, not just the
    original 22 incident-specific phrases), Enterprise Edition anchor-text naming *and* context
@@ -114,9 +128,13 @@ same product concurrently.
    is `"Enterprise Edition"`, decided 2026-08-08), section-job distinctness (intro vs. Key
    Capabilities overlap), a weak API-reference intro sentence, and named-member accuracy (a
    grep-based heuristic — see that function's own docstring for its honest, stated scope limits,
-   most importantly that it does not trace inheritance). `check_diagram_suspicious_direct_
-   product_edge`/`check_diagram_capability_unreachable_from_product` are retired — both were
-   tripwires for a per-node-edge defect class the simplified model can no longer produce.
+   most importantly that it does not trace inheritance), and (**MT030**) content-unit
+   classification plausibility (a mechanical narrative/CTA tone prefilter cross-checked against
+   the agent's own stated classification) and probable-duplicate content-unit merges (2+ shared
+   salient tokens into the same section with a non-identical excerpt). `check_diagram_
+   suspicious_direct_product_edge`/`check_diagram_capability_unreachable_from_product` are
+   retired — both were tripwires for a per-node-edge defect class the simplified model can no
+   longer produce.
    Transitions `PLANNED → VERIFYING_EXAMPLES` only once every hard gate passes.
 
 5. **`verify-examples`** — runs the (pluggable) per-language compile/run verification pass and

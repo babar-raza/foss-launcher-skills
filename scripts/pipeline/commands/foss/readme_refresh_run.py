@@ -179,6 +179,13 @@ def _upstream_issues_path(family: str, platform: str) -> Path:
     return _reports_root / "repo-presenter" / family / platform / "upstream-issues.md"
 
 
+def _content_dispositions_path(family: str, platform: str) -> Path:
+    """Fifteenth incident / MT030 (2026-08-09): the real, agent-authored artifact
+    `dropped_claims.json` only ever promised (docstring-only, 2026-08-04 through 2026-08-09,
+    never implemented). Sibling to readme.md/upstream-issues.md, same directory."""
+    return _reports_root / "repo-presenter" / family / platform / "content-dispositions.json"
+
+
 def _product_clone_cache(family: str, platform: str) -> Path:
     return _clone_cache_root / f"aspose_{family}_{platform}"
 
@@ -641,14 +648,51 @@ def _detect_dev_test_artifacts(clone_cache: Path) -> list[dict]:
     return found
 
 
+def _load_package_registry() -> dict:
+    """Fifteenth incident / MT030 (2026-08-09): small, reusable loader -- content-unit evidence
+    resolution (`check_content_unit_evidence_resolves`) needs the raw `data/package_registry.json`
+    dict directly, not `_detect_install_info`'s already-summarized per-product view. `{}` if the
+    file is absent, matching this module's established graceful-degradation posture."""
+    path = _repo_root / "data" / "package_registry.json"
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _load_content_docs_texts(family: str, platform: str) -> dict[str, str]:
+    """Fifteenth incident / MT030 (2026-08-09): real doc texts a content-unit disposition can
+    cite as `"docs_reference"` evidence -- every real governance/contributor doc
+    `_detect_dev_test_artifacts` already discovers in the clone cache, keyed by the same
+    relative path, plus the knowledge-layer `formats.md`/`limitations.md` texts this module
+    already knows how to read elsewhere. Mirrors `_product_formats_md`/`_product_api_surface`'s
+    existing "read once, hand in as text" pattern -- `{}` is a valid, expected result for a
+    product with none of these, same graceful-degradation posture as those two functions."""
+    clone_cache = _product_clone_cache(family, platform)
+    texts: dict[str, str] = {}
+    for artifact in _detect_dev_test_artifacts(clone_cache):
+        path = clone_cache / artifact["relative_path"]
+        if path.is_file():
+            texts[artifact["relative_path"]] = path.read_text(encoding="utf-8", errors="ignore")
+    formats_md = _product_formats_md(family, platform)
+    if formats_md:
+        texts["knowledge/formats.md"] = formats_md
+    limitations_path = _repo_root / "knowledge" / family / platform / "merged" / "limitations.md"
+    if limitations_path.is_file():
+        texts["knowledge/limitations.md"] = limitations_path.read_text(encoding="utf-8", errors="ignore")
+    return texts
+
+
 def _old_readme_inventory(clone_cache: Path) -> dict:
     old_readme = clone_cache / "README.md"
     if not old_readme.is_file():
-        return {"links": [], "headings": [], "source": "no_old_readme_found"}
+        return {"links": [], "headings": [], "source": "no_old_readme_found", "content_units": []}
     text = old_readme.read_text(encoding="utf-8", errors="ignore")
     links = [href for _, href in checks._MD_LINK_RE.findall(text) if not href.startswith(("http://", "https://"))]
     headings = [m.group(2) for m in checks._HEADING_RE.finditer(text)]
-    return {"links": sorted(set(links)), "headings": headings, "source": "clone_cache/README.md"}
+    return {
+        "links": sorted(set(links)), "headings": headings, "source": "clone_cache/README.md",
+        "content_units": checks.extract_old_readme_content_units(text),
+    }
 
 
 def _compute_candidate_format_evidence(family: str, platform: str) -> dict:
@@ -937,6 +981,48 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             "findings": dropped["internal_labels"],
             "detail": {"source": "no_old_readme_found", **dropped},
         }
+        old_readme_text = ""
+
+    # Fifteenth incident / MT030 (2026-08-09): verify-and-merge of the old README's real prose
+    # -- mechanism-level explanations (e.g. pdf/cpp's real font-fallback rationale) and
+    # branding/positioning claims (e.g. "Official Aspose project") get verified against the
+    # real product repo and merged into the new candidate; pure narrative/origin-story/CTA
+    # prose stays explicitly out of scope, per the user's own decision. dropped_content above
+    # only ever tracked links/headings -- these 6 checks close the much larger prose gap a real
+    # 5-product survey confirmed. content-dispositions.json is agent-authored, same tier as
+    # readme.md/upstream-issues.md -- read here, never written by this script.
+    content_units = checks.extract_old_readme_content_units(old_readme_text)
+    dispositions_path = _content_dispositions_path(family, platform)
+    dispositions = (
+        json.loads(dispositions_path.read_text(encoding="utf-8")) if dispositions_path.is_file() else []
+    )
+    result["content_unit_disposition_coverage"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_disposition_coverage(content_units, dispositions),
+    }
+    result["content_unit_evidence_resolves"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_evidence_resolves(
+            dispositions, str(clone_cache), _load_package_registry(),
+            _load_content_docs_texts(family, platform),
+        ),
+    }
+    result["content_unit_merged_into_target_section"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_merged_into_target_section(text, dispositions),
+    }
+    result["content_unit_no_exact_duplicate_merge"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_no_exact_duplicate_merge(dispositions),
+    }
+    result["content_unit_classification_plausibility"] = {
+        "hard_gate": False,
+        "findings": checks.check_content_unit_classification_plausibility(content_units, dispositions),
+    }
+    result["content_unit_probable_duplicate"] = {
+        "hard_gate": False,
+        "findings": checks.check_content_unit_probable_duplicate(dispositions),
+    }
 
     # Heuristic / two-tier -- surfaced for the mandatory human/agent judgment pass, never
     # treated as a hard_gate failure by ingest_candidate() above. 2026-08-08: check_diagram_

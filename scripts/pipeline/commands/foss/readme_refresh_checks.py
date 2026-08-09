@@ -24,12 +24,25 @@ Content checks (whole-README, all real, implemented): compute_link_caps(), count
 links(), check_enterprise_edition_naming() [heuristic], check_required_sections() [hard gate],
 surgical_diff_check() [hard gate], check_license_link_target() [hard gate], check_process_
 narration_smells() [heuristic], check_no_undisclosed_blocking_commands() [hard gate],
-check_dropped_content() [hard gate at ingest-candidate -- a flagged item needs an explicit
-disposition in dropped_claims.json before the transition can pass], check_no_excluded_domain_
-links() [hard gate], check_named_member_accuracy() [heuristic -- see its own docstring for an
-honest statement of what this heuristic implementation can and cannot verify, versus the
-full per-language compiler-grade extraction the plan's Verification pass section describes],
-check_api_reference_intro_names_classes() [heuristic].
+check_dropped_content() [hard gate at ingest-candidate -- a flagged link/heading needs an
+explicit disposition in content-dispositions.json before the transition can pass; see the
+content-unit checks below for prose-level coverage, which this link/heading-only check does
+not itself provide], check_no_excluded_domain_links() [hard gate], check_named_member_accuracy()
+[heuristic -- see its own docstring for an honest statement of what this heuristic
+implementation can and cannot verify, versus the full per-language compiler-grade extraction the
+plan's Verification pass section describes], check_api_reference_intro_names_classes()
+[heuristic].
+
+Old-README content-unit checks (Fifteenth incident / MT030, 2026-08-09 -- verify-and-merge of
+real old-README prose beyond check_dropped_content's link/heading-only scope): extract_old_
+readme_content_units() [pure extraction, not a check], check_content_unit_disposition_coverage()
+[hard gate], check_content_unit_evidence_resolves() [hard gate], check_content_unit_merged_
+into_target_section() [hard gate], check_content_unit_no_exact_duplicate_merge() [hard gate],
+check_content_unit_classification_plausibility() [heuristic], check_content_unit_probable_
+duplicate() [heuristic]. `dropped_claims.json`, referenced only as a docstring aspiration
+throughout this module's history (2026-08-04 through 2026-08-09) and never actually
+implemented by any code, is superseded by the real `content-dispositions.json` artifact these
+checks read and write against -- see check_content_unit_disposition_coverage's own docstring.
 
 check_diagram_matches_capability_dependencies (spec'd 2026-08-06, plan section
 "Capability-dependency edges") is a hard gate once a product has a recorded
@@ -1468,9 +1481,12 @@ _INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECAS
 def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cache_root: str) -> dict:
     """Diff the old (upstream) README against the new candidate for links and H2/H3 headings
     present in the old file with no match anywhere in the new one. Hard gate at
-    ingest-candidate -- a flagged item needs an explicit disposition in dropped_claims.json
-    (carried forward / dropped with a verified reason) before the transition can pass, per
-    the "Never drop original-README content without a verified reason" rule.
+    ingest-candidate, per the "Never drop original-README content without a verified reason"
+    rule. Scoped to links/headings only -- see check_content_unit_disposition_coverage (Fifteenth
+    incident / MT030) for the real prose-level coverage this function's own docstring aspired to
+    (2026-08-04 through 2026-08-09) but never actually implemented via any `dropped_claims.json`
+    mechanism; that real mechanism is `content-dispositions.json`, read/written by the checks
+    below, not this one.
 
     Returns {"dropped_links": [...], "dropped_headings": [...], "internal_labels": [...]}.
     A link is "dropped" only if its exact target string doesn't appear anywhere in
@@ -3072,6 +3088,420 @@ def check_only_sections_changed(
                 "reason": "section changed but is not in the declared allowed_headings set "
                           "for this edit",
             })
+    return findings
+
+
+# ==================================================================================================
+# Fifteenth incident / MT030 (2026-08-09): verify-and-merge of old-README prose.
+#
+# check_dropped_content (above) only ever tracked links and H2/H3 headings -- real, but a much
+# narrower slice than "everything worth preserving in the old upstream README." A real 5-product
+# survey (words/net, pdf/cpp, slides/java, email/cpp, note/python) confirmed a genuine,
+# reproducible gap: mechanism-level explanations embedded in feature bullets (e.g. pdf/cpp's
+# real font-fallback rationale, "so glyphs render even in fontless Linux/CI containers") and
+# branding/positioning claims ("Official Aspose project") were silently compressed to bare facts
+# or dropped without a trace, invisible to check_dropped_content because neither is a link or a
+# heading. Per the user's own decision (AskUserQuestion, 2026-08-09): pure narrative/origin-
+# story/CTA prose (a third pattern found in the same survey -- "Star it (star emoji)", "not set
+# in stone") stays explicitly out of scope, same as today -- "verified against product repo"
+# naturally scopes to checkable facts, not opinion/tone with nothing to verify against source.
+#
+# The functions below extract every real prose "content unit" from the old README (paragraph or
+# top-level list item, whichever is smaller -- reusing check_no_upstream_issue_leaked_into_
+# readme's own proven _iter_leak_scan_units segmentation rather than reimplementing it), then
+# require the composing agent to record, for every single one, a real disposition in
+# content-dispositions.json (merged into the new candidate, reframed to fit, or excluded with a
+# verified reason) -- finally making real what `dropped_claims.json` only ever promised as a
+# docstring aspiration since 2026-08-04.
+# ==================================================================================================
+
+_CATEGORY_1_PHRASE_RE = re.compile(
+    r"\bstar it\b|\bgive .{0,15}a star\b|\bnot set in stone\b|\bstay tuned\b|\bcoming soon\b"
+    r"|\bjoin us\b|\bour journey\b|\bwe'?re excited\b|\bthe final shape\b",
+    re.IGNORECASE,
+)
+# A conservative, deliberately small emoji range -- common decorative/CTA emoji (star, party,
+# rocket, checkmark, etc.), not an exhaustive Unicode-emoji sweep. A miss here just means a unit
+# doesn't get the prefilter hint; it is never excluded outright (see the docstring below).
+_EMOJI_RE = re.compile(
+    "[\U0001F300-\U0001FAFF☀-➿⬀-⯿❤️]"
+)
+
+
+def _likely_category_1_signal(excerpt: str) -> bool:
+    """Cheap, deliberately disclosed-incomplete prefilter for narrative/origin-story/CTA prose
+    (category 1, out of scope per the user's own 2026-08-09 decision). NEVER used to delete or
+    exclude a content unit at extraction time -- only stored as a hint field
+    (`likely_category_1_prefilter`) feeding `check_content_unit_classification_plausibility`'s
+    non-blocking cross-check below. Tone/purpose classification is a judgment call this project
+    has consistently never pretended a regex can make on its own (same posture as
+    `check_process_narration_smells`'s own fixed-phrase-list limitation).
+    """
+    if _EMOJI_RE.search(excerpt):
+        return True
+    if _CATEGORY_1_PHRASE_RE.search(excerpt):
+        return True
+    return excerpt.count("!") >= 2
+
+
+_SALIENT_BACKTICK_RE = re.compile(r"`([^`]+)`")
+_SALIENT_IDENTIFIER_RE = re.compile(r"\b(?:[A-Za-z]+[A-Z][A-Za-z0-9]*|[A-Z]{2,}[A-Za-z0-9]*)\b")
+_SALIENT_VERSION_RE = re.compile(r"\b\d+(?:\.\d+){1,3}\b")
+_SALIENT_QUOTED_RE = re.compile(r'"([^"]{2,40})"')
+
+
+def _extract_salient_tokens(excerpt: str) -> list[str]:
+    """Seed extractor for a content unit's checkable identity -- backtick spans, CamelCase/
+    ALLCAPS identifier-shaped tokens, quoted names, version numbers. Explicitly disclosed as
+    incomplete, same posture as `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES`/
+    `_CONTAINER_CONNECTOR_ALLOWLIST` elsewhere in this module -- exists to give
+    `check_content_unit_merged_into_target_section` something mechanically checkable, not to
+    summarize meaning. Order-preserving, case-insensitive de-duplication.
+    """
+    tokens: list[str] = []
+    for pattern in (_SALIENT_BACKTICK_RE, _SALIENT_IDENTIFIER_RE, _SALIENT_VERSION_RE, _SALIENT_QUOTED_RE):
+        tokens.extend(pattern.findall(excerpt))
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for token in tokens:
+        token = token.strip()
+        if token and token.lower() not in seen:
+            seen.add(token.lower())
+            ordered.append(token)
+    return ordered
+
+
+_ANY_HEADING_LINE_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
+
+
+def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
+    """Mechanical segmentation of the old upstream README's real PROSE into checkable "content
+    units" -- the extraction half of the verify-and-merge upgrade. `_old_readme_inventory`
+    (readme_refresh_run.py) already tracks links and headings separately; this covers
+    everything else. Granularity: paragraph-or-top-level-list-item, whichever is smaller --
+    justified directly against the real survey evidence this design was built from (words/net's
+    origin story is a blank-line-delimited paragraph; pdf/cpp's font-fallback rationale and
+    note/python's pypdf dependency both live inside single bullet lines).
+
+    Heading lines (of any level -- already owned by `_HEADING_RE`/`_old_readme_inventory` for
+    H2/H3, and an old README's H1 title needs no separate tracking), fenced code blocks, and
+    badge-row lines are stripped before segmentation. Reuses `_iter_leak_scan_units`'s proven
+    paragraph-vs-pure-bulleted-block splitting logic rather than reimplementing it. A unit under
+    ~25 rendered characters is dropped as noise (a stray word, a lone "---").
+
+    Returns `[{"unit_id", "excerpt", "salient_tokens", "likely_category_1_prefilter"}, ...]` in
+    extraction order. `unit_id` is a stable, order-based id (`u0001`, `u0002`, ...), not a
+    content hash -- it survives whitespace-only re-runs the same way `_old_readme_inventory`'s
+    existing sorted link/heading lists already do. Category-1 (narrative/CTA) content is NOT
+    excluded here -- every unit, however obviously narrative, still needs a real disposition
+    entry; see `_likely_category_1_signal`'s own docstring for why that classification stays a
+    judgment call, never a mechanical filter, at extraction time.
+    """
+    no_code = _ANY_FENCED_CODE_RE.sub("", old_readme_text)
+    no_headings = _ANY_HEADING_LINE_RE.sub("", no_code)
+    prose_lines = [line for line in no_headings.splitlines() if _BADGE_ROW_MARKER not in line]
+    prose_text = "\n".join(prose_lines)
+
+    units: list[dict] = []
+    for raw_excerpt in _iter_leak_scan_units(prose_text):
+        excerpt = raw_excerpt.strip()
+        if len(excerpt) < 25:
+            continue
+        units.append({
+            "unit_id": f"u{len(units) + 1:04d}",
+            "excerpt": excerpt,
+            "salient_tokens": _extract_salient_tokens(excerpt),
+            "likely_category_1_prefilter": _likely_category_1_signal(excerpt),
+        })
+    return units
+
+
+_CONTENT_UNIT_CLASSIFICATIONS = frozenset({
+    "1_narrative_cta", "2_mechanism_explanation", "3_branding_positioning", "redundant_with_existing",
+})
+_CONTENT_UNIT_DISPOSITIONS = frozenset({"merged_verbatim", "merged_reframed", "excluded"})
+_CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
+    "verified_against_source", "verified_redundant", "not_applicable_category_1",
+})
+_CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {"Intro"}
+
+
+def check_content_unit_disposition_coverage(
+    content_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. Every content unit `extract_old_readme_content_units` finds in the old README
+    must have exactly one, well-formed disposition entry in `content-dispositions.json` -- the
+    coverage half of finally making real what `dropped_claims.json` only ever promised (this
+    module's own docstrings referenced it from 2026-08-04 through 2026-08-09; no code ever
+    implemented it). Absence is never "trust it" here: if real content units exist, an empty or
+    missing `content-dispositions.json` is a hard-gate failure, not a silent default -- mirroring
+    `check_dropped_content`'s own precedent of a correctly-vacuous pass only when there is
+    genuinely nothing to account for (i.e. `content_units` is itself empty).
+
+    Checks: every `unit_id` has exactly one entry (no missing, no dupes, no dangling references
+    to a `unit_id` absent from `content_units`); `classification`/`disposition` are valid enum
+    values; a `merged_*` entry has a `target_section` in `_REQUIRED_SECTIONS | {"Intro"}`; an
+    `excluded` entry has a real `excluded_reason` (>=15 chars, not a placeholder); every entry
+    whose `classification` is not `1_narrative_cta` must carry `verification.status !=
+    not_applicable_category_1` plus a non-empty `verification.evidence_ref` -- an "excluded
+    because it's no longer true" disposition is itself a verified claim and must cite where that
+    was confirmed, the same as a merge.
+    """
+    findings: list[dict] = []
+    unit_ids = {unit["unit_id"] for unit in content_units}
+    seen_ids: set[str] = set()
+    by_id: dict[str, dict] = {}
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        if uid in seen_ids:
+            findings.append({"unit_id": uid, "reason": "duplicate disposition entry for the same unit_id"})
+            continue
+        seen_ids.add(uid)
+        by_id[uid] = entry
+        if uid not in unit_ids:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition references a unit_id not present in the current old-README extraction",
+            })
+
+    for uid in unit_ids:
+        entry = by_id.get(uid)
+        if entry is None:
+            findings.append({"unit_id": uid, "reason": "no disposition entry -- every extracted content unit needs one"})
+            continue
+        classification = entry.get("classification")
+        disposition = entry.get("disposition")
+        if classification not in _CONTENT_UNIT_CLASSIFICATIONS:
+            findings.append({"unit_id": uid, "reason": f"invalid classification {classification!r}"})
+        if disposition not in _CONTENT_UNIT_DISPOSITIONS:
+            findings.append({"unit_id": uid, "reason": f"invalid disposition {disposition!r}"})
+            continue
+        if disposition in ("merged_verbatim", "merged_reframed"):
+            target = entry.get("target_section")
+            if target not in _CONTENT_UNIT_TARGET_SECTIONS:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": f"merged disposition needs a real target_section, got {target!r}",
+                })
+        else:  # excluded
+            reason_text = (entry.get("excluded_reason") or "").strip()
+            if len(reason_text) < 15:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": "excluded disposition needs a real excluded_reason (>=15 chars)",
+                })
+        verification = entry.get("verification") or {}
+        status = verification.get("status")
+        if status not in _CONTENT_UNIT_VERIFICATION_STATUSES:
+            findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
+        elif classification is not None and classification != "1_narrative_cta" and status == "not_applicable_category_1":
+            findings.append({
+                "unit_id": uid,
+                "reason": "only category-1 (narrative/CTA) units may use verification.status="
+                          "not_applicable_category_1",
+            })
+        elif status != "not_applicable_category_1" and not verification.get("evidence_ref"):
+            findings.append({
+                "unit_id": uid,
+                "reason": "non-category-1 verification needs a non-empty evidence_ref",
+            })
+    return findings
+
+
+def check_content_unit_evidence_resolves(
+    dispositions: list[dict],
+    clone_cache_root: str,
+    package_registry: "dict | None" = None,
+    docs_texts: "dict[str, str] | None" = None,
+) -> list[dict]:
+    """Hard gate. For every disposition entry whose verification cites real evidence (anything
+    other than `not_applicable_category_1`), confirms the cited evidence actually resolves --
+    reuses the same acquire-then-check-existence discipline as `check_license_link_target`/
+    `_detect_license_file`. Confirms a citation EXISTS, never that it SUPPORTS the specific
+    claim -- the same "presence, not proof" limit `check_named_member_accuracy` already
+    discloses about itself.
+
+    Dispatches on `verification.evidence_type`: `"clone_cache_path"` -> case-sensitive on-disk
+    file existence under `clone_cache_root`; `"package_registry_field"` -> dotted-path walk of
+    `package_registry` (e.g. `"cells.python.candidate"`); `"docs_reference"` -> membership check
+    against `docs_texts`' keys (real doc paths already loaded by the caller, mirroring
+    `_product_formats_md`/`_product_api_surface`'s "read once, hand in as text" pattern);
+    `"candidate_section_reference"` (the `verified_redundant` case, pointing at another spot in
+    the SAME new candidate rather than upstream source) is always treated as resolved here --
+    its real verification is `check_content_unit_merged_into_target_section` below, not this
+    function, per this evidence type's own design.
+    """
+    package_registry = package_registry or {}
+    docs_texts = docs_texts or {}
+    root = Path(clone_cache_root)
+    findings: list[dict] = []
+    for entry in dispositions:
+        verification = entry.get("verification") or {}
+        if verification.get("status") == "not_applicable_category_1":
+            continue
+        evidence_type = verification.get("evidence_type")
+        evidence_ref = verification.get("evidence_ref")
+        if not evidence_ref:
+            continue  # already flagged by check_content_unit_disposition_coverage
+        if evidence_type == "clone_cache_path":
+            resolved = (root / evidence_ref).is_file()
+        elif evidence_type == "package_registry_field":
+            node = package_registry
+            resolved = True
+            for part in evidence_ref.split("."):
+                if isinstance(node, dict) and part in node:
+                    node = node[part]
+                else:
+                    resolved = False
+                    break
+        elif evidence_type == "docs_reference":
+            resolved = evidence_ref in docs_texts
+        elif evidence_type == "candidate_section_reference":
+            resolved = True
+        else:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "reason": f"unrecognized verification.evidence_type {evidence_type!r}",
+            })
+            continue
+        if not resolved:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "evidence_type": evidence_type,
+                "evidence_ref": evidence_ref,
+                "reason": "cited evidence does not resolve against real product-repo/registry/docs data",
+            })
+    return findings
+
+
+def check_content_unit_merged_into_target_section(
+    readme_text: str, dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. For every `merged_verbatim`/`merged_reframed` disposition, confirms the cited
+    `target_section` was genuinely touched with something traceable to THIS unit -- at least one
+    of its `salient_tokens` appears (case-insensitive) in that section's real body (via
+    `_split_into_sections`; `target_section == "Intro"` maps to the `"__preamble__"` key). This
+    is the actual "reuse, not just presence-check" enforcement -- it cannot verify faithfulness
+    of a reframe, only that the section was not silently left untouched while claiming a merge
+    happened. A unit with zero extracted `salient_tokens` (plain narrative prose with no
+    identifiers) falls back to a leading-substring check against its own excerpt, the weaker
+    signal available for token-free content.
+    """
+    sections = _split_into_sections(readme_text)
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        target = entry.get("target_section")
+        section_key = "__preamble__" if target == "Intro" else target
+        body = sections.get(section_key, "")
+        tokens = entry.get("salient_tokens") or []
+        if tokens:
+            if not any(tok.lower() in body.lower() for tok in tokens):
+                findings.append({
+                    "unit_id": entry.get("unit_id"),
+                    "target_section": target,
+                    "reason": "none of this unit's salient tokens were found in the "
+                              f"'{target}' section -- the merge claim is not traceable to real text",
+                })
+        else:
+            snippet = (entry.get("excerpt") or "").strip()[:20].lower()
+            if snippet and snippet not in body.lower():
+                findings.append({
+                    "unit_id": entry.get("unit_id"),
+                    "target_section": target,
+                    "reason": "no salient tokens available, and the unit's own leading text does "
+                              f"not appear in the '{target}' section either",
+                })
+    return findings
+
+
+def check_content_unit_no_exact_duplicate_merge(dispositions: list[dict]) -> list[dict]:
+    """Hard gate. Flags two-plus disposition entries with an identical normalized `excerpt`
+    merged into the identical `target_section` -- unambiguous, mechanically decidable
+    duplication (the fuzzy near-duplicate case is `check_content_unit_probable_duplicate`'s
+    heuristic below, not this hard gate).
+    """
+    seen: dict[tuple[str, "str | None"], list] = {}
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        key = (
+            re.sub(r"\s+", " ", (entry.get("excerpt") or "").strip().lower()),
+            entry.get("target_section"),
+        )
+        seen.setdefault(key, []).append(entry.get("unit_id"))
+    findings: list[dict] = []
+    for (_excerpt, target), unit_ids in seen.items():
+        if len(unit_ids) > 1:
+            findings.append({
+                "unit_ids": unit_ids,
+                "target_section": target,
+                "reason": "identical excerpt merged into the same section under multiple "
+                          "unit_ids -- exact duplicate",
+            })
+    return findings
+
+
+def check_content_unit_classification_plausibility(
+    content_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Heuristic, non-blocking. Cross-references each unit's mechanical `likely_category_1_
+    prefilter` (emoji/CTA-phrase/exclamation signal) against the agent's own stated
+    `classification`; a mismatch in either direction is a judgment prompt, never an automatic
+    fail -- the prefilter is a cheap, disclosed-incomplete tone signal (see
+    `_likely_category_1_signal`'s own docstring), not a reliable classifier on its own.
+    """
+    prefilter_by_id = {u["unit_id"]: u.get("likely_category_1_prefilter", False) for u in content_units}
+    findings: list[dict] = []
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        classification = entry.get("classification")
+        if uid not in prefilter_by_id or classification not in _CONTENT_UNIT_CLASSIFICATIONS:
+            continue
+        prefilter = prefilter_by_id[uid]
+        if prefilter and classification != "1_narrative_cta":
+            findings.append({
+                "unit_id": uid,
+                "reason": f"prefilter suggests narrative/CTA tone but classified as {classification!r} "
+                          "-- confirm this is a genuine checkable fact, not tone-driven prose",
+            })
+        elif not prefilter and classification == "1_narrative_cta":
+            findings.append({
+                "unit_id": uid,
+                "reason": "classified as narrative/CTA but the prefilter found no tone signal -- "
+                          "confirm this genuinely has nothing checkable/reusable in it",
+            })
+    return findings
+
+
+def check_content_unit_probable_duplicate(dispositions: list[dict]) -> list[dict]:
+    """Heuristic, non-blocking. Flags entry pairs sharing 2+ `salient_tokens` and the same
+    `target_section` but a DIFFERENT `excerpt` -- likely-but-not-certain restatement of the same
+    fact in two disposition entries (the exact-match case is
+    `check_content_unit_no_exact_duplicate_merge`'s hard gate instead).
+    """
+    merged = [e for e in dispositions if e.get("disposition") in ("merged_verbatim", "merged_reframed")]
+    findings: list[dict] = []
+    for i, entry_a in enumerate(merged):
+        for entry_b in merged[i + 1:]:
+            if entry_a.get("target_section") != entry_b.get("target_section"):
+                continue
+            excerpt_a = (entry_a.get("excerpt") or "").strip().lower()
+            excerpt_b = (entry_b.get("excerpt") or "").strip().lower()
+            if excerpt_a == excerpt_b:
+                continue  # exact duplicates are check_content_unit_no_exact_duplicate_merge's job
+            tokens_a = {t.lower() for t in (entry_a.get("salient_tokens") or [])}
+            tokens_b = {t.lower() for t in (entry_b.get("salient_tokens") or [])}
+            shared = tokens_a & tokens_b
+            if len(shared) >= 2:
+                findings.append({
+                    "unit_ids": [entry_a.get("unit_id"), entry_b.get("unit_id")],
+                    "target_section": entry_a.get("target_section"),
+                    "shared_tokens": sorted(shared),
+                    "reason": "two different content units share 2+ salient tokens merged into "
+                              "the same section -- likely restating the same fact twice",
+                })
     return findings
 
 

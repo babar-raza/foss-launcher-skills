@@ -214,11 +214,58 @@ def _fake_gh_command_runner(preflight_push=True):
     return _runner
 
 
-def _write_candidate(repo_root, text, upstream_issues=_UPSTREAM_ISSUES_BLOCKING):
+# Fifteenth incident / MT030 (2026-08-09): a real, correct disposition for both of
+# _OLD_UPSTREAM_README's 2 real content units (confirmed via extract_old_readme_content_units
+# itself, not guessed) -- u0001 ("A test product for the round-trip state machine test.") is
+# generic scene-setting narrative with nothing to verify (category 1); u0002 ("See AGENTS.md...")
+# is already present verbatim in _GOOD_CANDIDATE's own Documentation & Resources section, so it's
+# a real, checkable redundant-merge case, not a fresh composition. Written by _write_candidate
+# below for every existing call site by default -- a test wanting to exercise a MISSING/empty
+# disposition file passes dispositions=None/[] explicitly.
+_CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE = [
+    {
+        "unit_id": "u0001",
+        "source": "clone_cache/README.md",
+        "excerpt": "A test product for the round-trip state machine test.",
+        "salient_tokens": [],
+        "classification": "1_narrative_cta",
+        "classification_basis": "generic scene-setting sentence, no checkable claim",
+        "verification": {"status": "not_applicable_category_1", "evidence_type": None, "evidence_ref": None},
+        "disposition": "excluded",
+        "target_section": None,
+        "excluded_reason": "generic scene-setting narrative, superseded by the new template's own composed intro paragraph",
+    },
+    {
+        "unit_id": "u0002",
+        "source": "clone_cache/README.md",
+        "excerpt": "See [AGENTS.md](AGENTS.md) for contributor guidance.",
+        "salient_tokens": ["AGENTS"],
+        "classification": "redundant_with_existing",
+        "classification_basis": "already present verbatim in the new candidate's Documentation & Resources section",
+        "verification": {
+            "status": "verified_redundant",
+            "evidence_type": "candidate_section_reference",
+            "evidence_ref": "Documentation & Resources",
+        },
+        "disposition": "merged_verbatim",
+        "target_section": "Documentation & Resources",
+        "excluded_reason": None,
+    },
+]
+
+
+def _write_candidate(
+    repo_root, text, upstream_issues=_UPSTREAM_ISSUES_BLOCKING,
+    dispositions=_CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE,
+):
     candidate_dir = repo_root / "reports" / "repo-presenter" / "testfam" / "testplat"
     candidate_dir.mkdir(parents=True, exist_ok=True)
     (candidate_dir / "readme.md").write_text(text, encoding="utf-8")
     (candidate_dir / "upstream-issues.md").write_text(upstream_issues, encoding="utf-8")
+    if dispositions is not None:
+        (candidate_dir / "content-dispositions.json").write_text(
+            json.dumps(dispositions), encoding="utf-8"
+        )
 
 
 # --- _detect_dev_test_artifacts (MT029 Item 5) -------------------------------------------------

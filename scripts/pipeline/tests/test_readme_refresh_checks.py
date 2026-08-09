@@ -3122,3 +3122,398 @@ def test_only_sections_changed_clean_when_identical():
     assert checks.check_only_sections_changed(
         _SECTION_ISOLATION_BASE, _SECTION_ISOLATION_BASE, []
     ) == []
+
+
+# --- Fifteenth incident / MT030: old-README content-unit verify-and-merge ----------------------
+# Fixtures built directly from the real survey evidence (words/net's origin story, pdf/cpp's
+# font-fallback rationale, note/python's pypdf dependency and "Official Aspose project" claim)
+# that motivated this design, not synthetic placeholders.
+
+_PDF_CPP_OLD_README = """# Aspose.PDF FOSS for C++
+
+The official open-source C++ library for PDF processing.
+
+## Standard-14 fonts
+
+References to `/Helvetica`, `/Times-Roman`, `/Courier` without an embedded `/FontFile` paint
+correctly via system fonts, falling back to the bundled Liberation substitutes (SIL OFL 1.1) so
+glyphs render even in fontless Linux/CI containers.
+
+## Installation
+
+```bash
+cmake --preset default
+```
+"""
+
+
+def test_extract_old_readme_content_units_real_pdf_cpp_case():
+    # Regression fixture: the real pdf/cpp mechanism-level explanation the Fifteenth incident's
+    # own survey found compressed to a bare fact with no rationale in the new candidate.
+    units = checks.extract_old_readme_content_units(_PDF_CPP_OLD_README)
+    excerpts = [u["excerpt"] for u in units]
+    assert any("fontless Linux/CI containers" in e for e in excerpts)
+    # Heading lines (H1 and H2) must never become content units of their own.
+    assert not any(e.startswith("#") for e in excerpts)
+    # The fenced cmake block must not leak into a content unit.
+    assert not any("cmake --preset" in e for e in excerpts)
+    fallback_unit = next(u for u in units if "fontless Linux/CI containers" in u["excerpt"])
+    assert "SIL" in fallback_unit["salient_tokens"]  # real ALLCAPS token from "(SIL OFL 1.1)"
+    assert fallback_unit["likely_category_1_prefilter"] is False
+
+
+def test_extract_old_readme_content_units_drops_short_noise():
+    text = "# Title\n\n---\n\nOk.\n\nA real sentence long enough to become a content unit.\n"
+    units = checks.extract_old_readme_content_units(text)
+    excerpts = [u["excerpt"] for u in units]
+    assert not any(e in ("---", "Ok.") for e in excerpts)
+    assert any("real sentence long enough" in e for e in excerpts)
+
+
+def test_extract_old_readme_content_units_strips_badge_rows():
+    text = (
+        "# Title\n\n"
+        "[![CI](https://img.shields.io/badge/CI-passing-green)](https://example.com/ci)\n\n"
+        "A real sentence describing the project in enough detail to count as a unit.\n"
+    )
+    units = checks.extract_old_readme_content_units(text)
+    assert not any("img.shields.io" in u["excerpt"] for u in units)
+
+
+def test_extract_old_readme_content_units_flags_narrative_cta_prefilter():
+    # Real motivating case: words/net's "Star it" call-to-action prose.
+    text = (
+        "# Title\n\n"
+        "This is not the final shape of the project, and the boundary is not set in stone. "
+        "Star it ⭐ -- stars are how GitHub decides whether anyone else discovers it!\n"
+    )
+    units = checks.extract_old_readme_content_units(text)
+    assert len(units) == 1
+    assert units[0]["likely_category_1_prefilter"] is True
+
+
+def test_extract_old_readme_content_units_splits_pure_bullet_block():
+    text = (
+        "# Title\n\n"
+        "- Install the `pypdf` package for semantic PDF golden tests to run correctly here.\n"
+        "- A second, unrelated bullet with its own distinct real technical claim included.\n"
+    )
+    units = checks.extract_old_readme_content_units(text)
+    assert len(units) == 2
+    assert any("pypdf" in u["salient_tokens"] for u in units)
+
+
+_NOTE_PYTHON_OFFICIAL_CLAIM = (
+    "✅ **Official Aspose project** -- 100% free and open-source, with no hidden costs."
+)
+
+
+def _content_unit(unit_id="u0001", excerpt="A real, checkable technical claim about `Widget`.",
+                   salient_tokens=("Widget",), classification="2_mechanism_explanation",
+                   disposition="merged_reframed", target_section="Scope and Limitations",
+                   evidence_status="verified_against_source", evidence_type="clone_cache_path",
+                   evidence_ref="src/widget.py", excluded_reason=None):
+    return {
+        "unit_id": unit_id,
+        "source": "clone_cache/README.md",
+        "excerpt": excerpt,
+        "salient_tokens": list(salient_tokens),
+        "classification": classification,
+        "classification_basis": "test fixture",
+        "verification": {
+            "status": evidence_status, "evidence_type": evidence_type, "evidence_ref": evidence_ref,
+        },
+        "disposition": disposition,
+        "target_section": target_section,
+        "excluded_reason": excluded_reason,
+    }
+
+
+# --- check_content_unit_disposition_coverage (hard gate) ----------------------------------------
+
+
+def test_disposition_coverage_clean_when_every_unit_has_a_valid_entry():
+    units = [{"unit_id": "u0001"}]
+    dispositions = [_content_unit()]
+    assert checks.check_content_unit_disposition_coverage(units, dispositions) == []
+
+
+def test_disposition_coverage_flags_missing_entry():
+    units = [{"unit_id": "u0001"}, {"unit_id": "u0002"}]
+    dispositions = [_content_unit(unit_id="u0001")]
+    findings = checks.check_content_unit_disposition_coverage(units, dispositions)
+    assert any(f["unit_id"] == "u0002" for f in findings)
+
+
+def test_disposition_coverage_flags_dangling_unit_id_reference():
+    units = [{"unit_id": "u0001"}]
+    dispositions = [_content_unit(unit_id="u0001"), _content_unit(unit_id="u9999")]
+    findings = checks.check_content_unit_disposition_coverage(units, dispositions)
+    assert any(f["unit_id"] == "u9999" for f in findings)
+
+
+def test_disposition_coverage_flags_duplicate_entry():
+    units = [{"unit_id": "u0001"}]
+    dispositions = [_content_unit(unit_id="u0001"), _content_unit(unit_id="u0001")]
+    findings = checks.check_content_unit_disposition_coverage(units, dispositions)
+    assert any("duplicate" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_invalid_classification_and_disposition():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(unit_id="u0001", classification="not_a_real_category")
+    entry["disposition"] = "not_a_real_disposition"
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("classification" in f["reason"] for f in findings)
+    assert any("disposition" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_merged_entry_with_bad_target_section():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(unit_id="u0001", target_section="Not A Real Section")
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("target_section" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_excluded_entry_with_thin_reason():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(
+        unit_id="u0001", disposition="excluded", target_section=None, excluded_reason="stale",
+        classification="1_narrative_cta", evidence_status="not_applicable_category_1",
+        evidence_type=None, evidence_ref=None,
+    )
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("excluded_reason" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_category_1_verification_status_misuse():
+    # A non-category-1 classification must never use not_applicable_category_1 -- every real,
+    # checkable claim needs real evidence, merged or excluded.
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(
+        unit_id="u0001", classification="2_mechanism_explanation",
+        evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+    )
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("only category-1" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_missing_evidence_ref():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(unit_id="u0001", evidence_ref=None)
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("evidence_ref" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_vacuous_pass_when_no_content_units():
+    assert checks.check_content_unit_disposition_coverage([], []) == []
+
+
+# --- check_content_unit_evidence_resolves (hard gate) --------------------------------------------
+
+
+def test_evidence_resolves_clean_when_clone_cache_path_exists(tmp_path):
+    (tmp_path / "widget.py").write_text("class Widget: pass\n", encoding="utf-8")
+    dispositions = [_content_unit(evidence_ref="widget.py")]
+    assert checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path)) == []
+
+
+def test_evidence_resolves_flags_dangling_clone_cache_path(tmp_path):
+    dispositions = [_content_unit(evidence_ref="does_not_exist.py")]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path))
+    assert any(f["unit_id"] == "u0001" for f in findings)
+
+
+def test_evidence_resolves_clean_for_package_registry_field(tmp_path):
+    registry = {"cells": {"python": {"candidate": "aspose-cells-foss"}}}
+    dispositions = [_content_unit(
+        evidence_type="package_registry_field", evidence_ref="cells.python.candidate",
+    )]
+    assert checks.check_content_unit_evidence_resolves(
+        dispositions, str(tmp_path), package_registry=registry
+    ) == []
+
+
+def test_evidence_resolves_flags_missing_package_registry_field(tmp_path):
+    dispositions = [_content_unit(
+        evidence_type="package_registry_field", evidence_ref="cells.python.candidate",
+    )]
+    findings = checks.check_content_unit_evidence_resolves(
+        dispositions, str(tmp_path), package_registry={}
+    )
+    assert findings
+
+
+def test_evidence_resolves_clean_for_docs_reference(tmp_path):
+    dispositions = [_content_unit(evidence_type="docs_reference", evidence_ref="docs/testing.md")]
+    findings = checks.check_content_unit_evidence_resolves(
+        dispositions, str(tmp_path), docs_texts={"docs/testing.md": "real content"}
+    )
+    assert findings == []
+
+
+def test_evidence_resolves_flags_missing_docs_reference(tmp_path):
+    dispositions = [_content_unit(evidence_type="docs_reference", evidence_ref="docs/testing.md")]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path), docs_texts={})
+    assert findings
+
+
+def test_evidence_resolves_candidate_section_reference_always_resolves(tmp_path):
+    dispositions = [_content_unit(
+        evidence_type="candidate_section_reference", evidence_ref="Scope and Limitations",
+    )]
+    assert checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path)) == []
+
+
+def test_evidence_resolves_flags_unrecognized_evidence_type(tmp_path):
+    dispositions = [_content_unit(evidence_type="something_made_up", evidence_ref="x")]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path))
+    assert any("unrecognized" in f["reason"] for f in findings)
+
+
+def test_evidence_resolves_skips_category_1_entries(tmp_path):
+    dispositions = [_content_unit(
+        classification="1_narrative_cta", disposition="excluded", target_section=None,
+        evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+        excluded_reason="pure narrative, nothing to verify against source code here",
+    )]
+    assert checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path)) == []
+
+
+# --- check_content_unit_merged_into_target_section (hard gate) ----------------------------------
+
+_MERGE_TARGET_README = (
+    "# Some Product\n\n"
+    "## Scope and Limitations\n\n"
+    "- `Widget` has a documented gap in one edge case, see the real source for detail.\n"
+    "\n## Installation\n\n- pip install real-package\n"
+)
+
+
+def test_merge_into_target_section_clean_when_token_present():
+    dispositions = [_content_unit(salient_tokens=("Widget",), target_section="Scope and Limitations")]
+    assert checks.check_content_unit_merged_into_target_section(_MERGE_TARGET_README, dispositions) == []
+
+
+def test_merge_into_target_section_flags_untouched_section():
+    dispositions = [_content_unit(salient_tokens=("Gizmo",), target_section="Scope and Limitations")]
+    findings = checks.check_content_unit_merged_into_target_section(_MERGE_TARGET_README, dispositions)
+    assert any(f["unit_id"] == "u0001" for f in findings)
+
+
+def test_merge_into_target_section_falls_back_to_excerpt_when_no_tokens():
+    # The fallback compares the excerpt's own leading text, verbatim, against the section body --
+    # deliberately chosen here with no backtick-wrapped identifier in between so the plain-text
+    # substring genuinely lines up (the token-based path, tested above, is what handles the
+    # more common backtick-formatted case).
+    dispositions = [_content_unit(
+        excerpt="Some legacy edge case is documented in Scope and Limitations already.",
+        salient_tokens=(), target_section="Scope and Limitations",
+    )]
+    text = (
+        "# Some Product\n\n## Scope and Limitations\n\n"
+        "Some legacy edge case is documented in Scope and Limitations already, see source for detail.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, dispositions)
+    assert findings == []
+
+
+def test_merge_into_target_section_ignores_excluded_entries():
+    dispositions = [_content_unit(
+        disposition="excluded", target_section=None, salient_tokens=("NeverThere",),
+        classification="1_narrative_cta", evidence_status="not_applicable_category_1",
+        evidence_type=None, evidence_ref=None, excluded_reason="pure narrative, nothing checkable",
+    )]
+    assert checks.check_content_unit_merged_into_target_section(_MERGE_TARGET_README, dispositions) == []
+
+
+def test_merge_into_target_section_maps_intro_to_preamble():
+    text = "# Some Product\n\nA branding sentence naming `RealBrand` explicitly.\n\n## Installation\n\n- x\n"
+    dispositions = [_content_unit(salient_tokens=("RealBrand",), target_section="Intro")]
+    assert checks.check_content_unit_merged_into_target_section(text, dispositions) == []
+
+
+# --- check_content_unit_no_exact_duplicate_merge (hard gate) ------------------------------------
+
+
+def test_no_exact_duplicate_merge_clean_when_distinct():
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="First real claim."),
+        _content_unit(unit_id="u0002", excerpt="Second, different real claim."),
+    ]
+    assert checks.check_content_unit_no_exact_duplicate_merge(dispositions) == []
+
+
+def test_no_exact_duplicate_merge_flags_identical_excerpt_same_section():
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="The exact same claim, word for word."),
+        _content_unit(unit_id="u0002", excerpt="The exact same claim, word for word."),
+    ]
+    findings = checks.check_content_unit_no_exact_duplicate_merge(dispositions)
+    assert findings and set(findings[0]["unit_ids"]) == {"u0001", "u0002"}
+
+
+def test_no_exact_duplicate_merge_does_not_flag_different_sections():
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="Same text.", target_section="Scope and Limitations"),
+        _content_unit(unit_id="u0002", excerpt="Same text.", target_section="Development and Testing"),
+    ]
+    assert checks.check_content_unit_no_exact_duplicate_merge(dispositions) == []
+
+
+# --- check_content_unit_classification_plausibility (heuristic) ---------------------------------
+
+
+def test_classification_plausibility_flags_narrative_signal_classified_as_checkable():
+    units = [{"unit_id": "u0001", "likely_category_1_prefilter": True}]
+    dispositions = [_content_unit(unit_id="u0001", classification="2_mechanism_explanation")]
+    findings = checks.check_content_unit_classification_plausibility(units, dispositions)
+    assert any(f["unit_id"] == "u0001" for f in findings)
+
+
+def test_classification_plausibility_flags_checkable_signal_classified_as_narrative():
+    units = [{"unit_id": "u0001", "likely_category_1_prefilter": False}]
+    dispositions = [_content_unit(
+        unit_id="u0001", classification="1_narrative_cta", disposition="excluded",
+        target_section=None, evidence_status="not_applicable_category_1",
+        evidence_type=None, evidence_ref=None, excluded_reason="pure narrative content here",
+    )]
+    findings = checks.check_content_unit_classification_plausibility(units, dispositions)
+    assert any(f["unit_id"] == "u0001" for f in findings)
+
+
+def test_classification_plausibility_clean_when_aligned():
+    units = [{"unit_id": "u0001", "likely_category_1_prefilter": False}]
+    dispositions = [_content_unit(unit_id="u0001", classification="2_mechanism_explanation")]
+    assert checks.check_content_unit_classification_plausibility(units, dispositions) == []
+
+
+# --- check_content_unit_probable_duplicate (heuristic) -------------------------------------------
+
+
+def test_probable_duplicate_flags_shared_tokens_different_excerpt():
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="Widget supports feature A per RealClass.",
+                       salient_tokens=("Widget", "RealClass")),
+        _content_unit(unit_id="u0002", excerpt="RealClass and Widget also support feature B.",
+                       salient_tokens=("Widget", "RealClass")),
+    ]
+    findings = checks.check_content_unit_probable_duplicate(dispositions)
+    assert findings and set(findings[0]["unit_ids"]) == {"u0001", "u0002"}
+
+
+def test_probable_duplicate_clean_when_only_one_token_shared():
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="Widget claim one.", salient_tokens=("Widget",)),
+        _content_unit(unit_id="u0002", excerpt="A different claim two.", salient_tokens=("Widget", "Other")),
+    ]
+    assert checks.check_content_unit_probable_duplicate(dispositions) == []
+
+
+def test_probable_duplicate_skips_exact_duplicates():
+    # Exact duplicates are check_content_unit_no_exact_duplicate_merge's job, not this heuristic's.
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="Identical.", salient_tokens=("A", "B")),
+        _content_unit(unit_id="u0002", excerpt="Identical.", salient_tokens=("A", "B")),
+    ]
+    assert checks.check_content_unit_probable_duplicate(dispositions) == []
