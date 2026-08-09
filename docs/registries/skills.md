@@ -12,7 +12,9 @@
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only |
 | batch-reference | S-62 | Bulk reference page generation |
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline |
+| blind-spot-audit | S-122 | Read-only, unaided (no-tooling) dual-pass review of cloned FOSS repos and generated content, sealed (L2 skill-invocation ledger audit + L3 artifact-mtime forensics) before any system tooling runs, then a manual-vs-system blind-spot comparison matrix, root-cause analysis, solution-options fix planning, and schema-5f taskcard emission via the run-bound blind_spot_audit_run.py state machine |
 | blog-migrate | S-100 | Governed blog folder slug migration |
+| forensic-heal-sprint | S-123 | Consumes a mission's schema-5f taskcards (typically emitted by S-122 blind-spot-audit) and drives them through system-heal, content-regen, verify, harden, reverify, a 7-link pilot chain, 12 named adversarial probes (independence-enforced), and computed (never asserted) dual verdicts, appending one tracked row to docs/governance/forensic-heal-history.md on close |
 | category-fix | S-42 | Run specific fixer on files by category code |
 | causal-backtrack | S-74 | Resolve upstream dependency failures |
 | change-guard | S-33 | Pre-write knowledge gate |

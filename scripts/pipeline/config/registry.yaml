@@ -4751,3 +4751,165 @@ scripts:
     deprecated_since: null
     change_impact: "21 deterministic hard-gate/heuristic checks readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
     notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
+
+  - path: scripts/pipeline/commands/diagnostics/blind_spot_audit_run.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_blind_spot_audit_run.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: "S-122 (/blind-spot-audit, MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS): run-bound state machine (CREATED -> INTAKE_PINNED -> SCOPED -> UNAIDED_REPO_REVIEWED -> UNAIDED_CONTENT_REVIEWED -> AGENTIC_CONSUMPTION_REVIEWED -> [seal] -> SEALED -> SYSTEM_REVIEWED -> BLIND_SPOTS_MAPPED -> ROOT_CAUSED -> FIX_PLANNED -> [bind-taskcards] -> TASKCARDS_BOUND), right-sized from root_docs_refresh_run.py's architecture. Wave 1: skeleton + L1 structural-ordering enforcement. Wave 2: real seal() (L2 ledger audit + L3 artifact-mtime forensics). Wave 3: blind-spots/root-cause/fix-plan phases (evidence-file-validated, refuse-not-partial) + bind-taskcards (real schema-5f TaskcardStore writes) + skills/blind-spot-audit.md. See plan typed-snuggling-peach.md."
+    notes: "Read-only with respect to content/, scripts/, knowledge/, skills/ -- only writes its own reports/blind_spot_audit/{run_id}/ evidence and schema-5f taskcard rows via TaskcardStore. backing stays 'internal' (not 'skill') even though skills/blind-spot-audit.md now exists -- matches root_docs_refresh_run.py's own permanent precedent: a run-bound state machine that IS the skill's execution contract, not a script the skill merely wraps."
+
+  - path: scripts/pipeline/lib/forensic_heal/manual_first_audit.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_unaided_first.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS Wave 2: the unaided-first hard gate backing S-122 blind_spot_audit_run.py's seal(). L2 audits reports/skill-context/history/*.json + reports/skill-runs/*.json for any SYSTEM_TOOLING_SKILL_IDS entry started inside the unaided window; L3 census/diffs SYSTEM_ARTIFACT_ROOTS (full census for reports/* roots, depth-bounded shallow census for runs/ and knowledge/). A missing ledger reports UNPROVABLE, never a silent CLEAN; a proven violation always wins over UNPROVABLE. Imported directly (not reimplemented) by blind_spot_audit_run.py's seal(), and will back scripts/ci/checks/check_forensic_heal_unaided_first.py in a later wave -- same shared-function pattern as root_docs_checks.py/check_root_docs_truth.py."
+
+  - path: scripts/pipeline/lib/forensic_heal/blind_spot_matrix.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_blind_spot_matrix.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 3: joins unaided-pass findings against system-tooling findings on (family, platform, page, issue_type), classifies BOTH/UNAIDED_ONLY/SYSTEM_ONLY/CONTRADICTORY, computes system_recall. Golden-fixture-tested against the real 2026-06-17 hand-run's own comparison-matrix.csv (embedded in the test, since .local/ is git-ignored). Backs blind_spot_audit_run.py's blind-spots phase."
+
+  - path: scripts/pipeline/lib/forensic_heal/root_cause_model.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_root_cause_model.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 3: validates/shapes root-cause records (layer attribution + resolvable file_ref + finding_ids), forcing 'why is this the root cause, not a symptom' to be a non-empty claim rather than optional. Backs blind_spot_audit_run.py's root-cause phase."
+
+  - path: scripts/pipeline/lib/forensic_heal/taskcard_bridge.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_taskcard_bridge.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 3: converts a chosen fix-plan item into a valid schema-5f taskcard row (validated via schema_validators.validate_taskcard_record before it ever reaches TaskcardStore). The emit half only -- TaskcardStore itself remains the sole writer; the consume half (S-123 driving cards through IN_PROGRESS..CLOSED) is direct TaskcardStore calls, no bridge needed. Backs blind_spot_audit_run.py's bind_taskcards()."
+
+  - path: scripts/pipeline/lib/forensic_heal/sprint_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_sprint_state.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 4: pure functions computing S-123's DERIVED sprint state (minimum progress rank across a mission's in-scope schema-5f taskcards -- no independent tracker, per AGENTS.md section 17) and the system-before-content gate (every SYSTEM_LAYERS taskcard must reach IMPLEMENTED before content-layer work begins). Backs forensic_heal_sprint_run.py's status/gate commands."
+
+  - path: scripts/pipeline/commands/governance/forensic_heal_sprint_run.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_sprint_run.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: "S-123 (/forensic-heal-sprint, MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS): thin I/O wrapper over sprint_state.py/pilot_chain.py/adversarial_probes.py/verdict.py + TaskcardStore. Wave 4: status (derived aggregation), gate (system-before-content check), advance-taskcard (CAS-protected wrapper). Wave 5: pilot-check, adversarial-review (12 probes + independence enforcement), compute-verdict (computed never asserted), close (appends the tracked docs/governance/forensic-heal-history.md row, even for a failing verdict -- never hides a bad outcome)."
+    notes: "Consumes taskcards typically emitted by S-122 blind_spot_audit_run.py's bind-taskcards. No manifest, no run_id, no ACTIVE.json -- its whole state lives in TaskcardStore, recomputed fresh on every call. Its only mutations are taskcard status rows (CAS-protected) and append-only rows in the one tracked history ledger."
+
+  - path: scripts/pipeline/lib/forensic_heal/pilot_chain.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_pilot_chain.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 5: 7-link pilot-chain resolver (unaided finding -> root cause -> taskcard -> system-fix diff -> regen command -> verification artifact pair -> agentic-consumption re-check). An identical before/after hash pair does not count as a verified link. Backs forensic_heal_sprint_run.py's pilot-check and A-12's evidence."
+
+  - path: scripts/pipeline/lib/forensic_heal/adversarial_probes.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_adversarial.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 5: 12 named adversarial probes (A-01..A-12), each a deterministic mechanical check with both a passing and a failing test fixture. Independence enforced (reviewer session must differ from the sealing session, not just requested). REPAIRED disposition requires a second run's prior_dispositions to detect a BLOCKER->DISPROVEN_WITH_EVIDENCE flip. Backs forensic_heal_sprint_run.py's adversarial-review."
+
+  - path: scripts/pipeline/lib/forensic_heal/verdict.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_forensic_heal_verdict.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT025 Wave 5: computes (never accepts as an asserted field) human_readiness_verdict, agentic_consumption_verdict, and final_verdict from sprint state + gate + pilot + adversarial results. BLOCKED_EXTERNAL always outranks every other signal; any adversarial BLOCKER or a failed gate forces SYSTEM_NOT_READY_REWORK_REQUIRED; an unaided-first override, an unresolved pilot chain, a REPAIRED probe, or a non-CLOSED sprint aggregate all cap the outcome at *_WITH_LIMITATIONS. Backs forensic_heal_sprint_run.py's compute-verdict and close."

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 110,
+  "skill_count": 112,
   "skills": [
     {
       "id": "S-01",
@@ -832,6 +832,24 @@
       "internal": false,
       "canonical_path": "skills/root-docs-refresh.md",
       "args": "none — always operates on the fixed seven-file set."
+    },
+    {
+      "id": "S-122",
+      "slug": "blind-spot-audit",
+      "name": "Blind-Spot Audit",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/blind-spot-audit.md",
+      "args": "`--products family/platform [family/platform ...] --mission-id ID`"
+    },
+    {
+      "id": "S-123",
+      "slug": "forensic-heal-sprint",
+      "name": "Forensic Heal Sprint",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/forensic-heal-sprint.md",
+      "args": "`--mission-id ID [--task-ids ID [ID ...]]`"
     },
     {
       "id": "S-HT-02",
