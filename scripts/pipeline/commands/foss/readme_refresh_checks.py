@@ -1477,6 +1477,19 @@ _INTERNAL_LABEL_PATTERNS = [
 ]
 _INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECASE)
 
+# Same conservative, deliberately-small emoji range as the MT030 content-unit prefilter --
+# real, commonly-used decorative heading emoji, not an exhaustive Unicode-emoji sweep.
+_DROP_MATCH_EMOJI_RE = re.compile("[\U0001F300-\U0001FAFF☀-➿⬀-⯿️]")
+
+
+def _normalize_for_drop_match(text: str) -> str:
+    """Strip emoji, casefold, and collapse whitespace -- used by check_dropped_content's
+    heading comparison so a legitimate rename (emoji stripped, title-cased per
+    check_heading_title_case) doesn't read as a drop. See check_dropped_content's own
+    docstring/inline comment for the real, confirmed incident this closes."""
+    no_emoji = _DROP_MATCH_EMOJI_RE.sub("", text)
+    return re.sub(r"\s+", " ", no_emoji).strip().casefold()
+
 
 def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cache_root: str) -> dict:
     """Diff the old (upstream) README against the new candidate for links and H2/H3 headings
@@ -1509,9 +1522,22 @@ def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cach
     old_links = {href for _, href in _MD_LINK_RE.findall(old_readme_text) if not href.startswith(("http://", "https://"))}
     dropped_links = sorted(href for href in old_links if href not in new_readme_text)
 
+    # Real, confirmed bug (found live 2026-08-09, MT030 Phase 1, independently by 3 of 5 pilot
+    # agents across words/net/pdf/cpp/note/python): a raw, literal substring match against the
+    # OLD heading text -- emoji and original casing intact -- can NEVER succeed once
+    # check_heading_title_case (a later rule, 2026-08-08) forces every new heading to be
+    # emoji-free and title-cased. "✨ Features" -> "Key Capabilities" is a legitimate rename with
+    # the underlying content fully preserved, but the literal string "✨ Features" can never
+    # reappear anywhere in a compliant candidate -- this hard gate was silently, structurally
+    # unsatisfiable for any old README using emoji'd/non-title-case headings (common in this
+    # portfolio) until this fix. Both sides are normalized (emoji stripped, casefolded,
+    # whitespace-collapsed) before the substring test; a genuinely dropped heading -- one whose
+    # normalized text truly appears nowhere in the new candidate -- still correctly flags.
     old_headings = {m.group(2) for m in _HEADING_RE.finditer(old_readme_text)}
-    new_headings_and_body = new_readme_text
-    dropped_headings = sorted(h for h in old_headings if h not in new_headings_and_body)
+    normalized_new_text = _normalize_for_drop_match(new_readme_text)
+    dropped_headings = sorted(
+        h for h in old_headings if _normalize_for_drop_match(h) not in normalized_new_text
+    )
 
     internal_labels = sorted({m.group(0) for m in _INTERNAL_LABEL_RE.finditer(new_readme_text)})
 
@@ -3383,16 +3409,43 @@ def check_content_unit_merged_into_target_section(
     `_split_into_sections`; `target_section == "Intro"` maps to the `"__preamble__"` key). This
     is the actual "reuse, not just presence-check" enforcement -- it cannot verify faithfulness
     of a reframe, only that the section was not silently left untouched while claiming a merge
-    happened. A unit with zero extracted `salient_tokens` (plain narrative prose with no
-    identifiers) falls back to a leading-substring check against its own excerpt, the weaker
-    signal available for token-free content.
+    happened.
+
+    A unit with zero extracted `salient_tokens` (plain narrative prose with no backtick/CamelCase/
+    version/quoted identifiers -- common for a `redundant_with_existing` claim, since the whole
+    point of "redundant" is that the SAME fact is phrased differently in two places) falls back to
+    significant-word overlap: at least half of the excerpt's 4+-letter words (case-insensitive,
+    reusing `check_section_job_distinctness`'s own established word-set-overlap idiom) must appear
+    in the target section's body. Broadened from an earlier leading-20-char literal substring
+    fallback (found live 2026-08-09, real portfolio data across all 5 MT030 Phase 1 pilot
+    products): a literal substring almost never survives genuine rephrasing, so that fallback
+    false-positived on dozens of real, individually source-verified redundant claims whose target
+    section legitimately uses different wording for the same fact -- confirmed by manually
+    re-reading a sample of the flagged entries against their real target sections before
+    broadening this, not assumed.
+
+    ALSO verifies an `excluded`/`redundant_with_existing` entry whose `verification.evidence_
+    type == "candidate_section_reference"` -- the section named in `verification.evidence_ref`
+    (not `target_section`, which is null for excluded entries) must genuinely contain the unit's
+    trace, same token/word-overlap logic as a merge. Real, confirmed gap (found live 2026-08-09,
+    MT030 Phase 1, independently by 2 of 5 pilot agents on words/net and slides/java):
+    `check_content_unit_evidence_resolves` intentionally treats `candidate_section_reference` as
+    always-resolved, deferring the real check to THIS function -- but this function originally
+    only ever looked at `merged_*` dispositions, so a `redundant_with_existing` claim's cited
+    section was never actually checked by either function. A lazy or wrong "already covered in
+    section X" claim on an excluded entry would previously pass every hard gate undetected.
     """
     sections = _split_into_sections(readme_text)
     findings: list[dict] = []
     for entry in dispositions:
-        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+        disposition = entry.get("disposition")
+        verification = entry.get("verification") or {}
+        if disposition in ("merged_verbatim", "merged_reframed"):
+            target = entry.get("target_section")
+        elif disposition == "excluded" and verification.get("evidence_type") == "candidate_section_reference":
+            target = verification.get("evidence_ref")
+        else:
             continue
-        target = entry.get("target_section")
         section_key = "__preamble__" if target == "Intro" else target
         body = sections.get(section_key, "")
         tokens = entry.get("salient_tokens") or []
@@ -3402,16 +3455,19 @@ def check_content_unit_merged_into_target_section(
                     "unit_id": entry.get("unit_id"),
                     "target_section": target,
                     "reason": "none of this unit's salient tokens were found in the "
-                              f"'{target}' section -- the merge claim is not traceable to real text",
+                              f"'{target}' section -- the merge/redundancy claim is not "
+                              "traceable to real text",
                 })
         else:
-            snippet = (entry.get("excerpt") or "").strip()[:20].lower()
-            if snippet and snippet not in body.lower():
+            excerpt_words = {w.lower() for w in re.findall(r"[A-Za-z]{4,}", entry.get("excerpt") or "")}
+            body_words = {w.lower() for w in re.findall(r"[A-Za-z]{4,}", body)}
+            overlap = excerpt_words & body_words
+            if excerpt_words and len(overlap) / len(excerpt_words) < 0.5:
                 findings.append({
                     "unit_id": entry.get("unit_id"),
                     "target_section": target,
-                    "reason": "no salient tokens available, and the unit's own leading text does "
-                              f"not appear in the '{target}' section either",
+                    "reason": "no salient tokens available, and fewer than half of the unit's "
+                              f"significant words were found in the '{target}' section either",
                 })
     return findings
 

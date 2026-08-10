@@ -1238,6 +1238,28 @@ def test_check_dropped_content_flags_internal_label():
     assert any("preserved repository details" in label.lower() for label in result["internal_labels"])
 
 
+def test_check_dropped_content_heading_rename_not_flagged_after_emoji_titlecase_normalization():
+    # Regression test: found live 2026-08-09 (MT030 Phase 1), independently by 3 of 5 pilot
+    # agents (words/net, pdf/cpp, note/python) -- a raw literal substring match against the OLD
+    # heading text (emoji + original casing intact) can never succeed once check_heading_title_
+    # case forces every NEW heading to be emoji-free and title-cased. The real note/python case:
+    # "✨ Features" -> "Key Capabilities", underlying content fully preserved, previously flagged
+    # as a hard-gate drop forever regardless of any real content work.
+    old_readme = "# Product\n\n## ✨ Features\n\nDoes many things.\n"
+    new_readme = "## Key Capabilities\n\nFeatures cover the full surface -- does many things.\n"
+    result = checks.check_dropped_content(old_readme, new_readme, "irrelevant")
+    assert result["dropped_headings"] == []
+
+
+def test_check_dropped_content_still_flags_a_genuinely_dropped_heading():
+    # Regression guard: the emoji/casefold normalization must not become so lenient it stops
+    # catching a real drop -- "Roadmap" genuinely appears nowhere in the new candidate.
+    old_readme = "# Product\n\n## 🗺️ Roadmap\n\nFuture plans.\n"
+    new_readme = "## Key Capabilities\n\nDoes many things.\n"
+    result = checks.check_dropped_content(old_readme, new_readme, "irrelevant")
+    assert "🗺️ Roadmap" in result["dropped_headings"]
+
+
 def test_check_no_excluded_domain_links_flags_forum():
     text = "See the [forum](https://forum.aspose.com/c/barcode) for help."
     findings = checks.check_no_excluded_domain_links(text)
@@ -3431,6 +3453,52 @@ def test_merge_into_target_section_maps_intro_to_preamble():
     text = "# Some Product\n\nA branding sentence naming `RealBrand` explicitly.\n\n## Installation\n\n- x\n"
     dispositions = [_content_unit(salient_tokens=("RealBrand",), target_section="Intro")]
     assert checks.check_content_unit_merged_into_target_section(text, dispositions) == []
+
+
+def test_merge_into_target_section_verifies_redundant_excluded_entries_too():
+    # Regression test: found live 2026-08-09 (MT030 Phase 1), independently by 2 of 5 pilot
+    # agents (words/net, slides/java) -- check_content_unit_evidence_resolves intentionally
+    # treats candidate_section_reference as always-resolved, deferring the real check to THIS
+    # function -- but this function originally only ever inspected merged_* dispositions, so a
+    # redundant_with_existing claim's cited section was never actually checked by either
+    # function. A lazy/wrong "already covered in section X" claim would previously pass
+    # silently. Verifies the fix looks at verification.evidence_ref (not target_section, which
+    # is null for excluded entries) for this specific evidence_type.
+    text = "# Some Product\n\n## Scope and Limitations\n\n- `Widget` has one edge case.\n"
+    redundant_entry = _content_unit(
+        excerpt="Widget's known edge case is already documented.",
+        salient_tokens=("Widget",), classification="redundant_with_existing",
+        disposition="excluded", target_section=None,
+        evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+        evidence_ref="Scope and Limitations",
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [redundant_entry]) == []
+
+
+def test_merge_into_target_section_flags_wrong_redundant_claim():
+    text = "# Some Product\n\n## Scope and Limitations\n\n- Something unrelated entirely.\n"
+    redundant_entry = _content_unit(
+        excerpt="Gizmo's known edge case is already documented.",
+        salient_tokens=("Gizmo",), classification="redundant_with_existing",
+        disposition="excluded", target_section=None,
+        evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+        evidence_ref="Scope and Limitations",
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [redundant_entry])
+    assert any(f["unit_id"] == "u0001" for f in findings)
+
+
+def test_merge_into_target_section_ignores_category_1_excluded_entries():
+    # A category-1 excluded entry has verification.evidence_type=None (not
+    # candidate_section_reference) -- must never be mistaken for a redundant claim needing
+    # section verification.
+    text = "# Some Product\n\n## Scope and Limitations\n\n- Something unrelated entirely.\n"
+    narrative_entry = _content_unit(
+        classification="1_narrative_cta", disposition="excluded", target_section=None,
+        evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+        excluded_reason="pure narrative content with nothing checkable",
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [narrative_entry]) == []
 
 
 # --- check_content_unit_no_exact_duplicate_merge (hard gate) ------------------------------------
