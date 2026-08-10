@@ -3585,3 +3585,211 @@ def test_probable_duplicate_skips_exact_duplicates():
         _content_unit(unit_id="u0002", excerpt="Identical.", salient_tokens=("A", "B")),
     ]
     assert checks.check_content_unit_probable_duplicate(dispositions) == []
+
+
+# --- Sixteenth incident / MT031: category-1 was too coarse -- real history and a real embedded
+# fact recovered from otherwise-narrative/CTA prose ------------------------------------------------
+# Fixtures are the real, verbatim words/net excerpts (u0021/u0025/u0026) this incident's own
+# investigation quoted -- not synthetic placeholders, same discipline as every other content-unit
+# fixture in this module.
+
+_WORDS_NET_U0021_REAL_TEXT = (
+    "One important thing to know: what's included today is the *minimum*... "
+    "It is not the final shape of the project, and the boundary is not set in stone. "
+    "If a feature you need sits on the wrong side of it, [open an issue](../../issues) "
+    "and tell us about your use case. Where there is real demand, we will consider "
+    "opening up more of the code."
+)
+_WORDS_NET_U0025_REAL_TEXT = (
+    "The reduction itself was an interesting engineering project. To carry it out, we "
+    "built an internal tool, the Full2Foss agent, developed with the help of "
+    "[Claude](https://claude.com), Anthropic's AI assistant. Full2Foss traces which "
+    "subsystems each piece of code depends on, cuts what has to go, and keeps thousands "
+    "of tests honest along the way."
+)
+_WORDS_NET_U0026_REAL_TEXT = (
+    "That is also why the source is worth a read. This is production code, not a "
+    "demonstration. If you have ever wondered what it actually takes to handle Word "
+    "documents correctly, it is all in here."
+)
+
+
+def test_embedded_actionable_fact_fires_on_real_u0021_pre_fix_text():
+    # The real, original defect this incident exists to catch: u0021 was excluded wholesale as
+    # pure narrative/CTA, silently losing the genuine "open an issue to request a currently-
+    # excluded capability" fact bundled inside the hedge.
+    units = [{"unit_id": "u0021"}]
+    dispositions = [_content_unit(
+        unit_id="u0021", excerpt=_WORDS_NET_U0021_REAL_TEXT, salient_tokens=(),
+        classification="1_narrative_cta", disposition="excluded", target_section=None,
+        evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+        excluded_reason="pure narrative hedging about the project's scope boundary",
+    )]
+    findings = checks.check_content_unit_embedded_actionable_fact(units, dispositions)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0021"
+    assert "open an issue" in findings[0]["signal_phrase"].lower()
+
+
+def test_embedded_actionable_fact_silent_on_real_negative_fixtures():
+    # u0025 (Full2Foss tooling paragraph) and u0026 (pure editorializing) both stay excluded by
+    # direct user decision -- neither contains an embedded actionable fact, and the heuristic
+    # must not false-positive on either real text.
+    units = [{"unit_id": "u0025"}, {"unit_id": "u0026"}]
+    dispositions = [
+        _content_unit(
+            unit_id="u0025", excerpt=_WORDS_NET_U0025_REAL_TEXT, salient_tokens=("Full2Foss", "Claude"),
+            classification="1_narrative_cta", disposition="excluded", target_section=None,
+            evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+            excluded_reason="internal tooling/process detail, zero independent corroboration",
+        ),
+        _content_unit(
+            unit_id="u0026", excerpt=_WORDS_NET_U0026_REAL_TEXT, salient_tokens=(),
+            classification="1_narrative_cta", disposition="excluded", target_section=None,
+            evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+            excluded_reason="pure editorializing, nothing checkable",
+        ),
+    ]
+    assert checks.check_content_unit_embedded_actionable_fact(units, dispositions) == []
+
+
+def test_embedded_actionable_fact_ignores_already_recovered_entries():
+    # Once u0021 is correctly reclassified/merged (the actual fix), the same real text must
+    # never re-trigger the tripwire -- only whole EXCLUDED category-1 entries are examined.
+    units = [{"unit_id": "u0021"}]
+    dispositions = [_content_unit(
+        unit_id="u0021",
+        excerpt="If a capability outside this list would be valuable to you, open an issue "
+                "describing your use case -- functionality with enough real demand is a "
+                "candidate for future inclusion in this edition.",
+        salient_tokens=(), classification="2_mechanism_explanation", disposition="merged_reframed",
+        target_section="Scope and Limitations",
+    )]
+    assert checks.check_content_unit_embedded_actionable_fact(units, dispositions) == []
+
+
+def test_embedded_actionable_fact_zero_findings_across_real_pilot_negative_shapes():
+    # Codifies the design-time validation (fires exactly once on u0021, zero elsewhere across
+    # all 5 MT030 Phase 1 pilot products' real, current dispositions) as a committed regression
+    # test -- a representative sample of real excluded category-1 excerpts from those products,
+    # none containing an actionable signal phrase.
+    real_excluded_excerpts = [
+        _WORDS_NET_U0025_REAL_TEXT,
+        _WORDS_NET_U0026_REAL_TEXT,
+        "Most open-source Word libraries start from zero and work their way up the OOXML spec. "
+        "This one went the other way.",
+        "That is also why the source is worth a read.",
+    ]
+    units = [{"unit_id": f"u{i:04d}"} for i in range(len(real_excluded_excerpts))]
+    dispositions = [
+        _content_unit(
+            unit_id=f"u{i:04d}", excerpt=excerpt, salient_tokens=(),
+            classification="1_narrative_cta", disposition="excluded", target_section=None,
+            evidence_status="not_applicable_category_1", evidence_type=None, evidence_ref=None,
+            excluded_reason="pure narrative/CTA prose with nothing independently checkable",
+        )
+        for i, excerpt in enumerate(real_excluded_excerpts)
+    ]
+    assert checks.check_content_unit_embedded_actionable_fact(units, dispositions) == []
+
+
+# --- disposition_coverage: 4_verifiable_history / verified_by_corroboration pairing (MT031) ------
+
+
+def test_disposition_coverage_flags_history_without_corroboration_status():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(
+        unit_id="u0001", classification="4_verifiable_history", target_section="Project History",
+        evidence_status="verified_against_source",
+    )
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("verified_by_corroboration" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_flags_corroboration_status_on_non_history_unit():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(
+        unit_id="u0001", classification="2_mechanism_explanation",
+        evidence_status="verified_by_corroboration",
+    )
+    findings = checks.check_content_unit_disposition_coverage(units, [entry])
+    assert any("reserved for 4_verifiable_history" in f["reason"] for f in findings)
+
+
+def test_disposition_coverage_clean_for_verifiable_history_with_corroboration():
+    units = [{"unit_id": "u0001"}]
+    entry = _content_unit(
+        unit_id="u0001", classification="4_verifiable_history", target_section="Project History",
+        evidence_status="verified_by_corroboration", evidence_type="clone_cache_path",
+        evidence_ref="AGENTS.md",
+    )
+    assert checks.check_content_unit_disposition_coverage(units, [entry]) == []
+
+
+# --- Project History (H3) section: preamble-boundary regression (MT031) --------------------------
+
+
+def test_required_sections_unaffected_by_project_history_section():
+    # Project History is a new, permanently OPTIONAL H3 section (never added to
+    # _REQUIRED_SECTIONS) placed before the first "##" heading -- confirms its presence changes
+    # nothing about the existing required-H2-section gate, a pure regression guard for the ~29
+    # products that will never emit this section.
+    with_history = _ALL_SECTIONS_README.replace(
+        "# Foo\n\n## At a Glance",
+        "# Foo\n\n### Project History\n\nA real, checkable history sentence naming `RealTool`.\n\n"
+        "## At a Glance",
+    )
+    assert checks.check_required_sections(with_history) == []
+    assert checks.check_required_sections(with_history) == checks.check_required_sections(_ALL_SECTIONS_README)
+
+
+def test_split_into_sections_keeps_project_history_inside_preamble():
+    # H3, not H2, is the load-bearing decision -- _split_into_sections only splits on "^##", so
+    # an H3 "### Project History" section must stay merged into "__preamble__" alongside the
+    # unheaded Intro paragraph, not become its own section key.
+    text = (
+        "# Some Product\n\n### Project History\n\nA history sentence.\n\n"
+        "An intro paragraph.\n\n## Installation\n\n- x\n"
+    )
+    sections = checks._split_into_sections(text)
+    assert "Project History" not in sections
+    assert "### Project History" in sections["__preamble__"]
+    assert "A history sentence." in sections["__preamble__"]
+    assert "An intro paragraph." in sections["__preamble__"]
+
+
+def test_merge_into_target_section_maps_project_history_to_preamble():
+    text = (
+        "# Some Product\n\n### Project History\n\n"
+        "A history sentence naming `RealTool` explicitly.\n\n"
+        "An intro paragraph.\n\n## Installation\n\n- x\n"
+    )
+    dispositions = [_content_unit(
+        salient_tokens=("RealTool",), classification="4_verifiable_history",
+        target_section="Project History", evidence_status="verified_by_corroboration",
+        evidence_type="clone_cache_path", evidence_ref="AGENTS.md",
+    )]
+    assert checks.check_content_unit_merged_into_target_section(text, dispositions) == []
+
+
+def test_merge_into_target_section_intro_unaffected_by_sibling_project_history():
+    # An H3 "### Project History" section sitting alongside the unheaded Intro paragraph must
+    # not disturb an unrelated, pre-existing Intro-targeted disposition's own resolution against
+    # the same "__preamble__" body -- both real content units share one section key by design.
+    text = (
+        "# Some Product\n\n### Project History\n\n"
+        "A history sentence naming `RealTool` explicitly.\n\n"
+        "A branding sentence naming `RealBrand` explicitly.\n\n## Installation\n\n- x\n"
+    )
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", salient_tokens=("RealTool",), classification="4_verifiable_history",
+            target_section="Project History", evidence_status="verified_by_corroboration",
+            evidence_type="clone_cache_path", evidence_ref="AGENTS.md",
+        ),
+        _content_unit(
+            unit_id="u0002", salient_tokens=("RealBrand",), classification="3_branding_positioning",
+            target_section="Intro",
+        ),
+    ]
+    assert checks.check_content_unit_merged_into_target_section(text, dispositions) == []

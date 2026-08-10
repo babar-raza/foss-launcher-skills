@@ -93,9 +93,24 @@ same product concurrently.
    disposition citing that). This is the real, working artifact `dropped_claims.json` was only
    ever a docstring aspiration for (2026-08-04 through 2026-08-09, never implemented by any
    code) — see `check_content_unit_disposition_coverage`'s own docstring for the full schema.
+   **MT031 (Sixteenth incident, 2026-08-10)**: a 4th classification, `4_verifiable_history`,
+   covers genuine, checkable project/format history (a past event, not a live source-checkable
+   mechanism) — its `verification.status` must be `verified_by_corroboration` (internally
+   consistent with, not contradicted by, real repo artifacts — never claimed "proven" the way a
+   mechanism claim is). A `4_verifiable_history` unit may target a new, permanently OPTIONAL H3
+   section, `### Project History`, placed after the banner and before the unheaded Intro
+   paragraph (never a `##` heading — that would break `_split_into_sections`'s `"__preamble__"`
+   boundary; H3 keeps it inside the same preamble region as Intro, so `check_required_sections`/
+   `check_only_sections_changed` need no change and the section stays vacuously satisfied like
+   `## Additional Examples` when a product has nothing real for it). A mixed unit — real,
+   independently-actionable fact bundled with pure hedge/CTA tone (e.g. "...not the final
+   shape... [open an issue](../../issues) and tell us about your use case...") — is reclassified
+   to whichever real category the checkable fact belongs to and reframed to drop the hedge,
+   never excluded wholesale; `check_content_unit_embedded_actionable_fact` (heuristic) is a
+   standing, portfolio-wide tripwire for this exact pattern recurring on a future product.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 46 functions) against the
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 47 functions) against the
    candidate. **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
@@ -130,8 +145,10 @@ same product concurrently.
    grep-based heuristic — see that function's own docstring for its honest, stated scope limits,
    most importantly that it does not trace inheritance), and (**MT030**) content-unit
    classification plausibility (a mechanical narrative/CTA tone prefilter cross-checked against
-   the agent's own stated classification) and probable-duplicate content-unit merges (2+ shared
-   salient tokens into the same section with a non-identical excerpt). `check_diagram_
+   the agent's own stated classification), probable-duplicate content-unit merges (2+ shared
+   salient tokens into the same section with a non-identical excerpt), and (**MT031**) an
+   embedded-actionable-fact tripwire flagging an excluded narrative/CTA unit whose excerpt
+   contains a real request/contact phrase worth re-examining. `check_diagram_
    suspicious_direct_product_edge`/`check_diagram_capability_unreachable_from_product` are
    retired — both were tripwires for a per-node-edge defect class the simplified model can no
    longer produce.

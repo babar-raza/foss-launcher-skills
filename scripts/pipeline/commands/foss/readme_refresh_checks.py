@@ -3244,12 +3244,23 @@ def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
 
 _CONTENT_UNIT_CLASSIFICATIONS = frozenset({
     "1_narrative_cta", "2_mechanism_explanation", "3_branding_positioning", "redundant_with_existing",
+    "4_verifiable_history",
 })
 _CONTENT_UNIT_DISPOSITIONS = frozenset({"merged_verbatim", "merged_reframed", "excluded"})
 _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
     "verified_against_source", "verified_redundant", "not_applicable_category_1",
+    "verified_by_corroboration",
 })
-_CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {"Intro"}
+# "Project History" (2026-08-10, MT031/Sixteenth incident): a new, permanently OPTIONAL H3
+# section for genuine, checkable project/format history that doesn't belong in Scope and
+# Limitations or Intro -- deliberately NOT added to _REQUIRED_SECTIONS (matching the existing
+# "## Additional Examples" precedent of an optional section that's vacuously satisfied when a
+# product has nothing real for it). H3, not H2, is load-bearing: _split_into_sections/
+# check_required_sections/check_only_sections_changed all split only on "^##" (H2) -- an H3
+# heading stays inside "__preamble__" alongside the unheaded Intro paragraph, so no downstream
+# section-boundary code needed to change. check_content_unit_merged_into_target_section maps
+# both "Intro" and "Project History" to the same "__preamble__" section body.
+_CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {"Intro", "Project History"}
 
 
 def check_content_unit_disposition_coverage(
@@ -3266,12 +3277,18 @@ def check_content_unit_disposition_coverage(
 
     Checks: every `unit_id` has exactly one entry (no missing, no dupes, no dangling references
     to a `unit_id` absent from `content_units`); `classification`/`disposition` are valid enum
-    values; a `merged_*` entry has a `target_section` in `_REQUIRED_SECTIONS | {"Intro"}`; an
-    `excluded` entry has a real `excluded_reason` (>=15 chars, not a placeholder); every entry
-    whose `classification` is not `1_narrative_cta` must carry `verification.status !=
-    not_applicable_category_1` plus a non-empty `verification.evidence_ref` -- an "excluded
-    because it's no longer true" disposition is itself a verified claim and must cite where that
-    was confirmed, the same as a merge.
+    values; a `merged_*` entry has a `target_section` in
+    `_REQUIRED_SECTIONS | {"Intro", "Project History"}`; an `excluded` entry has a real
+    `excluded_reason` (>=15 chars, not a placeholder); every entry whose `classification` is not
+    `1_narrative_cta` must carry `verification.status != not_applicable_category_1` plus a
+    non-empty `verification.evidence_ref` -- an "excluded because it's no longer true"
+    disposition is itself a verified claim and must cite where that was confirmed, the same as a
+    merge. `4_verifiable_history` entries must use `verification.status ==
+    verified_by_corroboration` (2026-08-10, MT031) -- a real but categorically weaker standard
+    than `verified_against_source` (genuine project/format history describes a past event no
+    current source state can prove or disprove the way a live mechanism claim can be compiled/
+    grepped against; "verified" here means internally consistent with, not contradicted by, real
+    repo artifacts -- never "proven"), so the two statuses must never be interchangeable.
     """
     findings: list[dict] = []
     unit_ids = {unit["unit_id"] for unit in content_units}
@@ -3325,6 +3342,20 @@ def check_content_unit_disposition_coverage(
                 "unit_id": uid,
                 "reason": "only category-1 (narrative/CTA) units may use verification.status="
                           "not_applicable_category_1",
+            })
+        elif classification == "4_verifiable_history" and status != "verified_by_corroboration":
+            findings.append({
+                "unit_id": uid,
+                "reason": "4_verifiable_history units must use verification.status="
+                          "verified_by_corroboration, not a stronger or unrelated status -- "
+                          "history claims are corroborated, never proven the way a live "
+                          "mechanism claim can be",
+            })
+        elif classification != "4_verifiable_history" and status == "verified_by_corroboration":
+            findings.append({
+                "unit_id": uid,
+                "reason": "verification.status=verified_by_corroboration is reserved for "
+                          "4_verifiable_history units",
             })
         elif status != "not_applicable_category_1" and not verification.get("evidence_ref"):
             findings.append({
@@ -3406,7 +3437,9 @@ def check_content_unit_merged_into_target_section(
     """Hard gate. For every `merged_verbatim`/`merged_reframed` disposition, confirms the cited
     `target_section` was genuinely touched with something traceable to THIS unit -- at least one
     of its `salient_tokens` appears (case-insensitive) in that section's real body (via
-    `_split_into_sections`; `target_section == "Intro"` maps to the `"__preamble__"` key). This
+    `_split_into_sections`; `target_section` of `"Intro"` or `"Project History"` (2026-08-10,
+    MT031) both map to the `"__preamble__"` key, since the optional H3 `### Project History`
+    section sits before the first `##` heading, alongside the unheaded Intro paragraph). This
     is the actual "reuse, not just presence-check" enforcement -- it cannot verify faithfulness
     of a reframe, only that the section was not silently left untouched while claiming a merge
     happened.
@@ -3446,7 +3479,7 @@ def check_content_unit_merged_into_target_section(
             target = verification.get("evidence_ref")
         else:
             continue
-        section_key = "__preamble__" if target == "Intro" else target
+        section_key = "__preamble__" if target in ("Intro", "Project History") else target
         body = sections.get(section_key, "")
         tokens = entry.get("salient_tokens") or []
         if tokens:
@@ -3558,6 +3591,54 @@ def check_content_unit_probable_duplicate(dispositions: list[dict]) -> list[dict
                     "reason": "two different content units share 2+ salient tokens merged into "
                               "the same section -- likely restating the same fact twice",
                 })
+    return findings
+
+
+_EMBEDDED_ACTIONABLE_SIGNAL_RE = re.compile(
+    r"\bopen an issue\b|\bfile a request\b|\bcontact us\b|\bif you need\b|\blet us know\b"
+    r"|\breach out\b|\bsubmit a request\b|\bget in touch\b",
+    re.IGNORECASE,
+)
+
+
+def check_content_unit_embedded_actionable_fact(
+    content_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-10, MT031/Sixteenth incident). Flags a disposition whose
+    `classification == "1_narrative_cta"` and `disposition == "excluded"` but whose own excerpt
+    contains a signal phrase suggesting an embedded, independently-actionable pointer -- a real
+    request/contact process bundled inside otherwise-pure narrative/CTA prose (the exact
+    words/net u0021 shape: "...not the final shape of the project... [open an issue](../../
+    issues) and tell us about your use case..." mixes a genuine hedge with a real, checkable
+    fact about how the project handles scope-expansion requests).
+
+    A hit is a prompt to re-examine the unit for a corrected classification carrying the real
+    fact into a merge -- never an automatic fail; a unit already correctly split into a
+    checkable-fact entry (classification 2/3/4, merged) plus a separate pure-hedge entry
+    (classification 1, excluded) produces no finding, since only whole EXCLUDED category-1
+    entries are examined here. Validated directly against all 5 MT030 Phase 1 pilot products'
+    real, current content-dispositions.json: fires exactly once (the original, pre-fix u0021)
+    and zero times elsewhere -- real precision on the one known positive case, no observed false
+    positives on real data. Honest recall, not claimed complete: a differently-worded embedded
+    fact ("we'd consider adding this on request") won't trip this fixed phrase list, the same
+    disclosed limitation `check_process_narration_smells` already carries for its own list.
+    """
+    units_by_id = {u["unit_id"]: u for u in content_units}
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("classification") != "1_narrative_cta" or entry.get("disposition") != "excluded":
+            continue
+        uid = entry.get("unit_id")
+        excerpt = (units_by_id.get(uid) or {}).get("excerpt") or entry.get("excerpt") or ""
+        match = _EMBEDDED_ACTIONABLE_SIGNAL_RE.search(excerpt)
+        if match:
+            findings.append({
+                "unit_id": uid,
+                "signal_phrase": match.group(0),
+                "reason": "excluded as pure narrative/CTA, but the excerpt contains an "
+                          "actionable-sounding phrase -- re-examine for a real, distinct "
+                          "checkable fact worth reclassifying and merging",
+            })
     return findings
 
 

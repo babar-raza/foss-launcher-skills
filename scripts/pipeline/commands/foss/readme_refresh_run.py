@@ -1023,6 +1023,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": False,
         "findings": checks.check_content_unit_probable_duplicate(dispositions),
     }
+    # Sixteenth incident / MT031 (2026-08-10): a mixed unit (real actionable fact bundled with
+    # pure hedge/CTA prose) can be classified/excluded wholesale, silently losing the fact.
+    # Standing, non-blocking safeguard for every future dispatch -- never a hard gate, since a
+    # differently-worded embedded fact won't trip the fixed phrase list.
+    result["content_unit_embedded_actionable_fact"] = {
+        "hard_gate": False,
+        "findings": checks.check_content_unit_embedded_actionable_fact(content_units, dispositions),
+    }
 
     # Heuristic / two-tier -- surfaced for the mandatory human/agent judgment pass, never
     # treated as a hard_gate failure by ingest_candidate() above. 2026-08-08: check_diagram_
