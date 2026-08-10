@@ -3198,6 +3198,10 @@ def _extract_salient_tokens(excerpt: str) -> list[str]:
 
 
 _ANY_HEADING_LINE_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
+# 2026-08-10, MT030 Phase 2: replaces an earlier flat len(excerpt) < 25 noise filter, which
+# silently dropped real, substantive short bullets. See extract_old_readme_content_units's own
+# docstring for the real, confirmed instances this fixes.
+_CONTENT_UNIT_SIGNIFICANT_WORD_RE = re.compile(r"[A-Za-z]{4,}")
 
 
 def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
@@ -3212,8 +3216,17 @@ def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
     Heading lines (of any level -- already owned by `_HEADING_RE`/`_old_readme_inventory` for
     H2/H3, and an old README's H1 title needs no separate tracking), fenced code blocks, and
     badge-row lines are stripped before segmentation. Reuses `_iter_leak_scan_units`'s proven
-    paragraph-vs-pure-bulleted-block splitting logic rather than reimplementing it. A unit under
-    ~25 rendered characters is dropped as noise (a stray word, a lone "---").
+    paragraph-vs-pure-bulleted-block splitting logic rather than reimplementing it. A unit with no
+    word of 4+ letters is dropped as noise (a stray short word, a lone "---", punctuation-only
+    fragments) -- deliberately NOT a flat character-count floor. A prior `len(excerpt) < 25`
+    version of this filter was found live during MT030 Phase 2 (2026-08-10) to silently drop real,
+    substantive short capability-list bullets -- confirmed on 2 products independently:
+    `cells/cpp`'s "- Cells and formulas"/"- Document properties" and `cells/java`'s "- Merged
+    cells"/"- Defined names"/"- Hyperlinks"/"- Data validation"/"- Conditional formatting"/"- Page
+    setup"/"- Worksheet protection" (9 real bullets total, none ever reachable for MT030/MT031
+    recovery). The word-based rule keeps every one of those (each has a 4+-letter word) while still
+    correctly dropping the original noise cases ("---" has zero letters; "Ok." has only "Ok", 2
+    letters).
 
     Returns `[{"unit_id", "excerpt", "salient_tokens", "likely_category_1_prefilter"}, ...]` in
     extraction order. `unit_id` is a stable, order-based id (`u0001`, `u0002`, ...), not a
@@ -3231,7 +3244,7 @@ def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
     units: list[dict] = []
     for raw_excerpt in _iter_leak_scan_units(prose_text):
         excerpt = raw_excerpt.strip()
-        if len(excerpt) < 25:
+        if not _CONTENT_UNIT_SIGNIFICANT_WORD_RE.search(excerpt):
             continue
         units.append({
             "unit_id": f"u{len(units) + 1:04d}",

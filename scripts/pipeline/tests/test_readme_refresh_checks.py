@@ -3192,6 +3192,36 @@ def test_extract_old_readme_content_units_drops_short_noise():
     assert any("real sentence long enough" in e for e in excerpts)
 
 
+def test_extract_old_readme_content_units_keeps_short_substantive_bullets():
+    # Regression test: found live 2026-08-10 (MT030 Phase 2) -- the original flat
+    # len(excerpt) < 25 noise filter silently dropped these exact real, short capability
+    # bullets from cells/cpp's and cells/java's old READMEs (confirmed independently on both
+    # products -- 9 real bullets lost total). The fix (a 4+-letter-word requirement, replacing
+    # the character-count floor) must keep every one of these while the noise test above still
+    # correctly drops "---"/"Ok.".
+    text = (
+        "# Title\n\n"
+        "## Supported Features\n\n"
+        "- Merged cells\n"
+        "- Defined names\n"
+        "- Hyperlinks\n"
+        "- Data validation\n"
+        "- Conditional formatting\n"
+        "- Page setup\n"
+        "- Worksheet protection\n"
+        "- Cells and formulas\n"
+        "- Document properties\n"
+    )
+    units = checks.extract_old_readme_content_units(text)
+    excerpts = {u["excerpt"] for u in units}
+    for bullet in (
+        "- Merged cells", "- Defined names", "- Hyperlinks", "- Data validation",
+        "- Conditional formatting", "- Page setup", "- Worksheet protection",
+        "- Cells and formulas", "- Document properties",
+    ):
+        assert bullet in excerpts, f"{bullet!r} (len={len(bullet)}) was incorrectly dropped as noise"
+
+
 def test_extract_old_readme_content_units_strips_badge_rows():
     text = (
         "# Title\n\n"
