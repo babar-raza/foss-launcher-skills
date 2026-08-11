@@ -1755,6 +1755,17 @@ _REF_INDEX_TABLE_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*(.*?)\s*\|\s*$")
 _REF_CLASS_PROPERTY_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|")
 _REF_CLASS_METHOD_ROW_RE = re.compile(r"^\|\s*`([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
+# Fallback convention (2026-08-11) -- confirmed real and unique to `3d/typescript`'s _index.md
+# (a full 30-product scan found every other product's real modules already yield real classes via
+# the table convention above; only this one has real modules with zero table rows). Instead of a
+# `| Class | Description |` table, this file lists each class as its own `### ClassName` (or
+# `### [ClassName](link)`) heading followed by a real prose paragraph. A heading may name several
+# classes at once, comma-separated inside the heading/link text (confirmed real: one heading,
+# "Material, LambertMaterial, PhongMaterial, PbrMaterial", covering 4 classes) -- each gets the
+# same description (the heading's own first paragraph, stopped at the first blank line so a
+# following bullet list or second paragraph isn't slurped whole into one table cell).
+_REF_INDEX_CLASS_HEADING_RE = re.compile(r"^###\s+(?:\[([^\]]+)\]\([^)]*\)|(.+?))\s*$")
+
 
 def _strip_frontmatter(text: str) -> str:
     """Strip a leading `---\\n...\\n---\\n` YAML frontmatter block, if present. Shared by both
@@ -1768,6 +1779,38 @@ def _strip_frontmatter(text: str) -> str:
     return text
 
 
+def _parse_class_heading_module(lines: list[str]) -> list[dict]:
+    """Fallback parser (2026-08-11) for a reference.aspose.org module block that lists its
+    classes as individual `### ClassName` (or `### [ClassName](link)`) headings followed by a
+    real prose paragraph, rather than a `| Class | Description |` table -- see
+    `_REF_INDEX_CLASS_HEADING_RE`'s module comment for the confirmed-real, 3d/typescript-specific
+    motivation. Only called for a module that yielded zero table rows; a module's own intro prose
+    before its first `###` heading (confirmed real, e.g. "OBJ Format"'s "OBJ supports both import
+    and export...") is correctly skipped since it precedes any heading match.
+    """
+    entries: list[dict] = []
+    i, n = 0, len(lines)
+    while i < n:
+        heading_match = _REF_INDEX_CLASS_HEADING_RE.match(lines[i])
+        if not heading_match:
+            i += 1
+            continue
+        names_text = heading_match.group(1) or heading_match.group(2) or ""
+        class_names = [name.strip() for name in names_text.split(",") if name.strip()]
+        i += 1
+        while i < n and not lines[i].strip():
+            i += 1
+        desc_lines: list[str] = []
+        while i < n and lines[i].strip() and not lines[i].lstrip().startswith("#") \
+                and lines[i].strip() != "---":
+            desc_lines.append(lines[i].strip())
+            i += 1
+        description = " ".join(desc_lines).strip()
+        for class_name in class_names:
+            entries.append({"class": class_name, "description": description})
+    return entries
+
+
 def parse_reference_api_index(index_md_text: str) -> dict[str, list[dict]]:
     """Parse a `content/reference.aspose.org/en/{family}/{platform}/_index.md`'s real body
     into `{module_name: [{"class": ..., "description": ...}, ...]}`. Confirmed real structure
@@ -1777,6 +1820,15 @@ def parse_reference_api_index(index_md_text: str) -> dict[str, list[dict]]:
     sub-table nested inside some modules -- folded into the same parent module's list here (both
     are real, citable public types for the purposes of "does this class/enum name exist").
 
+    Fallback (2026-08-11, closes a real MT028 gap): a module with zero table rows but real
+    `### ClassName` headings uses the alternate class-heading-per-entry convention
+    (`_parse_class_heading_module`) instead -- confirmed unique to `3d/typescript`'s _index.md by
+    a full 30-product scan (every other product's real modules already yield classes via the
+    table convention). MT028's original rollout found this file didn't match the table
+    convention and excluded the product entirely as a "structural outlier" rather than parsing
+    its real, equally-valid alternate convention -- this fallback closes that gap rather than
+    leaving the product's real, well-organized class list unmirrored.
+
     Frontmatter (`evidence`/`grade`/`provenance` -- confirmed internal-only, matching this
     repo's established rule) is stripped before parsing and never appears in the result.
 
@@ -1785,20 +1837,29 @@ def parse_reference_api_index(index_md_text: str) -> dict[str, list[dict]]:
     """
     body = _strip_frontmatter(index_md_text or "")
     index: dict[str, list[dict]] = {}
+    module_lines: dict[str, list[str]] = {}
     current_module: str | None = None
     for line in body.splitlines():
         header_match = _REF_INDEX_MODULE_HEADER_RE.match(line)
         if header_match:
             current_module = header_match.group(1).strip()
             index.setdefault(current_module, [])
+            module_lines.setdefault(current_module, [])
             continue
         if current_module is None:
             continue
+        module_lines[current_module].append(line)
         row_match = _REF_INDEX_TABLE_ROW_RE.match(line)
         if row_match:
             index[current_module].append({
                 "class": row_match.group(1), "description": row_match.group(2),
             })
+    for module, rows in index.items():
+        if rows:
+            continue
+        block = module_lines.get(module, [])
+        if any(_REF_INDEX_CLASS_HEADING_RE.match(candidate) for candidate in block):
+            index[module] = _parse_class_heading_module(block)
     return index
 
 
@@ -2042,35 +2103,48 @@ def check_api_reference_table_completeness(
     }
     table_modules = {module: set(classes) for module, classes in readme_tables.items()}
 
+    # Module names are matched case-insensitively (2026-08-11): a real reference.aspose.org
+    # module name can require a different heading-safe casing in the README's own `###` heading
+    # (e.g. "glTF Format" -> "GLTF Format", per check_heading_title_case's own established GLTF
+    # exception -- glTF's genuine spelling starts lowercase, which title-case headings cannot
+    # satisfy) without that legitimate re-casing being flagged as a missing/unrecognized module.
+    # Found live on 3d/typescript, the first product whose real module name itself needed this
+    # treatment (every other product's real module names happen to already be title-case-safe).
+    real_by_key = {module.casefold(): module for module in real_modules}
+    table_by_key = {module.casefold(): module for module in table_modules}
+
     findings: list[dict] = []
-    for module, real_classes in real_modules.items():
-        if module not in table_modules:
+    for key, module in real_by_key.items():
+        real_classes = real_modules[module]
+        if key not in table_by_key:
             findings.append({
                 "module": module, "reason": "missing_module",
                 "detail": f"real reference.aspose.org module '{module}' has no matching table "
                           "in the README's API Reference section",
             })
             continue
-        for cls in sorted(real_classes - table_modules[module]):
+        table_module = table_by_key[key]
+        for cls in sorted(real_classes - table_modules[table_module]):
             findings.append({
                 "module": module, "class_name": cls, "reason": "missing_class",
                 "detail": f"'{cls}' is a real class in reference.aspose.org's '{module}' module "
                           "but is absent from the README's table for that module",
             })
 
-    for module, table_classes in table_modules.items():
-        if module not in real_modules:
+    for key, module in table_by_key.items():
+        if key not in real_by_key:
             findings.append({
                 "module": module, "reason": "unrecognized_module",
                 "detail": f"README table module '{module}' does not correspond to any real "
                           "reference.aspose.org module for this product",
             })
             continue
-        for cls in sorted(table_classes - real_modules[module]):
+        real_module = real_by_key[key]
+        for cls in sorted(table_modules[module] - real_modules[real_module]):
             findings.append({
                 "module": module, "class_name": cls, "reason": "unrecognized_class",
                 "detail": f"'{cls}' appears in the README's '{module}' table but is not a real "
-                          f"class in reference.aspose.org's '{module}' module",
+                          f"class in reference.aspose.org's '{real_module}' module",
             })
     return findings
 

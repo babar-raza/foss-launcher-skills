@@ -1917,6 +1917,94 @@ def test_parse_reference_api_index_empty_on_blank_input():
     assert checks.parse_reference_api_index(None) == {}
 
 
+# Real, captured-verbatim excerpt from content/reference.aspose.org/en/3d/typescript/_index.md
+# (2026-08-11) -- the class-heading-per-entry convention that made this file the one product in
+# the whole portfolio whose real modules parsed to zero classes under the table-only parser (a
+# full 30-product scan confirmed no other product has this shape). Exercises: a module with real
+# intro prose before its first class heading ("OBJ Format"), a plain-text heading, a linked
+# heading, a multi-class comma-joined heading followed by a paragraph-then-bullet-list (only the
+# first paragraph must be captured), and the vacuous "See Also" bullet-list module.
+_REAL_3D_TYPESCRIPT_INDEX_MD = """---
+grade: A
+evidence: internal-only, never leaked
+---
+
+## Core Scene Graph
+
+### Scene
+
+The root container for a 3D scene. Call `scene.open()` or `scene.openFromBuffer()` to load a file, and `scene.save()` to write output. Exposes `scene.rootNode` as the entry point to the node hierarchy.
+
+### [A3DObject](A3DObject/)
+
+Root base class for Aspose.3D objects. Provides the property system (`getProperty`, `setProperty`) and the `name` field shared across the class hierarchy.
+
+---
+
+## Materials
+
+### [Material, LambertMaterial, PhongMaterial, PbrMaterial](/3d/typescript/material/)
+
+Material is the abstract base class for all material types. Three concrete implementations are available:
+
+- **LambertMaterial** -- diffuse-only with ambient, diffuse, and emissive color channels. Suitable for non-specular surfaces.
+- **PhongMaterial** -- extends `LambertMaterial` with specular color and shininess properties for Phong shading.
+- **PbrMaterial** -- physically-based rendering material with metallic, roughness, base-color, and normal-map channels.
+
+---
+
+## OBJ Format
+
+OBJ supports both import and export. When saving as OBJ, the material library (`.mtl`) is written automatically alongside the `.obj` file.
+
+### ObjImporter
+
+Internal importer that reads Wavefront OBJ files, resolves `.mtl` material libraries, and populates a `Scene`.
+
+---
+
+## See Also
+
+- [Knowledge Base: How-To Guides](https://kb.aspose.org/3d/typescript/)
+- [Detailed API Overview](/3d/typescript/)
+"""
+
+
+def test_parse_reference_api_index_class_heading_fallback_real_3d_typescript_shape():
+    index = checks.parse_reference_api_index(_REAL_3D_TYPESCRIPT_INDEX_MD)
+    # Plain-text and linked headings both resolve to the bare class name.
+    core = {row["class"]: row["description"] for row in index["Core Scene Graph"]}
+    assert set(core) == {"Scene", "A3DObject"}
+    assert core["Scene"].startswith("The root container for a 3D scene.")
+    assert core["A3DObject"].startswith("Root base class for Aspose.3D objects.")
+    # A multi-class, comma-joined heading yields one entry per class, all sharing the same
+    # description -- and only the first paragraph is captured, not the following bullet list.
+    materials = {row["class"]: row["description"] for row in index["Materials"]}
+    assert set(materials) == {"Material", "LambertMaterial", "PhongMaterial", "PbrMaterial"}
+    shared_desc = materials["Material"]
+    assert shared_desc == materials["LambertMaterial"] == materials["PhongMaterial"] \
+        == materials["PbrMaterial"]
+    assert shared_desc == (
+        "Material is the abstract base class for all material types. Three concrete "
+        "implementations are available:"
+    )
+    assert "LambertMaterial ---" not in shared_desc and "diffuse-only" not in shared_desc
+    # A module's own intro prose before its first class heading is not itself parsed as a class.
+    obj_classes = {row["class"] for row in index["OBJ Format"]}
+    assert obj_classes == {"ObjImporter"}
+    assert "OBJ supports both import and export" not in str(index["OBJ Format"])
+    # A real bullet-list-only module (no ### headings at all) stays vacuous, same as a table
+    # module with zero rows -- never misread as containing a class named after a bullet link.
+    assert index["See Also"] == []
+
+
+def test_parse_reference_api_index_table_convention_unaffected_by_class_heading_fallback():
+    # Regression guard: the fallback must never fire for a module that already has real table
+    # rows -- confirmed via the existing tex/python fixture, which is untouched by this change.
+    index = checks.parse_reference_api_index(_REAL_TEX_PYTHON_INDEX_MD)
+    assert {row["class"] for row in index["Core API"]} == {"AsposeTeXError", "EngineError"}
+
+
 def test_parse_reference_class_page_real_texjob_shape():
     parsed = checks.parse_reference_class_page(_REAL_TEXJOB_CLASS_PAGE_MD)
     assert parsed["properties"] == ["messages"]
@@ -2116,6 +2204,27 @@ def test_api_reference_table_completeness_flags_missing_module():
     text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
     findings = checks.check_api_reference_table_completeness(text, reference_index)
     assert any(f["reason"] == "missing_module" and f["module"] == "Annotations" for f in findings)
+
+
+def test_api_reference_table_completeness_matches_module_names_case_insensitively():
+    # 2026-08-11: a real reference.aspose.org module name can need a different heading-safe
+    # casing in the README's own ### heading (e.g. "glTF Format" -> "GLTF Format", per
+    # check_heading_title_case's own established GLTF exception) without that legitimate
+    # re-casing being flagged as a missing/unrecognized module -- found live on 3d/typescript,
+    # whose real "glTF Format" module is the first case where this tension actually fired.
+    reference_index = {
+        "glTF Format": [
+            {"class": "GltfImporter", "description": "Reads glTF 2.0 files."},
+        ],
+    }
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(
+            core_rows=["| `GltfImporter` | Reads glTF 2.0 files. |"],
+            interfaces_rows=[],
+        ).replace("### Core API", "### GLTF Format"),
+    )
+    assert checks.check_api_reference_table_completeness(text, reference_index) == []
 
 
 def test_api_reference_table_completeness_flags_unrecognized_class():
