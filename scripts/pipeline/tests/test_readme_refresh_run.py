@@ -423,6 +423,169 @@ def test_ingest_candidate_blocks_on_all_three_incident_classes(tmp_path, monkeyp
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 
 
+# --- TC-HARDEN-12 (MT033): change-isolation gates wired into recheck() ---------------------
+#
+# check_only_mermaid_block_changed / check_only_sections_changed were real, fully-tested hard
+# gates (this plan's own MT024/MT029 idempotency guarantee) that readme_refresh_run.py never
+# called -- confirmed by exact-name grep, zero hits, before this fix. These tests prove the
+# WIRING actually triggers the gate at the real recheck() transition against a real
+# deliberately-cross-contaminated edit, not merely that the underlying functions work in
+# isolation (already proven by their own dedicated tests in test_readme_refresh_checks.py).
+
+
+def _ingest_good_candidate(repo_root, family="testfam", platform="testplat"):
+    """Shared setup for the change-isolation tests below: start a run, plan it, ingest the
+    shared _GOOD_CANDIDATE fixture -- this is what writes checkpoint 0 (the snapshot every
+    recheck() change-isolation check diffs the next edit against)."""
+    manifest = rr.start_run(family, platform)
+    run_id = manifest["run_id"]
+    rr.plan_run(family, platform, run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate(family, platform, run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+    return run_id
+
+
+def test_recheck_change_isolation_skipped_when_not_requested(tmp_path, monkeypatch):
+    # Backward-compat proof: omitting both allowed_headings and mermaid_only (every existing
+    # caller, including the round-trip test above) must produce identical behavior to before
+    # this change -- no new result.json keys, no crash, no snapshot-dependency at all.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    result = rr.recheck("testfam", "testplat", run_id)
+    assert "change_isolation_mermaid" not in result
+    assert "change_isolation_sections" not in result
+
+
+def test_recheck_change_isolation_skipped_without_prior_snapshot(tmp_path, monkeypatch):
+    # A caller can request change-isolation checking even when nothing has ever been ingested
+    # yet (e.g. a stray recheck right after plan_run, before ingest_candidate) -- must degrade
+    # gracefully (no snapshot to diff against), never crash on a missing file.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    result = rr.recheck(
+        "testfam", "testplat", run_id, allowed_headings=["Key Capabilities"], mermaid_only=True,
+    )
+    assert "change_isolation_mermaid" not in result
+    assert "change_isolation_sections" not in result
+
+
+def test_recheck_mermaid_only_fires_on_real_cross_section_contamination(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-c")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    # A real cross-contamination shape: the diagram edit leaks into Key Capabilities too --
+    # exactly the class of defect this plan's own MT024 "email/net snapshot contamination"
+    # incident (2026-08-05) found live, the incident that originally motivated this gate.
+    contaminated = _GOOD_CANDIDATE.replace(
+        'C1["Does a thing"]', 'C1["Does a thing well"]',
+    ).replace(
+        "- Reads and writes TXT files.", "- Reads and writes TXT and CSV files.",
+    )
+    assert contaminated != _GOOD_CANDIDATE
+    _write_candidate(repo_root, contaminated)
+
+    result = rr.recheck("testfam", "testplat", run_id, mermaid_only=True)
+    assert result["change_isolation_mermaid"]["hard_gate"] is True
+    assert result["change_isolation_mermaid"]["findings"], (
+        "mermaid-only claim must be rejected -- Key Capabilities changed too"
+    )
+
+
+def test_recheck_mermaid_only_clean_on_legitimate_diagram_only_edit(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-d")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    diagram_only_edit = _GOOD_CANDIDATE.replace(
+        'C1["Does a thing"]', 'C1["Does a thing well"]',
+    )
+    assert diagram_only_edit != _GOOD_CANDIDATE
+    _write_candidate(repo_root, diagram_only_edit)
+
+    result = rr.recheck("testfam", "testplat", run_id, mermaid_only=True)
+    assert result["change_isolation_mermaid"]["findings"] == []
+
+
+def test_recheck_sections_fires_on_undeclared_section_change(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-e")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    # Caller declares this edit is scoped to Key Capabilities only, but Installation changed
+    # too -- the exact undeclared-scope shape this gate exists to catch.
+    contaminated = _GOOD_CANDIDATE.replace(
+        "- Reads and writes TXT files.", "- Reads and writes TXT and CSV files.",
+    ).replace(
+        'pip install -e ".[dev]"\n```\n\n## Quick Start',
+        'pip install -e ".[dev,extra]"\n```\n\n## Quick Start',
+    )
+    assert contaminated != _GOOD_CANDIDATE
+    _write_candidate(repo_root, contaminated)
+
+    result = rr.recheck("testfam", "testplat", run_id, allowed_headings=["Key Capabilities"])
+    findings = result["change_isolation_sections"]["findings"]
+    assert result["change_isolation_sections"]["hard_gate"] is True
+    assert any(f["heading"] == "Installation" for f in findings)
+    assert not any(f["heading"] == "Key Capabilities" for f in findings)
+
+
+def test_recheck_sections_clean_on_legitimate_single_section_edit(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-f")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    single_section_edit = _GOOD_CANDIDATE.replace(
+        "- Reads and writes TXT files.", "- Reads and writes TXT and CSV files.",
+    )
+    assert single_section_edit != _GOOD_CANDIDATE
+    _write_candidate(repo_root, single_section_edit)
+
+    result = rr.recheck("testfam", "testplat", run_id, allowed_headings=["Key Capabilities"])
+    assert result["change_isolation_sections"]["findings"] == []
+
+
+def test_recheck_snapshot_rolls_forward_between_calls(tmp_path, monkeypatch):
+    # The snapshot is a ROLLING checkpoint (updated after every recheck), not a fixed baseline
+    # frozen at first ingest -- a second, independent edit must be diffed against the first
+    # edit's own result, not re-flagged against the original candidate.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h12-g")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _ingest_good_candidate(repo_root)
+
+    first_edit = _GOOD_CANDIDATE.replace(
+        "- Reads and writes TXT files.", "- Reads and writes TXT and CSV files.",
+    )
+    _write_candidate(repo_root, first_edit)
+    result = rr.recheck("testfam", "testplat", run_id, allowed_headings=["Key Capabilities"])
+    assert result["change_isolation_sections"]["findings"] == []
+
+    # Second, independent Key-Capabilities-only edit on top of the first -- must still pass,
+    # proving the snapshot advanced to first_edit rather than staying pinned to _GOOD_CANDIDATE.
+    second_edit = first_edit.replace(
+        "- Reads and writes TXT and CSV files.", "- Reads and writes TXT, CSV, and JSON files.",
+    )
+    assert second_edit != first_edit
+    _write_candidate(repo_root, second_edit)
+    result = rr.recheck("testfam", "testplat", run_id, allowed_headings=["Key Capabilities"])
+    assert result["change_isolation_sections"]["findings"] == []
+
+
 # --- Illegal transition rejection -----------------------------------------------------------
 
 

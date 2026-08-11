@@ -808,6 +808,11 @@ def ingest_candidate(
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
+        # TC-HARDEN-12 (MT033): establish checkpoint 0 for recheck()'s change-isolation gates
+        # (check_only_mermaid_block_changed / check_only_sections_changed) -- written even when
+        # this candidate fails hard gates below, so the fix-and-recheck cycle that follows can
+        # still prove its own fix stayed within the declared section(s).
+        _write_checks_snapshot(family, platform, run_id, text)
 
         hard_gate_failures = [name for name, r in result.items() if r.get("hard_gate") and r.get("findings")]
         if hard_gate_failures:
@@ -1096,11 +1101,70 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     return result
 
 
-def recheck(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
+def _checks_snapshot_path(family: str, platform: str, run_id: str) -> Path:
+    """TC-HARDEN-12 (MT033): the rolling 'last checked' candidate snapshot that
+    check_only_mermaid_block_changed / check_only_sections_changed diff against. Written at
+    every successful ingest_candidate/recheck call, so the NEXT recheck can prove a follow-up
+    edit stayed within its declared scope. Absent on the very first check of a run (nothing to
+    diff against yet) -- callers must treat that as "no baseline", not an error."""
+    return _run_root(family, platform, run_id) / "checks" / "last_checked_candidate.md"
+
+
+def _apply_change_isolation_checks(
+    result: dict, family: str, platform: str, run_id: str, text: str,
+    *, allowed_headings: "list[str] | None", mermaid_only: bool,
+) -> None:
+    """TC-HARDEN-12 (MT033, Twelfth-incident register): check_only_mermaid_block_changed and
+    check_only_sections_changed are real, fully-tested hard gates that were never invoked by
+    this file -- the two functions that mechanically enforce this plan's own MT024/MT029
+    idempotency guarantee sat orphaned. Wired here, not into ingest_candidate, because both
+    functions diff CURRENT text against a PRIOR snapshot -- a question only meaningful for a
+    follow-up edit during AWAITING_REVIEW (recheck's own job), not a fresh candidate's first
+    ingest (nothing to diff against). Only runs when the caller explicitly declares scope
+    (mermaid_only=True or allowed_headings is not None) and a prior snapshot exists -- silent,
+    backward-compatible no-op otherwise, matching recheck's own established advisory posture
+    (never raises; the caller inspects result.json)."""
+    snapshot_path = _checks_snapshot_path(family, platform, run_id)
+    if not snapshot_path.is_file():
+        return
+    if not mermaid_only and allowed_headings is None:
+        return
+    old_text = snapshot_path.read_text(encoding="utf-8")
+    if mermaid_only:
+        only_mermaid_changed = checks.check_only_mermaid_block_changed(old_text, text)
+        result["change_isolation_mermaid"] = {
+            "hard_gate": True,
+            "findings": [] if only_mermaid_changed else [
+                {"reason": "changes were not confined to the At a Glance mermaid block"}
+            ],
+        }
+    if allowed_headings is not None:
+        result["change_isolation_sections"] = {
+            "hard_gate": True,
+            "findings": checks.check_only_sections_changed(old_text, text, allowed_headings),
+        }
+
+
+def _write_checks_snapshot(family: str, platform: str, run_id: str, text: str) -> None:
+    snapshot_path = _checks_snapshot_path(family, platform, run_id)
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path.write_text(text, encoding="utf-8")
+
+
+def recheck(
+    family: str, platform: str, run_id: str, *, session_id: "str | None" = None,
+    allowed_headings: "list[str] | None" = None, mermaid_only: bool = False,
+) -> dict:
     """Re-run the deterministic checks in place after manual edits during AWAITING_REVIEW --
     does NOT transition state, only updates checks/result.json. Callers must inspect the
     returned result themselves; this does not raise on hard-gate findings (unlike
-    ingest_candidate) since AWAITING_REVIEW is a human-in-the-loop hold, not a gate."""
+    ingest_candidate) since AWAITING_REVIEW is a human-in-the-loop hold, not a gate.
+
+    allowed_headings / mermaid_only (TC-HARDEN-12): declare what this specific edit was scoped
+    to, and the section-isolation/mermaid-only-change hard gates run against the prior checked
+    snapshot -- e.g. `recheck(..., allowed_headings=["Key Capabilities"])` after a Key
+    Capabilities-only edit proves nothing else in the file moved. Omit both (the default) to
+    skip change-isolation checking entirely, e.g. when resuming a run with no prior snapshot."""
     owner = _session_id(session_id)
     with _product_guard(family, platform):
         manifest = _load_manifest(family, platform, run_id)
@@ -1110,9 +1174,14 @@ def recheck(family: str, platform: str, run_id: str, *, session_id: "str | None"
         text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
         clone_cache = _product_clone_cache(family, platform)
         result = _run_deterministic_checks(family, platform, text, clone_cache)
+        _apply_change_isolation_checks(
+            result, family, platform, run_id, text,
+            allowed_headings=allowed_headings, mermaid_only=mermaid_only,
+        )
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
+        _write_checks_snapshot(family, platform, run_id, text)
         _event(family, platform, run_id, "RECHECK_COMPLETED")
         return result
 
@@ -1425,6 +1494,22 @@ def main(argv: "list[str] | None" = None) -> int:
         cmd.add_argument("--run-id", required=True)
         if name != "status":
             cmd.add_argument("--session-id")
+        if name == "recheck":
+            # TC-HARDEN-12 (MT033): declare what this edit was scoped to, so the change-
+            # isolation hard gates (check_only_mermaid_block_changed / check_only_sections_
+            # changed) actually run against the prior checked snapshot. Both optional --
+            # omitting both skips change-isolation checking, matching the pre-existing
+            # (unscoped) recheck behavior exactly.
+            cmd.add_argument(
+                "--allowed-headings",
+                help="Comma-separated ## heading names this edit was scoped to (plus "
+                     "'__preamble__' for the region before the first heading). Any other "
+                     "section that changed since the last check/recheck is flagged.",
+            )
+            cmd.add_argument(
+                "--mermaid-only", action="store_true",
+                help="This edit was scoped to only the At a Glance mermaid block itself.",
+            )
 
     p_approve = sub.add_parser("approve")
     p_approve.add_argument("--run-id", required=True)
@@ -1456,7 +1541,14 @@ def main(argv: "list[str] | None" = None) -> int:
             elif args.command == "ingest-candidate":
                 manifest = ingest_candidate(family, platform, args.run_id, session_id=args.session_id)
             elif args.command == "recheck":
-                result = recheck(family, platform, args.run_id, session_id=args.session_id)
+                allowed_headings = (
+                    [h.strip() for h in args.allowed_headings.split(",") if h.strip()]
+                    if args.allowed_headings else None
+                )
+                result = recheck(
+                    family, platform, args.run_id, session_id=args.session_id,
+                    allowed_headings=allowed_headings, mermaid_only=args.mermaid_only,
+                )
                 print(json.dumps(result, indent=2, ensure_ascii=False))
                 return 0
             elif args.command == "verify-examples":
