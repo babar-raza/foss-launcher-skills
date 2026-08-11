@@ -50,6 +50,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -1233,6 +1234,131 @@ def _default_verification_runner(candidate_path: Path, factpack: dict) -> dict:
     }
 
 
+# TC-HARDEN-01 (MT033): the first real per-language verification runner -- Python, per the
+# plan's own sequencing recommendation (most products of any language, cheapest disposable-venv
+# setup already documented in the Verification pass section). Deliberately opt-in, not a
+# replacement for `_default_verification_runner` -- the module's own "pluggable seam" design
+# (`configure(verification_runner=...)`) already anticipated exactly this shape, and swapping the
+# hardcoded default would add real venv/network cost to every existing test and CLI invocation
+# silently, including the 6 languages this pass does not touch. Wired into the real CLI path via
+# `verify-examples --python-runner` (see main()), not left reachable only from a test import --
+# the same "a gate must be reachable from the real production path" lesson TC-HARDEN-12 already
+# named for a different function.
+_ANY_LANG_CODE_BLOCK_RE = re.compile(r"```(\w*)\n(.*?)```", re.DOTALL)
+
+
+def _acquire_python_environment(work_dir: Path, install_info: dict, clone_cache: Path) -> dict:
+    """Real acquire step, matching the plan's own Python procedure (Verification pass section):
+    published -> disposable venv + `pip install {package}` from real PyPI; unpublished -> a real
+    editable install of the read-only clone cache (`pip install -e`) -- never `git clone --local`
+    into a fresh dir first, since the clone cache is already a real local checkout and `pip
+    install -e` itself is read-only against it. Returns {"ok", "venv_python", "detail"}."""
+    venv_dir = work_dir / "venv"
+    created = subprocess.run(
+        [sys.executable, "-m", "venv", str(venv_dir)], capture_output=True, text=True, timeout=120,
+    )
+    if created.returncode != 0:
+        return {"ok": False, "venv_python": None, "detail": f"venv creation failed: {created.stderr.strip()}"}
+    venv_python = str(venv_dir / ("Scripts" if os.name == "nt" else "bin") / ("python.exe" if os.name == "nt" else "python"))
+
+    candidate = (install_info or {}).get("candidate") or {}
+    package_name = candidate.get("name") if isinstance(candidate, dict) else None
+    published = bool((install_info or {}).get("published", False))
+
+    if published and package_name:
+        installed = subprocess.run(
+            [venv_python, "-m", "pip", "install", "--quiet", package_name],
+            capture_output=True, text=True, timeout=300,
+        )
+        if installed.returncode != 0:
+            return {
+                "ok": False, "venv_python": None,
+                "detail": f"pip install {package_name} (PyPI) failed: {installed.stderr.strip()[-2000:]}",
+            }
+        return {"ok": True, "venv_python": venv_python, "detail": f"installed {package_name} from PyPI"}
+
+    if not clone_cache.is_dir():
+        return {"ok": False, "venv_python": None, "detail": "unpublished and no clone cache directory available"}
+    installed = subprocess.run(
+        [venv_python, "-m", "pip", "install", "--quiet", "-e", str(clone_cache)],
+        capture_output=True, text=True, timeout=300,
+    )
+    if installed.returncode != 0:
+        return {
+            "ok": False, "venv_python": None,
+            "detail": f"editable install from clone cache failed: {installed.stderr.strip()[-2000:]}",
+        }
+    return {"ok": True, "venv_python": venv_python, "detail": f"editable-installed from clone cache ({clone_cache})"}
+
+
+def _run_single_python_block(venv_python: str, code: str, work_dir: Path, index: int) -> dict:
+    """Real execution IS the check (the plan's own Python-procedure principle) -- an
+    AttributeError/ImportError/TypeError from the real installed package is authoritative, never
+    hand-waved. Deliberately does not attempt to synthesize a missing preamble for a Fragment-
+    style block (the plan's own taxonomy) in this first pass -- a block that references a prior
+    block's identifier fails honestly as BLOCKED-WITH-REASON: RUNTIME-ERROR, a real, disclosed
+    limitation of this v1 runner, not a silent skip."""
+    script_path = work_dir / f"block_{index}.py"
+    script_path.write_text(code, encoding="utf-8")
+    try:
+        result = subprocess.run(
+            [venv_python, str(script_path)], capture_output=True, text=True, timeout=60, cwd=str(work_dir),
+        )
+    except subprocess.TimeoutExpired:
+        return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": "TIMEOUT"}
+    if result.returncode == 0:
+        return {"index": index, "status": "COMPILED+RAN CLEAN"}
+    return {
+        "index": index, "status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR",
+        "detail": (result.stderr or result.stdout).strip()[-2000:],
+    }
+
+
+def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:
+    """Real for `python`-tagged fenced code blocks; every other language still honestly reports
+    BLOCKED-WITH-REASON: TOOLCHAIN-UNAVAILABLE, exactly as `_default_verification_runner` does --
+    this function is a strict, real superset of the stub's honesty, not a different philosophy."""
+    text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
+    blocks = [(m.group(1).strip().lower(), m.group(2)) for m in _ANY_LANG_CODE_BLOCK_RE.finditer(text)]
+    family = factpack.get("family")
+    platform = factpack.get("platform")
+    install_info = factpack.get("install") or {}
+
+    block_statuses = [
+        {"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"}
+        for i, (lang, _code) in enumerate(blocks) if lang != "python"
+    ]
+    python_blocks = [(i, code) for i, (lang, code) in enumerate(blocks) if lang == "python"]
+
+    if python_blocks and family and platform:
+        with tempfile.TemporaryDirectory(prefix=f"readme-refresh-verify-{family}-{platform}-") as tmp:
+            work_dir = Path(tmp)
+            clone_cache = _product_clone_cache(family, platform)
+            acquire = _acquire_python_environment(work_dir, install_info, clone_cache)
+            if not acquire["ok"]:
+                for i, _code in python_blocks:
+                    block_statuses.append({
+                        "index": i, "status": "BLOCKED-WITH-REASON", "reason": "ACQUIRE-FAILED",
+                        "detail": acquire["detail"],
+                    })
+            else:
+                for i, code in python_blocks:
+                    block_statuses.append(
+                        _run_single_python_block(acquire["venv_python"], code, work_dir, i)
+                    )
+    else:
+        for i, _code in python_blocks:
+            block_statuses.append({"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"})
+
+    block_statuses.sort(key=lambda b: b["index"])
+    return {
+        "runner": "python_verification_runner_v1",
+        "blocks_found": len(blocks),
+        "block_statuses": block_statuses,
+        "all_named": True,
+    }
+
+
 def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
     """VERIFYING_EXAMPLES -> AWAITING_REVIEW: run the (pluggable) per-language verification
     pass. Only transitions once every block has a named status -- never silently."""
@@ -1536,6 +1662,16 @@ def main(argv: "list[str] | None" = None) -> int:
                 "--mermaid-only", action="store_true",
                 help="This edit was scoped to only the At a Glance mermaid block itself.",
             )
+        if name == "verify-examples":
+            # TC-HARDEN-01 (MT033): opt-in real Python execution -- omitting this flag keeps the
+            # honest, side-effect-free stub (every block BLOCKED-WITH-REASON:
+            # TOOLCHAIN-UNAVAILABLE), matching every prior invocation's behavior exactly.
+            cmd.add_argument(
+                "--python-runner", action="store_true",
+                help="Use the real Python verification runner (real venv + pip install + "
+                     "execute `python`-tagged blocks) instead of the honest stub. Every "
+                     "other language's blocks still report TOOLCHAIN-UNAVAILABLE.",
+            )
 
     p_approve = sub.add_parser("approve")
     p_approve.add_argument("--run-id", required=True)
@@ -1578,6 +1714,8 @@ def main(argv: "list[str] | None" = None) -> int:
                 print(json.dumps(result, indent=2, ensure_ascii=False))
                 return 0
             elif args.command == "verify-examples":
+                if args.python_runner:
+                    configure(verification_runner=python_verification_runner)
                 manifest = verify_examples(family, platform, args.run_id, session_id=args.session_id)
             elif args.command == "approve":
                 manifest = approve(family, platform, args.run_id, note=args.note, session_id=args.session_id)

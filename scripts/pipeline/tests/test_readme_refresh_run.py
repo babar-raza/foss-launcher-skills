@@ -784,6 +784,90 @@ def test_verify_examples_refuses_when_not_all_named(tmp_path, monkeypatch):
     assert manifest["state"] == "VERIFYING_EXAMPLES"  # must not have advanced
 
 
+# --- TC-HARDEN-01 (MT033): python_verification_runner ---------------------------------------
+#
+# Real acquire->execute->classify is the check (never mocked) -- but the network-dependent half
+# (a real `pip install` from PyPI) is deliberately NOT exercised here, to keep the committed
+# suite fast and network-independent, matching this plan's own established practice (the
+# original 2026-08-03/04 verification sprint was itself a real, manual, one-time pass, never a
+# committed automated test either). These tests use the CURRENT test-running interpreter
+# directly (no new venv) to prove the classify/execute logic for real, and a real (but purely
+# local, no-network) venv creation to prove the acquire logic's real failure paths. The full
+# real-PyPI acquire path was separately, manually proven end-to-end against a real product
+# (see this plan's own TC-HARDEN-01 closure record for the exact command and result).
+
+
+def test_run_single_python_block_clean_execution(tmp_path):
+    result = rr._run_single_python_block(sys.executable, "print('hello')", tmp_path, 0)
+    assert result == {"index": 0, "status": "COMPILED+RAN CLEAN"}
+
+
+def test_run_single_python_block_runtime_error_captured(tmp_path):
+    result = rr._run_single_python_block(
+        sys.executable, "raise ValueError('boom, real traceback')", tmp_path, 1,
+    )
+    assert result["index"] == 1
+    assert result["status"] == "BLOCKED-WITH-REASON"
+    assert result["reason"] == "RUNTIME-ERROR"
+    assert "boom, real traceback" in result["detail"]
+
+
+def test_acquire_python_environment_real_venv_unpublished_no_clone_cache(tmp_path):
+    # Real venv creation (no network -- python -m venv is purely local), then the real,
+    # honest failure when unpublished and no clone cache exists to editable-install from.
+    result = rr._acquire_python_environment(
+        tmp_path, {"published": False, "candidate": {"name": "doesnt-matter"}},
+        tmp_path / "no-such-clone-cache",
+    )
+    assert result["ok"] is False
+    assert "no clone cache directory" in result["detail"]
+    # The venv itself was still really created before the failure -- confirm it exists on disk.
+    assert (tmp_path / "venv").is_dir()
+
+
+def test_python_verification_runner_non_python_blocks_stay_stub(tmp_path):
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Installation\n\n```bash\npip install -e .\n```\n\n"
+        "## Quick Start\n\n```csharp\nvar x = 1;\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.python_verification_runner(candidate_path, {"family": "testfam", "platform": "testplat"})
+    assert result["runner"] == "python_verification_runner_v1"
+    assert result["blocks_found"] == 2
+    assert result["all_named"] is True
+    assert all(b["status"] == "BLOCKED-WITH-REASON" and b["reason"] == "TOOLCHAIN-UNAVAILABLE"
+               for b in result["block_statuses"])
+
+
+def test_python_verification_runner_real_local_editable_install_and_execution(tmp_path):
+    # Fully real acquire->execute->classify, but zero network dependency: a real, minimal,
+    # locally-buildable package (legacy setup.py, no pyproject.toml -- avoids pip needing to
+    # fetch a PEP 517 build backend from PyPI) stands in for the clone cache, so `pip install -e`
+    # is a genuine editable install with nothing fetched from the network.
+    clone_cache_root = tmp_path / "clone_cache_root"
+    clone_cache = clone_cache_root / "aspose_testfam_testplat"
+    clone_cache.mkdir(parents=True)
+    (clone_cache / "setup.py").write_text(
+        "from setuptools import setup\nsetup(name='testpkg_e2e', version='0.1', py_modules=['testpkg_e2e'])\n",
+        encoding="utf-8",
+    )
+    (clone_cache / "testpkg_e2e.py").write_text("VALUE = 42\n", encoding="utf-8")
+    rr.configure(clone_cache_root=clone_cache_root)
+
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Quick Start\n\n```python\nimport testpkg_e2e\nassert testpkg_e2e.VALUE == 42\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.python_verification_runner(
+        candidate_path, {"family": "testfam", "platform": "testplat", "install": {"published": False}},
+    )
+    assert result["blocks_found"] == 1
+    status = result["block_statuses"][0]
+    assert status["status"] == "COMPILED+RAN CLEAN", status
+
+
 # --- Stale-input-forces-replan at approve ---------------------------------------------------
 
 
