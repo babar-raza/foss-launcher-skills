@@ -405,8 +405,14 @@ def test_ingest_candidate_blocks_on_all_three_incident_classes(tmp_path, monkeyp
 
     result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
     result = json.loads(result_path.read_text(encoding="utf-8"))
-    # 1. Dropped link (AGENTS.md).
-    assert "AGENTS.md" in result["dropped_content"]["findings"]
+    # 1. Dropped link (AGENTS.md) -- surfaced under dropped_content_uncorrelated, not
+    # dropped_content itself, since this shared fixture always has a content-dispositions.json
+    # (TC-HARDEN-04's Option B downgrade -- see test_dropped_content_* below for dedicated
+    # coverage of both branches). This candidate still fails ingest-candidate overall on the
+    # OTHER two hard-gate incident classes below, so the pytest.raises above still holds.
+    assert "AGENTS.md" in result["dropped_content_uncorrelated"]["findings"]
+    assert result["dropped_content_uncorrelated"]["hard_gate"] is False
+    assert result["dropped_content"]["findings"] == []
     # 2. Undisclosed BLOCKING command.
     assert any(f["command"] == "pip install -e ." for f in result["no_undisclosed_blocking_commands"]["findings"])
     # 3. Process-narration smell (heuristic, does not block, but must be surfaced for review).
@@ -584,6 +590,109 @@ def test_recheck_snapshot_rolls_forward_between_calls(tmp_path, monkeypatch):
     _write_candidate(repo_root, second_edit)
     result = rr.recheck("testfam", "testplat", run_id, allowed_headings=["Key Capabilities"])
     assert result["change_isolation_sections"]["findings"] == []
+
+
+# --- TC-HARDEN-04 (confirmed live, MT033/e2e, 2026-08-11): dropped_content downgrade ---------
+#
+# Confirmed necessary, not theoretical: the very first real ingest-candidate run ever made
+# through this CLI (3d/typescript) hard-blocked on 9 legitimate, already-disposition-verified
+# heading renames + 1 already-disclosed missing-LICENSE link -- since every one of the 30 real
+# products adopted the new template's own heading set, this would otherwise hard-block
+# ingest-candidate for essentially the entire portfolio. These tests prove both branches of the
+# fix, not just the happy path.
+
+
+def test_dropped_content_downgrades_to_advisory_when_dispositions_exist(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h04-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    # A dropped HEADING (not a dropped link) on the CLONE CACHE's own README.md -- isolates the
+    # dropped_content-only defect from dev_test_artifacts_linked / content_unit_merged_into_
+    # target_section, both of which the shared fixture's AGENTS.md link is independently tied
+    # to (dropping THAT link trips those two other, still-hard-gate checks too, which is real
+    # and correct but would make this test conflate three defect classes instead of isolating
+    # the one this test exists to cover). A bare trailing heading with no body produces no new
+    # content unit (extract_old_readme_content_units strips headings before segmenting), so no
+    # content_unit_disposition_coverage finding either -- a real, isolated dropped_heading case.
+    clone_cache_readme = (
+        repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat" / "README.md"
+    )
+    clone_cache_readme.write_text(
+        clone_cache_readme.read_text(encoding="utf-8") + "\n## Roadmap\n", encoding="utf-8",
+    )
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    # _GOOD_CANDIDATE has no "## Roadmap" section -- a real, isolated dropped heading, with a
+    # content-dispositions.json on file (default fixture) -- must be downgraded, not hard-
+    # blocked, and ingest-candidate must succeed.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["dropped_content"]["hard_gate"] is True
+    assert result["dropped_content"]["findings"] == []  # internal_labels only, none present
+    assert result["dropped_content_uncorrelated"]["hard_gate"] is False
+    assert "Roadmap" in result["dropped_content_uncorrelated"]["findings"]
+
+
+def test_dropped_content_stays_hard_gate_without_dispositions_file(tmp_path, monkeypatch):
+    # Regression guard for the pre-fix behavior: a product with NO content-dispositions.json at
+    # all (MT030's mechanism has never run for it) must still hard-block on a dropped link --
+    # the downgrade is conditional on real disposition accounting existing, never unconditional.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h04-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    dropped_link_candidate = _GOOD_CANDIDATE.replace(
+        "See [AGENTS.md](AGENTS.md) for contributor guidance.\n\n- Found a bug?",
+        "- Found a bug?",
+    )
+    _write_candidate(repo_root, dropped_link_candidate, dispositions=None)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert "dropped_content_uncorrelated" not in result
+    assert "AGENTS.md" in result["dropped_content"]["findings"]
+    assert result["dropped_content"]["hard_gate"] is True
+
+
+def test_dropped_content_internal_labels_still_hard_gate_with_dispositions_present(tmp_path, monkeypatch):
+    # internal_labels is a NEW-candidate-quality check, orthogonal to old-content reuse -- must
+    # never be downgraded just because a content-dispositions.json happens to exist.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h04-c")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    internal_label_candidate = _GOOD_CANDIDATE.replace(
+        "- Reads and writes TXT files.",
+        "- Reads and writes TXT files. (Preserved repository details below.)",
+    )
+    assert internal_label_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, internal_label_candidate)  # default: dispositions present
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["dropped_content"]["hard_gate"] is True
+    assert result["dropped_content"]["findings"], "internal_labels must still block regardless of dispositions"
 
 
 # --- Illegal transition rejection -----------------------------------------------------------

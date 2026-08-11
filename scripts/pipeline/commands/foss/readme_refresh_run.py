@@ -959,20 +959,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": False, "findings": checks.check_development_testing_collapse(text),
     }
 
+    # TC-HARDEN-04 fix (Option B, confirmed necessary -- not theoretical -- by the very first
+    # real ingest-candidate run ever made through this CLI, 3d/typescript, 2026-08-11): once a
+    # product has a real, agent-authored content-dispositions.json (MT030's own prose-level
+    # verify-and-merge accounting -- a strictly finer-grained mechanism that requires EVERY real
+    # old-README content unit, including anything that lived under a since-renamed heading, to
+    # carry a real, individually-verified disposition), check_dropped_content's own
+    # dropped_links/dropped_headings findings are downgraded from hard-gate to advisory for that
+    # product -- MT030's mechanism already accounts for that content, so this coarser, literal-
+    # string check's role becomes a redundant cross-check, not the sole gate. internal_labels
+    # stays a hard gate unconditionally: it is a NEW-candidate-quality check (forbidden internal-
+    # process labels leaking into public prose), never covered by content-dispositions.json's own
+    # scope (old-content REUSE, not new-content correctness). Without this, ingest-candidate would
+    # hard-block on every product that adopted the new template's own heading set -- i.e.
+    # essentially the entire 30-product portfolio, since every one did.
+    has_dispositions_file = _content_dispositions_path(family, platform).is_file()
+
     old_readme_path = clone_cache / "README.md"
     if old_readme_path.is_file():
         old_readme_text = old_readme_path.read_text(encoding="utf-8", errors="ignore")
         dropped = checks.check_dropped_content(old_readme_text, text, str(clone_cache))
-        # check_dropped_content returns a dict ({"dropped_links", "dropped_headings",
-        # "internal_labels" as of 2026-08-08}), not a flat list -- normalize to a flat
-        # findings list so the generic "hard_gate and findings" truthiness check in
-        # ingest_candidate() works correctly (a dict with three empty list values is still
-        # a truthy dict, which would have silently made this hard gate un-passable).
-        result["dropped_content"] = {
-            "hard_gate": True,
-            "findings": dropped["dropped_links"] + dropped["dropped_headings"] + dropped["internal_labels"],
-            "detail": dropped,
-        }
+        uncorrelated = dropped["dropped_links"] + dropped["dropped_headings"]
     else:
         # No old upstream README to diff against -- dropped_links/dropped_headings are
         # vacuously empty, but internal-label detection only ever scans the NEW candidate
@@ -981,12 +988,31 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         # branch entirely, which would have meant internal-label detection never ran at
         # all for any product missing an old README).
         dropped = checks.check_dropped_content("", text, str(clone_cache))
+        dropped = {"source": "no_old_readme_found", **dropped}
+        uncorrelated = []
+        old_readme_text = ""
+
+    if has_dispositions_file and uncorrelated:
+        result["dropped_content"] = {
+            "hard_gate": True, "findings": dropped["internal_labels"], "detail": dropped,
+        }
+        result["dropped_content_uncorrelated"] = {
+            "hard_gate": False,
+            "findings": uncorrelated,
+            "detail": {
+                "note": "downgraded from hard-gate to advisory: a content-dispositions.json "
+                        "exists for this product (TC-HARDEN-04) -- confirm it accounts for each "
+                        "of these before treating this candidate as clean, but do not block on "
+                        "literal string non-match alone",
+                **dropped,
+            },
+        }
+    else:
         result["dropped_content"] = {
             "hard_gate": True,
-            "findings": dropped["internal_labels"],
-            "detail": {"source": "no_old_readme_found", **dropped},
+            "findings": uncorrelated + dropped["internal_labels"],
+            "detail": dropped,
         }
-        old_readme_text = ""
 
     # Fifteenth incident / MT030 (2026-08-09): verify-and-merge of the old README's real prose
     # -- mechanism-level explanations (e.g. pdf/cpp's real font-fallback rationale) and
