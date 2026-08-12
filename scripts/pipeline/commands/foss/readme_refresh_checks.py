@@ -1398,14 +1398,24 @@ def check_license_link_target(readme_text: str, clone_cache_root: str) -> list[d
     Returns [] when the section either has no link (plain-text "MIT License", the correct
     form when no license file exists) or the linked path resolves case-sensitively on disk.
     Returns a one-item list with the bad target when the link is present but doesn't resolve.
+
+    TC-HARDEN-25 (MT034 reproof, 2026-08-12): a License section may legitimately contain more
+    than one link -- found live during a real clean-room regeneration, where a legitimate
+    cross-reference to the sibling `upstream-issues.md` sat in the same section as the real
+    license link and, taken positionally as "the first link," misfired this gate on a
+    perfectly correct candidate. Prefer the link whose anchor text actually names the license
+    (matching the Template section's own fixed `[MIT License](...)` wording) over raw position;
+    fall back to the first link only when none qualifies, so every existing single-link section
+    (the common case across the whole portfolio) is unaffected.
     """
     license_match = re.search(r"^##\s+License\s*$(.*?)(?=^##\s|\Z)", readme_text, re.MULTILINE | re.DOTALL)
     if not license_match:
         return []
     section_text = license_match.group(1)
-    link_match = _MD_LINK_RE.search(section_text)
-    if not link_match:
+    links = list(_MD_LINK_RE.finditer(section_text))
+    if not links:
         return []
+    link_match = next((m for m in links if "license" in m.group(1).lower()), links[0])
     target = link_match.group(2)
     if target.startswith(("http://", "https://")):
         return []

@@ -1188,6 +1188,45 @@ def test_check_license_link_target_missing_file_fails(tmp_path):
     assert findings[0]["target"] == "LICENSE"
 
 
+def test_check_license_link_target_ignores_unrelated_second_link_when_license_link_first(tmp_path):
+    # TC-HARDEN-25 (MT034 reproof): a real, unrelated cross-reference link legitimately shares
+    # the License section with the real license link -- the real license link comes first here.
+    (tmp_path / "LICENSE").write_text("MIT License\n", encoding="utf-8")
+    text = (
+        "## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE). "
+        "A known build issue affects a fresh clone -- see "
+        "[upstream-issues.md](upstream-issues.md) for details.\n"
+    )
+    assert checks.check_license_link_target(text, str(tmp_path)) == []
+
+
+def test_check_license_link_target_ignores_unrelated_second_link_when_license_link_second(tmp_path):
+    # Same real shape, reversed order -- the unrelated link comes first, reproducing the exact
+    # incident found live on a 3d/typescript clean-room regeneration candidate: a positional
+    # "first link in the section" rule wrongly flagged the real, correct license link.
+    (tmp_path / "LICENSE").write_text("MIT License\n", encoding="utf-8")
+    text = (
+        "## License\n\n"
+        "See [upstream-issues.md](upstream-issues.md) for a known build issue. "
+        "This project is licensed under the [MIT License](LICENSE).\n"
+    )
+    assert checks.check_license_link_target(text, str(tmp_path)) == []
+
+
+def test_check_license_link_target_flags_bad_license_link_even_with_unrelated_second_link(tmp_path):
+    # Regression guard: the fix must still catch a genuinely broken license link, not just stop
+    # checking once a second link is present.
+    text = (
+        "## License\n\n"
+        "See [upstream-issues.md](upstream-issues.md) for a known build issue. "
+        "This project is licensed under the [MIT License](LICENSE).\n"
+    )
+    findings = checks.check_license_link_target(text, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["target"] == "LICENSE"
+
+
 def test_check_process_narration_smells_flags_known_phrases():
     text = "This was verified against the published package, and passes cleanly on Linux."
     findings = checks.check_process_narration_smells(text)
