@@ -586,6 +586,33 @@ def _detect_enterprise_link(family: str, platform: str) -> dict:
     }
 
 
+def _detect_homepage_link(family: str, platform: str) -> dict:
+    """TC-HARDEN-27 (MT034, Twenty-First incident, 2026-08-12): the At-a-Glance banner must link
+    to the product's real `products.aspose.org/{family}/{platform}/` homepage, with a hard
+    "must never be broken" requirement. `factpack["homepage"]` existed as a bare, unconditionally
+    string-formatted URL since this skill's earliest design (never verified, never consumed by
+    any check or content anywhere in this plan's history until now, confirmed by grep) -- this
+    replaces that with a real, checked result.
+
+    Verification is real local `content/` file existence, deliberately NOT a live HTTP check:
+    products.aspose.org is built and deployed directly from this repo's own `content/` tree, so
+    a real, existing `_index.md` is a first-party, same-repo guarantee the page either already
+    is or imminently will be live once this repo's own deploy pipeline next runs -- structurally
+    stronger than the Enterprise-link case (a genuinely separate, externally-deployed site,
+    hence that check's cached-target-map-with-staleness-flag design). This cannot detect a
+    genuinely never-deployed page (content committed but the site build never ran); a live-HTTP
+    secondary check was considered and deliberately not built by default -- flagged in the plan
+    as an open, not-yet-decided strengthening, not silently assumed unnecessary.
+
+    Returns `{"url", "verified"}`. `verified` is False (never invented) when the local
+    `_index.md` doesn't exist -- the composing agent must keep the banner unlinked in that case,
+    matching this skill's "never invent a URL not backed by verified data" rule.
+    """
+    url = f"https://products.aspose.org/{family}/{platform}/"
+    index_path = _repo_root / "content" / "products.aspose.org" / "en" / family / platform / "_index.md"
+    return {"url": url, "verified": index_path.is_file()}
+
+
 def _detect_install_info(family: str, platform: str) -> dict:
     path = _repo_root / "data" / "package_registry.json"
     if not path.is_file():
@@ -826,7 +853,7 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "license_file": _detect_license_file(clone_cache),
             "enterprise_link": _detect_enterprise_link(family, platform),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
-            "homepage": f"https://products.aspose.org/{family}/{platform}/",
+            "homepage": _detect_homepage_link(family, platform),
             "banner_url": f"https://products.aspose.org/media/{family}/{platform}/banner-readme.png",
             "reference_api_index": checks.parse_reference_api_index(
                 _product_reference_index_md(family, platform)
@@ -898,11 +925,30 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["banner_present"] = {
         "hard_gate": True, "findings": checks.check_banner_present(text, family, platform),
     }
+    # TC-HARDEN-27 (MT034, Twenty-First incident, 2026-08-12): the banner must link to its real,
+    # verified products.aspose.org homepage when one exists, and stay unlinked otherwise --
+    # computed fresh here, matching this function's own established "never read back from the
+    # persisted factpack.json" pattern for every other _detect_* value.
+    result["banner_links_to_homepage"] = {
+        "hard_gate": True,
+        "findings": checks.check_banner_links_to_homepage(text, _detect_homepage_link(family, platform)),
+    }
     result["no_excluded_domain_links"] = {
         "hard_gate": True, "findings": checks.check_no_excluded_domain_links(text),
     }
     result["license_link_target"] = {
         "hard_gate": True, "findings": checks.check_license_link_target(text, str(clone_cache)),
+    }
+    # TC-HARDEN-26 (MT034, Twenty-First incident, 2026-08-12): check_license_link_target (above)
+    # only ever verified the ## License section's LINK TARGET -- never its PROSE. A blind
+    # clean-room regeneration of 3d/typescript independently reproduced the exact 2026-08-04
+    # free-form-narration defect this plan had already "fixed" once by hand, proving that fix was
+    # never made mechanical. Reuses the same _detect_license_file() result already computed for
+    # the factpack (plan_run) -- recomputed fresh here, matching this function's own established
+    # "never read back from persisted factpack.json" pattern for every other _detect_* value.
+    result["license_section_matches_template"] = {
+        "hard_gate": True,
+        "findings": checks.check_license_section_matches_template(text, _detect_license_file(clone_cache)),
     }
     # TC-HARDEN-19 (MT034, Twentieth incident, 2026-08-12): check_enterprise_edition_naming
     # (below, heuristic) verifies anchor text/context; it has never verified the link's real

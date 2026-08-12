@@ -113,7 +113,9 @@ pytest
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE). The MIT License permits use,
+copying, modification, distribution, sublicensing, and commercial use, provided its copyright
+and permission notice are retained. The software is provided without warranty.
 """
 
 # Deliberately defective: (1) drops the AGENTS.md link the old upstream README had, (2) repeats
@@ -380,6 +382,39 @@ def test_detect_license_file_absent_when_no_license_file(tmp_path):
     assert rr._detect_license_file(tmp_path) is None
 
 
+# --- _detect_homepage_link (TC-HARDEN-27, MT034) ------------------------------------------------
+
+
+def test_detect_homepage_link_verified_when_real_index_page_exists(tmp_path):
+    repo_root = tmp_path / "repo"
+    index_dir = repo_root / "content" / "products.aspose.org" / "en" / "cells" / "cpp"
+    index_dir.mkdir(parents=True)
+    (index_dir / "_index.md").write_text("---\ntitle: Cells C++\n---\n", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_homepage_link("cells", "cpp")
+    assert result == {"url": "https://products.aspose.org/cells/cpp/", "verified": True}
+
+
+def test_detect_homepage_link_unverified_when_no_real_index_page(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_homepage_link("cells", "cpp")
+    assert result == {"url": "https://products.aspose.org/cells/cpp/", "verified": False}
+
+
+def test_detect_homepage_link_never_confused_by_a_different_platforms_page(tmp_path):
+    # Cross-product-contamination guard: a real page for a DIFFERENT platform must not verify
+    # this one.
+    repo_root = tmp_path / "repo"
+    index_dir = repo_root / "content" / "products.aspose.org" / "en" / "cells" / "net"
+    index_dir.mkdir(parents=True)
+    (index_dir / "_index.md").write_text("---\ntitle: Cells .NET\n---\n", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_homepage_link("cells", "cpp")
+    assert result["verified"] is False
+
+
 # --- _detect_enterprise_link (TC-HARDEN-19, MT034) ----------------------------------------------
 
 
@@ -641,6 +676,78 @@ def test_ingest_candidate_blocks_on_duplicate_api_reference_row(tmp_path, monkey
     # VERIFYING_EXAMPLES cleanly, proving the gate is not merely mechanically triggerable but
     # also correctly releases a genuinely-fixed candidate.
     _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
+def test_ingest_candidate_blocks_on_license_section_narration(tmp_path, monkeypatch):
+    # TC-HARDEN-26 (MT034, Twenty-First incident): reproduces the real, live incident -- a
+    # blind clean-room regeneration of 3d/typescript replaced the fixed License template with
+    # free-form internal-audit-trail narration.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-026")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    narration_candidate = _GOOD_CANDIDATE.replace(
+        "This project is licensed under the [MIT License](LICENSE). The MIT License permits "
+        "use,\ncopying, modification, distribution, sublicensing, and commercial use, "
+        "provided its copyright\nand permission notice are retained. The software is provided "
+        "without warranty.\n",
+        "The previous version of this README linked to a LICENSE file, but no LICENSE file "
+        "exists anywhere in this repository snapshot -- treat the license status as "
+        "unconfirmed.\n",
+    )
+    assert narration_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, narration_candidate)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["license_section_matches_template"]["findings"], "must flag the narration prose"
+
+    # Fix it -- must then reach VERIFYING_EXAMPLES cleanly.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
+def test_ingest_candidate_blocks_on_unlinked_banner_when_homepage_verified(tmp_path, monkeypatch):
+    # TC-HARDEN-27 (MT034, Twenty-First incident): once a real, verified homepage page exists,
+    # the banner must be linked to it -- proves the gate actually fires through the real CLI
+    # transition, not just the bare function.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-027")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    index_dir = repo_root / "content" / "products.aspose.org" / "en" / "testfam" / "testplat"
+    index_dir.mkdir(parents=True)
+    (index_dir / "_index.md").write_text("---\ntitle: Test Product\n---\n", encoding="utf-8")
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    # _GOOD_CANDIDATE's banner is deliberately the bare, unlinked form -- now genuinely wrong
+    # given a real, verified homepage page exists.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["banner_links_to_homepage"]["findings"], "must flag the unlinked banner"
+
+    linked_candidate = _GOOD_CANDIDATE.replace(
+        "![Test Product](https://products.aspose.org/media/testfam/testplat/banner-readme.png)",
+        "[![Test Product](https://products.aspose.org/media/testfam/testplat/banner-readme.png)]"
+        "(https://products.aspose.org/testfam/testplat/)",
+    )
+    assert linked_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, linked_candidate)
     manifest = rr.ingest_candidate("testfam", "testplat", run_id)
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 

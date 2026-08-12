@@ -12,7 +12,7 @@ description: >
      preconditions: product active in data/products.json, not excluded, real push/admin access
      postcondition: run is AWAITING_REVIEW, APPROVED, PUSHED, BLOCKED, or ABANDONED
      idempotent: yes — immutable receipts, state checkpoints, single-owner-per-product locking
-     verified: 2026-08-06
+     verified: 2026-08-12
 -->
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -77,7 +77,11 @@ same product concurrently.
    phrased "The MIT License (MIT)..."), a real, live-verified Enterprise Edition link
    (`enterprise_link` — TC-HARDEN-19, 2026-08-12, via `scripts/pipeline/lib/backlink_targets.py`
    against `data/aspose_com_targets.json`; `url` is `None` on a genuine unresolved target, which
-   the candidate must never paper over with a guessed slug — see the hard gate below), and the
+   the candidate must never paper over with a guessed slug — see the hard gate below), a real,
+   locally-verified homepage link (`homepage` — TC-HARDEN-27, 2026-08-12, `{"url", "verified"}`;
+   `verified` is True only when `content/products.aspose.org/en/{family}/{platform}/_index.md`
+   genuinely exists in this repo, a first-party same-repo-deploy guarantee, deliberately not a
+   live HTTP check — see that field's own docstring for the tradeoff), and the
    old upstream README's real link/heading/prose inventory (`old_readme_inventory`, including
    `content_units` — MT030, see below). Transitions `INPUTS_PINNED → PLANNED`.
 
@@ -153,10 +157,10 @@ same product concurrently.
      certification that prose reads naturally stays a human judgment call, every time.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 47 functions as of 2026-08-12 —
-   re-verify against `grep -c "^def check_" readme_refresh_checks.py` before trusting this number
-   again; TC-HARDEN-16 tracks this doc's own self-consistency as real, deferred work, not solved
-   here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 49 `check_*` functions as of
+   2026-08-12 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
+   trusting this number again; TC-HARDEN-16 tracks this doc's own self-consistency as real,
+   deferred work, not solved here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
    capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability
@@ -184,7 +188,17 @@ same product concurrently.
    below, passed cleanly), (**TC-HARDEN-21**, MT034, 2026-08-12) no class name appears more than
    once within the same API Reference module table (an exact duplicate row is not the same
    defect as a missing/unrecognized class, and `check_api_reference_table_completeness` has no
-   concept of it), and (**MT030**, Fifteenth incident)
+   concept of it), (**TC-HARDEN-26**, MT034/Twenty-First incident, 2026-08-12) the `## License`
+   section's text starts with the fixed template sentence (linked or unlinked form, per whether
+   a real license file was detected) rather than free-form narration — the only prior check for
+   this section (`check_license_link_target`) verified the link target alone, never the prose,
+   and a blind clean-room regeneration of `3d/typescript` independently reproduced the exact
+   2026-08-04 narration-leak defect this rule already named, proving it had never actually been
+   enforced, (**TC-HARDEN-27**, MT034/Twenty-First incident, 2026-08-12) the At-a-Glance banner
+   is linked to the product's real `products.aspose.org/{family}/{platform}/` homepage whenever
+   `content/products.aspose.org/en/{family}/{platform}/_index.md` genuinely exists in this repo
+   (a first-party, same-repo-deploy guarantee), and stays unlinked otherwise — never a guessed or
+   unconfirmed homepage URL, and (**MT030**, Fifteenth incident)
    every real old-README content unit has a complete, well-formed disposition record whose
    cited evidence actually resolves against real product-repo/registry/docs data and whose
    claimed section-merge is traceable to real text in the candidate (never two disposition

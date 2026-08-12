@@ -1329,6 +1329,27 @@ _BANNER_LINE_RE = re.compile(
     r"^!\[([^\]]*)\]\((https://products\.aspose\.org/media/"
     r"([A-Za-z0-9]+)/([A-Za-z0-9]+)/banner-readme\.png)\)\s*$"
 )
+# TC-HARDEN-27 (MT034, Twenty-First incident, 2026-08-12): a click-through-wrapped banner
+# (`[![alt](banner_url)](homepage_url)`) -- distinct from the bare, unlinked form above.
+_LINKED_BANNER_LINE_RE = re.compile(
+    r"^\[!\[([^\]]*)\]\((https://products\.aspose\.org/media/"
+    r"([A-Za-z0-9]+)/([A-Za-z0-9]+)/banner-readme\.png)\)\]\(([^)\s]+)\)\s*$"
+)
+
+
+def _find_banner_line(readme_text: str) -> "tuple[int, str] | tuple[None, None]":
+    """Shared banner-line locator for check_banner_present/check_banner_links_to_homepage --
+    the first non-blank line after the badge row (the first line containing `[![`)."""
+    lines = readme_text.splitlines()
+    badge_idx = next((i for i, line in enumerate(lines) if _BADGE_ROW_MARKER in line), None)
+    if badge_idx is None:
+        return None, None
+    i = badge_idx + 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines):
+        return None, None
+    return i, lines[i].strip()
 
 
 def check_banner_present(readme_text: str, family: str, platform: str) -> list[dict]:
@@ -1336,7 +1357,10 @@ def check_banner_present(readme_text: str, family: str, platform: str) -> list[d
     per-product banner asset (`https://products.aspose.org/media/{family}/{platform}/
     banner-readme.png` -- confirmed live for all 30 current products via direct HTTP check
     before this rule was written, not assumed) as an image line immediately after the badge
-    row (the first line containing `[![`), with non-empty alt text.
+    row (the first line containing `[![`), with non-empty alt text -- either bare, or (TC-
+    HARDEN-27, 2026-08-12) wrapped in a click-through link to the product's real homepage
+    (check_banner_links_to_homepage, below, verifies which form is correct and, when linked,
+    that the href itself is real).
 
     Also requires the URL's own embedded family/platform segments to match the product actually
     being checked -- not defensive programming for its own sake: this exact session already
@@ -1349,26 +1373,28 @@ def check_banner_present(readme_text: str, family: str, platform: str) -> list[d
     Returns a list of {"reason": ...} findings, empty if the banner is present, correctly
     placed, and correctly matches this product.
     """
-    lines = readme_text.splitlines()
-    badge_idx = next((i for i, line in enumerate(lines) if _BADGE_ROW_MARKER in line), None)
-    if badge_idx is None:
-        return [{"reason": "no badge row found to anchor banner placement"}]
-
-    i = badge_idx + 1
-    while i < len(lines) and not lines[i].strip():
-        i += 1
-    if i >= len(lines):
+    idx, line = _find_banner_line(readme_text)
+    if idx is None:
+        lines = readme_text.splitlines()
+        if not any(_BADGE_ROW_MARKER in l for l in lines):
+            return [{"reason": "no badge row found to anchor banner placement"}]
         return [{"reason": "no banner line found after the badge row"}]
 
-    match = _BANNER_LINE_RE.match(lines[i].strip())
-    if not match:
-        return [{
-            "reason": "expected a banner image line "
-                      "(![alt](https://products.aspose.org/media/{family}/{platform}/"
-                      f"banner-readme.png)) immediately after the badge row, found: {lines[i]!r}",
-        }]
+    match = _BANNER_LINE_RE.match(line)
+    if match:
+        alt_text, url, url_family, url_platform = match.groups()
+    else:
+        linked_match = _LINKED_BANNER_LINE_RE.match(line)
+        if not linked_match:
+            return [{
+                "reason": "expected a banner image line "
+                          "(![alt](https://products.aspose.org/media/{family}/{platform}/"
+                          "banner-readme.png)), optionally wrapped in a homepage link "
+                          f"([![...](...)]([homepage])), immediately after the badge row, "
+                          f"found: {line!r}",
+            }]
+        alt_text, url, url_family, url_platform, _homepage_href = linked_match.groups()
 
-    alt_text, url, url_family, url_platform = match.groups()
     findings = []
     if not alt_text.strip():
         findings.append({"reason": "banner image has empty alt text"})
@@ -1379,6 +1405,70 @@ def check_banner_present(readme_text: str, family: str, platform: str) -> list[d
                       "contamination",
         })
     return findings
+
+
+def check_banner_links_to_homepage(readme_text: str, homepage: "dict | None") -> list[dict]:
+    """Hard gate (TC-HARDEN-27, MT034/Twenty-First incident, 2026-08-12). New requirement,
+    distinct from MT026's own "keep the banner unlinked" decision (2026-08-09) -- that decision
+    solved a different, already-settled problem (the banner IMAGE's own URL being confused with
+    a real, 5-minute-expiring signed GitHub social-preview URL). This wraps the same, still-
+    stable, already-live-verified banner image in a click-through link to the product's real
+    `products.aspose.org/{family}/{platform}/` homepage, with an explicit "must never be broken"
+    reliability bar.
+
+    `homepage` is the factpack's `{"url", "verified"}` (from `_detect_homepage_link`, run.py) --
+    `verified` is True only when `content/products.aspose.org/en/{family}/{platform}/_index.md`
+    genuinely exists in this repo: a first-party, same-repo-deploy guarantee, structurally
+    stronger than the Enterprise-link's cached-external-site case (Evidence Contract rule 7)
+    since this site is built and deployed directly from this repo's own `content/` tree.
+
+    - `homepage["verified"]` True: the banner line MUST be the linked form
+      (`[![alt](banner_url)](homepage_url)`), and the href must exactly match `homepage["url"]`
+      (trailing-slash- and case-normalized) -- never a guessed/invented URL.
+    - Not verified (no confirmed local page exists): the banner MUST stay the plain, unlinked
+      form -- linking to an unconfirmed page is exactly the invented-URL class this module's
+      other checks (e.g. Documentation & Resources links) already forbid.
+
+    A malformed banner line, or no banner line at all, is check_banner_present's own finding --
+    this function returns [] rather than duplicate it.
+    """
+    idx, line = _find_banner_line(readme_text)
+    if idx is None:
+        return []
+
+    linked_match = _LINKED_BANNER_LINE_RE.match(line)
+    unlinked_match = None if linked_match else _BANNER_LINE_RE.match(line)
+    if not linked_match and not unlinked_match:
+        return []
+
+    verified_url = (homepage or {}).get("url")
+    is_verified = bool((homepage or {}).get("verified") and verified_url)
+
+    if linked_match:
+        href = linked_match.group(5)
+        if not is_verified:
+            return [{
+                "reason": "banner links to a homepage page with no verified local "
+                          "content/products.aspose.org/en/{family}/{platform}/_index.md -- "
+                          "remove the link rather than pointing at an unconfirmed page",
+                "href": href,
+            }]
+        if href.rstrip("/").lower() != verified_url.rstrip("/").lower():
+            return [{
+                "reason": "banner links to a homepage URL that does not match the one "
+                          "verified, real homepage for this product",
+                "href": href,
+                "verified_url": verified_url,
+            }]
+        return []
+
+    if is_verified:
+        return [{
+            "reason": "a real, verified homepage page exists for this product but the banner "
+                      "is not linked to it",
+            "verified_url": verified_url,
+        }]
+    return []
 
 
 def surgical_diff_check(declared_file_set: list[str], changed_files: list[str]) -> list[str]:
@@ -1434,6 +1524,67 @@ def check_license_link_target(readme_text: str, clone_cache_root: str) -> list[d
     return [{"target": target, "reason": "target does not exist under clone cache"}]
 
 
+_LICENSE_TEMPLATE_LINKED_FMT = (
+    "This project is licensed under the [MIT License]({path}). The MIT License permits use, "
+    "copying, modification, distribution, sublicensing, and commercial use, provided its "
+    "copyright and permission notice are retained. The software is provided without warranty."
+)
+_LICENSE_TEMPLATE_UNLINKED = (
+    "This project is licensed under the MIT License. The MIT License permits use, copying, "
+    "modification, distribution, sublicensing, and commercial use, provided its copyright and "
+    "permission notice are retained. The software is provided without warranty."
+)
+
+
+def _normalize_prose_whitespace(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def check_license_section_matches_template(
+    readme_text: str, license_file: "dict | None"
+) -> list[dict]:
+    """Hard gate (TC-HARDEN-26, MT034/Twenty-First incident, 2026-08-12). The 2026-08-04
+    License-template rule (Template section: "fixed template, no free-form prose", baked in
+    after `3d/typescript`'s original free-form-narration incident) was never actually turned
+    into a mechanical gate -- the only check this plan ever spec'd for it,
+    check_license_link_target (above), was scoped to the section's LINK TARGET only, never its
+    PROSE (confirmed by direct grep of this module before this function existed: zero functions
+    checked License-section text content). A completely blind clean-room regeneration of the
+    same product (`3d/typescript`, this session's own MT034 reproof) independently reproduced
+    the identical defect class with different wording -- proof the rule was written into this
+    plan's prose but never enforced by its code, the same "plan names the right rule, skill code
+    never enforces it" shape as Anti-Overclaim rule 8, recurring in this exact section a second
+    time.
+
+    Verifies the `## License` section's text (whitespace-normalized, so real line-wrap variance
+    across products never matters) STARTS WITH the exact fixed template sentence -- linked form
+    using `license_file["relative_path"]` when a real license file was detected, or the unlinked
+    form when `license_file` is falsy. "Starts with", not "equals exactly", so real, already-
+    established legitimate additional content (e.g. `pdf/go`'s real bundled third-party font
+    disclosure, Template section 2026-08-04) may still follow the template without tripping this
+    gate -- only a section that replaces the template with unrelated free-form prose, this
+    incident's own shape, fails.
+    """
+    section_match = re.search(r"^##\s+License\s*$(.*?)(?=^##\s|\Z)", readme_text, re.MULTILINE | re.DOTALL)
+    if not section_match:
+        return []
+    section_text = _normalize_prose_whitespace(section_match.group(1))
+    relative_path = (license_file or {}).get("relative_path")
+    if relative_path:
+        expected = _normalize_prose_whitespace(_LICENSE_TEMPLATE_LINKED_FMT.format(path=relative_path))
+    else:
+        expected = _LICENSE_TEMPLATE_UNLINKED
+    if section_text.startswith(expected):
+        return []
+    return [{
+        "reason": "License section does not start with the fixed template sentence "
+                  "(Template section, 2026-08-04) -- looks like free-form/narration prose "
+                  "instead of the required fixed wording",
+        "expected_start": expected,
+        "actual_start": section_text[:len(expected) + 60],
+    }]
+
+
 _PROCESS_NARRATION_PATTERNS = [
     r"\bat the time of writing\b",
     r"\bas of this writing\b",
@@ -1466,6 +1617,15 @@ _PROCESS_NARRATION_PATTERNS = [
     r"\bgenerated (?:by|from|via) (?:the|this) (?:pipeline|skill|script|tool)\b",  # provenance
     r"\bwe (?:confirmed|verified|checked|found) that\b",  # confidence language
     r"\bhas been (?:verified|confirmed|validated) to\b",  # confidence language
+    # TC-HARDEN-26 (MT034, Twenty-First incident, 2026-08-12): a fresh, blind clean-room
+    # regeneration of 3d/typescript independently reproduced the identical License-section
+    # narration-leak defect class the 2026-08-04 incident already found on this same product,
+    # with new wording none of the phrases above matched -- a secondary safety net alongside
+    # the new, primary check_license_section_matches_template hard gate.
+    r"\bthe previous version of this readme\b",
+    r"\bin this repository snapshot\b",
+    r"\bif formally applied as declared\b",
+    r"\btreat the license status as unconfirmed\b",
 ]
 _PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
 

@@ -1227,6 +1227,115 @@ def test_check_license_link_target_flags_bad_license_link_even_with_unrelated_se
     assert findings[0]["target"] == "LICENSE"
 
 
+# --- check_license_section_matches_template (TC-HARDEN-26, MT034 Twenty-First incident) -------
+
+
+def test_license_section_matches_template_linked_form_passes():
+    text = (
+        "## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE). The MIT License permits "
+        "use, copying, modification, distribution, sublicensing, and commercial use, provided "
+        "its copyright and permission notice are retained. The software is provided without "
+        "warranty.\n"
+    )
+    assert checks.check_license_section_matches_template(text, {"relative_path": "LICENSE"}) == []
+
+
+def test_license_section_matches_template_unlinked_form_passes():
+    text = (
+        "## License\n\n"
+        "This project is licensed under the MIT License. The MIT License permits use, "
+        "copying, modification, distribution, sublicensing, and commercial use, provided its "
+        "copyright and permission notice are retained. The software is provided without "
+        "warranty.\n"
+    )
+    assert checks.check_license_section_matches_template(text, None) == []
+
+
+def test_license_section_matches_template_tolerates_real_line_wrap_variance():
+    # Real portfolio content wraps the fixed template at different line widths (confirmed live:
+    # cells/cpp, barcode/python, pdf/go all wrap differently) -- whitespace normalization must
+    # make this a non-issue.
+    text = (
+        "## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE). The MIT License\n"
+        "permits use, copying, modification, distribution, sublicensing, and commercial\n"
+        "use, provided its copyright and permission notice are retained. The software is\n"
+        "provided without warranty.\n"
+    )
+    assert checks.check_license_section_matches_template(text, {"relative_path": "LICENSE"}) == []
+
+
+def test_license_section_matches_template_allows_legitimate_extra_content_after():
+    # pdf/go's real, already-established third-party font disclosure follows the fixed template
+    # -- "starts with", not "equals exactly", must not flag this.
+    text = (
+        "## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE). The MIT License permits "
+        "use, copying, modification, distribution, sublicensing, and commercial use, provided "
+        "its copyright and permission notice are retained. The software is provided without "
+        "warranty.\n\n"
+        "The library bundles Latin-subset copies of four metric-compatible fonts, used to "
+        "render the Standard-14 fonts.\n"
+    )
+    assert checks.check_license_section_matches_template(text, {"relative_path": "LICENSE"}) == []
+
+
+def test_license_section_matches_template_flags_real_narration_incident():
+    # Captured verbatim from the real Twenty-First incident: a blind clean-room regeneration of
+    # 3d/typescript independently reproduced the identical defect class the 2026-08-04 fix was
+    # supposed to have already closed.
+    text = (
+        "## License\n\n"
+        '`package.json` declares `"license": "MIT"`, and the previous version of this README '
+        "linked to a `LICENSE` file, but no `LICENSE` file exists anywhere in this repository "
+        "snapshot. The MIT License, if formally applied as declared, would permit use, "
+        "copying, modification, distribution, sublicensing, and commercial use, provided its "
+        "copyright and permission notice are retained, with the software provided without "
+        "warranty — but until a real `LICENSE` file is added upstream, treat the license "
+        "status as unconfirmed.\n"
+    )
+    findings = checks.check_license_section_matches_template(text, None)
+    assert len(findings) == 1
+    assert "does not start with the fixed template" in findings[0]["reason"]
+
+
+def test_license_section_matches_template_flags_unlinked_form_when_file_exists():
+    # A real license file exists, so the LINKED template is required -- the unlinked form must
+    # not be silently accepted (proves this check's scope is additive to, not redundant with,
+    # check_license_link_target, which only checks the link target when a link is present).
+    text = (
+        "## License\n\n"
+        "This project is licensed under the MIT License. The MIT License permits use, "
+        "copying, modification, distribution, sublicensing, and commercial use, provided its "
+        "copyright and permission notice are retained. The software is provided without "
+        "warranty.\n"
+    )
+    findings = checks.check_license_section_matches_template(text, {"relative_path": "LICENSE"})
+    assert len(findings) == 1
+
+
+def test_license_section_matches_template_no_section_is_vacuous():
+    assert checks.check_license_section_matches_template("# No license section here\n", None) == []
+
+
+def test_check_process_narration_smells_flags_license_leak_phrases():
+    # TC-HARDEN-26: a secondary safety net alongside the primary template check, in case this
+    # exact narration recurs in a DIFFERENT section a future run.
+    assert checks.check_process_narration_smells(
+        "The previous version of this README linked to a LICENSE file."
+    )
+    assert checks.check_process_narration_smells(
+        "No LICENSE file exists anywhere in this repository snapshot."
+    )
+    assert checks.check_process_narration_smells(
+        "The MIT License, if formally applied as declared, would permit use."
+    )
+    assert checks.check_process_narration_smells(
+        "Until a real LICENSE file is added, treat the license status as unconfirmed."
+    )
+
+
 def test_check_process_narration_smells_flags_known_phrases():
     text = "This was verified against the published package, and passes cleanly on Linux."
     findings = checks.check_process_narration_smells(text)
@@ -1908,6 +2017,77 @@ def test_banner_present_flags_wrong_position():
     )
     findings = checks.check_banner_present(text, "cells", "cpp")
     assert findings and "expected a banner image line" in findings[0]["reason"]
+
+
+def _linked_banner_line(family, platform, homepage="https://products.aspose.org/cells/cpp/"):
+    return (
+        f"[![Test Product](https://products.aspose.org/media/{family}/{platform}/"
+        f"banner-readme.png)]({homepage})"
+    )
+
+
+def test_banner_present_passes_linked_banner():
+    # TC-HARDEN-27: check_banner_present must tolerate the click-through-wrapped form -- it only
+    # cares about the image itself, not whether/how it's linked (check_banner_links_to_homepage's
+    # own job, below).
+    text = _readme_with_badge_and_banner("cells", "cpp", banner_line=_linked_banner_line("cells", "cpp"))
+    assert checks.check_banner_present(text, "cells", "cpp") == []
+
+
+def test_banner_present_flags_cross_product_contamination_in_linked_form():
+    text = _readme_with_badge_and_banner(
+        "cells", "cpp", banner_line=_linked_banner_line("email", "net"),
+    )
+    findings = checks.check_banner_present(text, "cells", "cpp")
+    assert findings and "does not match this product" in findings[0]["reason"]
+
+
+# --- check_banner_links_to_homepage (TC-HARDEN-27, MT034 Twenty-First incident) ----------------
+
+
+def test_banner_links_to_homepage_passes_when_verified_and_linked_correctly():
+    homepage = {"url": "https://products.aspose.org/cells/cpp/", "verified": True}
+    text = _readme_with_badge_and_banner("cells", "cpp", banner_line=_linked_banner_line("cells", "cpp"))
+    assert checks.check_banner_links_to_homepage(text, homepage) == []
+
+
+def test_banner_links_to_homepage_passes_when_unverified_and_unlinked():
+    homepage = {"url": "https://products.aspose.org/cells/cpp/", "verified": False}
+    text = _readme_with_badge_and_banner("cells", "cpp")  # default banner_line is the bare form
+    assert checks.check_banner_links_to_homepage(text, homepage) == []
+
+
+def test_banner_links_to_homepage_flags_verified_but_unlinked():
+    homepage = {"url": "https://products.aspose.org/cells/cpp/", "verified": True}
+    text = _readme_with_badge_and_banner("cells", "cpp")  # bare, unlinked form
+    findings = checks.check_banner_links_to_homepage(text, homepage)
+    assert findings and "not linked to it" in findings[0]["reason"]
+
+
+def test_banner_links_to_homepage_flags_unverified_but_linked():
+    # Must never invent/keep a link to a homepage page that has no confirmed local content --
+    # matches this module's "never invent a URL not backed by verified data" rule.
+    homepage = {"url": "https://products.aspose.org/cells/cpp/", "verified": False}
+    text = _readme_with_badge_and_banner("cells", "cpp", banner_line=_linked_banner_line("cells", "cpp"))
+    findings = checks.check_banner_links_to_homepage(text, homepage)
+    assert findings and "no verified local" in findings[0]["reason"]
+
+
+def test_banner_links_to_homepage_flags_wrong_target():
+    homepage = {"url": "https://products.aspose.org/cells/cpp/", "verified": True}
+    text = _readme_with_badge_and_banner(
+        "cells", "cpp",
+        banner_line=_linked_banner_line("cells", "cpp", homepage="https://products.aspose.org/cells/net/"),
+    )
+    findings = checks.check_banner_links_to_homepage(text, homepage)
+    assert findings and "does not match the one" in findings[0]["reason"]
+
+
+def test_banner_links_to_homepage_no_banner_line_is_vacuous():
+    # A malformed/missing banner line is check_banner_present's own finding -- this check must
+    # not duplicate it.
+    text = "# Test Product\n\nNo badge row or banner here.\n"
+    assert checks.check_banner_links_to_homepage(text, {"url": "x", "verified": True}) == []
 
 
 # --- MT027 (2026-08-09): ground API Reference in reference.aspose.org's own graded content ----
