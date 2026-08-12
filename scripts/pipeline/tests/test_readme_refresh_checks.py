@@ -803,6 +803,117 @@ def test_format_name_casing_ignores_generic_project_acronyms():
     assert not any(f.get("format") in ("FOSS", "LICENSE") for f in findings)
 
 
+# TC-HARDEN-28 (Twenty-Second incident / MT035, 2026-08-12): a real 12-product, 69-finding
+# audit found the no-canonical-entry ("elif") branch produces a 63% false-positive rate from
+# two mechanisms, both concentrated inside the `## API Reference` section -- a Title-Case
+# module heading colliding with correct all-caps prose elsewhere, and a real, deliberately
+# dual-cased technical identifier documented in a table description cell colliding with an
+# unrelated ordinary-English use of the same spelling. Every fixture below is captured
+# verbatim from the real content that first exposed each mechanism, not synthesized.
+
+
+def test_format_name_casing_excludes_heading_collision_with_correct_prose():
+    # Real shape, html/python: a Title-Case "### Css" module heading (mirroring
+    # reference.aspose.org's own real module name) collides with "CSS" used correctly,
+    # all-caps, in ordinary body prose -- the heading text was never excluded from the scan.
+    text = (
+        "It parses and applies CSS to build the render tree.\n\n"
+        "## API Reference\n\n"
+        "### Css\n\n"
+        "| `CSSStyleSheet` | The parsed representation of a CSS stylesheet. |\n\n"
+        "## Scope and Limitations\n\n"
+        "- Some CSS features are unsupported.\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_excludes_api_reference_table_field_code_homonym():
+    # Real shape, words/net: "DATA" (a Word field-code keyword, `FieldData` implements the
+    # DATA field) documented inside an API Reference table row collides with ordinary
+    # lowercase "data" used elsewhere in the README with a completely different meaning.
+    text = (
+        "Clear the default generated series before adding real data.\n\n"
+        "## API Reference\n\n"
+        "| `FieldData` | Implements the DATA field. |\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_excludes_api_reference_table_operator_mnemonic_homonym():
+    # Real shape, pdf/net: PDF content-stream operator mnemonics `sc`/`SC` are two genuinely
+    # different, both-correct ISO 32000 operators (non-stroking vs. stroking color), not a
+    # casing defect -- documented side by side inside the same API Reference section.
+    text = (
+        "## API Reference\n\n"
+        "| `SetColor` | sc -- Set color in current color space (non-stroking). |\n"
+        "| `SetColorStroke` | SC -- Set color in current color space (stroking). |\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_excludes_api_reference_emphatic_allcaps_word():
+    # Real shape, html/python: "NOT" used for plain English emphasis inside a table
+    # description cell ("do NOT match") collides with an unrelated Title-Case heading use of
+    # the same word ("### Layout ... Not Visual Rendering") -- neither is a format-name claim.
+    text = (
+        "## API Reference\n\n"
+        "| `ComplexNotPseudoClass` | Matches elements that do NOT match any selector. |\n\n"
+        "### Layout (Structural Geometry, Not Visual Rendering)\n\n"
+        "Some prose about layout.\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_still_flags_genuine_drift_inside_api_reference_section():
+    # Regression guard: the canonical_casing branch (registry-mismatch) is UNCHANGED and
+    # must still catch real drift even when it occurs entirely inside the ## API Reference
+    # section -- e.g. commercial-SDK PascalCase spelling ("Pdf") leaking into a table
+    # description cell, uncorrected against the canonical all-caps form. Excluding the API
+    # Reference section from the no-canonical-entry branch must never suppress this.
+    text = (
+        "## API Reference\n\n"
+        "| `Font` | Lets developers query whether a font is embedded in the PDF. |\n"
+        "| `OutlineCollection` | Class in the Pdf CPP API. |\n"
+    )
+    findings = checks.check_format_name_casing(text, {"PDF": "PDF"})
+    assert any(f.get("found") == "Pdf" and f["canonical"] == "PDF" for f in findings)
+
+
+def test_format_name_casing_heading_only_occurrence_is_vacuous():
+    # Regression guard: if a word's ONLY mixed-case occurrence is inside a heading (and every
+    # other occurrence in the file is already the correct all-caps form), it must drop to a
+    # single variant after heading-stripping, not remain a false "multiple casings" finding.
+    text = (
+        "This module handles JS execution.\n\n"
+        "## API Reference\n\n"
+        "### Js\n\n"
+        "| `JSRuntime` | The JS execution context. |\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
+def test_format_name_casing_api_reference_section_located_before_heading_strip():
+    # Regression guard for the real ordering bug found while implementing this fix: locating
+    # the ## API Reference section MUST happen before heading lines are stripped -- stripping
+    # headings first deletes the "## API Reference" heading itself, leaving nothing for the
+    # section matcher to anchor on, so the whole section-exclusion silently no-ops. This
+    # fixture reproduces the real words/net shape that exposed the bug: a genuine elif-branch
+    # false positive (a field-code keyword vs. ordinary prose) sitting well after several
+    # other real ## headings, inside the API Reference section.
+    text = (
+        "# Product\n\n"
+        "## Key Capabilities\n\n"
+        "- Does a thing.\n\n"
+        "## Installation\n\n"
+        "Install it.\n\n"
+        "## API Reference\n\n"
+        "| `FieldIf` | Implements the IF field. |\n\n"
+        "## Scope and Limitations\n\n"
+        "- Only if a document is encrypted does this apply.\n"
+    )
+    assert checks.check_format_name_casing(text, {}) == []
+
+
 # --- check_no_cross_product_citation -------------------------------------------------------------
 
 

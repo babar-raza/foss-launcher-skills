@@ -2748,6 +2748,28 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     would flag ordinary sentence-initial capitalization ("The" vs. "the") as a false
     "casing inconsistency" on every common English word.
 
+    **TC-HARDEN-28 (Twenty-Second incident / MT035, 2026-08-12).** A real 12-product,
+    69-finding portfolio audit found the "multiple different casings of the same bare word"
+    branch (the `elif` below, for words with NO canonical registry entry) produces a 63%
+    false-positive rate from two confirmed, distinct mechanisms, both concentrated inside the
+    `## API Reference` section's MT028 table-and-bullet content: (a) a Title-Case `###`/`####`
+    module heading (e.g. `### Css`, `### Dom`, mirroring `reference.aspose.org`'s own real
+    module names) colliding with the SAME word used correctly, all-caps, in ordinary body
+    prose elsewhere -- heading text was never excluded from this scan; (b) a real, deliberately
+    dual-cased technical identifier documented inside a table description cell (a Word
+    field-code keyword like `DATA`/`IF`, a PDF content-stream operator mnemonic like `sc`/`SC`,
+    an emphatic English word used for emphasis inside a description like "do NOT match") that
+    happens to share its spelling, in the opposite case, with an unrelated ordinary-English use
+    of the same word elsewhere in the file. Excluding heading lines AND the whole `## API
+    Reference` section from THIS branch's occurrence map closes both mechanisms -- verified
+    against the real 12-product corpus to drop the false-positive count from 43 to 0 while
+    leaving the ~24 genuine `canonical_casing`-branch findings (commercial-SDK PascalCase
+    spelling like `Docx`/`Pdf`/`Html` leaking into that same table's description-cell prose,
+    uncorrected against this repo's own established all-caps canonical form) completely
+    unaffected -- that branch is UNCHANGED and still scans the FULL document, including the API
+    Reference section, since it must keep catching drift there; only the no-canonical-entry
+    `elif` branch narrows its own text.
+
     Returns a list of {"format", "found"/"found_variants", "canonical"?, "reason"}
     findings.
     """
@@ -2765,23 +2787,46 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     # inner and outer href in one pass, with no recursion needed.
     prose_only = re.sub(r"\]\([^()\s]+\)", "]", readme_text)
     prose_only = re.sub(r"`[^`]*`", "", prose_only)
+
+    # canonical_casing branch's occurrence map: the FULL document, unchanged -- must still
+    # catch real drift anywhere, including inside the API Reference section.
     occurrences: dict[str, set[str]] = {}
-    all_caps_seen: set[str] = set()
     for match in _BARE_WORD_RE.finditer(prose_only):
         word = match.group(1)
         key = word.upper()
         if key in _GENERIC_ACRONYM_STOPLIST and key not in canonical_casing:
             continue
         occurrences.setdefault(key, set()).add(word)
+
+    # elif (no-canonical-entry) branch's occurrence map: the whole API Reference section
+    # removed FIRST (it must be located while its own `## API Reference` heading is still
+    # intact -- `_FULL_API_REF_SECTION_RE` anchors on that exact heading text), THEN heading
+    # lines stripped from what remains (TC-HARDEN-28, above). Order matters: stripping
+    # headings first would delete the `## API Reference` heading itself, leaving nothing for
+    # the section matcher to anchor on -- confirmed live, this exact ordering bug initially
+    # left words/net/pdf/java/pdf/net's real API-Reference-table false positives unfixed.
+    heuristic_text = prose_only
+    api_ref_match = _FULL_API_REF_SECTION_RE.search(heuristic_text)
+    if api_ref_match:
+        heuristic_text = heuristic_text[:api_ref_match.start()] + heuristic_text[api_ref_match.end():]
+    heuristic_text = _ANY_HEADING_LINE_RE.sub("", heuristic_text)
+    heuristic_occurrences: dict[str, set[str]] = {}
+    all_caps_seen: set[str] = set()
+    for match in _BARE_WORD_RE.finditer(heuristic_text):
+        word = match.group(1)
+        key = word.upper()
+        if key in _GENERIC_ACRONYM_STOPLIST and key not in canonical_casing:
+            continue
+        heuristic_occurrences.setdefault(key, set()).add(word)
         if word.isupper() and len(word) >= 2:
             all_caps_seen.add(key)
 
     findings: list[dict] = []
     for key in sorted(set(canonical_casing) | all_caps_seen):
-        variants = occurrences.get(key, set())
-        if not variants:
-            continue
         if key in canonical_casing:
+            variants = occurrences.get(key, set())
+            if not variants:
+                continue
             correct = canonical_casing[key]
             for variant in sorted(variants):
                 if variant != correct:
@@ -2789,13 +2834,15 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
                         "format": key, "found": variant, "canonical": correct,
                         "reason": "bare format-name casing does not match the canonical registry form",
                     })
-        elif len(variants) > 1:
-            if variants <= _KNOWN_HEADING_CASE_EXCEPTIONS.get(key, set()):
-                continue
-            findings.append({
-                "format": key, "found_variants": sorted(variants),
-                "reason": "multiple different casings of the same bare format word used within this file",
-            })
+        else:
+            variants = heuristic_occurrences.get(key, set())
+            if len(variants) > 1:
+                if variants <= _KNOWN_HEADING_CASE_EXCEPTIONS.get(key, set()):
+                    continue
+                findings.append({
+                    "format": key, "found_variants": sorted(variants),
+                    "reason": "multiple different casings of the same bare format word used within this file",
+                })
     return findings
 
 

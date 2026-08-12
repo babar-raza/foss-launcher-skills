@@ -17,14 +17,14 @@
     "family": "pdf",
     "platform": "cpp",
     "archetype": "hybrid",
-    "evidence": "Dedicated 'Document creation from scratch' Capability backed by TextBuilder/Table/Graph/WatermarkArtifact/AcroForm construction APIs. Freshly re-verified 2026-08-08 against this file's own Key Capabilities/API Reference sections per check_diagram_hybrid_reverification's standing re-confirmation requirement; re-confirmed again 2026-08-09 (MT025 Phase 2) -- same underlying real classes, no product change since 2026-08-08, diagram content itself untouched this pass -- still holds.",
-    "decided_at": "2026-08-09"
+    "evidence": "Dedicated 'Document creation from scratch' Capability backed by TextBuilder/Table/Graph/WatermarkArtifact/Aspose::Pdf::Forms::Form (accessed via Document::Form(), include/aspose/pdf/document.hpp:340; class declared include/aspose/pdf/forms/form.hpp:44) construction APIs. Freshly re-verified 2026-08-08 against this file's own Key Capabilities/API Reference sections per check_diagram_hybrid_reverification's standing re-confirmation requirement; re-confirmed again 2026-08-09 (MT025 Phase 2); re-confirmed again 2026-08-12 (TC-HARDEN-36, MT035) -- same underlying real classes, no product change since 2026-08-09, diagram content itself untouched this pass -- still holds. Evidence text corrected 2026-08-12: the prior 'AcroForm construction APIs' phrasing named a concept, not a literal identifier -- the real class is Aspose::Pdf::Forms::Form, independently re-confirmed to exist at the cited paths.",
+    "decided_at": "2026-08-12"
   },
   {
     "family": "pdf",
     "platform": "go",
     "archetype": "hybrid",
-    "evidence": "Dedicated 'Content authoring' Capability backed by Document.NewFlow's chainable authoring API. Freshly re-verified 2026-08-09 (MT025 Phase 2, batch E) by direct read of runs/.clone_cache/aspose_pdf_go/flow.go: (1) reads an existing format -- pdf.Open(\"input.pdf\") (document.go, README Quick Start); (2) dedicated from-scratch authoring Capability -- (*Document) NewFlow(opts FlowOptions) *Flow at flow.go:77, with chainable (*Flow) AddParagraph/AddHeading/AddImage/AddTable/AddList (flow.go:108-140+) each returning *Flow, a genuine fluent builder, not just a constructor; (3) real structured construction parameters -- FlowOptions struct (flow.go:31-38: Format, MarginLeft/Right/Top/Bottom, ParagraphSpacing, Columns, ColumnGap, Tagged) and TextStyle struct (color.go:32), both passed into the chain methods. Still holds.",
-    "decided_at": "2026-08-09"
+    "evidence": "Dedicated 'Content authoring' Capability backed by Document.NewFlow's chainable authoring API. Freshly re-verified 2026-08-09 (MT025 Phase 2, batch E) by direct read of runs/.clone_cache/aspose_pdf_go/flow.go: (1) reads an existing format -- pdf.Open(\"input.pdf\") (document.go, README Quick Start); (2) dedicated from-scratch authoring Capability -- (*Document) NewFlow(opts FlowOptions) *Flow at flow.go:77, with chainable (*Flow) AddParagraph/AddHeading/AddImage/AddTable/AddList (flow.go:108-140+) each returning *Flow, a genuine fluent builder, not just a constructor; (3) real structured construction parameters -- FlowOptions struct (flow.go:31-38: Format, MarginLeft/Right/Top/Bottom, ParagraphSpacing, Columns, ColumnGap, Tagged) and TextStyle struct (color.go:32), both passed into the chain methods. Re-confirmed again 2026-08-12 (TC-HARDEN-36, MT035) -- no product change since 2026-08-09, diagram content itself untouched this pass -- still holds.",
+    "decided_at": "2026-08-12"
   }
 ]
