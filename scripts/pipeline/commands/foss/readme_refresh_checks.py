@@ -1255,6 +1255,63 @@ def check_enterprise_edition_naming(readme_text: str) -> list[dict]:
     return findings
 
 
+def check_enterprise_edition_link_resolves(
+    readme_text: str, enterprise_link: "dict | None"
+) -> list[dict]:
+    """Hard gate (TC-HARDEN-19, MT034/Twentieth incident, 2026-08-12). `check_enterprise_
+    edition_naming` (above) verifies a `products.aspose.com` link's anchor TEXT and surrounding
+    CONTEXT -- it has never checked the link's TARGET (Gate Contract rule 6). A real clean-room
+    regeneration pilot confirmed this is a live gap, not theoretical: `3d/typescript`'s
+    regenerated candidate linked to `https://products.aspose.com/3d/typescript/`, a real,
+    curl-confirmed 404 (the existing candidate's `https://products.aspose.com/3d/` returns 200);
+    `barcode/python`'s regenerated link 301-redirected to a *different* enterprise bridge
+    product (`/barcode/python-java/`) than the existing, correct one (`/barcode/python-net/`).
+
+    `enterprise_link` is the factpack's own pre-verified `{"url", "type", "fallback_reason",
+    "target_map_age_days", "target_map_stale"}` (from `_detect_enterprise_link`, run.py) --
+    every real `products.aspose.com` href in the candidate must exactly match `enterprise_link
+    ["url"]` (trailing-slash- and case-normalized). Two finding shapes:
+
+    - `"no_verified_target"`: the candidate links to `products.aspose.com` but no verified
+      target resolves for this product at all (`enterprise_link["url"]` is `None`, a genuine
+      `BLOCKED_TARGET` from `backlink_targets.resolve_backlink`) -- the link must be removed
+      entirely, never guessed, matching this skill's "never invent a specific version/command
+      not backed by verified data" rule extended to links.
+    - `"target_mismatch"`: the candidate's href does not match the one real, live-resolved
+      target -- the composing agent guessed a slug instead of using the factpack's own verified
+      value.
+
+    Deliberately does not hard-fail on `enterprise_link["target_map_stale"]` alone (Evidence
+    Contract rule 7) -- a stale cached target map is reduced-confidence evidence, not itself
+    proof the link is wrong; staleness is surfaced in the factpack for the composing agent/
+    reviewer to weigh, not used to block an otherwise-correct, still-cached-verified link.
+    """
+    findings: list[dict] = []
+    verified_url = (enterprise_link or {}).get("url")
+    normalized_verified = verified_url.rstrip("/").lower() if verified_url else None
+    for match in _MD_LINK_RE.finditer(readme_text):
+        anchor_text, href = match.group(1), match.group(2)
+        if not _ENTERPRISE_LINK_HOST_RE.search(href):
+            continue
+        normalized_href = href.rstrip("/").lower()
+        if normalized_verified is None:
+            findings.append({
+                "anchor_text": anchor_text, "href": href, "reason": "no_verified_target",
+                "detail": "this candidate links to products.aspose.com, but no verified "
+                          "Enterprise target resolves for this product in "
+                          "data/aspose_com_targets.json -- remove the link, never guess a slug",
+            })
+            continue
+        if normalized_href != normalized_verified:
+            findings.append({
+                "anchor_text": anchor_text, "href": href, "reason": "target_mismatch",
+                "detail": f"this href does not match the one verified, live-resolving "
+                          f"Enterprise target {verified_url!r} for this product",
+                "verified_url": verified_url,
+            })
+    return findings
+
+
 def check_required_sections(readme_text: str) -> list[str]:
     """Return the list of required H2 section names missing from the README. Hard gate --
     every product's candidate must carry the full Template section list, always."""
@@ -2146,6 +2203,41 @@ def check_api_reference_table_completeness(
                 "detail": f"'{cls}' appears in the README's '{module}' table but is not a real "
                           f"class in reference.aspose.org's '{real_module}' module",
             })
+    return findings
+
+
+def check_api_reference_table_no_duplicate_rows(readme_text: str) -> list[dict]:
+    """Hard gate (TC-HARDEN-21, MT034/Twentieth incident, 2026-08-12). `check_api_reference_
+    table_completeness` (above) verifies presence/absence against the reference-site index -- it
+    has no concept of duplication WITHIN the candidate's own table. A real clean-room
+    regeneration pilot found a real instance this check exists to catch: `cells/cpp`'s
+    regenerated Enumerations table listed `DiagnosticSeverity` twice, verbatim, back-to-back --
+    it passed `check_api_reference_table_completeness` cleanly (both occurrences are legitimate
+    against the reference index; duplication is a separate, orthogonal defect).
+
+    Reuses `_parse_readme_api_tables` (returns `{module: [class_name, ...]}` as a LIST, not a
+    set -- duplicates within one module's own rows survive the parse, not silently collapsed) --
+    no new table-parsing logic needed. An exact class-name duplicate within the same module's
+    table is mechanically unambiguous, never a judgment call, so this is a hard gate, not a
+    heuristic; two rows sharing the same DESCRIPTION text but different class names is not a
+    defect and is never flagged.
+    """
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    tables = _parse_readme_api_tables(section_match.group(1))
+    findings: list[dict] = []
+    for module, classes in tables.items():
+        counts: dict[str, int] = {}
+        for cls in classes:
+            counts[cls] = counts.get(cls, 0) + 1
+        for cls, count in counts.items():
+            if count > 1:
+                findings.append({
+                    "module": module, "class_name": cls, "count": count,
+                    "reason": f"'{cls}' appears {count} times in the '{module}' table -- an "
+                              "exact duplicate row, not two different classes",
+                })
     return findings
 
 

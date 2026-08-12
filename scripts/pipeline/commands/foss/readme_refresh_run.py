@@ -70,6 +70,7 @@ if str(_FOSS_DIR) not in sys.path:
 import session_identity  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write  # noqa: E402
+import backlink_targets  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
 
@@ -532,6 +533,59 @@ def _detect_capability_dependencies(family: str, platform: str) -> "list | None"
     return None  # never traced -- distinct from "confirmed independent" (see the store's own docs)
 
 
+def _detect_enterprise_link(family: str, platform: str) -> dict:
+    """TC-HARDEN-19 (MT034, Twentieth incident, 2026-08-12): real, live-verified Enterprise
+    Edition link resolution -- the composing agent has never before had a verified target and
+    has always guessed a `{family}/{platform}` slug fresh, with zero mechanism to catch a wrong
+    guess. A real clean-room regeneration pilot confirmed this live: `3d/typescript`'s
+    regenerated candidate linked to `https://products.aspose.com/3d/typescript/`, a real,
+    curl-confirmed 404; `barcode/python`'s regenerated link 301-redirected to a *different*
+    enterprise bridge product than the existing, correct link names.
+
+    Reuses the real, already-built, already live-verified infrastructure
+    (`scripts/pipeline/lib/backlink_targets.py`) rather than reinventing anything -- the same
+    machinery this repo's docs/kb/reference/products pages already depend on for their own
+    Enterprise backlinks. `source_subdomain="readme-refresh"` is a deliberate sentinel: it is
+    not one of the 5 real aspose.org subdomains `PREFERRED_TARGET_SUBDOMAIN` recognizes, so its
+    own `.get(..., "products.aspose.com")` default correctly and naturally routes every call
+    here to `products.aspose.com` -- exactly where a GitHub README's Enterprise link always
+    points, with no new mapping table needed.
+
+    Deliberately does NOT reuse `backlink_targets.build_enterprise_anchor_suffix()` -- that
+    function's "Enterprise Product"/"Enterprise Product Family" anchor-text convention is a
+    different, already-and-deliberately-rejected convention for this skill (Template section,
+    Rule 4; MT024 Phase 1's own `AskUserQuestion` decision, 2026-08-08, settled on "Enterprise
+    Edition" portfolio-wide). Only the URL/target-resolution half of `backlink_targets.py` is
+    reused here.
+
+    Returns `{"url", "type", "fallback_reason", "target_map_age_days", "target_map_stale"}`.
+    `url` is `None` on a genuine BLOCKED_TARGET (no verified target anywhere in the cache) --
+    the composing agent must omit the Enterprise Edition link entirely in that case rather than
+    invent one, matching this module's own "never invent a specific version/command not backed
+    by verified data" rule, extended here to links. `target_map_stale` (Evidence Contract rule
+    7) surfaces when the cached target map itself is aging past `STALE_WARN_DAYS` -- a stale
+    map is reduced-confidence evidence, never silently equivalent to a fresh one.
+    """
+    try:
+        target_map = backlink_targets.load_target_map(_repo_root)
+    except (FileNotFoundError, ValueError) as exc:
+        return {
+            "url": None, "type": None, "fallback_reason": f"target_map_unavailable: {exc}",
+            "target_map_age_days": None, "target_map_stale": None,
+        }
+    url, target_type, _subdomain, fallback_reason = backlink_targets.resolve_backlink(
+        family, platform, source_subdomain="readme-refresh", target_map=target_map,
+    )
+    age_days = backlink_targets.target_map_age_days(target_map)
+    return {
+        "url": url,
+        "type": target_type,
+        "fallback_reason": fallback_reason,
+        "target_map_age_days": age_days,
+        "target_map_stale": bool(age_days is not None and age_days > backlink_targets.STALE_WARN_DAYS),
+    }
+
+
 def _detect_install_info(family: str, platform: str) -> dict:
     path = _repo_root / "data" / "package_registry.json"
     if not path.is_file():
@@ -552,6 +606,13 @@ def _detect_install_info(family: str, platform: str) -> dict:
 
 
 def _detect_license_file(clone_cache: Path) -> "dict | None":
+    """TC-HARDEN-20 (MT034, Twentieth incident, 2026-08-12): the exact-20-char-prefix match
+    against the literal string "MIT License" missed real license files phrased "The MIT
+    License (MIT)..." -- confirmed independently by 2 different sub-agents in one clean-room
+    pilot (`barcode/python`, `cells/cpp`), both real, genuinely MIT-licensed products. Widened
+    from a 20-char exact-prefix match to a 200-char case-insensitive substring search -- wide
+    enough to catch a real preamble sentence before the license name, narrow enough that a
+    genuinely non-MIT license (Apache-2.0, BSD, etc.) still correctly returns None."""
     if not clone_cache.is_dir():
         return None
     candidates = list(clone_cache.glob("LICENSE*")) + list(clone_cache.glob("*/LICENSE*")) + list(
@@ -560,10 +621,10 @@ def _detect_license_file(clone_cache: Path) -> "dict | None":
     for candidate in candidates:
         if candidate.is_file():
             try:
-                head = candidate.read_text(encoding="utf-8", errors="ignore")[:20]
+                head = candidate.read_text(encoding="utf-8", errors="ignore")[:200]
             except OSError:
                 continue
-            if head.startswith("MIT License"):
+            if "mit license" in head.lower():
                 return {"relative_path": str(candidate.relative_to(clone_cache)).replace("\\", "/")}
     return None
 
@@ -763,6 +824,7 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "candidate_format_evidence": _compute_candidate_format_evidence(family, platform),
             "install": _detect_install_info(family, platform),
             "license_file": _detect_license_file(clone_cache),
+            "enterprise_link": _detect_enterprise_link(family, platform),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
             "homepage": f"https://products.aspose.org/{family}/{platform}/",
             "banner_url": f"https://products.aspose.org/media/{family}/{platform}/banner-readme.png",
@@ -841,6 +903,17 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     }
     result["license_link_target"] = {
         "hard_gate": True, "findings": checks.check_license_link_target(text, str(clone_cache)),
+    }
+    # TC-HARDEN-19 (MT034, Twentieth incident, 2026-08-12): check_enterprise_edition_naming
+    # (below, heuristic) verifies anchor text/context; it has never verified the link's real
+    # TARGET (Gate Contract rule 6) -- a real clean-room pilot found a confirmed-live-404
+    # regression this closes. Computed fresh, matching how _detect_archetype/_product_formats_md
+    # are already computed fresh here rather than read back from the persisted factpack.json.
+    result["enterprise_edition_link_resolves"] = {
+        "hard_gate": True,
+        "findings": checks.check_enterprise_edition_link_resolves(
+            text, _detect_enterprise_link(family, platform)
+        ),
     }
     # 2026-08-08 simplified diagram model (Tenth incident, MT024): check_diagram_connectivity
     # (orphan-reachability) is retired -- replaced by check_diagram_shape (fixed Product ->
@@ -1112,6 +1185,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["api_reference_table_completeness"] = {
         "hard_gate": True,
         "findings": checks.check_api_reference_table_completeness(text, reference_index),
+    }
+    # TC-HARDEN-21 (MT034, Twentieth incident, 2026-08-12): a real clean-room pilot found an
+    # exact-duplicate row (cells/cpp's Enumerations table listed DiagnosticSeverity twice) that
+    # passed check_api_reference_table_completeness cleanly -- duplication within the candidate's
+    # own table is an orthogonal defect that check has no concept of.
+    result["api_reference_table_no_duplicate_rows"] = {
+        "hard_gate": True,
+        "findings": checks.check_api_reference_table_no_duplicate_rows(text),
     }
     result["api_reference_generic_description"] = {
         "hard_gate": False,

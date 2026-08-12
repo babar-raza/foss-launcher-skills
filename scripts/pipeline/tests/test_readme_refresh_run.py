@@ -164,6 +164,26 @@ def _make_scratch_repo(tmp_path):
     # Points/Outputs nodes to pass check_diagram_format_support_claims and the new
     # check_diagram_container_format_purity hard gates.
     (data_dir / "format_descriptions.json").write_text(json.dumps({"TXT": {}}), encoding="utf-8")
+    # TC-HARDEN-19 (MT034): a real, resolvable platform-level target matching _GOOD_CANDIDATE's
+    # own Enterprise Edition link (https://products.aspose.com/testfam/testplat/) exactly -- so
+    # check_enterprise_edition_link_resolves (a hard gate) accepts the shared fixture. Mirrors
+    # backlink_targets._lookup_platform's real structure (http_status == 200 is the verification
+    # criterion). provenance.generated_at is "now" so target_map_stale is False.
+    import datetime as _dt
+    (data_dir / "aspose_com_targets.json").write_text(json.dumps({
+        "provenance": {"generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat()},
+        "targets": {
+            "products.aspose.com": {
+                "platforms": {
+                    "testfam/testplat": {
+                        "url": "https://products.aspose.com/testfam/testplat/", "http_status": 200,
+                    },
+                },
+                "families": {},
+            },
+        },
+        "all_urls": {},
+    }), encoding="utf-8")
     knowledge_dir = repo_root / "knowledge" / "testfam" / "testplat" / "merged"
     knowledge_dir.mkdir(parents=True)
     (knowledge_dir / "formats.md").write_text(
@@ -326,6 +346,127 @@ def test_detect_dev_test_artifacts_empty_for_bare_repo(tmp_path):
     assert rr._detect_dev_test_artifacts(tmp_path) == []
 
 
+# --- _detect_license_file (TC-HARDEN-20, MT034) ------------------------------------------------
+
+
+def test_detect_license_file_exact_prefix_still_detected(tmp_path):
+    (tmp_path / "LICENSE").write_text("MIT License\n\nCopyright (c) 2026\n", encoding="utf-8")
+    result = rr._detect_license_file(tmp_path)
+    assert result == {"relative_path": "LICENSE"}
+
+
+def test_detect_license_file_the_mit_license_mit_variant_now_detected(tmp_path):
+    # Regression test: found independently, twice, by two different sub-agents in one real
+    # clean-room pilot (barcode/python, cells/cpp) -- both real license files are phrased
+    # "The MIT License (MIT)...", undetected by the old exact-20-char-prefix match.
+    (tmp_path / "LICENSE").write_text(
+        "The MIT License (MIT)\n\nCopyright (c) 2026\n\nPermission is hereby granted...\n",
+        encoding="utf-8",
+    )
+    result = rr._detect_license_file(tmp_path)
+    assert result == {"relative_path": "LICENSE"}
+
+
+def test_detect_license_file_still_rejects_non_mit_license(tmp_path):
+    (tmp_path / "LICENSE").write_text(
+        "Apache License\nVersion 2.0, January 2004\n\nhttp://www.apache.org/licenses/\n",
+        encoding="utf-8",
+    )
+    assert rr._detect_license_file(tmp_path) is None
+
+
+def test_detect_license_file_absent_when_no_license_file(tmp_path):
+    (tmp_path / "README.md").write_text("hi\n", encoding="utf-8")
+    assert rr._detect_license_file(tmp_path) is None
+
+
+# --- _detect_enterprise_link (TC-HARDEN-19, MT034) ----------------------------------------------
+
+
+def _write_target_map(repo_root, targets, *, generated_at=None):
+    import datetime as _dt
+    data_dir = repo_root / "data"
+    data_dir.mkdir(exist_ok=True)
+    (data_dir / "aspose_com_targets.json").write_text(json.dumps({
+        "provenance": {
+            "generated_at": generated_at or _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        },
+        "targets": targets,
+        "all_urls": {},
+    }), encoding="utf-8")
+
+
+def test_detect_enterprise_link_resolves_real_verified_platform_target(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_target_map(repo_root, {
+        "products.aspose.com": {
+            "platforms": {"foo/net": {"url": "https://products.aspose.com/foo/net/", "http_status": 200}},
+            "families": {},
+        },
+    })
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("foo", "net")
+    assert result["url"] == "https://products.aspose.com/foo/net/"
+    assert result["type"] == "platform"
+    assert result["fallback_reason"] is None
+    assert result["target_map_stale"] is False
+
+
+def test_detect_enterprise_link_falls_back_to_family_when_platform_missing(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_target_map(repo_root, {
+        "products.aspose.com": {
+            "platforms": {},
+            "families": {"foo": {"url": "https://products.aspose.com/foo/", "http_status": 200}},
+        },
+    })
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("foo", "net")
+    assert result["url"] == "https://products.aspose.com/foo/"
+    assert result["type"] == "family"
+    assert result["fallback_reason"] is not None
+
+
+def test_detect_enterprise_link_returns_none_when_target_map_missing(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / "data").mkdir()
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("foo", "net")
+    assert result["url"] is None
+    assert "target_map_unavailable" in result["fallback_reason"]
+
+
+def test_detect_enterprise_link_returns_none_when_no_target_anywhere(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_target_map(repo_root, {"products.aspose.com": {"platforms": {}, "families": {}}})
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("foo", "net")
+    assert result["url"] is None
+    assert result["fallback_reason"] is not None
+
+
+def test_detect_enterprise_link_surfaces_target_map_staleness(tmp_path):
+    import datetime as _dt
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    stale_date = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=40)).isoformat()
+    _write_target_map(repo_root, {
+        "products.aspose.com": {
+            "platforms": {"foo/net": {"url": "https://products.aspose.com/foo/net/", "http_status": 200}},
+            "families": {},
+        },
+    }, generated_at=stale_date)
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("foo", "net")
+    assert result["url"] == "https://products.aspose.com/foo/net/"  # stale != wrong -- still used
+    assert result["target_map_stale"] is True
+    assert result["target_map_age_days"] > 14
+
+
 # --- Full round-trip happy path ---------------------------------------------------------------
 
 
@@ -346,6 +487,9 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
     assert factpack["archetype"] == "transform"
     assert factpack["license_file"]["relative_path"] == "LICENSE"
     assert "AGENTS.md" in factpack["old_readme_inventory"]["links"]
+    # TC-HARDEN-19 (MT034): the real, live-verified target -- not a guessed slug.
+    assert factpack["enterprise_link"]["url"] == "https://products.aspose.com/testfam/testplat/"
+    assert factpack["enterprise_link"]["target_map_stale"] is False
 
     _write_candidate(repo_root, _GOOD_CANDIDATE)
     manifest = rr.ingest_candidate("testfam", "testplat", run_id)
@@ -358,6 +502,8 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
 
     result = rr.recheck("testfam", "testplat", run_id)
     assert result["required_sections"]["findings"] == []
+    assert result["enterprise_edition_link_resolves"]["findings"] == []
+    assert result["api_reference_table_no_duplicate_rows"]["findings"] == []
 
     manifest = rr.approve("testfam", "testplat", run_id, note="looks good")
     assert manifest["state"] == "APPROVED"
@@ -425,6 +571,76 @@ def test_ingest_candidate_blocks_on_all_three_incident_classes(tmp_path, monkeyp
         "## Quick start", "This was verified against the published package.\n\n## Quick start"
     )
     _write_candidate(repo_root, fixed)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
+def test_ingest_candidate_blocks_on_unverified_enterprise_link(tmp_path, monkeypatch):
+    # TC-HARDEN-19 (MT034, Twentieth incident): reproduces the real, confirmed-live-404
+    # 3d/typescript regeneration regression -- a candidate whose Enterprise Edition link was
+    # guessed (wrong slug) rather than taken from the factpack's own verified target.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-019")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    bad_link_candidate = _GOOD_CANDIDATE.replace(
+        "https://products.aspose.com/testfam/testplat/",
+        "https://products.aspose.com/testfam/testplat-guessed-wrong/",
+    )
+    assert bad_link_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, bad_link_candidate)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["enterprise_edition_link_resolves"]["findings"], "must flag the wrong target"
+    assert result["enterprise_edition_link_resolves"]["findings"][0]["reason"] == "target_mismatch"
+
+
+def test_ingest_candidate_blocks_on_duplicate_api_reference_row(tmp_path, monkeypatch):
+    # TC-HARDEN-21 (MT034, Twentieth incident): reproduces the real cells/cpp regeneration
+    # regression -- an exact-duplicate class row within one API Reference table, undetected by
+    # check_api_reference_table_completeness (both occurrences are individually real per the
+    # reference index; duplication is a separate defect).
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-021")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    duplicated_row_candidate = _GOOD_CANDIDATE.replace(
+        "The primary entry point is `TestClass`.\n",
+        "The primary entry point is `TestClass`.\n\n"
+        "### Core API\n\n"
+        "| Class | Description |\n|---|---|\n"
+        "| `TestClass` | The primary entry point. |\n"
+        "| `TestClass` | The primary entry point. |\n",
+    )
+    assert duplicated_row_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, duplicated_row_candidate)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    findings = result["api_reference_table_no_duplicate_rows"]["findings"]
+    assert findings and findings[0]["class_name"] == "TestClass" and findings[0]["count"] == 2
+
+    # Must still be PLANNED -- a failed ingest-candidate must not silently advance.
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "PLANNED"
+
+    # Fix the one hard-gate issue (remove the duplicate row) -- must then reach
+    # VERIFYING_EXAMPLES cleanly, proving the gate is not merely mechanically triggerable but
+    # also correctly releases a genuinely-fixed candidate.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
     manifest = rr.ingest_candidate("testfam", "testplat", run_id)
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 

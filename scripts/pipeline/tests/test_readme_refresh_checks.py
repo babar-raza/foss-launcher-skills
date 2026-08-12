@@ -1096,6 +1096,61 @@ def test_check_enterprise_edition_naming_context_is_order_agnostic():
     assert not any(f["reason"] == "missing_context" for f in findings)
 
 
+def test_check_enterprise_edition_link_resolves_passes_matching_link():
+    text = "See [Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/net/)."
+    enterprise_link = {"url": "https://products.aspose.com/foo/net/"}
+    assert checks.check_enterprise_edition_link_resolves(text, enterprise_link) == []
+
+
+def test_check_enterprise_edition_link_resolves_flags_dead_link_regression():
+    # Real, confirmed-live regression from a clean-room regeneration pilot: 3d/typescript's
+    # regenerated candidate linked to a real, curl-confirmed 404
+    # (https://products.aspose.com/3d/typescript/), while the verified target is
+    # https://products.aspose.com/3d/ -- check_enterprise_edition_naming alone (anchor
+    # text/context) would have passed this cleanly.
+    text = "See [Aspose.3D for TypeScript Enterprise Edition](https://products.aspose.com/3d/typescript/)."
+    enterprise_link = {"url": "https://products.aspose.com/3d/"}
+    findings = checks.check_enterprise_edition_link_resolves(text, enterprise_link)
+    assert findings == [{
+        "anchor_text": "Aspose.3D for TypeScript Enterprise Edition",
+        "href": "https://products.aspose.com/3d/typescript/",
+        "reason": "target_mismatch",
+        "detail": "this href does not match the one verified, live-resolving Enterprise target "
+                  "'https://products.aspose.com/3d/' for this product",
+        "verified_url": "https://products.aspose.com/3d/",
+    }]
+
+
+def test_check_enterprise_edition_link_resolves_flags_no_verified_target():
+    text = "See [Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/net/)."
+    findings = checks.check_enterprise_edition_link_resolves(text, {"url": None})
+    assert findings == [{
+        "anchor_text": "Aspose.Foo Enterprise Edition",
+        "href": "https://products.aspose.com/foo/net/",
+        "reason": "no_verified_target",
+        "detail": "this candidate links to products.aspose.com, but no verified Enterprise "
+                  "target resolves for this product in data/aspose_com_targets.json -- remove "
+                  "the link, never guess a slug",
+    }]
+
+
+def test_check_enterprise_edition_link_resolves_handles_none_enterprise_link():
+    text = "See [Aspose.Foo Enterprise Edition](https://products.aspose.com/foo/net/)."
+    findings = checks.check_enterprise_edition_link_resolves(text, None)
+    assert findings[0]["reason"] == "no_verified_target"
+
+
+def test_check_enterprise_edition_link_resolves_ignores_non_enterprise_links():
+    text = _ASPOSE_ORG_LINK
+    assert checks.check_enterprise_edition_link_resolves(text, {"url": None}) == []
+
+
+def test_check_enterprise_edition_link_resolves_trailing_slash_and_case_normalized():
+    text = "See [Aspose.Foo Enterprise Edition](HTTPS://PRODUCTS.ASPOSE.COM/foo/net)."
+    enterprise_link = {"url": "https://products.aspose.com/foo/net/"}
+    assert checks.check_enterprise_edition_link_resolves(text, enterprise_link) == []
+
+
 def test_check_required_sections_all_present():
     assert checks.check_required_sections(_ALL_SECTIONS_README) == []
 
@@ -2314,6 +2369,47 @@ def test_api_reference_table_completeness_ignores_content_after_detailed_member_
     findings = checks.check_api_reference_table_completeness(text, _API_TABLE_REFERENCE_INDEX)
     assert not any(f.get("class_name") == "RogueClass" for f in findings)
     assert findings == []
+
+
+def test_api_reference_table_no_duplicate_rows_clean_table():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_api_reference_table_no_duplicate_rows(text) == []
+
+
+def test_api_reference_table_no_duplicate_rows_flags_real_cells_cpp_regression():
+    # Real, confirmed instance from a clean-room regeneration pilot: cells/cpp's regenerated
+    # Enumerations table listed DiagnosticSeverity twice, verbatim, back-to-back -- it passed
+    # check_api_reference_table_completeness cleanly (both occurrences are legitimate against
+    # the reference index; duplication is a separate, orthogonal defect).
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(interfaces_rows=[
+            "| `DiagnosticSeverity` | Indicates the severity of a diagnostic message. |",
+            "| `DiagnosticSeverity` | Indicates the severity of a diagnostic message. |",
+        ]),
+    )
+    findings = checks.check_api_reference_table_no_duplicate_rows(text)
+    assert findings == [{
+        "module": "Core API", "class_name": "DiagnosticSeverity", "count": 2,
+        "reason": "'DiagnosticSeverity' appears 2 times in the 'Core API' table -- an exact "
+                  "duplicate row, not two different classes",
+    }]
+
+
+def test_api_reference_table_no_duplicate_rows_ignores_different_classes_same_description():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[
+            "| `Scene` | A real class. |",
+            "| `Node` | A real class. |",
+        ]),
+    )
+    assert checks.check_api_reference_table_no_duplicate_rows(text) == []
+
+
+def test_api_reference_table_no_duplicate_rows_noop_without_api_reference_section():
+    text = _wrap("flowchart TD\n  A --> B")  # no "## API Reference" section at all
+    assert checks.check_api_reference_table_no_duplicate_rows(text) == []
 
 
 def test_no_generic_class_description_flags_filler_text():

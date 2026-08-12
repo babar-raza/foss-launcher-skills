@@ -73,9 +73,14 @@ same product concurrently.
    capability-dependency edges (`data/diagram_capability_dependencies.json` — `None` when the
    product has never been traced, which must never be read as "confirmed independent"), real
    install/package data (`data/package_registry.json`), real case-sensitive license-file
-   detection against the clone cache, and the old upstream README's real link/heading/prose
-   inventory (`old_readme_inventory`, including `content_units` — MT030, see below). Transitions
-   `INPUTS_PINNED → PLANNED`.
+   detection against the clone cache (widened 2026-08-12, TC-HARDEN-20, to a 200-char
+   case-insensitive substring match — the old exact-20-char-prefix match missed real files
+   phrased "The MIT License (MIT)..."), a real, live-verified Enterprise Edition link
+   (`enterprise_link` — TC-HARDEN-19, 2026-08-12, via `scripts/pipeline/lib/backlink_targets.py`
+   against `data/aspose_com_targets.json`; `url` is `None` on a genuine unresolved target, which
+   the candidate must never paper over with a guessed slug — see the hard gate below), and the
+   old upstream README's real link/heading/prose inventory (`old_readme_inventory`, including
+   `content_units` — MT030, see below). Transitions `INPUTS_PINNED → PLANNED`.
 
 3. **Agent composes the candidate.** The script does not write README prose — the agent reads
    `facts/factpack.json` and writes `reports/repo-presenter/{family}/{platform}/readme.md`
@@ -109,9 +114,50 @@ same product concurrently.
    never excluded wholesale; `check_content_unit_embedded_actionable_fact` (heuristic) is a
    standing, portfolio-wide tripwire for this exact pattern recurring on a future product.
 
+   **Prose quality (TC-HARDEN-22, MT034/Twentieth incident, 2026-08-12).** Every existing
+   tone-adjacent check (`check_process_narration_smells`, `check_key_capabilities_quality`,
+   `check_section_job_distinctness`) is deliberately a heuristic, never a hard gate — "does this
+   read naturally" is a judgment call no regex can make. What *is* made durable is the process
+   that produces natural-reading prose, not left to whichever agent happens to be composing that
+   day:
+   - **Mandatory tone-exemplar reading, before composing any product's prose.** Read 2–3 real,
+     already-shipped sibling candidates **in full** (not skimmed) — chosen for register
+     diversity: one small/simple product, one large/complex product, and, when this product's
+     own archetype has a shipped sibling, one from the same archetype. This extends the existing
+     "read a sibling candidate for structural reference only, never copy its content" discipline
+     to explicitly cover *voice*, not just structure — a real, required step, not left to
+     individual agent judgment.
+   - **A positive rubric to self-check against before finalizing** (never a hard gate): state a
+     fact plainly, active voice, no hedging (real, shipped example — `cells/cpp`'s *"The primary
+     entry point is `Workbook`, which owns a `WorksheetCollection` of `Worksheet` objects."*); a
+     backtick-quoted identifier is woven naturally into a sentence describing what it does, never
+     presented as a bare, undifferentiated list; each Key Capabilities bullet reads like
+     something a developer would tell a colleague, not template filler with the identifier
+     swapped in; sentence length and rhythm vary across a section.
+   - **Regeneration Comparison Protocol** — whenever this product already has an existing
+     candidate, do not stop at `ALL HARD GATES CLEAN`. Read both files in full and classify every
+     real difference into: **structural** (sections/diagram/tables — the gates below already
+     force these to match; a real difference here is itself a bug worth investigating, not
+     accepting), **factual** (a claim present/absent/changed — verify EVERY factual disagreement
+     against real source before trusting either side; never assume the older file is right just
+     because it shipped first, never assume the newer file is right just because it's freshly
+     source-derived), and **wording/tone variation** (expected, not a defect — this is the rubric
+     above at work). Write the comparison down per-product, alongside `content-dispositions.json`
+     — not just held in the composing agent's own context. **A regenerated candidate never
+     silently replaces an existing one** — replacement requires the same explicit, per-product
+     human go-ahead as every other consequential action this skill takes (matching the approve/
+     push/merge gates above).
+   - **Honest limit, stated plainly, never smoothed over**: the skill can produce the comparison
+     and apply the rubric; it cannot certify "reads naturally" on its own authority. A
+     mechanically-checkable property (does a link resolve, does a member exist) is not the same
+     thing as prose quality — the gates below catch factual and structural defects; final
+     certification that prose reads naturally stays a human judgment call, every time.
+
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 47 functions) against the
-   candidate. **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 47 functions as of 2026-08-12 —
+   re-verify against `grep -c "^def check_" readme_refresh_checks.py` before trusting this number
+   again; TC-HARDEN-16 tracks this doc's own self-consistency as real, deferred work, not solved
+   here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
    capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability
@@ -131,7 +177,15 @@ same product concurrently.
    visible), every heading (including `<summary>` text) is title case, no undisclosed BLOCKING
    command from `upstream-issues.md` is repeated as a normal install/build step, no real
    old-README link/heading/meaning was silently dropped or hidden behind an internal
-   process-label like "Preserved repository details", and (**MT030**, Fifteenth incident)
+   process-label like "Preserved repository details", (**TC-HARDEN-19**, MT034/Twentieth
+   incident, 2026-08-12) every `products.aspose.com` Enterprise Edition link in the candidate
+   matches the factpack's own real, live-verified `enterprise_link["url"]` exactly — never a
+   guessed slug (this closes a confirmed-live regression: a clean-room regeneration produced a
+   real, curl-confirmed 404 that every prior gate, including the anchor-text/context check
+   below, passed cleanly), (**TC-HARDEN-21**, MT034, 2026-08-12) no class name appears more than
+   once within the same API Reference module table (an exact duplicate row is not the same
+   defect as a missing/unrecognized class, and `check_api_reference_table_completeness` has no
+   concept of it), and (**MT030**, Fifteenth incident)
    every real old-README content unit has a complete, well-formed disposition record whose
    cited evidence actually resolves against real product-repo/registry/docs data and whose
    claimed section-merge is traceable to real text in the candidate (never two disposition
