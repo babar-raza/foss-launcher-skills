@@ -138,12 +138,6 @@ def test_reference_write_ahead_evidence_survives_writer_crash(
         encoding="utf-8",
     )
     original_write = _br.safe_content_write
-    flat_heal_calls = []
-    monkeypatch.setattr(
-        _br,
-        "_auto_heal_flat_index",
-        lambda *args: flat_heal_calls.append(args),
-    )
 
     def crash_on_real_path(path, content, **kwargs):
         if str(path).startswith(str(run_root / "staging")):
@@ -175,7 +169,6 @@ def test_reference_write_ahead_evidence_survives_writer_crash(
     )
     assert result["updated"] == 1
     assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
-    assert flat_heal_calls == []
 
 
 class TestKindFilterJava:
@@ -2210,3 +2203,63 @@ def test_generate_grouped_index_gi01_uses_entry_slug(tmp_path):
         f"Bare '| `ID` |' cell must NOT appear — would produce a broken link.\n"
         f"Body preview:\n{body}"
     )
+
+
+def test_generate_grouped_index_stamps_generator_version_and_output_has_no_duplicates(
+    tmp_path,
+):
+    """TC-DUPIDX-02 (ST-059): a real, non-dry-run write must (1) stamp
+    provenance.index_generator_version and (2) produce a body with zero duplicate
+    rows under the same algorithm CI now enforces (api_table_dupes), closing the
+    loop between the generator's own output and the check that guards it."""
+    from lib.reference_filter import GROUPED_INDEX_GENERATOR_VERSION
+    from lib.api_table_dupes import find_duplicate_rows, parse_grouped_md_tables
+    import re as _re2
+
+    entries = [
+        {"name": "Document", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf", "description": "Represents a PDF document.",
+         "methods": [], "properties": []},
+        {"name": "Page", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf", "description": "Represents a PDF page.",
+         "methods": [], "properties": []},
+        # A genuine two-namespace name collision, mirroring the real pdf/net Rectangle case.
+        {"name": "Rectangle", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf", "description": "A page-space rectangle.",
+         "methods": [], "properties": []},
+        {"name": "Rectangle", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf.Drawing", "description": "A drawing rectangle.",
+         "methods": [], "properties": []},
+        {"name": "Cell", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf.Text", "description": "Represents a table cell.",
+         "methods": [], "properties": []},
+    ]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+    (content_dir / "_index.md").write_text(
+        "---\ntitle: Fake NET Reference\ncategories: []\n"
+        "provenance:\n  content_origin: skill-generated\n  last_mechanism: skill\n"
+        "  auto_updatable: true\n---\n\nIndex.\n",
+        encoding="utf-8",
+    )
+
+    result = _br.generate_grouped_index("fake", "net", dry_run=False)
+    assert result.get("written"), f"Expected a real write. Result: {result}"
+
+    written = (content_dir / "_index.md").read_text(encoding="utf-8")
+    assert f"index_generator_version: {GROUPED_INDEX_GENERATOR_VERSION}" in written
+
+    module_re = _re2.compile(r"^##\s+(.+?)\s*$")
+    subheader_re = _re2.compile(r"^###\s+(.+?)\s*$")
+    stop_re = _re2.compile(r"^##\s*See Also\s*$", _re2.IGNORECASE)
+    tables = parse_grouped_md_tables(
+        written, module_header_re=module_re, subheader_re=subheader_re, stop_re=stop_re,
+    )
+    assert find_duplicate_rows(tables) == [], (
+        f"generate_grouped_index()'s own output must have zero duplicate rows.\n{written}"
+    )
+    # The two Rectangle entries must both be present, namespace-disambiguated.
+    all_names = [name for names in tables.values() for name in names]
+    assert all_names.count("Rectangle") == 0, "bare 'Rectangle' must be disambiguated, not duplicated"
+    assert any(n.startswith("Rectangle-") for n in all_names)

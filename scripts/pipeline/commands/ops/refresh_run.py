@@ -42,6 +42,8 @@ from lib.schema_validators import (  # noqa: E402
     validate_refresh_page_decision,
     validate_refresh_run_manifest,
 )
+from lib.provenance import is_manually_curated, read_provenance  # noqa: E402
+from lib.reference_filter import index_generator_version_is_stale  # noqa: E402
 
 SCHEMA_VERSION = 3
 MODES = frozenset({"upstream", "remediation", "combined"})
@@ -1659,6 +1661,38 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
         raise RefreshRunError(
             f"{len(blocked)} scoped page decision(s) are BLOCKED: {blocked[:5]}"
         )
+
+    # TC-DUPIDX-02 (2026-08-12, ST-059): version-gated reference-index re-invocation. Runs as
+    # an independent step, deliberately AFTER scope/decision reconciliation above (not folded
+    # into the "reference refresh" _require_command call) -- generate_grouped_index() (invoked
+    # via --generate-index) writes no page_decisions.jsonl row, so folding it into the pinned
+    # scope would make _reconcile_scope_and_decisions() see a phantom missing/unexpected entry
+    # for _index.md. This closes the gap that let the GI-01 disambiguation fix (362430210c,
+    # 2026-06-20) sit unapplied on 9 already-published pages indefinitely: nothing in the
+    # routine refresh path ever re-derived an already-grouped index from current generator
+    # logic, only from current knowledge data (is_stale_grouped_index, a separate axis).
+    if reference_scope:
+        index_path = (
+            _repo_root / "content" / "reference.aspose.org" / "en" / family / platform
+            / "_index.md"
+        )
+        if index_path.is_file() and not is_manually_curated(index_path):
+            if index_generator_version_is_stale(read_provenance(index_path)):
+                _require_command(
+                    [
+                        python,
+                        str(
+                            _repo_root
+                            / "scripts/pipeline/commands/content/batch_reference.py"
+                        ),
+                        family,
+                        platform,
+                        "--generate-index",
+                    ],
+                    "reference index generator-version re-invocation",
+                    manifest=manifest,
+                )
+
     manifest["receipt_refs"] = [
         path.relative_to(_repo_root).as_posix() for path in receipts
     ]

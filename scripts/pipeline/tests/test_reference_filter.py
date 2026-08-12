@@ -5,6 +5,7 @@ Covers:
 - filtered_count()
 - count_index_table_rows()
 - is_stale_grouped_index()
+- index_generator_version_is_stale() (TC-DUPIDX-02, ST-059)
 - Platform-specific exclusions unified from batch_reference.py (TC-REF-11):
     C++ I-prefix / abstract bases, Python I-prefix,
     Java _JAVA_INTERNAL_CLASSES, .NET .Internal. namespace
@@ -15,10 +16,43 @@ from scripts.pipeline.lib.reference_filter import (
     filtered_count,
     count_index_table_rows,
     is_stale_grouped_index,
+    index_generator_version_is_stale,
+    GROUPED_INDEX_GENERATOR_VERSION,
     _passes_platform_scope,
     _CPP_ABSTRACT_BASES,
     _JAVA_INTERNAL_CLASSES,
 )
+
+
+# ---------------------------------------------------------------------------
+# index_generator_version_is_stale() (TC-DUPIDX-02, ST-059)
+# ---------------------------------------------------------------------------
+
+def test_index_generator_version_stale_when_provenance_missing():
+    assert index_generator_version_is_stale(None) is True
+    assert index_generator_version_is_stale({}) is True
+
+
+def test_index_generator_version_stale_when_field_absent():
+    # Every one of the 9 currently-published pages this taskcard backfills has no
+    # index_generator_version field at all -- absent must mean stale, not "version 0 is fine".
+    assert index_generator_version_is_stale({"auto_updatable": True}) is True
+
+
+def test_index_generator_version_not_stale_when_current():
+    provenance = {"index_generator_version": GROUPED_INDEX_GENERATOR_VERSION}
+    assert index_generator_version_is_stale(provenance) is False
+
+
+def test_index_generator_version_stale_when_behind():
+    provenance = {"index_generator_version": GROUPED_INDEX_GENERATOR_VERSION - 1}
+    assert index_generator_version_is_stale(provenance) is True
+
+
+def test_index_generator_version_not_stale_when_ahead():
+    # A future-versioned page (e.g. rolled back generator code) is not "stale".
+    provenance = {"index_generator_version": GROUPED_INDEX_GENERATOR_VERSION + 1}
+    assert index_generator_version_is_stale(provenance) is False
 
 
 # ---------------------------------------------------------------------------

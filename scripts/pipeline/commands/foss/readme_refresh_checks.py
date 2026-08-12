@@ -182,6 +182,8 @@ import json
 import re
 import sys
 from pathlib import Path
+
+from lib.api_table_dupes import find_duplicate_rows as _find_duplicate_rows
 from dataclasses import dataclass, field
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
@@ -2231,24 +2233,18 @@ def check_api_reference_table_no_duplicate_rows(readme_text: str) -> list[dict]:
     table is mechanically unambiguous, never a judgment call, so this is a hard gate, not a
     heuristic; two rows sharing the same DESCRIPTION text but different class names is not a
     defect and is never flagged.
+
+    The counting logic itself now lives in `lib.api_table_dupes.find_duplicate_rows()`
+    (TC-DUPIDX-01, 2026-08-12, ST-059) -- this check's own proof case (cells/cpp's
+    `DiagnosticSeverity`) turned out to be live in reference.aspose.org's own `_index.md`, not
+    just this composed README candidate, so `check_reference_index_structure.py` gained a
+    sibling check using the same shared algorithm rather than a second, divergent copy of it.
     """
     section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
     if not section_match:
         return []
     tables = _parse_readme_api_tables(section_match.group(1))
-    findings: list[dict] = []
-    for module, classes in tables.items():
-        counts: dict[str, int] = {}
-        for cls in classes:
-            counts[cls] = counts.get(cls, 0) + 1
-        for cls, count in counts.items():
-            if count > 1:
-                findings.append({
-                    "module": module, "class_name": cls, "count": count,
-                    "reason": f"'{cls}' appears {count} times in the '{module}' table -- an "
-                              "exact duplicate row, not two different classes",
-                })
-    return findings
+    return _find_duplicate_rows(tables)
 
 
 # Broadened 2026-08-09 during this check's own Phase 1 pilot sanity pass against cells/cpp's

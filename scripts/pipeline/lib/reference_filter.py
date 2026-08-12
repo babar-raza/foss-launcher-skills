@@ -214,6 +214,39 @@ def count_index_table_rows(markdown_text: str) -> int:
     return count
 
 
+# ---------------------------------------------------------------------------
+# Generator-version fingerprint (TC-DUPIDX-02, 2026-08-12, ST-059)
+# ---------------------------------------------------------------------------
+#
+# Knowledge-data staleness (has api_surface.json changed?) is already tracked via
+# evidence.model_sha and checked by is_stale_grouped_index() above. Generator-LOGIC staleness
+# (has the code that turns api_surface.json into a grouped table improved?) had no equivalent
+# signal -- a real gap: the GI-01 disambiguation fix (commit 362430210c, 2026-06-20) corrected
+# generate_grouped_index()'s name-collision handling, but 9 of 30 already-published reference
+# index pages kept their pre-fix duplicate rows indefinitely, because nothing ever re-derived
+# them once GI-01 landed. GROUPED_INDEX_GENERATOR_VERSION closes that gap the same way
+# model_sha closes the knowledge-staleness gap: a page's provenance.index_generator_version is
+# stamped by generate_grouped_index() on every write; refresh_run.py's apply_run() compares it
+# against the current constant and re-invokes the generator when it's behind.
+#
+# History:
+#   1 = GI-01's Phase A case/namespace-collision disambiguation (_entry_slug() /
+#       _assign_namespace_slug_suffixes()) applied unconditionally inside
+#       generate_grouped_index() before _build_grouped_index_body() renders rows. No page was
+#       ever stamped before this constant existed -- an absent field means "generated before
+#       this fingerprint existed" and must be treated as stale, not as version 0-is-fine.
+GROUPED_INDEX_GENERATOR_VERSION = 1
+
+
+def index_generator_version_is_stale(
+    provenance: dict | None, *, current: int = GROUPED_INDEX_GENERATOR_VERSION,
+) -> bool:
+    """Return True if a page's stamped generator version is behind (or absent)."""
+    if not provenance:
+        return True
+    return (provenance.get("index_generator_version", 0) or 0) < current
+
+
 def is_stale_grouped_index(
     markdown_text: str,
     api_surface: Sequence[dict],

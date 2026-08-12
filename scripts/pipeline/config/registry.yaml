@@ -4059,6 +4059,23 @@ scripts:
     deprecated_since: null
     notes: "Two-step API surface filter shared by batch_reference.py and check_reference_index_structure.py (TC-REF-09)"
 
+  - path: scripts/pipeline/lib/api_table_dupes.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: reference
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_api_table_dupes.py
+    requires_test: true
+    test_exempt_reason: ""
+    deprecated_since: null
+    notes: "Shared duplicate-row detection for module-grouped markdown API tables (TC-DUPIDX-01, 2026-08-12, ST-059); used by check_reference_index_structure.py and readme_refresh_checks.py's check_api_reference_table_no_duplicate_rows()"
+
   - path: scripts/pipeline/commands/ops/backlink_capture_current_anchors.py
     kind: one-shot
     lifecycle: maintenance

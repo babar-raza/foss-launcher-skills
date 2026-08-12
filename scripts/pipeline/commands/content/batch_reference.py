@@ -68,6 +68,7 @@ from lib.reference_filter import (  # noqa: E402
     _passes_platform_scope,
     _CPP_ABSTRACT_BASES,
     _JAVA_INTERNAL_CLASSES,
+    GROUPED_INDEX_GENERATOR_VERSION,
 )
 
 # ---------------------------------------------------------------------------
@@ -1276,26 +1277,6 @@ def _is_flat_index(index_path: Path) -> bool:
     return "{{< children" in body
 
 
-def _auto_heal_flat_index(family: str, platform: str) -> None:
-    """During --update/--rebuild-all, auto-heal a flat reference _index.md if possible."""
-    index_path = CONTENT_ROOT / "reference.aspose.org" / "en" / family / platform / "_index.md"
-    if not _is_flat_index(index_path):
-        return
-    api_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
-    if not api_path.exists():
-        return
-    api = json.loads(api_path.read_text(encoding="utf-8"))
-    if len(api) < 5:
-        return
-    print(f"\nAuto-healing flat reference index for {family}/{platform}...")
-    result = generate_grouped_index(family, platform, dry_run=False)
-    if result and result.get("written"):
-        print(f"  Flat index healed: {result.get('entry_count', 0)} entries grouped")
-    else:
-        reason = result.get("reason", "unknown") if result else "no result"
-        print(f"  Flat index heal skipped: {reason}")
-
-
 def detect_flat_indexes() -> list[dict]:
     """Scan all reference platforms and return those with flat indexes that could be grouped."""
     ref_root = CONTENT_ROOT / "reference.aspose.org" / "en"
@@ -1422,6 +1403,23 @@ def generate_grouped_index(
     fm_text = re.sub(r"last_mechanism:\s*\S+", "last_mechanism: skill", fm_text)
     # Remove recovery note if present (no longer structural-page after healing)
     fm_text = re.sub(r"\n\s*provenance_recovery_note:\s*\S+", "", fm_text)
+
+    # TC-DUPIDX-02 (2026-08-12, ST-059): stamp the generator-logic version so refresh_run.py's
+    # apply_run() can detect an already-published index built by pre-fix code (e.g. GI-01,
+    # 362430210c) and re-invoke this function -- the gap that let 9 published pages keep
+    # duplicate rows indefinitely after the disambiguation fix landed with no re-invocation path.
+    if re.search(r"^\s*index_generator_version:\s*\S+", fm_text, re.MULTILINE):
+        fm_text = re.sub(
+            r"^(\s*)index_generator_version:\s*\S+",
+            rf"\g<1>index_generator_version: {GROUPED_INDEX_GENERATOR_VERSION}",
+            fm_text, flags=re.MULTILINE,
+        )
+    else:
+        fm_text = re.sub(
+            r"(auto_updatable:\s*true)",
+            rf"\g<1>\n  index_generator_version: {GROUPED_INDEX_GENERATOR_VERSION}",
+            fm_text, count=1,
+        )
 
     # Build intro paragraph
     _PLAT_DISPLAY = {
@@ -2325,13 +2323,15 @@ def run(family: str, platform: str, kind_arg: str = "all",
         dry_run=dry_run,
     )
 
-    # Auto-heal flat reference index if running in --update or --rebuild-all mode
-    if (
-        (update or rebuild_all)
-        and not dry_run
-        and resolved_run_root is None
-    ):
-        _auto_heal_flat_index(family, platform)
+    # NOTE (TC-DUPIDX-02, 2026-08-12, ST-059): a flat/stale-grouped-index auto-heal call used to
+    # live here, gated on `resolved_run_root is None` -- that condition can only hold when
+    # dry_run=True, which the surrounding `not dry_run` already excludes, so it never actually
+    # fired on any real mutating run (confirmed: run() raises above if run_id is unset on a
+    # non-dry-run call, and resolved_run_root is always derived from run_id/run_root when set).
+    # The real re-invocation path now lives in refresh_run.py's apply_run(), gated on
+    # provenance.index_generator_version rather than on flat-scaffold detection alone, so it
+    # also covers already-grouped pages whose table predates a generator-logic fix (the GI-01
+    # case this taskcard exists to close) -- not just pages still in the legacy scaffold format.
 
     return {"generated": len(generated), "updated": len(updated),
             "skipped": len(to_skip), "errors": len(errors),

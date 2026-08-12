@@ -2,7 +2,7 @@
 """
 Reference index structure validator for reference.aspose.org.
 
-Checks two failure modes:
+Checks three failure modes:
 
 1. **Flat index** -- a ``{{< children >}}`` shortcode is the only body content
    while a sufficiently large api_surface.json exists (original check).
@@ -13,7 +13,26 @@ Checks two failure modes:
    but the grouped index was never regenerated.  Manually-curated pages
    (last_mechanism: manual-edit-skill | human-edit | agent-edit) are skipped.
 
-Exit code: 0 if clean, 1 if warnings found, 2 if setup error.
+3. **Duplicate rows** (TC-DUPIDX-03, 2026-08-12, ST-059) -- two sub-checks,
+   neither visible to Check 2 (a duplicate row makes its row-count ratio look
+   *healthier*, not worse). Both are hard gates (exit 2), same severity as
+   Check 1 -- both are mechanically unambiguous, never a judgment call:
+     3a. **Same-module exact duplicate** -- a class/enum name listed twice
+         within one module's table (e.g. cells/cpp's ``DiagnosticSeverity``).
+         Uses the same shared algorithm as readme-refresh's
+         ``check_api_reference_table_no_duplicate_rows`` (lib.api_table_dupes)
+         so the two consumers of "find duplicate rows in a grouped markdown
+         table" share one implementation.
+     3b. **Cross-module collision** -- the same bare class name appears in
+         two or more *different* modules with no namespace-disambiguating
+         suffix (e.g. pdf/java's ``Rectangle`` under both "Core API" and
+         "Drawing"). 3a alone can't see this since it only looks within one
+         module's own rows -- but ``generate_grouped_index()``'s own Phase A
+         disambiguation groups entries by slug across the full api_surface
+         list *before* modules are assigned, so a cross-module collision is
+         exactly as much a generator-contract violation as a same-module one.
+
+Exit code: 0 if clean, 1 if warnings found, 2 if setup error or duplicate rows found.
 
 Usage:
     python scripts/ci/checks/check_reference_index_structure.py [--staleness]
@@ -88,6 +107,68 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
+# Shared duplicate-row detector (TC-DUPIDX-03) — imported when available,
+# inlined as fallback, same defensive pattern as the shared filter above
+# ---------------------------------------------------------------------------
+try:
+    import sys as _sys2
+    _sys2.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+    from lib.api_table_dupes import find_duplicate_rows as _find_duplicate_rows
+    from lib.api_table_dupes import parse_grouped_md_tables as _parse_grouped_md_tables
+    _HAS_SHARED_DUPE_DETECTOR = True
+except ImportError:
+    _HAS_SHARED_DUPE_DETECTOR = False
+
+    # --- inline fallback (kept in sync with api_table_dupes.py) ---
+    _TABLE_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*(.*?)\s*\|\s*$")
+
+    def _parse_grouped_md_tables(  # type: ignore[misc]
+        body_text: str, *, module_header_re, subheader_re=None, stop_re=None,
+    ) -> dict:
+        tables: dict = {}
+        current_module = None
+        for line in body_text.splitlines():
+            if stop_re is not None and stop_re.match(line):
+                break
+            module_match = module_header_re.match(line)
+            if module_match:
+                current_module = module_match.group(1).strip()
+                tables.setdefault(current_module, [])
+                continue
+            if subheader_re is not None and subheader_re.match(line):
+                continue
+            if current_module is None:
+                continue
+            row_match = _TABLE_ROW_RE.match(line)
+            if row_match:
+                tables[current_module].append(row_match.group(1))
+        return tables
+
+    def _find_duplicate_rows(tables: dict) -> list:  # type: ignore[misc]
+        findings: list = []
+        for module, classes in tables.items():
+            counts: dict = {}
+            for cls in classes:
+                counts[cls] = counts.get(cls, 0) + 1
+            for cls, count in counts.items():
+                if count > 1:
+                    findings.append({
+                        "module": module, "class_name": cls, "count": count,
+                        "reason": f"'{cls}' appears {count} times in the '{module}' table -- an "
+                                  "exact duplicate row, not two different classes",
+                    })
+        return findings
+
+
+# Reference _index.md heading levels, per _build_grouped_index_body()
+# (batch_reference.py: "## {module}" buckets, "### {Enumerations|Structs|Interfaces}"
+# sub-groups fold into the current module, "## See Also" ends the body).
+_DUP_MODULE_RE = re.compile(r"^##\s+(.+?)\s*$")
+_DUP_SUBHEADER_RE = re.compile(r"^###\s+(.+?)\s*$")
+_DUP_STOP_RE = re.compile(r"^##\s*See Also\s*$", re.IGNORECASE)
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -131,6 +212,7 @@ def run(check_staleness: bool = True) -> int:
 
     flat_warnings: list[dict] = []
     stale_warnings: list[dict] = []
+    dup_warnings: list[dict] = []
     checked = 0
 
     for family_dir in sorted(_REF_CONTENT.iterdir()):
@@ -187,6 +269,57 @@ def run(check_staleness: bool = True) -> int:
                                 "ratio": round(rows / fc, 3),
                             })
 
+            # --- Check 3: duplicate rows (hard gate, TC-DUPIDX-03) ---
+            # Runs unconditionally (not gated behind --staleness) since
+            # reference-index-structure.yml's first, blocking step is the
+            # default (non---staleness) run path. Manually-curated pages are
+            # skipped, matching Checks 1/2 -- a human-curated page's content
+            # is not second-guessed by this automated gate.
+            if not _is_manually_curated(text):
+                tables = _parse_grouped_md_tables(
+                    body,
+                    module_header_re=_DUP_MODULE_RE,
+                    subheader_re=_DUP_SUBHEADER_RE,
+                    stop_re=_DUP_STOP_RE,
+                )
+                # 3a: same-module exact duplicates (shared algorithm, matches the
+                # readme-refresh gate's proven cells/cpp DiagnosticSeverity case).
+                for finding in _find_duplicate_rows(tables):
+                    dup_warnings.append({
+                        "family": family,
+                        "platform": platform,
+                        "path": str(index_path.relative_to(_REPO_ROOT)),
+                        **finding,
+                    })
+                # 3b: cross-module name collisions (live on pdf/java, pdf/net --
+                # e.g. `Rectangle` under both "Core API"/"Drawing" modules).
+                # generate_grouped_index()'s own Phase A disambiguation groups
+                # entries by slug across the FULL api_surface list before modules
+                # are assigned, so a same-name collision spanning two different
+                # modules is exactly as much a generator-contract violation as one
+                # within a single module -- 3a alone, scoped like the README-side
+                # check, can't see it. Distinct finding shape (no `count`/exact-dup
+                # `reason` reuse) since this is a different defect: an
+                # undisambiguated collision, not a literal repeated row.
+                name_to_modules: dict[str, list[str]] = {}
+                for module, classes in tables.items():
+                    for cls in classes:
+                        name_to_modules.setdefault(cls, []).append(module)
+                for cls, modules in name_to_modules.items():
+                    distinct_modules = sorted(set(modules))
+                    if len(distinct_modules) > 1:
+                        dup_warnings.append({
+                            "family": family,
+                            "platform": platform,
+                            "path": str(index_path.relative_to(_REPO_ROOT)),
+                            "class_name": cls,
+                            "modules": distinct_modules,
+                            "reason": f"'{cls}' appears in {len(distinct_modules)} different "
+                                      f"modules ({', '.join(distinct_modules)}) with no "
+                                      "namespace-disambiguating suffix on any occurrence -- an "
+                                      "undisambiguated cross-module name collision",
+                        })
+
     # --- Report ---
     exit_code = 0
 
@@ -219,12 +352,28 @@ def run(check_staleness: bool = True) -> int:
             print()
         # Advisory only — does not change exit code
 
+    if dup_warnings:
+        print(f"FAIL: {len(dup_warnings)} duplicate row(s) found across reference index "
+              f"pages (exact class-name duplicates within one module's table):")
+        print()
+        for w in dup_warnings:
+            print(f"  {w['family']}/{w['platform']}: {w['reason']}")
+            print(f"    Path:   {w['path']}")
+            print(f"    Fix:    .venv/Scripts/python scripts/pipeline/commands/content/"
+                  f"batch_reference.py {w['family']} {w['platform']} --generate-index")
+            print()
+        # An exact duplicate class name is mechanically unambiguous, never a judgment
+        # call — hard gate, same severity as Check 1.
+        exit_code = 2
+
+    dupe_note = "(using shared api_table_dupes)" if _HAS_SHARED_DUPE_DETECTOR else "(inline dupe-detector fallback)"
     filter_note = "(using shared reference_filter)" if _HAS_SHARED_FILTER else "(inline filter fallback)"
-    print(f"OK: {checked} reference index pages checked {filter_note}.")
-    if not flat_warnings and not stale_warnings:
+    print(f"OK: {checked} reference index pages checked {filter_note} {dupe_note}.")
+    if not flat_warnings and not stale_warnings and not dup_warnings:
         print("All pages have appropriate structure.")
     else:
-        print(f"Flat: {len(flat_warnings)}  Stale (advisory): {len(stale_warnings)}")
+        print(f"Flat: {len(flat_warnings)}  Stale (advisory): {len(stale_warnings)}  "
+              f"Duplicate rows: {len(dup_warnings)}")
 
     return exit_code
 

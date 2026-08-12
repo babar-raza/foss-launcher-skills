@@ -12,6 +12,7 @@ import yaml
 
 import refresh_run
 from commands.content.body_refresh import _frontmatter_hash, _normalized_body_hash
+from lib.reference_filter import GROUPED_INDEX_GENERATOR_VERSION
 
 
 MODEL_SHA = "a" * 40
@@ -1288,6 +1289,127 @@ def test_apply_reconciliation_blocks_generated_over_existing_content(tmp_path: P
 
     with pytest.raises(refresh_run.RefreshRunError, match="reconciliation failed"):
         refresh_run.apply_run(manifest)
+
+
+def _write_index_provenance(
+    tmp_path: Path, family: str, platform: str, *,
+    index_generator_version: int | None = None,
+    last_mechanism: str = "skill",
+) -> Path:
+    """Write a reference _index.md with controllable provenance for the
+    TC-DUPIDX-02 generator-version re-invocation tests below."""
+    index_path = (
+        tmp_path / "content/reference.aspose.org/en" / family / platform / "_index.md"
+    )
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = ["---", "provenance:", f"  last_mechanism: {last_mechanism}", "  auto_updatable: true"]
+    if index_generator_version is not None:
+        lines.append(f"  index_generator_version: {index_generator_version}")
+    lines += ["---", "", "## Core API", ""]
+    index_path.write_text("\n".join(lines), encoding="utf-8")
+    return index_path
+
+
+def _reference_scope_runner_recording_generate_index(
+    tmp_path: Path, run_id: str, scoped_path: str, calls: list,
+):
+    """Shared command_runner for the three TC-DUPIDX-02 tests below: satisfies the
+    ordinary 'reference refresh' (--update/--rebuild-all) call with a page decision
+    row for the scoped page, and separately records any --generate-index invocation
+    (the new version-gated re-invocation step) without executing it for real."""
+    def runner(args: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        if any("--generate-index" in str(a) for a in args):
+            calls.append(args)
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if any("batch_reference.py" in str(a) for a in args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net" / run_id
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": run_id,
+                    "page_path": scoped_path,
+                    "disposition": "GENERATED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+    return runner
+
+
+def test_apply_run_reinvokes_generate_grouped_index_for_stale_index_version(
+    tmp_path: Path,
+):
+    # No index_generator_version stamp at all -- simulates every one of the 9
+    # currently-published reference-index pages this taskcard's backfill targets.
+    scoped = "content/reference.aspose.org/en/pdf/net/SomeClass.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [scoped], "RUN-GENIDX-STALE")
+    _write_index_provenance(tmp_path, "pdf", "net", index_generator_version=None)
+
+    generate_index_calls: list = []
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_reference_scope_runner_recording_generate_index(
+            tmp_path, "RUN-GENIDX-STALE", scoped, generate_index_calls,
+        ),
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+    assert len(generate_index_calls) == 1
+    call = [str(a) for a in generate_index_calls[0]]
+    assert "pdf" in call and "net" in call
+    assert any("batch_reference.py" in a for a in call)
+
+
+def test_apply_run_skips_generate_grouped_index_when_version_current(tmp_path: Path):
+    scoped = "content/reference.aspose.org/en/pdf/net/SomeClass.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [scoped], "RUN-GENIDX-CURRENT")
+    _write_index_provenance(
+        tmp_path, "pdf", "net",
+        index_generator_version=GROUPED_INDEX_GENERATOR_VERSION,
+    )
+
+    generate_index_calls: list = []
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_reference_scope_runner_recording_generate_index(
+            tmp_path, "RUN-GENIDX-CURRENT", scoped, generate_index_calls,
+        ),
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+    assert generate_index_calls == []
+
+
+def test_apply_run_skips_generate_grouped_index_for_manually_curated_index(
+    tmp_path: Path,
+):
+    # Mirrors pdf/net's real, currently-live containment flag (last_mechanism:
+    # manual-edit-skill, bb9644e69c) -- a future case like it must stay protected
+    # from any automatic re-invocation, stale stamp or not.
+    scoped = "content/reference.aspose.org/en/pdf/net/SomeClass.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [scoped], "RUN-GENIDX-PROTECTED")
+    _write_index_provenance(
+        tmp_path, "pdf", "net",
+        index_generator_version=None, last_mechanism="manual-edit-skill",
+    )
+
+    generate_index_calls: list = []
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_reference_scope_runner_recording_generate_index(
+            tmp_path, "RUN-GENIDX-PROTECTED", scoped, generate_index_calls,
+        ),
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+    assert generate_index_calls == []
 
 
 def test_apply_refuses_scoped_file_changed_after_planning(tmp_path: Path):
