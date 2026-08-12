@@ -2871,7 +2871,11 @@ def test_api_reference_classes_exist_flags_fabricated_class_confirmed_by_neither
     assert any(f["class_name"] == "TotallyFakeClass" for f in findings)
 
 
-def test_api_reference_classes_exist_noop_when_no_reference_data():
+def test_api_reference_classes_exist_flags_when_no_reference_data_available():
+    # TC-HARDEN-31 (Twenty-Second incident / MT035): this used to be a silent no-op --
+    # exactly the state a brand-new product starts in (no /repo-scout run, no
+    # reference.aspose.org page). A cited class with no corroborating source anywhere must
+    # now produce a real, named finding, never zero findings indistinguishable from "clean."
     text = _wrap(
         """flowchart TD
   PRODUCT["P"]
@@ -2884,8 +2888,70 @@ def test_api_reference_classes_exist_noop_when_no_reference_data():
   PRODUCT --> Capabilities --> Outputs""",
         extra_section="## API Reference\n\n- `AnyClassAtAll`\n  - `run()`\n",
     )
+    for reference_names in (None, set()):
+        findings = checks.check_api_reference_classes_exist_in_reference_site(text, reference_names)
+        assert any(f.get("class_name") == "AnyClassAtAll" for f in findings), findings
+        assert any("no verification source is available" in f["reason"] for f in findings)
+
+
+def test_api_reference_classes_exist_still_vacuous_when_no_classes_cited_and_no_sources():
+    # Regression guard: the TC-HARDEN-31 fix must not fire when the API Reference section
+    # genuinely names no classes at all via the structured bullet convention -- there is
+    # nothing to be unverified about.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\nThe primary entry point is `Workbook`.\n\n<details>\n",
+    )
     assert checks.check_api_reference_classes_exist_in_reference_site(text, None) == []
     assert checks.check_api_reference_classes_exist_in_reference_site(text, set()) == []
+
+
+def test_api_reference_classes_exist_no_sources_skips_package_grouping_bullet():
+    # Regression guard: the existing package-grouping exclusion (a lowercase last dot-segment
+    # is not a real class citation) must still apply even when no sources are available --
+    # otherwise a real bullet like "- `org.aspose.pdf.drawing` -- `Line`, `Rectangle`" would
+    # be wrongly flagged as an unverified class named "org.aspose.pdf.drawing".
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\n- `org.aspose.pdf.drawing` -- `Line`, `Rectangle`\n",
+    )
+    assert checks.check_api_reference_classes_exist_in_reference_site(text, None) == []
+
+
+def test_api_reference_classes_exist_no_sources_flags_every_distinct_cited_class():
+    # Both halves of a combined `` `ClassA` / `ClassB` `` bullet are real, distinct citations
+    # -- both must be flagged when no source is available, not just the first.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Does a thing"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Plain text"]
+  end
+  PRODUCT --> Capabilities --> Outputs""",
+        extra_section="## API Reference\n\n- `LoadOptions` / `SaveOptions`\n",
+    )
+    findings = checks.check_api_reference_classes_exist_in_reference_site(text, None)
+    flagged = {f["class_name"] for f in findings}
+    assert flagged == {"LoadOptions", "SaveOptions"}
 
 
 def test_no_leaked_docstring_artifacts_flags_real_texoptions_case():

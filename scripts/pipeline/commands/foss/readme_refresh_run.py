@@ -316,15 +316,33 @@ def _block(manifest: dict, reason: str) -> None:
 # --- start: CREATED -> INPUTS_PINNED --------------------------------------------------------
 
 
+def _load_json_registry(path: Path) -> "list | dict":
+    """TC-HARDEN-30 (MT035): a hand-edited registry file with a JSON syntax error (a trailing
+    comma is the single most common mistake) must fail with a clean, named BLOCKED message --
+    never a raw json.JSONDecodeError traceback. Every registry loader in this module routes
+    through this helper so that guarantee holds uniformly, not just for products.json."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ReadmeRefreshRunError(f"Cannot read registry file {path}: {exc}") from exc
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ReadmeRefreshRunError(f"Malformed JSON in {path}: {exc}") from exc
+
+
 def _load_products() -> list[dict]:
-    return json.loads((_repo_root / "data" / "products.json").read_text(encoding="utf-8"))
+    return _load_json_registry(_repo_root / "data" / "products.json")
 
 
 def _load_registry_exclusions() -> list[dict]:
     path = _repo_root / "data" / "registry_exclusions.json"
     if not path.is_file():
         return []
-    return json.loads(path.read_text(encoding="utf-8"))
+    return _load_json_registry(path)
+
+
+_PRODUCT_REQUIRED_FIELDS = ("repo_url", "clone_url")
 
 
 def _resolve_product(family: str, platform: str) -> dict:
@@ -332,6 +350,16 @@ def _resolve_product(family: str, platform: str) -> dict:
         if entry.get("family") == family and entry.get("platform") == platform:
             if not entry.get("active", False):
                 raise ReadmeRefreshRunError(f"{family}/{platform} is not active in data/products.json")
+            # TC-HARDEN-30 (MT035): validate required fields explicitly, before any caller
+            # indexes them with product["repo_url"]/product["clone_url"] -- a hand-added
+            # new-product row missing either key must fail with a clean, named BLOCKED
+            # message, never a raw KeyError traceback later in the call chain.
+            missing = [field for field in _PRODUCT_REQUIRED_FIELDS if not entry.get(field)]
+            if missing:
+                raise ReadmeRefreshRunError(
+                    f"{family}/{platform}'s row in data/products.json is missing required "
+                    f"field(s): {', '.join(missing)}"
+                )
             for excl in _load_registry_exclusions():
                 if excl.get("match") == "family_platform" and excl.get("family") == family and excl.get("platform") == platform:
                     raise ReadmeRefreshRunError(f"{family}/{platform} is excluded: {excl.get('reason')}")

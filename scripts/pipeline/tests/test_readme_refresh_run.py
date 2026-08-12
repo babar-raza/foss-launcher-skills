@@ -502,6 +502,69 @@ def test_detect_enterprise_link_surfaces_target_map_staleness(tmp_path):
     assert result["target_map_age_days"] > 14
 
 
+# --- TC-HARDEN-30 (MT035): CLI crash-safety -- malformed registries / incomplete rows must ------
+# fail with a clean, named ReadmeRefreshRunError, never a raw traceback (KeyError/JSONDecodeError).
+
+
+def test_load_products_malformed_json_raises_clean_error(tmp_path):
+    repo_root = tmp_path / "repo"
+    (repo_root / "data").mkdir(parents=True)
+    (repo_root / "data" / "products.json").write_text("[{\"family\": \"foo\",]", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="Malformed JSON"):
+        rr._load_products()
+
+
+def test_load_registry_exclusions_malformed_json_raises_clean_error(tmp_path):
+    repo_root = tmp_path / "repo"
+    (repo_root / "data").mkdir(parents=True)
+    (repo_root / "data" / "registry_exclusions.json").write_text("{not valid json", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="Malformed JSON"):
+        rr._load_registry_exclusions()
+
+
+def test_resolve_product_missing_repo_url_raises_clean_error(tmp_path):
+    repo_root = tmp_path / "repo"
+    (repo_root / "data").mkdir(parents=True)
+    (repo_root / "data" / "products.json").write_text(json.dumps([
+        {"family": "foo", "platform": "net", "active": True, "clone_url": "https://example.com/foo.git"}
+    ]), encoding="utf-8")
+    (repo_root / "data" / "registry_exclusions.json").write_text("[]", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="missing required field.*repo_url"):
+        rr._resolve_product("foo", "net")
+
+
+def test_resolve_product_missing_clone_url_raises_clean_error(tmp_path):
+    repo_root = tmp_path / "repo"
+    (repo_root / "data").mkdir(parents=True)
+    (repo_root / "data" / "products.json").write_text(json.dumps([
+        {"family": "foo", "platform": "net", "active": True, "repo_url": "https://github.com/o/r"}
+    ]), encoding="utf-8")
+    (repo_root / "data" / "registry_exclusions.json").write_text("[]", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="missing required field.*clone_url"):
+        rr._resolve_product("foo", "net")
+
+
+def test_resolve_product_well_formed_row_still_resolves(tmp_path):
+    # Regression guard: the new validation must not reject an ordinary, complete row.
+    repo_root = tmp_path / "repo"
+    (repo_root / "data").mkdir(parents=True)
+    (repo_root / "data" / "products.json").write_text(json.dumps([
+        {
+            "family": "foo", "platform": "net", "active": True,
+            "repo_url": "https://github.com/o/r", "clone_url": "https://github.com/o/r.git",
+        }
+    ]), encoding="utf-8")
+    (repo_root / "data" / "registry_exclusions.json").write_text("[]", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    entry = rr._resolve_product("foo", "net")
+    assert entry["repo_url"] == "https://github.com/o/r"
+    assert entry["clone_url"] == "https://github.com/o/r.git"
+
+
 # --- Full round-trip happy path ---------------------------------------------------------------
 
 

@@ -2174,10 +2174,21 @@ def check_api_reference_classes_exist_in_reference_site(
     content-quality judgment call -- the same class of elevation this plan already gave
     `check_process_narration_smells`.
 
-    Class-name verification degrades gracefully when a source is unavailable: `reference_class_
-    names` empty/`None` and/or `clone_cache_root` absent/not-a-directory simply removes that
-    source from consideration (never a hard failure on its own) -- if NEITHER source is
-    available, class-name verification is skipped entirely and only the bad-pattern check runs.
+    Class-name verification degrades gracefully when ONE source is unavailable:
+    `reference_class_names` empty/`None` and/or `clone_cache_root` absent/not-a-directory simply
+    removes that source from consideration (never a hard failure on its own).
+
+    **When BOTH sources are absent (TC-HARDEN-31, Twenty-Second incident / MT035) -- the
+    guaranteed starting state of any genuinely new product, before `/repo-scout` has ever run
+    and before a `reference.aspose.org` page exists -- this no longer silently skips
+    verification.** The prior behavior produced zero findings for a section naming any number
+    of classes, indistinguishable from "verified clean," exactly when this hard gate's real
+    defenses (this function and `check_named_member_accuracy`) were least able to back that
+    verdict up. Every backtick-quoted class cited via the established bullet convention now
+    produces a real, named "verification unavailable" finding instead, mirroring
+    `check_diagram_verified_format_claims`'s own "absence of corroborating sources disqualifies
+    the claim" design -- a fabricated class name in a brand-new product's candidate can no
+    longer pass this gate with zero findings.
 
     Returns a list of {"reason": ...} and/or {"class_name", "reason"} findings.
     """
@@ -2202,50 +2213,66 @@ def check_api_reference_classes_exist_in_reference_site(
 
     clone_cache_path = Path(clone_cache_root) if clone_cache_root else None
     clone_cache_usable = bool(clone_cache_path and clone_cache_path.is_dir())
-    if reference_class_names or clone_cache_usable:
-        section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
-        if section_match:
-            section_text = section_match.group(1)
-            # Deliberately scoped to the established `` - `ClassName` `` bullet convention ONLY
-            # -- free-form intro-sentence prose was tried and removed (2026-08-09, found live
-            # during the full-portfolio sanity pass): a bare backtick-quoted PascalCase token in
-            # prose is genuinely ambiguous between "a class name" and "a property name" (C#/Java
-            # properties are PascalCase too, no invocation parens to distinguish them from a
-            # class the way a method call's "()" does -- pdf/net's real intro sentence "exposing
-            # `Pages` (a `PageCollection` of `Page` objects)" cites a PROPERTY named Pages, not a
-            # class) or "an unrelated built-in exception name mentioned in a caveat" (3d/python's
-            # real "...raise `AttributeError` (for saving)" gotcha callout). The structured
-            # bullet convention has no such ambiguity -- every `` - `ClassName` `` line is a
-            # deliberate, unambiguous class citation by construction, which is exactly why
-            # `check_named_member_accuracy` was already scoped to it alone.
-            cited_classes: set[str] = set()
-            for bullet_match in _CLASS_BULLET_RE.finditer(section_text):
-                for cls in (bullet_match.group(2), bullet_match.group(3)):
-                    if cls:
-                        cited_classes.add(cls)
+    sources_available = bool(reference_class_names or clone_cache_usable)
 
-            reference_upper = {c.upper() for c in (reference_class_names or set())}
-            for cls in sorted(cited_classes):
-                # Tolerate a fully-qualified citation (Java/Python-style "pkg.module.ClassName",
-                # found live in note/python's real bullets) by also trying the bare last
-                # dot-segment -- reference.aspose.org's own class table always uses bare names.
-                # If that last segment isn't itself PascalCase (e.g. pdf/java's real
-                # "org.aspose.pdf.drawing" package-grouping bullet -- "drawing" is a lowercase
-                # package name, not a class), this isn't a real single-class citation at all;
-                # skip it rather than force a same-shape comparison that can't succeed.
-                bare = cls.rsplit(".", 1)[-1]
-                if not _PASCAL_CASE_TOKEN_RE.match(bare):
-                    continue
-                if bare.upper() in reference_upper:
-                    continue
-                if clone_cache_usable and _find_class_source_files(clone_cache_path, bare):
-                    continue  # confirmed real by the second source; reference index was just incomplete
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if section_match:
+        section_text = section_match.group(1)
+        # Deliberately scoped to the established `` - `ClassName` `` bullet convention ONLY
+        # -- free-form intro-sentence prose was tried and removed (2026-08-09, found live
+        # during the full-portfolio sanity pass): a bare backtick-quoted PascalCase token in
+        # prose is genuinely ambiguous between "a class name" and "a property name" (C#/Java
+        # properties are PascalCase too, no invocation parens to distinguish them from a
+        # class the way a method call's "()" does -- pdf/net's real intro sentence "exposing
+        # `Pages` (a `PageCollection` of `Page` objects)" cites a PROPERTY named Pages, not a
+        # class) or "an unrelated built-in exception name mentioned in a caveat" (3d/python's
+        # real "...raise `AttributeError` (for saving)" gotcha callout). The structured
+        # bullet convention has no such ambiguity -- every `` - `ClassName` `` line is a
+        # deliberate, unambiguous class citation by construction, which is exactly why
+        # `check_named_member_accuracy` was already scoped to it alone.
+        cited_classes: set[str] = set()
+        for bullet_match in _CLASS_BULLET_RE.finditer(section_text):
+            for cls in (bullet_match.group(2), bullet_match.group(3)):
+                if cls:
+                    cited_classes.add(cls)
+
+        reference_upper = {c.upper() for c in (reference_class_names or set())}
+        for cls in sorted(cited_classes):
+            # Tolerate a fully-qualified citation (Java/Python-style "pkg.module.ClassName",
+            # found live in note/python's real bullets) by also trying the bare last
+            # dot-segment -- reference.aspose.org's own class table always uses bare names.
+            # If that last segment isn't itself PascalCase (e.g. pdf/java's real
+            # "org.aspose.pdf.drawing" package-grouping bullet -- "drawing" is a lowercase
+            # package name, not a class), this isn't a real single-class citation at all;
+            # skip it rather than force a same-shape comparison that can't succeed. This
+            # exclusion applies regardless of source availability -- a package-grouping
+            # bullet was never a class citation to begin with.
+            bare = cls.rsplit(".", 1)[-1]
+            if not _PASCAL_CASE_TOKEN_RE.match(bare):
+                continue
+            if not sources_available:
+                # TC-HARDEN-31 (MT035): neither corroborating source exists -- this class
+                # name is genuinely unverified, not "assumed clean." Named explicitly so a
+                # human/agent knows exactly why, and what would resolve it.
                 findings.append({
                     "class_name": cls,
-                    "reason": f"'{cls}' is named in the API Reference section but is confirmed "
-                              "by neither this product's reference.aspose.org class index nor "
-                              "its real clone-cache source",
+                    "reason": f"'{cls}' is named in the API Reference section, but no "
+                              "verification source is available for this product yet -- "
+                              "neither a reference.aspose.org class index nor a real "
+                              "clone-cache checkout exists (run /repo-scout to populate the "
+                              "clone cache before this class-name claim can be trusted)",
                 })
+                continue
+            if bare.upper() in reference_upper:
+                continue
+            if clone_cache_usable and _find_class_source_files(clone_cache_path, bare):
+                continue  # confirmed real by the second source; reference index was just incomplete
+            findings.append({
+                "class_name": cls,
+                "reason": f"'{cls}' is named in the API Reference section but is confirmed "
+                          "by neither this product's reference.aspose.org class index nor "
+                          "its real clone-cache source",
+            })
     return findings
 
 

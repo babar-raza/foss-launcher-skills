@@ -250,6 +250,68 @@ same product concurrently.
 9. **`verify`** — post-push, safely re-runnable any time: confirms the PR still exists and its
    head matches the approved candidate.
 
+## Onboarding a new product, platform, or family (TC-HARDEN-35, MT035, 2026-08-12)
+
+No such section existed anywhere in this repo before this one — confirmed by an exhaustive
+search of this file, `AGENTS.md`, and `skills/registry.json`'s S-120 entry (no `dependencies`
+field). This section describes the **real, current** behavior of the checked-in code as of
+2026-08-12, not an aspirational future state — it will be extended as `TC-HARDEN-32`, `-33`,
+`-34` close (see the plan's Twenty-Second incident / MT035 section for the full evidence trail
+behind every claim below: `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`).
+
+**1. The real prerequisite chain — mechanically load-bearing, not just recommended.** Run
+`/repo-scout` → `/knowledge-enrich` → `/truth-merge` for the new product **before** attempting
+`plan`/`ingest-candidate`. This is not a soft suggestion: `check_diagram_verified_format_claims`
+(a hard gate) requires 2 of 3 independent signals (`formats.md` row / prose mention / real source
+evidence) to accept any format claim in the diagram's `Starting Points`/`Outputs` containers —
+with no `knowledge/{family}/{platform}/merged/formats.md` and no `api_surface.json`, only the
+prose signal can ever be true (1 of 3), so **every real format claim in the diagram will
+mechanically fail to verify** until the knowledge pipeline has run at least once.
+
+**2. Which data files need a new row, and which correctly default:**
+
+| File | New product needs an entry? |
+|---|---|
+| `data/products.json` | **Yes, required.** `family`, `platform`, `repo_url`, `clone_url`, `active: true` at minimum — `_resolve_product` (TC-HARDEN-30, fixed 2026-08-12) now validates `repo_url`/`clone_url` are present and raises a clean `README-REFRESH-RUN BLOCKED: ... missing required field(s): ...` message if either is missing or the file has a JSON syntax error, rather than a raw traceback. |
+| `data/registry_exclusions.json` | Only if the product should be excluded from this skill's coverage. |
+| `data/diagram_archetypes.json` | No entry needed by default — absence correctly defaults to `transform`. Add an entry only if the product is genuinely `hybrid`/`generative`/`compile` (Template section's 3-condition hybrid test, or the equivalent generative/compile tests). |
+| `data/families.json` | **Yes, required for a genuinely new FAMILY** (not a new platform of an existing family) — see the disclosed gap in item 4 below; this is not yet mechanically enforced if forgotten. |
+| `data/aspose_com_targets.json`, `content/products.aspose.org/en/{family}/{platform}/`, `content/reference.aspose.org/en/{family}/{platform}/` | No entry required before a first run — each degrades gracefully (see item 3), but the resulting candidate will carry real, visible gaps (no Enterprise link, no homepage-linked banner, no API Reference table) until the real content exists. |
+
+**3. What to expect on a first real run, before knowledge/content exist yet:**
+- The diagram's `Starting Points`/`Outputs` containers cannot carry any real format claim yet
+  (item 1) — compose the rest of the candidate, but expect `diagram_verified_format_claims` to
+  block until `/repo-scout` has run at least once.
+- `check_api_reference_classes_exist_in_reference_site` (TC-HARDEN-31, fixed 2026-08-12) now
+  **correctly blocks**, with a real named finding per cited class, rather than silently passing
+  — the exact opposite of its pre-2026-08-12 behavior, which produced zero findings
+  (indistinguishable from "verified clean") when neither `content/reference.aspose.org/.../
+  _index.md` nor the clone cache existed yet. Do not compose the curated API Reference bullet
+  detail (the `` - `ClassName` `` convention) until at least one of those two sources is real —
+  the MT028 mechanically-generated table has the same real dependency anyway.
+- `check_dev_test_artifacts_linked`, `check_no_undisclosed_blocking_commands`, and similar
+  clone-cache-scanning checks degrade gracefully with an empty clone cache (nothing found means
+  nothing is required) — safe to run before `/repo-scout`, unlike the two checks above.
+
+**4. Known, disclosed gaps not yet fixed — do not assume these are handled:**
+- **`data/families.json` consistency (TC-HARDEN-34)**: this is a separate, hand-maintained
+  registry from `data/products.json`, not derived from it. If you add a genuinely new family to
+  `products.json` without also adding it to `families.json`, `check_no_cross_product_citation`'s
+  family allowlist silently stops catching *any other product's* citation of the new family — no
+  warning is raised. Add the new family to `data/families.json` manually; nothing currently
+  reminds you if you forget.
+- **New-language source discovery (TC-HARDEN-34)**: `_find_class_source_files`'s extension
+  allowlist is hardcoded to `{".py", ".java", ".cs", ".go", ".rs", ".cpp", ".hpp", ".h", ".ts",
+  ".c"}`. A new language's real source files (`.php`, `.kt`, `.rb`, `.swift`, ...) are invisible
+  to `check_named_member_accuracy` and to `check_api_reference_classes_exist_in_reference_site`'s
+  clone-cache fallback, even once a real clone cache exists — this is a *permanent* blind spot
+  for a new language, not one that resolves once `/repo-scout` runs. Not yet fixed.
+- **Installation-section verification (TC-HARDEN-32)**: no check anywhere verifies the composed
+  `## Installation` section's text against `data/package_registry.json`'s real
+  published/unpublished state. A new, unpublished product's Installation section is currently
+  unverified by any hard gate — compose it manually against the canonical fallback text
+  convention (Immediate execution section of the plan) and double-check it by hand.
+
 ## Post-conditions
 
 - `AWAITING_REVIEW`: candidate has passed every hard-gate deterministic check and every code
