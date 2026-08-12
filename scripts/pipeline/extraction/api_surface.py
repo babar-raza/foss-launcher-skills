@@ -2894,6 +2894,21 @@ def extract_api_surface(
                 if java_file_package:
                     cls_record["class_package"] = java_file_package
                     cls_record["class_import"] = f"{java_file_package}.{cname}"
+                    # TC-DUPIDX-06 (2026-08-12, ST-059): also mirror into
+                    # canonical_namespace -- the field _assign_namespace_slug_
+                    # suffixes() in batch_reference.py reads for same-name
+                    # collision disambiguation when generating grouped reference
+                    # indexes. Java's class_package always carried this exact
+                    # information, but it was never surfaced under the field name
+                    # the disambiguator actually looks for, so every Java product's
+                    # same-package-name collisions went undisambiguated regardless
+                    # of how many times the index was regenerated (real incident:
+                    # pdf/java alone reached 28 distinct undisambiguated collisions
+                    # after a knowledge refresh grew its class count from 527 to
+                    # 1027). This completes, for Java, the same rollout already done
+                    # for C++ (day one), C# (2026-06-13), Rust (day one), and Python
+                    # (2026-07-29, MT013, fde65ade26) for this exact purpose.
+                    cls_record["canonical_namespace"] = java_file_package
                 else:
                     cls_record["class_import"] = cname
             elif language == "csharp":
@@ -2925,6 +2940,33 @@ def extract_api_surface(
                     if parts and parts[-1].endswith(".py"):
                         parts[-1] = parts[-1][:-3]
                     if parts and parts[-1] == "__init__":
+                        parts = parts[:-1]
+                    if parts:
+                        module_path = ".".join(parts)
+                        cls_record["canonical_namespace"] = module_path
+                        cls_record["class_import"] = f"{module_path}.{cname}"
+                except ValueError:
+                    pass
+            elif language == "typescript":
+                # TC-DUPIDX-06 (2026-08-12, ST-059): TypeScript had NO namespace-
+                # equivalent field at all before this branch -- not canonical_
+                # namespace, not class_import, nothing. Confirmed live on
+                # cells/typescript: 7 genuine same-name collisions (verified against
+                # real upstream source, not a scout artifact -- 3 are byte-identical
+                # type aliases independently declared in two files, 4 are genuine
+                # `interface X` + `class X` pairs sharing a name via deliberate
+                # `import ... as XType` aliasing), none disambiguable without a
+                # namespace signal to key on. Derive module_path from file location
+                # relative to pkg_root, mirroring the Python branch above exactly
+                # (TypeScript's one-file-per-module convention resembles Python's
+                # far more than Java's package-per-directory or C++'s namespace-per-
+                # declaration model).
+                try:
+                    ts_rel = fpath.relative_to(pkg_root)
+                    parts = list(ts_rel.parts)
+                    if parts and (parts[-1].endswith(".ts") or parts[-1].endswith(".tsx")):
+                        parts[-1] = re.sub(r"\.tsx?$", "", parts[-1])
+                    if parts and parts[-1] == "index":
                         parts = parts[:-1]
                     if parts:
                         module_path = ".".join(parts)

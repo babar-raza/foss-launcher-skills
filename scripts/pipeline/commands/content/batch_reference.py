@@ -448,13 +448,44 @@ def _entry_slug(entry: dict) -> str:
     return base
 
 
+def _effective_namespace(entry: dict) -> str:
+    """Return a namespace-equivalent signal for disambiguation.
+
+    Prefers ``canonical_namespace``, falling back to ``class_import``'s dotted
+    prefix when absent (TC-DUPIDX-07, 2026-08-12, ST-059) -- the exact fallback
+    already proven in ``consolidate_classes()``
+    (``scripts/pipeline/extraction/api_surface.py:1737-1746``), ported here since
+    ``canonical_namespace``'s rollout across languages (C++ from inception, C#
+    2026-06-13, Rust from inception, Python 2026-07-29/MT013 -- see TC-DUPIDX-06
+    for extending it to Java/TypeScript at the scout layer) never reached Java, and
+    pre-MT013 Python scout snapshots predate that field even though ``class_import``
+    was always populated for both. Real incident: ``cells/java`` and ``pdf/java``
+    (with ``pdf/java`` alone hitting 28 distinct undisambiguated collisions after a
+    knowledge refresh nearly doubled its class count) stayed duplicated indefinitely
+    with no re-invocation of ``--generate-index`` able to fix them, because this
+    function had no fallback for Java's ``canonical_namespace``-less entries at all.
+
+    Entries with neither field populated (e.g. TypeScript prior to a re-scout after
+    TC-DUPIDX-06 adds its extraction branch) return ``""`` -- there is no signal to
+    derive a namespace from, and the entry is left undisambiguated by design rather
+    than guessing.
+    """
+    ns = entry.get("canonical_namespace", "")
+    if ns:
+        return ns
+    class_import = entry.get("class_import", "")
+    if class_import and class_import != entry.get("name", "") and "." in class_import:
+        return class_import.rsplit(".", 1)[0]
+    return ""
+
+
 def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
     """Set ``_slug_suffix`` on each entry in a same-name collision *group*.
 
-    Prefers the short, readable last dot-segment of ``canonical_namespace``
-    (e.g. ``Aspose.Pdf.Drawing`` -> ``Drawing``) -- the established, tested
-    convention for deeply-nested namespaces (.NET/Java) where the tail alone
-    already disambiguates.
+    Prefers the short, readable last dot-segment of the effective namespace
+    (``_effective_namespace()``, e.g. ``Aspose.Pdf.Drawing`` -> ``Drawing``) -- the
+    established, tested convention for deeply-nested namespaces (.NET/Java) where
+    the tail alone already disambiguates.
 
     HARDEN-py-namespace-suffix (2026-07-28, MT013): that shortcut silently
     re-collides when two DIFFERENT namespaces share the same last segment --
@@ -469,15 +500,16 @@ def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
     """
     from collections import Counter as _Counter
 
-    entries_with_ns = [e for e in group if e.get("canonical_namespace")]
+    ns_by_id = {id(e): _effective_namespace(e) for e in group}
+    entries_with_ns = [e for e in group if ns_by_id[id(e)]]
     truncated = {
-        id(e): e["canonical_namespace"].rsplit(".", 1)[-1]
+        id(e): ns_by_id[id(e)].rsplit(".", 1)[-1]
         for e in entries_with_ns
     }
     counts = _Counter(truncated.values())
     for e in entries_with_ns:
         short = truncated[id(e)]
-        e["_slug_suffix"] = e["canonical_namespace"] if counts[short] > 1 else short
+        e["_slug_suffix"] = ns_by_id[id(e)] if counts[short] > 1 else short
 
 
 # ---------------------------------------------------------------------------
