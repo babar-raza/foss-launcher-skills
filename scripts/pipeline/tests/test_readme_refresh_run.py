@@ -1081,6 +1081,121 @@ def test_dropped_content_internal_labels_still_hard_gate_with_dispositions_prese
     assert result["dropped_content"]["findings"], "internal_labels must still block regardless of dispositions"
 
 
+# --- audit_portfolio / audit-portfolio CLI (TC-HARDEN-05, MT035) --------------------------------
+# The real, registered, tested replacement for the ad hoc, gitignored scratch script
+# (reports/repo-presenter/_scratch/phase2_scan.py) this session repeatedly hand-wrote/re-derived
+# to answer "is the whole portfolio still clean" -- now a real CLI subcommand, testable like any
+# other, closing the exact gap TC-HARDEN-14 named (real verification work happening outside any
+# registered path).
+
+
+def _add_second_product(repo_root, *, family="testfam2", platform="testplat2", active=True):
+    """Extends the scratch repo's products.json with a second product entry, real enough for
+    audit_portfolio to enumerate -- no clone cache/knowledge needed, since a deliberately
+    section-incomplete candidate trips check_required_sections (a hard gate needing neither)."""
+    products_path = repo_root / "data" / "products.json"
+    products = json.loads(products_path.read_text(encoding="utf-8"))
+    products.append({
+        "family": family, "platform": platform, "repo_name": f"{family}-repo",
+        "repo_url": f"https://github.com/test-org/{family}-repo",
+        "clone_url": f"https://github.com/test-org/{family}-repo.git",
+        "active": active, "discovered_via": "test",
+    })
+    products_path.write_text(json.dumps(products), encoding="utf-8")
+
+
+def _write_second_candidate(repo_root, family="testfam2", platform="testplat2"):
+    candidate_dir = repo_root / "reports" / "repo-presenter" / family / platform
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    (candidate_dir / "readme.md").write_text("# Incomplete\n\nMissing every required section.\n", encoding="utf-8")
+
+
+def test_audit_portfolio_reports_clean_and_dirty_products(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    _add_second_product(repo_root)
+    _write_second_candidate(repo_root)
+
+    result = rr.audit_portfolio()
+    assert result["total"] == 2
+    assert result["clean_count"] == 1
+    assert result["dirty_count"] == 1
+    by_key = {(p["family"], p["platform"]): p for p in result["products"]}
+    assert by_key[("testfam", "testplat")]["clean"] is True
+    assert by_key[("testfam", "testplat")]["hard_gate_findings"] == {}
+    assert by_key[("testfam2", "testplat2")]["clean"] is False
+    assert "required_sections" in by_key[("testfam2", "testplat2")]["hard_gate_findings"]
+    assert by_key[("testfam2", "testplat2")]["hard_gate_findings"]["required_sections"] > 0
+    assert result["skipped"] == []
+
+
+def test_audit_portfolio_skips_product_with_no_candidate_yet(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    _add_second_product(repo_root)
+    # Deliberately do NOT write a candidate for the second product.
+
+    result = rr.audit_portfolio()
+    assert result["total"] == 1  # only testfam/testplat was actually checked
+    assert result["clean_count"] == 1
+    assert result["skipped"] == [{"family": "testfam2", "platform": "testplat2", "reason": "no candidate file yet"}]
+
+
+def test_audit_portfolio_excludes_inactive_and_registry_excluded_products(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    _add_second_product(repo_root, family="testfam2", platform="testplat2", active=False)
+    _write_second_candidate(repo_root, "testfam2", "testplat2")
+    _add_second_product(repo_root, family="testfam3", platform="testplat3", active=True)
+    _write_second_candidate(repo_root, "testfam3", "testplat3")
+    (repo_root / "data" / "registry_exclusions.json").write_text(json.dumps([
+        {"match": "family_platform", "family": "testfam3", "platform": "testplat3", "reason": "test exclusion"}
+    ]), encoding="utf-8")
+
+    result = rr.audit_portfolio()
+    # Only testfam/testplat: testfam2/testplat2 is inactive, testfam3/testplat3 is excluded.
+    assert result["total"] == 1
+    assert {(p["family"], p["platform"]) for p in result["products"]} == {("testfam", "testplat")}
+
+
+def test_audit_portfolio_family_platform_filter_narrows_to_one_product(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    _add_second_product(repo_root)
+    _write_second_candidate(repo_root)
+
+    result = rr.audit_portfolio(family="testfam2", platform="testplat2")
+    assert result["total"] == 1
+    assert result["products"][0]["family"] == "testfam2"
+
+
+def test_audit_portfolio_cli_prints_summary(tmp_path, capsys):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    exit_code = rr.main(["audit-portfolio"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    assert "1/1 products ALL HARD GATES CLEAN" in out
+
+
+def test_audit_portfolio_cli_json_flag_prints_structured_output(tmp_path, capsys):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    exit_code = rr.main(["audit-portfolio", "--json"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    parsed = json.loads(out)
+    assert parsed["clean_count"] == 1
+
+
 # --- Illegal transition rejection -----------------------------------------------------------
 
 

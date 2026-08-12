@@ -1283,6 +1283,75 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     return result
 
 
+def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = None) -> dict:
+    """TC-HARDEN-05 (MT035, 2026-08-12): a real, registered, CLI-callable, tested way to
+    re-run every deterministic check against every already-generated candidate in
+    `reports/repo-presenter/` -- closing the gap TC-HARDEN-14 named (real day-to-day portfolio
+    verification work happening only via an ad hoc, gitignored, un-versioned scratch script,
+    `reports/repo-presenter/_scratch/phase2_scan.py`, hand-written and re-derived from memory
+    each time it was needed, rather than through any registered, reproducible skill path).
+
+    Iterates every `active: true`, non-excluded product in `data/products.json` (optionally
+    narrowed to one `family`/`platform` pair), skips a product with no composed candidate yet
+    (never an error -- not every product has been generated), and runs the exact same
+    `_run_deterministic_checks` `ingest-candidate`/`recheck` already use against each real
+    candidate on disk. Purely read-only: never writes to any candidate, never mutates any run
+    state, never requires an active run (`start`/`plan`) for the product being audited.
+
+    Returns `{"products": [{"family", "platform", "clean", "hard_gate_findings": {check_name:
+    count}}], "clean_count", "dirty_count", "total", "skipped": [{"family", "platform",
+    "reason"}]}` -- `hard_gate_findings` only ever lists a check that both IS a hard gate and
+    currently has at least one finding, matching `phase2_scan.py`'s own established summary
+    shape (the one this function replaces) so a prior run's mental model of the output
+    transfers directly.
+    """
+    products = _load_products()
+    exclusions = _load_registry_exclusions()
+    excluded_keys = {
+        (excl.get("family"), excl.get("platform"))
+        for excl in exclusions if excl.get("match") == "family_platform"
+    }
+
+    targets = sorted({
+        (entry.get("family"), entry.get("platform"))
+        for entry in products
+        if entry.get("active", False)
+        and (entry.get("family"), entry.get("platform")) not in excluded_keys
+        and (family is None or entry.get("family") == family)
+        and (platform is None or entry.get("platform") == platform)
+    })
+
+    product_results: list[dict] = []
+    skipped: list[dict] = []
+    for fam, plat in targets:
+        candidate_path = _candidate_readme_path(fam, plat)
+        if not candidate_path.is_file():
+            skipped.append({"family": fam, "platform": plat, "reason": "no candidate file yet"})
+            continue
+        text = candidate_path.read_text(encoding="utf-8")
+        clone_cache = _product_clone_cache(fam, plat)
+        result = _run_deterministic_checks(fam, plat, text, clone_cache)
+        hard_gate_findings = {
+            name: len(check["findings"])
+            for name, check in result.items()
+            if check.get("hard_gate") and check.get("findings")
+        }
+        product_results.append({
+            "family": fam, "platform": plat,
+            "clean": not hard_gate_findings,
+            "hard_gate_findings": hard_gate_findings,
+        })
+
+    clean_count = sum(1 for p in product_results if p["clean"])
+    return {
+        "products": product_results,
+        "clean_count": clean_count,
+        "dirty_count": len(product_results) - clean_count,
+        "total": len(product_results),
+        "skipped": skipped,
+    }
+
+
 def _checks_snapshot_path(family: str, platform: str, run_id: str) -> Path:
     """TC-HARDEN-12 (MT033): the rolling 'last checked' candidate snapshot that
     check_only_mermaid_block_changed / check_only_sections_changed diff against. Written at
@@ -1844,6 +1913,13 @@ def main(argv: "list[str] | None" = None) -> int:
         cmd.add_argument("--reason", required=True)
         cmd.add_argument("--session-id")
 
+    # TC-HARDEN-05 (MT035): real, registered portfolio-wide audit -- not run-scoped (no
+    # --run-id), matching this command's own read-only, no-active-run-required nature.
+    p_audit = sub.add_parser("audit-portfolio")
+    p_audit.add_argument("--family", help="Limit to one family (requires --platform).")
+    p_audit.add_argument("--platform", help="Limit to one platform (requires --family).")
+    p_audit.add_argument("--json", action="store_true", help="Print the full structured result.")
+
     args = parser.parse_args(argv)
     try:
         if args.command == "start":
@@ -1851,6 +1927,20 @@ def main(argv: "list[str] | None" = None) -> int:
                 args.family, args.platform, run_id=args.run_id, session_id=args.session_id,
                 skip_preflight=args.skip_preflight,
             )
+        elif args.command == "audit-portfolio":
+            result = audit_portfolio(family=args.family, platform=args.platform)
+            if args.json:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+            else:
+                print(f"{result['clean_count']}/{result['total']} products ALL HARD GATES CLEAN")
+                for p in result["products"]:
+                    if not p["clean"]:
+                        print(f"  DIRTY {p['family']}/{p['platform']}: {p['hard_gate_findings']}")
+                if result["skipped"]:
+                    print(f"Skipped ({len(result['skipped'])}, no candidate yet):")
+                    for s in result["skipped"]:
+                        print(f"  {s['family']}/{s['platform']}")
+            return 0
         else:
             family, platform = _locate_run(args.run_id)
             if args.command == "plan":

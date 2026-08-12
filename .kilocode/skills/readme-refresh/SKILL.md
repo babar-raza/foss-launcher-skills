@@ -43,7 +43,28 @@ Use only the registered control plane:
   --reason TEXT [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py recover --run-id ID \
   --reason TEXT [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py audit-portfolio \
+  [--family FAMILY --platform PLATFORM] [--json]
 ```
+
+`audit-portfolio` (TC-HARDEN-05, MT035, 2026-08-12) is the one subcommand with no `--run-id` —
+it's read-only and portfolio-wide, not run-scoped: it re-runs every deterministic check
+(`_run_deterministic_checks`, the same function `ingest-candidate`/`recheck` use) against every
+already-composed candidate in `reports/repo-presenter/{family}/{platform}/readme.md`, for every
+`active: true`, non-excluded product in `data/products.json` (optionally narrowed to one
+`family`/`platform` pair via the two flags). A product with no candidate composed yet is
+skipped, never an error. This is the real, registered, tested replacement for the ad hoc,
+gitignored scratch script (`reports/repo-presenter/_scratch/phase2_scan.py`) this skill's own
+maintenance had to hand-write and re-derive from memory every time a "is the whole portfolio
+still clean" question came up — closing the gap named in TC-HARDEN-14 (real verification work
+happening outside any registered, reproducible path). `--json` prints the full structured
+result (`{"products", "clean_count", "dirty_count", "total", "skipped"}`); without it, prints a
+one-line summary plus one line per dirty product. **This does not run on a schedule** — it's an
+on-demand capability, not a recurring job; nothing currently triggers it automatically, so
+drift between two products' candidates and their real upstream reference data (e.g. a
+`reference.aspose.org` regeneration) can still accumulate silently until someone runs it by
+hand — a real, disclosed, still-open gap (see the skill's own governance taskcard register in
+the plan file for the deferred "should this run on a schedule" decision).
 
 State machine: `CREATED → INPUTS_PINNED → PLANNED → VERIFYING_EXAMPLES → AWAITING_REVIEW →
 APPROVED → PUSHING → PUSHED`. `BLOCKED` is re-enterable from `INPUTS_PINNED`/`PLANNED`/
