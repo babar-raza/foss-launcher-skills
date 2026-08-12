@@ -1692,6 +1692,108 @@ def check_no_undisclosed_blocking_commands(readme_text: str, upstream_issues_tex
     return findings
 
 
+# Seeded, non-exhaustive -- confirmed live across the real portfolio at design time (2026-08-12):
+# "has not been published yet" (most products), "No {Registry} package has been published for
+# this library yet" (email/cpp, pdf/cpp -- negation via "No", not "not"), "is not yet published
+# to a package registry" (slides/cpp). Expect real additions as more phrasing variants surface.
+_UNPUBLISHED_PACKAGE_SIGNAL_RE = re.compile(
+    r"has\s+not\s+(?:yet\s+)?been\s+published"
+    r"|has\s+been\s+published\s+for\s+this\s+library\s+yet"
+    r"|is\s+not\s+yet\s+published",
+    re.IGNORECASE,
+)
+
+
+def check_installation_matches_package_registry(readme_text: str, install_info: dict) -> list[dict]:
+    """Heuristic (2026-08-12, TC-HARDEN-32, MT035) -- NOT a hard gate; see below for why.
+    No prior check anywhere verified the composed `## Installation` section against real
+    package/install data -- `_detect_install_info`'s factpack signal (`published`/
+    `fallback_text_required`) was computed but never read back against the section's actual
+    composed text, a real portfolio-wide gap, maximally exposed for a genuinely new product
+    (guaranteed to have no `data/package_registry.json` entry yet).
+
+    Two directions, matching this plan's own established "never invent a URL/version/command
+    not backed by verified data" rule:
+
+    1. **Unpublished (`fallback_text_required: True`)**: the section should disclose this using
+       one of the real, already-established portfolio conventions (see
+       `_UNPUBLISHED_PACKAGE_SIGNAL_RE`) -- never a specific install command presented as if a
+       real package exists.
+    2. **Published (`fallback_text_required: False`)**: the section should name the real,
+       confirmed package identity from `data/package_registry.json`'s own `candidate` field
+       (case-insensitively -- see below) -- `artifact_id` for Maven (the identifier actually
+       used in a real dependency declaration, not `group_id`), `module_path` for Go modules,
+       `name` for every other registry type (PyPI/NuGet/npm/crates.io).
+
+    **Why this is a heuristic, not a hard gate -- confirmed by direct, live evidence the moment
+    this check was first run against real content, not a theoretical caveat**: `data/
+    package_registry.json` was found to be independently wrong, in BOTH directions, for real
+    products already in this portfolio. `words/net`'s entry reads `published: false`, but the
+    real, live NuGet API (`api.nuget.org/v3-flatcontainer/aspose.words.foss/index.json`)
+    confirms `Aspose.Words.FOSS` v26.2.0 genuinely IS published right now -- the registry's own
+    `published` flag is stale relative to the real world (and relative to the README's own
+    already-correct `dotnet add package Aspose.Words.FOSS` content, which is right). `email/
+    net`'s `candidate.name` is `"Aspose.Email.FOSS"`, but the real, live nuspec
+    (`aspose.email.foss.nuspec`) confirms the actual published package ID's real casing is
+    `Aspose.Email.Foss` -- matching the README's own already-correct content, not the registry.
+    This is the identical "even structured, real, checked-in data isn't infallible" lesson
+    `formats.md` already taught this plan (MT025's Twelfth incident) -- a hard gate here would
+    have blocked two ALREADY-CORRECT candidates over stale registry data, exactly the mistake
+    that lesson exists to prevent. The package-identity comparison is also case-insensitive for
+    the same reason (both confirmed real NuGet-casing mismatches were case-only) -- NuGet/PyPI/
+    npm package IDs are conventionally case-insensitive anyway, so an exact-case match was never
+    the right bar for "is this the right package," only a distraction from it.
+
+    Degrades gracefully, never a finding on its own: no `## Installation` section
+    (`check_required_sections` already owns that), no real registry data at all for this
+    product, or incomplete `candidate` data (nothing to compare against) all return no findings.
+
+    Returns `{"reason", "expected"?}` findings -- a prompt for human/agent judgment (matching
+    this module's other data-source-dependent heuristics, e.g. `check_diagram_format_
+    completeness_hint`), never an automatic fail.
+    """
+    sections = _split_into_sections(readme_text)
+    section_text = sections.get("Installation", "")
+    if not section_text:
+        return []
+
+    fallback_required = install_info.get("fallback_text_required")
+    if fallback_required is None:
+        return []
+
+    if fallback_required:
+        if not _UNPUBLISHED_PACKAGE_SIGNAL_RE.search(section_text):
+            return [{
+                "reason": "Installation section does not disclose that no confirmed published "
+                          "package exists yet for this product (data/package_registry.json "
+                          "shows fallback_text_required=True) -- confirm whether this is a real "
+                          "gap or the registry data itself is stale before treating this as a "
+                          "content defect",
+            }]
+        return []
+
+    candidate = install_info.get("candidate") or {}
+    registry_type = install_info.get("registry_type")
+    if registry_type == "maven":
+        expected = candidate.get("artifact_id")
+    elif registry_type == "go_modules":
+        expected = candidate.get("module_path")
+    else:
+        expected = candidate.get("name")
+    if not expected:
+        return []
+    if expected.lower() not in section_text.lower():
+        return [{
+            "reason": f"Installation section does not name the real, confirmed published "
+                      f"package identity '{expected}' (data/package_registry.json, "
+                      f"registry_type={registry_type!r}) -- confirm whether this is a real gap "
+                      f"or the registry data itself is stale before treating this as a content "
+                      f"defect",
+            "expected": expected,
+        }]
+    return []
+
+
 _HEADING_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
 
 
@@ -1919,6 +2021,15 @@ def check_named_member_accuracy(
     return findings
 
 
+# TC-HARDEN-34 (MT035, 2026-08-12): the original 9 extensions exactly matched the 7 languages
+# this portfolio used at the time (Python/Java/C#/Go/Rust/C++/TypeScript); PHP/Kotlin/Ruby/Swift
+# added as confirmed-real, bounded additions -- see _find_class_source_files' own docstring.
+_CLASS_SOURCE_EXTENSIONS = frozenset({
+    ".py", ".java", ".cs", ".go", ".rs", ".cpp", ".hpp", ".h", ".ts", ".c",
+    ".php", ".kt", ".kts", ".rb", ".swift",
+})
+
+
 def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) -> list[Path]:
     """Locate up to max_files real source files plausibly DEFINING class_name (not merely
     forward-declaring it), via a cheap grep-style scan -- not a real per-language parse.
@@ -1939,6 +2050,19 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     TypeScript/Rust/Go enum or type-alias keyword at all, so every enum-shaped citation in any
     product using this pattern was silently unconfirmable by this function regardless of how
     real it was.
+
+    `_CLASS_SOURCE_EXTENSIONS` widened (2026-08-12, TC-HARDEN-34, MT035): the original 9-extension
+    set exactly matched the 7 languages this portfolio happened to use at the time -- a genuinely
+    new language's real source files were invisible to this function (and therefore to
+    `check_named_member_accuracy` and `check_api_reference_classes_exist_in_reference_site`'s
+    clone-cache fallback) even once a real clone cache existed, a *permanent* blind spot for that
+    language, not one that resolves once `/repo-scout` runs. Widened to the 4 languages this
+    taskcard's own audit named as confirmed-real candidates (PHP, Kotlin, Ruby, Swift -- each
+    confirmed to use the literal `class`/`struct`/`interface`/`enum` keywords this function's own
+    regex already recognizes, so no keyword-list change was needed, only the extension set) -- a
+    deliberate, bounded widening (exactly these languages, not an open-ended "any extension"
+    policy), per this taskcard's own explicit Forbidden-actions constraint against scanning
+    generated/vendor/binary files and producing false corroboration signals.
     """
     declare_re = re.compile(
         rf"\b(?:class|struct|interface|def|enum|type)\s+{re.escape(class_name)}\b(?!\s*;)"
@@ -1948,9 +2072,7 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     for path in root.rglob("*"):
         if len(found) >= max_files:
             break
-        if not path.is_file() or path.suffix not in {
-            ".py", ".java", ".cs", ".go", ".rs", ".cpp", ".hpp", ".h", ".ts", ".c"
-        }:
+        if not path.is_file() or path.suffix not in _CLASS_SOURCE_EXTENSIONS:
             continue
         if skip_dirs & set(path.parts):
             continue

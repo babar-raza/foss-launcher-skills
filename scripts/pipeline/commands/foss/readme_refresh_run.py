@@ -1079,6 +1079,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_no_undisclosed_blocking_commands(text, upstream_text),
     }
+    # TC-HARDEN-32 (MT035, 2026-08-12): _detect_install_info's factpack signal was computed but
+    # never read back against the composed ## Installation section's real text -- computed fresh
+    # here, matching this function's own established "never read back from persisted
+    # factpack.json" pattern for every other _detect_* value.
+    result["installation_matches_package_registry"] = {
+        "hard_gate": False,
+        "findings": checks.check_installation_matches_package_registry(
+            text, _detect_install_info(family, platform)
+        ),
+    }
 
     # Fourteenth incident / MT029 (2026-08-09): five visitor-facing content-quality
     # requirements found live during user review of tex/python's candidate -- Items 1+3

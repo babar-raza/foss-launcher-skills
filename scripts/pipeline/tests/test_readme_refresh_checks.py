@@ -2913,6 +2913,179 @@ def test_find_class_source_files_recognizes_typescript_enum(tmp_path):
     assert len(found) == 1
 
 
+# TC-HARDEN-34 (MT035, 2026-08-12): the original 9-extension allowlist permanently excluded any
+# new language's real source files from this function -- and therefore from check_named_member_
+# accuracy's and check_api_reference_classes_exist_in_reference_site's clone-cache fallback --
+# even once a real clone cache existed. Each of these 4 fixtures uses the exact declaration
+# shape that language genuinely uses (a real `class`/`interface`/`enum` keyword this function's
+# regex already recognizes -- only the extension was ever the blocker).
+def test_find_class_source_files_recognizes_php(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "Widget.php").write_text("<?php\nclass Widget {\n    public $name;\n}\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert len(found) == 1
+
+
+def test_find_class_source_files_recognizes_kotlin(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "Widget.kt").write_text("class Widget(val name: String)\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert len(found) == 1
+
+
+def test_find_class_source_files_recognizes_kotlin_script_extension(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "build.gradle.kts").write_text("class Widget(val name: String)\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert len(found) == 1
+
+
+def test_find_class_source_files_recognizes_ruby(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "widget.rb").write_text("class Widget\n  attr_accessor :name\nend\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert len(found) == 1
+
+
+def test_find_class_source_files_recognizes_swift(tmp_path):
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "Widget.swift").write_text("struct Widget {\n    let name: String\n}\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert len(found) == 1
+
+
+def test_find_class_source_files_still_ignores_unlisted_extensions(tmp_path):
+    # Regression guard: the widening is deliberately bounded -- an extension not in the list
+    # (e.g. a plain .txt file that happens to contain matching text) must still be ignored.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "Widget.txt").write_text("class Widget {}\n", encoding="utf-8")
+    found = checks._find_class_source_files(tmp_path, "Widget")
+    assert found == []
+
+
+# --- check_installation_matches_package_registry (TC-HARDEN-32, MT035) --------------------------
+# A heuristic, not a hard gate -- confirmed by direct live evidence the moment this check was
+# first run against real content: data/package_registry.json was found independently wrong, in
+# BOTH directions, for real products already in this portfolio (words/net's real, live-verified
+# NuGet package contradicts its own registry's `published: false`; email/net's real nuspec casing
+# contradicts its own registry's `candidate.name` casing). Every fixture below reproduces one of
+# the real phrasings/mismatches this investigation actually found.
+
+
+def test_installation_check_passes_unpublished_with_standard_marker():
+    text = "## Installation\n\nA PyPI package has not been published yet. Install from source:\n"
+    assert checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    ) == []
+
+
+def test_installation_check_recognizes_no_x_has_been_published_for_this_library_yet():
+    # Real shape, email/cpp: negation via "No", not "not" -- the original narrower regex missed
+    # this real, legitimate phrasing entirely.
+    text = (
+        "## Installation\n\nNo NuGet package has been published for this library yet — it ships "
+        "as CMake source you build and link directly.\n"
+    )
+    assert checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    ) == []
+
+
+def test_installation_check_recognizes_is_not_yet_published():
+    # Real shape, slides/cpp.
+    text = (
+        "## Installation\n\nThis library is not yet published to a package registry. Building it "
+        "as a standalone CMake project is straightforward:\n"
+    )
+    assert checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    ) == []
+
+
+def test_installation_check_flags_missing_unpublished_disclosure():
+    text = "## Installation\n\n```bash\npip install totally-invented-package\n```\n"
+    findings = checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    )
+    assert len(findings) == 1
+    assert "does not disclose" in findings[0]["reason"]
+
+
+def test_installation_check_passes_published_package_naming_real_identity():
+    text = "## Installation\n\n```bash\npython -m pip install aspose-email-foss\n```\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_is_case_insensitive_for_published_package_identity():
+    # Real shape, email/net: the README's real content ("Aspose.Email.Foss") and the real, live
+    # nuspec both use this casing; only data/package_registry.json's own candidate.name
+    # ("Aspose.Email.FOSS") differs -- a registry-data bug, not a content defect. NuGet package
+    # IDs are conventionally case-insensitive, so this must not be flagged.
+    text = "## Installation\n\n```bash\ndotnet add package Aspose.Email.Foss\n```\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "nuget",
+        "candidate": {"name": "Aspose.Email.FOSS"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_flags_wrong_published_package_identity():
+    text = "## Installation\n\n```bash\npython -m pip install totally-different-package\n```\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    findings = checks.check_installation_matches_package_registry(text, install_info)
+    assert len(findings) == 1
+    assert findings[0]["expected"] == "aspose-email-foss"
+
+
+def test_installation_check_maven_uses_artifact_id_not_group_id():
+    text = "## Installation\n\nAdd `org.aspose:aspose-cells-foss:26.5.0` to your build.\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "maven",
+        "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_go_modules_uses_module_path():
+    text = "## Installation\n\n```bash\ngo get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go\n```\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "go_modules",
+        "candidate": {"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_noop_when_no_registry_data_at_all():
+    text = "## Installation\n\n```bash\npip install anything\n```\n"
+    assert checks.check_installation_matches_package_registry(text, {"source": "package_registry_missing"}) == []
+
+
+def test_installation_check_noop_when_no_installation_section():
+    text = "## Key Capabilities\n\n- Does a thing.\n"
+    assert checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    ) == []
+
+
+def test_installation_check_noop_when_candidate_data_incomplete():
+    text = "## Installation\n\n```bash\npip install something\n```\n"
+    install_info = {"fallback_text_required": False, "registry_type": "pypi", "candidate": {}}
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
 def test_api_reference_classes_exist_flags_fabricated_class():
     text = _wrap(
         """flowchart TD

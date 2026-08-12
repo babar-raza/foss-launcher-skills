@@ -179,7 +179,7 @@ same product concurrently.
      certification that prose reads naturally stays a human judgment call, every time.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 49 `check_*` functions as of
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 50 `check_*` functions as of
    2026-08-12 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
    trusting this number again; TC-HARDEN-16 tracks this doc's own self-consistency as real,
    deferred work, not solved here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
@@ -237,7 +237,15 @@ same product concurrently.
    the agent's own stated classification), probable-duplicate content-unit merges (2+ shared
    salient tokens into the same section with a non-identical excerpt), and (**MT031**) an
    embedded-actionable-fact tripwire flagging an excluded narrative/CTA unit whose excerpt
-   contains a real request/contact phrase worth re-examining. `check_diagram_
+   contains a real request/contact phrase worth re-examining, and (**TC-HARDEN-32**, MT035,
+   2026-08-12) whether the `## Installation` section's real content agrees with `data/
+   package_registry.json`'s own `published`/`candidate` fields for this product — deliberately
+   a heuristic, not a hard gate, per direct live evidence found the moment this check first ran
+   against real content: that registry file was independently wrong, in both directions, for
+   real products already in this portfolio (`words/net`'s real, live NuGet package contradicts
+   its own `published: false`; `email/net`'s real nuspec casing contradicts its own
+   `candidate.name` casing) — the same "even structured, checked-in data isn't infallible"
+   lesson `formats.md` already taught this plan. `check_diagram_
    suspicious_direct_product_edge`/`check_diagram_capability_unreachable_from_product` are
    retired — both were tripwires for a per-node-edge defect class the simplified model can no
    longer produce.
@@ -277,9 +285,9 @@ same product concurrently.
 No such section existed anywhere in this repo before this one — confirmed by an exhaustive
 search of this file, `AGENTS.md`, and `skills/registry.json`'s S-120 entry (no `dependencies`
 field). This section describes the **real, current** behavior of the checked-in code as of
-2026-08-12, not an aspirational future state — it will be extended as `TC-HARDEN-32`, `-33`,
-`-34` close (see the plan's Twenty-Second incident / MT035 section for the full evidence trail
-behind every claim below: `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`).
+2026-08-12, not an aspirational future state — it will be extended as `TC-HARDEN-33` closes
+(see the plan's Twenty-Second incident / MT035 section for the full evidence trail behind every
+claim below: `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`).
 
 **1. The real prerequisite chain — mechanically load-bearing, not just recommended.** Run
 `/repo-scout` → `/knowledge-enrich` → `/truth-merge` for the new product **before** attempting
@@ -315,24 +323,29 @@ mechanically fail to verify** until the knowledge pipeline has run at least once
   clone-cache-scanning checks degrade gracefully with an empty clone cache (nothing found means
   nothing is required) — safe to run before `/repo-scout`, unlike the two checks above.
 
-**4. Known, disclosed gaps not yet fixed — do not assume these are handled:**
-- **`data/families.json` consistency (TC-HARDEN-34)**: this is a separate, hand-maintained
+**4. Fixed since this section was first written (2026-08-12):**
+- **New-language source discovery (TC-HARDEN-34, fixed 2026-08-12)**: `_find_class_source_files`'s
+  extension allowlist now also recognizes PHP (`.php`), Kotlin (`.kt`/`.kts`), Ruby (`.rb`), and
+  Swift (`.swift`), alongside the original 10 extensions — a deliberate, bounded widening (see
+  `_CLASS_SOURCE_EXTENSIONS`'s own docstring), not an open-ended "any extension" policy. A new
+  language outside this set is still invisible to `check_named_member_accuracy` and to
+  `check_api_reference_classes_exist_in_reference_site`'s clone-cache fallback until the
+  allowlist is widened again — a real, bounded, but no longer *permanent* blind spot.
+- **Installation-section verification (TC-HARDEN-32, fixed 2026-08-12)**: `check_installation_
+  matches_package_registry` now cross-checks the composed `## Installation` section against
+  `data/package_registry.json`'s `published`/`candidate` fields — deliberately a **heuristic**,
+  not a hard gate, per direct live evidence found the moment this check first ran against real
+  content: that registry file was independently confirmed wrong, in both directions, for real
+  products already in this portfolio. A finding here is a prompt to check which side (the
+  content or the registry) is actually stale, never an automatic "the content is wrong."
+
+**5. Known, disclosed gaps not yet fixed — do not assume these are handled:**
+- **`data/families.json` consistency (TC-HARDEN-33)**: this is a separate, hand-maintained
   registry from `data/products.json`, not derived from it. If you add a genuinely new family to
   `products.json` without also adding it to `families.json`, `check_no_cross_product_citation`'s
   family allowlist silently stops catching *any other product's* citation of the new family — no
   warning is raised. Add the new family to `data/families.json` manually; nothing currently
   reminds you if you forget.
-- **New-language source discovery (TC-HARDEN-34)**: `_find_class_source_files`'s extension
-  allowlist is hardcoded to `{".py", ".java", ".cs", ".go", ".rs", ".cpp", ".hpp", ".h", ".ts",
-  ".c"}`. A new language's real source files (`.php`, `.kt`, `.rb`, `.swift`, ...) are invisible
-  to `check_named_member_accuracy` and to `check_api_reference_classes_exist_in_reference_site`'s
-  clone-cache fallback, even once a real clone cache exists — this is a *permanent* blind spot
-  for a new language, not one that resolves once `/repo-scout` runs. Not yet fixed.
-- **Installation-section verification (TC-HARDEN-32)**: no check anywhere verifies the composed
-  `## Installation` section's text against `data/package_registry.json`'s real
-  published/unpublished state. A new, unpublished product's Installation section is currently
-  unverified by any hard gate — compose it manually against the canonical fallback text
-  convention (Immediate execution section of the plan) and double-check it by hand.
 
 ## Post-conditions
 
