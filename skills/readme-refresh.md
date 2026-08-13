@@ -181,8 +181,7 @@ same product concurrently.
 4. **`ingest-candidate`** — runs the real deterministic checks module
    (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 50 `check_*` functions as of
    2026-08-12 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
-   trusting this number again; TC-HARDEN-16 tracks this doc's own self-consistency as real,
-   deferred work, not solved here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
+   trusting this number again). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
    capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability

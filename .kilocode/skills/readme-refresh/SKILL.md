@@ -2,7 +2,10 @@
 name: readme-refresh
 id: S-120
 description: >
-  Skill description pending
+  Generate, verify, and (on explicit approval) push a production-grade README.md refresh for
+  one FOSS product repository, through the registered run-bound readme_refresh_run.py state
+  machine.
+args: "{family} {platform}"
 ---
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.

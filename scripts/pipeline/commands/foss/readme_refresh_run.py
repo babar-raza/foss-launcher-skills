@@ -266,6 +266,35 @@ def _event(family: str, platform: str, run_id: str, event_type: str, **fields: A
     atomic_write(path, prior + json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def _append_action_ledger_row(
+    family: str, platform: str, *, action: str, details: dict, session_id: str,
+) -> None:
+    """TC-HARDEN-15 (MT035, 2026-08-12): `reports/repo_presenter_actions.jsonl` -- the designed,
+    cross-run, append-only external-action audit ledger this plan's own original Storage design
+    (2026-08-04) specified and was never actually built (confirmed absent, MT033). Real gap this
+    closes: no existing file/skill in this repo tracked "what has actually been pushed to an
+    external repo, and when" as a durable, git-trackable record -- MT033's own audit had to
+    reconstruct that history by hand from GitHub PR pages and commit messages, exactly the gap
+    this ledger exists to close. One row per real `push` call (dry-run or live), distinguished by
+    `action` (`readme_push_dry_run` vs. `readme_pr_opened`) and `details["dry_run"]`. Lives at
+    `reports/repo_presenter_actions.jsonl` (not under `readme_refresh_runs/{run_id}/` -- this is
+    the durable, CROSS-run history; `push/receipt.json` remains the single-run detail)."""
+    path = _reports_root / "repo_presenter_actions.jsonl"
+    row = {
+        "event_id": uuid.uuid4().hex,
+        "family": family,
+        "platform": platform,
+        "skill": "readme-refresh",
+        "action": action,
+        "timestamp": _utc(),
+        "details": details,
+        "session_id": session_id,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    prior = path.read_text(encoding="utf-8") if path.is_file() else ""
+    atomic_write(path, prior + json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def _set_active(family: str, platform: str, run_id: str) -> None:
     _write_json(_active_path(family, platform), {"run_id": run_id, "updated_at": _utc()})
 
@@ -393,6 +422,32 @@ def _preflight_access_check(repo_full_name: str) -> dict:
     return info
 
 
+def _check_family_registered(family: str) -> None:
+    """TC-HARDEN-33 (MT035, 2026-08-12): `data/families.json` is a separate, hand-maintained
+    registry from `data/products.json`, not derived from it (confirmed real -- its display-name
+    capitalization, e.g. "3d" -> "Aspose.3D", "html" -> "Aspose.HTML", "tex" -> "Aspose.TeX", is
+    genuine information `products.json`'s own bare lowercase slug can never mechanically
+    reproduce, so deriving the family set from `products.json` alone -- this taskcard's own
+    Required-work option (a) -- was not viable). Without this check, a genuinely new family added
+    to `products.json` without a matching `families.json` entry means `check_no_cross_product_
+    citation`'s family allowlist silently stops catching ANY OTHER product's citation of the new
+    family -- no warning anywhere. Refusing to `start` a run for an unregistered family forces the
+    registry gap to be fixed BEFORE it can ever become a silent, later defect, rather than relying
+    on someone remembering to update a second file."""
+    path = _repo_root / "data" / "families.json"
+    if not path.is_file():
+        return  # degrade gracefully -- families.json itself absent is a different, unrelated problem
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    if family not in registry:
+        raise ReadmeRefreshRunError(
+            f"{family!r} is not registered in data/families.json -- add it there "
+            f"(e.g. {{\"...\": \"...\", {family!r}: \"Aspose.{family.capitalize()}\"}}, adjusting the "
+            f"display-name capitalization to the product's real branding) before starting a run "
+            f"for this family. Without it, check_no_cross_product_citation's family allowlist "
+            f"silently stops catching any OTHER product's citation of this family."
+        )
+
+
 def start_run(
     family: str, platform: str, *, run_id: "str | None" = None, session_id: "str | None" = None,
     skip_preflight: bool = False,
@@ -405,6 +460,7 @@ def start_run(
     rid = _safe_token(run_id or f"rr-{_now().strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:12]}", "run_id")
 
     product = _resolve_product(family, platform)
+    _check_family_registered(family)
     repo_full_name = product["repo_url"].split("github.com/", 1)[-1].rstrip("/")
 
     with _product_guard(family, platform):
@@ -520,6 +576,21 @@ def _known_family_display_names() -> "set[str]":
         return set()
     registry = json.loads(path.read_text(encoding="utf-8"))
     return {value.split(".", 1)[1] for value in registry.values() if value.startswith("Aspose.")}
+
+
+def _reference_index_source_dirty(family: str, platform: str) -> bool:
+    """TC-HARDEN-37 (MT035, 2026-08-12): a lightweight git-dirty check for `content/
+    reference.aspose.org/en/{family}/{platform}/_index.md` -- the real, authoritative source
+    `check_api_reference_table_completeness` compares the candidate's own table against.
+    Best-effort only: returns `False` (never flags dirty) on any git failure -- this is a
+    non-blocking heuristic signal, not something that should itself ever raise or block a run
+    just because git couldn't be invoked for some unrelated reason."""
+    rel_path = f"content/reference.aspose.org/en/{family}/{platform}/_index.md"
+    try:
+        output = _git("diff", "--stat", "HEAD", "--", rel_path, check=False)
+    except Exception:
+        return False
+    return bool(output.strip())
 
 
 def _product_formats_md(family: str, platform: str) -> str:
@@ -1270,6 +1341,23 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_api_reference_table_completeness(text, reference_index),
     }
+    # TC-HARDEN-37 (MT035, 2026-08-12): the exact "497 findings" false-alarm shape this
+    # incident found (pdf/java/3d/net's reference-index source carrying real, substantial,
+    # currently-uncommitted growth from an external session) previously required a full manual
+    # `git diff --stat HEAD` diagnosis to distinguish from a genuine content gap -- mechanized
+    # here as a non-blocking heuristic so a future "N findings" result is immediately
+    # distinguishable, without requiring that same manual diagnosis to be redone from scratch.
+    dirty = _reference_index_source_dirty(family, platform)
+    result["reference_index_source_dirty"] = {
+        "hard_gate": False,
+        "findings": [{
+            "reason": f"content/reference.aspose.org/en/{family}/{platform}/_index.md has "
+                      f"uncommitted local changes (git diff --stat HEAD is non-empty) -- any "
+                      f"api_reference_table_completeness findings for this product may be a "
+                      f"snapshot-timing artifact against a moving target, not a genuine content "
+                      f"gap; verify against the last committed state before trusting them",
+        }] if dirty else [],
+    }
     # TC-HARDEN-21 (MT034, Twentieth incident, 2026-08-12): a real clean-room pilot found an
     # exact-duplicate row (cells/cpp's Enumerations table listed DiagnosticSeverity twice) that
     # passed check_api_reference_table_completeness cleanly -- duplication within the candidate's
@@ -1705,6 +1793,15 @@ def push(
         (run_root / "push").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "push" / "receipt.json", receipt)
         _event(family, platform, run_id, "PUSH_COMPLETED", **{k: v for k, v in receipt.items() if k != "declared_files"})
+        _append_action_ledger_row(
+            family, platform,
+            action="readme_push_dry_run" if dry_run else "readme_pr_opened",
+            details={
+                "branch": receipt.get("branch"), "commit_sha": receipt.get("commit_sha"),
+                "pr_url": receipt.get("pr_url"), "dry_run": dry_run,
+            },
+            session_id=owner,
+        )
 
         if dry_run:
             # Dry-run rehearses everything up to (not including) the live write -- it does not

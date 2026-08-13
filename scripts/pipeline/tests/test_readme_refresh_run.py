@@ -626,6 +626,56 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
     branches_on_upstream = _run_git(["branch", "-a"], upstream_dir)
     assert receipt["branch"] not in branches_on_upstream
 
+    # TC-HARDEN-15 (MT035): the real, cross-run external-action ledger got exactly one row for
+    # this dry-run push.
+    ledger_path = repo_root / "reports" / "repo_presenter_actions.jsonl"
+    rows = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 1
+    assert rows[0]["family"] == "testfam"
+    assert rows[0]["platform"] == "testplat"
+    assert rows[0]["skill"] == "readme-refresh"
+    assert rows[0]["action"] == "readme_push_dry_run"
+    assert rows[0]["details"]["dry_run"] is True
+    assert rows[0]["details"]["pr_url"] is None
+    assert rows[0]["details"]["branch"] == receipt["branch"]
+    assert rows[0]["details"]["commit_sha"] == receipt["commit_sha"]
+
+
+# --- repo_presenter_actions.jsonl ledger (TC-HARDEN-15, MT035) -----------------------------
+
+
+def test_action_ledger_appends_without_truncating_prior_rows(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h15")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+
+    rr._append_action_ledger_row(
+        "famone", "platone", action="readme_pr_opened",
+        details={"pr_url": "https://example.com/pr/1"}, session_id="s1",
+    )
+    rr._append_action_ledger_row(
+        "famtwo", "plattwo", action="readme_push_dry_run",
+        details={"pr_url": None}, session_id="s2",
+    )
+
+    ledger_path = repo_root / "reports" / "repo_presenter_actions.jsonl"
+    rows = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 2
+    assert rows[0]["family"] == "famone"
+    assert rows[1]["family"] == "famtwo"
+    assert rows[0]["event_id"] != rows[1]["event_id"]
+
+
+def test_action_ledger_lives_at_reports_root_not_under_a_specific_run(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h15b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+
+    rr._append_action_ledger_row(
+        "fam", "plat", action="readme_pr_opened", details={}, session_id="s",
+    )
+    assert (repo_root / "reports" / "repo_presenter_actions.jsonl").is_file()
+
 
 # --- Gate-firing proof: the three real incident classes -----------------------------------
 
@@ -1225,6 +1275,99 @@ def test_second_run_for_same_product_refused_while_active(tmp_path, monkeypatch)
     rr.start_run("testfam", "testplat")
     with pytest.raises(rr.ReadmeRefreshRunError, match="already has active run"):
         rr.start_run("testfam", "testplat")
+
+
+# --- Family-registry consistency (TC-HARDEN-33, MT035) -------------------------------------
+
+
+def test_start_run_refuses_unregistered_family(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h33-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    (repo_root / "data" / "families.json").write_text(
+        json.dumps({"otherfam": "Aspose.OtherFam"}), encoding="utf-8"
+    )
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="not registered in data/families.json"):
+        rr.start_run("testfam", "testplat")
+
+
+def test_start_run_succeeds_for_registered_family(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h33-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    (repo_root / "data" / "families.json").write_text(
+        json.dumps({"testfam": "Aspose.TestFam"}), encoding="utf-8"
+    )
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    assert manifest["state"] == "INPUTS_PINNED"
+
+
+def test_start_run_degrades_gracefully_when_families_json_absent(tmp_path, monkeypatch):
+    # Regression guard: families.json itself missing is a different, unrelated problem -- must
+    # not block every single run just because that file doesn't exist at all.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-h33-c")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    assert manifest["state"] == "INPUTS_PINNED"
+
+
+# --- Git-dirty reference-index-source detection (TC-HARDEN-37, MT035) ----------------------
+
+
+def _make_real_git_repo_with_reference_index(tmp_path):
+    """A genuine git repo (not the scratch fixture's plain directory) -- needed to exercise
+    _reference_index_source_dirty's real `git diff --stat HEAD` behavior, not a mock."""
+    repo_root = tmp_path / "real_git_repo"
+    repo_root.mkdir()
+    index_dir = repo_root / "content" / "reference.aspose.org" / "en" / "testfam" / "testplat"
+    index_dir.mkdir(parents=True)
+    (index_dir / "_index.md").write_text("## Core API\n\n| Class | Description |\n", encoding="utf-8")
+    _run_git(["init", "-q", "-b", "main"], repo_root)
+    _run_git(["config", "user.email", "test@example.com"], repo_root)
+    _run_git(["config", "user.name", "Test"], repo_root)
+    _run_git(["add", "."], repo_root)
+    _run_git(["commit", "-q", "-m", "initial"], repo_root)
+    return repo_root, index_dir / "_index.md"
+
+
+def test_reference_index_source_dirty_false_when_clean(tmp_path):
+    repo_root, _ = _make_real_git_repo_with_reference_index(tmp_path)
+    rr.configure(repo_root=repo_root)
+    assert rr._reference_index_source_dirty("testfam", "testplat") is False
+
+
+def test_reference_index_source_dirty_true_when_uncommitted_edit_exists(tmp_path):
+    repo_root, index_path = _make_real_git_repo_with_reference_index(tmp_path)
+    index_path.write_text(
+        "## Core API\n\n| Class | Description |\n|---|---|\n| `NewClass` | New. |\n", encoding="utf-8"
+    )
+    rr.configure(repo_root=repo_root)
+    assert rr._reference_index_source_dirty("testfam", "testplat") is True
+
+
+def test_reference_index_source_dirty_false_when_no_git_repo_at_all(tmp_path):
+    # Regression guard: repo_root that isn't a git repository at all (e.g. the scratch test
+    # fixture's own plain directory) must degrade gracefully, never raise.
+    repo_root = tmp_path / "not_a_git_repo"
+    repo_root.mkdir()
+    rr.configure(repo_root=repo_root)
+    assert rr._reference_index_source_dirty("testfam", "testplat") is False
+
+
+def test_run_deterministic_checks_surfaces_dirty_reference_index_as_heuristic(tmp_path):
+    repo_root, index_path = _make_real_git_repo_with_reference_index(tmp_path)
+    index_path.write_text(
+        "## Core API\n\n| Class | Description |\n|---|---|\n| `NewClass` | New. |\n", encoding="utf-8"
+    )
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    result = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+    assert result["reference_index_source_dirty"]["hard_gate"] is False
+    assert result["reference_index_source_dirty"]["findings"], "must fire when the source is genuinely dirty"
 
 
 # --- Pre-flight access check: real refusal on push: false ----------------------------------
