@@ -457,6 +457,47 @@ class TestGetStoredSha:
         assert repo_patrol._get_stored_sha("3d", "python") == "abc123"
 
 
+class TestGetStoredShaDualSource:
+    """MT030-2026-08-13: data/upstream_baselines.json takes priority over
+    model.yaml's scalar -- the fix for the two-baseline drift confirmed on
+    pdf/java (upstream_baselines.json frozen at a pre-refresh SHA while
+    model.yaml had already moved on through two real knowledge refreshes)."""
+
+    def test_upstream_baselines_json_takes_priority(self, tmp_path):
+        model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text("repo_sha: stale_model_yaml_sha\n")
+        (tmp_path / "data").mkdir(exist_ok=True)
+        (tmp_path / "data" / "upstream_baselines.json").write_text(
+            '{"pdf/java": "current_durable_sha"}'
+        )
+        assert repo_patrol._get_stored_sha("pdf", "java") == "current_durable_sha"
+
+    def test_falls_back_to_model_yaml_when_product_not_in_baselines(self, tmp_path):
+        model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text("repo_sha: abc123def\n")
+        (tmp_path / "data").mkdir(exist_ok=True)
+        (tmp_path / "data" / "upstream_baselines.json").write_text(
+            '{"other/product": "irrelevant_sha"}'
+        )
+        assert repo_patrol._get_stored_sha("pdf", "java") == "abc123def"
+
+    def test_falls_back_to_model_yaml_when_baselines_file_missing(self, tmp_path):
+        model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text("repo_sha: abc123def\n")
+        assert repo_patrol._get_stored_sha("pdf", "java") == "abc123def"
+
+    def test_falls_back_to_model_yaml_when_baselines_file_corrupt(self, tmp_path):
+        model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text("repo_sha: abc123def\n")
+        (tmp_path / "data").mkdir(exist_ok=True)
+        (tmp_path / "data" / "upstream_baselines.json").write_text("{not valid json")
+        assert repo_patrol._get_stored_sha("pdf", "java") == "abc123def"
+
+
 # ---------------------------------------------------------------------------
 # Scan health + fail-closed write policy (ST-058)
 # ---------------------------------------------------------------------------

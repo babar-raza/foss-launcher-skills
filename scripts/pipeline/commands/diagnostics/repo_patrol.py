@@ -62,6 +62,7 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 DATA_DIR = REPO_ROOT / "data"
 REGISTRY_PATH = DATA_DIR / "products.json"
+UPSTREAM_BASELINES_PATH = DATA_DIR / "upstream_baselines.json"
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 REPORTS_DIR = REPO_ROOT / "reports" / "discovery"
 HISTORY_DIR = REPORTS_DIR / "history"
@@ -69,10 +70,11 @@ HISTORY_DIR = REPORTS_DIR / "history"
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global REPO_ROOT, DATA_DIR, REGISTRY_PATH, KNOWLEDGE_ROOT, REPORTS_DIR, HISTORY_DIR
+    global REPO_ROOT, DATA_DIR, REGISTRY_PATH, UPSTREAM_BASELINES_PATH, KNOWLEDGE_ROOT, REPORTS_DIR, HISTORY_DIR
     REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     DATA_DIR = REPO_ROOT / "data"
     REGISTRY_PATH = DATA_DIR / "products.json"
+    UPSTREAM_BASELINES_PATH = DATA_DIR / "upstream_baselines.json"
     KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
     REPORTS_DIR = REPO_ROOT / "reports" / "discovery"
     HISTORY_DIR = REPORTS_DIR / "history"
@@ -797,7 +799,29 @@ def cmd_sweep() -> dict:
 
 
 def _get_stored_sha(family: str, platform: str) -> str | None:
-    """Read repo_sha from knowledge/{family}/{platform}/merged/model.yaml."""
+    """Resolve the stored baseline SHA for a product.
+
+    MT030-2026-08-13: reads data/upstream_baselines.json first (git-committed,
+    survives a fresh clone) and falls back to the local model.yaml scalar
+    (gitignored) only when no durable entry exists yet. Before this fix,
+    upstream_baselines.json (the file the SCHEDULED .github/workflows/
+    upstream-monitor.yml cron actually reads) had zero writers anywhere in the
+    codebase and stayed frozen at whatever SHA it was seeded with -- confirmed
+    live on pdf/java, still "39c9840f..." (pre-2026-07-16) after two real
+    refreshes moved model.yaml's repo_sha on to "be089a7e...". The cron path and
+    this sweep path were silently comparing against two different, mutually
+    unreconciled baselines. promote.py now writes both at the same acceptance
+    choke point (knowledge_state.update_upstream_baseline), so this is a
+    reconciliation fix, not a new source of truth.
+    """
+    try:
+        baselines = json.loads(UPSTREAM_BASELINES_PATH.read_text(encoding="utf-8"))
+        val = baselines.get(f"{family}/{platform}")
+        if val:
+            return val
+    except (OSError, json.JSONDecodeError):
+        pass  # fall through to the local model.yaml scalar
+
     model_path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
     if not model_path.is_file():
         return None
