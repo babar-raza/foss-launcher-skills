@@ -26,9 +26,12 @@ CONTRACT: scripts/pipeline/commands/ops/git_plumb_commit.py
   inputs:  an explicit file list, a commit message, --skills for the
            mandatory retroactive skill-run record, and (optionally) a base
            commit sha / session id for the regression check.
-  outputs: one pushed commit on the target branch; local
-           refs/heads/<branch> and refs/remotes/<remote>/<branch> updated
-           to match; a finalized retroactive skill-run record.
+  outputs: one commit on the target branch; local refs/heads/<branch> is
+           always advanced to it (whether or not --push is used, so
+           sequential --no-push calls correctly chain off each other);
+           refs/remotes/<remote>/<branch> is additionally updated, and the
+           commit is pushed to the real remote, only when --push is set;
+           a finalized retroactive skill-run record.
   concurrency: never touches the real `.git/index` -- builds an isolated
            temp index from a freshly-captured HEAD, exactly the technique
            this repo's CLAUDE.md already documents, now enforced in one
@@ -312,11 +315,22 @@ def plumb_commit(
         ["commit-tree", tree_sha, "-p", head_sha, "-m", message], repo_root=root,
     ).stdout.strip()
 
+    # Advance the local branch ref unconditionally, regardless of --push --
+    # matching normal `git commit` semantics (the local branch always moves;
+    # pushing is a separate, independent action). Without this, a second
+    # --no-push call re-reads the same stale HEAD (line 267 above) and
+    # silently builds a disconnected sibling commit instead of a chain link,
+    # since nothing ever recorded that the first commit happened locally.
+    # Found live, MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL
+    # (L1-MT028-03/L3-MT028-01): 2 of that mission's 4 sequential --no-push
+    # commits landed with the SAME parent instead of chaining, discovered
+    # only because the caller happened to manually re-verify parent SHAs.
+    _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
+
     pushed = False
     if push:
         _git(["push", remote, f"{commit_sha}:refs/heads/{branch}"], repo_root=root)
         pushed = True
-        _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
         _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
 
     return {

@@ -156,6 +156,101 @@ def test_no_push_mode_creates_commit_without_pushing(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# --no-push ref-chaining (MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL,
+# L1-MT028-03/L3-MT028-01, TC-MT028-05: found live -- 2 of that mission's 4
+# sequential --no-push commits landed as disconnected siblings sharing the
+# ORIGINAL pre-mission HEAD as parent, instead of chaining off each other,
+# because refs/heads/{branch} previously only advanced inside `if push:`.
+# ---------------------------------------------------------------------------
+
+def test_no_push_mode_still_advances_local_ref_so_sequential_commits_chain(tmp_path):
+    work, bare = _init_repo_with_remote(tmp_path)
+    original_head = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    (work / "a.txt").write_text("a", encoding="utf-8")
+    first = gpc.plumb_commit(
+        ["a.txt"], "first no-push commit", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True, push=False,
+    )
+
+    # The local branch ref must have moved to the first commit even though
+    # nothing was pushed -- this is the fix: previously refs/heads/main
+    # stayed at original_head until a --push call, so the SECOND plumbed
+    # commit below would (pre-fix) re-capture original_head as its own
+    # parent instead of first["commit_sha"].
+    local_head_after_first = _git(work, "rev-parse", "refs/heads/main").stdout.strip()
+    assert local_head_after_first == first["commit_sha"]
+    assert local_head_after_first != original_head
+
+    (work / "b.txt").write_text("b", encoding="utf-8")
+    second = gpc.plumb_commit(
+        ["b.txt"], "second no-push commit", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True, push=False,
+    )
+
+    # The real bug: second's parent must be first's commit_sha (a real
+    # chain), not original_head (a disconnected sibling that would silently
+    # drop "a.txt" if ever pushed as-is).
+    second_parent = _git(work, "log", "-1", "--format=%P", second["commit_sha"]).stdout.strip()
+    assert second_parent == first["commit_sha"]
+    assert second_parent != original_head
+
+    # And the local ref now points at the second (chain-tip) commit.
+    local_head_after_second = _git(work, "rev-parse", "refs/heads/main").stdout.strip()
+    assert local_head_after_second == second["commit_sha"]
+
+
+def test_three_sequential_no_push_commits_all_chain(tmp_path):
+    """Repeatability beyond the minimal 2-commit reproduction -- a 3rd
+    --no-push commit must also chain off the 2nd, not just the 1st off the
+    original HEAD."""
+    work, bare = _init_repo_with_remote(tmp_path)
+
+    (work / "a.txt").write_text("a", encoding="utf-8")
+    c1 = gpc.plumb_commit(
+        ["a.txt"], "c1", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, push=False,
+    )
+    (work / "b.txt").write_text("b", encoding="utf-8")
+    c2 = gpc.plumb_commit(
+        ["b.txt"], "c2", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, push=False,
+    )
+    (work / "c.txt").write_text("c", encoding="utf-8")
+    c3 = gpc.plumb_commit(
+        ["c.txt"], "c3", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, push=False,
+    )
+
+    assert _git(work, "log", "-1", "--format=%P", c2["commit_sha"]).stdout.strip() == c1["commit_sha"]
+    assert _git(work, "log", "-1", "--format=%P", c3["commit_sha"]).stdout.strip() == c2["commit_sha"]
+    # All 3 files present on the final chain tip -- proof nothing was dropped.
+    files_at_tip = _git(work, "ls-tree", "-r", "--name-only", c3["commit_sha"]).stdout
+    assert "a.txt" in files_at_tip
+    assert "b.txt" in files_at_tip
+    assert "c.txt" in files_at_tip
+
+
+def test_push_mode_still_updates_both_local_and_remote_tracking_refs(tmp_path):
+    """Non-regression: --push's existing, already-relied-upon behavior
+    (updating both refs/heads/{branch} and refs/remotes/{remote}/{branch},
+    and actually pushing) must be completely unchanged by this fix."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["f.txt"], "push mode unchanged", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True, push=True,
+    )
+
+    assert result["pushed"] is True
+    assert _git(work, "rev-parse", "refs/heads/main").stdout.strip() == result["commit_sha"]
+    assert _git(work, "rev-parse", "refs/remotes/origin/main").stdout.strip() == result["commit_sha"]
+    remote_tip = _git(bare, "rev-parse", "main").stdout.strip()
+    assert remote_tip == result["commit_sha"]
+
+
+# ---------------------------------------------------------------------------
 # .gitignore warnings (TC-H04, found live 2026-08-06: this tool force-tracked
 # 8 gitignored /.supervisor/state/ files with zero feedback)
 # ---------------------------------------------------------------------------
