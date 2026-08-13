@@ -3907,7 +3907,18 @@ _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
 # heading stays inside "__preamble__" alongside the unheaded Intro paragraph, so no downstream
 # section-boundary code needed to change. check_content_unit_merged_into_target_section maps
 # both "Intro" and "Project History" to the same "__preamble__" section body.
-_CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {"Intro", "Project History"}
+#
+# "Additional Examples" (2026-08-13, Twenty-Fourth mission/cells-go): also permanently OPTIONAL
+# (never added to _REQUIRED_SECTIONS, same "vacuously satisfied" precedent as Project History
+# above) but a real, legitimate merge target -- found live while reconciling cells/go's old
+# per-example worked snippets, which naturally belong under this exact section (the same
+# already-established portfolio-wide home for worked-example code, per the Template section's
+# own flagship-example rule). _split_into_sections already resolves it correctly as a real H2
+# section key with no code change needed; only this allowlist was blocking a real, honest
+# disposition from validating.
+_CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
+    "Intro", "Project History", "Additional Examples",
+}
 
 
 def check_content_unit_disposition_coverage(

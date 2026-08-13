@@ -4963,6 +4963,17 @@ def test_structural_disposition_coverage_allows_merge_into_existing_template_sec
     assert checks.check_structural_unit_disposition_coverage(units, dispositions) == []
 
 
+def test_structural_disposition_coverage_allows_merge_into_additional_examples():
+    # Real defect found while authoring cells/go's own real structure-dispositions.json (Twenty-
+    # Fourth mission): "Additional Examples" is a real, legitimate merge target for reframed
+    # worked-example code (the portfolio-wide established home for this content class, per the
+    # Template section's own flagship-example rule) but was missing from
+    # _CONTENT_UNIT_TARGET_SECTIONS -- a real machinery gap, not a disposition-authoring mistake.
+    units = [_structural_unit(unit_id="s0001", heading="Use formulas", kind="generic_structural_block", claimed_paths=())]
+    dispositions = [_structure_disposition(unit_id="s0001", target_section="Additional Examples")]
+    assert checks.check_structural_unit_disposition_coverage(units, dispositions) == []
+
+
 def test_structural_disposition_coverage_flags_invalid_target_section():
     units = [_structural_unit()]
     dispositions = [_structure_disposition(target_section="Not A Real Section Anywhere")]
