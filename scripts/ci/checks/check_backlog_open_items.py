@@ -25,6 +25,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 BACKLOG_PATH = REPO_ROOT / "backlog" / "BACKLOG.md"
 
+_PIPELINE_LIB_DIR = REPO_ROOT / "scripts" / "pipeline" / "lib"
+if str(_PIPELINE_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_LIB_DIR))
+from backlog_parser import parse_table_rows as _parse_table_rows  # noqa: E402
+
 # Statuses that are considered "done" — no blocker/review-date required.
 _DONE_STATUSES = {
     "CLOSED", "CLOSED/INVALID", "ACCEPTED", "ACCEPTED_CEILING",
@@ -36,56 +41,6 @@ _NEEDS_BLOCKER = {"OPEN", "CONDITIONALLY_ACCEPTED", "DOWNGRADED"}
 
 # Review-date pattern: YYYY-MM-DD
 _DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
-
-
-def _parse_table_rows(text: str) -> list[dict]:
-    """Extract rows from the Active and Queued markdown tables in BACKLOG.md.
-
-    Returns list of dicts with keys: id, title, status, blocker, raw_line.
-    Column order: ID | Cat | Effect | Title | Status | Priority | Size | Wave | Score | Plan | Blocker | Updated
-    """
-    rows = []
-    in_table = False
-    header_seen = False
-    for line in text.splitlines():
-        stripped = line.strip()
-        # Only process rows inside the ## Active and ## Queued sections
-        if stripped.startswith("## Active") or stripped.startswith("## Queued"):
-            in_table = True
-            header_seen = False
-            continue
-        if stripped.startswith("## ") and in_table:
-            in_table = False
-            continue
-        if not in_table:
-            continue
-        if not stripped.startswith("|"):
-            continue
-        # Split on | and discard empty strings (leading/trailing pipes produce empties)
-        parts = [p.strip() for p in stripped.split("|") if p.strip()]
-        # Table header row
-        if parts and parts[0].upper() == "ID":
-            header_seen = True
-            continue
-        # Separator row (---|---)
-        if parts and re.match(r"^[-:]+$", parts[0]):
-            continue
-        if not header_seen or len(parts) < 5:
-            continue
-        # Col indices: 0=ID, 1=Cat, 2=Effect, 3=Title, 4=Status, 5=Priority,
-        #              6=Size, 7=Wave, 8=Score, 9=Plan, 10=Blocker, 11=Updated
-        row_id = parts[0] if len(parts) > 0 else ""
-        title = parts[3] if len(parts) > 3 else ""
-        status = parts[4] if len(parts) > 4 else ""
-        blocker = parts[10] if len(parts) > 10 else ""
-        rows.append({
-            "id": row_id,
-            "title": title,
-            "status": status,
-            "blocker": blocker,
-            "raw_line": stripped,
-        })
-    return rows
 
 
 def check_backlog(path: Path) -> list[dict]:

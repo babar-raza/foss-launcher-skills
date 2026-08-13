@@ -1312,4 +1312,35 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "backlog reconciliation gate"
+# Step 32 (MT030-2026-08-13): backlog closure reconciliation gate. Fires only
+# when backlog/BACKLOG.md is staged AND a Cat=knowledge row transitions into a
+# closed-family status. Blocks unless data/knowledge_state.json shows a
+# confirmed-clean (verdict=PASS) truth-audit on record for that row's product,
+# or a governed override token covers backlog/BACKLOG.md.
+#
+# Found live: PDF-JAVA-REFRESH-003 stayed Status=queued through two real
+# knowledge refreshes, then its hand-closing note went stale on its own central
+# claim within days of being written -- nothing on the commit path had ever
+# checked a backlog row's closure claim against anything durable. Fails OPEN
+# on a product with no knowledge_state entry yet (never punish a product
+# nothing has recorded state for -- same philosophy as Step 30).
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_backlog_reconciliation_gate.py" ]; then
+    _brg_out=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | PYTHONPATH=scripts/pipeline \
+        "$_HOOK_PYTHON" scripts/ci/checks/check_backlog_reconciliation_gate.py 2>&1)
+    _brg_exit=$?
+    if [ -n "$_brg_out" ]; then
+        echo "$_brg_out" | sed 's/^/[Step 32] /'
+    fi
+    if [ $_brg_exit -ne 0 ]; then
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+else
+    echo "[Step 32] SKIP: .venv not found or check_backlog_reconciliation_gate.py missing." >&2
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
