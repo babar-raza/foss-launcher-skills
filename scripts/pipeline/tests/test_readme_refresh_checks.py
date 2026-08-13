@@ -5314,3 +5314,179 @@ def test_internal_label_patterns_flag_structure_and_badge_dispositions_filenames
     new_readme_b = "## License\n\nSee badge-dispositions.json for the full record.\n"
     result_b = checks.check_dropped_content("Old readme.\n", new_readme_b, "irrelevant")
     assert any("badge-dispositions.json" in label.lower() for label in result_b["internal_labels"])
+
+
+# ============================================================================================
+# Twenty-Fifth mission (2026-08-13): check_code_example_imports_match_source -- cells/java's
+# upstream repo renamed its Java package from `com.aspose.cells_foss` to
+# `org.aspose.cells_foss`; every one of the candidate's 20 `import com.aspose.cells_foss.X;`
+# statements silently referenced a package that no longer exists. Fixtures below mirror the
+# real, post-rename clone-cache shape (`src/main/java/org/aspose/cells_foss/Cell.java`,
+# `package org.aspose.cells_foss;`) rather than reading the live clone cache, matching this
+# module's own established "captured-verbatim fixture, not a live read" testing convention.
+# ============================================================================================
+
+
+def _write_java_class(root, package, class_name, extra_body=""):
+    rel_dir = Path(*package.split("."))
+    class_dir = root / "src" / "main" / "java" / rel_dir
+    class_dir.mkdir(parents=True, exist_ok=True)
+    (class_dir / f"{class_name}.java").write_text(
+        f"package {package};\n\n{extra_body}\npublic class {class_name} {{\n}}\n",
+        encoding="utf-8",
+    )
+
+
+def test_code_example_imports_match_source_flags_real_cells_java_rename(tmp_path):
+    # The exact real defect: Cell.java is real, but declared under org.aspose.cells_foss now,
+    # not com.aspose.cells_foss -- the candidate's own stale import claims the old package.
+    _write_java_class(tmp_path, "org.aspose.cells_foss", "Cell")
+    readme_text = (
+        "## Quick Start\n\n```java\n"
+        "import com.aspose.cells_foss.Cell;\n"
+        "import com.aspose.cells_foss.Workbook;\n"
+        "```\n"
+    )
+    findings = checks.check_code_example_imports_match_source(readme_text, str(tmp_path))
+    reasons_by_class = {f["class_name"]: f["reason"] for f in findings}
+    assert reasons_by_class.get("Cell") == "wrong_package"
+    # Workbook has no real source file in this fixture at all -- a distinct finding reason.
+    assert reasons_by_class.get("Workbook") == "class_not_found"
+
+
+def test_code_example_imports_match_source_clean_when_package_matches(tmp_path):
+    _write_java_class(tmp_path, "org.aspose.cells_foss", "Cell")
+    readme_text = "## Quick Start\n\n```java\nimport org.aspose.cells_foss.Cell;\n```\n"
+    assert checks.check_code_example_imports_match_source(readme_text, str(tmp_path)) == []
+
+
+def test_code_example_imports_match_source_flags_class_not_found():
+    readme_text = "## Quick Start\n\n```java\nimport org.aspose.cells_foss.Nonexistent;\n```\n"
+    findings = checks.check_code_example_imports_match_source(readme_text, "/nonexistent/root")
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "class_not_found"
+    assert findings[0]["class_name"] == "Nonexistent"
+
+
+def test_code_example_imports_match_source_ignores_non_java_blocks(tmp_path):
+    # A Python import statement inside a ```python block must never be parsed as a Java import,
+    # even though "import x.y.Z" superficially resembles Java syntax.
+    readme_text = "## Quick Start\n\n```python\nimport com.aspose.cells_foss.Cell\n```\n"
+    assert checks.check_code_example_imports_match_source(readme_text, str(tmp_path)) == []
+
+
+def test_code_example_imports_match_source_deduplicates_repeated_imports(tmp_path):
+    _write_java_class(tmp_path, "org.aspose.cells_foss", "Cell")
+    readme_text = (
+        "## Quick Start\n\n```java\nimport com.aspose.cells_foss.Cell;\n```\n\n"
+        "## Additional Examples\n\n```java\nimport com.aspose.cells_foss.Cell;\n```\n"
+    )
+    findings = checks.check_code_example_imports_match_source(readme_text, str(tmp_path))
+    assert len(findings) == 1
+
+
+def test_code_example_imports_match_source_noop_on_clean_readme(tmp_path):
+    readme_text = "## Quick Start\n\n```bash\ngo test ./...\n```\n"
+    assert checks.check_code_example_imports_match_source(readme_text, str(tmp_path)) == []
+
+
+# ============================================================================================
+# Twenty-Fifth mission (2026-08-13): check_diagram_container_duplicates_capability +
+# check_project_structure_canonical_tree_format -- both real, live defects found while healing
+# cells/java's diagram and Project Structure section.
+# ============================================================================================
+
+_CELLS_JAVA_DUPLICATE_DIAGRAM = _wrap(
+    """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    i1["Existing .xlsx workbook (file path or stream)"]
+    i2["JPEG, PNG, GIF, or BMP image bytes (for embedded pictures)"]
+  end
+  PRODUCT["Aspose.Cells FOSS for Java"]
+  subgraph Capabilities["Core Capabilities"]
+    c11["Embedded pictures"]
+    c15["Load diagnostics and repair reporting"]
+  end
+  subgraph Outputs["Outputs"]
+    o1[".xlsx workbook (file path or binary stream)"]
+    o2["Load diagnostics and repair report"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+)
+
+# Negative control: a Starting Points node legitimately sharing ONE word with the Capability it
+# feeds -- must never be flagged as a duplicate (this is the normal, expected relationship
+# between an input and the capability that consumes it, not the same concept modeled twice).
+_CSV_LEGITIMATE_OVERLAP_DIAGRAM = _wrap(
+    """flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    i1["CSV files"]
+  end
+  PRODUCT["Some Product"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["CSV import and export"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["CSV files"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs"""
+)
+
+
+def test_diagram_container_duplicates_capability_flags_real_cells_java_shape():
+    findings = checks.check_diagram_container_duplicates_capability(_CELLS_JAVA_DUPLICATE_DIAGRAM)
+    by_node = {f["node_id"]: f for f in findings}
+    assert "i2" in by_node
+    assert by_node["i2"]["capability_node_id"] == "c11"
+    assert "o2" in by_node
+    assert by_node["o2"]["capability_node_id"] == "c15"
+
+
+def test_diagram_container_duplicates_capability_ignores_legitimate_input_capability_overlap():
+    # "CSV files" (Starting Points) sharing "csv" with "CSV import and export" (Capabilities) is
+    # the ordinary, expected relationship between an input and the capability consuming it --
+    # only 1 shared significant word, below the >=2-shared-word floor.
+    assert checks.check_diagram_container_duplicates_capability(_CSV_LEGITIMATE_OVERLAP_DIAGRAM) == []
+
+
+def test_diagram_container_duplicates_capability_clean_on_simplified_diagram():
+    assert checks.check_diagram_container_duplicates_capability(TRANSFORM_CELLS_CPP) == []
+
+
+def test_diagram_container_duplicates_capability_noop_when_no_mermaid_block():
+    assert checks.check_diagram_container_duplicates_capability("# No diagram here\n") == []
+
+
+# --- check_project_structure_canonical_tree_format (hard gate) -----------------------------
+
+_PROJECT_STRUCTURE_BOX_DRAWING = (
+    "# Some Product\n\n## Project Structure\n\n"
+    "```\n├── src/\n│   └── main.go\n└── README.md\n```\n\n## License\n\nMIT.\n"
+)
+
+_PROJECT_STRUCTURE_PLAIN_TEXT = (
+    "# Some Product\n\n## Project Structure\n\n"
+    "```text\nsrc/main/java/org/aspose/cells_foss/\n"
+    "  Public API surface: Workbook, Worksheet, Cell\n```\n\n## License\n\nMIT.\n"
+)
+
+
+def test_project_structure_canonical_tree_format_noop_when_section_absent():
+    assert checks.check_project_structure_canonical_tree_format("# Product\n\n## License\n\nMIT.\n") == []
+
+
+def test_project_structure_canonical_tree_format_clean_on_real_cells_go_shape():
+    assert checks.check_project_structure_canonical_tree_format(_PROJECT_STRUCTURE_BOX_DRAWING) == []
+
+
+def test_project_structure_canonical_tree_format_flags_real_cells_java_plain_text_shape():
+    findings = checks.check_project_structure_canonical_tree_format(_PROJECT_STRUCTURE_PLAIN_TEXT)
+    assert len(findings) == 1
+    assert "box-drawing" in findings[0]["reason"]
+
+
+def test_project_structure_canonical_tree_format_flags_missing_fenced_block():
+    text = "# Some Product\n\n## Project Structure\n\nJust prose, no tree at all.\n\n## License\n\nMIT.\n"
+    findings = checks.check_project_structure_canonical_tree_format(text)
+    assert len(findings) == 1
+    assert "no fenced code block" in findings[0]["reason"]

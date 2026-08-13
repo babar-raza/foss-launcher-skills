@@ -206,22 +206,95 @@ same product concurrently.
    to satisfy the section's format contract; `check_scope_limitations_format`'s zero-bullet
    carve-out (below) makes this the valid, checked shape, not a workaround.
 
+   **At-a-Glance diagram composition — Starting Points, Outputs, and Project Structure
+   (2026-08-13, `cells/java` healing pass).** The container-chain shape is fixed
+   (`Product → Core Capabilities → Outputs`, with an optional `Starting Points` container ahead
+   of `Product`) but two real, live defects — a wrong Starting Points node and a wrong Outputs
+   node, both on `cells/java`, both already correctly caught by the hard gates below before this
+   guidance existed — showed the *composition* rules that should have prevented them were never
+   written down anywhere a composing agent actually reads. Corrected here, not just fixed on that
+   one product.
+   - **Starting Points presence, corrected** (this paragraph replaces an earlier, stale
+     hybrid-only description): required and populated with the product's real, distinct input
+     formats for `transform`/`compile` archetypes; forbidden entirely for `generative`; exactly
+     2 lines for `hybrid` (its own established "An existing X document" / "Nothing — authored
+     from scratch" shape). Never assume "hybrid-only" — that was true before 2026-08-06 and is
+     no longer the real rule.
+   - **A format belongs in Starting Points only if it is a genuine PRIMARY document the product
+     loads/creates/saves on its own terms — not merely auxiliary material a capability happens to
+     also consume.** Exclusion tests (verify against real source before drawing *or* omitting,
+     same discipline as every other diagram claim):
+     - *(a) Capability-path selector* — chooses which of several already-modeled Capability nodes
+       runs; redundant with their own existence.
+     - *(b) Access/invocation-mechanism selector* — how the caller invokes the library, not data
+       it operates on.
+     - *(c) Bundled/internal resource* — ships inside the package, never supplied by the caller.
+     - *(d) "Build from scratch"* — absence of input data is not itself input data; model as a
+       Capability, not an Input.
+     - *(e) Embedded/attached auxiliary material* — real, external, caller-supplied data that
+       materially shapes a capability's output, EXCLUDED anyway when BOTH hold: (i) the product
+       never exposes a top-level load/parse call whose primary subject is this format — it is
+       only ever accepted as a parameter while building/editing a *different* primary document;
+       and (ii) the product does not decode/interpret the format's own structure, only identifies
+       (sniffs) and stores it as an opaque blob. Confirmed live: `cells/java`'s
+       `PictureCollection` only magic-byte-sniffs JPEG/PNG/GIF/BMP (`PictureCollection.java:
+       72-75`) and never independently loads one — the format belongs in Key Capabilities prose
+       ("embeds images... detecting JPEG, PNG, GIF, and BMP formats"), never Starting Points.
+       Cross-checked against every sibling product with a picture-embedding capability
+       (`slides/java`, `slides/net`, `cells/net`, `cells/python`, `cells/rust`, `pdf/cpp`,
+       `pdf/go`) — all nine already fold this into a Capabilities node or a genuine rendering
+       Output, none show it as a Starting Point; this rule makes that existing, unwritten
+       convention explicit rather than inventing a new one. Contrast: if the product's own
+       top-level API *does* let a caller independently load a document of format X (not merely
+       embed it), X still belongs in Starting Points for that real capability — (e) excludes only
+       formats with no independent top-level load path anywhere in the product.
+   - **When `check_diagram_verified_format_claims` or `check_diagram_container_format_purity`
+     fires, check first whether the flagged node's concept is already — or belongs — represented
+     as a Capability node.** If so, delete the Starting-Points/Outputs node; that is usually the
+     correct resolution, not "strengthen the evidence until the claim passes." Reserve evidence-
+     strengthening for a format that genuinely is a primary document and is simply under-recorded
+     in `formats.md`/source. Confirmed live: `cells/java`'s `"Load diagnostics and repair report"`
+     Outputs node was pure duplication of its own `"Load diagnostics and repair reporting"`
+     Capability node and Key Capabilities' own `Workbook.getLoadDiagnostics()` sentence — deleting
+     it lost zero information. `check_diagram_container_duplicates_capability` (heuristic, below)
+     is the standing, mechanical tripwire for this exact shape recurring on a future product.
+   - **Project Structure tree format is canonical, not whatever the old README happened to use.**
+     When a `## Project Structure` section is restored (structure-dispositions.json, MT030-
+     sibling mechanism), its fenced tree must use box-drawing characters (`├──`/`└──`/`│`),
+     matching the one real, shipped, approved precedent (`cells/go`) — never the old upstream
+     README's own native style (plain indented text, YAML-like nesting, etc.) reproduced
+     verbatim. `check_project_structure_canonical_tree_format` (hard gate, below) enforces this
+     mechanically so the next product can't silently pick a third visual convention.
+
 4. **`ingest-candidate`** — runs the real deterministic checks module
    (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 59 `check_*` functions as of
    2026-08-13 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
    trusting this number again). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
-   diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
-   `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
-   capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability
-   edges. **Hard gates** (any finding blocks the transition): required sections present in title
-   case, no `forum.aspose.com`/`*.aspose.app` links, license link target resolves
-   case-sensitively on disk, the diagram matches the fixed container-chain shape and column-
-   balance rule, the diagram's column order matches the recorded `data/
+   diagram is now exactly `Product → Core Capabilities → Outputs` (up to 5 capabilities in one
+   column, 6+ split into 2 balanced columns) — no individual per-capability edges. **Starting
+   Points presence is archetype-general, not hybrid-only** (corrected 2026-08-08, Eleventh
+   incident / MT025, itself corrected in this doc 2026-08-13 after a live composition mistake
+   traced the error back to this exact paragraph never having been updated): required, populated
+   with real input formats, for `transform`/`compile` archetypes; forbidden for `generative`;
+   exactly 2 lines (unchanged shape) for `hybrid`. See the diagram-composition guidance above for
+   which formats belong there. **Hard gates** (any finding blocks the transition): required
+   sections present in title case, no `forum.aspose.com`/`*.aspose.app` links, license link
+   target resolves case-sensitively on disk, the diagram matches the fixed container-chain shape
+   and column-balance rule, the diagram's column order matches the recorded `data/
    diagram_capability_dependencies.json` entry (no-op when none exists — edges there are now
-   keyed to the *current* diagram's own node IDs, re-recorded whenever a diagram is redrawn), a
-   `Starting Points` container may only appear when the product's `hybrid` archetype has been
-   freshly re-confirmed *this run* (`data/diagram_archetypes.json`'s `decided_at` must match
-   today), every format named in the diagram is genuinely supported (cross-checked against
+   keyed to the *current* diagram's own node IDs, re-recorded whenever a diagram is redrawn),
+   `check_diagram_starting_points_presence` enforces the archetype-general presence/count rule
+   above (not hybrid-only), a `Starting Points` container on a `hybrid`-archetype product must
+   ADDITIONALLY have its classification freshly re-confirmed *this run*
+   (`check_diagram_hybrid_reverification`; `data/diagram_archetypes.json`'s `decided_at` must
+   match today — a no-op for every other archetype, since presence-appropriateness is
+   `check_diagram_starting_points_presence`'s job, not this one's), a Starting-Points/Outputs
+   node whose label significantly word-overlaps an existing Capabilities node's label is flagged
+   for likely duplication (`check_diagram_container_duplicates_capability`, heuristic — usually
+   means the node should be deleted, not evidence-strengthened; see the composition guidance
+   above), a `## Project Structure` section's tree uses canonical box-drawing characters, not the
+   old README's own native style (`check_project_structure_canonical_tree_format`, hard gate),
+   every format named in the diagram is genuinely supported (cross-checked against
    `knowledge/{family}/{platform}/merged/formats.md`), format-name casing is internally
    consistent and matches `data/format_descriptions.json` where known, no sibling product family
    is cited inside a section that's supposed to describe only this product, the `## Additional

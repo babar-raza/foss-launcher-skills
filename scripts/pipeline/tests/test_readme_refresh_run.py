@@ -865,6 +865,46 @@ def test_ingest_candidate_blocks_on_license_section_narration(tmp_path, monkeypa
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 
 
+def test_ingest_candidate_blocks_on_stale_java_package_import(tmp_path, monkeypatch):
+    # Twenty-Fifth mission (2026-08-13): reproduces the real, live cells/java incident -- the
+    # upstream repo renamed its Java package from com.aspose.cells_foss to org.aspose.cells_foss;
+    # a candidate composed against a stale clone cache still imports the old package. Real
+    # gate-firing proof through the actual CLI transition, not just the bare check function.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-025")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    class_dir = clone_cache_dir / "src" / "main" / "java" / "org" / "aspose" / "cells_foss"
+    class_dir.mkdir(parents=True)
+    (class_dir / "Cell.java").write_text(
+        "package org.aspose.cells_foss;\n\npublic class Cell {\n}\n", encoding="utf-8",
+    )
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    stale_import_candidate = _GOOD_CANDIDATE.replace(
+        "```python\nimport testproduct\n```",
+        "```java\nimport com.aspose.cells_foss.Cell;\n```",
+    )
+    assert stale_import_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, stale_import_candidate)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["code_example_imports_match_source"]["hard_gate"] is True
+    findings = result["code_example_imports_match_source"]["findings"]
+    assert any(f["class_name"] == "Cell" and f["reason"] == "wrong_package" for f in findings)
+
+    # Fix it -- must then reach VERIFYING_EXAMPLES cleanly.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
 def test_ingest_candidate_blocks_on_unlinked_banner_when_homepage_verified(tmp_path, monkeypatch):
     # TC-HARDEN-27 (MT034, Twenty-First incident): once a real, verified homepage page exists,
     # the banner must be linked to it -- proves the gate actually fires through the real CLI

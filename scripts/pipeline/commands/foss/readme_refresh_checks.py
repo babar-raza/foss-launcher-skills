@@ -2116,6 +2116,85 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     return found
 
 
+# Twenty-Fifth mission (2026-08-13, cells/java): a code EXAMPLE's own import/using/namespace
+# statement is a real, checkable claim -- "this class lives at this exact package path" -- that
+# nothing in this module verified before. Found live, real: the upstream cells/java repo renamed
+# its Java package from `com.aspose.cells_foss` to `org.aspose.cells_foss`; the candidate's 20
+# `import com.aspose.cells_foss.X;` statements all silently referenced a package that no longer
+# exists, and check_named_member_accuracy's own scope (the `` - `ClassName` `` bullet-list
+# convention only) never looks inside a fenced code block at all, so this class of staleness had
+# no check anywhere.
+_JAVA_FENCED_BLOCK_RE = re.compile(r"```java\n(.*?)```", re.DOTALL)
+_JAVA_IMPORT_RE = re.compile(r"^\s*import\s+(?:static\s+)?([\w.]+)\.([A-Z]\w*)\s*;", re.MULTILINE)
+_JAVA_PACKAGE_DECLARATION_RE = re.compile(r"^\s*package\s+([\w.]+)\s*;", re.MULTILINE)
+
+
+def check_code_example_imports_match_source(readme_text: str, clone_cache_root: str) -> list[dict]:
+    """Hard gate. Verifies every Java `import <package>.<ClassName>;` statement inside a
+    ```java fenced code block resolves to a real, currently-declared class at that exact
+    package path in the clone cache -- catches a stale package/namespace rename between when
+    a candidate was composed and when the clone cache (or the real upstream repo) was last
+    refreshed. This is exactly as mechanically decidable as `check_license_link_target`/
+    `check_api_reference_classes_exist_in_reference_site` -- a wrong import is a real,
+    unambiguous compile failure, not a judgment call, so this is a hard gate.
+
+    For each `(package, class)` pair found: locates real source file(s) declaring `class`
+    via `_find_class_source_files` (the same grep-based scan `check_named_member_accuracy`
+    already uses -- same file-discovery limitations apply, see that function's own docstring),
+    then reads each candidate file's own real `package <name>;` declaration and compares it
+    against the claimed package. Two distinct finding reasons: `class_not_found` (no source
+    file anywhere declares this class at all) and `wrong_package` (the class is real, but every
+    file declaring it uses a different package than the import statement claims -- the exact
+    cells/java shape this check exists to catch). A class genuinely declared under two
+    different real packages in different files (unusual, but not impossible) counts as a match
+    if the claimed package is among the real ones -- this check flags a wrong claim, not merely
+    an incomplete one.
+
+    Scope, disclosed not hidden: Java only for this pass, matching the concrete, live-confirmed
+    defect this check exists to catch and this plan's own established "prove one language first"
+    rollout discipline (TC-HARDEN-01's own Python-first precedent for `verify_examples`).
+    Extending to other languages' import/using/namespace conventions (Python, C#, Go, Rust,
+    TypeScript, C++) is real, disclosed follow-up scope, never silently assumed covered here.
+    """
+    root = Path(clone_cache_root)
+    findings: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    for block_match in _JAVA_FENCED_BLOCK_RE.finditer(readme_text):
+        for import_match in _JAVA_IMPORT_RE.finditer(block_match.group(1)):
+            claimed_package, class_name = import_match.group(1), import_match.group(2)
+            key = (claimed_package, class_name)
+            if key in seen:
+                continue
+            seen.add(key)
+            source_files = _find_class_source_files(root, class_name)
+            if not source_files:
+                findings.append({
+                    "package": claimed_package, "class_name": class_name,
+                    "reason": "class_not_found",
+                    "detail": f"`{claimed_package}.{class_name}` -- no source file anywhere in "
+                              f"the clone cache declares a class named {class_name!r}",
+                })
+                continue
+            real_packages: set[str] = set()
+            for path in source_files:
+                try:
+                    text = path.read_text(encoding="utf-8", errors="ignore")
+                except OSError:
+                    continue
+                pkg_match = _JAVA_PACKAGE_DECLARATION_RE.search(text)
+                if pkg_match:
+                    real_packages.add(pkg_match.group(1))
+            if real_packages and claimed_package not in real_packages:
+                findings.append({
+                    "package": claimed_package, "class_name": class_name,
+                    "reason": "wrong_package",
+                    "detail": f"`import {claimed_package}.{class_name};` -- {class_name} is "
+                              f"real, but its actual current package is "
+                              f"{sorted(real_packages)!r}, not {claimed_package!r}",
+                })
+    return findings
+
+
 # check_api_reference_intro_names_classes (2026-08-05) was RETIRED 2026-08-09 (MT027) --
 # absorbed into check_api_reference_classes_exist_in_reference_site (below), which runs the
 # same two bad-pattern checks PLUS real class-name verification against reference.aspose.org,
@@ -2847,6 +2926,62 @@ def check_diagram_no_mechanism_duplicate_output(markdown_text: str) -> list[dict
                     "node_b": node_b, "label_b": label_b,
                     "shared_words": sorted(shared_words),
                 })
+    return findings
+
+
+def check_diagram_container_duplicates_capability(markdown_text: str) -> list[dict]:
+    """Heuristic (2026-08-13, cells/java healing pass). Flags a Starting-Points/Outputs node
+    whose label strongly overlaps an existing Capabilities node's label -- the exact shape of
+    two real, live defects found the same day: cells/java's Starting Points node "JPEG, PNG,
+    GIF, or BMP image bytes (for embedded pictures)" duplicated its own Capabilities node
+    "Embedded pictures"; its Outputs node "Load diagnostics and repair report" duplicated its
+    own Capabilities node "Load diagnostics and repair reporting". Both facts were ALSO already
+    correctly documented in Key Capabilities prose, so deleting the Starting-Points/Outputs
+    node lost zero information -- a hit here usually means DELETE the flagged node, not
+    strengthen its evidence (see skills/readme-refresh.md's diagram-composition guidance).
+
+    Deliberately a heuristic, not a hard gate: word overlap is a proxy for "this is the same
+    concept twice," not proof -- a Starting Points node legitimately shares a word with the
+    Capability it feeds (e.g. "CSV files" naturally shares "CSV" with "CSV import and export"),
+    and that is NOT a duplicate. To avoid firing on this common, legitimate pattern, a hit
+    requires BOTH >= 2 shared significant words (>= 4 letters, minus `_GENERIC_LABEL_WORDS`)
+    AND that shared count covers at least half of the SMALLER of the two label's own word sets
+    (mirroring `check_content_unit_merged_into_target_section`'s own established "half the
+    significant tokens" idiom) -- confirmed against the real cells/java pair (matches: 2-3
+    shared words, >=50% coverage both cases) and a real negative control ("CSV files" / "CSV
+    import and export": 1 shared word, correctly never reaches the >=2 floor).
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+
+    capability_nodes = [nid for nid, kind in graph.node_subgraph.items() if kind == "capabilities"]
+    other_nodes = [nid for nid, kind in graph.node_subgraph.items() if kind in ("starting_points", "outputs")]
+
+    findings = []
+    for other_id in other_nodes:
+        other_label = graph.node_label.get(other_id, "")
+        other_words = {w.lower() for w in _WORD_RE.findall(other_label)} - _GENERIC_LABEL_WORDS
+        if not other_words:
+            continue
+        for cap_id in capability_nodes:
+            cap_label = graph.node_label.get(cap_id, "")
+            cap_words = {w.lower() for w in _WORD_RE.findall(cap_label)} - _GENERIC_LABEL_WORDS
+            if not cap_words:
+                continue
+            shared = other_words & cap_words
+            if len(shared) < 2:
+                continue
+            smaller = min(len(other_words), len(cap_words))
+            if len(shared) / smaller < 0.5:
+                continue
+            findings.append({
+                "node_id": other_id, "label": other_label,
+                "container": graph.node_subgraph[other_id],
+                "capability_node_id": cap_id, "capability_label": cap_label,
+                "shared_words": sorted(shared),
+            })
     return findings
 
 
@@ -3916,8 +4051,16 @@ _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
 # own flagship-example rule). _split_into_sections already resolves it correctly as a real H2
 # section key with no code change needed; only this allowlist was blocking a real, honest
 # disposition from validating.
+#
+# "Project Structure" (2026-08-13, Twenty-Fifth mission/cells-java): the SAME class of gap as
+# "Additional Examples" above, found the same day -- a structural unit's own OLD heading (e.g.
+# cells/java's real "Project Layout") is not always the exact heading the new candidate uses for
+# the same content; the skill's own established, portfolio-wide standard name for this content
+# class is "Project Structure" (already used this way for cells/go), so a rename from an old
+# product-specific heading into this standard one is a real, legitimate "merged_reframed", not a
+# drop. Also permanently OPTIONAL, same "vacuously satisfied" precedent.
 _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
-    "Intro", "Project History", "Additional Examples",
+    "Intro", "Project History", "Additional Examples", "Project Structure",
 }
 
 
@@ -4621,6 +4764,46 @@ def check_structural_unit_tree_paths_plausible(
                           "clone cache -- the tree may be stale or the parse may be wrong",
             })
     return findings
+
+
+_BOX_DRAWING_TREE_CHARS_RE = re.compile(r"[├└│]")  # ├ └ │
+
+
+def check_project_structure_canonical_tree_format(markdown_text: str) -> list[dict]:
+    """Hard gate (2026-08-13, cells/java healing pass). When a `## Project Structure` section
+    exists, its fenced tree block must use box-drawing characters (`├──`/`└──`/`│`), matching
+    the one real, shipped, already-approved precedent (`cells/go`) -- never the old upstream
+    README's own native style (plain indented text, YAML-like nesting, etc.) reproduced
+    verbatim. Vacuous pass when no Project Structure section exists -- this section is
+    permanently optional, same "vacuously satisfied" precedent as `## Additional Examples`.
+
+    Found live: `cells/java`'s first-drafted Project Structure section reused the old README's
+    own plain-indented-text style wholesale (`src/main/java/.../\\n  description text`, no tree
+    characters at all) -- producing a visually inconsistent portfolio the moment a second
+    product had this section at all, since nothing previously checked *which* visual convention
+    a restored directory tree used, only that a fenced code block was present somewhere in the
+    section (`check_structural_unit_merged_into_target_section`'s own, deliberately weaker,
+    "contains a fenced code block" signal for its own different purpose).
+
+    Mechanically unambiguous (does the text contain box-drawing characters, yes or no), so a
+    hard gate, not a heuristic -- unlike the diagram content-purity questions this module also
+    checks, "which visual convention" has exactly one correct answer once a precedent exists.
+    """
+    sections = _split_into_sections(markdown_text)
+    section_body = sections.get("Project Structure")
+    if section_body is None:
+        return []
+    fenced_blocks = _ANY_FENCED_CODE_RE.findall(section_body)
+    if not fenced_blocks:
+        return [{"reason": "Project Structure section has no fenced code block at all"}]
+    if not any(_BOX_DRAWING_TREE_CHARS_RE.search(block) for block in fenced_blocks):
+        return [{
+            "reason": "Project Structure section's fenced tree does not use the canonical "
+                      "box-drawing characters (├── / └── / │) "
+                      "-- matches neither cells/go's shipped precedent nor any established "
+                      "portfolio convention",
+        }]
+    return []
 
 
 # --- Badge semantic reconciliation -----------------------------------------------------------

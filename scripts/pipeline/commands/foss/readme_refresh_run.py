@@ -1347,6 +1347,13 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             structural_units, structure_dispositions, str(clone_cache)
         ),
     }
+    # Twenty-Fifth mission (2026-08-13, cells/java healing pass): a restored Project Structure
+    # tree must use the one canonical, already-shipped visual convention (cells/go's box-drawing
+    # style), not whichever style the old README happened to use natively.
+    result["project_structure_canonical_tree_format"] = {
+        "hard_gate": True,
+        "findings": checks.check_project_structure_canonical_tree_format(text),
+    }
 
     # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation -- previously
     # nonexistent (no parsing/classification/dedup mechanism anywhere in this module). badge-
@@ -1398,6 +1405,12 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["diagram_no_mechanism_duplicate_output"] = {
         "hard_gate": False, "findings": checks.check_diagram_no_mechanism_duplicate_output(text),
     }
+    # Twenty-Fifth mission (2026-08-13, cells/java healing pass): a Starting-Points/Outputs node
+    # duplicating an existing Capabilities node usually means the node should be deleted, not
+    # evidence-strengthened -- see skills/readme-refresh.md's diagram-composition guidance.
+    result["diagram_container_duplicates_capability"] = {
+        "hard_gate": False, "findings": checks.check_diagram_container_duplicates_capability(text),
+    }
     result["process_narration_smells"] = {"hard_gate": False, "findings": checks.check_process_narration_smells(text)}
     result["enterprise_edition_naming"] = {"hard_gate": False, "findings": checks.check_enterprise_edition_naming(text)}
 
@@ -1425,6 +1438,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "findings": checks.check_named_member_accuracy(
             text, str(clone_cache), reference_dir=str(_product_reference_dir(family, platform))
         ),
+    }
+    # Twenty-Fifth mission / mission (2026-08-13, cells/java): a real, mechanically decidable
+    # claim (this fenced Java example's import statement resolves to a real class at this exact
+    # package path) that check_named_member_accuracy's own bullet-list-only scope never covered
+    # -- found live via the real com.aspose.cells_foss -> org.aspose.cells_foss upstream rename.
+    result["code_example_imports_match_source"] = {
+        "hard_gate": True,
+        "findings": checks.check_code_example_imports_match_source(text, str(clone_cache)),
     }
 
     # Thirteenth incident / MT028 (2026-08-09): MT027 grounded verification in reference.
