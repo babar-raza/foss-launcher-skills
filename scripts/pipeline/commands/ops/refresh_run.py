@@ -56,6 +56,15 @@ VALIDATION_FIELDS = (
     "triage_confirm",
     "seo_stability",
 )
+# MT030-2026-08-13: recorded in the manifest and in data/knowledge_state.json but
+# deliberately excluded from the blocking not_pass check below. Truth-audit (S-38)
+# debt is systemic and pre-existing (TRUTH-AUDIT-DEBT-001; 3d/net alone needed 7
+# convergence passes) -- an immediate hard gate here would block nearly every
+# future refresh repo-wide. Phase 1 of PDF-JAVA-REFRESH-003's fix: make the
+# verdict visible and durable. Phase 2 (a real, differential gate that blocks only
+# on FAILs a run's own diff introduced, not pre-existing debt) is a separate,
+# future, backlog-tracked change gated on TRUTH-AUDIT-DEBT-001's closure.
+ADVISORY_VALIDATION_FIELDS = ("truth_audit",)
 NEXT_STATES = {
     "CREATED": {"INPUTS_PINNED", "BLOCKED", "ABANDONED"},
     "INPUTS_PINNED": {"PLANNED", "BLOCKED", "ABANDONED"},
@@ -1792,6 +1801,17 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "--intentional-renames",
             ",".join(manifest.get("intentional_renames") or []),
         ],
+        # MT030-2026-08-13: ADVISORY_VALIDATION_FIELDS member -- runs through the
+        # same uniform loop below (recorded, logged, durable-stamped via
+        # truth_audit.py's own knowledge_state wiring) but excluded from the
+        # blocking not_pass check further down. See ADVISORY_VALIDATION_FIELDS'
+        # module-level comment for why this isn't a hard gate yet.
+        "truth_audit": [
+            python,
+            str(_repo_root / "scripts/pipeline/commands/diagnostics/truth_audit.py"),
+            family,
+            platform,
+        ],
     }
 
     def _validation_call(
@@ -1962,7 +1982,8 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
     _save_manifest(manifest)
 
     not_pass = {
-        k: v for k, v in manifest["validation"].items() if v != "PASS"
+        k: v for k, v in manifest["validation"].items()
+        if v != "PASS" and k not in ADVISORY_VALIDATION_FIELDS
     }
     if not_pass:
         raise RefreshRunError(f"Validation did not pass: {not_pass}")
@@ -2314,7 +2335,7 @@ def bind_commit(
         not_pass = {
             key: value
             for key, value in (manifest.get("validation") or {}).items()
-            if value != "PASS"
+            if value != "PASS" and key not in ADVISORY_VALIDATION_FIELDS
         }
         if not_pass:
             raise RefreshRunError(

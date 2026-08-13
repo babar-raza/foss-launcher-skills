@@ -1482,6 +1482,108 @@ def test_verify_runs_scoped_content_and_link_gates(tmp_path: Path):
     assert manifest["validation"]["link_validation"] == "PASS"
 
 
+def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):
+    """MT030-2026-08-13: ADVISORY_VALIDATION_FIELDS must be recorded in the
+    manifest but must NEVER block READY_TO_COMMIT, even on a truth_audit FAIL --
+    truth-audit debt is systemic and pre-existing (TRUTH-AUDIT-DEBT-001); an
+    immediate hard gate here would block nearly every future refresh repo-wide."""
+    def _runner_with_failing_truth_audit(
+        args: list[str], **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if any("truth_audit.py" in str(a) for a in args):
+            return subprocess.CompletedProcess(args, 1, "", "FAIL: 3 findings")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_runner_with_failing_truth_audit,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-TA", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["validation"]["truth_audit"] == "FAIL"
+    assert manifest["validation"]["content_audit"] == "PASS"
+    # The advisory FAIL must not have blocked the state transition.
+    assert manifest["state"] == "READY_TO_COMMIT"
+
+
+def test_advisory_validation_fields_excluded_from_bind_commit_gate(tmp_path: Path):
+    """The same advisory exclusion must hold at commit-binding time, not just
+    verify_run() -- both not_pass checks read manifest['validation']. Reuses
+    test_bind_commit_rejects_partial_run_commit's exact minimal setup (a
+    deliberately incomplete diff-tree output that trips the UNRELATED "exactly
+    match" evidence check) with truth_audit=FAIL added to validation: if the
+    commit-ready gate wrongly included truth_audit, bind_commit would raise
+    "Run validation is not commit-ready" instead -- proving the fix runs for
+    real, not just that the two checks look alike on inspection."""
+    commit_sha = "c" * 40
+
+    def commit_runner(args: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\nRefresh-Run: RUN-COMMIT-TA\n"
+                f"Refresh-Base: {HEAD_SHA}\nRefresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            output = "content/docs.aspose.org/en/pdf/net/one.md"  # partial -- trips a DIFFERENT check
+        else:
+            output = ""
+        return subprocess.CompletedProcess(args, 0, output + "\n", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-COMMIT-TA", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [
+        "content/docs.aspose.org/en/pdf/net/one.md",
+        "content/docs.aspose.org/en/pdf/net/two.md",
+    ]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    manifest["validation"] = {field: "PASS" for field in refresh_run.VALIDATION_FIELDS}
+    manifest["validation"]["truth_audit"] = "FAIL"  # the advisory field, deliberately failing
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+    _write_run_evidence(tmp_path, manifest, include_validation=True)
+
+    with pytest.raises(refresh_run.RefreshRunError, match="exactly match"):
+        refresh_run.bind_commit(
+            "pdf", "net", "RUN-COMMIT-TA", commit_sha, session_id="session-1",
+        )
+
+
 def test_validation_attempts_are_immutable_and_manifest_referenced(tmp_path: Path):
     manifest = refresh_run.create_run(
         "pdf",
