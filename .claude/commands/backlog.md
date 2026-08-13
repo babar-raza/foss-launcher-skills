@@ -397,6 +397,25 @@ Compare active backlog items against current system evidence and classify each i
    - Check if referenced script exists and was modified since item creation
    - **Target-artifact check**: If the Evidence column contains `target-artifact:{path}`, verify whether that file exists on disk. If it does, emit: `[{id}] TARGET EXISTS: {path} — item may already be done; verify and close`; classify as RESOLVED candidate. If it does not exist, confirm the item is still open.
 
+   **f. Knowledge-state check** (Cat=knowledge items only, MT030-2026-08-13):
+   - Run `PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/backlog_reconcile.py --json`
+   - Cross-references the item's `{family}/{platform}` (parsed from its Title) against
+     `data/knowledge_state.json` — the durable record of the last accepted knowledge
+     baseline and the last S-38 truth-audit verdict for that product. Built after
+     PDF-JAVA-REFRESH-003's row stayed `queued` through two real knowledge refreshes,
+     then its own hand-written closing note went stale on its central claim within
+     days (a truth-audit had landed and nobody reconciled it back).
+   - `disposition: "stale_closure"` on an already-CLOSED item → flag: `[{id}] STALE
+     CLOSURE: claims closure but knowledge_state shows no confirmed-clean truth-audit
+     for {product_key} — re-run S-38 truth-audit before trusting this closure`
+   - `disposition: "insufficient_data"` → informational only, never a red flag (the
+     product's knowledge pipeline just hasn't written a durable record yet)
+   - `disposition: "ok"` → no action; folds into normal RESOLVED/STILL-OPEN classification
+   - This is advisory surfacing here — the actual enforcement lives in the commit-time
+     gate, `scripts/ci/checks/check_backlog_reconciliation_gate.py` (pre-commit Step 32),
+     which blocks a commit that newly closes a Cat=knowledge row without a confirmed-clean
+     truth-audit on record, unless a governed override covers it.
+
 3. Classify each item:
    - **RESOLVED** — all evidence shows the issue no longer exists
    - **PARTIAL** — some evidence of progress, acceptance checks not fully met

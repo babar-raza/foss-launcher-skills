@@ -65,7 +65,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 
 ---
 
-## Skill List (109 registered skills available in this tree)
+## Skill List (112 registered skills available in this tree)
 
 | ID | Slug | Category |
 |----|------|----------|
