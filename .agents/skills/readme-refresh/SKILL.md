@@ -180,11 +180,36 @@ same product concurrently.
      thing as prose quality — the gates below catch factual and structural defects; final
      certification that prose reads naturally stays a human judgment call, every time.
 
+   **Public-source allowlist for limitations content (2026-08-13, found live on `cells/cpp`).**
+   A real Development and Testing sentence cited `upstream-issues.md` by name ("...see
+   `upstream-issues.md` for the corrected commands used above") and, even once that citation is
+   stripped, still narrated the underlying comparison finding in generalized prose ("...reference
+   a `workspace/`-prefixed path layout that does not match a plain clone of this repository").
+   Both are the same defect: a finding this pipeline's own investigation produced — by reading
+   an internal, never-published artifact, or by comparing two real artifacts against each other —
+   disclosed in the public README merely because the machinery discovered it. **Any public
+   Scope-and-Limitations or Development-and-Testing claim must trace to one of**: the target
+   repo's real, current, public source code (directly, statically observable by any external
+   reader who opens the same public files — this is the established, already-hardened "verify
+   against real source" discipline this whole skill relies on, and stays fully allowed), the
+   target repo's existing root README, another public tracked doc in the target repo, or
+   authoritative public product/package documentation. **Never allowed as the basis for a public
+   claim**: `upstream-issues.md`, `content-dispositions.json`, `knowledge/{family}/{platform}/
+   merged/*`, the read-only clone cache path itself, this project's own `reports/` evidence tree,
+   or any other artifact that will not ship with or be reachable from the published repo — citing
+   one by name, or restating its finding as unattributed prose, are the identical violation.
+   Concretely: when composing Installation/Development-and-Testing instructions, give the real,
+   working commands directly; never narrate *why* they differ from what a sibling doc in the repo
+   says, or how this pipeline discovered the discrepancy — that narration is exactly the leak,
+   independent of whether the internal filename is named. **If no limitation traces to an allowed
+   source, omit the bulleted list entirely** — never invent filler such as "no known limitations"
+   to satisfy the section's format contract; `check_scope_limitations_format`'s zero-bullet
+   carve-out (below) makes this the valid, checked shape, not a workaround.
+
 4. **`ingest-candidate`** — runs the real deterministic checks module
    (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 50 `check_*` functions as of
    2026-08-12 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
-   trusting this number again; TC-HARDEN-16 tracks this doc's own self-consistency as real,
-   deferred work, not solved here). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
+   trusting this number again). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
    capabilities in one column, 6+ split into 2 balanced columns) — no individual per-capability
@@ -204,7 +229,17 @@ same product concurrently.
    visible), every heading (including `<summary>` text) is title case, no undisclosed BLOCKING
    command from `upstream-issues.md` is repeated as a normal install/build step, no real
    old-README link/heading/meaning was silently dropped or hidden behind an internal
-   process-label like "Preserved repository details", (**TC-HARDEN-19**, MT034/Twentieth
+   process-label like "Preserved repository details", (**2026-08-13, `cells/cpp` healing pass**)
+   no internal-only artifact — `upstream-issues.md`, `content-dispositions.json`, the
+   `.clone_cache` path, the `knowledge/*/merged` layer, this project's own `reports/repo-
+   presenter`/`reports/readme_refresh_runs` trees — is named, linked, or cited anywhere in the
+   candidate (`_INTERNAL_LABEL_PATTERNS`, folded into the same `check_dropped_content` hard gate
+   as the process-label check above — it is a NEW-candidate-quality check, unconditional, not
+   gated on whether an old README exists), the Scope and Limitations section never asserts "no
+   known limitations" or any equivalent invented-filler phrasing (`check_scope_limitations_
+   format`'s `invented_filler` finding — the section's bulleted list is simply omitted, never
+   filled with a sentence about its own absence, when no limitation traces to an allowed public
+   source), (**TC-HARDEN-19**, MT034/Twentieth
    incident, 2026-08-12) every `products.aspose.com` Enterprise Edition link in the candidate
    matches the factpack's own real, live-verified `enterprise_link["url"]` exactly — never a
    guessed slug (this closes a confirmed-live regression: a clean-room regeneration produced a

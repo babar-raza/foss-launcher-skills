@@ -1447,6 +1447,16 @@ def test_check_process_narration_smells_flags_license_leak_phrases():
     )
 
 
+def test_check_process_narration_smells_flags_internal_comparison_finding():
+    # 2026-08-13 (cells/cpp healing pass): defense-in-depth for the exact real incident text --
+    # even with the upstream-issues.md filename stripped out, the underlying comparison finding
+    # ("this file's own commands don't match the real repo") is still a leak.
+    assert checks.check_process_narration_smells(
+        "its own build commands reference a `workspace/`-prefixed path layout that does not "
+        "match a plain clone of this repository."
+    )
+
+
 def test_check_process_narration_smells_flags_known_phrases():
     text = "This was verified against the published package, and passes cleanly on Linux."
     findings = checks.check_process_narration_smells(text)
@@ -1550,6 +1560,78 @@ def test_check_dropped_content_flags_internal_label():
     new_readme = "## Preserved repository details\n\nSome content carried forward.\n"
     result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
     assert any("preserved repository details" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_upstream_issues_md_citation():
+    # 2026-08-13: real, live defect found on cells/cpp -- a Development and Testing sentence
+    # cited upstream-issues.md by name as a pointer for "the corrected commands used above".
+    # Neither check_no_upstream_issue_leaked_into_readme (fingerprint-token overlap fell one
+    # short of the 2-token threshold, since the cited path was clone-cache-prefixed in
+    # upstream-issues.md but bare in the README) nor the pre-existing internal-label patterns
+    # caught this -- confirmed live, both returned zero findings against the real defect.
+    new_readme = (
+        "## Development and Testing\n\n"
+        "See [`Nested/README.md`](Nested/README.md) for that option; "
+        "see [upstream-issues.md](upstream-issues.md) for the corrected commands used above.\n"
+    )
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("upstream-issues.md" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_upstream_issues_md_bare_mention():
+    # "cited or summarized" -- a bare, non-linked mention must be caught too, not just a
+    # markdown link target.
+    new_readme = "## Development and Testing\n\nSee upstream-issues.md for details.\n"
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("upstream-issues.md" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_content_dispositions_json():
+    new_readme = "## Scope and Limitations\n\nSee content-dispositions.json for the full record.\n"
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("content-dispositions.json" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_clone_cache_path():
+    new_readme = (
+        "## Scope and Limitations\n\n"
+        "Verified against `runs/.clone_cache/aspose_cells_cpp/README.md`.\n"
+    )
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any(".clone_cache" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_knowledge_merged_path():
+    new_readme = (
+        "## Scope and Limitations\n\n"
+        "Per `knowledge/cells/cpp/merged/limitations.md`, several classes are unimplemented.\n"
+    )
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("knowledge/" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_reports_tree_paths():
+    new_readme_a = "## License\n\nSee reports/repo-presenter/cells/cpp/upstream-issues.md.\n"
+    result_a = checks.check_dropped_content("Old readme.\n", new_readme_a, "irrelevant")
+    assert any("reports/repo-presenter" in label.lower() for label in result_a["internal_labels"])
+
+    new_readme_b = "## License\n\nSee reports/readme_refresh_runs/cells/cpp/manifest.json.\n"
+    result_b = checks.check_dropped_content("Old readme.\n", new_readme_b, "irrelevant")
+    assert any(
+        "reports/readme_refresh_runs" in label.lower() for label in result_b["internal_labels"]
+    )
+
+
+def test_check_dropped_content_internal_artifact_patterns_noop_on_legitimate_content():
+    # Regression guard: real, legitimate content (a real target-repo file, a real command)
+    # must never trip the new internal-artifact patterns.
+    new_readme = (
+        "## Development and Testing\n\n"
+        "See [`Aspose.Cells.Foss.Cpp.Tests/README.md`](Aspose.Cells.Foss.Cpp.Tests/README.md) "
+        "for that option.\n"
+    )
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert result["internal_labels"] == []
 
 
 def test_check_dropped_content_heading_rename_not_flagged_after_emoji_titlecase_normalization():
@@ -3833,6 +3915,73 @@ def test_scope_limitations_format_flags_bulleted_enterprise_paragraph():
     ))
     findings = checks.check_scope_limitations_format(text)
     assert any(f["reason"] == "enterprise_paragraph_is_bulleted" for f in findings)
+
+
+def test_scope_limitations_format_allows_zero_bullets_when_only_enterprise_paragraph():
+    # 2026-08-13 (cells/cpp healing pass, mission's own item 5): when no limitation traces to
+    # an allowed public source, the bulleted list is simply absent -- this must be the VALID
+    # shape, not a not_a_list failure, and must not be confused with the prose-limitations
+    # shape the check below (unchanged) still correctly rejects.
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "See [Enterprise Edition](https://products.aspose.com/cells/cpp/) for broader feature "
+        "coverage, full production support, and active development.\n"
+    ))
+    assert checks.check_scope_limitations_format(text) == []
+
+
+def test_scope_limitations_format_still_flags_mixed_sentence_prose_limitation():
+    # Regression guard for the zero-bullet carve-out above: a non-bullet line that mixes a real
+    # limitation claim with the Enterprise mention in one paragraph (same physical line, two
+    # sentences) must still fail -- this is exactly
+    # test_scope_limitations_format_flags_prose_paragraph_shape's own shape, re-asserted
+    # explicitly against the new sentence-level logic so the carve-out can never silently widen
+    # to swallow it.
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "This project reads and writes XLSX only. See "
+        "[Enterprise Edition](https://products.aspose.com/cells/cpp/) for more.\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "not_a_list" for f in findings)
+
+
+def test_scope_limitations_format_flags_invented_filler():
+    # Mission's own explicit example: "Do not insert filler such as 'no known limitations.'"
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "This edition has no known limitations. See "
+        "[Enterprise Edition](https://products.aspose.com/cells/cpp/) for more.\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "invented_filler" for f in findings)
+
+
+def test_scope_limitations_format_flags_invented_filler_variants():
+    variants = [
+        "There are no known limitations for this edition.",
+        "No limitations have been identified in this release.",
+        "No limitations are currently known.",
+    ]
+    for sentence in variants:
+        text = _wrap("flowchart TD\n  A --> B", extra_section=(
+            "- Does a thing.\n\n## Scope and Limitations\n\n"
+            f"{sentence} See [Enterprise Edition](https://products.aspose.com/cells/cpp/).\n"
+        ))
+        findings = checks.check_scope_limitations_format(text)
+        assert any(f["reason"] == "invented_filler" for f in findings), sentence
+
+
+def test_scope_limitations_format_real_bullets_never_flagged_as_filler():
+    # Regression guard: the invented-filler regex must never false-positive against a real,
+    # legitimate bullet naming an actual constraint.
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        "- Only `.xlsx` (OOXML) is supported for load and save.\n\n"
+        "See [Enterprise Edition](https://products.aspose.com/cells/cpp/) for broader coverage.\n"
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert not any(f["reason"] == "invented_filler" for f in findings)
 
 
 def test_scope_limitations_format_flags_missing_enterprise_paragraph():

@@ -1626,6 +1626,14 @@ _PROCESS_NARRATION_PATTERNS = [
     r"\bin this repository snapshot\b",
     r"\bif formally applied as declared\b",
     r"\btreat the license status as unconfirmed\b",
+    # 2026-08-13: cells/cpp's real Development and Testing section disclosed a comparison
+    # finding produced by this pipeline's own investigation -- that a nested doc's stated
+    # commands don't match the real repo layout -- as generalized prose, with the
+    # `upstream-issues.md` citation stripped out but the finding itself still narrated
+    # ("does not match a plain clone of this repository"). Defense-in-depth alongside the
+    # `_INTERNAL_LABEL_PATTERNS` filename block: excluding the filename while keeping the
+    # finding is still a leak (per this incident's own governing policy).
+    r"\bdoes not match a plain clone\b",
 ]
 _PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
 
@@ -1805,6 +1813,24 @@ _INTERNAL_LABEL_PATTERNS = [
     r"\bdisposition\b",
     r"\bcandidate readme\b",
     r"\bthis readme(?:'s)? (?:generation|generated)\b",
+    # 2026-08-13: found live on cells/cpp -- a Development and Testing sentence cited
+    # `upstream-issues.md` by name for "the corrected commands used above", a real,
+    # confirmed leak neither this list nor check_no_upstream_issue_leaked_into_readme's
+    # fingerprint mechanism caught (the cited path was clone-cache-prefixed in
+    # upstream-issues.md's own evidence but bare in the README, so token overlap fell one
+    # short of the 2-token threshold). `upstream-issues.md`/`content-dispositions.json` are
+    # this project's own internal, never-published tracking files -- named here directly as
+    # an unconditional block, the same "source allowlist, explicit rejection of internal
+    # evidence" mechanism this incident's own governing mission required. Internal pipeline
+    # path markers (the read-only clone cache, the knowledge/ merged layer, this project's
+    # own reports/ evidence tree) get the same treatment -- none of these will ever exist in
+    # or be reachable from a published target repository, regardless of phrasing.
+    r"\bupstream-issues\.md\b",
+    r"\bcontent-dispositions\.json\b",
+    r"\.clone_cache\b",
+    r"\bknowledge/[\w-]+/[\w-]+/merged\b",
+    r"\breports/repo-presenter\b",
+    r"\breports/readme_refresh_runs\b",
 ]
 _INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECASE)
 
@@ -3495,6 +3521,17 @@ def check_capability_scope_contradiction(readme_text: str) -> list[dict]:
     return findings
 
 
+_INVENTED_FILLER_RE = re.compile(
+    r"\bno known limitations?\b"
+    r"|\bno (?:current|currently[- ]known|disclosed) limitations?\b"
+    r"|\b(?:this|the) (?:library|project|edition) has no limitations?\b"
+    r"|\bthere are (?:currently )?no (?:known )?limitations?\b"
+    r"|\bno limitations? (?:are|is) currently known\b"
+    r"|\bno limitations? (?:have|has) been (?:identified|found)\b",
+    re.IGNORECASE,
+)
+
+
 def check_scope_limitations_format(readme_text: str) -> list[dict]:
     """Hard gate (2026-08-09, MT029 Item 4). A 6-product sample found 0 of 6 using a bulleted
     list -- 5 of 6 were prose paragraphs, and the 1 real exception (`pdf/net`) already showed
@@ -3504,39 +3541,75 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
     it generalizes the one real product that already had it right.
 
     Findings:
-    - `not_a_list`: the section has no `- ` bulleted lines at all (the old prose-paragraph
-      shape).
+    - `not_a_list`: the section has non-bullet, non-Enterprise-paragraph prose -- the old
+      prose-paragraph shape (a limitation claim written as a sentence instead of a `- ` line).
     - `enterprise_paragraph_is_bulleted`: the closing Enterprise-mention content is itself a
       bullet -- violates the user's explicit "this para should remain as it is" instruction
       (a plain paragraph, not absorbed into the limitations list).
     - `missing_enterprise_paragraph`: no plain-prose paragraph linking a real
       `products.aspose.com` Enterprise Edition URL follows the limitations list.
+    - `invented_filler`: the section states, in any wording, that no limitations exist (e.g.
+      "no known limitations") -- 2026-08-13, the cells/cpp upstream-issues.md-leak healing
+      pass's own governing policy: when no verified public limitation exists, the bulleted
+      list is simply absent (see the zero-bullet carve-out below), never filled with a
+      sentence asserting the absence -- that sentence is itself unverifiable manufactured
+      content, the same defect class as citing an internal finding.
+
+    Zero-bullet carve-out (2026-08-13): a section with NO `- ` lines is `not_a_list` only if
+    it also has prose beyond the closing Enterprise paragraph. A section whose only non-bullet
+    content IS the Enterprise-paragraph sentence(s) is the valid shape for "no verified public
+    limitation exists for this product" -- omitting the bulleted list is correct there, not a
+    format violation, and must never be confused with the old prose-paragraph-limitations shape
+    this check exists to reject.
     """
     section_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
     if not section_match:
         return []
-    lines = [line for line in section_match.group(1).splitlines() if line.strip()]
+    section_text = section_match.group(1)
+    lines = [line for line in section_text.splitlines() if line.strip()]
     if not lines:
         return [{"reason": "empty_section", "detail": "Scope and Limitations section is empty"}]
 
-    bullet_lines = [line for line in lines if line.lstrip().startswith("- ")]
-    if not bullet_lines:
-        return [{
-            "reason": "not_a_list",
-            "detail": "Scope and Limitations must be a bulleted list (one distinct limitation "
-                      "per '- ' line), not prose paragraphs",
-        }]
+    findings: list[dict] = []
+    if _INVENTED_FILLER_RE.search(section_text):
+        findings.append({
+            "reason": "invented_filler",
+            "detail": "Scope and Limitations must never assert that no limitations exist -- "
+                      "when no verified public limitation exists, omit the bulleted list "
+                      "entirely rather than stating its absence",
+        })
 
-    # Classify by content, not position -- an earlier position-based design ("everything
-    # after the last bullet is the trailing paragraph") could not tell "no enterprise
-    # paragraph at all" apart from "the enterprise mention IS itself the last bullet" (both
-    # produce an empty trailing region); found via this check's own test suite before
-    # trusting it on real content, not assumed correct on the first design.
+    bullet_lines = [line for line in lines if line.lstrip().startswith("- ")]
     non_bullet_lines = [line for line in lines if not line.lstrip().startswith("- ")]
+
+    if not bullet_lines:
+        # Sentence-level, not line-level: a single physical line can legitimately mix a real
+        # limitation claim with the Enterprise mention in one sentence-run (the exact shape
+        # `test_scope_limitations_format_flags_prose_paragraph_shape` guards against -- "This
+        # project reads and writes XLSX only. For broader coverage, see [Enterprise
+        # Edition](...)." is one non-bullet line, but only its SECOND sentence references the
+        # Enterprise host). Any sentence that doesn't reference the Enterprise host is a
+        # candidate prose-form limitation claim.
+        non_bullet_text = " ".join(non_bullet_lines)
+        sentences = re.split(r"(?<=[.!?])\s+", non_bullet_text)
+        non_enterprise_sentences = [
+            s for s in sentences if s.strip() and not _ENTERPRISE_LINK_HOST_RE.search(s)
+        ]
+        if non_enterprise_sentences:
+            findings.append({
+                "reason": "not_a_list",
+                "detail": "Scope and Limitations must be a bulleted list (one distinct "
+                          "limitation per '- ' line), not prose paragraphs",
+            })
+            return findings
+        # Zero bullets, and every remaining line is part of the Enterprise paragraph itself --
+        # the valid "no verified public limitation exists" shape. Fall through to the
+        # enterprise-paragraph placement checks below (still real checks: the paragraph must
+        # exist, in prose, with a real link) rather than returning here.
+
     enterprise_in_bullet = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in bullet_lines)
     enterprise_in_prose = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in non_bullet_lines)
 
-    findings = []
     if enterprise_in_bullet:
         findings.append({
             "reason": "enterprise_paragraph_is_bulleted",
