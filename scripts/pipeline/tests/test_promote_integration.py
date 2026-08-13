@@ -1400,3 +1400,48 @@ class TestFormatsMdRespectsFunctionalFlag:
         assert md_line is not None
         assert "Yes" in md_line
 
+
+class TestPromoteKnowledgeStateWiring:
+    """MT030-2026-08-13: promote()'s acceptance choke point must also write the
+    durable data/knowledge_state.json + data/upstream_baselines.json projection,
+    paired with (not replacing) the existing gitignored baseline_ledger.jsonl write."""
+
+    @pytest.fixture(autouse=True)
+    def _isolate_knowledge_state(self, tmp_path, monkeypatch):
+        """Never let this test touch the real repo-root data/ files.
+
+        Must patch the SAME module object promote.py actually imports
+        (`lib.knowledge_state`, per its `from lib.knowledge_state import ...`)
+        -- conftest.py puts both scripts/pipeline/ and scripts/pipeline/lib/
+        on sys.path, so a bare `import knowledge_state` loads a SEPARATE
+        module instance with its own globals and would silently no-op here.
+        """
+        import lib.knowledge_state as ks
+        monkeypatch.setattr(ks, "_STATE_PATH", tmp_path / "knowledge_state.json")
+        monkeypatch.setattr(ks, "_LOCK_PATH", tmp_path / "knowledge_state.json.lock")
+        monkeypatch.setattr(ks, "_UPSTREAM_BASELINES_PATH", tmp_path / "upstream_baselines.json")
+        monkeypatch.setattr(ks, "_UPSTREAM_BASELINES_LOCK_PATH", tmp_path / "upstream_baselines.json.lock")
+        self.ks = ks
+
+    def test_promote_records_accepted_baseline(self, tmp_path):
+        kr = _setup_scout(tmp_path)
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        state = self.ks.read_state("test", "python")
+        assert state is not None
+        assert state["accepted_baseline"]["repo_sha"] == "abc123def456"
+
+    def test_promote_updates_upstream_baselines(self, tmp_path):
+        kr = _setup_scout(tmp_path)
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        baselines = json.loads(self.ks._UPSTREAM_BASELINES_PATH.read_text(encoding="utf-8"))
+        assert baselines["test/python"] == "abc123def456"
+
+    def test_knowledge_state_write_failure_does_not_fail_promote(self, tmp_path, monkeypatch):
+        """Non-fatal by design, matching the existing baseline_ledger.append() guard."""
+        def _boom(*a, **kw):
+            raise RuntimeError("simulated durable-write failure")
+        monkeypatch.setattr(self.ks, "record_baseline_accepted", _boom)
+        kr = _setup_scout(tmp_path)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+

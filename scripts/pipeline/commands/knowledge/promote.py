@@ -1475,6 +1475,25 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     except Exception as _ledger_exc:
         print(f"WARNING: baseline_ledger append failed (non-fatal): {_ledger_exc}")
 
+    # MT030-2026-08-13: paired durable write at the same acceptance event, so
+    # this promotion is visible to a fresh clone / a different session's
+    # checkout, not just this one's gitignored local caches (baseline_ledger
+    # above, model.yaml). Two writes, same non-fatal philosophy as the ledger
+    # append: a knowledge_state/upstream_baselines write failure must not fail
+    # promote() itself.
+    try:
+        from lib.knowledge_state import record_baseline_accepted, update_upstream_baseline
+        record_baseline_accepted(
+            family, platform,
+            repo_sha=merged_model.get("repo_sha", ""),
+            sha_source="scout",
+            run_id=f"promote-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
+            accepted_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        )
+        update_upstream_baseline(family, platform, merged_model.get("repo_sha", ""))
+    except Exception as _ks_exc:
+        print(f"WARNING: knowledge_state durable write failed (non-fatal): {_ks_exc}")
+
     # -----------------------------------------------------------------------
     # api_surface.md
     # -----------------------------------------------------------------------
