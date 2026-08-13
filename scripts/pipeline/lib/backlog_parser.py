@@ -83,30 +83,43 @@ def parse_backlog_file(path: "Path | str") -> list[dict]:
     return parse_table_rows(p.read_text(encoding="utf-8", errors="replace"))
 
 
+# Scan window for extract_product_key(): how many leading whitespace-separated
+# tokens to check for a family/platform-shaped token. Wide enough to survive a
+# "CLOSED {date} ({mission-id}) -- " closure prefix (confirmed live: MT030's own
+# PDF-JAVA-REFRESH-003 closure note put a 4-token prefix before the row's own
+# "pdf/java", which a first-token-only check silently failed to resolve --
+# ironically excluding that exact row from the reconciliation check it was
+# supposed to prove passes), narrow enough to avoid matching deep into
+# multi-hundred-word descriptions.
+_PRODUCT_KEY_SCAN_WINDOW = 15
+_PRODUCT_KEY_TOKEN_RE = re.compile(r"[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*")
+
+
 def extract_product_key(title: str) -> str | None:
     """Best-effort extraction of a '{family}/{platform}' product key from a row's
     Title column, following this backlog's own established convention -- every
     Cat=knowledge row's title observed to date starts with 'family/platform ...'
-    (e.g. 'pdf/java new upstream drift...', '3d/net refresh...').
+    (e.g. 'pdf/java new upstream drift...', '3d/net refresh...'), possibly after
+    a short closure-annotation prefix (e.g. 'CLOSED 2026-08-13 (MT030-...) -- ').
 
-    Returns None when the title doesn't start with a recognizable slash-separated
-    product key -- callers must treat that as "cannot determine product", not guess.
+    Scans the first _PRODUCT_KEY_SCAN_WINDOW whitespace-separated tokens for one
+    matching the strict family/platform shape (lowercase alphanumeric-hyphen on
+    each side of exactly one '/') and returns the first match. Product keys are
+    never uppercase, never contain '.', ':', or multiple slashes -- this rejects
+    URL fragments, version-like tokens, and other slash-containing prose that
+    isn't a product reference.
+
+    Returns None when no recognizable product key appears within the scan
+    window -- callers must treat that as "cannot determine product", not guess.
     """
     if not title:
         return None
-    first_token = title.split()[0] if title.split() else ""
-    if "/" not in first_token:
-        return None
-    parts = first_token.split("/")
-    if len(parts) != 2 or not parts[0] or not parts[1]:
-        return None
-    # Reject tokens that are clearly not a product key (e.g. a URL fragment or a
-    # path that happens to start the title) -- product keys are short, lowercase,
-    # alphanumeric-with-hyphens identifiers, never containing '.', ':', or digits-only.
-    family, platform = parts
-    # Must start with a letter or digit (e.g. "3d" is a real family) and contain only
-    # lowercase alphanumerics/hyphens after that -- rejects URL fragments, decimals, etc.
-    _key_re = re.compile(r"[a-z0-9][a-z0-9-]*")
-    if not _key_re.fullmatch(family) or not _key_re.fullmatch(platform):
-        return None
-    return f"{family}/{platform}"
+    tokens = title.split()[:_PRODUCT_KEY_SCAN_WINDOW]
+    for token in tokens:
+        # Strip common prose punctuation that might cling to the token
+        # (trailing colons, parens, commas) without touching the '/' itself.
+        stripped = token.strip(".,;:()[]{}\"'")
+        match = _PRODUCT_KEY_TOKEN_RE.fullmatch(stripped)
+        if match:
+            return stripped
+    return None

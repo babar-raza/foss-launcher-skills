@@ -11,6 +11,8 @@ def _isolate(tmp_path, monkeypatch):
     import knowledge_state as ks
     monkeypatch.setattr(ks, "_STATE_PATH", tmp_path / "knowledge_state.json")
     monkeypatch.setattr(ks, "_LOCK_PATH", tmp_path / "knowledge_state.json.lock")
+    monkeypatch.setattr(ks, "_UPSTREAM_BASELINES_PATH", tmp_path / "upstream_baselines.json")
+    monkeypatch.setattr(ks, "_UPSTREAM_BASELINES_LOCK_PATH", tmp_path / "upstream_baselines.json.lock")
     self_ks = ks
     yield self_ks
 
@@ -62,6 +64,32 @@ class TestBackfillOne:
         state = _isolate.read_state("pdf", "java")
         assert state["accepted_baseline"]["run_id"] == "promote-20260729T164123Z"
         assert state["accepted_baseline"]["accepted_at"] == "2026-07-29T16:41:23Z"
+
+    def test_also_backfills_upstream_baselines_json(self, tmp_path, _isolate):
+        """MT030 post-closure audit correction: backfill must write BOTH files,
+        not just knowledge_state.json -- repo_patrol.py's dual-source fix only
+        falls back to model.yaml when the upstream_baselines.json KEY is
+        entirely absent, not when it merely holds a stale value. Confirmed
+        live: pdf/java's real upstream_baselines.json entry stayed frozen at
+        the pre-2026-07-16 SHA after this session's promote.py fix landed,
+        because no product had a fresh real refresh to trigger the new write
+        path, and the original backfill script never covered this file."""
+        _write_model(tmp_path, "pdf", "java", "be089a7e5179")
+        bks.backfill_one("pdf", "java", tmp_path)
+        import json
+        baselines = json.loads(_isolate._UPSTREAM_BASELINES_PATH.read_text(encoding="utf-8"))
+        assert baselines["pdf/java"] == "be089a7e5179"
+
+    def test_upstream_baselines_overwrites_stale_existing_entry(self, tmp_path, _isolate):
+        import json
+        _isolate._UPSTREAM_BASELINES_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _isolate._UPSTREAM_BASELINES_PATH.write_text(
+            json.dumps({"pdf/java": "stale_pre_2026_07_16_sha"}), encoding="utf-8",
+        )
+        _write_model(tmp_path, "pdf", "java", "be089a7e5179")
+        bks.backfill_one("pdf", "java", tmp_path)
+        baselines = json.loads(_isolate._UPSTREAM_BASELINES_PATH.read_text(encoding="utf-8"))
+        assert baselines["pdf/java"] == "be089a7e5179"
 
     def test_returns_none_when_no_repo_sha(self, tmp_path):
         merged_dir = tmp_path / "pdf" / "java" / "merged"

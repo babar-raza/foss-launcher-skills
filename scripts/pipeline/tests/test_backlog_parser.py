@@ -88,6 +88,32 @@ class TestExtractProductKey:
     def test_returns_none_for_empty_title(self):
         assert extract_product_key("") is None
 
+    def test_resolves_through_closure_prefix(self):
+        """MT030 post-closure audit correction: this exact title (PDF-JAVA-REFRESH-003's
+        own real closure note) silently failed to resolve under the old first-token-only
+        check, excluding that row from the reconciliation check it was supposed to prove
+        passes -- confirmed live via a fresh backlog_reconcile.py run after closure."""
+        title = (
+            "CLOSED 2026-08-13 (MT030-2026-08-13-PDF-JAVA-REFRESH-003-RECONCILIATION) "
+            "— pdf/java new upstream drift found by MEGA-TRAIN-004 change-sweep"
+        )
+        assert extract_product_key(title) == "pdf/java"
+
+    def test_resolves_through_generic_closed_date_prefix(self):
+        assert extract_product_key("CLOSED 2026-08-01 -- 3d/net refresh completed") == "3d/net"
+
+    def test_does_not_match_beyond_scan_window(self):
+        """A product-shaped token appearing far into a long description (well past
+        the scan window) must not be picked up -- only the row's OWN leading
+        product reference is authoritative, not an incidental mention deep in
+        prose (e.g. referencing an unrelated product later in the text)."""
+        padding = " ".join(f"word{i}" for i in range(30))
+        title = f"{padding} pdf/java mentioned only deep in the text"
+        assert extract_product_key(title) is None
+
+    def test_first_match_wins_when_multiple_present(self):
+        assert extract_product_key("pdf/java refresh, unrelated to 3d/net") == "pdf/java"
+
     def test_returns_none_for_url_like_prefix(self):
         assert extract_product_key("https://example.com/foo needs fixing") is None
 

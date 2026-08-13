@@ -91,10 +91,10 @@
   },
   "cells/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-13T11:10:47.602143Z",
-      "repo_sha": "abc123",
-      "run_id": "promote-20260813T111047Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "5b5b28eb372c28f4529928ea81696a0031b68d60",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
     },
     "family": "cells",
     "platform": "python"
@@ -217,7 +217,14 @@
       "sha_source": "scout"
     },
     "family": "pdf",
-    "platform": "java"
+    "platform": "java",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-13T13:22:11.765994Z",
+      "report_path": "reports\\audit\\pdf-java-truth-20260813.md",
+      "verdict": "PASS",
+      "warn_count": 59
+    }
   },
   "pdf/net": {
     "accepted_baseline": {

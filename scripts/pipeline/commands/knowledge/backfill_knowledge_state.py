@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-backfill_knowledge_state.py — one-time seed of data/knowledge_state.json from
-whichever local knowledge/ caches this checkout happens to have.
+backfill_knowledge_state.py — one-time seed of data/knowledge_state.json and
+data/upstream_baselines.json from whichever local knowledge/ caches this
+checkout happens to have.
 
 CONTRACT: scripts/pipeline/commands/knowledge/backfill_knowledge_state.py
   purpose: data/knowledge_state.json starts empty and populates lazily as products
@@ -14,11 +15,26 @@ CONTRACT: scripts/pipeline/commands/knowledge/backfill_knowledge_state.py
            this one checkout happens to have on disk) -- run again from any other
            checkout that has different products cached, or just let steady-state
            writes catch up over time; this script never blocks anything, it only adds.
+
+  MT030 post-closure audit correction (2026-08-13): also backfills
+  data/upstream_baselines.json, not just knowledge_state.json. First version
+  of this script deliberately scoped that file out -- but repo_patrol.py's
+  dual-source _get_stored_sha() reads upstream_baselines.json FIRST and only
+  falls back to model.yaml when the KEY IS ENTIRELY ABSENT, not when the
+  value is merely stale. A product whose upstream_baselines.json entry
+  pre-dates promote.py's new write (i.e. hasn't had a fresh refresh since
+  this session's fix landed) would keep returning its OLD stale SHA forever,
+  even though knowledge_state.json and model.yaml both already show the
+  correct current one -- silently defeating half of the dual-source fix for
+  every already-refreshed product until its next real refresh. Confirmed
+  live: pdf/java's upstream_baselines.json entry was still "39c9840f..."
+  (the pre-2026-07-16 SHA) despite knowledge_state.json correctly showing
+  "be089a7e5179...". Both files now get the same real model.yaml value.
   inputs:  knowledge/{family}/{platform}/merged/model.yaml (repo_sha), baseline_ledger.jsonl
            (accepted_at/run_id/sha_source when present, more precise than model.yaml alone)
-  outputs: data/knowledge_state.json (accepted_baseline section only -- truth_audit and
-           evidence_skips populate from real S-38/attach_evidence.py runs, not backfilled
-           here, since there's no reliable historical verdict to backfill them FROM)
+  outputs: data/knowledge_state.json (accepted_baseline section) and
+           data/upstream_baselines.json -- truth_audit and evidence_skips are NOT
+           backfilled, since there's no reliable historical verdict to backfill them FROM
   idempotent: yes -- record_baseline_accepted() overwrites only the accepted_baseline
            section per product; safe to re-run.
 
@@ -41,7 +57,7 @@ _PIPELINE_LIB_DIR = _REPO_ROOT / "scripts" / "pipeline" / "lib"
 if str(_PIPELINE_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_LIB_DIR))
 
-from knowledge_state import record_baseline_accepted  # noqa: E402
+from knowledge_state import record_baseline_accepted, update_upstream_baseline  # noqa: E402
 
 KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
 
@@ -103,6 +119,7 @@ def backfill_one(family: str, platform: str, knowledge_root: Path = KNOWLEDGE_RO
         family, platform,
         repo_sha=repo_sha, sha_source=sha_source, run_id=run_id, accepted_at=accepted_at,
     )
+    update_upstream_baseline(family, platform, repo_sha)
     return {"family": family, "platform": platform, "repo_sha": repo_sha, "sha_source": sha_source}
 
 
