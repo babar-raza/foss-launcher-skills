@@ -1,0 +1,312 @@
+{
+  "3d/java": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-28T13:24:13.820722Z",
+      "repo_sha": "71c9cc8a581786bfd0af7b4aa553407eba3ddea3",
+      "run_id": "promote-20260728T132413Z",
+      "sha_source": "scout"
+    },
+    "family": "3d",
+    "platform": "java"
+  },
+  "3d/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-28T13:56:27.026159Z",
+      "repo_sha": "6a209e8fc3dfc305df39a417037e32a4d4c7b2be",
+      "run_id": "promote-20260728T135627Z",
+      "sha_source": "scout"
+    },
+    "family": "3d",
+    "platform": "net"
+  },
+  "3d/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-31T19:32:32.271983Z",
+      "repo_sha": "ab1a2267a0ba6302311d0c7c4ad01494974c7d76",
+      "run_id": "promote-20260731T193232Z",
+      "sha_source": "scout"
+    },
+    "family": "3d",
+    "platform": "python"
+  },
+  "3d/typescript": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "227894a1120c22b9b6522564e23dc1d14c8fc39a",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "3d",
+    "platform": "typescript"
+  },
+  "barcode/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "53f2c3350b8171f2c8275e7b1a178f218695ac45",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "barcode",
+    "platform": "python"
+  },
+  "cells/cpp": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "3e1edeacd4c1600507009c3fd3bf122d54f5d3a9",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "cells",
+    "platform": "cpp"
+  },
+  "cells/go": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-28T15:54:45.706692Z",
+      "repo_sha": "d15a985af6288596c672b087c4a64b849074fac5",
+      "run_id": "promote-20260728T155445Z",
+      "sha_source": "scout"
+    },
+    "family": "cells",
+    "platform": "go"
+  },
+  "cells/java": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "9274b621ebd30f2aca692851bea29ff343a019d8",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "cells",
+    "platform": "java"
+  },
+  "cells/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "455b1c37a5a9321cf31e71d50d198da9e0dc8cc4",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "cells",
+    "platform": "net"
+  },
+  "cells/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-08-13T11:10:47.602143Z",
+      "repo_sha": "abc123",
+      "run_id": "promote-20260813T111047Z",
+      "sha_source": "scout"
+    },
+    "family": "cells",
+    "platform": "python"
+  },
+  "cells/rust": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-25T04:11:44.309037Z",
+      "repo_sha": "0339b7e7dcb65c3ac0f77ddbe0effb69c83f0e2e",
+      "run_id": "promote-20260725T041144Z",
+      "sha_source": "scout"
+    },
+    "family": "cells",
+    "platform": "rust"
+  },
+  "cells/typescript": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "cabbb9d8ba2067854f7cb3dcdc4acfeec849747b",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "cells",
+    "platform": "typescript"
+  },
+  "email/cpp": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "email",
+    "platform": "cpp"
+  },
+  "email/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "a8999e259143a9ffc660086b34a7f39516da29f5",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "email",
+    "platform": "net"
+  },
+  "email/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "c336fa7c1d6b90c6155ecf25a261477640c2b1b6",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "email",
+    "platform": "python"
+  },
+  "font/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-08-09T11:27:58.574436Z",
+      "repo_sha": "800ea256fec1eec387cba1fc599530cd402ef515",
+      "run_id": "promote-20260809T112758Z",
+      "sha_source": "scout"
+    },
+    "family": "font",
+    "platform": "python"
+  },
+  "html/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-25T03:07:32.627227Z",
+      "repo_sha": "c2356ec872fd7d64c14a0ae8cc043eea1a03847e",
+      "run_id": "promote-20260725T030732Z",
+      "sha_source": "scout"
+    },
+    "family": "html",
+    "platform": "python"
+  },
+  "note/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "6d97a522a9ed24708687911f1aabb76e2dea2da7",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "note",
+    "platform": "python"
+  },
+  "page/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "53e8c5d47b1d7c7c494cca57d1b2de3a1d1ada83",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "page",
+    "platform": "python"
+  },
+  "pdf/cpp": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-28T19:08:20.628099Z",
+      "repo_sha": "40858b60e9babbab4865180e00e2db39f2ba27f8",
+      "run_id": "promote-20260728T190820Z",
+      "sha_source": "scout"
+    },
+    "family": "pdf",
+    "platform": "cpp"
+  },
+  "pdf/go": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-30T22:33:17.679165Z",
+      "repo_sha": "0fd5a52fc89b8fc745b98c9adc2547bfaed16314",
+      "run_id": "promote-20260730T223317Z",
+      "sha_source": "scout"
+    },
+    "family": "pdf",
+    "platform": "go"
+  },
+  "pdf/java": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-29T16:41:23.918564Z",
+      "repo_sha": "be089a7e5179b3e74776593c929b44f34cd35708",
+      "run_id": "promote-20260729T164123Z",
+      "sha_source": "scout"
+    },
+    "family": "pdf",
+    "platform": "java"
+  },
+  "pdf/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-29T16:30:10.285136Z",
+      "repo_sha": "8a3131b9a6f7e97c20214896c615dbee86272459",
+      "run_id": "promote-20260729T163010Z",
+      "sha_source": "scout"
+    },
+    "family": "pdf",
+    "platform": "net"
+  },
+  "pdf/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-28T21:17:11.304000Z",
+      "repo_sha": "4f2bbffd215c78454b8ba4ecae69bd2bd2fc8586",
+      "run_id": "promote-20260728T211711Z",
+      "sha_source": "scout"
+    },
+    "family": "pdf",
+    "platform": "python"
+  },
+  "slides/cpp": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "25adb25c8796f06d9b89cd5f8093e490091195ef",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "slides",
+    "platform": "cpp"
+  },
+  "slides/java": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "44597f1a09feb16ed1b6f29a1c6b939df4415863",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "slides",
+    "platform": "java"
+  },
+  "slides/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "bd19e16057b628310b4a04330585d366cb40e9b7",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "slides",
+    "platform": "net"
+  },
+  "slides/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "6ca17fd6593e0f31ed5e6fb53eb4c5896b7a6525",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "slides",
+    "platform": "python"
+  },
+  "tex/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "tex",
+    "platform": "python"
+  },
+  "words/net": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-22T17:19:23.203712Z",
+      "repo_sha": "e38a872082c39c58ff819487a0d9ebec28f25e22",
+      "run_id": "promote-20260722T171923Z",
+      "sha_source": "scout"
+    },
+    "family": "words",
+    "platform": "net"
+  },
+  "words/python": {
+    "accepted_baseline": {
+      "accepted_at": "2026-07-17T00:00:00Z",
+      "repo_sha": "d051a96a7417149e816a8f862d45a5b769bc5fad",
+      "run_id": "MIGRATE-C04",
+      "sha_source": "manual-recovery"
+    },
+    "family": "words",
+    "platform": "python"
+  }
+}
