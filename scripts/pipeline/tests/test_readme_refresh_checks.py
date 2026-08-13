@@ -4790,3 +4790,516 @@ def test_merge_into_target_section_intro_unaffected_by_sibling_project_history()
         ),
     ]
     assert checks.check_content_unit_merged_into_target_section(text, dispositions) == []
+
+
+# ============================================================================================
+# Twenty-Fourth mission (2026-08-13): structural (non-prose) section preservation + badge
+# semantic reconciliation -- cells/go's real, live upstream README has a `## Project Structure`
+# section that is ENTIRELY a fenced directory-tree code block with no surrounding prose, which
+# extract_old_readme_content_units can never see by design (it strips fenced code first).
+# ============================================================================================
+
+# Real, captured-verbatim excerpt from cells/go's actual upstream README, used across several
+# tests below as ground truth rather than a synthetic approximation.
+_REAL_CELLS_GO_README = """# Aspose.Cells for Go
+
+A pure-Go Excel (.xlsx) library.
+
+[![Go Version](https://img.shields.io/badge/Go-%3E%3D1.18-blue)](https://go.dev)
+[![Tests](https://img.shields.io/badge/tests-passing-green)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+## Installation
+
+```bash
+go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26
+```
+
+Requires **Go 1.18+**. Only depends on the standard library + `golang.org/x/crypto`.
+
+## Project Structure
+
+```
+├── aspose/cells_foss/        # Library source code
+│   ├── workbook.go           #   Workbook entry point
+│   ├── worksheet.go          #   Worksheet model
+│   └── style.go              #   Styles (font, fill, alignment, border)
+├── tests/                    # Integration tests (public API)
+├── docs/                     # Documentation
+│   └── usage.md              #   Detailed usage guide
+├── go.mod
+└── README.md
+```
+
+## Testing
+
+```bash
+go test ./...
+```
+
+## License
+
+MIT License
+"""
+
+
+def _structural_unit(unit_id="s0001", heading="Project Structure", kind="directory_tree",
+                      claimed_paths=("aspose/cells_foss", "aspose/cells_foss/workbook.go")):
+    return {
+        "unit_id": unit_id, "heading": heading, "heading_level": 2, "kind": kind,
+        "fenced_block_text": "```\n" + "\n".join(claimed_paths) + "\n```",
+        "dominance_ratio": 1.0, "claimed_paths": list(claimed_paths),
+    }
+
+
+def _structure_disposition(unit_id="s0001", disposition="merged_reframed",
+                            target_section="Project Structure", claimed_paths=None,
+                            evidence_status="verified_against_source",
+                            evidence_type="clone_cache_path", evidence_ref="aspose/cells_foss",
+                            excluded_reason=None):
+    return {
+        "unit_id": unit_id, "disposition": disposition, "target_section": target_section,
+        "claimed_paths": claimed_paths, "excluded_reason": excluded_reason,
+        "verification": {"status": evidence_status, "evidence_type": evidence_type, "evidence_ref": evidence_ref},
+    }
+
+
+# --- extract_old_readme_structural_units -----------------------------------------------------
+
+
+def test_extract_structural_units_real_cells_go_case():
+    units = checks.extract_old_readme_structural_units(_REAL_CELLS_GO_README)
+    by_heading = {u["heading"]: u for u in units}
+    assert "Project Structure" in by_heading
+    assert by_heading["Project Structure"]["kind"] == "directory_tree"
+    assert "aspose/cells_foss/workbook.go" in by_heading["Project Structure"]["claimed_paths"]
+    # Testing is ALSO a pure fenced-command-list section under the same gating rule -- confirmed
+    # real behavior, not just Project Structure gets caught, matching the mission's own "the
+    # underlying problem is general" framing.
+    assert "Testing" in by_heading
+    assert by_heading["Testing"]["kind"] == "generic_structural_block"
+
+
+def test_extract_structural_units_does_not_flag_installation():
+    # The discriminating case: Installation is fenced-code-heavy (dominance would exceed 0.6) but
+    # has a real leftover prose sentence once fenced code is stripped -- must NOT be flagged.
+    units = checks.extract_old_readme_structural_units(_REAL_CELLS_GO_README)
+    headings = {u["heading"] for u in units}
+    assert "Installation" not in headings
+
+
+def test_extract_structural_units_recognizes_differently_named_heading():
+    # Semantic matching, not heading-text keyword matching -- the mission's own explicit
+    # requirement: "Repository Layout"/"Source Layout"/"Project Structure" must all be
+    # recognized identically.
+    text = (
+        "# Product\n\n## Repository Layout\n\n"
+        "```\n├── src/\n│   └── main.go\n└── README.md\n```\n"
+    )
+    units = checks.extract_old_readme_structural_units(text)
+    assert len(units) == 1
+    assert units[0]["heading"] == "Repository Layout"
+    assert units[0]["kind"] == "directory_tree"
+
+
+def test_extract_structural_units_generic_block_for_plain_tree_heading_without_box_drawing():
+    # A heading that matches no structure-vocabulary AND a fenced block with no box-drawing
+    # characters -- correctly falls into the disclosed "no dedicated verifier" bucket rather than
+    # being force-classified as a directory tree it can't confidently parse.
+    text = "# Product\n\n## Build Artifacts\n\n```\nbin/app.exe\nbin/app.so\n```\n"
+    units = checks.extract_old_readme_structural_units(text)
+    assert len(units) == 1
+    assert units[0]["kind"] == "generic_structural_block"
+
+
+def test_extract_structural_units_is_deterministic():
+    r1 = checks.extract_old_readme_structural_units(_REAL_CELLS_GO_README)
+    r2 = checks.extract_old_readme_structural_units(_REAL_CELLS_GO_README)
+    assert r1 == r2
+
+
+def test_parse_directory_tree_paths_real_shape():
+    fenced = (
+        "```\n├── aspose/cells_foss/        # Library source code\n"
+        "│   ├── workbook.go           #   Workbook entry point\n"
+        "│   └── style.go              #   Styles\n"
+        "├── tests/                    # Integration tests\n"
+        "└── go.mod\n```"
+    )
+    paths = checks._parse_directory_tree_paths(fenced)
+    assert "aspose/cells_foss" in paths
+    assert "aspose/cells_foss/workbook.go" in paths
+    assert "aspose/cells_foss/style.go" in paths
+    assert "tests" in paths
+    assert "go.mod" in paths
+
+
+# --- check_structural_unit_disposition_coverage (hard gate) --------------------------------
+
+
+def test_structural_disposition_coverage_noop_when_no_units():
+    assert checks.check_structural_unit_disposition_coverage([], []) == []
+
+
+def test_structural_disposition_coverage_flags_missing_entry():
+    # Fail-closed proof: the real cells/go Project Structure unit, with an EMPTY disposition
+    # file, must produce a real finding -- this is the exact live gap this whole mission started
+    # from (the section was structurally invisible to the pipeline before this mechanism existed).
+    units = checks.extract_old_readme_structural_units(_REAL_CELLS_GO_README)
+    findings = checks.check_structural_unit_disposition_coverage(units, [])
+    project_structure_unit = next(u for u in units if u["heading"] == "Project Structure")
+    assert any(f["unit_id"] == project_structure_unit["unit_id"] for f in findings)
+
+
+def test_structural_disposition_coverage_clean_when_target_is_new_own_heading():
+    units = [_structural_unit()]
+    dispositions = [_structure_disposition(target_section="Project Structure")]
+    assert checks.check_structural_unit_disposition_coverage(units, dispositions) == []
+
+
+def test_structural_disposition_coverage_allows_merge_into_existing_template_section():
+    units = [_structural_unit(unit_id="s0001", heading="Testing", kind="generic_structural_block", claimed_paths=())]
+    dispositions = [_structure_disposition(unit_id="s0001", target_section="Development and Testing")]
+    assert checks.check_structural_unit_disposition_coverage(units, dispositions) == []
+
+
+def test_structural_disposition_coverage_flags_invalid_target_section():
+    units = [_structural_unit()]
+    dispositions = [_structure_disposition(target_section="Not A Real Section Anywhere")]
+    findings = checks.check_structural_unit_disposition_coverage(units, dispositions)
+    assert any("target_section" in f["reason"] for f in findings)
+
+
+def test_structural_disposition_coverage_flags_missing_excluded_reason():
+    units = [_structural_unit()]
+    dispositions = [_structure_disposition(disposition="excluded", target_section=None, excluded_reason="too short")]
+    findings = checks.check_structural_unit_disposition_coverage(units, dispositions)
+    assert any("excluded_reason" in f["reason"] for f in findings)
+
+
+def test_structural_disposition_coverage_flags_invalid_verification_status():
+    units = [_structural_unit()]
+    dispositions = [_structure_disposition(evidence_status="not_applicable_category_1")]
+    findings = checks.check_structural_unit_disposition_coverage(units, dispositions)
+    # not_applicable_category_1 is prose-specific -- has no honest structural-unit analog.
+    assert any("verification.status" in f["reason"] for f in findings)
+
+
+# --- check_structural_unit_merged_into_target_section (hard gate) --------------------------
+
+
+def test_structural_merged_into_target_section_flags_untouched_target():
+    dispositions = [_structure_disposition(
+        target_section="Project Structure",
+        claimed_paths=["aspose/cells_foss", "aspose/cells_foss/workbook.go"],
+    )]
+    text = "## Project Structure\n\nCompletely unrelated text with none of the claimed paths.\n"
+    findings = checks.check_structural_unit_merged_into_target_section(text, dispositions)
+    assert any(f["unit_id"] == "s0001" for f in findings)
+
+
+def test_structural_merged_into_target_section_passes_with_real_paths_present():
+    dispositions = [_structure_disposition(
+        target_section="Project Structure",
+        claimed_paths=["aspose/cells_foss", "aspose/cells_foss/workbook.go"],
+    )]
+    text = "## Project Structure\n\n```\naspose/cells_foss/workbook.go\n```\n"
+    assert checks.check_structural_unit_merged_into_target_section(text, dispositions) == []
+
+
+def test_structural_merged_into_target_section_generic_block_requires_fenced_code():
+    dispositions = [_structure_disposition(
+        unit_id="s0002", target_section="Development and Testing", claimed_paths=[],
+    )]
+    text_without_code = "## Development and Testing\n\nJust prose, no commands at all.\n"
+    findings = checks.check_structural_unit_merged_into_target_section(text_without_code, dispositions)
+    assert any(f["unit_id"] == "s0002" for f in findings)
+
+    text_with_code = "## Development and Testing\n\n```bash\ngo test ./...\n```\n"
+    assert checks.check_structural_unit_merged_into_target_section(text_with_code, dispositions) == []
+
+
+# --- check_structural_unit_no_exact_duplicate_merge (hard gate) ----------------------------
+
+
+def test_structural_no_exact_duplicate_merge_flags_duplicate():
+    dispositions = [
+        {"unit_id": "s0001", "disposition": "merged_reframed", "heading": "Project Structure", "target_section": "Project Structure"},
+        {"unit_id": "s0002", "disposition": "merged_reframed", "heading": "Project Structure", "target_section": "Project Structure"},
+    ]
+    findings = checks.check_structural_unit_no_exact_duplicate_merge(dispositions)
+    assert len(findings) == 1
+
+
+def test_structural_no_exact_duplicate_merge_clean_on_distinct_headings():
+    dispositions = [
+        {"unit_id": "s0001", "disposition": "merged_reframed", "heading": "Testing", "target_section": "Development and Testing"},
+        {"unit_id": "s0002", "disposition": "merged_reframed", "heading": "Running Examples", "target_section": "Development and Testing"},
+    ]
+    assert checks.check_structural_unit_no_exact_duplicate_merge(dispositions) == []
+
+
+# --- check_structural_unit_tree_paths_plausible (heuristic) --------------------------------
+
+
+def test_structural_tree_paths_plausible_flags_low_resolution_ratio(tmp_path):
+    unit = _structural_unit(claimed_paths=("nonexistent/path/one.go", "nonexistent/path/two.go", "nonexistent/three.go"))
+    dispositions = [_structure_disposition()]
+    findings = checks.check_structural_unit_tree_paths_plausible([unit], dispositions, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["ratio"] == 0.0
+
+
+def test_structural_tree_paths_plausible_clean_when_resolved(tmp_path):
+    (tmp_path / "real.go").write_text("package x", encoding="utf-8")
+    unit = _structural_unit(claimed_paths=("real.go",))
+    dispositions = [_structure_disposition()]
+    assert checks.check_structural_unit_tree_paths_plausible([unit], dispositions, str(tmp_path)) == []
+
+
+# --- extract_badges / classify_badge --------------------------------------------------------
+
+
+def test_extract_badges_matches_real_cells_go_badges():
+    badges = checks.extract_badges(_REAL_CELLS_GO_README)
+    assert [b["alt_text"] for b in badges] == ["Go Version", "Tests", "License"]
+    assert badges[2]["link_url"] == "LICENSE"
+
+
+def test_extract_badges_excludes_banner_line():
+    text = (
+        "[![Go Reference](https://pkg.go.dev/badge/x.svg)](https://pkg.go.dev/x)\n\n"
+        "[![Some Product](https://products.aspose.org/media/cells/go/banner-readme.png)]"
+        "(https://products.aspose.org/cells/go/)\n"
+    )
+    badges = checks.extract_badges(text)
+    assert len(badges) == 1
+    assert badges[0]["alt_text"] == "Go Reference"
+
+
+def test_classify_badge_categories_real_cells_go_shapes():
+    cases = [
+        ({"alt_text": "Go Version", "image_url": "https://img.shields.io/badge/Go-%3E%3D1.18-blue", "link_url": "https://go.dev"}, "language_version"),
+        ({"alt_text": "Tests", "image_url": "https://img.shields.io/badge/tests-passing-green", "link_url": "#"}, "ci_build_status"),
+        ({"alt_text": "License", "image_url": "https://img.shields.io/badge/license-MIT-blue", "link_url": "LICENSE"}, "license"),
+        ({"alt_text": "Go Reference", "image_url": "https://pkg.go.dev/badge/x.svg", "link_url": "https://pkg.go.dev/x"}, "language_package_reference"),
+        ({"alt_text": "Contributors", "image_url": "https://img.shields.io/github/contributors/x.svg", "link_url": "https://github.com/x/graphs/contributors"}, "contributor_count"),
+    ]
+    for badge, expected_category in cases:
+        assert checks.classify_badge(badge)["category"] == expected_category, badge
+
+
+def test_classify_badge_unknown_for_unrecognized_shape():
+    badge = {"alt_text": "Aspose.Cells FOSS for Go", "image_url": "https://products.aspose.org/media/cells/go/banner-readme.png", "link_url": "https://products.aspose.org/cells/go/"}
+    assert checks.classify_badge(badge)["category"] == "unknown"
+
+
+# --- verify_badge_target ---------------------------------------------------------------------
+
+
+def test_verify_badge_target_flags_placeholder_hash_link():
+    badge = {"alt_text": "Tests", "image_url": "https://img.shields.io/badge/tests-passing-green", "link_url": "#"}
+    result = checks.verify_badge_target(badge, "ci_build_status", "/irrelevant")
+    assert result["target_kind"] == "placeholder"
+
+
+def test_verify_badge_target_flags_static_badge_claims_dynamic_fact():
+    badge = {"alt_text": "Tests", "image_url": "https://img.shields.io/badge/tests-passing-green", "link_url": "https://example.com/ci"}
+    result = checks.verify_badge_target(badge, "ci_build_status", "/irrelevant")
+    assert result["target_kind"] == "static_badge_claims_dynamic_fact"
+
+
+def test_verify_badge_target_does_not_flag_legitimately_static_categories():
+    # A static shields.io badge is fine for license/language-version -- those ARE legitimately
+    # static facts, unlike CI/coverage/downloads/contributors.
+    badge = {"alt_text": "License", "image_url": "https://img.shields.io/badge/license-MIT-blue", "link_url": "https://example.com/license"}
+    result = checks.verify_badge_target(badge, "license", "/irrelevant")
+    assert result["target_kind"] != "static_badge_claims_dynamic_fact"
+
+
+def test_verify_badge_target_does_not_flag_real_dynamic_badge_shape():
+    # A genuinely dynamic, live-queried badge (GitHub Actions workflow badge, the real pdf/go
+    # shape) must never be flagged as static.
+    badge = {"alt_text": "Build", "image_url": "https://github.com/x/y/actions/workflows/test.yml/badge.svg", "link_url": "https://github.com/x/y/actions"}
+    result = checks.verify_badge_target(badge, "ci_build_status", "/irrelevant")
+    assert result["target_kind"] != "static_badge_claims_dynamic_fact"
+
+
+def test_verify_badge_target_resolves_local_file():
+    badge = {"alt_text": "License", "image_url": "x", "link_url": "LICENSE"}
+    result = checks.verify_badge_target(badge, "license", "runs/.clone_cache/aspose_cells_go")
+    assert result["target_kind"] == "local_file_exists"
+
+
+# --- _same_real_world_target / reconcile_badges --------------------------------------------
+
+
+def test_same_real_world_target_ignores_label_differences():
+    a = {"alt_text": "License", "link_url": "LICENSE"}
+    b = {"alt_text": "License: MIT", "link_url": "LICENSE"}
+    assert checks._same_real_world_target(a, b) is True
+
+
+def test_same_real_world_target_rejects_different_targets_despite_same_label():
+    a = {"alt_text": "License", "link_url": "LICENSE"}
+    b = {"alt_text": "License", "link_url": "https://opensource.org/licenses/Apache-2.0"}
+    assert checks._same_real_world_target(a, b) is False
+
+
+def test_reconcile_badges_pairs_license_across_wording_difference():
+    old_badges = checks.extract_badges(_REAL_CELLS_GO_README)
+    new_badges = [{"unit_id": "b0001", "alt_text": "License: MIT", "image_url": "x", "link_url": "LICENSE"}]
+    result = checks.reconcile_badges(old_badges, new_badges, "runs/.clone_cache/aspose_cells_go")
+    assert len(result["duplicate_pairs"]) == 1
+    pair = result["duplicate_pairs"][0]
+    assert pair["category"] == "license"
+    assert pair["keep"] == "b0001"  # candidate's own form wins the tie
+    # Go Version and Tests have no candidate equivalent here -- genuine old_only candidates.
+    old_only_alts = {b["alt_text"] for b in result["old_only"]}
+    assert old_only_alts == {"Go Version", "Tests"}
+
+
+def test_reconcile_badges_never_pairs_across_different_categories():
+    old_badges = [{"unit_id": "o1", "alt_text": "License", "image_url": "x", "link_url": "LICENSE"}]
+    new_badges = [{"unit_id": "n1", "alt_text": "Coverage", "image_url": "https://codecov.io/badge.svg", "link_url": "LICENSE"}]
+    result = checks.reconcile_badges(old_badges, new_badges, "/irrelevant")
+    assert result["duplicate_pairs"] == []
+    assert len(result["old_only"]) == 1
+
+
+# --- check_badge_disposition_coverage (hard gate) -------------------------------------------
+
+
+def _badge_disposition(unit_id="b0001", action="preserved", new_badge_unit_id="b0001",
+                        category="license", evidence_status="verified_against_source",
+                        evidence_type="clone_cache_path", evidence_ref="LICENSE",
+                        excluded_reason=None):
+    return {
+        "unit_id": unit_id, "action": action, "new_badge_unit_id": new_badge_unit_id,
+        "category": category, "excluded_reason": excluded_reason,
+        "verification": {"status": evidence_status, "evidence_type": evidence_type, "evidence_ref": evidence_ref},
+    }
+
+
+def test_badge_disposition_coverage_noop_when_no_old_badges():
+    assert checks.check_badge_disposition_coverage([], [], []) == []
+
+
+def test_badge_disposition_coverage_flags_missing_entry():
+    old_badges = checks.extract_badges(_REAL_CELLS_GO_README)
+    findings = checks.check_badge_disposition_coverage(old_badges, [], [])
+    assert len(findings) == 3  # Go Version, Tests, License -- all 3 need a real entry
+
+
+def test_badge_disposition_coverage_flags_missing_excluded_reason():
+    old_badges = [{"unit_id": "b0001", "alt_text": "Tests", "image_url": "x", "link_url": "#"}]
+    dispositions = [_badge_disposition(action="excluded", new_badge_unit_id=None, excluded_reason="short")]
+    findings = checks.check_badge_disposition_coverage(old_badges, [], dispositions)
+    assert any("excluded_reason" in f["reason"] for f in findings)
+
+
+def test_badge_disposition_coverage_flags_bad_credited_reference():
+    old_badges = [{"unit_id": "b0001", "alt_text": "License", "image_url": "x", "link_url": "LICENSE"}]
+    new_badges = [{"unit_id": "b0001", "alt_text": "License: MIT", "image_url": "x", "link_url": "LICENSE"}]
+    dispositions = [_badge_disposition(new_badge_unit_id="b9999")]  # doesn't exist in new_badges
+    findings = checks.check_badge_disposition_coverage(old_badges, new_badges, dispositions)
+    assert any("new_badge_unit_id" in f["reason"] for f in findings)
+
+
+def test_badge_disposition_coverage_clean_real_cells_go_full_case():
+    old_badges = checks.extract_badges(_REAL_CELLS_GO_README)
+    new_badges = [{"unit_id": "b0001", "alt_text": "License: MIT", "image_url": "x", "link_url": "LICENSE"}]
+    dispositions = [
+        _badge_disposition(unit_id="b0001", action="preserved", new_badge_unit_id="b0001", category="language_version", evidence_ref="go.mod"),
+        _badge_disposition(unit_id="b0002", action="excluded", new_badge_unit_id=None, category="ci_build_status",
+                            excluded_reason="Static placeholder badge, links to '#', no real CI config in the repo."),
+        _badge_disposition(unit_id="b0003", action="superseded_by_duplicate", new_badge_unit_id="b0001", category="license", evidence_ref="LICENSE"),
+    ]
+    assert checks.check_badge_disposition_coverage(old_badges, new_badges, dispositions) == []
+
+
+# --- check_badge_preserved_or_credited_in_candidate (hard gate) ----------------------------
+
+
+def test_badge_preserved_or_credited_flags_wrong_category_claim():
+    new_badges = [{"unit_id": "b0001", "alt_text": "Contributors", "image_url": "https://img.shields.io/github/contributors/x.svg", "link_url": "https://github.com/x/graphs/contributors"}]
+    dispositions = [_badge_disposition(new_badge_unit_id="b0001", category="license")]  # wrong -- b0001 is really contributor_count
+    findings = checks.check_badge_preserved_or_credited_in_candidate(new_badges, dispositions)
+    assert len(findings) == 1
+
+
+def test_badge_preserved_or_credited_clean_on_real_match():
+    new_badges = [{"unit_id": "b0001", "alt_text": "License: MIT", "image_url": "x", "link_url": "LICENSE"}]
+    dispositions = [_badge_disposition(new_badge_unit_id="b0001", category="license")]
+    assert checks.check_badge_preserved_or_credited_in_candidate(new_badges, dispositions) == []
+
+
+# --- check_badge_probable_duplicate_disposition (heuristic) --------------------------------
+
+
+def test_badge_probable_duplicate_disposition_flags_double_credit():
+    dispositions = [
+        _badge_disposition(unit_id="b0001", new_badge_unit_id="b0005"),
+        _badge_disposition(unit_id="b0002", new_badge_unit_id="b0005"),
+    ]
+    findings = checks.check_badge_probable_duplicate_disposition(dispositions)
+    assert len(findings) == 1
+
+
+# --- check_badge_static_claims_dynamic_fact (heuristic, runs on candidate unconditionally) -
+
+
+def test_badge_static_claims_dynamic_fact_flags_real_tests_badge_in_candidate():
+    text = "[![Tests](https://img.shields.io/badge/tests-passing-green)](https://example.com/ci)\n"
+    findings = checks.check_badge_static_claims_dynamic_fact(text)
+    assert len(findings) == 1
+
+
+def test_badge_static_claims_dynamic_fact_clean_on_legit_dynamic_badge():
+    text = "[![Build](https://github.com/x/y/actions/workflows/test.yml/badge.svg)](https://github.com/x/y/actions)\n"
+    assert checks.check_badge_static_claims_dynamic_fact(text) == []
+
+
+# --- check_no_duplicate_badges_in_candidate (hard gate) -------------------------------------
+
+
+def test_no_duplicate_badges_in_candidate_flags_real_duplicate():
+    text = (
+        "[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n"
+    )
+    findings = checks.check_no_duplicate_badges_in_candidate(text)
+    assert len(findings) == 1
+    assert findings[0]["category"] == "license"
+
+
+def test_no_duplicate_badges_in_candidate_clean_on_distinct_badges():
+    text = (
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) "
+        "[![Go Reference](https://pkg.go.dev/badge/x.svg)](https://pkg.go.dev/x) "
+        "[![Contributors](https://img.shields.io/github/contributors/x.svg)](https://github.com/x/graphs/contributors)\n"
+    )
+    assert checks.check_no_duplicate_badges_in_candidate(text) == []
+
+
+def test_no_duplicate_badges_in_candidate_ignores_label_only_similarity():
+    # Two badges with similar-sounding labels but genuinely different targets must NOT be
+    # flagged -- the mission's own explicit "compare meaning and targets, not labels" rule.
+    text = (
+        "[![Version](https://img.shields.io/badge/go-1.24-blue)](https://go.dev) "
+        "[![Version](https://img.shields.io/nuget/v/SomePackage.svg)](https://nuget.org/packages/SomePackage)\n"
+    )
+    assert checks.check_no_duplicate_badges_in_candidate(text) == []
+
+
+# --- leak prevention: the two new sibling disposition filenames ----------------------------
+
+
+def test_internal_label_patterns_flag_structure_and_badge_dispositions_filenames():
+    new_readme_a = "## Project Structure\n\nSee structure-dispositions.json for the full record.\n"
+    result_a = checks.check_dropped_content("Old readme.\n", new_readme_a, "irrelevant")
+    assert any("structure-dispositions.json" in label.lower() for label in result_a["internal_labels"])
+
+    new_readme_b = "## License\n\nSee badge-dispositions.json for the full record.\n"
+    result_b = checks.check_dropped_content("Old readme.\n", new_readme_b, "irrelevant")
+    assert any("badge-dispositions.json" in label.lower() for label in result_b["internal_labels"])

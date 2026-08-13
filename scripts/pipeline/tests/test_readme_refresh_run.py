@@ -275,10 +275,34 @@ _CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE = [
     },
 ]
 
+# Twenty-Fourth mission (2026-08-13): _OLD_UPSTREAM_README's own "## Installation" section is
+# ENTIRELY a fenced `pip install -e .` block with zero surrounding prose -- confirmed via a
+# direct extract_old_readme_structural_units() run, not guessed -- so it is a real, genuine
+# structural unit (kind: generic_structural_block, no claimed_paths) that every shared-fixture
+# test must account for now that the two new hard gates are wired in. Disposition: merged into
+# the candidate's own existing "## Installation" section, which already contains a real fenced
+# bash block, satisfying check_structural_unit_merged_into_target_section's generic-block rule.
+_STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE = [
+    {
+        "unit_id": "s0001",
+        "disposition": "merged_reframed",
+        "target_section": "Installation",
+        "claimed_paths": None,
+        "excluded_reason": None,
+        "verification": {
+            "status": "verified_against_source",
+            "evidence_type": "clone_cache_path",
+            "evidence_ref": "README.md",
+        },
+    },
+]
+
 
 def _write_candidate(
     repo_root, text, upstream_issues=_UPSTREAM_ISSUES_BLOCKING,
     dispositions=_CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE,
+    structure_dispositions=_STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE,
+    badge_dispositions=None,
 ):
     candidate_dir = repo_root / "reports" / "repo-presenter" / "testfam" / "testplat"
     candidate_dir.mkdir(parents=True, exist_ok=True)
@@ -287,6 +311,18 @@ def _write_candidate(
     if dispositions is not None:
         (candidate_dir / "content-dispositions.json").write_text(
             json.dumps(dispositions), encoding="utf-8"
+        )
+    if structure_dispositions is not None:
+        (candidate_dir / "structure-dispositions.json").write_text(
+            json.dumps(structure_dispositions), encoding="utf-8"
+        )
+    # badge_dispositions defaults to None (no file written): _OLD_UPSTREAM_README has zero real
+    # badges, so an absent structure-dispositions.json-shaped file and a missing badge-
+    # dispositions.json both correctly resolve to a vacuous [] -- nothing to write for the shared
+    # fixture's default case; a test exercising badge dispositions for real passes its own list.
+    if badge_dispositions is not None:
+        (candidate_dir / "badge-dispositions.json").write_text(
+            json.dumps(badge_dispositions), encoding="utf-8"
         )
 
 

@@ -188,6 +188,25 @@ def _content_dispositions_path(family: str, platform: str) -> Path:
     return _reports_root / "repo-presenter" / family / platform / "content-dispositions.json"
 
 
+def _structure_dispositions_path(family: str, platform: str) -> Path:
+    """Twenty-Fourth incident / mission (2026-08-13, `cells/go`'s missing Project Structure
+    section): sibling to content-dispositions.json, same directory, same agent-authored tier --
+    but a separate file, not an extension of content-dispositions.json's own schema, since that
+    schema's `classification` enum (narrative/mechanism/branding/history/redundant) has no
+    honest value for "a directory tree." See `extract_old_readme_structural_units`'s own
+    docstring for what this file records."""
+    return _reports_root / "repo-presenter" / family / platform / "structure-dispositions.json"
+
+
+def _badge_dispositions_path(family: str, platform: str) -> Path:
+    """Twenty-Fourth incident / mission (2026-08-13): sibling to content-dispositions.json /
+    structure-dispositions.json, same directory, same agent-authored tier. Records the accept-
+    or-override decision for every badge `extract_badges` finds in the OLD upstream README --
+    see `reconcile_badges`'s own docstring for the recommendation this file must confirm or
+    override, never silently accept unexamined."""
+    return _reports_root / "repo-presenter" / family / platform / "badge-dispositions.json"
+
+
 def _product_clone_cache(family: str, platform: str) -> Path:
     return _clone_cache_root / f"aspose_{family}_{platform}"
 
@@ -1290,6 +1309,81 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["content_unit_embedded_actionable_fact"] = {
         "hard_gate": False,
         "findings": checks.check_content_unit_embedded_actionable_fact(content_units, dispositions),
+    }
+
+    # Twenty-Fourth incident / mission (2026-08-13, cells/go's missing Project Structure section):
+    # structural (non-prose) section preservation -- content-unit extraction above can never see
+    # this by design (it strips fenced code before segmenting). structure-dispositions.json is a
+    # sibling to content-dispositions.json, same tier, same directory -- never an extension of
+    # that file's own prose-tone-specific classification enum.
+    structural_units = checks.extract_old_readme_structural_units(old_readme_text)
+    structure_dispositions_path = _structure_dispositions_path(family, platform)
+    structure_dispositions = (
+        json.loads(structure_dispositions_path.read_text(encoding="utf-8"))
+        if structure_dispositions_path.is_file() else []
+    )
+    result["structural_unit_disposition_coverage"] = {
+        "hard_gate": True,
+        "findings": checks.check_structural_unit_disposition_coverage(structural_units, structure_dispositions),
+    }
+    result["structural_unit_evidence_resolves"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_evidence_resolves(
+            structure_dispositions, str(clone_cache), _load_package_registry(),
+            _load_content_docs_texts(family, platform),
+        ),
+    }
+    result["structural_unit_merged_into_target_section"] = {
+        "hard_gate": True,
+        "findings": checks.check_structural_unit_merged_into_target_section(text, structure_dispositions),
+    }
+    result["structural_unit_no_exact_duplicate_merge"] = {
+        "hard_gate": True,
+        "findings": checks.check_structural_unit_no_exact_duplicate_merge(structure_dispositions),
+    }
+    result["structural_unit_tree_paths_plausible"] = {
+        "hard_gate": False,
+        "findings": checks.check_structural_unit_tree_paths_plausible(
+            structural_units, structure_dispositions, str(clone_cache)
+        ),
+    }
+
+    # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation -- previously
+    # nonexistent (no parsing/classification/dedup mechanism anywhere in this module). badge-
+    # dispositions.json is a second sibling, same tier, same directory.
+    old_badges = checks.extract_badges(old_readme_text)
+    new_badges = checks.extract_badges(text)
+    badge_dispositions_path = _badge_dispositions_path(family, platform)
+    badge_dispositions = (
+        json.loads(badge_dispositions_path.read_text(encoding="utf-8"))
+        if badge_dispositions_path.is_file() else []
+    )
+    result["badge_disposition_coverage"] = {
+        "hard_gate": True,
+        "findings": checks.check_badge_disposition_coverage(old_badges, new_badges, badge_dispositions),
+    }
+    result["badge_evidence_resolves"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_evidence_resolves(
+            badge_dispositions, str(clone_cache), _load_package_registry(),
+            _load_content_docs_texts(family, platform),
+        ),
+    }
+    result["badge_preserved_or_credited_in_candidate"] = {
+        "hard_gate": True,
+        "findings": checks.check_badge_preserved_or_credited_in_candidate(new_badges, badge_dispositions),
+    }
+    result["badge_probable_duplicate_disposition"] = {
+        "hard_gate": False,
+        "findings": checks.check_badge_probable_duplicate_disposition(badge_dispositions),
+    }
+    result["badge_static_claims_dynamic_fact"] = {
+        "hard_gate": False,
+        "findings": checks.check_badge_static_claims_dynamic_fact(text),
+    }
+    result["no_duplicate_badges_in_candidate"] = {
+        "hard_gate": True,
+        "findings": checks.check_no_duplicate_badges_in_candidate(text),
     }
 
     # Heuristic / two-tier -- surfaced for the mandatory human/agent judgment pass, never

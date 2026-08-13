@@ -1831,6 +1831,11 @@ _INTERNAL_LABEL_PATTERNS = [
     r"\bknowledge/[\w-]+/[\w-]+/merged\b",
     r"\breports/repo-presenter\b",
     r"\breports/readme_refresh_runs\b",
+    # 2026-08-13 (Twenty-Fourth mission, cells/go): the two new sibling disposition files get the
+    # identical unconditional-hard-gate protection as content-dispositions.json/upstream-
+    # issues.md above -- same reasoning, same mechanism, no new wiring needed beyond these lines.
+    r"\bstructure-dispositions\.json\b",
+    r"\bbadge-dispositions\.json\b",
 ]
 _INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECASE)
 
@@ -4281,6 +4286,687 @@ def check_content_unit_embedded_actionable_fact(
                           "actionable-sounding phrase -- re-examine for a real, distinct "
                           "checkable fact worth reclassifying and merging",
             })
+    return findings
+
+
+# ============================================================================================
+# Twenty-Fourth incident / mission (2026-08-13): `cells/go`'s real, live upstream README has a
+# `## Project Structure` section that is ENTIRELY a fenced directory-tree code block with no
+# surrounding prose. `extract_old_readme_content_units` strips ALL fenced code before
+# segmenting (by design -- it extracts sentence-level prose facts, not code), so this section
+# produced zero content units and was never merged, never excluded-with-reason -- structurally
+# invisible to the whole MT030 verify-and-merge pipeline. `check_dropped_content` DOES detect
+# the heading as dropped, but that finding is downgraded to non-blocking advisory the moment a
+# real content-dispositions.json exists (TC-HARDEN-04), on a theory that's false for any unit
+# the extractor never captured in the first place. This section closes that gap with a second,
+# parallel extraction mechanism for STRUCTURAL (non-prose) sections, plus a real badge
+# semantic-reconciliation mechanism (previously nonexistent) for the sibling "product-specific
+# badges get lost or wrongly deduplicated" defect the same mission named as a general problem.
+#
+# Two new sibling disposition files, agent-authored, same tier as content-dispositions.json:
+# structure-dispositions.json, badge-dispositions.json. NOT an extension of content-
+# dispositions.json's own schema -- its `classification` enum (narrative/mechanism/branding/
+# history/redundant) has no honest value for "a directory tree" or "a badge dedup decision."
+# Both key entries on `unit_id` specifically so `check_content_unit_evidence_resolves` -- which
+# only ever reads `verification.status/evidence_type/evidence_ref` and echoes back `unit_id` --
+# can be reused UNCHANGED as the evidence-resolution gate for both, a real, load-bearing reuse.
+# ============================================================================================
+
+
+_STRUCTURAL_VOCAB_RE = re.compile(
+    r"\b(?:project|repo(?:sitory)?|source|directory|folder|codebase)\b(?:\s+\w+){0,2}\s+"
+    r"\b(?:structure|layout|organi[sz]ation|tree|map)\b"
+    r"|\b(?:structure|layout|organi[sz]ation|tree|map)\b(?:\s+\w+){0,2}\s+"
+    r"\b(?:project|repo(?:sitory)?|source|directory|folder|codebase)\b",
+    re.IGNORECASE,
+)
+_TREE_DRAWING_CHARS_RE = re.compile(r"[├└│─]")
+
+
+def extract_old_readme_structural_units(
+    old_readme_text: str, *, min_fenced_dominance: float = 0.6
+) -> list[dict]:
+    """Mechanical segmentation of the old upstream README's STRUCTURAL (non-prose) sections into
+    checkable units -- the structural counterpart to `extract_old_readme_content_units`, which
+    can never see this content by design (it strips fenced code before segmenting).
+
+    Gating test, deliberately content-SHAPE-based rather than a heading-keyword match (the
+    mission's own explicit requirement: "Repository Layout"/"Source Layout"/"Project Structure"
+    must all be recognized identically, never discarded for using a different heading than a
+    template expects). For every H2/H3 heading (`_HEADING_RE`), a section becomes a structural
+    unit only when BOTH: (a) running `extract_old_readme_content_units` against that section's
+    own fenced-code-stripped body yields ZERO real prose units -- i.e. the existing prose
+    extractor genuinely has nothing to say about it -- and (b) fenced code accounts for >=
+    `min_fenced_dominance` (default 60%) of the section's real non-blank lines. Both conditions
+    matter: (a) alone would also flag a section with one throwaway short line; (b) alone would
+    incorrectly flag "## Installation" (fenced-code-heavy but with real leftover prose -- the
+    real `cells/go` case: "Requires Go 1.18+..." is exactly this discriminating survivor,
+    confirmed live not to trip this gate). `min_fenced_dominance` is validated against exactly
+    one real product so far (`cells/go`) -- flagged here, not silently trusted, as needing a
+    real portfolio-scale confirmation before being treated as a permanent constant, the same
+    caveat this plan attaches to every first-instance threshold.
+
+    Returns `[{"unit_id": "s0001", "heading", "heading_level", "kind", "fenced_block_text",
+    "dominance_ratio", "claimed_paths"}, ...]` in extraction order -- own `s%04d` id namespace,
+    never mixed into `extract_old_readme_content_units`' own `u%04d` array.
+    """
+    headings = list(_HEADING_RE.finditer(old_readme_text))
+    units: list[dict] = []
+    for i, match in enumerate(headings):
+        heading_text = match.group(2).strip()
+        body_start = match.end()
+        body_end = headings[i + 1].start() if i + 1 < len(headings) else len(old_readme_text)
+        body = old_readme_text[body_start:body_end]
+
+        body_lines = [line for line in body.splitlines() if line.strip()]
+        if not body_lines:
+            continue
+        fenced_blocks = _ANY_FENCED_CODE_RE.findall(body)
+        if not fenced_blocks:
+            continue
+        fenced_line_count = sum(
+            len([line for line in block.splitlines() if line.strip()]) for block in fenced_blocks
+        )
+        dominance = fenced_line_count / len(body_lines)
+        if dominance < min_fenced_dominance:
+            continue
+
+        stripped = _ANY_FENCED_CODE_RE.sub("", body)
+        if extract_old_readme_content_units(stripped):
+            continue  # the existing prose extractor already has something real to say here
+
+        fenced_block_text = fenced_blocks[0]
+        kind = _classify_structural_kind(heading_text, fenced_block_text)
+        units.append({
+            "unit_id": f"s{len(units) + 1:04d}",
+            "heading": heading_text,
+            "heading_level": len(match.group(1)),
+            "kind": kind,
+            "fenced_block_text": fenced_block_text,
+            "dominance_ratio": round(dominance, 3),
+            "claimed_paths": (
+                _parse_directory_tree_paths(fenced_block_text) if kind == "directory_tree" else []
+            ),
+        })
+    return units
+
+
+def _classify_structural_kind(heading: str, fenced_block_text: str) -> str:
+    """Non-gating, best-effort, deliberately an OPEN string (not a closed enum) -- a future kind
+    can be added without touching `extract_old_readme_structural_units`' own gate. `"directory_
+    tree"` when the fenced block contains real box-drawing characters or the heading matches a
+    small structure-vocabulary signal; else `"generic_structural_block"` -- a disclosed "no
+    dedicated verifier yet" bucket (covers e.g. a pure command-list section like "## Testing",
+    which legitimately also passes the zero-prose-units/high-fenced-dominance gate above but
+    isn't a tree needing path verification)."""
+    if _TREE_DRAWING_CHARS_RE.search(fenced_block_text) or _STRUCTURAL_VOCAB_RE.search(heading):
+        return "directory_tree"
+    return "generic_structural_block"
+
+
+_TREE_LINE_RE = re.compile(r"^((?:[│ ] {3})*)([├└])── (.+)$")
+
+
+def _parse_directory_tree_paths(fenced_block_text: str) -> list[str]:
+    """Best-effort box-drawing directory-tree parser, explicitly disclosed as incomplete -- same
+    "presence not proof" honesty `check_named_member_accuracy` already discloses about itself. A
+    line it can't confidently parse (doesn't match the expected `(│   )*├── name` / `└── name`
+    shape) is silently skipped, never guessed. Feeds ONLY the non-blocking `check_structural_
+    unit_tree_paths_plausible` heuristic below, never a hard gate -- a real tree legitimately
+    goes stale over time, and a parse gap (e.g. a combined display name like "cell.go / cells.go"
+    on one line) must never hard-block a legitimately-updated disposition.
+    """
+    paths: list[str] = []
+    stack: list[str] = []
+    for line in fenced_block_text.strip("`").split("\n"):
+        match = _TREE_LINE_RE.match(line)
+        if not match:
+            continue
+        prefix, _marker, rest = match.groups()
+        name = rest.split("#", 1)[0].strip()
+        if not name:
+            continue
+        depth = len(prefix) // 4
+        stack = stack[:depth]
+        stack.append(name.rstrip("/"))
+        paths.append("/".join(stack))
+    return paths
+
+
+_STRUCTURAL_UNIT_DISPOSITIONS = _CONTENT_UNIT_DISPOSITIONS  # merged_verbatim/merged_reframed/excluded -- reused unchanged, both genuinely fit
+_STRUCTURAL_UNIT_VERIFICATION_STATUSES = frozenset({"verified_against_source", "verified_redundant"})
+
+
+def check_structural_unit_disposition_coverage(
+    structural_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. Direct structural mirror of `check_content_unit_disposition_coverage`: every
+    `unit_id` in `structural_units` needs exactly one, well-formed disposition entry (no
+    missing/dupe/dangling references); `disposition` is a valid enum value; `merged_*` needs a
+    real `target_section`; `excluded` needs a real `excluded_reason` (>=15 chars);
+    `verification.status` must be one of `_STRUCTURAL_UNIT_VERIFICATION_STATUSES` (deliberately
+    narrower than the prose-side enum -- `not_applicable_category_1`/`verified_by_corroboration`
+    are prose-classification-specific and have no honest structural-unit analog) with a non-empty
+    `evidence_ref`. Vacuous pass `[]` when `structural_units` is empty -- correctly, since there
+    is genuinely nothing to account for.
+
+    `target_section` validity is deliberately NOT restricted to `_CONTENT_UNIT_TARGET_SECTIONS`'
+    closed template list -- a structural unit's natural home is very often a genuinely NEW
+    section the old README already used (the real `cells/go` case: `## Project Structure`, its
+    own real heading, is not one of this skill's template sections at all). A `target_section`
+    is valid when it is EITHER an existing template section OR any structural unit's own
+    (possibly reframed) `heading` -- open by construction, not a fixed list a future product's
+    real heading might not appear on.
+    """
+    if not structural_units:
+        return []
+    valid_targets = _CONTENT_UNIT_TARGET_SECTIONS | {u["heading"] for u in structural_units}
+    unit_ids = {u["unit_id"] for u in structural_units}
+    findings: list[dict] = []
+    seen: set[str] = set()
+    by_id: dict[str, dict] = {}
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        if uid in seen:
+            findings.append({"unit_id": uid, "reason": "duplicate disposition entry for the same unit_id"})
+            continue
+        seen.add(uid)
+        by_id[uid] = entry
+        if uid not in unit_ids:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition references a unit_id not present in the current old-README structural extraction",
+            })
+
+    for uid in unit_ids:
+        entry = by_id.get(uid)
+        if entry is None:
+            findings.append({"unit_id": uid, "reason": "no disposition entry -- every extracted structural unit needs one"})
+            continue
+        disposition = entry.get("disposition")
+        if disposition not in _STRUCTURAL_UNIT_DISPOSITIONS:
+            findings.append({"unit_id": uid, "reason": f"invalid disposition {disposition!r}"})
+            continue
+        if disposition in ("merged_verbatim", "merged_reframed"):
+            target = entry.get("target_section")
+            if target not in valid_targets:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": f"merged disposition needs a real target_section, got {target!r}",
+                })
+        else:  # excluded
+            reason_text = (entry.get("excluded_reason") or "").strip()
+            if len(reason_text) < 15:
+                findings.append({"unit_id": uid, "reason": "excluded disposition needs a real excluded_reason (>=15 chars)"})
+        verification = entry.get("verification") or {}
+        status = verification.get("status")
+        if status not in _STRUCTURAL_UNIT_VERIFICATION_STATUSES:
+            findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
+        elif not verification.get("evidence_ref"):
+            findings.append({"unit_id": uid, "reason": "verification needs a non-empty evidence_ref"})
+    return findings
+
+
+def check_structural_unit_merged_into_target_section(
+    readme_text: str, dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. For every `merged_verbatim`/`merged_reframed` structural disposition, confirms
+    the cited `target_section` was genuinely touched with something traceable to this unit.
+
+    For `kind == "directory_tree"` with real `claimed_paths`: requires at least half of the
+    claimed paths' basenames (case-insensitive) to appear somewhere in the target section's real
+    body -- same "half the significant tokens" idiom `check_content_unit_merged_into_target_
+    section`'s own word-overlap fallback already established. For `generic_structural_block` or
+    empty `claimed_paths` (a command-list section like "## Testing", or a tree this session's own
+    best-effort parser couldn't confidently read): falls back to a disclosed-weaker signal -- the
+    target section must contain at least one fenced code block. Weaker on purpose: a command-list
+    section's real content IS its commands, and requiring exact-command-text traceability would
+    duplicate `check_no_undisclosed_blocking_commands`'s own, more precise job.
+    """
+    sections = _split_into_sections(readme_text)
+    units_by_id: dict[str, dict] = {}
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        target = entry.get("target_section")
+        body = sections.get(target, "")
+        claimed_paths = entry.get("claimed_paths") or []
+        if claimed_paths:
+            basenames = [p.rsplit("/", 1)[-1].lower() for p in claimed_paths if p]
+            hits = sum(1 for b in basenames if b in body.lower())
+            if not basenames or hits / len(basenames) < 0.5:
+                findings.append({
+                    "unit_id": entry.get("unit_id"),
+                    "target_section": target,
+                    "reason": "fewer than half of this structural unit's claimed paths were "
+                              f"found in the '{target}' section -- the merge is not traceable",
+                })
+        elif not _ANY_FENCED_CODE_RE.search(body):
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "target_section": target,
+                "reason": f"the '{target}' section contains no fenced code block at all -- a "
+                          "merged structural unit with no claimed paths needs at least this "
+                          "weaker signal of being genuinely touched",
+            })
+    return findings
+
+
+def check_structural_unit_no_exact_duplicate_merge(dispositions: list[dict]) -> list[dict]:
+    """Hard gate. Literal structural mirror of `check_content_unit_no_exact_duplicate_merge`,
+    keyed on `(normalized heading, target_section)`."""
+    seen: dict[tuple[str, "str | None"], list] = {}
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        key = (
+            re.sub(r"\s+", " ", (entry.get("heading") or "").strip().lower()),
+            entry.get("target_section"),
+        )
+        seen.setdefault(key, []).append(entry.get("unit_id"))
+    findings: list[dict] = []
+    for (_heading, target), unit_ids in seen.items():
+        if len(unit_ids) > 1:
+            findings.append({
+                "unit_ids": unit_ids,
+                "target_section": target,
+                "reason": "identical heading merged into the same section under multiple unit_ids -- exact duplicate",
+            })
+    return findings
+
+
+def check_structural_unit_tree_paths_plausible(
+    structural_units: list[dict], dispositions: list[dict], clone_cache_root: str
+) -> list[dict]:
+    """Heuristic, non-blocking. For `directory_tree` units with non-empty `claimed_paths`, checks
+    each against the real clone cache and surfaces a finding when the resolution ratio is low
+    (< 0.7) -- "this tree may be stale, or the best-effort parse may be wrong; confirm by hand."
+    Deliberately a heuristic, not a hard gate, matching `check_installation_matches_package_
+    registry`'s own downgrade reasoning: a real tree legitimately goes stale as a repo evolves,
+    and this must never silently block a legitimately-updated `merged_reframed` disposition just
+    because old paths don't resolve 1:1 -- only prompt a human/agent to look.
+    """
+    units_by_id = {u["unit_id"]: u for u in structural_units}
+    root = Path(clone_cache_root)
+    findings: list[dict] = []
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        unit = units_by_id.get(uid)
+        if not unit or unit.get("kind") != "directory_tree":
+            continue
+        paths = unit.get("claimed_paths") or []
+        if not paths:
+            continue
+        resolved = sum(1 for p in paths if (root / p).exists())
+        ratio = resolved / len(paths)
+        if ratio < 0.7:
+            findings.append({
+                "unit_id": uid,
+                "resolved": resolved,
+                "claimed": len(paths),
+                "ratio": round(ratio, 2),
+                "reason": "fewer than 70% of this tree's claimed paths resolve against the real "
+                          "clone cache -- the tree may be stale or the parse may be wrong",
+            })
+    return findings
+
+
+# --- Badge semantic reconciliation -----------------------------------------------------------
+
+_BADGE_INNER_IMAGE_RE = re.compile(r"^!\[([^\]]*)\]\(([^)\s]+)\)$")
+
+
+def extract_badges(readme_text: str) -> list[dict]:
+    """Parses every badge (`[![alt](image-url)](link-url)`) out of the README's badge row(s)
+    into structured records. Scoped to lines containing `_BADGE_ROW_MARKER`, same scoping
+    `extract_old_readme_content_units` already uses to exclude badge rows from prose scanning.
+    Returns `[{"unit_id": "b0001", "alt_text", "image_url", "link_url", "raw_markdown"}, ...]`
+    in extraction order -- own `b%04d` namespace. Badge-row ORDER shifts more readily between an
+    old and new README than prose-paragraph order does (badges get reordered/added/removed
+    casually) -- this id scheme is stable across whitespace-only reruns, same as `u%04d`/`s%04d`,
+    but NOT across a genuine reordering, worth restating explicitly here since that's likelier in
+    practice for badges than for prose.
+    """
+    badges: list[dict] = []
+    for line in readme_text.splitlines():
+        if _BADGE_ROW_MARKER not in line:
+            continue
+        # The required product banner (`[![alt](banner-readme.png)](homepage)`, MT026/TC-HARDEN-27)
+        # also matches `_BADGE_ROW_MARKER` but is a distinct, already-governed piece of content,
+        # never a semantic badge (CI/license/etc.) -- excluding it here is a precision fix, not
+        # load-bearing (it never matches any real `_BADGE_CATEGORY_RULES` category on its own
+        # merits, so leaving it in would be harmless, just conceptually imprecise).
+        if _BANNER_LINE_RE.match(line) or _LINKED_BANNER_LINE_RE.match(line):
+            continue
+        for anchor_text, link_url in _MD_LINK_RE.findall(line):
+            inner = _BADGE_INNER_IMAGE_RE.match(anchor_text)
+            if not inner:
+                continue
+            alt_text, image_url = inner.groups()
+            badges.append({
+                "unit_id": f"b{len(badges) + 1:04d}",
+                "alt_text": alt_text,
+                "image_url": image_url,
+                "link_url": link_url,
+                "raw_markdown": f"[![{alt_text}]({image_url})]({link_url})",
+            })
+    return badges
+
+
+# Checked in this exact order -- most-specific/unambiguous signals first, most-generic last.
+# "language_version" is deliberately checked before "package_version" so a real "Go Version"
+# badge doesn't collide with the bare `\bversion\b` fallback package_version also carries (found
+# live while validating this table against the real cells/go badge set).
+_BADGE_CATEGORY_RULES: list[tuple[str, tuple[str, ...]]] = [
+    ("license", (r"\blicense\b", r"/license[-/]", r"opensource\.org/licenses")),
+    ("ci_build_status", (r"\b(?:build|ci)\b", r"\btests?\b", r"\bworkflow\b",
+                          r"/actions/workflows/", r"travis-ci|circleci|appveyor")),
+    ("coverage", (r"\bcoverage\b", r"codecov|coveralls")),
+    ("contributor_count", (r"\bcontributors?\b", r"/contributors")),
+    ("download_stats", (r"\bdownloads?\b",)),
+    ("language_version", (r"\b(?:go|python|java|rust|node|php|ruby)\s*version\b",
+                           r"/badge/(?:go|python|java|rust)-")),
+    ("language_package_reference", (r"\breference\b", r"pkg\.go\.dev", r"godoc\.org", r"docs\.rs")),
+    ("docs_link", (r"\bdocs?\b|\bdocumentation\b",)),
+    ("package_version", (r"\bpackage\s*version\b", r"nuget\.org|pypi\.org|maven-central|crates\.io", r"\bversion\b")),
+]
+
+
+def classify_badge(badge: dict) -> dict:
+    """Best-effort, OPEN-STRING category classifier (never a closed enum an unrecognized badge
+    gets force-fit into -- returns `"unknown"` instead). Checks `alt_text`, then `image_url`,
+    then `link_url` against `_BADGE_CATEGORY_RULES` in order; the first category with any
+    matching pattern wins. Returns `{"category", "matched_signal", "matched_field"}`.
+    """
+    for field, text in (("alt_text", badge.get("alt_text", "")),
+                        ("image_url", badge.get("image_url", "")),
+                        ("link_url", badge.get("link_url", ""))):
+        for category, patterns in _BADGE_CATEGORY_RULES:
+            for pattern in patterns:
+                if re.search(pattern, text, re.IGNORECASE):
+                    return {"category": category, "matched_signal": pattern, "matched_field": field}
+    return {"category": "unknown", "matched_signal": None, "matched_field": None}
+
+
+_STATIC_SHIELDS_BADGE_RE = re.compile(r"img\.shields\.io/badge/", re.IGNORECASE)
+_INHERENTLY_DYNAMIC_BADGE_CATEGORIES = frozenset({
+    "ci_build_status", "coverage", "download_stats", "contributor_count",
+})
+# Lower rank = more trustworthy; used by reconcile_badges' "fewer red flags wins" tie-break.
+_BADGE_TARGET_KIND_RANK = {
+    "local_file_exists": 0, "live_verified_reachable": 0,
+    "unverified": 1,
+    "static_badge_claims_dynamic_fact": 2,
+    "placeholder": 3, "local_file_missing": 3, "live_verified_unreachable": 3,
+}
+
+
+def verify_badge_target(
+    badge: dict, category: str, clone_cache_root: str,
+    *, live_check: "Callable[[str], bool] | None" = None,
+) -> dict:
+    """Tiered badge-target verification, deliberately network-cautious by default -- matching
+    `_detect_homepage_link`'s own established caution about live-HTTP cost on every run.
+
+    Tier 0 (free, certain): `link_url == "#"` is a structural placeholder incapable of linking
+    anywhere real (confirmed real instance: `cells/go`'s own "Tests" badge). A relative
+    `link_url` resolves against the clone cache with zero network cost, same technique as
+    `_detect_license_file`.
+
+    Tier 1 (free, mechanically real, not a guess): shields.io's own URL grammar distinguishes a
+    STATIC, hand-authored badge (`/badge/{label}-{message}-{color}`) from a DYNAMIC, live-queried
+    one (`/github/...`, `/pypi/...`, `/maven-central/...`). Validated against 12 real portfolio
+    READMEs during this mechanism's design, not just one product's case. When a badge's category
+    is inherently dynamic (CI/coverage/downloads/contributors) but its image URL has the static
+    shape, that is a real, mechanically-decidable fact -- a static image literally cannot encode
+    a live status -- not a guess; correctly leaves legitimately-static categories (license,
+    language version) alone.
+
+    Tier 2 (opt-in, off by default): a pluggable `live_check` callable, mirroring `verify-
+    examples`'s own `configure(verification_runner=...)` precedent. Never claims a check that
+    didn't run -- `target_kind` stays `"unverified"` when `live_check` is `None` (every current
+    call site).
+    """
+    link_url = badge.get("link_url", "")
+    image_url = badge.get("image_url", "")
+    if link_url == "#":
+        return {"target_kind": "placeholder",
+                "detail": "link target is '#' -- a same-page anchor with no real destination"}
+    if not re.match(r"^https?://", link_url):
+        exists = (Path(clone_cache_root) / link_url).is_file()
+        return {"target_kind": "local_file_exists" if exists else "local_file_missing"}
+    if category in _INHERENTLY_DYNAMIC_BADGE_CATEGORIES and _STATIC_SHIELDS_BADGE_RE.search(image_url):
+        return {
+            "target_kind": "static_badge_claims_dynamic_fact",
+            "detail": f"category {category!r} implies a live status, but the image URL uses "
+                      "shields.io's static /badge/ path, which cannot encode one",
+        }
+    if live_check is not None:
+        return {"target_kind": "live_verified_reachable" if live_check(link_url) else "live_verified_unreachable"}
+    return {"target_kind": "unverified"}
+
+
+def _same_real_world_target(a: dict, b: dict) -> bool:
+    """Deduplication must compare MEANING and TARGETS, never label/alt-text similarity (the
+    mission's own explicit requirement) -- the real License-badge case ("License" vs.
+    "License: MIT") pairs correctly here on shared link_url despite different wording, which a
+    text-similarity comparison would either miss or false-positive on depending on threshold."""
+    def norm(url: str) -> str:
+        return (url or "").strip().rstrip("/").lower()
+    return bool(norm(a.get("link_url"))) and norm(a.get("link_url")) == norm(b.get("link_url"))
+
+
+def reconcile_badges(old_badges: list[dict], new_badges: list[dict], clone_cache_root: str) -> dict:
+    """Recommends, never silently applies, a duplicate/keep decision for every old badge that
+    genuinely shares category + real-world target with a new badge. Returns `{"duplicate_pairs":
+    [{"old_unit_id", "new_unit_id", "category", "keep"}, ...], "old_only": [...badges...]}` --
+    `old_only` badges have no real duplicate in the candidate and are genuine preserve/exclude
+    candidates on their own merits, decided by the disposition file, never by this function.
+
+    Priority for `keep`, deterministic and disclosed, never silent: fewer `verify_badge_target`
+    red flags wins (`_BADGE_TARGET_KIND_RANK`); a genuine tie prefers the candidate's own form.
+    Simplified from this mechanism's original design (which specified a `keep: null` +
+    `dedup_ambiguous` finding for a true tie) -- no real tie case has been found in this
+    mechanism's own validation data yet, and "prefer the candidate's already-composed form" is
+    itself a defensible, disclosed default rather than an unresolved ambiguity; revisit if a real
+    tie case with a wrong outcome is ever found.
+    """
+    used_new: set[str] = set()
+    duplicate_pairs: list[dict] = []
+    old_only: list[dict] = []
+    for old_badge in old_badges:
+        old_category = classify_badge(old_badge)["category"]
+        match = None
+        if old_category != "unknown":
+            for new_badge in new_badges:
+                if new_badge["unit_id"] in used_new:
+                    continue
+                if classify_badge(new_badge)["category"] != old_category:
+                    continue
+                if _same_real_world_target(old_badge, new_badge):
+                    match = new_badge
+                    break
+        if match is None:
+            old_only.append(old_badge)
+            continue
+        used_new.add(match["unit_id"])
+        old_rank = _BADGE_TARGET_KIND_RANK.get(
+            verify_badge_target(old_badge, old_category, clone_cache_root)["target_kind"], 1
+        )
+        new_rank = _BADGE_TARGET_KIND_RANK.get(
+            verify_badge_target(match, old_category, clone_cache_root)["target_kind"], 1
+        )
+        keep = old_badge["unit_id"] if old_rank < new_rank else match["unit_id"]
+        duplicate_pairs.append({
+            "old_unit_id": old_badge["unit_id"], "new_unit_id": match["unit_id"],
+            "category": old_category, "keep": keep,
+        })
+    return {"duplicate_pairs": duplicate_pairs, "old_only": old_only}
+
+
+_BADGE_DISPOSITION_ACTIONS = frozenset({"preserved", "superseded_by_duplicate", "excluded"})
+_BADGE_VERIFICATION_STATUSES = frozenset({"verified_against_source", "verified_redundant"})
+
+
+def check_badge_disposition_coverage(
+    old_badges: list[dict], new_badges: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. Structural mirror of `check_structural_unit_disposition_coverage`: every OLD
+    badge needs exactly one, well-formed disposition entry (no missing/dupe/dangling); `action`
+    is a valid enum value; `excluded` needs a real `excluded_reason` (>=15 chars);
+    `superseded_by_duplicate`/`preserved` need `new_badge_unit_id` to reference a real badge in
+    the CURRENT new-badge extraction; `verification.status`/`evidence_ref` required for every
+    entry (a `preserved`/`superseded_by_duplicate` action's own real evidence is "this badge
+    genuinely appears in the candidate," checked mechanically by `check_badge_preserved_or_
+    credited_in_candidate` below -- this function only checks the disposition record's own
+    internal well-formedness, matching the same division of labor `check_content_unit_
+    disposition_coverage`/`check_content_unit_merged_into_target_section` already use).
+    Vacuous pass `[]` when `old_badges` is empty.
+    """
+    if not old_badges:
+        return []
+    old_ids = {b["unit_id"] for b in old_badges}
+    new_ids = {b["unit_id"] for b in new_badges}
+    findings: list[dict] = []
+    seen: set[str] = set()
+    by_id: dict[str, dict] = {}
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        if uid in seen:
+            findings.append({"unit_id": uid, "reason": "duplicate disposition entry for the same unit_id"})
+            continue
+        seen.add(uid)
+        by_id[uid] = entry
+        if uid not in old_ids:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition references a unit_id not present in the current old-README badge extraction",
+            })
+
+    for uid in old_ids:
+        entry = by_id.get(uid)
+        if entry is None:
+            findings.append({"unit_id": uid, "reason": "no disposition entry -- every old badge needs one"})
+            continue
+        action = entry.get("action")
+        if action not in _BADGE_DISPOSITION_ACTIONS:
+            findings.append({"unit_id": uid, "reason": f"invalid action {action!r}"})
+            continue
+        if action == "excluded":
+            reason_text = (entry.get("excluded_reason") or "").strip()
+            if len(reason_text) < 15:
+                findings.append({"unit_id": uid, "reason": "excluded action needs a real excluded_reason (>=15 chars)"})
+        else:  # preserved / superseded_by_duplicate
+            credited = entry.get("new_badge_unit_id")
+            if credited not in new_ids:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": f"new_badge_unit_id {credited!r} does not reference a real badge in the new candidate",
+                })
+        verification = entry.get("verification") or {}
+        status = verification.get("status")
+        if status not in _BADGE_VERIFICATION_STATUSES:
+            findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
+        elif not verification.get("evidence_ref"):
+            findings.append({"unit_id": uid, "reason": "verification needs a non-empty evidence_ref"})
+    return findings
+
+
+def check_badge_preserved_or_credited_in_candidate(
+    new_badges: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate. For `preserved`/`superseded_by_duplicate` actions, confirms the cited `new_
+    badge_unit_id` genuinely shares the disposition's own stated `category` with the real new
+    badge -- catches a lazy or wrong "already covered" claim, the same gap `check_content_unit_
+    merged_into_target_section`'s own docstring already names for the prose-merge case.
+    """
+    new_by_id = {b["unit_id"]: b for b in new_badges}
+    findings: list[dict] = []
+    for entry in dispositions:
+        action = entry.get("action")
+        if action not in ("preserved", "superseded_by_duplicate"):
+            continue
+        credited_id = entry.get("new_badge_unit_id")
+        new_badge = new_by_id.get(credited_id)
+        if new_badge is None:
+            continue  # already flagged by check_badge_disposition_coverage
+        real_category = classify_badge(new_badge)["category"]
+        claimed_category = entry.get("category")
+        if claimed_category != real_category:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "new_badge_unit_id": credited_id,
+                "reason": f"disposition claims category {claimed_category!r}, but the cited "
+                          f"new badge's real category is {real_category!r} -- not genuinely the same badge",
+            })
+    return findings
+
+
+def check_badge_probable_duplicate_disposition(dispositions: list[dict]) -> list[dict]:
+    """Heuristic, non-blocking. Mirrors `check_content_unit_probable_duplicate`: flags 2+
+    dispositions crediting the SAME `new_badge_unit_id` under different `unit_id`s with
+    `action != "excluded"` -- likely double-crediting one candidate badge for two old ones."""
+    credited: dict[str, list[str]] = {}
+    for entry in dispositions:
+        if entry.get("action") in ("preserved", "superseded_by_duplicate"):
+            credited.setdefault(entry.get("new_badge_unit_id"), []).append(entry.get("unit_id"))
+    return [
+        {"new_badge_unit_id": new_id, "unit_ids": old_ids,
+         "reason": "multiple old badges credited to the same new badge -- confirm this is genuinely one duplicate, not two different facts"}
+        for new_id, old_ids in credited.items() if len(old_ids) > 1
+    ]
+
+
+def check_badge_static_claims_dynamic_fact(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking. Runs against the CANDIDATE directly and unconditionally -- a
+    NEW-candidate-quality check, same category as `internal_labels`' own established "not gated
+    on old-README existence" posture. Flags any candidate badge whose category is inherently
+    dynamic but whose image URL has shields.io's static `/badge/` shape (same Tier-1 signal
+    `verify_badge_target` already uses, applied here to catch a freshly-COMPOSED static/fake
+    badge, not just a carried-forward old one).
+    """
+    findings = []
+    for badge in extract_badges(readme_text):
+        category = classify_badge(badge)["category"]
+        if category in _INHERENTLY_DYNAMIC_BADGE_CATEGORIES and _STATIC_SHIELDS_BADGE_RE.search(badge["image_url"]):
+            findings.append({
+                "unit_id": badge["unit_id"], "category": category,
+                "reason": f"category {category!r} implies a live status, but this badge's image "
+                          "URL uses shields.io's static /badge/ path, which cannot encode one",
+            })
+    return findings
+
+
+def check_no_duplicate_badges_in_candidate(readme_text: str) -> list[dict]:
+    """Hard gate. Mechanically decidable, independent of disposition-bookkeeping correctness:
+    parses the CANDIDATE's own badge row alone and flags any two badges sharing a real (non-
+    `"unknown"`) category and the same real-world target (`_same_real_world_target`) -- the
+    direct, rendered-output enforcement of the mission's own explicit "must not display duplicate
+    badges that communicate the same fact" requirement, complementing (not replacing)
+    `check_badge_disposition_coverage`'s bookkeeping-correctness check above -- a disposition
+    file can be perfectly well-formed while the actual rendered candidate still shows both badges
+    if a `superseded_by_duplicate` claim's suppressed badge was never actually removed from the
+    text. Two badges sharing a label/alt-text alone are NOT flagged (the mission's own explicit
+    "compare meaning and targets, not labels" rule) -- only a shared category + shared real
+    target is unambiguous duplication.
+    """
+    badges = extract_badges(readme_text)
+    findings: list[dict] = []
+    for i, a in enumerate(badges):
+        cat_a = classify_badge(a)["category"]
+        if cat_a == "unknown":
+            continue
+        for b in badges[i + 1:]:
+            if classify_badge(b)["category"] != cat_a:
+                continue
+            if _same_real_world_target(a, b):
+                findings.append({
+                    "unit_ids": [a["unit_id"], b["unit_id"]],
+                    "category": cat_a,
+                    "reason": "two badges in the candidate share the same category and real-"
+                              "world target -- the same fact is displayed twice",
+                })
     return findings
 
 

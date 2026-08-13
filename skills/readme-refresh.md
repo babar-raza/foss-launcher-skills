@@ -205,8 +205,8 @@ same product concurrently.
    carve-out (below) makes this the valid, checked shape, not a workaround.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 50 `check_*` functions as of
-   2026-08-12 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 59 `check_*` functions as of
+   2026-08-13 — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
    trusting this number again). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs`, with an optional 2-line
    `Starting Points` container ahead of `Product` for `hybrid`-archetype products only (up to 5
@@ -259,7 +259,46 @@ same product concurrently.
    every real old-README content unit has a complete, well-formed disposition record whose
    cited evidence actually resolves against real product-repo/registry/docs data and whose
    claimed section-merge is traceable to real text in the candidate (never two disposition
-   entries merging the identical excerpt into the identical section). **Heuristic checks** (surfaced for
+   entries merging the identical excerpt into the identical section). **(Twenty-Fourth mission,
+   2026-08-13, `cells/go`'s missing `Project Structure` section) — two more agent-authored
+   sibling files, same tier as `content-dispositions.json`, closing what that file structurally
+   can never see:**
+   - `structure-dispositions.json` covers STRUCTURAL (non-prose) old-README sections — a section
+     whose real content lives entirely or mostly inside a fenced code block (a directory tree, a
+     pure command list) produces ZERO content units under `extract_old_readme_content_units` (it
+     strips fenced code before segmenting, by design), so it was previously invisible to the
+     whole verify-and-merge pipeline. `extract_old_readme_structural_units` gates on content
+     SHAPE, not heading text — "Repository Layout"/"Source Layout"/"Project Structure" all
+     recognize identically. Every extracted unit needs a disposition
+     (`check_structural_unit_disposition_coverage`, hard gate) whose claimed merge is genuinely
+     traceable into its `target_section` (`check_structural_unit_merged_into_target_section`,
+     hard gate — a `target_section` may be an existing template section OR the unit's own real
+     heading, e.g. a genuinely new `## Project Structure` section) with no exact-duplicate merges
+     (`check_structural_unit_no_exact_duplicate_merge`, hard gate) and (heuristic)
+     `check_structural_unit_tree_paths_plausible` flags a directory-tree unit whose claimed paths
+     mostly don't resolve against the real clone cache anymore.
+   - `badge-dispositions.json` covers badge semantic reconciliation — previously nonexistent (no
+     parsing/classification/dedup mechanism anywhere in this module). `extract_badges` +
+     `classify_badge` (an open-string category, never a closed enum) + `verify_badge_target`
+     (tiered, network-cautious: a `#` link is a structural placeholder; a shields.io *static*
+     `/badge/` URL claiming an inherently-dynamic fact like CI/coverage/downloads/contributors is
+     a real, mechanically-decidable red flag, not a guess) + `reconcile_badges` (pairs by
+     category + real link target, never by label similarity — the real `cells/go` case: old
+     "License" and new "License: MIT" pair correctly despite different wording). Every old badge
+     needs a disposition (`check_badge_disposition_coverage`, hard gate) whose
+     `preserved`/`superseded_by_duplicate` claim genuinely credits a same-category badge that's
+     really in the candidate (`check_badge_preserved_or_credited_in_candidate`, hard gate), plus
+     two heuristics (`check_badge_probable_duplicate_disposition`,
+     `check_badge_static_claims_dynamic_fact` — the latter runs against the candidate
+     unconditionally, catching a freshly-composed static/fake badge, not just a carried-forward
+     old one), and one more hard gate, `check_no_duplicate_badges_in_candidate`, checking the
+     RENDERED candidate directly (independent of disposition-bookkeeping correctness) for two
+     badges sharing a real category and real-world target — the mechanical enforcement of "must
+     not display duplicate badges," since a well-formed disposition file doesn't itself guarantee
+     the suppressed badge was actually removed from the text. Both files reuse `check_content_
+     unit_evidence_resolves` UNCHANGED for evidence resolution — both key entries on `unit_id`,
+     which is all that function ever reads.
+   **Heuristic checks** (surfaced for
    judgment, never auto-fail): mechanism-duplicate output nodes, process-narration smells (now
    covering internal receipts/execution notes/provenance/confidence language, not just the
    original 22 incident-specific phrases), Enterprise Edition anchor-text naming *and* context
