@@ -307,10 +307,30 @@ same product concurrently.
 
 8. **`push`** — disposable-clone + branch + git-plumbing commit (`write-tree`/`commit-tree`/
    `update-ref`, never the shared clone cache) + surgical-diff check (declared file set only,
-   currently just `README.md`) + push + `gh pr create --draft`. `--dry-run` rehearses every step
-   up to (not including) the live network write, then returns the run to `APPROVED` — it never
-   reaches `PUSHED` without a real push. Draft PRs always — a human explicitly marks "Ready for
-   review"; this skill never merges.
+   currently just `README.md`) + push + `gh pr create` (**no `--draft`**, MT032, 2026-08-10/11 —
+   none of these repos have branch protection or a second reviewer, so draft mode was pure
+   friction with no offsetting safety benefit; the human review step still happens, just at
+   "review the PR before merging" rather than "review, unmark draft, review again"). `--dry-run`
+   rehearses every step up to (not including) the live network write, then returns the run to
+   `APPROVED` — it never reaches `PUSHED` without a real push. The plumbed commit's message
+   carries the real `Co-Authored-By: {real acting session's model} <noreply@anthropic.com>`
+   trailer, read fresh each time, never hardcoded.
+
+   **Merging (only on the user's explicit, this-PR-specific go-ahead after their own manual
+   review — never on this skill's own initiative)**: `gh pr merge {number} --squash
+   --delete-branch`, but **always with explicit `--subject`/`--body` (or `--body-file`), never
+   accepting `gh`'s own default squash-message construction** (2026-08-13, cells/cpp healing
+   pass — a real, confirmed defect). GitHub's default squash-commit-message builder auto-appends
+   a `Co-authored-by:` trailer for the underlying plumbed commit's own git-level Author identity
+   (the human operator, e.g. `babar-raza <babar-raza@users.noreply.github.com>`) **in addition
+   to** correctly setting that same person as the merge commit's real Author — a redundant,
+   incorrect self-citation: the primary author is already attributed via git's own Author/
+   Committer metadata (which GitHub displays natively, no trailer needed); `Co-authored-by` is
+   for genuinely *additional* contributors only. **The merged commit's trailer section must
+   contain exactly one line**: `Co-authored-by: {real acting session's model} <noreply@
+   anthropic.com>` — never the human operator's identity, in any email form, as a co-author.
+   Build the `--body` text by hand from the plumbed commit's own real message plus that one
+   trailer; do not let `gh pr merge` construct it.
 
 9. **`verify`** — post-push, safely re-runnable any time: confirms the PR still exists and its
    head matches the approved candidate.
