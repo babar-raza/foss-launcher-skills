@@ -1304,6 +1304,63 @@ scripts:
     deprecated_since: null
     change_impact: "RPR-C-03 (2026-07-17, new file): implements the previously-vaporware orphaned_sha fallback (S-12's skill documented it; grep found 0 implementation). Sources baseline from baseline_ledger last_accepted() instead of the mutable model.yaml scalar; walks ledger history for the newest git-reachable ancestor when the head was force-pushed/rebased away; raises OrphanedBaselineError (explicit ORPHANED_BASELINE state) rather than a silent empty diff. Consumed by S-12 (knowledge-diff)."
     notes: "Reachability probe injected for pure-logic tests; git_reachable(repo_path) builds the real probe. See aspose-org-foss-refresh-tidy-lightning.md RPR-C-03 / §2.3."
+  - path: scripts/pipeline/lib/knowledge_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_knowledge_state.py]
+    deprecated_since: null
+    change_impact: "MT030-2026-08-13 (new file): single durable, git-tracked (data/ is not gitignored) projection of accepted_baseline/truth_audit/evidence_skips per product. Closes the gap PDF-JAVA-REFRESH-003's assessment found: every artifact proving a refresh happened (model.yaml, baseline_ledger.jsonl, reports/refresh_runs/**, reports/audit/*.md) is gitignored/workstation-local, so backlog rows could only be kept current by an agent noticing and hand-editing them. Consumed by promote.py, truth_audit.py, evidence/runner.py, repo_patrol.py, backlog_reconcile.py, check_backlog_reconciliation_gate.py, refresh_run.py."
+    notes: "data/knowledge_state.json (single shared file, keyed by 'family/platform'), FileLock-protected (advisory_lock.py, same pattern as baseline_ledger.py)."
+  - path: scripts/pipeline/lib/backlog_parser.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_backlog_parser.py]
+    deprecated_since: null
+    change_impact: "MT030-2026-08-13 (new file): shared backlog/BACKLOG.md Active/Queued table parser, extracted from scripts/ci/checks/check_backlog_open_items.py's previously-unshared _parse_table_rows (that file now imports from here). Adds cat/plan/updated columns and extract_product_key() (family/platform parsing from a row's Title) that check_backlog_open_items.py never needed but backlog_reconcile.py does. Consumed by check_backlog_open_items.py, backlog_reconcile.py, check_backlog_reconciliation_gate.py."
+  - path: scripts/pipeline/commands/ops/backlog_reconcile.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/ops/backlog_reconcile.py [--report-only] [--json] [--backlog PATH]; cross-checks Cat=knowledge backlog rows against data/knowledge_state.json, writes reports/discovery/backlog_reconciliation.json, always exits 0 (advisory)"
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_backlog_reconcile.py]
+    deprecated_since: null
+    change_impact: "MT030-2026-08-13 (new file): advisory half of the backlog-reconciliation fix (enforcement half is scripts/ci/checks/check_backlog_reconciliation_gate.py, pre-commit Step 32 -- both share reconcile_row() so they can never silently diverge on what counts as stale). First real run (2026-08-13, post-backfill) found 7 already-CLOSED Cat=knowledge rows with no durable truth-audit record backing their closure at all -- filed as TRUTH-AUDIT-GATE-PHASE2-001."
+  - path: scripts/pipeline/commands/knowledge/backfill_knowledge_state.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/knowledge/backfill_knowledge_state.py [--dry-run]; one-time seed of data/knowledge_state.json's accepted_baseline section from whichever local knowledge/ caches this checkout has; idempotent, additive-only"
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_backfill_knowledge_state.py]
+    deprecated_since: null
+    change_impact: "MT030-2026-08-13 (new file): one-time backfill run for real against this checkout 2026-08-13 -- seeded 31/31 active products' accepted_baseline into data/knowledge_state.json before check_backlog_reconciliation_gate.py (Step 32) went live, so already-refreshed products don't spuriously show insufficient_data forever."
   - path: scripts/pipeline/commands/knowledge/migrate_baseline_ledger.py
     kind: entrypoint
     lifecycle: active
@@ -4325,6 +4382,23 @@ scripts:
     deprecated_since: null
     change_impact: "Deterministic classification only; no file writes; used by S-90 publish readiness review"
     notes: "TC-S90-001: automates S-90 inspection classification (PUBLISH_READY/ACCEPTABLE_GRADE_C/NEEDS_ACTION/BLOCKED)"
+
+  - path: scripts/pipeline/commands/governance/publish_readiness_review_run.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: publish-readiness-review
+    test_targets:
+      - scripts/pipeline/tests/test_publish_readiness_review_run.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: "Read-only against content/ and knowledge/; only writes reports/publish-review/{family}-{platform}-{YYYYMMDD}/inspection-manifest.json when --dry-run is NOT passed"
+    notes: "RC-W1-006 (MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1, TC-BSA-...-06): S-90 had no deterministic backing script; publish_classifier.py trusted persisted grade: with nothing checking whether it was current. This script gates classification on grade staleness (reports/grade_manifest.json logic_version + content_hash vs. live EVALUATOR_LOGIC_VERSION) and cross-checks any tentative PUBLISH against the latest reports/truth-audit/ and reports/gap-analysis/ findings before trusting it. Implements S-90 Steps 1-6 only (page roster + classify + write inspection manifest); Step 7+ (routing to fix skills, re-evaluation, final-verdict.md) remains agent-executed and out of scope."
 
   - path: scripts/pipeline/lib/claim_mapper.py
     kind: library
