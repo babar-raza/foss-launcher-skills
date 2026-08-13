@@ -760,6 +760,11 @@ def verify_tokens(tokens: list[Token], knowledge: Knowledge, filepath: Path) -> 
             if not knowledge.methods.get(cls_name) and not knowledge.properties.get(cls_name):
                 continue
             if not knowledge.has_property(cls_name, tok.member_name):
+                if knowledge.has_enum_member(cls_name, tok.member_name):
+                    continue  # PascalCase enum constants (e.g. ConvertErrorAction.Delete) don't
+                              # match the ALL_CAPS enum-access heuristic at extraction time and
+                              # get tokenized as "property" instead of "enum" — mirrors the
+                              # enum branch's own has_property() fallback above.
                 if cls_name in PLATFORM_SDK_CLASSES or cls_name in PROPERTY_CHAIN_CLASSES:
                     continue  # Skip platform SDK types and property chain ambiguities
                 if (cls_name, tok.member_name) in knowledge.workaround_members:
