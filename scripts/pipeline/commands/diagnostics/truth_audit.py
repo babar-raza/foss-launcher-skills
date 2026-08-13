@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -24,6 +24,7 @@ def run_truth_audit(
     json_mode: bool = False,
     check_evidence: bool = True,
     check_snippets: bool = False,
+    report_path: str | None = None,
 ) -> tuple[str, int]:
     findings = audit_product(
         family,
@@ -34,6 +35,26 @@ def run_truth_audit(
     products_checked = [f"{family}/{platform}"]
     output = report_json(findings, products_checked) if json_mode else report_text(findings, products_checked)
     exit_code = 1 if any(getattr(finding, "level", "") == "FAIL" for finding in findings) else 0
+
+    # MT030-2026-08-13: durable per-product record of the verdict, so a backlog row
+    # closure claim ("no truth-audit report exists") can be checked against something
+    # that survives a fresh clone, instead of relying on an agent noticing reports/audit/
+    # (gitignored, workstation-local) landed since the row was last read. Non-fatal --
+    # a knowledge_state write failure must never fail the audit itself.
+    try:
+        from lib.knowledge_state import record_truth_audit
+        fail_count = sum(1 for f in findings if getattr(f, "level", "") == "FAIL")
+        warn_count = sum(1 for f in findings if getattr(f, "level", "") == "WARN")
+        record_truth_audit(
+            family, platform,
+            fail_count=fail_count,
+            warn_count=warn_count,
+            report_path=report_path or str(_default_output_path(family, platform, json_mode)),
+            recorded_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        )
+    except Exception as _ks_exc:
+        print(f"WARNING: knowledge_state record_truth_audit failed (non-fatal): {_ks_exc}", file=sys.stderr)
+
     return output, exit_code
 
 
@@ -56,15 +77,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check-snippets", action="store_true", help="Include snippet coverage checks")
     args = parser.parse_args(argv)
 
+    output_path = args.output or _default_output_path(args.family, args.platform, args.json)
+
     output, exit_code = run_truth_audit(
         args.family,
         args.platform,
         json_mode=args.json,
         check_evidence=not args.no_evidence,
         check_snippets=args.check_snippets,
+        report_path=str(output_path),
     )
 
-    output_path = args.output or _default_output_path(args.family, args.platform, args.json)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(output, encoding="utf-8")
 

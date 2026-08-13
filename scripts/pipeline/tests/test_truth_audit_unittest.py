@@ -23,12 +23,27 @@ class _Finding:
 class TruthAuditTests(unittest.TestCase):
     def test_run_truth_audit_json_uses_audit_runner(self):
         with patch("truth_audit.audit_product", return_value=[_Finding("FAIL"), _Finding("WARN")]), \
-             patch("truth_audit.report_json", return_value='{"ok": false}') as report_json:
+             patch("truth_audit.report_json", return_value='{"ok": false}') as report_json, \
+             patch("lib.knowledge_state.record_truth_audit") as record_truth_audit:
             output, exit_code = truth_audit.run_truth_audit("slides", "python", json_mode=True)
 
         self.assertEqual(output, '{"ok": false}')
         self.assertEqual(exit_code, 1)
         report_json.assert_called_once()
+        record_truth_audit.assert_called_once()
+        _, kwargs = record_truth_audit.call_args
+        self.assertEqual(kwargs["fail_count"], 1)
+        self.assertEqual(kwargs["warn_count"], 1)
+
+    def test_run_truth_audit_knowledge_state_failure_is_non_fatal(self):
+        """A knowledge_state write failure must not break the audit itself."""
+        with patch("truth_audit.audit_product", return_value=[]), \
+             patch("truth_audit.report_json", return_value='{"ok": true}'), \
+             patch("lib.knowledge_state.record_truth_audit", side_effect=RuntimeError("boom")):
+            output, exit_code = truth_audit.run_truth_audit("slides", "python", json_mode=True)
+
+        self.assertEqual(output, '{"ok": true}')
+        self.assertEqual(exit_code, 0)
 
     def test_main_writes_default_report(self):
         with tempfile.TemporaryDirectory() as temp_dir, patch(
