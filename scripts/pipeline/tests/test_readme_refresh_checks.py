@@ -3465,6 +3465,50 @@ def test_no_upstream_issue_leaked_scans_bullets_independently():
     assert not any("Workbook" in f["paragraph"] for f in findings)
 
 
+def test_no_upstream_issue_leaked_scans_wrapped_bullets_independently():
+    # Regression test: found live 2026-08-13 (3d/net/3d/typescript, during the portfolio-wide
+    # upstream-issues.md audit) -- the sibling test above (`..._scans_bullets_independently`)
+    # only covers single-PHYSICAL-line bullets. A bullet that WRAPS across multiple lines (a
+    # `- ` marker line followed by indented continuation lines with no `- ` prefix of their
+    # own -- the normal, near-universal shape for any bullet longer than ~80 chars throughout
+    # this portfolio's real Scope and Limitations sections) made `_iter_leak_scan_units`'s own
+    # `all(...)` check fail for the WHOLE block (since a continuation line never starts with
+    # `- `), silently collapsing the entire bulleted section back into one giant unit --
+    # reintroducing the exact cross-bullet misattribution bug the sibling test already proves
+    # is fixed for the single-line case. A real, unrelated bullet (about `Rendering`/
+    # `Scene.Render`, wrapped across 2 lines) got blamed for a real leak that actually lived in
+    # a completely different, later bullet (`Watermark`) purely because the wrapped bullet's
+    # own continuation line broke the per-bullet split for the block as a whole.
+    upstream = (
+        "# Upstream issues\n\n"
+        "## Watermark is unimplemented\n"
+        "- **Severity**: FUNCTIONAL-DEFECT\n"
+        "- **Evidence**: `Watermark.EncodeWatermark`/`DecodeWatermark` both unconditionally "
+        "`throw new NotImplementedException(...)`.\n"
+    )
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Rendering is not implemented in this FOSS build — `Scene.Render`, "
+            "`RenderFactory`, and the\n"
+            "  `IRenderTarget`/`IRenderWindow` rendering pipeline all throw "
+            "`NotImplementedException`. For\n"
+            "  rendering and other advanced functionality, see the Enterprise Edition.\n"
+            "- `Watermark.EncodeWatermark`/`DecodeWatermark` — every overload throws "
+            "`NotImplementedException`\n"
+            "  in this FOSS build; text watermarking is not currently functional.\n"
+        ),
+    )
+    findings = checks.check_no_upstream_issue_leaked_into_readme(text, upstream)
+    # The real leak (the Watermark bullet) is still caught...
+    assert any("Watermark" in f["paragraph"] for f in findings)
+    # ...but the unrelated, wrapped Rendering bullet must never be implicated, even though it
+    # physically precedes the real leak in the same blank-line-delimited block.
+    assert not any(
+        f["paragraph"].startswith("- Rendering is not implemented") for f in findings
+    )
+
+
 def test_no_upstream_issue_leaked_excludes_generic_builtin_exceptions():
     # Regression test: found live during this check's own Phase 1 pilot rollout (2026-08-09,
     # 3d/python) -- a legitimate, accurate Scope and Limitations bullet describing FBX's own

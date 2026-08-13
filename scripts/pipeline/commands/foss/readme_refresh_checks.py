@@ -3324,27 +3324,55 @@ def check_no_upstream_issue_leaked_into_readme(
 
 def _iter_leak_scan_units(prose_text: str) -> list[str]:
     """Split prose into independently-scannable units for `check_no_upstream_issue_leaked_
-    into_readme`. Each bulleted (`- `) line is its own unit when a blank-line-delimited block
-    consists ENTIRELY of such lines (a pure bulleted list, no other prose mixed in) -- real
-    bulleted content in this portfolio (Key Capabilities, Scope and Limitations) has no blank
-    line between items, so treating a whole bulleted section as one blank-line-delimited
-    paragraph let an unrelated match in one bullet get misattributed to a completely
-    different, unrelated bullet's text (found live, `cells/go`, during this check's own
-    Phase 1 pilot rollout -- a Key Capabilities bullet about `Workbook`/`Worksheet` was
-    flagged because a LATER, unrelated bullet elsewhere in the same list happened to mention
-    `go.mod`). A blockquote or ordinary prose paragraph, by contrast, IS one coherent
-    multi-line claim and stays grouped as a single unit -- only a genuinely blank-line-
-    delimited block that is ENTIRELY bullets gets split.
+    into_readme`. Each bullet is its own unit when a blank-line-delimited block consists
+    ENTIRELY of bullets (a pure bulleted list, no other prose mixed in) -- real bulleted
+    content in this portfolio (Key Capabilities, Scope and Limitations) has no blank line
+    between items, so treating a whole bulleted section as one blank-line-delimited paragraph
+    let an unrelated match in one bullet get misattributed to a completely different,
+    unrelated bullet's text (found live, `cells/go`, during this check's own Phase 1 pilot
+    rollout -- a Key Capabilities bullet about `Workbook`/`Worksheet` was flagged because a
+    LATER, unrelated bullet elsewhere in the same list happened to mention `go.mod`). A
+    blockquote or ordinary prose paragraph, by contrast, IS one coherent multi-line claim and
+    stays grouped as a single unit -- only a genuinely blank-line-delimited block that is
+    ENTIRELY bullets gets split.
+
+    A single bullet's own text commonly WRAPS across multiple physical lines (a `- ` marker
+    line followed by one or more indented continuation lines with no `- ` prefix of their
+    own) -- this is the normal, near-universal shape for any bullet longer than ~80
+    characters throughout this portfolio's real Scope and Limitations sections. A prior
+    version of this function required EVERY line in the block (including wrapped
+    continuations) to itself start with `- `, so a single wrapped bullet anywhere in the
+    block silently defeated the whole per-bullet split and collapsed the ENTIRE block back
+    into one giant unit -- reintroducing the exact cross-bullet misattribution bug this
+    function exists to prevent, just one level up (found live, `3d/net`/`3d/typescript`,
+    2026-08-13: adding a real, accurate Watermark finding to `upstream-issues.md` tripped a
+    false leak match against a completely unrelated, earlier Rendering bullet, because that
+    bullet's own wrapped continuation line broke the per-line bullet check for the whole
+    Scope and Limitations block). Fixed by grouping each `- `-prefixed line with any
+    following non-`- `-prefixed, non-blank lines as ONE bullet unit, and only falling back to
+    treating the whole block as one unit when a non-blank line appears BEFORE any bullet has
+    started (i.e. the block genuinely isn't a bulleted list at all).
     """
     units: list[str] = []
     for block in re.split(r"\n\s*\n", prose_text):
         if not block.strip():
             continue
-        lines = block.splitlines()
-        if all(not line.strip() or line.lstrip().startswith("- ") for line in lines):
-            units.extend(line for line in lines if line.strip())
-        else:
+        lines = [line for line in block.splitlines() if line.strip()]
+        if not lines or not lines[0].lstrip().startswith("- "):
             units.append(block)
+            continue
+        bullets: list[str] = []
+        current: "list[str] | None" = None
+        for line in lines:
+            if line.lstrip().startswith("- "):
+                if current is not None:
+                    bullets.append("\n".join(current))
+                current = [line]
+            else:
+                current.append(line)
+        if current is not None:
+            bullets.append("\n".join(current))
+        units.extend(bullets)
     return units
 
 
