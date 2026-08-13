@@ -229,6 +229,28 @@ def _build_audit_grade_reasons(
     return reasons
 
 
+def _record_evidence_skip_durable(knowledge, filepath, reason: str) -> None:
+    """Durable record of a permanent evidence skip (MT030-2026-08-13).
+
+    A page skipped for "audit_fail" is re-skipped on every future refresh cycle
+    with no escalation beyond a log line -- this was the confirmed root cause of
+    PDF-JAVA-REFRESH-003's one live evidence-staleness gap surviving unnoticed
+    across multiple refresh cycles. "draft" skips are correct, expected, non-
+    blocking behavior, but recording them too lets a reconciler distinguish
+    "known, accepted debt" from "nothing was ever checked". Non-fatal by design.
+    """
+    try:
+        from datetime import datetime, timezone
+        from knowledge_state import record_evidence_skip
+        record_evidence_skip(
+            knowledge.family, knowledge.platform, str(filepath),
+            reason=reason,
+            recorded_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        )
+    except Exception as _ks_exc:
+        _log(f"  WARNING: knowledge_state record_evidence_skip failed (non-fatal): {_ks_exc}")
+
+
 def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                     dry_run_records=None) -> str:
     """Build and write evidence block for one file. Returns status string.
@@ -243,6 +265,7 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     if fm.get("draft") is True:
         if dry_run_records is not None:
             _append_skip_record(dry_run_records, filepath, "draft")
+        _record_evidence_skip_durable(knowledge, filepath, "draft")
         return "SKIP (draft)"
 
     existing = fm.get("evidence") or {}
@@ -295,6 +318,7 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         if dry_run_records is not None:
             _append_skip_record(dry_run_records, filepath, f"audit FAILs ({len(fails)})",
                                 existing_claims=existing.get("claims", []))
+        _record_evidence_skip_durable(knowledge, filepath, "audit_fail")
         return "SKIP (audit FAILs)"
 
     # Map verified tokens → claim_ids via deterministic index (aggregate)

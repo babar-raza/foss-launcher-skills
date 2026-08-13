@@ -66,6 +66,19 @@ def reset_runner_config():
     er.configure()
 
 
+@pytest.fixture(autouse=True)
+def _isolate_knowledge_state(tmp_path, monkeypatch):
+    """MT030-2026-08-13: attach_evidence()'s skip branches now durably record via
+    knowledge_state.record_evidence_skip() -- never let this test file's fake
+    family/platform values ("cells/python" etc.) write to the real repo-root
+    data/knowledge_state.json. evidence/runner.py imports knowledge_state
+    unprefixed (matching its own sys.path setup), so patching the bare module
+    here (not lib.knowledge_state) intercepts the same object it resolves."""
+    import knowledge_state as ks
+    monkeypatch.setattr(ks, "_STATE_PATH", tmp_path / "knowledge_state.json")
+    monkeypatch.setattr(ks, "_LOCK_PATH", tmp_path / "knowledge_state.json.lock")
+
+
 # ---------------------------------------------------------------------------
 # Section 1 — CLI smoke tests via subprocess
 # ---------------------------------------------------------------------------
@@ -301,6 +314,54 @@ class TestAuditFailGate:
         assert counts.get("SKIP (audit FAILs)") == 1, f"Expected SKIP (audit FAILs): {counts}"
         text = f.read_text(encoding="utf-8")
         assert "evidence:" not in text, "Evidence block must NOT be written when FAILs present"
+
+    def test_audit_fail_skip_recorded_durably(self, tmp_path):
+        """MT030-2026-08-13: an audit-FAIL skip must be queryable via knowledge_state,
+        not just a stdout log line -- the confirmed root cause of PDF-JAVA-REFRESH-003's
+        one live evidence-staleness gap surviving unnoticed across refresh cycles."""
+        import evidence.runner as er
+        import knowledge_state as ks
+
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha005", family="pdf", platform="java")
+        fake_fail = SimpleNamespace(level="FAIL")
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "java"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [fake_fail],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+        )
+        er.attach_files([f])
+
+        state = ks.read_state("pdf", "java")
+        assert state is not None
+        skips = state["evidence_skips"]
+        assert str(f) in skips
+        assert skips[str(f)]["reason"] == "audit_fail"
+
+    def test_draft_skip_recorded_durably(self, tmp_path):
+        """A draft-page skip is expected, non-blocking behavior -- but recording it
+        too lets a reconciler tell 'known accepted debt' apart from 'never checked'."""
+        import evidence.runner as er
+        import knowledge_state as ks
+
+        f = tmp_path / "draft-page.md"
+        f.write_text("---\ntitle: Draft\ndraft: true\n---\n\n# Draft\n", encoding="utf-8")
+        fk = _FakeKnowledge(repo_sha="sha006", family="pdf", platform="java")
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "java"),
+            knowledge_fn=lambda f, p: fk,
+        )
+        er.attach_files([f])
+
+        state = ks.read_state("pdf", "java")
+        assert state is not None
+        assert state["evidence_skips"][str(f)]["reason"] == "draft"
 
 
 # ---------------------------------------------------------------------------
