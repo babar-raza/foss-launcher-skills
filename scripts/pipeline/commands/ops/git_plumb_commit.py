@@ -242,6 +242,85 @@ def _check_for_regressions(
     return uncovered
 
 
+_GIT_BASH_PATH: "str | None" = None
+_GIT_BASH_RESOLVED = False
+
+
+def _resolve_git_bash() -> "str | None":
+    """Find a real Git Bash executable, self-verified by actually running it --
+    not just trusting the first PATH hit for "bash".
+
+    Found live during TC-CIR-05's own test-writing (2026-08-14) and CONFIRMED as
+    environment-dependent, not a one-off, during independent verification of that
+    same fix: on Windows, `shutil.which("bash")` can resolve to
+    C:\\Windows\\System32\\bash.exe -- the WSL launcher stub, a real, separate git
+    installation inside the WSL filesystem -- instead of Git Bash, and WHICH one it
+    picks depends on the calling process's own PATH ordering, which differs between
+    a Git-Bash-launched process and a PowerShell-launched one on the very same
+    machine. GIT_INDEX_FILE (a Windows path) does not correctly redirect WSL git at
+    the isolated temp index, silently defeating this whole module's ST-021
+    isolation guarantee. A single `shutil.which("bash")` call -- what the first
+    version of this fix did -- is not sufficient on its own; this walks EVERY "bash"
+    found on PATH, in order, and returns the first one that actually reports itself
+    as MSYS/Git-Bash (not WSL/Linux) when run for real, caching the result for the
+    life of the process rather than re-probing on every call.
+    """
+    global _GIT_BASH_PATH, _GIT_BASH_RESOLVED
+    if _GIT_BASH_RESOLVED:
+        return _GIT_BASH_PATH
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+    path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+    exts = [""] + (os.environ.get("PATHEXT", "").split(os.pathsep) if os.name == "nt" else [])
+    for d in path_dirs:
+        for ext in (exts if os.name == "nt" else [""]):
+            candidate = os.path.join(d, "bash" + ext.lower()) if ext else os.path.join(d, "bash")
+            if os.path.isfile(candidate) and candidate not in seen:
+                seen.add(candidate)
+                candidates.append(candidate)
+    which_result = shutil.which("bash")
+    if which_result and which_result not in seen:
+        candidates.insert(0, which_result)
+    # Last-resort fallback: well-known Git-for-Windows install locations, checked
+    # even when Git's own bin/ isn't on PATH at all in the calling process -- found
+    # live: a PowerShell-launched process on this exact machine had NO Git
+    # directory on PATH whatsoever (not merely mis-ordered relative to the WSL
+    # stub), so a PATH-only search returns nothing to prefer over the stub.
+    for well_known in (
+        r"C:\Program Files\Git\usr\bin\bash.exe", r"C:\Program Files\Git\bin\bash.exe",
+        r"C:\Program Files (x86)\Git\usr\bin\bash.exe", r"C:\Program Files (x86)\Git\bin\bash.exe",
+    ):
+        if os.path.isfile(well_known) and well_known not in seen:
+            seen.add(well_known)
+            candidates.append(well_known)
+
+    for candidate in candidates:
+        # System32/SysWOW64 bash.exe is always the WSL launcher stub on Windows --
+        # skip without even probing it, both for speed and because probing it is
+        # exactly the slow (WSL boot) path that motivated caching in the first place.
+        normalized = candidate.replace("/", "\\").lower()
+        if "\\system32\\" in normalized or "\\syswow64\\" in normalized:
+            continue
+        try:
+            probe = _COMMAND_RUNNER(
+                [candidate, "-c", "uname -s"], capture_output=True, text=True, timeout=10,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        uname = probe.stdout.strip().lower()
+        if "mingw" in uname or "msys" in uname or "cygwin" in uname:
+            _GIT_BASH_PATH = candidate
+            _GIT_BASH_RESOLVED = True
+            return candidate
+        # Explicitly NOT accepted: "linux" (WSL), anything else unrecognized --
+        # fail closed to the next candidate rather than guessing.
+
+    _GIT_BASH_RESOLVED = True
+    _GIT_BASH_PATH = None
+    return None
+
+
 def _run_tier1_checks(
     tmp_index_path: str, message: str, *, repo_root: Path,
 ) -> "subprocess.CompletedProcess | None":
@@ -275,16 +354,25 @@ def _run_tier1_checks(
     script = repo_root / "scripts" / "pre-commit-audit.sh"
     if not script.exists():
         return None
-    # Resolve bash to an explicit path -- found live writing this fix's own tests:
-    # on Windows, invoking the bare string "bash" can silently resolve to WSL's
-    # bash.exe (a different filesystem, a different git installation, a different
-    # environment-variable translation) instead of Git Bash, even when
-    # shutil.which("bash") itself correctly reports the Git Bash path. Under WSL
-    # bash, GIT_INDEX_FILE (a Windows path) does not correctly redirect WSL git at
-    # the isolated temp index, silently defeating this whole function's ST-021
-    # isolation guarantee -- confirmed live via a test that staged an unrelated
-    # file in the real index and found the fake check script could still see it.
-    bash_path = shutil.which("bash") or "bash"
+    # Resolve bash to a SELF-VERIFIED Git Bash (see _resolve_git_bash) -- a bare
+    # shutil.which("bash") result is not trustworthy on Windows (see that
+    # function's docstring for the confirmed, environment-dependent failure mode).
+    bash_path = _resolve_git_bash()
+    if bash_path is None:
+        # Fail LOUD, not silent -- this differs from the missing-script case
+        # above (expected in this tool's own test fixtures): here the check
+        # script genuinely exists but no way to safely run it was found. Matches
+        # this module's existing "missing check infrastructure must never block
+        # an otherwise-valid commit" policy, but a real operator needs to know
+        # their commits are silently missing Tier 1 coverage, not find out never.
+        print(
+            "WARNING: no working Git Bash found (only WSL/unrecognized bash "
+            "variants on PATH, or none at all) -- Tier 1 checks (scripts/"
+            "pre-commit-audit.sh) SKIPPED for this commit. Install Git for "
+            "Windows and ensure its bash precedes any WSL bash on PATH.",
+            file=sys.stderr,
+        )
+        return None
     env = {
         **os.environ,
         "GIT_INDEX_FILE": tmp_index_path,

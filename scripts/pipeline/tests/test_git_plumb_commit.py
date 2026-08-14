@@ -544,6 +544,43 @@ def _write_fake_precommit_script(work: Path, *, exit_code: int, extra_shell: str
     script.chmod(0o755)
 
 
+class TestGitBashResolver:
+    """Independent verification (2026-08-14) of TC-CIR-05's original fix found a
+    real, reproducible gap: shutil.which("bash") alone resolves to the WSL launcher
+    stub (C:\\Windows\\System32\\bash.exe) when the calling process's PATH doesn't
+    already favor Git's directories -- confirmed live via a genuine PowerShell-
+    launched process on the same machine that made pytest itself pass. These tests
+    exercise the real, live PATH/filesystem on whatever machine runs the suite --
+    no mocking of _resolve_git_bash's own logic, matching this file's convention."""
+
+    def test_resolves_a_real_working_git_bash(self):
+        gpc._GIT_BASH_RESOLVED = False  # bypass this-process's cached result
+        resolved = gpc._resolve_git_bash()
+        assert resolved is not None, "no working Git Bash found on this machine"
+        result = subprocess.run([resolved, "-c", "uname -s"], capture_output=True, text=True)
+        uname = result.stdout.strip().lower()
+        assert any(tag in uname for tag in ("mingw", "msys", "cygwin")), (
+            f"resolved bash reported uname -s = {uname!r} -- not a recognized Git-Bash variant"
+        )
+
+    def test_never_resolves_to_a_system32_or_syswow64_stub(self):
+        gpc._GIT_BASH_RESOLVED = False
+        resolved = gpc._resolve_git_bash()
+        if resolved is not None:
+            normalized = resolved.replace("/", "\\").lower()
+            assert "\\system32\\" not in normalized
+            assert "\\syswow64\\" not in normalized
+
+    def test_result_is_cached_across_calls(self, monkeypatch):
+        gpc._GIT_BASH_RESOLVED = False
+        first = gpc._resolve_git_bash()
+        # Mutate PATH after the first call -- a cached second (uncleared) call must
+        # return the same answer, not re-probe against the now-broken PATH.
+        monkeypatch.setenv("PATH", r"C:\WINDOWS\system32")
+        second = gpc._resolve_git_bash()
+        assert second == first
+
+
 class TestTier1Checks:
 
     def test_missing_precommit_script_fails_open(self, tmp_path):
