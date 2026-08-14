@@ -52,6 +52,48 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 | `--triage-unknowns` | off | Also classify UNKNOWN_CLASS WARN findings in code blocks |
 | `--dry-run` | off | Inspect and classify only; do not invoke fix skills |
 
+## Official execution contract
+
+RC-W1-006 (MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1): a blind-spot audit confirmed this
+skill had NO deterministic CLI/backing script anywhere in the repo -- the one real, live
+component, `commands/launch/publish_classifier.py`, is a pure function of the PERSISTED
+frontmatter `grade:` field, with nothing enforcing that the persisted grade was actually
+current. Confirmed live on words/python: `Document.md` and `Table.md` both carried
+`grade: A` with no way to tell the grade was stale relative to the live
+`EVALUATOR_LOGIC_VERSION` -- a literal frontmatter-only read would have classified both
+PUBLISH-READY. Use the registered control plane for Steps 1-6 (page roster, staleness
+gate, classification, inspection manifest) instead of a literal frontmatter read:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/governance/publish_readiness_review_run.py \
+  {family} {platform} [--dry-run] [--format text|json]
+```
+
+Gates every page's persisted `grade` against BOTH the live `EVALUATOR_LOGIC_VERSION`
+(`content_eval/__init__.py`) and the current body content hash before trusting it for
+classification -- checking the external `reports/grade_manifest.json` (where
+`graded_logic_version` actually lives under the current ARCH-04/D-1 architecture; its
+absence from page frontmatter is expected for every page, not a staleness signal by
+itself) as well as any legacy `graded_logic_version` still present directly in
+frontmatter on pre-migration pages. A page whose grade cannot be verified fresh this way
+is classified STALE and never trusted for PUBLISH, regardless of its stored letter
+grade. For pages with a genuinely fresh grade, any tentative PUBLISH classification
+(`PUBLISH_READY`/`ACCEPTABLE_GRADE_C` in `publish_classifier`'s table) is additionally
+cross-checked against the most recent `reports/truth-audit/{family}-{platform}-*.json`
+and `reports/gap-analysis/{family}-{platform}.json`: a live UNSUPPORTED/CONTRADICTED/
+FABRICATED unit, or an open M/S-severity finding, downgrades the page to CONDITIONAL
+(or BLOCKED for CONTRADICTED/FABRICATED) -- signals the content-eval grade rubric alone
+never consumes. `--dry-run` and its absence both run the same read-only analysis; the
+only difference is whether `reports/publish-review/{family}-{platform}-{YYYYMMDD}/
+inspection-manifest.json` is written to disk (non-dry-run) or only printed (dry-run).
+This script never mutates `content/` or `knowledge/`.
+
+**Deferred, still agent-executed**: Step 7+ below (routing NEEDS-ACTION/STRUCTURAL-GAP/
+BLOCKED pages to S-21/S-26/batch-reference/S-65/S-38/S-73, re-evaluating actioned pages,
+and authoring `final-verdict.md`) has no backing script yet -- run those steps as
+governed inspection per the Steps section below, seeded by this script's classification
+output instead of a manual frontmatter read.
+
 ## Steps
 
 > **Skill context gate** — run before step 1:
