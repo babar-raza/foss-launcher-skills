@@ -1,0 +1,986 @@
+[
+  {
+    "format": "Source",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Bibliography/SourceReader.cs",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "Source",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Bibliography/SourceWriter.cs",
+    "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "IDocument",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Document/IDocumentReader.cs",
+    "line": 13,
+    "direction": "import"
+  },
+  {
+    "format": "IDocument",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Document/IDocumentWriter.cs",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "MsWorks",
+    "enum": "LoadFormat",
+    "value": "8",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Doc",
+    "enum": "LoadFormat",
+    "value": "10",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Dot",
+    "enum": "LoadFormat",
+    "value": "11",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "DocPreWord60",
+    "enum": "LoadFormat",
+    "value": "12",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Docx",
+    "enum": "LoadFormat",
+    "value": "20",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Docm",
+    "enum": "LoadFormat",
+    "value": "21",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Dotx",
+    "enum": "LoadFormat",
+    "value": "22",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Dotm",
+    "enum": "LoadFormat",
+    "value": "23",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "FlatOpc",
+    "enum": "LoadFormat",
+    "value": "24",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcMacroEnabled",
+    "enum": "LoadFormat",
+    "value": "25",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcTemplate",
+    "enum": "LoadFormat",
+    "value": "26",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcTemplateMacroEnabled",
+    "enum": "LoadFormat",
+    "value": "27",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Rtf",
+    "enum": "LoadFormat",
+    "value": "30",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "WordML",
+    "enum": "LoadFormat",
+    "value": "31",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "LoadFormat",
+    "value": "50",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Mhtml",
+    "enum": "LoadFormat",
+    "value": "51",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Mobi",
+    "enum": "LoadFormat",
+    "value": "52",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Chm",
+    "enum": "LoadFormat",
+    "value": "53",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Azw3",
+    "enum": "LoadFormat",
+    "value": "54",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Epub",
+    "enum": "LoadFormat",
+    "value": "55",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Odt",
+    "enum": "LoadFormat",
+    "value": "60",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Ott",
+    "enum": "LoadFormat",
+    "value": "61",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Text",
+    "enum": "LoadFormat",
+    "value": "62",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Markdown",
+    "enum": "LoadFormat",
+    "value": "63",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Pdf",
+    "enum": "LoadFormat",
+    "value": "64",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 14,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "TestDocxDml",
+    "enum": "LoadFormatTest",
+    "value": "254",
+    "file": "Aspose.Words/Model/Document/LoadFormat.cs",
+    "line": 146,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Doc",
+    "enum": "SaveFormat",
+    "value": "10",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Dot",
+    "enum": "SaveFormat",
+    "value": "11",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Docx",
+    "enum": "SaveFormat",
+    "value": "20",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Docm",
+    "enum": "SaveFormat",
+    "value": "21",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Dotx",
+    "enum": "SaveFormat",
+    "value": "22",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Dotm",
+    "enum": "SaveFormat",
+    "value": "23",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "FlatOpc",
+    "enum": "SaveFormat",
+    "value": "24",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcMacroEnabled",
+    "enum": "SaveFormat",
+    "value": "25",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcTemplate",
+    "enum": "SaveFormat",
+    "value": "26",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "FlatOpcTemplateMacroEnabled",
+    "enum": "SaveFormat",
+    "value": "27",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Rtf",
+    "enum": "SaveFormat",
+    "value": "30",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "WordML",
+    "enum": "SaveFormat",
+    "value": "31",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "40",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Xps",
+    "enum": "SaveFormat",
+    "value": "41",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "XamlFixed",
+    "enum": "SaveFormat",
+    "value": "42",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Svg",
+    "enum": "SaveFormat",
+    "value": "44",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "HtmlFixed",
+    "enum": "SaveFormat",
+    "value": "45",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "OpenXps",
+    "enum": "SaveFormat",
+    "value": "46",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Ps",
+    "enum": "SaveFormat",
+    "value": "47",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pcl",
+    "enum": "SaveFormat",
+    "value": "48",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "SaveFormat",
+    "value": "50",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Mhtml",
+    "enum": "SaveFormat",
+    "value": "51",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Epub",
+    "enum": "SaveFormat",
+    "value": "52",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Azw3",
+    "enum": "SaveFormat",
+    "value": "53",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Mobi",
+    "enum": "SaveFormat",
+    "value": "54",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Odt",
+    "enum": "SaveFormat",
+    "value": "60",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Ott",
+    "enum": "SaveFormat",
+    "value": "61",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Text",
+    "enum": "SaveFormat",
+    "value": "70",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "XamlFlow",
+    "enum": "SaveFormat",
+    "value": "71",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "XamlFlowPack",
+    "enum": "SaveFormat",
+    "value": "72",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "SaveFormat",
+    "value": "73",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Xlsx",
+    "enum": "SaveFormat",
+    "value": "80",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Docling",
+    "enum": "SaveFormat",
+    "value": "81",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Tiff",
+    "enum": "SaveFormat",
+    "value": "100",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Bmp",
+    "enum": "SaveFormat",
+    "value": "102",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Emf",
+    "enum": "SaveFormat",
+    "value": "103",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Jpeg",
+    "enum": "SaveFormat",
+    "value": "104",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Gif",
+    "enum": "SaveFormat",
+    "value": "105",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Eps",
+    "enum": "SaveFormat",
+    "value": "106",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 18,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "UseDestinationStyles",
+    "enum": "ImportFormatMode",
+    "value": "",
+    "file": "Aspose.Words/Model/Importing/ImportFormatMode.cs",
+    "line": 56,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "KeepSourceFormatting",
+    "enum": "ImportFormatMode",
+    "value": "",
+    "file": "Aspose.Words/Model/Importing/ImportFormatMode.cs",
+    "line": 56,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "KeepDifferentStyles",
+    "enum": "ImportFormatMode",
+    "value": "",
+    "file": "Aspose.Words/Model/Importing/ImportFormatMode.cs",
+    "line": 56,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Node",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Importing/NodeImporter.cs",
+    "line": 67,
+    "direction": "import"
+  },
+  {
+    "format": "Svg",
+    "enum": "HtmlMetafileFormat",
+    "value": "1",
+    "file": "Aspose.Words/Model/Saving/HtmlMetafileFormat.cs",
+    "line": 9,
+    "direction": "detect"
+  },
+  {
+    "format": "EmfOrWmf",
+    "enum": "HtmlMetafileFormat",
+    "value": "2",
+    "file": "Aspose.Words/Model/Saving/HtmlMetafileFormat.cs",
+    "line": 9,
+    "direction": "detect"
+  },
+  {
+    "format": "Docx",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Docx/Reader/DocxReader.cs",
+    "line": 20,
+    "direction": "import"
+  },
+  {
+    "format": "Docx",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Docx/Reader/DocxReaderFactory.cs",
+    "line": 17,
+    "direction": "import"
+  },
+  {
+    "format": "Docx",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Docx/Writer/DocxWriter.cs",
+    "line": 27,
+    "direction": "export"
+  },
+  {
+    "format": "Theme",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Docx/Writer/ThemeWriter.cs",
+    "line": 17,
+    "direction": "export"
+  },
+  {
+    "format": "Fragment",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Factories/FragmentWriterFactory.cs",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "Css",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Html/Css/CssReader.cs",
+    "line": 14,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Html/Reader/HtmlReader.cs",
+    "line": 36,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Markdown/Reader/MarkdownReader.cs",
+    "line": 14,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Markdown/Writer/MarkdownWriter.cs",
+    "line": 19,
+    "direction": "export"
+  },
+  {
+    "format": "Odt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Odt/Reader/OdtReader.cs",
+    "line": 12,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Forms2Pr",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Ole/ActiveX/Forms2/Forms2PrReader.cs",
+    "line": 15,
+    "direction": "import"
+  },
+  {
+    "format": "Forms2Pr",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Ole/ActiveX/Forms2/Forms2PrWriter.cs",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "Txt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Txt/Reader/TxtReader.cs",
+    "line": 17,
+    "direction": "import"
+  },
+  {
+    "format": "Txt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Txt/Writer/TxtWriter.cs",
+    "line": 21,
+    "direction": "export"
+  },
+  {
+    "format": "Latin",
+    "enum": "DmlFontType",
+    "value": "",
+    "file": "Aspose.Words/Model/Drawing/Core/Dml/Text/DmlFontType.cs",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "EastAsian",
+    "enum": "DmlFontType",
+    "value": "",
+    "file": "Aspose.Words/Model/Drawing/Core/Dml/Text/DmlFontType.cs",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "Symbol",
+    "enum": "DmlFontType",
+    "value": "",
+    "file": "Aspose.Words/Model/Drawing/Core/Dml/Text/DmlFontType.cs",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "ComplexScript",
+    "enum": "DmlFontType",
+    "value": "",
+    "file": "Aspose.Words/Model/Drawing/Core/Dml/Text/DmlFontType.cs",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "Chm",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/ChmLoadOptions.cs",
+    "line": 10,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/HtmlLoadOptions.cs",
+    "line": 12,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/MarkdownLoadOptions.cs",
+    "line": 14,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/PdfLoadOptions.cs",
+    "line": 10,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Rtf",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/RtfLoadOptions.cs",
+    "line": 12,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Txt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Loading/TxtLoadOptions.cs",
+    "line": 12,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Saving/HtmlSaveOptions.cs",
+    "line": 17,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Saving/MarkdownSaveOptions.cs",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "Ooxml",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Saving/OoxmlSaveOptions.cs",
+    "line": 14,
+    "direction": "export"
+  },
+  {
+    "format": "Txt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Saving/TxtSaveOptions.cs",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "XPS",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/Model/Document/SaveFormat.cs",
+    "line": 99,
+    "direction": "import"
+  },
+  {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Dml/Reader/DmlDrawingReader.cs",
+    "line": 152,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Dml/Reader/DmlExtensionListReader.cs",
+    "line": 110,
+    "direction": "import"
+  },
+  {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Dml/Writer/DmlDrawingWriter.cs",
+    "line": 106,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Dml/Writer/DmlExtensionListWriter.cs",
+    "line": 91,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Html/Reader/HtmlBlockReader.cs",
+    "line": 210,
+    "direction": "import",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Markdown/Writer/MarkdownParagraphWriter.cs",
+    "line": 395,
+    "direction": "export",
+    "functional": false
+  },
+  {
+    "format": "Docx",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Vml/VmlOleReader.cs",
+    "line": 27,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Ole/OleUtil.cs",
+    "line": 67,
+    "direction": "import"
+  },
+  {
+    "format": "Ico",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.Words/RW/Ole/OleUtil.cs",
+    "line": 618,
+    "direction": "import"
+  }
+]

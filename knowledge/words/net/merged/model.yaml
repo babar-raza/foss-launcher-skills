@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T12:09:20.004965+00:00'
+bundle_id: 9d075247-f58a-422f-a6a4-aa81af978199
+config_sha: 57d1f0a83e7eb176
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: words
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 34a12903d088dec6d77dc19623e2e1a7ba2ceb3c6aa6841868cdd7beb35a46f3
+  extractor_config_sha: 57d1f0a83e7eb176
+  products_json_entry_sha: 07ba14c0e40f30fca2058f42bd49c52aefab8ace78348e8e629e24d3b26a2b98
+  scout_api_surface_sha: 36c434687ada4e299b8352272c3b686af33f53301dca85e76326beb35d0b1d50
+  scout_claims_sha: d3956522442ea000a8dd8c51bca4b6a5aa8a0f1d7146b812d409046188e64c06
+license: ''
+platform: net
+product_name: Aspose.WORDS-FOSS for Net
+promoted_at: '2026-08-14T12:09:20.226802+00:00'
+repo_sha: 572fc748b45fe5efce5d93d0684c5ac78fc8affe
+repo_url: https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-.NET.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 617
+  enriched_claims: 911
+  forbidden_count: 32
+  scout_claims: 4136
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 5028
+version: ''
