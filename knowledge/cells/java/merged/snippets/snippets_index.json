@@ -1,0 +1,2473 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generate_test_resources",
+    "source_line": 46,
+    "classes_used": [
+      "Chart",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generateAutofilterXlsx",
+    "source_line": 63,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.setRange",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "resolveClasspathInput",
+    "source_line": 77,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "writeBytes",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "saveWorkbook",
+    "source_line": 87,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generateTableXlsx",
+    "source_line": 91,
+    "classes_used": [
+      "Cell",
+      "Column",
+      "Row",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.close"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "writePoi",
+    "source_line": 114,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generateCompareXlsx",
+    "source_line": 119,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Picture",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getPictures"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generateShapeXlsx",
+    "source_line": 126,
+    "classes_used": [
+      "AutoShapeType",
+      "Shape",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.getWorksheets",
+      "Worksheet.getShapes"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AResourceGeneratorTest.java",
+    "source_function": "generateChartDirs",
+    "source_line": 132,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Column",
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_01_newWorksheetHasEmptyRange",
+    "source_line": 18,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getRange",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_02_setRangePersists",
+    "source_line": 29,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getRange",
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_03_setRangeNullClearsRange",
+    "source_line": 40,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getRange",
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_04_clearResetsRangeAndColumns",
+    "source_line": 53,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.clear",
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.getRange",
+      "AutoFilter.setRange",
+      "FilterColumn.clear",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_10_addFilterColumnReturnsIndex",
+    "source_line": 72,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_11_filterColumnsInsertedInSortedOrder",
+    "source_line": 85,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFieldIndex",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_12_duplicateColumnIndexThrows",
+    "source_line": 101,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_13_removeAtFilterColumnDecrementsCount",
+    "source_line": 114,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFieldIndex",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_14_filterColumnsClearRemovesAll",
+    "source_line": 129,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.clear",
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.clear",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_15_filterColumnGetOutOfRangeThrows",
+    "source_line": 143,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_16_filterColumnRemoveAtOutOfRangeThrows",
+    "source_line": 154,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_17_negativeColumnIndexThrows",
+    "source_line": 165,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_20_addFilterValueReturnsIndex",
+    "source_line": 180,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_21_multipleFilterValuesAddedAndRetrieved",
+    "source_line": 194,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "FilterValueCollection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "FilterValueCollection.add",
+      "FilterValueCollection.get",
+      "FilterValueCollection.getCount",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_22_filterValueRemoveAtShiftsEntries",
+    "source_line": 214,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "FilterValueCollection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "FilterValueCollection.add",
+      "FilterValueCollection.get",
+      "FilterValueCollection.getCount",
+      "FilterValueCollection.removeAt",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_23_filterValueClearRemovesAll",
+    "source_line": 232,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "FilterValueCollection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.clear",
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.clear",
+      "FilterColumn.getFilters",
+      "FilterValueCollection.add",
+      "FilterValueCollection.clear",
+      "FilterValueCollection.get",
+      "FilterValueCollection.getCount",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_24_blankFilterValueAccepted",
+    "source_line": 249,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "FilterValueCollection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "FilterValueCollection.add",
+      "FilterValueCollection.get",
+      "FilterValueCollection.getCount",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_30_addSingleCustomFilter",
+    "source_line": 268,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilter.getOperator",
+      "AutoFilterCustomFilter.getValue",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_31_twoCustomFiltersWithOrLogic",
+    "source_line": 286,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterCustomFilterCollection.isMatchAll",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_32_twoCustomFiltersWithAndLogic",
+    "source_line": 303,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterCustomFilterCollection.isMatchAll",
+      "AutoFilterCustomFilterCollection.setMatchAll",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_33_thirdCustomFilterThrows",
+    "source_line": 321,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "Cells.get",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_34_setOperatorOnCustomFilter",
+    "source_line": 338,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilter.getOperator",
+      "AutoFilterCustomFilter.setOperator",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_35_setValueOnCustomFilter",
+    "source_line": 354,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilter.getValue",
+      "AutoFilterCustomFilter.setValue",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_36_customFilterClearResetsState",
+    "source_line": 370,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.clear",
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.clear",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterCustomFilterCollection.isMatchAll",
+      "AutoFilterCustomFilterCollection.setMatchAll",
+      "AutoFilterModel.clear",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.clear",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_37_blankCustomFilterValueAccepted",
+    "source_line": 389,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_40_dynamicFilterDefaultDisabled",
+    "source_line": 409,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getDynamicFilter",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_41_setTypeEnablesDynamicFilter",
+    "source_line": 421,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterDynamicFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterDynamicFilter.getType",
+      "AutoFilterDynamicFilter.isEnabled",
+      "AutoFilterDynamicFilter.setType",
+      "FilterColumn.getDynamicFilter",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_42_setEnabledFalseDisablesDynamicFilter",
+    "source_line": 437,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterDynamicFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterDynamicFilter.isEnabled",
+      "AutoFilterDynamicFilter.setEnabled",
+      "AutoFilterDynamicFilter.setType",
+      "FilterColumn.getDynamicFilter",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_50_top10DefaultDisabled",
+    "source_line": 458,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_51_setTopEnablesTop10Filter",
+    "source_line": 470,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.isEnabled",
+      "AutoFilterTop10.isTop",
+      "AutoFilterTop10.setTop",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_52_setPercentSetsPercentFlag",
+    "source_line": 486,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.isEnabled",
+      "AutoFilterTop10.isPercent",
+      "AutoFilterTop10.setPercent",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_53_setValuePersistsAndEnables",
+    "source_line": 502,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.getValue",
+      "AutoFilterTop10.isEnabled",
+      "AutoFilterTop10.setValue",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_54_top10ClearDisablesFilter",
+    "source_line": 518,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.clear",
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.clear",
+      "AutoFilterTop10.isEnabled",
+      "AutoFilterTop10.setValue",
+      "FilterColumn.clear",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_60_rangeRoundtripsViaXlsx",
+    "source_line": 538,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getRange",
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_61_filterColumnIndexRoundtripsViaXlsx",
+    "source_line": 554,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFieldIndex",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_62_filterValuesRoundtripViaXlsx",
+    "source_line": 573,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "FilterValueCollection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "FilterValueCollection.add",
+      "FilterValueCollection.get",
+      "FilterValueCollection.getCount",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_63_customFilterSingleRoundtripsViaXlsx",
+    "source_line": 597,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilter.getOperator",
+      "AutoFilterCustomFilter.getValue",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_64_customFilterAndLogicRoundtripsViaXlsx",
+    "source_line": 621,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.getCount",
+      "AutoFilterCustomFilterCollection.isMatchAll",
+      "AutoFilterCustomFilterCollection.setMatchAll",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_65_top10RoundtripsViaXlsx",
+    "source_line": 647,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.getValue",
+      "AutoFilterTop10.isEnabled",
+      "AutoFilterTop10.isTop",
+      "AutoFilterTop10.setTop",
+      "AutoFilterTop10.setValue",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_70_xlsxContainsAutoFilterElement",
+    "source_line": 677,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_71_xlsxContainsFilterColumnElement",
+    "source_line": 693,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_72_xlsxContainsFilterValueElements",
+    "source_line": 711,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.getFilters",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_73_xlsxContainsCustomFiltersElement",
+    "source_line": 732,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_74_xlsxAndCombinedCustomFiltersHaveAndAttribute",
+    "source_line": 753,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterModel",
+      "Column",
+      "FilterColumn",
+      "FilterOperatorType",
+      "OperatorType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterCustomFilterCollection.add",
+      "AutoFilterCustomFilterCollection.get",
+      "AutoFilterCustomFilterCollection.setMatchAll",
+      "AutoFilterModel.getFilterColumns",
+      "AutoFilterModel.setRange",
+      "FilterColumn.getCustomFilters",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_75_xlsxContainsTop10Element",
+    "source_line": 776,
+    "classes_used": [
+      "AutoFilter",
+      "AutoFilterTop10",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "AutoFilterTop10.setTop",
+      "AutoFilterTop10.setValue",
+      "FilterColumn.getTop10",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/AutoFilterTest.java",
+    "source_function": "AF_76_xlsxContainsHiddenButtonAttribute",
+    "source_line": 799,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.getFilterColumns",
+      "AutoFilter.setRange",
+      "FilterColumn.setDropdownVisible",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_01_putValueString",
+    "source_line": 26,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_02_putValueInt",
+    "source_line": 38,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_03_putValueDouble",
+    "source_line": 50,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_04_putValueBooleanTrue",
+    "source_line": 62,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_05_putValueBooleanFalse",
+    "source_line": 74,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_06_putValueLocalDateTime",
+    "source_line": 86,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_07_setValueNullClearsCell",
+    "source_line": 99,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.getType",
+      "Cell.putValue",
+      "Cell.setValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_08_setValueObjectDispatches",
+    "source_line": 112,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.setValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_10_setFormulaWithoutEqualNormalised",
+    "source_line": 129,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_11_setFormulaWithEqualAccepted",
+    "source_line": 140,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_12_getTypeReturnsFormulaAfterFormulaSet",
+    "source_line": 151,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_13_cachedFormulaValuePersists",
+    "source_line": 163,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_14_clearFormulaViaEmptyString",
+    "source_line": 176,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.getType",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_20_integerFormatsWithoutDecimal",
+    "source_line": 194,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_21_doubleFormatsWithDecimal",
+    "source_line": 205,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_22_booleanTrueFormatsAsTRUE",
+    "source_line": 216,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_23_booleanFalseFormatsAsFALSE",
+    "source_line": 227,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_24_blankCellStringValueIsEmpty",
+    "source_line": 238,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_25_largeDoubleScientificNotation",
+    "source_line": 248,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_30_getCellsGetStringAcceptsA1Notation",
+    "source_line": 265,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_31_getCellsGetRowColAcceptsZeroBased",
+    "source_line": 276,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_32_invalidAddressThrowsCellsException",
+    "source_line": 288,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_40_stringRoundTripsThroughXlsx",
+    "source_line": 302,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_41_integerRoundTripsWithoutBecomingDouble",
+    "source_line": 319,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_42_doubleRoundTrips",
+    "source_line": 337,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_43_booleanRoundTrips",
+    "source_line": 354,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_44_dateTimeRoundTrips1900System",
+    "source_line": 373,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_45_dateTimeRoundTrips1904System",
+    "source_line": 399,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getSettings",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_46_formulaTextRoundTrips",
+    "source_line": 424,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_47_multiSheetValuesRoundTrip",
+    "source_line": 442,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells",
+      "Worksheet.setName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CellValueTest.java",
+    "source_function": "CV_50_to_CV_59_integrationAllCellTypes",
+    "source_line": 467,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Workbook.save",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "formulaSetterAcceptsWithOrWithoutLeadingEqual",
+    "source_line": 25,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getFormula",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "valuePropertySetterMatchesSupportedScalarBehavior",
+    "source_line": 40,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getDisplayStringValue",
+      "Cell.getType",
+      "Cell.getValue",
+      "Cell.setValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "publicTypeMappingMatchesCellValueTypes",
+    "source_line": 60,
+    "classes_used": [
+      "Cell",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getType",
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "stringValueFormatsCorrectly",
+    "source_line": 83,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.getStringValue",
+      "Cell.putValue",
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "workbookDate1904SettingRoundTrips",
+    "source_line": 104,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.getSettings"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetCollectionAddAndGet",
+    "source_line": 121,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.getWorksheets",
+      "Worksheet.getName",
+      "Worksheet.setName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetCollectionActiveSheetName",
+    "source_line": 137,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.getWorksheets",
+      "Worksheet.setName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetNotFoundThrowsCellsException",
+    "source_line": 150,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.get",
+      "Workbook.getWorksheets"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "exceptionMappingUsesCellsExceptionTypes",
+    "source_line": 163,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "InvalidFileFormatException",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.get",
+      "Workbook.getWorksheets",
+      "Worksheet.getCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetViewMembersFollowSupportedPatterns",
+    "source_line": 178,
+    "classes_used": [
+      "Color",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Color.fromArgb",
+      "Workbook.getWorksheets",
+      "Worksheet.getRightToLeft",
+      "Worksheet.getShowGridlines",
+      "Worksheet.getShowRowColumnHeaders",
+      "Worksheet.getShowZeros",
+      "Worksheet.getTabColor",
+      "Worksheet.getZoom",
+      "Worksheet.setRightToLeft",
+      "Worksheet.setShowGridlines",
+      "Worksheet.setShowRowColumnHeaders",
+      "Worksheet.setShowZeros",
+      "Worksheet.setTabColor",
+      "Worksheet.setZoom"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetProtectionMembersFollowSupportedPatterns",
+    "source_line": 201,
+    "classes_used": [
+      "Cell",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.getWorksheets",
+      "Worksheet.getProtection",
+      "Worksheet.protect"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "worksheetSettingsScenarioInMemory",
+    "source_line": 224,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.java",
+    "source_file": "src/test/java/org/aspose/cells_foss/CompatibilityTest.java",
+    "source_function": "pageSetupMembersRoundTripInMemory",
+    "source_line": 238,
+    "classes_used": [
+      "PageSetup",
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

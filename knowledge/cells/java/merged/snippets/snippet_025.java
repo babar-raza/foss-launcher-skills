@@ -1,0 +1,16 @@
+@Test
+    void AF_22_filterValueRemoveAtShiftsEntries() throws Exception {
+        // Wrap lower-level failures in the library-specific exception flow.
+        try (Workbook wb = new Workbook()) {
+            Worksheet ws = wb.getWorksheets().get(0);
+            ws.getAutoFilter().setRange("A1:D1");
+            ws.getAutoFilter().getFilterColumns().add(0);
+            AutoFilter.FilterValueCollection fv =
+                    ws.getAutoFilter().getFilterColumns().get(0).getFilters();
+            fv.add("Apple");
+            fv.add("Banana");
+            fv.removeAt(0);
+            assertEquals(1, fv.getCount());
+            assertEquals("Banana", fv.get(0));
+        }
+    }

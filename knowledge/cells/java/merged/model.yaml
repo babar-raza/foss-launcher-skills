@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:48:31.952397+00:00'
+bundle_id: 3c952ce2-f085-43c8-ba58-3e8597d9353f
+config_sha: 5676a5ada3d9dda2
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: cells
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 7c3232cf4f751794ad429c78556e2e55b68b4c2d52393ee96ad732cece188645
+  extractor_config_sha: 5676a5ada3d9dda2
+  products_json_entry_sha: 40d0c0e29c1b435d5bead803736a482c723fe85a9b06227afc50e7665cb76595
+  scout_api_surface_sha: efa9935b8b7b8caf1b26628a8f72445929a9e2b9819d5f598f11a48cf1e7d9ba
+  scout_claims_sha: fee3477d6b7e854e742474781ee11b2249adc8c871378f6992394f7a09a918ad
+license: ''
+platform: java
+product_name: aspose-cells-foss
+promoted_at: '2026-08-14T11:48:32.160390+00:00'
+repo_sha: 779c9640ee38ed9e80c53e8db1e850f6be24372f
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 183
+  enriched_claims: 2109
+  forbidden_count: 8
+  scout_claims: 2869
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 4876
+version: 26.7.0

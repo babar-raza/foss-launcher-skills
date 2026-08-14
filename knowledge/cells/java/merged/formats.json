@@ -1,0 +1,30 @@
+[
+  {
+    "format": "XLSX",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/cells_foss/LoadFormat.java",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "XLSX",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/cells_foss/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "XLSX",
+    "enum": "",
+    "value": "xlsx",
+    "file": "src/main/java/com/aspose/cells_foss/Workbook.java",
+    "line": 167,
+    "direction": "both",
+    "functional": true,
+    "note": "Workbook(String) loads via XlsxWorkbookSerializer.load(); save() writes via XlsxWorkbookSerializer.save()"
+  }
+]
