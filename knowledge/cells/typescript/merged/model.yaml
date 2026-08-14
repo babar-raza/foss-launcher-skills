@@ -1,0 +1,21 @@
+family: cells
+platform: typescript
+product_name: '@aspose/cells'
+version: 1.0.0
+license: MIT
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git
+repo_sha: cabbb9d8ba2067854f7cb3dcdc4acfeec849747b
+config_sha: 5676a5ada3d9dda2
+stale_since: null
+promoted_at: '2026-08-12T11:46:42.301299+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+stats:
+  scout_claims: 775
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 740
+  class_count: 108
+  forbidden_count: 0
+  snippet_count: 26

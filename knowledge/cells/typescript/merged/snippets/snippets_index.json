@@ -1,0 +1,514 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.ts",
+    "source_file": "examples/auto_filter.ts",
+    "source_function": "testAutoFilter",
+    "source_line": 3,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.ts",
+    "source_file": "examples/auto_filter.ts",
+    "source_function": "testAutoFilterWithData",
+    "source_line": 31,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.ts",
+    "source_file": "examples/cell_values.ts",
+    "source_function": "testCellValues",
+    "source_line": 3,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.ts",
+    "source_file": "examples/cell_values.ts",
+    "source_function": "testMixedValues",
+    "source_line": 63,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Workbook.load",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.ts",
+    "source_file": "examples/cell_values.ts",
+    "source_function": "testEdgeCases",
+    "source_line": 90,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.ts",
+    "source_file": "examples/data_validation.ts",
+    "source_function": "testDataValidation",
+    "source_line": 3,
+    "classes_used": [
+      "DataValidation",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.ts",
+    "source_file": "examples/data_validation.ts",
+    "source_function": "testNumberValidation",
+    "source_line": 22,
+    "classes_used": [
+      "DataValidation",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.ts",
+    "source_file": "examples/export.ts",
+    "source_function": "testhtmlExport",
+    "source_line": 3,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "html"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.ts",
+    "source_file": "examples/export.ts",
+    "source_function": "testhtmlImport",
+    "source_line": 20,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.load"
+    ],
+    "formats_referenced": [
+      "html"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.ts",
+    "source_file": "examples/export.ts",
+    "source_function": "testJsonExport",
+    "source_line": 31,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save",
+      "Workbook.toJson"
+    ],
+    "formats_referenced": [
+      "json"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.ts",
+    "source_file": "examples/export.ts",
+    "source_function": "testMarkdownExport",
+    "source_line": 51,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save",
+      "Workbook.toMarkdown"
+    ],
+    "formats_referenced": [
+      "markdown"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.ts",
+    "source_file": "examples/html_export.ts",
+    "source_function": "testHtmlExport",
+    "source_line": 8,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "html",
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.ts",
+    "source_file": "examples/html_export.ts",
+    "source_function": "testHtmlImport",
+    "source_line": 31,
+    "classes_used": [
+      "Cell",
+      "HtmlDocument",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "HtmlDocument.parse",
+      "HtmlDocument.toWorkbook",
+      "Worksheet.getCell"
+    ],
+    "formats_referenced": [
+      "html"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.ts",
+    "source_file": "examples/hyperlinks.ts",
+    "source_function": "testHyperlinks",
+    "source_line": 3,
+    "classes_used": [
+      "Cell",
+      "Hyperlink",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setHyperlink",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.ts",
+    "source_file": "examples/protection.ts",
+    "source_function": "testCellProtection",
+    "source_line": 3,
+    "classes_used": [
+      "Cell",
+      "Protection",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.ts",
+    "source_file": "examples/protection.ts",
+    "source_function": "testWorkbookProtection",
+    "source_line": 23,
+    "classes_used": [
+      "Protection",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.protect",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.ts",
+    "source_file": "examples/styles.ts",
+    "source_function": "testFontSettings",
+    "source_line": 3,
+    "classes_used": [
+      "Cell",
+      "Font",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.ts",
+    "source_file": "examples/styles.ts",
+    "source_function": "testFillSettings",
+    "source_line": 24,
+    "classes_used": [
+      "Cell",
+      "Fill",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.ts",
+    "source_file": "examples/styles.ts",
+    "source_function": "testBorderSettings",
+    "source_line": 42,
+    "classes_used": [
+      "Border",
+      "Cell",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.ts",
+    "source_file": "examples/styles.ts",
+    "source_function": "testAlignment",
+    "source_line": 62,
+    "classes_used": [
+      "Alignment",
+      "Cell",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.ts",
+    "source_file": "examples/worksheet_management.ts",
+    "source_function": "testWorksheetManagement",
+    "source_line": 3,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.load",
+      "Workbook.save",
+      "Worksheet.putValue"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.ts",
+    "source_file": "examples/worksheet_management.ts",
+    "source_function": "testWorksheetRename",
+    "source_line": 48,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.ts",
+    "source_file": "examples/worksheet_management.ts",
+    "source_function": "testWorksheetCopy",
+    "source_line": 58,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.save",
+      "Worksheet.putValue"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.ts",
+    "source_file": "examples/worksheet_management.ts",
+    "source_function": "testWorksheetAccess",
+    "source_line": 77,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 27,
+    "classes_used": [
+      "Cell",
+      "Font",
+      "Style",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Cell.setFormula",
+      "Cell.setStyle",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 58,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.putValue",
+      "Workbook.load",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  }
+]
