@@ -1,0 +1,2472 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.go",
+    "source_file": "_examples/acroform_build/main.go",
+    "source_function": "main",
+    "source_line": 13,
+    "classes_used": [
+      "ChoiceOption",
+      "Document",
+      "Field",
+      "Font",
+      "Form",
+      "HAlign",
+      "Page",
+      "PageFormat",
+      "RadioItem",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Form",
+      "Document.Page",
+      "Document.Save",
+      "Form.AddCheckbox",
+      "Form.AddComboBox",
+      "Form.AddListBox",
+      "Form.AddPushButton",
+      "Form.AddRadioGroup",
+      "Form.AddTextField",
+      "Form.Fields",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.go",
+    "source_file": "_examples/acroform_read/main.go",
+    "source_function": "main",
+    "source_line": 64,
+    "classes_used": [
+      "Field",
+      "Form"
+    ],
+    "methods_used": [
+      "Form.Fields",
+      "Form.NeedAppearances"
+    ],
+    "formats_referenced": [
+      "doc",
+      "json",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.go",
+    "source_file": "_examples/ai_alt_text/main.go",
+    "source_function": "main",
+    "source_line": 31,
+    "classes_used": [
+      "AIClient",
+      "Image",
+      "ImageDescriptionCopilot",
+      "ImageDescriptionOptions",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "ImageDescriptionCopilot.FillAltTexts"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.go",
+    "source_file": "_examples/ai_chat/main.go",
+    "source_function": "main",
+    "source_line": 33,
+    "classes_used": [
+      "AIClient",
+      "ChatCopilot",
+      "ChatOptions",
+      "Document",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "ChatCopilot.Ask"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.go",
+    "source_file": "_examples/ai_make_searchable/main.go",
+    "source_function": "main",
+    "source_line": 31,
+    "classes_used": [
+      "AIClient",
+      "Document",
+      "LLMOCREngine",
+      "LLMOCROptions",
+      "OCREngine",
+      "OcrCopilot",
+      "OcrOptions",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "Document.Save",
+      "OcrCopilot.MakeSearchable"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.go",
+    "source_file": "_examples/ai_summary/main.go",
+    "source_function": "main",
+    "source_line": 30,
+    "classes_used": [
+      "AIClient",
+      "Document",
+      "OpenAIClient",
+      "OpenAIClientOptions",
+      "SummaryCopilot",
+      "SummaryOptions"
+    ],
+    "methods_used": [
+      "SummaryCopilot.GetSummary",
+      "SummaryCopilot.SaveSummary"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.go",
+    "source_file": "_examples/blank_with_images/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Image",
+      "Page",
+      "PageFormat",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.AddBlankPageFromFormat",
+      "Document.Page",
+      "Document.Save",
+      "Image.Save",
+      "Page.AddImage",
+      "Page.Size",
+      "PageFormat.Landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.go",
+    "source_file": "_examples/embed_font/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Font",
+      "Form",
+      "HAlign",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.LoadFont",
+      "Document.Page",
+      "Document.Save",
+      "Page.AddText",
+      "Page.Size"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.go",
+    "source_file": "_examples/feature_showcase/main.go",
+    "source_function": "main",
+    "source_line": 90,
+    "classes_used": [
+      "Annotation",
+      "BookletOptions",
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "DocumentInfo",
+      "Field",
+      "Flow",
+      "Font",
+      "Form",
+      "Image",
+      "NUpOptions",
+      "NamedDestination",
+      "NamedDestinations",
+      "Page",
+      "PageFormat",
+      "PageLabelRange",
+      "PageRange",
+      "Path",
+      "Row",
+      "SVG",
+      "Table",
+      "TableAbsorber",
+      "XMPProperty"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.AddBlankPage",
+      "Document.AddBlankPageFromFormat",
+      "Document.Booklet",
+      "Document.Extract",
+      "Document.NUp",
+      "Document.NamedDestinations",
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Pages",
+      "Document.Save",
+      "Document.SetInfo",
+      "Document.SetPageLabels",
+      "Document.SetXMP",
+      "Document.SubsetFonts",
+      "Document.SyncInfoToXMP",
+      "Document.XMP",
+      "Image.Save",
+      "NamedDestination.Page",
+      "NamedDestinations.Add",
+      "PageFormat.Landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.go",
+    "source_file": "_examples/markdown_to_pdf/main.go",
+    "source_function": "main",
+    "source_line": 23,
+    "classes_used": [
+      "Document",
+      "Font",
+      "MarkdownOptions",
+      "Page",
+      "RenderOptions"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Save",
+      "Page.RenderPNG"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.go",
+    "source_file": "_examples/metadata/main.go",
+    "source_function": "main",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.go",
+    "source_file": "_examples/openall/main.go",
+    "source_function": "main",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.go",
+    "source_file": "_examples/pdf_to_markdown/main.go",
+    "source_function": "main",
+    "source_line": 19,
+    "classes_used": [
+      "Image",
+      "MarkdownSaveOptions",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.go",
+    "source_file": "_examples/render/main.go",
+    "source_function": "main",
+    "source_line": 21,
+    "classes_used": [
+      "Page",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "tiff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.go",
+    "source_file": "_examples/set_password/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.go",
+    "source_file": "_examples/showcase_preview/main.go",
+    "source_function": "main",
+    "source_line": 26,
+    "classes_used": [
+      "Annotation",
+      "Image",
+      "Page",
+      "Point",
+      "RenderOptions",
+      "Row"
+    ],
+    "methods_used": [
+      "Annotation.Rect",
+      "Page.RenderImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.go",
+    "source_file": "_examples/text_extraction/main.go",
+    "source_function": "main",
+    "source_line": 11,
+    "classes_used": [
+      "Page"
+    ],
+    "methods_used": [
+      "Page.ExtractText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.go",
+    "source_file": "_examples/textsearch/main.go",
+    "source_function": "main",
+    "source_line": 36,
+    "classes_used": [
+      "Page",
+      "SearchOptions"
+    ],
+    "methods_used": [
+      "Page.SearchText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "json",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.go",
+    "source_file": "_examples/toc/main.go",
+    "source_function": "main",
+    "source_line": 16,
+    "classes_used": [
+      "Color",
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "Font",
+      "Form",
+      "OutlineItemCollection",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TOCOptions",
+      "Table",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.AddBlankPageFromFormat",
+      "Document.GenerateTOC",
+      "Document.Outlines",
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Save",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.go",
+    "source_file": "_examples/visualtest/main.go",
+    "source_function": "main",
+    "source_line": 45,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.go",
+    "source_file": "_examples/acroform_build/main.go",
+    "source_function": "main",
+    "source_line": 13,
+    "classes_used": [
+      "ChoiceOption",
+      "Document",
+      "Field",
+      "Font",
+      "Form",
+      "HAlign",
+      "Page",
+      "PageFormat",
+      "RadioItem",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Form",
+      "Document.Page",
+      "Document.Save",
+      "Form.AddCheckbox",
+      "Form.AddComboBox",
+      "Form.AddListBox",
+      "Form.AddPushButton",
+      "Form.AddRadioGroup",
+      "Form.AddTextField",
+      "Form.Fields",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.go",
+    "source_file": "_examples/acroform_read/main.go",
+    "source_function": "main",
+    "source_line": 64,
+    "classes_used": [
+      "Field",
+      "Form"
+    ],
+    "methods_used": [
+      "Form.Fields",
+      "Form.NeedAppearances"
+    ],
+    "formats_referenced": [
+      "doc",
+      "json",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.go",
+    "source_file": "_examples/ai_alt_text/main.go",
+    "source_function": "main",
+    "source_line": 31,
+    "classes_used": [
+      "AIClient",
+      "Image",
+      "ImageDescriptionCopilot",
+      "ImageDescriptionOptions",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "ImageDescriptionCopilot.FillAltTexts"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.go",
+    "source_file": "_examples/ai_chat/main.go",
+    "source_function": "main",
+    "source_line": 33,
+    "classes_used": [
+      "AIClient",
+      "ChatCopilot",
+      "ChatOptions",
+      "Document",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "ChatCopilot.Ask"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.go",
+    "source_file": "_examples/ai_make_searchable/main.go",
+    "source_function": "main",
+    "source_line": 31,
+    "classes_used": [
+      "AIClient",
+      "Document",
+      "LLMOCREngine",
+      "LLMOCROptions",
+      "OCREngine",
+      "OcrCopilot",
+      "OcrOptions",
+      "OpenAIClient",
+      "OpenAIClientOptions"
+    ],
+    "methods_used": [
+      "Document.Save",
+      "OcrCopilot.MakeSearchable"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.go",
+    "source_file": "_examples/ai_summary/main.go",
+    "source_function": "main",
+    "source_line": 30,
+    "classes_used": [
+      "AIClient",
+      "Document",
+      "OpenAIClient",
+      "OpenAIClientOptions",
+      "SummaryCopilot",
+      "SummaryOptions"
+    ],
+    "methods_used": [
+      "SummaryCopilot.GetSummary",
+      "SummaryCopilot.SaveSummary"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.go",
+    "source_file": "_examples/blank_with_images/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Image",
+      "Page",
+      "PageFormat",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.AddBlankPageFromFormat",
+      "Document.Page",
+      "Document.Save",
+      "Image.Save",
+      "Page.AddImage",
+      "Page.Size",
+      "PageFormat.Landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.go",
+    "source_file": "_examples/embed_font/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Font",
+      "Form",
+      "HAlign",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.LoadFont",
+      "Document.Page",
+      "Document.Save",
+      "Page.AddText",
+      "Page.Size"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.go",
+    "source_file": "_examples/feature_showcase/main.go",
+    "source_function": "main",
+    "source_line": 90,
+    "classes_used": [
+      "Annotation",
+      "BookletOptions",
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "DocumentInfo",
+      "Field",
+      "Flow",
+      "Font",
+      "Form",
+      "Image",
+      "NUpOptions",
+      "NamedDestination",
+      "NamedDestinations",
+      "Page",
+      "PageFormat",
+      "PageLabelRange",
+      "PageRange",
+      "Path",
+      "Row",
+      "SVG",
+      "Table",
+      "TableAbsorber",
+      "XMPProperty"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.AddBlankPage",
+      "Document.AddBlankPageFromFormat",
+      "Document.Booklet",
+      "Document.Extract",
+      "Document.NUp",
+      "Document.NamedDestinations",
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Pages",
+      "Document.Save",
+      "Document.SetInfo",
+      "Document.SetPageLabels",
+      "Document.SetXMP",
+      "Document.SubsetFonts",
+      "Document.SyncInfoToXMP",
+      "Document.XMP",
+      "Image.Save",
+      "NamedDestination.Page",
+      "NamedDestinations.Add",
+      "PageFormat.Landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.go",
+    "source_file": "_examples/markdown_to_pdf/main.go",
+    "source_function": "main",
+    "source_line": 23,
+    "classes_used": [
+      "Document",
+      "Font",
+      "MarkdownOptions",
+      "Page",
+      "RenderOptions"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Save",
+      "Page.RenderPNG"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.go",
+    "source_file": "_examples/metadata/main.go",
+    "source_function": "main",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.go",
+    "source_file": "_examples/openall/main.go",
+    "source_function": "main",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.go",
+    "source_file": "_examples/pdf_to_markdown/main.go",
+    "source_function": "main",
+    "source_line": 19,
+    "classes_used": [
+      "Image",
+      "MarkdownSaveOptions",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.go",
+    "source_file": "_examples/render/main.go",
+    "source_function": "main",
+    "source_line": 21,
+    "classes_used": [
+      "Page",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "tiff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.go",
+    "source_file": "_examples/set_password/main.go",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.go",
+    "source_file": "_examples/showcase_preview/main.go",
+    "source_function": "main",
+    "source_line": 26,
+    "classes_used": [
+      "Annotation",
+      "Image",
+      "Page",
+      "Point",
+      "RenderOptions",
+      "Row"
+    ],
+    "methods_used": [
+      "Annotation.Rect",
+      "Page.RenderImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.go",
+    "source_file": "_examples/text_extraction/main.go",
+    "source_function": "main",
+    "source_line": 11,
+    "classes_used": [
+      "Page"
+    ],
+    "methods_used": [
+      "Page.ExtractText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.go",
+    "source_file": "_examples/textsearch/main.go",
+    "source_function": "main",
+    "source_line": 36,
+    "classes_used": [
+      "Page",
+      "SearchOptions"
+    ],
+    "methods_used": [
+      "Page.SearchText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "json",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.go",
+    "source_file": "_examples/toc/main.go",
+    "source_function": "main",
+    "source_line": 16,
+    "classes_used": [
+      "Color",
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "Font",
+      "Form",
+      "OutlineItemCollection",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TOCOptions",
+      "Table",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.AddBlankPageFromFormat",
+      "Document.GenerateTOC",
+      "Document.Outlines",
+      "Document.Page",
+      "Document.PageCount",
+      "Document.Save",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.go",
+    "source_file": "_examples/visualtest/main.go",
+    "source_function": "main",
+    "source_line": 45,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleOpen",
+    "source_line": 22,
+    "classes_used": [
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleOpenWithPassword",
+    "source_line": 32,
+    "classes_used": [
+      "Document",
+      "EncryptionOptions",
+      "Form",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Document.PageCount",
+      "Document.SetEncryption",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleNewDocumentFromFormat",
+    "source_line": 50,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Page.Size"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExamplePage_AddText",
+    "source_line": 60,
+    "classes_used": [
+      "Document",
+      "Font",
+      "Form",
+      "HAlign",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle",
+      "VAlign"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.WriteTo",
+      "Page.AddText",
+      "Page.Size"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Split",
+    "source_line": 85,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.Split"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Extract",
+    "source_line": 99,
+    "classes_used": [
+      "Document",
+      "Page",
+      "PageRange"
+    ],
+    "methods_used": [
+      "Document.Extract",
+      "Document.PageCount"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Append",
+    "source_line": 116,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Append",
+      "Document.PageCount"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Rotate",
+    "source_line": 131,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.Rotate",
+      "Page.Rotation"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExamplePage_AddImage",
+    "source_line": 146,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Image",
+      "Page",
+      "PageFormat",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.WriteTo",
+      "Image.WriteTo",
+      "Page.AddImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleImageToDocument",
+    "source_line": 163,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.PageCount"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_ExtractText",
+    "source_line": 173,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.ExtractText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_AddSVGWatermark",
+    "source_line": 187,
+    "classes_used": [
+      "Document",
+      "SVG"
+    ],
+    "methods_used": [
+      "Document.AddSVGWatermark",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_AddTextWatermark",
+    "source_line": 204,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Font",
+      "HAlign",
+      "TextStyle",
+      "VAlign"
+    ],
+    "methods_used": [
+      "Document.AddTextWatermark"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_SetEncryption",
+    "source_line": 226,
+    "classes_used": [
+      "Document",
+      "EncryptionOptions",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Permissions"
+    ],
+    "methods_used": [
+      "Document.SetEncryption",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleValidate",
+    "source_line": 248,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleNewTable",
+    "source_line": 258,
+    "classes_used": [
+      "BorderInfo",
+      "BorderSide",
+      "Cell",
+      "Document",
+      "Font",
+      "Form",
+      "HAlign",
+      "MarginInfo",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "Row",
+      "Table",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Cell.SetTextStyle",
+      "Document.Page",
+      "Page.AddTable",
+      "Row.AddCell",
+      "Row.SetTextStyle",
+      "Table.AddRow",
+      "Table.AddRows",
+      "Table.RowCount"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExamplePage_DrawRectangle",
+    "source_line": 287,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Form",
+      "LineStyle",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "ShapeStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Page.DrawRectangle"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleNewLinkAnnotation",
+    "source_line": 307,
+    "classes_used": [
+      "Action",
+      "Annotation",
+      "Document",
+      "Form",
+      "GoToURIAction",
+      "LinkAnnotation",
+      "Page",
+      "PageFormat",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "LinkAnnotation.SetAction",
+      "Page.Annotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_GenerateTOC",
+    "source_line": 322,
+    "classes_used": [
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "Form",
+      "OutlineItemCollection",
+      "Page",
+      "PageFormat",
+      "TOCOptions",
+      "Table"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.AddBlankPageFromFormat",
+      "Document.GenerateTOC",
+      "Document.Outlines",
+      "Document.Page",
+      "Document.PageCount",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExamplePage_SearchText",
+    "source_line": 343,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.SearchText",
+      "Page.AddText",
+      "Page.SearchText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_ReplaceText",
+    "source_line": 358,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.ReplaceText",
+      "Page.AddText",
+      "Page.ReplaceText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleForm_AddTextField",
+    "source_line": 373,
+    "classes_used": [
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.Form",
+      "Field.SetValue",
+      "Field.Value",
+      "Form.AddTextField",
+      "Form.Field"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_NewFlow",
+    "source_line": 388,
+    "classes_used": [
+      "Document",
+      "Flow",
+      "FlowOptions",
+      "Form",
+      "Page",
+      "PageFormat",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.NewFlow",
+      "Flow.AddHeading",
+      "Flow.AddList",
+      "Flow.AddParagraph",
+      "Flow.Render"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Sign",
+    "source_line": 405,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat",
+      "SignOptions",
+      "Usage"
+    ],
+    "methods_used": [
+      "Document.Sign",
+      "Document.VerifySignatures",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleMarkdownToDocumentFromStream",
+    "source_line": 436,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.ExtractText",
+      "Document.Split"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_WriteMarkdown",
+    "source_line": 448,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.Split",
+      "Document.WriteMarkdown"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExamplePage_WriteSVG",
+    "source_line": 462,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Point",
+      "SVG",
+      "ShapeStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Page.DrawCircle",
+      "Page.WriteSVG"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_WriteHTML",
+    "source_line": 477,
+    "classes_used": [
+      "Document",
+      "Form",
+      "HTMLMode",
+      "HTMLSaveOptions",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.WriteHTML",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_RenderImage",
+    "source_line": 492,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Image",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "RenderOptions",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.RenderImage",
+      "Page.AddText",
+      "Page.RenderImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Optimize",
+    "source_line": 508,
+    "classes_used": [
+      "Document",
+      "Font",
+      "Form",
+      "OptimizationOptions",
+      "Page",
+      "PageFormat",
+      "Rectangle",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.LoadFont",
+      "Document.Optimize",
+      "Document.Page",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_Outlines",
+    "source_line": 527,
+    "classes_used": [
+      "Destination",
+      "DestinationFit",
+      "Document",
+      "Form",
+      "OutlineItemCollection",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "Document.Outlines",
+      "Document.Page",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.At",
+      "OutlineItemCollection.Count",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle",
+      "OutlineItemCollection.Title"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.go",
+    "source_file": "examples_test.go",
+    "source_function": "ExampleDocument_SetPageLabels",
+    "source_line": 543,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat",
+      "PageLabelRange"
+    ],
+    "methods_used": [
+      "Document.AddBlankPageFromFormat",
+      "Document.Page",
+      "Document.SetPageLabels",
+      "Page.Label"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 138,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 150,
+    "classes_used": [
+      "Page",
+      "PageRange"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 163,
+    "classes_used": [
+      "BookletOptions",
+      "NUpOptions",
+      "Row"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 190,
+    "classes_used": [
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 205,
+    "classes_used": [
+      "Page",
+      "PageSize"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 222,
+    "classes_used": [
+      "Page",
+      "PageLabelRange"
+    ],
+    "methods_used": [
+      "Page.Label"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 239,
+    "classes_used": [
+      "Document",
+      "DocumentInfo"
+    ],
+    "methods_used": [
+      "Document.ClearInfo",
+      "Document.Info",
+      "Document.Save",
+      "Document.SetInfo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 265,
+    "classes_used": [
+      "Document",
+      "XMPProperty"
+    ],
+    "methods_used": [
+      "Document.ClearXMP",
+      "Document.Save",
+      "Document.SetXMP",
+      "Document.SetXMPRaw",
+      "Document.SyncInfoToXMP",
+      "Document.XMP"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 291,
+    "classes_used": [
+      "Document",
+      "EncryptionOptions",
+      "Field",
+      "Permissions",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.AddTextWatermark",
+      "Document.ChangePassword",
+      "Document.Permissions",
+      "Document.RemoveEncryption",
+      "Document.Save",
+      "Document.SetEncryption",
+      "Document.SetPassword",
+      "Document.SetPermissions"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 354,
+    "classes_used": [
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "Rectangle",
+      "SignOptions",
+      "Usage"
+    ],
+    "methods_used": [
+      "Document.Save",
+      "Document.Sign",
+      "Document.VerifySignatures"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 419,
+    "classes_used": [
+      "ButtonField",
+      "CheckboxField",
+      "ComboBoxField",
+      "Field",
+      "Form",
+      "ListBoxField",
+      "RadioButtonField",
+      "TextBoxField"
+    ],
+    "methods_used": [
+      "ButtonField.SetValue",
+      "ButtonField.Value",
+      "CheckboxField.SetChecked",
+      "CheckboxField.SetValue",
+      "CheckboxField.Value",
+      "ComboBoxField.Options",
+      "ComboBoxField.SetSelected",
+      "ComboBoxField.SetValue",
+      "ComboBoxField.Value",
+      "Field.FullName",
+      "Field.SetValue",
+      "Field.Value",
+      "Form.Field",
+      "Form.Fields",
+      "ListBoxField.MultiSelect",
+      "ListBoxField.Options",
+      "ListBoxField.SetSelected",
+      "ListBoxField.SetValue",
+      "ListBoxField.Value",
+      "RadioButtonField.Options",
+      "RadioButtonField.SetValue",
+      "RadioButtonField.Value",
+      "TextBoxField.SetValue",
+      "TextBoxField.Value"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 459,
+    "classes_used": [
+      "Form",
+      "JSONExportOptions"
+    ],
+    "methods_used": [
+      "Form.ExportJSON",
+      "Form.ImportJSON"
+    ],
+    "formats_referenced": [
+      "doc",
+      "json",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 471,
+    "classes_used": [
+      "Field",
+      "Form"
+    ],
+    "methods_used": [
+      "Form.ExportFDF",
+      "Form.ExportXFDF",
+      "Form.ImportFDF",
+      "Form.ImportXFDF"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 481,
+    "classes_used": [
+      "ButtonAppearance",
+      "ChoiceOption",
+      "Color",
+      "Document",
+      "Field",
+      "FieldStyle",
+      "Form",
+      "Page",
+      "Path",
+      "RadioItem",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.Form",
+      "Document.Save",
+      "Field.SetStyle",
+      "Field.SetValue",
+      "Form.AddCheckbox",
+      "Form.AddComboBox",
+      "Form.AddPushButton",
+      "Form.AddRadioGroup",
+      "Form.AddTextField",
+      "Form.RemoveField"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 540,
+    "classes_used": [
+      "Color",
+      "Destination",
+      "DestinationFit",
+      "DestinationXYZ",
+      "OutlineItemCollection",
+      "Page"
+    ],
+    "methods_used": [
+      "Destination.Page",
+      "DestinationFit.Page",
+      "DestinationXYZ.Page",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.SetBold",
+      "OutlineItemCollection.SetColor",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 563,
+    "classes_used": [
+      "Destination",
+      "DestinationFit",
+      "DestinationFitH",
+      "NamedDestination",
+      "NamedDestinations",
+      "OutlineItemCollection"
+    ],
+    "methods_used": [
+      "NamedDestinations.Add",
+      "OutlineItemCollection.Add",
+      "OutlineItemCollection.SetDestination",
+      "OutlineItemCollection.SetTitle"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 578,
+    "classes_used": [
+      "TOCOptions",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 589,
+    "classes_used": [
+      "Page",
+      "Rectangle",
+      "TOCEntry",
+      "TOCOptions"
+    ],
+    "methods_used": [
+      "Page.AddTOC"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 613,
+    "classes_used": [
+      "BorderInfo",
+      "BorderSide",
+      "Cell",
+      "Color",
+      "Document",
+      "Font",
+      "HAlign",
+      "MarginInfo",
+      "Page",
+      "Rectangle",
+      "Row",
+      "Table",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Cell.SetBackground",
+      "Cell.SetHAlign",
+      "Document.Page",
+      "Document.Save",
+      "Page.AddTable",
+      "Row.AddCells",
+      "Row.Cells",
+      "Row.SetBackground",
+      "Table.AddRow"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 641,
+    "classes_used": [
+      "BorderInfo",
+      "BorderSide",
+      "Cell",
+      "HAlign",
+      "Rectangle",
+      "Row",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.SetColSpan",
+      "Cell.SetHAlign",
+      "Row.AddCell",
+      "Row.AddCells",
+      "Table.AddRow"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 666,
+    "classes_used": [
+      "Cell",
+      "Color",
+      "Image",
+      "Rectangle",
+      "Row",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.SetBackground",
+      "Cell.SetImage",
+      "Row.AddCell",
+      "Row.SetBackground",
+      "Table.AddRow",
+      "Table.AddRows"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 697,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Gradient",
+      "GradientStop",
+      "LineStyle",
+      "LinearGradient",
+      "Page",
+      "Path",
+      "Point",
+      "RadialGradient",
+      "Rectangle",
+      "ShapeStyle"
+    ],
+    "methods_used": [
+      "Document.Page",
+      "Document.Save",
+      "Page.DrawCircle",
+      "Page.DrawLine",
+      "Page.DrawPath",
+      "Page.DrawRectangle",
+      "Page.DrawRoundedRectangle"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 752,
+    "classes_used": [
+      "Page",
+      "Rectangle",
+      "SVG"
+    ],
+    "methods_used": [
+      "Page.AddSVG",
+      "Page.AddSVGObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 790,
+    "classes_used": [
+      "Font",
+      "SVG",
+      "SVGFontResolver"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 805,
+    "classes_used": [
+      "Annotation",
+      "Field",
+      "Form",
+      "Page"
+    ],
+    "methods_used": [
+      "Annotation.Flatten",
+      "Field.Flatten",
+      "Form.Field",
+      "Form.Flatten",
+      "Page.Annotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 826,
+    "classes_used": [
+      "Action",
+      "Annotation",
+      "AnnotationType",
+      "Color",
+      "Form",
+      "GoToURIAction",
+      "HighlightAnnotation",
+      "LinkAnnotation",
+      "Page",
+      "Point",
+      "QuadPoint",
+      "Rectangle",
+      "SubmitFormAction"
+    ],
+    "methods_used": [
+      "Annotation.AnnotationType",
+      "Annotation.SetColor",
+      "Annotation.SetContents",
+      "Annotation.SetTitle",
+      "GoToURIAction.URI",
+      "HighlightAnnotation.AnnotationType",
+      "HighlightAnnotation.SetQuadPoints",
+      "LinkAnnotation.Action",
+      "LinkAnnotation.AnnotationType",
+      "LinkAnnotation.SetAction",
+      "LinkAnnotation.SetHighlight",
+      "Page.Annotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  }
+]

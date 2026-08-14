@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:53:51.658937+00:00'
+bundle_id: a2148035-d467-42ae-8997-17859ae46690
+config_sha: e034fc744e7fe760
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: pdf
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 4e50cf199102a125e08889ca34a00bf2419560042e31fb70863bd04fa9d3a8cd
+  extractor_config_sha: e034fc744e7fe760
+  products_json_entry_sha: dc96dbb826949fce5985bf5c5ffe1e29e41ca3f6fb8b94622e516e515ef1536b
+  scout_api_surface_sha: f682827996eea11e58880fd8f4def79352e01c0935fd257864a7b18284ad393b
+  scout_claims_sha: 1b475f07e6a0a9b977e71d0a5a79b4a0ffc2ad292a7fc56d225585beb7af6064
+license: ''
+platform: go
+product_name: Aspose.PDF-FOSS for Go
+promoted_at: '2026-08-14T11:53:51.848397+00:00'
+repo_sha: 4a8d9cd1df39dce3f05d6ede8fb06c4ce39f2096
+repo_url: https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 215
+  enriched_claims: 1484
+  forbidden_count: 0
+  scout_claims: 3040
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 4356
+version: ''
