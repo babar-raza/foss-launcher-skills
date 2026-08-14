@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:52:56.017661+00:00'
+bundle_id: 45a39a59-e537-46ea-af38-9091d0803201
+config_sha: 8b1fe257c09be32f
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: 3d
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 84d8461368ed7c9aeb37a3a11534ba02d64c5bb1d80d06b99572d4bedc57949d
+  extractor_config_sha: 8b1fe257c09be32f
+  products_json_entry_sha: f4a5526c2fdeffa5bb97f32de1e45b379aa61d70f025a4628064ab247bd432c5
+  scout_api_surface_sha: 4299680528a47535d4897ad47ae00f2c876514b35839cf742805dd5e797b1466
+  scout_claims_sha: 7ef4309bbd361eb9ff7153c9e1ac88d3bc780481b98545a9b9fe6acf9354c63e
+license: ''
+platform: python
+product_name: aspose-3d-foss
+promoted_at: '2026-08-14T11:52:56.169369+00:00'
+repo_sha: ee05c1ba9153ef5916b7a108406c794f2e464d01
+repo_url: https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 327
+  enriched_claims: 1209
+  forbidden_count: 401
+  scout_claims: 2278
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 3452
+version: 26.1.0
