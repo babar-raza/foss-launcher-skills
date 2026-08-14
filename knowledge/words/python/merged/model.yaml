@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:59:57.200728+00:00'
+bundle_id: 7424ac35-8815-46d4-afda-fcda7767c984
+config_sha: 57d1f0a83e7eb176
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: words
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 849d2cf45c243df8e590c69b531920b6c0c20d821c6ba1e132e4e48547ebc8fb
+  extractor_config_sha: 57d1f0a83e7eb176
+  products_json_entry_sha: 79513621d553ae6a35f4e91d8590a34f35cfbcfdedd71d12bbf454621e421f36
+  scout_api_surface_sha: 0e600cd8fc0d32fdd6008633f68d4cdd42c5677bf42779ff234db99a24e57817
+  scout_claims_sha: f7642cac2f8bfe6f1bd3d9b8c6ed52a3b1d810d52d1065a2365d618e70017dbe
+license: MIT
+platform: python
+product_name: aspose-words-foss
+promoted_at: '2026-08-14T11:59:57.279251+00:00'
+repo_sha: 4473f8cbeef1a65961adc7de304d982ada53a1dd
+repo_url: https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 188
+  enriched_claims: 781
+  forbidden_count: 1
+  scout_claims: 1268
+  snippet_count: 33
+  supplemental_claims: 0
+  total_claims: 2048
+version: 26.7.0

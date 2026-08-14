@@ -1,0 +1,613 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "ApiExamples/convert_document.py",
+    "source_function": "test_all_conversions",
+    "source_line": 41,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "ApiExamples/convert_document.py",
+    "source_function": "test_get_text_from_all_formats",
+    "source_line": 48,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_document_from_file",
+    "source_line": 27,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_document_from_file_doc_format",
+    "source_line": 34,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream",
+    "source_line": 39,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream_doc_format",
+    "source_line": 47,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream_with_load_options",
+    "source_line": 53,
+    "classes_used": [
+      "Document",
+      "LoadFormat",
+      "LoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_bytes_io",
+    "source_line": 62,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_and_save",
+    "source_line": 71,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_load_markdown_from_bytes",
+    "source_line": 72,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_load_markdown_from_stream",
+    "source_line": 78,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_markdown_round_trip_preserves_source",
+    "source_line": 85,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_preserve_empty_lines",
+    "source_line": 105,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "Paragraph"
+    ],
+    "methods_used": [
+      "Paragraph.get_text"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "paragraph",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_save_markdown_with_base64_image_to_docx_and_pdf",
+    "source_line": 118,
+    "classes_used": [
+      "Document",
+      "ImageType",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "NodeType",
+      "SaveFormat",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.get_child_nodes",
+      "Shape.as_shape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "ApiExamples/working_with_images.py",
+    "source_function": "test_image_documents_to_all_formats",
+    "source_line": 38,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_export_underline_formatting",
+    "source_line": 28,
+    "classes_used": [
+      "MarkdownSaveOptions",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_set_encoding",
+    "source_line": 40,
+    "classes_used": [
+      "MarkdownSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_set_paragraph_break",
+    "source_line": 57,
+    "classes_used": [
+      "MarkdownSaveOptions",
+      "Paragraph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "paragraph"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_markdown_from_all_input_formats",
+    "source_line": 73,
+    "classes_used": [
+      "MarkdownSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_set_pretty_format",
+    "source_line": 29,
+    "classes_used": [
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_pretty_format_off",
+    "source_line": 47,
+    "classes_used": [
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_pretty_format_round_trip",
+    "source_line": 64,
+    "classes_used": [
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_set_compression_level",
+    "source_line": 84,
+    "classes_used": [
+      "CompressionLevel",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "ApiExamples/working_with_pdf_save_options.py",
+    "source_function": "test_pdf_from_all_input_formats",
+    "source_line": 28,
+    "classes_used": [
+      "PdfSaveOptions",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "rtf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "ApiExamples/working_with_pdf_save_options.py",
+    "source_function": "test_save_with_pdf_save_options",
+    "source_line": 41,
+    "classes_used": [
+      "PdfSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "ApiExamples/working_with_txt_save_options.py",
+    "source_function": "test_text_from_all_input_formats",
+    "source_line": 25,
+    "classes_used": [
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "ApiExamples/working_with_txt_save_options.py",
+    "source_function": "test_get_text",
+    "source_line": 36,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 41,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 50,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 59,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 68,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 77,
+    "classes_used": [
+      "Document",
+      "LoadFormat",
+      "LoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 92,
+    "classes_used": [
+      "CompressionLevel",
+      "Document",
+      "MarkdownSaveOptions",
+      "OoxmlSaveOptions",
+      "PdfSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "ooxml",
+      "paragraph",
+      "pdf",
+      "words"
+    ],
+    "provenance": "scout"
+  }
+]
