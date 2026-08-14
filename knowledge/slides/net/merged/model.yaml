@@ -1,0 +1,21 @@
+family: slides
+platform: net
+product_name: Aspose.SLIDES-FOSS for Net
+version: ''
+license: ''
+repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET.git
+repo_sha: bd19e16057b628310b4a04330585d366cb40e9b7
+config_sha: 58e5766a6f6833a4
+stale_since: null
+promoted_at: '2026-07-12T14:38:37.764768+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 2098
+  enriched_claims: 2090
+  supplemental_claims: 0
+  total_claims: 4176
+  class_count: 264
+  forbidden_count: 0
+  snippet_count: 100

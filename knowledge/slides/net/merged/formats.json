@@ -1,0 +1,225 @@
+[
+  {
+    "format": "Ppt",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Xps",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptx",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Ppsx",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Tiff",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Odp",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptm",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Ppsm",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Potx",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Potm",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Swf",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Otp",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pps",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pot",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Fodp",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Gif",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Html5",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Md",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Internal/Export/PptxExporter.cs",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/Internal/Export/PptxExporter.cs",
+    "line": 88,
+    "direction": "export"
+  },
+  {
+    "format": "Ppt",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/SourceFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptx",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/SourceFormat.cs",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Odp",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/Aspose.Slides.Foss/SourceFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  }
+]
