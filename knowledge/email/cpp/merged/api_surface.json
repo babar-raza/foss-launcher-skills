@@ -1,0 +1,2923 @@
+[
+  {
+    "name": "cfb_reader",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+    "line": 18,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "cfb_reader",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          }
+        ],
+        "return_type": "cfb_reader",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      },
+      {
+        "name": "from_bytes",
+        "params": [
+          {
+            "name": "data",
+            "type": "std::vector<std::uint8_t>"
+          }
+        ],
+        "return_type": "cfb_reader",
+        "doc": "",
+        "line": 25,
+        "is_constructor": false
+      },
+      {
+        "name": "from_buffer",
+        "params": [
+          {
+            "name": "data",
+            "type": "std::uint8_t"
+          },
+          {
+            "name": "size",
+            "type": "std::size_t"
+          }
+        ],
+        "return_type": "cfb_reader",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      },
+      {
+        "name": "header",
+        "params": [],
+        "return_type": "header",
+        "doc": "",
+        "line": 28,
+        "is_constructor": false
+      },
+      {
+        "name": "difat",
+        "params": [],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 29,
+        "is_constructor": false
+      },
+      {
+        "name": "fat",
+        "params": [],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false
+      },
+      {
+        "name": "mini_fat",
+        "params": [],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 31,
+        "is_constructor": false
+      },
+      {
+        "name": "directory_entries",
+        "params": [],
+        "return_type": "std::vector<directory_entry>",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "root_entry",
+        "params": [],
+        "return_type": "directory_entry",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "data_size",
+        "params": [],
+        "return_type": "std::size_t",
+        "doc": "",
+        "line": 34,
+        "is_constructor": false
+      },
+      {
+        "name": "directory_entry_count",
+        "params": [],
+        "return_type": "std::size_t",
+        "doc": "",
+        "line": 35,
+        "is_constructor": false
+      },
+      {
+        "name": "materialized_stream_count",
+        "params": [],
+        "return_type": "std::size_t",
+        "doc": "",
+        "line": 36,
+        "is_constructor": false
+      },
+      {
+        "name": "get_entry",
+        "params": [
+          {
+            "name": "stream_id",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "directory_entry",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "get_stream_data",
+        "params": [
+          {
+            "name": "stream_id",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 39,
+        "is_constructor": false
+      },
+      {
+        "name": "storage_ids",
+        "params": [],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 41,
+        "is_constructor": false
+      },
+      {
+        "name": "stream_ids",
+        "params": [],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 42,
+        "is_constructor": false
+      },
+      {
+        "name": "child_ids",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "std::vector<std::uint32_t>",
+        "doc": "",
+        "line": 43,
+        "is_constructor": false
+      },
+      {
+        "name": "find_child_by_name",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "std::uint32_t"
+          },
+          {
+            "name": "name",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "std::optional<std::uint32_t>",
+        "doc": "",
+        "line": 44,
+        "is_constructor": false
+      },
+      {
+        "name": "resolve_path",
+        "params": [
+          {
+            "name": "names",
+            "type": "std::vector<std::string>"
+          },
+          {
+            "name": "start_stream_id",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "std::optional<std::uint32_t>",
+        "doc": "",
+        "line": 45,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_reader"
+  },
+  {
+    "name": "cfb_writer",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_bytes",
+        "params": [
+          {
+            "name": "document",
+            "type": "cfb_document"
+          }
+        ],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false
+      },
+      {
+        "name": "write_file",
+        "params": [
+          {
+            "name": "document",
+            "type": "cfb_document"
+          },
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false
+      },
+      {
+        "name": "write_stream",
+        "params": [
+          {
+            "name": "document",
+            "type": "cfb_document"
+          },
+          {
+            "name": "stream",
+            "type": "std::ostream"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_writer"
+  },
+  {
+    "name": "msg_reader",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "msg_reader",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "msg_reader",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "cfb",
+        "params": [],
+        "return_type": "cfb::cfb_reader",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false
+      },
+      {
+        "name": "strict",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 22,
+        "is_constructor": false
+      },
+      {
+        "name": "validation_issues",
+        "params": [],
+        "return_type": "std::vector<std::string>",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_reader"
+  },
+  {
+    "name": "msg_writer",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_bytes",
+        "params": [
+          {
+            "name": "document",
+            "type": "msg_document"
+          }
+        ],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false
+      },
+      {
+        "name": "write_file",
+        "params": [
+          {
+            "name": "document",
+            "type": "msg_document"
+          },
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false
+      },
+      {
+        "name": "write_stream",
+        "params": [
+          {
+            "name": "document",
+            "type": "msg_document"
+          },
+          {
+            "name": "stream",
+            "type": "std::ostream"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_writer"
+  },
+  {
+    "name": "cfb_document",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+    "line": 16,
+    "bases": [],
+    "methods": [
+      {
+        "name": "root",
+        "params": [],
+        "return_type": "cfb_storage",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      },
+      {
+        "name": "root",
+        "params": [],
+        "return_type": "cfb_storage",
+        "doc": "",
+        "line": 27,
+        "is_constructor": false
+      },
+      {
+        "name": "major_version",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 29,
+        "is_constructor": false
+      },
+      {
+        "name": "set_major_version",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint16_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false
+      },
+      {
+        "name": "minor_version",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "set_minor_version",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint16_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "transaction_signature_number",
+        "params": [],
+        "return_type": "std::uint32_t",
+        "doc": "",
+        "line": 35,
+        "is_constructor": false
+      },
+      {
+        "name": "set_transaction_signature_number",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 36,
+        "is_constructor": false
+      },
+      {
+        "name": "from_reader",
+        "params": [
+          {
+            "name": "reader",
+            "type": "cfb_reader"
+          }
+        ],
+        "return_type": "cfb_document",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "cfb_document",
+        "doc": "",
+        "line": 39,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          }
+        ],
+        "return_type": "cfb_document",
+        "doc": "",
+        "line": 40,
+        "is_constructor": false
+      },
+      {
+        "name": "from_bytes",
+        "params": [
+          {
+            "name": "data",
+            "type": "std::vector<std::uint8_t>"
+          }
+        ],
+        "return_type": "cfb_document",
+        "doc": "",
+        "line": 41,
+        "is_constructor": false
+      },
+      {
+        "name": "from_buffer",
+        "params": [
+          {
+            "name": "data",
+            "type": "std::uint8_t"
+          },
+          {
+            "name": "size",
+            "type": "std::size_t"
+          }
+        ],
+        "return_type": "cfb_document",
+        "doc": "",
+        "line": 42,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_document"
+  },
+  {
+    "name": "cfb_exception",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_exception.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_exception"
+  },
+  {
+    "name": "cfb_node",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+    "line": 11,
+    "bases": [],
+    "methods": [
+      {
+        "name": "~cfb_node",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "node_kind",
+        "params": [],
+        "return_type": "kind",
+        "doc": "",
+        "line": 22,
+        "is_constructor": false
+      },
+      {
+        "name": "is_storage",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false
+      },
+      {
+        "name": "is_stream",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      },
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      },
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 27,
+        "is_constructor": false
+      },
+      {
+        "name": "clsid",
+        "params": [],
+        "return_type": "std::array<std::uint8_t, 16>",
+        "doc": "",
+        "line": 29,
+        "is_constructor": false
+      },
+      {
+        "name": "clsid",
+        "params": [],
+        "return_type": "std::array<std::uint8_t, 16>",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false
+      },
+      {
+        "name": "state_bits",
+        "params": [],
+        "return_type": "std::uint32_t",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "set_state_bits",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "creation_time",
+        "params": [],
+        "return_type": "std::uint64_t",
+        "doc": "",
+        "line": 35,
+        "is_constructor": false
+      },
+      {
+        "name": "set_creation_time",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint64_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 36,
+        "is_constructor": false
+      },
+      {
+        "name": "modified_time",
+        "params": [],
+        "return_type": "std::uint64_t",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "set_modified_time",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint64_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 39,
+        "is_constructor": false
+      },
+      {
+        "name": "clone",
+        "params": [],
+        "return_type": "std::unique_ptr<cfb_node>",
+        "doc": "",
+        "line": 41,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_node"
+  },
+  {
+    "name": "cfb_storage",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "cfb_storage",
+        "params": [],
+        "return_type": "cfb_storage",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false
+      },
+      {
+        "name": "cfb_storage",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "children",
+        "params": [],
+        "return_type": "std::vector<std::unique_ptr<cfb_node>>",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false
+      },
+      {
+        "name": "children",
+        "params": [],
+        "return_type": "std::vector<std::unique_ptr<cfb_node>>",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      },
+      {
+        "name": "add_storage",
+        "params": [
+          {
+            "name": "storage",
+            "type": "cfb_storage"
+          }
+        ],
+        "return_type": "cfb_storage",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      },
+      {
+        "name": "add_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "cfb_stream"
+          }
+        ],
+        "return_type": "cfb_stream",
+        "doc": "",
+        "line": 27,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "cfb_storage",
+        "type": "cfb_storage",
+        "doc": "Gets the cfb storage.",
+        "line": 21,
+        "writable": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_storage"
+  },
+  {
+    "name": "cfb_stream",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/cfb_stream.hpp",
+    "line": 12,
+    "bases": [],
+    "methods": [
+      {
+        "name": "data",
+        "params": [],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false
+      },
+      {
+        "name": "data",
+        "params": [],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      },
+      {
+        "name": "set_data",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::vector<std::uint8_t>"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::cfb_stream"
+  },
+  {
+    "name": "directory_color_flag",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/directory_color_flag.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "red",
+        "value": "0"
+      },
+      {
+        "name": "black",
+        "value": "1"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::directory_color_flag"
+  },
+  {
+    "name": "directory_entry",
+    "kind": "struct_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "is_storage",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false
+      },
+      {
+        "name": "is_stream",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 31,
+        "is_constructor": false
+      },
+      {
+        "name": "is_root",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "stream_id",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the stream id.",
+        "line": 15,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "std::string",
+        "doc": "Gets or sets the name.",
+        "line": 16,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "directory_entry_name_length",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the directory entry name length.",
+        "line": 17,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "object_type",
+        "type": "directory_object_type",
+        "doc": "Gets or sets the object type.",
+        "line": 18,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "color_flag",
+        "type": "directory_color_flag",
+        "doc": "Gets or sets the color flag.",
+        "line": 19,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "left_sibling_id",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the left sibling id.",
+        "line": 20,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "right_sibling_id",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the right sibling id.",
+        "line": 21,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "child_id",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the child id.",
+        "line": 22,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "std::array<std::uint8_t, 16>",
+        "doc": "Gets or sets the clsid.",
+        "line": 23,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the state bits.",
+        "line": 24,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the creation time.",
+        "line": 25,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the modified time.",
+        "line": 26,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "starting_sector_location",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the starting sector location.",
+        "line": 27,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stream_size",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the stream size.",
+        "line": 28,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::directory_entry"
+  },
+  {
+    "name": "directory_object_type",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/directory_object_type.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "unknown_or_unallocated",
+        "value": "0"
+      },
+      {
+        "name": "storage_object",
+        "value": "1"
+      },
+      {
+        "name": "stream_object",
+        "value": "2"
+      },
+      {
+        "name": "root_storage_object",
+        "value": "5"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::directory_object_type"
+  },
+  {
+    "name": "header",
+    "kind": "struct_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/header.hpp",
+    "line": 11,
+    "bases": [],
+    "methods": [
+      {
+        "name": "sector_size",
+        "params": [],
+        "return_type": "std::size_t",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "mini_sector_size",
+        "params": [],
+        "return_type": "std::size_t",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "header_signature",
+        "type": "std::array<std::uint8_t, 8>",
+        "doc": "Gets or sets the header signature.",
+        "line": 13,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_clsid",
+        "type": "std::array<std::uint8_t, 16>",
+        "doc": "Gets or sets the header clsid.",
+        "line": 14,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minor_version",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the minor version.",
+        "line": 15,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the major version.",
+        "line": 16,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "byte_order",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the byte order.",
+        "line": 17,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "sector_shift",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the sector shift.",
+        "line": 18,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_sector_shift",
+        "type": "std::uint16_t",
+        "doc": "Gets or sets the mini sector shift.",
+        "line": 19,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "reserved",
+        "type": "std::array<std::uint8_t, 6>",
+        "doc": "Gets or sets the reserved.",
+        "line": 20,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_directory_sectors",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the number of directory sectors.",
+        "line": 21,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_fat_sectors",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the number of fat sectors.",
+        "line": 22,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_directory_sector_location",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the first directory sector location.",
+        "line": 23,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transaction_signature_number",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the transaction signature number.",
+        "line": 24,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_stream_cutoff_size",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the mini stream cutoff size.",
+        "line": 25,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_mini_fat_sector_location",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the first mini fat sector location.",
+        "line": 26,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_mini_fat_sectors",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the number of mini fat sectors.",
+        "line": 27,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_difat_sector_location",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the first difat sector location.",
+        "line": 28,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_difat_sectors",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the number of difat sectors.",
+        "line": 29,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "difat",
+        "type": "std::vector<std::uint32_t>",
+        "doc": "Gets or sets the difat.",
+        "line": 30,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::header"
+  },
+  {
+    "name": "sector_marker",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/cfb/sector_marker.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "difsect",
+        "value": "4294967292"
+      },
+      {
+        "name": "fatsect",
+        "value": "4294967293"
+      },
+      {
+        "name": "endofchain",
+        "value": "4294967294"
+      },
+      {
+        "name": "freesect",
+        "value": "4294967295"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::cfb",
+    "class_import": "aspose::email::foss::cfb::sector_marker"
+  },
+  {
+    "name": "common_message_property_id",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/common_message_property_id.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "message_class",
+        "value": "26"
+      },
+      {
+        "name": "transport_message_headers",
+        "value": "125"
+      },
+      {
+        "name": "subject",
+        "value": "55"
+      },
+      {
+        "name": "display_to",
+        "value": "3588"
+      },
+      {
+        "name": "display_cc",
+        "value": "3587"
+      },
+      {
+        "name": "display_bcc",
+        "value": "3586"
+      },
+      {
+        "name": "internet_message_id",
+        "value": "4149"
+      },
+      {
+        "name": "message_flags",
+        "value": "3591"
+      },
+      {
+        "name": "internet_codepage",
+        "value": "16350"
+      },
+      {
+        "name": "sender_name",
+        "value": "3098"
+      },
+      {
+        "name": "sender_address_type",
+        "value": "3102"
+      },
+      {
+        "name": "sender_email_address",
+        "value": "3103"
+      },
+      {
+        "name": "message_delivery_time",
+        "value": "3590"
+      },
+      {
+        "name": "store_support_mask",
+        "value": "13325"
+      },
+      {
+        "name": "body",
+        "value": "4096"
+      },
+      {
+        "name": "body_html",
+        "value": "4115"
+      },
+      {
+        "name": "display_name",
+        "value": "12289"
+      },
+      {
+        "name": "attach_method",
+        "value": "14085"
+      },
+      {
+        "name": "attach_data_binary",
+        "value": "14081"
+      },
+      {
+        "name": "attach_filename",
+        "value": "14084"
+      },
+      {
+        "name": "attach_long_filename",
+        "value": "14087"
+      },
+      {
+        "name": "attach_mime_tag",
+        "value": "14094"
+      },
+      {
+        "name": "attach_content_id",
+        "value": "14098"
+      },
+      {
+        "name": "schedule_info_delegate_names",
+        "value": "26692"
+      },
+      {
+        "name": "schedule_info_months_busy",
+        "value": "26707"
+      },
+      {
+        "name": "example_tag100_a",
+        "value": "4106"
+      },
+      {
+        "name": "example_tag101_d",
+        "value": "4125"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::common_message_property_id"
+  },
+  {
+    "name": "mapi_attachment",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+    "line": 16,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_bytes",
+        "params": [
+          {
+            "name": "filename",
+            "type": "std::string"
+          },
+          {
+            "name": "data",
+            "type": "std::vector<std::uint8_t>"
+          },
+          {
+            "name": "mime_type",
+            "type": "std::string"
+          },
+          {
+            "name": "content_id",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "mapi_attachment",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "filename",
+            "type": "std::string"
+          },
+          {
+            "name": "stream",
+            "type": "std::istream"
+          },
+          {
+            "name": "mime_type",
+            "type": "std::string"
+          },
+          {
+            "name": "content_id",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "mapi_attachment",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "load_data",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 22,
+        "is_constructor": false
+      },
+      {
+        "name": "is_embedded_message",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "filename",
+        "type": "std::string",
+        "doc": "Gets or sets the filename.",
+        "line": 26,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "std::vector<std::uint8_t>",
+        "doc": "Gets or sets the data.",
+        "line": 27,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mime_type",
+        "type": "std::string",
+        "doc": "Gets or sets the mime type.",
+        "line": 28,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "content_id",
+        "type": "std::string",
+        "doc": "Gets or sets the content id.",
+        "line": 29,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "embedded_message",
+        "type": "std::shared_ptr<mapi_message>",
+        "doc": "Gets or sets the embedded message.",
+        "line": 30,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "mapi_property_collection",
+        "doc": "Gets or sets the properties.",
+        "line": 31,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::mapi_attachment"
+  },
+  {
+    "name": "mapi_message",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+    "line": 20,
+    "bases": [],
+    "methods": [
+      {
+        "name": "create",
+        "params": [
+          {
+            "name": "subject",
+            "type": "std::string"
+          },
+          {
+            "name": "body",
+            "type": "std::string"
+          },
+          {
+            "name": "unicode_strings",
+            "type": "bool"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 31,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "from_msg_document",
+        "params": [
+          {
+            "name": "document",
+            "type": "msg_document"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "load_from_eml",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 34,
+        "is_constructor": false
+      },
+      {
+        "name": "load_from_eml",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          }
+        ],
+        "return_type": "mapi_message",
+        "doc": "",
+        "line": 35,
+        "is_constructor": false
+      },
+      {
+        "name": "unicode_strings",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 37,
+        "is_constructor": false
+      },
+      {
+        "name": "set_unicode_strings",
+        "params": [
+          {
+            "name": "value",
+            "type": "bool"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "validation_issues",
+        "params": [],
+        "return_type": "std::vector<std::string>",
+        "doc": "",
+        "line": 40,
+        "is_constructor": false
+      },
+      {
+        "name": "subject",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 42,
+        "is_constructor": false
+      },
+      {
+        "name": "set_subject",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 43,
+        "is_constructor": false
+      },
+      {
+        "name": "body",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 45,
+        "is_constructor": false
+      },
+      {
+        "name": "set_body",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 46,
+        "is_constructor": false
+      },
+      {
+        "name": "html_body",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 48,
+        "is_constructor": false
+      },
+      {
+        "name": "set_html_body",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 49,
+        "is_constructor": false
+      },
+      {
+        "name": "message_class",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 51,
+        "is_constructor": false
+      },
+      {
+        "name": "set_message_class",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 52,
+        "is_constructor": false
+      },
+      {
+        "name": "sender_name",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 54,
+        "is_constructor": false
+      },
+      {
+        "name": "set_sender_name",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 55,
+        "is_constructor": false
+      },
+      {
+        "name": "sender_email_address",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 57,
+        "is_constructor": false
+      },
+      {
+        "name": "set_sender_email_address",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 58,
+        "is_constructor": false
+      },
+      {
+        "name": "sender_address_type",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 60,
+        "is_constructor": false
+      },
+      {
+        "name": "set_sender_address_type",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 61,
+        "is_constructor": false
+      },
+      {
+        "name": "internet_message_id",
+        "params": [],
+        "return_type": "std::string",
+        "doc": "",
+        "line": 63,
+        "is_constructor": false
+      },
+      {
+        "name": "set_internet_message_id",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 64,
+        "is_constructor": false
+      },
+      {
+        "name": "properties",
+        "params": [],
+        "return_type": "mapi_property_collection",
+        "doc": "",
+        "line": 66,
+        "is_constructor": false
+      },
+      {
+        "name": "properties",
+        "params": [],
+        "return_type": "mapi_property_collection",
+        "doc": "",
+        "line": 67,
+        "is_constructor": false
+      },
+      {
+        "name": "recipients",
+        "params": [],
+        "return_type": "std::vector<mapi_recipient>",
+        "doc": "",
+        "line": 68,
+        "is_constructor": false
+      },
+      {
+        "name": "recipients",
+        "params": [],
+        "return_type": "std::vector<mapi_recipient>",
+        "doc": "",
+        "line": 69,
+        "is_constructor": false
+      },
+      {
+        "name": "attachments",
+        "params": [],
+        "return_type": "std::vector<mapi_attachment>",
+        "doc": "",
+        "line": 70,
+        "is_constructor": false
+      },
+      {
+        "name": "attachments",
+        "params": [],
+        "return_type": "std::vector<mapi_attachment>",
+        "doc": "",
+        "line": 71,
+        "is_constructor": false
+      },
+      {
+        "name": "add_recipient",
+        "params": [
+          {
+            "name": "email_address",
+            "type": "std::string"
+          },
+          {
+            "name": "display_name",
+            "type": "std::string"
+          },
+          {
+            "name": "recipient_type",
+            "type": "int"
+          }
+        ],
+        "return_type": "mapi_recipient",
+        "doc": "",
+        "line": 73,
+        "is_constructor": false
+      },
+      {
+        "name": "add_attachment",
+        "params": [
+          {
+            "name": "filename",
+            "type": "std::string"
+          },
+          {
+            "name": "data",
+            "type": "std::vector<std::uint8_t>"
+          },
+          {
+            "name": "mime_type",
+            "type": "std::string"
+          },
+          {
+            "name": "content_id",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "mapi_attachment",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "add_attachment",
+        "params": [
+          {
+            "name": "filename",
+            "type": "std::string"
+          },
+          {
+            "name": "stream",
+            "type": "std::istream"
+          },
+          {
+            "name": "mime_type",
+            "type": "std::string"
+          },
+          {
+            "name": "content_id",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "mapi_attachment",
+        "doc": "",
+        "line": 75,
+        "is_constructor": false
+      },
+      {
+        "name": "add_embedded_message_attachment",
+        "params": [
+          {
+            "name": "message",
+            "type": "mapi_message"
+          },
+          {
+            "name": "filename",
+            "type": "std::string"
+          },
+          {
+            "name": "mime_type",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "mapi_attachment",
+        "doc": "",
+        "line": 76,
+        "is_constructor": false
+      },
+      {
+        "name": "set_property",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "value",
+            "type": "std::any"
+          },
+          {
+            "name": "flags",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "mapi_property",
+        "doc": "",
+        "line": 78,
+        "is_constructor": false
+      },
+      {
+        "name": "get_property_value",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::optional<std::uint16_t>"
+          }
+        ],
+        "return_type": "std::any",
+        "doc": "",
+        "line": 79,
+        "is_constructor": false
+      },
+      {
+        "name": "to_msg_document",
+        "params": [],
+        "return_type": "msg_document",
+        "doc": "",
+        "line": 81,
+        "is_constructor": false
+      },
+      {
+        "name": "save",
+        "params": [],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 82,
+        "is_constructor": false
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 83,
+        "is_constructor": false
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::ostream"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 84,
+        "is_constructor": false
+      },
+      {
+        "name": "save_to_eml",
+        "params": [],
+        "return_type": "std::vector<std::uint8_t>",
+        "doc": "",
+        "line": 85,
+        "is_constructor": false
+      },
+      {
+        "name": "save_to_eml",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 86,
+        "is_constructor": false
+      },
+      {
+        "name": "save_to_eml",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::ostream"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 87,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "default_property_flags",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the default property flags.",
+        "line": 23,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_type_to",
+        "type": "int",
+        "doc": "Gets or sets the recipient type to.",
+        "line": 24,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_type_cc",
+        "type": "int",
+        "doc": "Gets or sets the recipient type cc.",
+        "line": 25,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_type_bcc",
+        "type": "int",
+        "doc": "Gets or sets the recipient type bcc.",
+        "line": 26,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attach_method_by_value",
+        "type": "int",
+        "doc": "Gets or sets the attach method by value.",
+        "line": 27,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attach_method_embedded",
+        "type": "int",
+        "doc": "Gets or sets the attach method embedded.",
+        "line": 28,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::mapi_message"
+  },
+  {
+    "name": "mapi_property",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+    "line": 9,
+    "bases": [],
+    "methods": [
+      {
+        "name": "property_id",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 14,
+        "is_constructor": false
+      },
+      {
+        "name": "property_type",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 15,
+        "is_constructor": false
+      },
+      {
+        "name": "value",
+        "params": [],
+        "return_type": "std::any",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false
+      },
+      {
+        "name": "value",
+        "params": [],
+        "return_type": "std::any",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false
+      },
+      {
+        "name": "set_value",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::any"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      },
+      {
+        "name": "flags",
+        "params": [],
+        "return_type": "std::uint32_t",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "set_flags",
+        "params": [
+          {
+            "name": "value",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "property_tag",
+        "params": [],
+        "return_type": "std::uint32_t",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::mapi_property"
+  },
+  {
+    "name": "mapi_property_collection",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "set",
+        "params": [
+          {
+            "name": "property",
+            "type": "mapi_property"
+          }
+        ],
+        "return_type": "mapi_property",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false
+      },
+      {
+        "name": "add",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "value",
+            "type": "std::any"
+          },
+          {
+            "name": "flags",
+            "type": "std::uint32_t"
+          }
+        ],
+        "return_type": "mapi_property",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false
+      },
+      {
+        "name": "get",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::optional<std::uint16_t>"
+          }
+        ],
+        "return_type": "mapi_property",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      },
+      {
+        "name": "get",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::optional<std::uint16_t>"
+          }
+        ],
+        "return_type": "mapi_property",
+        "doc": "",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "remove",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "std::uint16_t"
+          },
+          {
+            "name": "property_type",
+            "type": "std::optional<std::uint16_t>"
+          }
+        ],
+        "return_type": "void",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "items",
+        "params": [],
+        "return_type": "std::map<std::pair<std::uint16_t, std::uint16_t>, mapi_property>",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::mapi_property_collection"
+  },
+  {
+    "name": "mapi_recipient",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+    "line": 10,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "display_name",
+        "type": "std::string",
+        "doc": "Gets or sets the display name.",
+        "line": 13,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "email_address",
+        "type": "std::string",
+        "doc": "Gets or sets the email address.",
+        "line": 14,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_type",
+        "type": "int",
+        "doc": "Gets or sets the recipient type.",
+        "line": 15,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "address_type",
+        "type": "std::string",
+        "doc": "Gets or sets the address type.",
+        "line": 16,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "mapi_property_collection",
+        "doc": "Gets or sets the properties.",
+        "line": 17,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::mapi_recipient"
+  },
+  {
+    "name": "msg_document",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_document.hpp",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "root",
+        "params": [],
+        "return_type": "msg_storage",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      },
+      {
+        "name": "root",
+        "params": [],
+        "return_type": "msg_storage",
+        "doc": "",
+        "line": 25,
+        "is_constructor": false
+      },
+      {
+        "name": "major_version",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      },
+      {
+        "name": "minor_version",
+        "params": [],
+        "return_type": "std::uint16_t",
+        "doc": "",
+        "line": 27,
+        "is_constructor": false
+      },
+      {
+        "name": "transaction_signature_number",
+        "params": [],
+        "return_type": "std::uint32_t",
+        "doc": "",
+        "line": 28,
+        "is_constructor": false
+      },
+      {
+        "name": "strict",
+        "params": [],
+        "return_type": "bool",
+        "doc": "",
+        "line": 29,
+        "is_constructor": false
+      },
+      {
+        "name": "from_reader",
+        "params": [
+          {
+            "name": "reader",
+            "type": "msg_reader"
+          }
+        ],
+        "return_type": "msg_document",
+        "doc": "",
+        "line": 31,
+        "is_constructor": false
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "std::filesystem::path"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "msg_document",
+        "doc": "",
+        "line": 32,
+        "is_constructor": false
+      },
+      {
+        "name": "from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "std::istream"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "msg_document",
+        "doc": "",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "to_cfb_document",
+        "params": [],
+        "return_type": "cfb::cfb_document",
+        "doc": "",
+        "line": 35,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_document"
+  },
+  {
+    "name": "msg_exception",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_exception.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_exception"
+  },
+  {
+    "name": "msg_storage",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+    "line": 15,
+    "bases": [],
+    "methods": [
+      {
+        "name": "add_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "msg_stream"
+          }
+        ],
+        "return_type": "msg_stream",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "add_storage",
+        "params": [
+          {
+            "name": "storage",
+            "type": "msg_storage"
+          }
+        ],
+        "return_type": "msg_storage",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false
+      },
+      {
+        "name": "find_stream",
+        "params": [
+          {
+            "name": "stream_name",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "msg_stream",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false
+      },
+      {
+        "name": "find_stream",
+        "params": [
+          {
+            "name": "stream_name",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "msg_stream",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false
+      },
+      {
+        "name": "find_storage",
+        "params": [
+          {
+            "name": "storage_name",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "msg_storage",
+        "doc": "",
+        "line": 25,
+        "is_constructor": false
+      },
+      {
+        "name": "find_storage",
+        "params": [
+          {
+            "name": "storage_name",
+            "type": "std::string"
+          }
+        ],
+        "return_type": "msg_storage",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "std::string",
+        "doc": "Gets or sets the name.",
+        "line": 28,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "role",
+        "type": "msg_storage_role",
+        "doc": "Gets or sets the role.",
+        "line": 29,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "std::array<std::uint8_t, 16>",
+        "doc": "Gets or sets the clsid.",
+        "line": 30,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the state bits.",
+        "line": 31,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the creation time.",
+        "line": 32,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the modified time.",
+        "line": 33,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "streams",
+        "type": "std::vector<msg_stream>",
+        "doc": "Gets or sets the streams.",
+        "line": 34,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "storages",
+        "type": "std::vector<msg_storage>",
+        "doc": "Gets or sets the storages.",
+        "line": 35,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_storage"
+  },
+  {
+    "name": "msg_storage_role",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_storage_role.hpp",
+    "line": 6,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "generic",
+        "value": "0"
+      },
+      {
+        "name": "message",
+        "value": "1"
+      },
+      {
+        "name": "recipient",
+        "value": "2"
+      },
+      {
+        "name": "attachment",
+        "value": "3"
+      },
+      {
+        "name": "embedded_message",
+        "value": "4"
+      },
+      {
+        "name": "named_property_mapping",
+        "value": "5"
+      },
+      {
+        "name": "custom_attachment",
+        "value": "6"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_storage_role"
+  },
+  {
+    "name": "msg_stream",
+    "kind": "class_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+    "line": 11,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "std::string",
+        "doc": "Gets or sets the name.",
+        "line": 16,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "std::vector<std::uint8_t>",
+        "doc": "Gets or sets the data.",
+        "line": 17,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "std::array<std::uint8_t, 16>",
+        "doc": "Gets or sets the clsid.",
+        "line": 18,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "std::uint32_t",
+        "doc": "Gets or sets the state bits.",
+        "line": 19,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the creation time.",
+        "line": 20,
+        "writable": true,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "std::uint64_t",
+        "doc": "Gets or sets the modified time.",
+        "line": 21,
+        "writable": true,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::msg_stream"
+  },
+  {
+    "name": "property_type_code",
+    "kind": "enum_specifier",
+    "doc": "",
+    "file": "include/aspose/email/foss/msg/property_type_code.hpp",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "ptyp_integer16",
+        "value": "2"
+      },
+      {
+        "name": "ptyp_integer32",
+        "value": "3"
+      },
+      {
+        "name": "ptyp_floating32",
+        "value": "4"
+      },
+      {
+        "name": "ptyp_floating64",
+        "value": "5"
+      },
+      {
+        "name": "ptyp_currency",
+        "value": "6"
+      },
+      {
+        "name": "ptyp_floating_time",
+        "value": "7"
+      },
+      {
+        "name": "ptyp_error_code",
+        "value": "10"
+      },
+      {
+        "name": "ptyp_boolean",
+        "value": "11"
+      },
+      {
+        "name": "ptyp_object",
+        "value": "13"
+      },
+      {
+        "name": "ptyp_integer64",
+        "value": "20"
+      },
+      {
+        "name": "ptyp_string8",
+        "value": "30"
+      },
+      {
+        "name": "ptyp_string",
+        "value": "31"
+      },
+      {
+        "name": "ptyp_time",
+        "value": "64"
+      },
+      {
+        "name": "ptyp_guid",
+        "value": "72"
+      },
+      {
+        "name": "ptyp_binary",
+        "value": "258"
+      },
+      {
+        "name": "ptyp_multiple_integer16",
+        "value": "4098"
+      },
+      {
+        "name": "ptyp_multiple_integer32",
+        "value": "4099"
+      },
+      {
+        "name": "ptyp_multiple_floating32",
+        "value": "4100"
+      },
+      {
+        "name": "ptyp_multiple_floating64",
+        "value": "4101"
+      },
+      {
+        "name": "ptyp_multiple_currency",
+        "value": "4102"
+      },
+      {
+        "name": "ptyp_multiple_floating_time",
+        "value": "4103"
+      },
+      {
+        "name": "ptyp_multiple_integer64",
+        "value": "4116"
+      },
+      {
+        "name": "ptyp_multiple_string8",
+        "value": "4126"
+      },
+      {
+        "name": "ptyp_multiple_string",
+        "value": "4127"
+      },
+      {
+        "name": "ptyp_multiple_time",
+        "value": "4160"
+      },
+      {
+        "name": "ptyp_multiple_guid",
+        "value": "4168"
+      },
+      {
+        "name": "ptyp_multiple_binary",
+        "value": "4354"
+      }
+    ],
+    "canonical_namespace": "aspose::email::foss::msg",
+    "class_import": "aspose::email::foss::msg::property_type_code"
+  }
+]

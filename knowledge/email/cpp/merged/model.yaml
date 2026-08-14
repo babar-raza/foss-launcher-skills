@@ -1,0 +1,21 @@
+family: email
+platform: cpp
+product_name: AsposeEmailFoss
+version: 0.1.0
+license: ''
+repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp.git
+repo_sha: c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2
+config_sha: a1fb6a852b9b8451
+stale_since: null
+promoted_at: '2026-07-12T14:38:29.110909+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+stats:
+  scout_claims: 251
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 237
+  class_count: 26
+  forbidden_count: 0
+  snippet_count: 5

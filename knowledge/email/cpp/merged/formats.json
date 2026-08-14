@@ -1,0 +1,58 @@
+[
+  {
+    "format": "cfb",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+    "line": 18,
+    "direction": "import"
+  },
+  {
+    "format": "cfb",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "msg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+    "line": 13,
+    "direction": "import"
+  },
+  {
+    "format": "msg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "cfb",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+    "line": 14,
+    "direction": "import"
+  },
+  {
+    "format": "eml",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+    "line": 34,
+    "direction": "import"
+  },
+  {
+    "format": "eml",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+    "line": 85,
+    "direction": "export"
+  }
+]

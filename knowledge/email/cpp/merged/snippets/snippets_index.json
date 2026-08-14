@@ -1,0 +1,113 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cpp",
+    "source_file": "examples/create_msg_and_eml.cpp",
+    "source_function": "main",
+    "source_line": 36,
+    "classes_used": [
+      "common_message_property_id",
+      "header",
+      "mapi_message",
+      "property_type_code"
+    ],
+    "methods_used": [
+      "mapi_message.add_attachment",
+      "mapi_message.add_recipient",
+      "mapi_message.save",
+      "mapi_message.save_to_eml",
+      "mapi_message.set_property"
+    ],
+    "formats_referenced": [
+      "eml",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cpp",
+    "source_file": "examples/msg_reader.cpp",
+    "source_function": "main",
+    "source_line": 186,
+    "classes_used": [
+      "msg_document",
+      "msg_reader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cpp",
+    "source_file": "examples/msg_summary.cpp",
+    "source_function": "main",
+    "source_line": 170,
+    "classes_used": [
+      "common_message_property_id",
+      "header",
+      "mapi_message",
+      "property_type_code"
+    ],
+    "methods_used": [
+      "mapi_message.attachments",
+      "mapi_message.body",
+      "mapi_message.get_property_value",
+      "mapi_message.html_body",
+      "mapi_message.internet_message_id",
+      "mapi_message.message_class",
+      "mapi_message.recipients",
+      "mapi_message.sender_email_address",
+      "mapi_message.sender_name",
+      "mapi_message.subject",
+      "mapi_message.validation_issues"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 34,
+    "classes_used": [
+      "mapi_message"
+    ],
+    "methods_used": [
+      "mapi_message.subject"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 50,
+    "classes_used": [
+      "mapi_message"
+    ],
+    "methods_used": [
+      "mapi_message.add_attachment",
+      "mapi_message.add_recipient",
+      "mapi_message.save",
+      "mapi_message.save_to_eml",
+      "mapi_message.set_sender_email_address",
+      "mapi_message.set_sender_name"
+    ],
+    "formats_referenced": [
+      "eml",
+      "msg"
+    ],
+    "provenance": "scout"
+  }
+]
