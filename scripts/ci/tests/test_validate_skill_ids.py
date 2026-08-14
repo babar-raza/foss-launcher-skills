@@ -12,7 +12,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_HERE))
 
-from checks.validate_skill_ids import _ID_RE, main
+from checks.validate_skill_ids import _ID_RE, main, load_registry, _load_from_registry_json
 
 
 class TestIDRegex:
@@ -82,3 +82,35 @@ class TestMainStdin:
         out = capsys.readouterr().out
         assert rc == 0
         assert "No skill IDs" in out
+
+
+class TestRegistrySourceOfTruth:
+    """TC-CIR-08 (2026-08-14, CI reliability reassessment, Root Cause E): the registry
+    must be read from skills/registry.json (matching check_commit_skill_provenance.py's
+    source exactly), not parsed from markdown prose as a second, independently-drifting
+    source of truth. Real repo state, no mocking — this repo's registry.json is tracked
+    and its currency is independently enforced by check_skill_registry_json.py."""
+
+    def test_loads_real_registry_json(self):
+        registry = _load_from_registry_json()
+        assert registry is not None, "skills/registry.json must be readable in this repo"
+        assert len(registry) > 50, "registry should contain the repo's real ~112 skills"
+        assert "S-01" in registry
+        assert "S-99" in registry
+
+    def test_load_registry_matches_json_source_exactly(self):
+        """load_registry() (the public entry point) must return the same set as the
+        JSON-only loader when registry.json is present — no silent divergence."""
+        assert load_registry() == _load_from_registry_json()
+
+    def test_falls_back_when_registry_json_missing(self, monkeypatch, tmp_path):
+        """A fresh clone before the first sync_providers.py run has no registry.json —
+        must fall back to markdown parsing, not fail closed or crash."""
+        import checks.validate_skill_ids as vsi
+        missing = tmp_path / "does-not-exist.json"
+        monkeypatch.setattr(vsi, "REGISTRY_JSON", missing)
+        result = vsi._load_from_registry_json()
+        assert result is None, "missing registry.json must return None, not an empty set"
+        # load_registry() must still return a usable (non-crashing) result via fallback
+        registry = vsi.load_registry()
+        assert isinstance(registry, frozenset)
