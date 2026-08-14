@@ -1,0 +1,493 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "DirectoryEntryNameOrderingMatchesSpecRules",
+    "source_line": 9,
+    "classes_used": [
+      "DirectoryEntry",
+      "DirectoryEntryNameComparer"
+    ],
+    "methods_used": [
+      "DirectoryEntryNameComparer.Compare"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "WriterRoundTripsManualDocument",
+    "source_line": 17,
+    "classes_used": [
+      "CfbConstants",
+      "CfbDocument",
+      "CfbReader",
+      "CfbStorage",
+      "CfbStream",
+      "CfbWriter"
+    ],
+    "methods_used": [
+      "CfbReader.GetStreamData",
+      "CfbReader.IterChildren",
+      "CfbReader.ResolvePath",
+      "CfbStorage.AddStorage",
+      "CfbStorage.AddStream",
+      "CfbWriter.ToBytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "WriterRejectsDuplicateSiblingNamesUnderCfbOrdering",
+    "source_line": 41,
+    "classes_used": [
+      "CfbDocument",
+      "CfbException",
+      "CfbStream",
+      "CfbWriter"
+    ],
+    "methods_used": [
+      "CfbWriter.ToBytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlParsesPlainTextHeadersAndBody",
+    "source_line": 9,
+    "classes_used": [
+      "Header",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesFoldedHeadersAndBase64Text",
+    "source_line": 34,
+    "classes_used": [
+      "Header",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesMultipartRelatedInlineAttachment",
+    "source_line": 57,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "SaveToEmlRoundTripsBodiesAndAttachments",
+    "source_line": 93,
+    "classes_used": [
+      "MapiAttachment",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "CanLoadAndSaveEmlUsingStreams",
+    "source_line": 121,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesQuotedPrintableHtml",
+    "source_line": 147,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanCreateSaveAndReloadMessageWithSenderRecipientAndAttachment",
+    "source_line": 8,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "mime",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanCreateSaveAndReloadMessageUsingStreams",
+    "source_line": 45,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.Create",
+      "MapiMessage.FromStream",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanRoundTripEmbeddedMessageAttachment",
+    "source_line": 66,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddEmbeddedMessageAttachment",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "CfbConstantsAreAvailable",
+    "source_line": 9,
+    "classes_used": [
+      "CfbConstants"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "MsgConstantsAreAvailable",
+    "source_line": 17,
+    "classes_used": [
+      "MsgConstants"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "MsgEnumsAreAvailable",
+    "source_line": 24,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamRejectsShortHeader",
+    "source_line": 8,
+    "classes_used": [
+      "Header",
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseSubobjectPropertyStreamRejectsShortHeader",
+    "source_line": 14,
+    "classes_used": [
+      "Header",
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamRejectsMisalignedPayload",
+    "source_line": 20,
+    "classes_used": [
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseSubobjectPropertyStreamRejectsMisalignedPayload",
+    "source_line": 27,
+    "classes_used": [
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamDecodesHeaderAndEntry",
+    "source_line": 34,
+    "classes_used": [
+      "Header",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "examples/create_msg_and_eml.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "Header",
+      "MapiMessage",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save",
+      "MapiMessage.SaveToEml",
+      "MapiMessage.SetProperty"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "examples/msg_reader.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CfbReader",
+      "DirectoryEntry",
+      "MsgConstants",
+      "MsgDocument",
+      "MsgReader",
+      "MsgStorage",
+      "MsgStorageRole"
+    ],
+    "methods_used": [
+      "CfbReader.FromFile",
+      "CfbReader.IterTree",
+      "DirectoryEntry.IsRoot",
+      "DirectoryEntry.IsStream",
+      "MsgDocument.FromFile",
+      "MsgReader.FromFile",
+      "MsgStorage.FindStorage",
+      "MsgStorage.FindStream"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "examples/msg_summary.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "Header",
+      "MapiMessage",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MapiMessage.FromFile",
+      "MapiMessage.GetPropertyValue"
+    ],
+    "formats_referenced": [
+      "mime",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 36,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.FromStream"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 47,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 63,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.Create",
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.Save",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  }
+]

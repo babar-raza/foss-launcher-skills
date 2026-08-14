@@ -1,0 +1,3096 @@
+[
+  {
+    "claim_id": "CLM-email-a098f8",
+    "kind": "api_method",
+    "text": "CfbReader.CfbReader(data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-771be3",
+    "kind": "api_method",
+    "text": "CfbReader.Header property of type Header",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b55ee1",
+    "kind": "api_method",
+    "text": "CfbReader.Difat property of type ReadOnlyCollection<uint>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a002bb",
+    "kind": "api_method",
+    "text": "CfbReader.Fat property of type ReadOnlyCollection<uint>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 69
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-eb38ff",
+    "kind": "api_method",
+    "text": "CfbReader.MiniFat property of type ReadOnlyCollection<uint>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2b6ac4",
+    "kind": "api_method",
+    "text": "CfbReader.DirectoryEntries property of type ReadOnlyCollection<DirectoryEntry>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-342772",
+    "kind": "api_method",
+    "text": "CfbReader.RootEntry property of type DirectoryEntry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5a2995",
+    "kind": "api_method",
+    "text": "CfbReader.MiniStream property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-619856",
+    "kind": "api_method",
+    "text": "CfbReader.MajorVersion property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 79
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f31c78",
+    "kind": "api_method",
+    "text": "CfbReader.SectorSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9f7287",
+    "kind": "api_method",
+    "text": "CfbReader.MiniSectorSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0ab513",
+    "kind": "api_method",
+    "text": "CfbReader.DirectoryEntryCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dc9ee0",
+    "kind": "api_method",
+    "text": "CfbReader.MaterializedStreamCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d0d57a",
+    "kind": "api_method",
+    "text": "CfbReader.FileSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9f8915",
+    "kind": "api_method",
+    "text": "CfbReader.FromFile(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 91
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-04dff5",
+    "kind": "api_method",
+    "text": "CfbReader.FromStream(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 93
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-15a0fb",
+    "kind": "api_method",
+    "text": "CfbReader.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-86110b",
+    "kind": "api_method",
+    "text": "CfbReader.GetEntry(streamId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3ec2e4",
+    "kind": "api_method",
+    "text": "CfbReader.GetStreamData(streamId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 115
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-06ca80",
+    "kind": "api_method",
+    "text": "CfbReader.IterStorages() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 133
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d34a1c",
+    "kind": "api_method",
+    "text": "CfbReader.IterStreams() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 144
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5075b6",
+    "kind": "api_method",
+    "text": "CfbReader.IterChildren(storageStreamId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 155
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bed9de",
+    "kind": "api_method",
+    "text": "CfbReader.IterTree(startStreamId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d5cd6f",
+    "kind": "api_method",
+    "text": "CfbReader.FindChildByName(storageStreamId, name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 190
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-661864",
+    "kind": "api_method",
+    "text": "CfbReader.ResolvePath(names, startStreamId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 195
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c09c08",
+    "kind": "api_class",
+    "text": "Class CfbReader defined in src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-67d961",
+    "kind": "api_method",
+    "text": "CfbWriter.ToBytes(document) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-028c78",
+    "kind": "api_method",
+    "text": "CfbWriter.WriteFile(document, path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ea02e8",
+    "kind": "api_class",
+    "text": "Class CfbWriter defined in src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8287fe",
+    "kind": "api_method",
+    "text": "MsgReader.ValidationIssues property of type IReadOnlyList<string>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4d1697",
+    "kind": "api_method",
+    "text": "MsgReader.FromFile(path, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-94e6df",
+    "kind": "api_method",
+    "text": "MsgReader.FromStream(stream, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-62a9bc",
+    "kind": "api_method",
+    "text": "MsgReader.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-148ef4",
+    "kind": "api_class",
+    "text": "Class MsgReader defined in src/Aspose.Email.Foss/Msg/MsgReader.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-79ebb8",
+    "kind": "api_method",
+    "text": "MsgWriter.ToBytes(document) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d45f2d",
+    "kind": "api_method",
+    "text": "MsgWriter.WriteFile(document, path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4c91ab",
+    "kind": "api_class",
+    "text": "Class MsgWriter defined in src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9255fc",
+    "kind": "api_field",
+    "text": "CfbConstants.ByteOrderLittleEndian constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cc7bfa",
+    "kind": "api_field",
+    "text": "CfbConstants.MAXREGSECT constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4d1f46",
+    "kind": "api_field",
+    "text": "CfbConstants.MAXREGSID constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-067290",
+    "kind": "api_field",
+    "text": "CfbConstants.MiniStreamCutoffSize constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c3dcd7",
+    "kind": "api_field",
+    "text": "CfbConstants.NOSTREAM constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ff9b73",
+    "kind": "api_field",
+    "text": "CfbConstants.RootEntryName constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-64a659",
+    "kind": "api_field",
+    "text": "CfbConstants.RootStreamId constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0ee443",
+    "kind": "api_class",
+    "text": "Class CfbConstants defined in src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bef9d0",
+    "kind": "api_method",
+    "text": "CfbDocument.CfbDocument() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-770054",
+    "kind": "api_method",
+    "text": "CfbDocument.CfbDocument(root, majorVersion, minorVersion, transactionSignatureNumber) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3bc044",
+    "kind": "api_method",
+    "text": "CfbDocument.Root property of type CfbStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dc8877",
+    "kind": "api_method",
+    "text": "CfbDocument.MajorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0cbeff",
+    "kind": "api_method",
+    "text": "CfbDocument.MinorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91068a",
+    "kind": "api_method",
+    "text": "CfbDocument.TransactionSignatureNumber property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6fbe5b",
+    "kind": "api_method",
+    "text": "CfbDocument.FromReader(reader) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4268f5",
+    "kind": "api_method",
+    "text": "CfbDocument.FromFile(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6ba60d",
+    "kind": "api_method",
+    "text": "CfbDocument.FromStream(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4e86f6",
+    "kind": "api_class",
+    "text": "Class CfbDocument defined in src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-318602",
+    "kind": "api_method",
+    "text": "CfbException.CfbException(message) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbException.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9a8cee",
+    "kind": "api_class",
+    "text": "Class CfbException defined in src/Aspose.Email.Foss/Cfb/CfbException.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbException.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dd7d38",
+    "kind": "api_method",
+    "text": "CfbNode.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1f6bf1",
+    "kind": "api_method",
+    "text": "CfbNode.Clsid property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7bb5d4",
+    "kind": "api_method",
+    "text": "CfbNode.StateBits property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-158bc8",
+    "kind": "api_method",
+    "text": "CfbNode.CreationTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4b1d54",
+    "kind": "api_method",
+    "text": "CfbNode.ModifiedTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-114b88",
+    "kind": "api_class",
+    "text": "Class CfbNode defined in src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbNode.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-836f11",
+    "kind": "api_method",
+    "text": "CfbStorage.CfbStorage(name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-79bec3",
+    "kind": "api_method",
+    "text": "CfbStorage.Children property of type IList<CfbNode>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d3219a",
+    "kind": "api_method",
+    "text": "CfbStorage.AddStorage(storage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-39b3c9",
+    "kind": "api_method",
+    "text": "CfbStorage.AddStream(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7ba80b",
+    "kind": "api_class",
+    "text": "Class CfbStorage defined in src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-54fa7e",
+    "kind": "api_method",
+    "text": "CfbStream.CfbStream(name, data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStream.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7de467",
+    "kind": "api_method",
+    "text": "CfbStream.Data property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStream.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c7c6ff",
+    "kind": "api_class",
+    "text": "Class CfbStream defined in src/Aspose.Email.Foss/Cfb/CfbStream.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbStream.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d409ab",
+    "kind": "api_class",
+    "text": "Class DirectoryColorFlag defined in src/Aspose.Email.Foss/Cfb/DirectoryColorFlag.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryColorFlag.cs",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af70f1",
+    "kind": "api_method",
+    "text": "DirectoryEntry.IsStorage() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c68eed",
+    "kind": "api_method",
+    "text": "DirectoryEntry.IsStream() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b4d9c1",
+    "kind": "api_method",
+    "text": "DirectoryEntry.IsRoot() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a60112",
+    "kind": "api_class",
+    "text": "Class DirectoryEntry defined in src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a3fce8",
+    "kind": "api_method",
+    "text": "DirectoryEntryNameComparer.Compare(left, right) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntryNameComparer.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e27c31",
+    "kind": "api_class",
+    "text": "Class DirectoryEntryNameComparer defined in src/Aspose.Email.Foss/Cfb/DirectoryEntryNameComparer.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryEntryNameComparer.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d6775f",
+    "kind": "api_class",
+    "text": "Class DirectoryObjectType defined in src/Aspose.Email.Foss/Cfb/DirectoryObjectType.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/DirectoryObjectType.cs",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-820f43",
+    "kind": "api_method",
+    "text": "Header.SectorSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/Header.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aca116",
+    "kind": "api_method",
+    "text": "Header.MiniSectorSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/Header.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-21a9ec",
+    "kind": "api_class",
+    "text": "Class Header defined in src/Aspose.Email.Foss/Cfb/Header.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/Header.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-25ccb7",
+    "kind": "api_class",
+    "text": "Class SectorMarker defined in src/Aspose.Email.Foss/Cfb/SectorMarker.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/SectorMarker.cs",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-413bde",
+    "kind": "api_class",
+    "text": "Class CommonMessagePropertyId defined in src/Aspose.Email.Foss/Msg/CommonMessagePropertyId.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/CommonMessagePropertyId.cs",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-92940c",
+    "kind": "api_method",
+    "text": "MapiAttachment.FromBytes(filename, data, mimeType, contentId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ba0f3c",
+    "kind": "api_method",
+    "text": "MapiAttachment.FromStream(filename, stream, mimeType, contentId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-66f40d",
+    "kind": "api_method",
+    "text": "MapiAttachment.Filename property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-74e2ae",
+    "kind": "api_method",
+    "text": "MapiAttachment.Data property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8b439c",
+    "kind": "api_method",
+    "text": "MapiAttachment.MimeType property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cdddff",
+    "kind": "api_method",
+    "text": "MapiAttachment.ContentId property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b93b64",
+    "kind": "api_method",
+    "text": "MapiAttachment.EmbeddedMessage property of type MapiMessage?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-08f3c5",
+    "kind": "api_method",
+    "text": "MapiAttachment.Properties property of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a268b3",
+    "kind": "api_method",
+    "text": "MapiAttachment.IsEmbeddedMessage property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2db108",
+    "kind": "api_method",
+    "text": "MapiAttachment.IsStorageAttachment property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9c9764",
+    "kind": "api_method",
+    "text": "MapiAttachment.LoadData(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5fefb3",
+    "kind": "api_method",
+    "text": "MapiAttachment.OpenRead() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c1dd1d",
+    "kind": "api_class",
+    "text": "Class MapiAttachment defined in src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b56ed2",
+    "kind": "api_class",
+    "text": "Class MapiMessage defined in src/Aspose.Email.Foss/Msg/MapiMessage.Codec.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.Codec.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-66beeb",
+    "kind": "api_class",
+    "text": "Class MapiMessage defined in src/Aspose.Email.Foss/Msg/MapiMessage.Helpers.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.Helpers.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2ce9e6",
+    "kind": "api_method",
+    "text": "MapiMessage.UnicodeStrings property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4f2437",
+    "kind": "api_method",
+    "text": "MapiMessage.Properties property of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2a2338",
+    "kind": "api_method",
+    "text": "MapiMessage.Recipients property of type IList<MapiRecipient>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-164f19",
+    "kind": "api_method",
+    "text": "MapiMessage.Attachments property of type IList<MapiAttachment>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dc196b",
+    "kind": "api_method",
+    "text": "MapiMessage.MajorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-29f3cd",
+    "kind": "api_method",
+    "text": "MapiMessage.MinorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-37ae6b",
+    "kind": "api_method",
+    "text": "MapiMessage.TransactionSignatureNumber property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2175a9",
+    "kind": "api_method",
+    "text": "MapiMessage.ValidationIssues property of type IReadOnlyList<string>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8031e0",
+    "kind": "api_method",
+    "text": "MapiMessage.Subject property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-90178c",
+    "kind": "api_method",
+    "text": "MapiMessage.Body property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a83bf8",
+    "kind": "api_method",
+    "text": "MapiMessage.HtmlBody property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e4ab3e",
+    "kind": "api_method",
+    "text": "MapiMessage.MessageClass property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 90
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f70e9a",
+    "kind": "api_method",
+    "text": "MapiMessage.SenderName property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 96
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3106a6",
+    "kind": "api_method",
+    "text": "MapiMessage.SenderEmailAddress property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 102
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f89e3a",
+    "kind": "api_method",
+    "text": "MapiMessage.SenderAddressType property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-233f22",
+    "kind": "api_method",
+    "text": "MapiMessage.InternetMessageId property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0257c3",
+    "kind": "api_method",
+    "text": "MapiMessage.MessageDeliveryTime property of type DateTime?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-12174e",
+    "kind": "api_method",
+    "text": "MapiMessage.Create(subject, body, unicodeStrings) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-660444",
+    "kind": "api_method",
+    "text": "MapiMessage.FromFile(path, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 173
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bc8628",
+    "kind": "api_method",
+    "text": "MapiMessage.FromStream(stream, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 181
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a3213a",
+    "kind": "api_method",
+    "text": "MapiMessage.FromMsgDocument(document) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 190
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a502f1",
+    "kind": "api_method",
+    "text": "MapiMessage.LoadFromEml(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 249
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f710f8",
+    "kind": "api_method",
+    "text": "MapiMessage.LoadFromEml(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 255
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-32a5ba",
+    "kind": "api_method",
+    "text": "MapiMessage.LoadFromEml(data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 263
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4b6c33",
+    "kind": "api_method",
+    "text": "MapiMessage.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 270
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d69296",
+    "kind": "api_method",
+    "text": "MapiMessage.AddRecipient(emailAddress, displayName, recipientType) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 274
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c18aa4",
+    "kind": "api_method",
+    "text": "MapiMessage.AddAttachment(filename, data, mimeType, contentId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 286
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fab578",
+    "kind": "api_method",
+    "text": "MapiMessage.AddAttachment(filename, stream, mimeType, contentId) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 293
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aea4f9",
+    "kind": "api_method",
+    "text": "MapiMessage.AddEmbeddedMessageAttachment(message, filename, mimeType) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 300
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-13605e",
+    "kind": "api_method",
+    "text": "MapiMessage.SetProperty(propertyId, propertyType, value, flags) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 313
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-662812",
+    "kind": "api_method",
+    "text": "MapiMessage.GetPropertyValue(propertyId, propertyType, decode) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 318
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-790fa8",
+    "kind": "api_method",
+    "text": "MapiMessage.IterPropertyKeys() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 344
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0f7818",
+    "kind": "api_method",
+    "text": "MapiMessage.IterProperties() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 352
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-64607a",
+    "kind": "api_method",
+    "text": "MapiMessage.IterAttachmentsInfo() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f590bd",
+    "kind": "api_method",
+    "text": "MapiMessage.ToMsgDocument() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 356
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ffe134",
+    "kind": "api_method",
+    "text": "MapiMessage.Save() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 415
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7e9656",
+    "kind": "api_method",
+    "text": "MapiMessage.Save(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 420
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cb6856",
+    "kind": "api_method",
+    "text": "MapiMessage.Save(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 425
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2a7f3e",
+    "kind": "api_method",
+    "text": "MapiMessage.SaveToEml() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 432
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-189dc3",
+    "kind": "api_method",
+    "text": "MapiMessage.SaveToEml(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 438
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-08d660",
+    "kind": "api_method",
+    "text": "MapiMessage.SaveToEml(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 444
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b25706",
+    "kind": "api_field",
+    "text": "MapiMessage.DefaultPropertyFlags constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6f8eff",
+    "kind": "api_field",
+    "text": "MapiMessage.RecipientTypeTo constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0d2829",
+    "kind": "api_field",
+    "text": "MapiMessage.RecipientTypeCc constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3b17be",
+    "kind": "api_field",
+    "text": "MapiMessage.RecipientTypeBcc constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3095fb",
+    "kind": "api_field",
+    "text": "MapiMessage.AttachMethodByValue constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2289a1",
+    "kind": "api_field",
+    "text": "MapiMessage.AttachMethodEmbedded constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8ed0ca",
+    "kind": "api_field",
+    "text": "MapiMessage.AttachMethodStorage constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-17a172",
+    "kind": "api_class",
+    "text": "Class MapiMessage defined in src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiMessage.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a36641",
+    "kind": "api_method",
+    "text": "MapiProperty.MapiProperty(propertyId, propertyType, value, flags) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-298e31",
+    "kind": "api_method",
+    "text": "MapiProperty.PropertyId property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-893502",
+    "kind": "api_method",
+    "text": "MapiProperty.PropertyType property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5bb76b",
+    "kind": "api_method",
+    "text": "MapiProperty.Value property of type object?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3d9d25",
+    "kind": "api_method",
+    "text": "MapiProperty.Flags property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7fc42e",
+    "kind": "api_method",
+    "text": "MapiProperty.PropertyTag property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4bceaa",
+    "kind": "api_class",
+    "text": "Class MapiProperty defined in src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiProperty.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b89f1d",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.Set(property) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-32c68d",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.Add(propertyId, propertyType, value, flags) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6af4e5",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.Get(propertyId, propertyType) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-239383",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.Remove(propertyId, propertyType) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-67befa",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.IterProperties() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3c106f",
+    "kind": "api_class",
+    "text": "Class MapiPropertyCollection defined in src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d80174",
+    "kind": "api_method",
+    "text": "MapiRecipient.DisplayName property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-60ae8b",
+    "kind": "api_method",
+    "text": "MapiRecipient.EmailAddress property of type string?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ac60eb",
+    "kind": "api_method",
+    "text": "MapiRecipient.RecipientType property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2683d3",
+    "kind": "api_method",
+    "text": "MapiRecipient.AddressType property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d460dc",
+    "kind": "api_method",
+    "text": "MapiRecipient.Properties property of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-69bfe6",
+    "kind": "api_class",
+    "text": "Class MapiRecipient defined in src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-58ccd6",
+    "kind": "api_field",
+    "text": "MsgConstants.AttachmentStoragePrefix constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7512bf",
+    "kind": "api_field",
+    "text": "MsgConstants.EmbeddedMessageStorageName constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9fc738",
+    "kind": "api_field",
+    "text": "MsgConstants.MaxAttachmentStorages constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4230df",
+    "kind": "api_field",
+    "text": "MsgConstants.MaxRecipientStorages constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3d28aa",
+    "kind": "api_field",
+    "text": "MsgConstants.NamedPropertyMappingStorageName constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9a73aa",
+    "kind": "api_field",
+    "text": "MsgConstants.PROPATTR_MANDATORY constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ddc856",
+    "kind": "api_field",
+    "text": "MsgConstants.PROPATTR_READABLE constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91d4ac",
+    "kind": "api_field",
+    "text": "MsgConstants.PROPATTR_WRITABLE constant of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4e3727",
+    "kind": "api_field",
+    "text": "MsgConstants.PropertyStreamName constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-181e7e",
+    "kind": "api_field",
+    "text": "MsgConstants.PropertyValueStreamPrefix constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-124826",
+    "kind": "api_field",
+    "text": "MsgConstants.RecipientStoragePrefix constant of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-68cae2",
+    "kind": "api_class",
+    "text": "Class MsgConstants defined in src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgConstants.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aa98ab",
+    "kind": "api_method",
+    "text": "MsgDocument.MsgDocument(root, majorVersion, minorVersion, transactionSignatureNumber, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cf5616",
+    "kind": "api_method",
+    "text": "MsgDocument.Root property of type MsgStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-969a7a",
+    "kind": "api_method",
+    "text": "MsgDocument.MajorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c4aeb9",
+    "kind": "api_method",
+    "text": "MsgDocument.MinorVersion property of type ushort",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-80e81e",
+    "kind": "api_method",
+    "text": "MsgDocument.TransactionSignatureNumber property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91f51e",
+    "kind": "api_method",
+    "text": "MsgDocument.Strict property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fa121b",
+    "kind": "api_method",
+    "text": "MsgDocument.FromFile(path, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2224a6",
+    "kind": "api_method",
+    "text": "MsgDocument.FromStream(stream, strict) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-15707e",
+    "kind": "api_method",
+    "text": "MsgDocument.ToCfbDocument() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1c5ab2",
+    "kind": "api_class",
+    "text": "Class MsgDocument defined in src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgDocument.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6c59c4",
+    "kind": "api_method",
+    "text": "MsgException.MsgException(message) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgException.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-259147",
+    "kind": "api_class",
+    "text": "Class MsgException defined in src/Aspose.Email.Foss/Msg/MsgException.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgException.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4c05fa",
+    "kind": "api_method",
+    "text": "MsgStorage.MsgStorage(name, role) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-29c86a",
+    "kind": "api_method",
+    "text": "MsgStorage.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ae1ad2",
+    "kind": "api_method",
+    "text": "MsgStorage.Role property of type MsgStorageRole",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-05ae96",
+    "kind": "api_method",
+    "text": "MsgStorage.Clsid property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-21c58f",
+    "kind": "api_method",
+    "text": "MsgStorage.StateBits property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-02c1e0",
+    "kind": "api_method",
+    "text": "MsgStorage.CreationTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-59a751",
+    "kind": "api_method",
+    "text": "MsgStorage.ModifiedTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d54e44",
+    "kind": "api_method",
+    "text": "MsgStorage.Streams property of type IList<MsgStream>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-792810",
+    "kind": "api_method",
+    "text": "MsgStorage.Storages property of type IList<MsgStorage>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6b93b5",
+    "kind": "api_method",
+    "text": "MsgStorage.AddStream(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-791395",
+    "kind": "api_method",
+    "text": "MsgStorage.AddStorage(storage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9809d1",
+    "kind": "api_method",
+    "text": "MsgStorage.FindStream(name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4ff661",
+    "kind": "api_method",
+    "text": "MsgStorage.FindStorage(name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af5256",
+    "kind": "api_class",
+    "text": "Class MsgStorage defined in src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorage.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-62ba4b",
+    "kind": "api_class",
+    "text": "Class MsgStorageRole defined in src/Aspose.Email.Foss/Msg/MsgStorageRole.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStorageRole.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-127a69",
+    "kind": "api_method",
+    "text": "MsgStream.MsgStream(name, data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4b6397",
+    "kind": "api_method",
+    "text": "MsgStream.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6c8d1e",
+    "kind": "api_method",
+    "text": "MsgStream.Data property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d0d0c3",
+    "kind": "api_method",
+    "text": "MsgStream.Clsid property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-07280f",
+    "kind": "api_method",
+    "text": "MsgStream.StateBits property of type uint",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-31f724",
+    "kind": "api_method",
+    "text": "MsgStream.CreationTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8485c7",
+    "kind": "api_method",
+    "text": "MsgStream.ModifiedTime property of type ulong",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b32761",
+    "kind": "api_class",
+    "text": "Class MsgStream defined in src/Aspose.Email.Foss/Msg/MsgStream.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgStream.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fa661f",
+    "kind": "api_class",
+    "text": "Class PropertyTypeCode defined in src/Aspose.Email.Foss/Msg/PropertyTypeCode.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/PropertyTypeCode.cs",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0cb002",
+    "kind": "format_support",
+    "text": "import support for Cfb via CfbReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8d32ed",
+    "kind": "format_support",
+    "text": "export support for Cfb via CfbWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-141e7b",
+    "kind": "format_support",
+    "text": "import support for Mime via MimeReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/Mime/MimeReader.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a2652a",
+    "kind": "format_support",
+    "text": "export support for Mime via MimeWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/Mime/MimeWriter.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f9246f",
+    "kind": "format_support",
+    "text": "import support for Msg via MsgReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5898cf",
+    "kind": "format_support",
+    "text": "export support for Msg via MsgWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  }
+]
