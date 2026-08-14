@@ -1,0 +1,2024 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.ts",
+    "source_file": "tests/test_3mf_exporter.test.ts",
+    "source_function": "Test3MFExporter",
+    "source_line": 3,
+    "classes_used": [
+      "ThreeMfPlugin",
+      "ThreeMfSaveOptions"
+    ],
+    "methods_used": [
+      "ThreeMfPlugin.createSaveOptions",
+      "ThreeMfPlugin.getInstance"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.ts",
+    "source_file": "tests/test_3mf_exporter.test.ts",
+    "source_function": "testSaveOptions",
+    "source_line": 10,
+    "classes_used": [
+      "ThreeMfSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.ts",
+    "source_file": "tests/test_3mf_importer.test.ts",
+    "source_function": "Test3MFImporter",
+    "source_line": 3,
+    "classes_used": [
+      "ThreeMfLoadOptions",
+      "ThreeMfPlugin"
+    ],
+    "methods_used": [
+      "ThreeMfPlugin.createLoadOptions",
+      "ThreeMfPlugin.getFileFormat",
+      "ThreeMfPlugin.getInstance"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.ts",
+    "source_file": "tests/test_3mf_importer.test.ts",
+    "source_function": "testFormatDetection",
+    "source_line": 12,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.ts",
+    "source_file": "tests/test_3mf_importer.test.ts",
+    "source_function": "testLoadOptions",
+    "source_line": 19,
+    "classes_used": [
+      "ThreeMfLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.ts",
+    "source_file": "tests/test_3mf_material_export.test.ts",
+    "source_function": "Test3MFMaterialExport",
+    "source_line": 7,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Mesh",
+      "Node",
+      "Scene",
+      "ThreeMfPlugin",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.save",
+      "ThreeMfPlugin.createSaveOptions",
+      "ThreeMfPlugin.getInstance"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.ts",
+    "source_file": "tests/test_3mf_material_export.test.ts",
+    "source_function": "testExportObjectMaterial",
+    "source_line": 14,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.ts",
+    "source_file": "tests/test_3mf_materials.test.ts",
+    "source_function": "Test3MFMaterialImport",
+    "source_line": 4,
+    "classes_used": [
+      "Material",
+      "Node",
+      "Scene",
+      "ThreeMfPlugin"
+    ],
+    "methods_used": [
+      "Scene.open",
+      "ThreeMfPlugin.createLoadOptions",
+      "ThreeMfPlugin.getInstance"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.ts",
+    "source_file": "tests/test_3mf_materials.test.ts",
+    "source_function": "testMaterialImport",
+    "source_line": 11,
+    "classes_used": [
+      "Material",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.ts",
+    "source_file": "tests/test_3mf_roundtrip.test.ts",
+    "source_function": "Test3MFRoundTrip",
+    "source_line": 6,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene",
+      "ThreeMfLoadOptions",
+      "ThreeMfSaveOptions",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.open",
+      "Scene.save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.ts",
+    "source_file": "tests/test_3mf_roundtrip.test.ts",
+    "source_function": "testRoundTripExportImport",
+    "source_line": 7,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene",
+      "ThreeMfLoadOptions",
+      "ThreeMfSaveOptions",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.open",
+      "Scene.save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "TestColladaExporter",
+    "source_line": 7,
+    "classes_used": [
+      "ColladaExporter",
+      "ColladaFormat",
+      "ColladaSaveOptions",
+      "LambertMaterial",
+      "Material",
+      "Mesh",
+      "Node",
+      "PhongMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "ColladaFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "testSimpleTriangleExport",
+    "source_line": 8,
+    "classes_used": [
+      "ColladaFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "ColladaFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "testExportWithMaterial",
+    "source_line": 23,
+    "classes_used": [
+      "ColladaFormat",
+      "Material",
+      "Mesh",
+      "Node",
+      "PhongMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "ColladaFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "testExportLambertMaterial",
+    "source_line": 45,
+    "classes_used": [
+      "ColladaFormat",
+      "LambertMaterial",
+      "Material",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "ColladaFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "testColladaSaveOptions",
+    "source_line": 65,
+    "classes_used": [
+      "ColladaSaveOptions",
+      "Material"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.ts",
+    "source_file": "tests/test_collada_exporter.test.ts",
+    "source_function": "testColladaFormatCanExport",
+    "source_line": 79,
+    "classes_used": [
+      "ColladaFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.ts",
+    "source_file": "tests/test_collada_importer.test.ts",
+    "source_function": "TestColladaImporter",
+    "source_line": 4,
+    "classes_used": [
+      "ColladaImporter",
+      "ColladaLoadOptions",
+      "Material",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.ts",
+    "source_file": "tests/test_collada_importer.test.ts",
+    "source_function": "testImportRealCube",
+    "source_line": 5,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.ts",
+    "source_file": "tests/test_collada_importer.test.ts",
+    "source_function": "testColladaLoadOptions",
+    "source_line": 21,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "Material"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.ts",
+    "source_file": "tests/test_collada_materials.test.ts",
+    "source_function": "TestColladaMaterials",
+    "source_line": 5,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "LambertMaterial",
+      "Material",
+      "Node",
+      "PhongMaterial",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.ts",
+    "source_file": "tests/test_collada_materials.test.ts",
+    "source_function": "testPhongMaterialImport",
+    "source_line": 6,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "Material",
+      "Node",
+      "PhongMaterial",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.ts",
+    "source_file": "tests/test_collada_materials.test.ts",
+    "source_function": "testLambertMaterialImport",
+    "source_line": 49,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "LambertMaterial",
+      "Material",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.ts",
+    "source_file": "tests/test_collada_materials.test.ts",
+    "source_function": "testMaterialsDisabled",
+    "source_line": 85,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "Material",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.ts",
+    "source_file": "tests/test_collada_multiple_files.test.ts",
+    "source_function": "TestColladaImporterMultipleFiles",
+    "source_line": 6,
+    "classes_used": [
+      "ColladaImporter",
+      "ColladaLoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.ts",
+    "source_file": "tests/test_collada_multiple_files.test.ts",
+    "source_function": "testImportMultipleFiles",
+    "source_line": 7,
+    "classes_used": [
+      "ColladaLoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.ts",
+    "source_file": "tests/test_ear_clipping.test.ts",
+    "source_function": "testEarClipping",
+    "source_line": 5,
+    "classes_used": [
+      "Mesh",
+      "PolygonModifier",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate",
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.ts",
+    "source_file": "tests/test_ear_clipping.test.ts",
+    "source_function": "testConcavePolygonArrowShape",
+    "source_line": 6,
+    "classes_used": [
+      "Mesh",
+      "PolygonModifier",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate",
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.ts",
+    "source_file": "tests/test_ear_clipping.test.ts",
+    "source_function": "testStarShapeHighlyConcave",
+    "source_line": 25,
+    "classes_used": [
+      "Mesh",
+      "PolygonModifier",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate",
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.ts",
+    "source_file": "tests/test_fbx_simple.test.ts",
+    "source_function": "testFbxSimple",
+    "source_line": 3,
+    "classes_used": [
+      "FbxTokenizer"
+    ],
+    "methods_used": [
+      "FbxTokenizer.tokenize"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.ts",
+    "source_file": "tests/test_fbx_simple.test.ts",
+    "source_function": "testSimple",
+    "source_line": 4,
+    "classes_used": [
+      "FbxTokenizer"
+    ],
+    "methods_used": [
+      "FbxTokenizer.tokenize"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.ts",
+    "source_file": "tests/test_fbx_tokenizer.test.ts",
+    "source_function": "testFbxTokenizer",
+    "source_line": 3,
+    "classes_used": [
+      "FbxTokenizer"
+    ],
+    "methods_used": [
+      "FbxTokenizer.tokenize"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.ts",
+    "source_file": "tests/test_fbx_tokenizer.test.ts",
+    "source_function": "testTokenizer",
+    "source_line": 4,
+    "classes_used": [
+      "FbxTokenizer"
+    ],
+    "methods_used": [
+      "FbxTokenizer.tokenize"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.ts",
+    "source_file": "tests/test_formats.test.ts",
+    "source_function": "TestFormats",
+    "source_line": 5,
+    "classes_used": [
+      "IOService",
+      "StlLoadOptions",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.ts",
+    "source_file": "tests/test_formats.test.ts",
+    "source_function": "testIoServiceSingleton",
+    "source_line": 6,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.instance"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.ts",
+    "source_file": "tests/test_formats.test.ts",
+    "source_function": "testLoadOptionsCreation",
+    "source_line": 12,
+    "classes_used": [
+      "StlLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.ts",
+    "source_file": "tests/test_formats.test.ts",
+    "source_function": "testSaveOptionsCreation",
+    "source_line": 17,
+    "classes_used": [
+      "StlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.ts",
+    "source_file": "tests/test_formats.test.ts",
+    "source_function": "testSaveOptionsProperties",
+    "source_line": 23,
+    "classes_used": [
+      "StlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.ts",
+    "source_file": "tests/test_gltf_attributes.test.ts",
+    "source_function": "TestGltfAttributeLoading",
+    "source_line": 5,
+    "classes_used": [
+      "Geometry",
+      "GltfLoadOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vertex",
+      "VertexElementNormal",
+      "VertexElementUV"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.ts",
+    "source_file": "tests/test_gltf_attributes.test.ts",
+    "source_function": "testNormalsLoading",
+    "source_line": 6,
+    "classes_used": [
+      "Geometry",
+      "GltfLoadOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vertex",
+      "VertexElementNormal"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.ts",
+    "source_file": "tests/test_gltf_attributes.test.ts",
+    "source_function": "testUvLoading",
+    "source_line": 98,
+    "classes_used": [
+      "Geometry",
+      "GltfLoadOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vertex",
+      "VertexElementUV"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "TestGltfExporter",
+    "source_line": 10,
+    "classes_used": [
+      "GltfExporter",
+      "GltfFormat",
+      "GltfSaveOptions",
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4",
+      "Vertex",
+      "VertexElementNormal",
+      "VertexElementUV"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testSimpleTriangleAscii",
+    "source_line": 11,
+    "classes_used": [
+      "GltfFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testSimpleTriangleBinary",
+    "source_line": 27,
+    "classes_used": [
+      "GltfFormat",
+      "GltfSaveOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithPositions",
+    "source_line": 51,
+    "classes_used": [
+      "GltfFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithNormals",
+    "source_line": 67,
+    "classes_used": [
+      "GltfFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4",
+      "Vertex",
+      "VertexElementNormal"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithUvs",
+    "source_line": 86,
+    "classes_used": [
+      "GltfFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4",
+      "Vertex",
+      "VertexElementUV"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testFlipTexCoordV",
+    "source_line": 105,
+    "classes_used": [
+      "GltfFormat",
+      "GltfSaveOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4",
+      "Vertex",
+      "VertexElementUV"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testGltfFormatCanExport",
+    "source_line": 134,
+    "classes_used": [
+      "GltfFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithMaterial",
+    "source_line": 139,
+    "classes_used": [
+      "GltfFormat",
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithEmissiveMaterial",
+    "source_line": 162,
+    "classes_used": [
+      "GltfFormat",
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithTransparentMaterial",
+    "source_line": 184,
+    "classes_used": [
+      "GltfFormat",
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.ts",
+    "source_file": "tests/test_gltf_exporter.test.ts",
+    "source_function": "testExportWithBlendMaterial",
+    "source_line": 206,
+    "classes_used": [
+      "GltfFormat",
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "GltfFormat.getInstance",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.ts",
+    "source_file": "tests/test_gltf_import.test.ts",
+    "source_function": "TestGltfImport",
+    "source_line": 9,
+    "classes_used": [
+      "GltfFormat",
+      "GltfLoadOptions",
+      "GltfPlugin",
+      "IOService",
+      "Property"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.ts",
+    "source_file": "tests/test_gltf_import.test.ts",
+    "source_function": "testGltfLoadOptions",
+    "source_line": 10,
+    "classes_used": [
+      "GltfLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.ts",
+    "source_file": "tests/test_gltf_import.test.ts",
+    "source_function": "testGltfLoadOptionsFlipProperty",
+    "source_line": 16,
+    "classes_used": [
+      "GltfLoadOptions",
+      "Property"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.ts",
+    "source_file": "tests/test_gltf_import.test.ts",
+    "source_function": "testGltfFormatDetection",
+    "source_line": 22,
+    "classes_used": [
+      "GltfFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.ts",
+    "source_file": "tests/test_gltf_import.test.ts",
+    "source_function": "testGltfPluginRegistered",
+    "source_line": 31,
+    "classes_used": [
+      "GltfPlugin",
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.ts",
+    "source_file": "tests/test_gltf_importer.test.ts",
+    "source_function": "TestGltfImporterFunctional",
+    "source_line": 4,
+    "classes_used": [
+      "GltfImporter",
+      "GltfLoadOptions",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.ts",
+    "source_file": "tests/test_gltf_importer.test.ts",
+    "source_function": "testSimpleGltfJson",
+    "source_line": 5,
+    "classes_used": [
+      "GltfLoadOptions",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.ts",
+    "source_file": "tests/test_gltf_materials.test.ts",
+    "source_function": "TestGltfMaterialImport",
+    "source_line": 12,
+    "classes_used": [
+      "GltfLoadOptions",
+      "GltfMaterial",
+      "Material",
+      "Node",
+      "PbrMaterial",
+      "Property",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.ts",
+    "source_file": "tests/test_gltf_materials.test.ts",
+    "source_function": "testMaterialImportFromBoombox",
+    "source_line": 13,
+    "classes_used": [
+      "GltfLoadOptions",
+      "Material",
+      "Node",
+      "PbrMaterial",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.openFromBuffer"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.ts",
+    "source_file": "tests/test_gltf_materials.test.ts",
+    "source_function": "testPbrMaterialCreation",
+    "source_line": 43,
+    "classes_used": [
+      "Material",
+      "PbrMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.ts",
+    "source_file": "tests/test_gltf_materials.test.ts",
+    "source_function": "testMaterialPropertySetters",
+    "source_line": 52,
+    "classes_used": [
+      "Material",
+      "PbrMaterial",
+      "Property",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.ts",
+    "source_file": "tests/test_imports.test.ts",
+    "source_function": "testImports",
+    "source_line": 1,
+    "classes_used": [
+      "Light",
+      "Matrix4",
+      "Node",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.ts",
+    "source_file": "tests/test_imports.test.ts",
+    "source_function": "testModuleImports",
+    "source_line": 2,
+    "classes_used": [
+      "Light",
+      "Matrix4",
+      "Node",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.ts",
+    "source_file": "tests/test_material_import.test.ts",
+    "source_function": "testMaterialImport",
+    "source_line": 6,
+    "classes_used": [
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Node.createChildNode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.ts",
+    "source_file": "tests/test_material_import.test.ts",
+    "source_function": "testSimpleCubeWithMaterial",
+    "source_line": 7,
+    "classes_used": [
+      "Material",
+      "Mesh",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Node.createChildNode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.ts",
+    "source_file": "tests/test_mesh.test.ts",
+    "source_function": "testMesh",
+    "source_line": 5,
+    "classes_used": [
+      "MappingMode",
+      "Mesh",
+      "TextureMapping",
+      "Vector4",
+      "Vertex",
+      "VertexElementType"
+    ],
+    "methods_used": [
+      "Mesh.createElement",
+      "Mesh.createElementUV",
+      "Mesh.createPolygon"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.ts",
+    "source_file": "tests/test_mesh.test.ts",
+    "source_function": "testMeshClass",
+    "source_line": 6,
+    "classes_used": [
+      "MappingMode",
+      "Mesh",
+      "TextureMapping",
+      "Vector4",
+      "Vertex",
+      "VertexElementType"
+    ],
+    "methods_used": [
+      "Mesh.createElement",
+      "Mesh.createElementUV",
+      "Mesh.createPolygon"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.ts",
+    "source_file": "tests/test_mesh_triangulate.test.ts",
+    "source_function": "testMeshTriangulate",
+    "source_line": 4,
+    "classes_used": [
+      "Mesh",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.ts",
+    "source_file": "tests/test_mesh_triangulate.test.ts",
+    "source_function": "testTriangleMeshAlreadyTriangulated",
+    "source_line": 5,
+    "classes_used": [
+      "Mesh",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.ts",
+    "source_file": "tests/test_mesh_triangulate.test.ts",
+    "source_function": "testQuadMesh",
+    "source_line": 20,
+    "classes_used": [
+      "Mesh",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.ts",
+    "source_file": "tests/test_mesh_triangulate.test.ts",
+    "source_function": "testPentagonMesh",
+    "source_line": 36,
+    "classes_used": [
+      "Mesh",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.ts",
+    "source_file": "tests/test_multiple_meshes_export.test.ts",
+    "source_function": "TestMultipleMeshesExport",
+    "source_line": 7,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene",
+      "StlFormat",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.ts",
+    "source_file": "tests/test_multiple_meshes_export.test.ts",
+    "source_function": "testExportMultipleMeshes",
+    "source_line": 8,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene",
+      "StlFormat",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "TestObjImporter",
+    "source_line": 4,
+    "classes_used": [
+      "Material",
+      "Mesh",
+      "Node",
+      "ObjFormat",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_basic_cube_import",
+    "source_line": 5,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_multiple_objects",
+    "source_line": 29,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_groups",
+    "source_line": 56,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_normals_and_uvs",
+    "source_line": 84,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_face_variants",
+    "source_line": 112,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_flip_coordinate_system",
+    "source_line": 148,
+    "classes_used": [
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_scale",
+    "source_line": 169,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_smoothing_groups",
+    "source_line": 191,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_disable_materials",
+    "source_line": 215,
+    "classes_used": [
+      "Material",
+      "Mesh",
+      "Node",
+      "ObjImporter",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjImporter.importScene"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_obj_format_detection",
+    "source_line": 239,
+    "classes_used": [
+      "ObjFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.ts",
+    "source_file": "tests/test_obj_importer.test.ts",
+    "source_function": "test_load_options_properties",
+    "source_line": 247,
+    "classes_used": [
+      "Material",
+      "ObjLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "TestPluginSystem",
+    "source_line": 4,
+    "classes_used": [
+      "IOService",
+      "ObjFormat",
+      "StlFormat"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.getPluginForFormat",
+      "IOService.instance",
+      "ObjFormat.createLoadOptions",
+      "ObjFormat.createSaveOptions",
+      "StlFormat.createLoadOptions",
+      "StlFormat.createSaveOptions"
+    ],
+    "formats_referenced": [
+      "fbx",
+      "gltf",
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_plugin_registration",
+    "source_line": 5,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "fbx",
+      "gltf",
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_get_plugin_by_format",
+    "source_line": 21,
+    "classes_used": [
+      "IOService",
+      "ObjFormat",
+      "StlFormat"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.getPluginForFormat",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_get_plugin_by_extension",
+    "source_line": 40,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_get_plugin_by_extension_case_insensitive",
+    "source_line": 52,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_plugin_creates_load_options",
+    "source_line": 62,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_plugin_creates_save_options",
+    "source_line": 74,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_plugin_registers_components",
+    "source_line": 86,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.ts",
+    "source_file": "tests/test_plugin_system.test.ts",
+    "source_function": "test_plugin_singleton",
+    "source_line": 109,
+    "classes_used": [
+      "IOService"
+    ],
+    "methods_used": [
+      "IOService.getPluginForExtension",
+      "IOService.instance"
+    ],
+    "formats_referenced": [
+      "obj",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.ts",
+    "source_file": "tests/test_polygon_modifier.test.ts",
+    "source_function": "PolygonModifier",
+    "source_line": 6,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "PolygonModifier",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Mesh.createPolygon",
+      "Mesh.triangulate",
+      "Node.addChildNode",
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.ts",
+    "source_file": "tests/test_polygon_modifier.test.ts",
+    "source_function": "triangulate_with_control_points_and_polygons",
+    "source_line": 7,
+    "classes_used": [
+      "PolygonModifier",
+      "Vector4"
+    ],
+    "methods_used": [
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.ts",
+    "source_file": "tests/test_polygon_modifier.test.ts",
+    "source_function": "triangulate_with_single_polygon",
+    "source_line": 24,
+    "classes_used": [
+      "PolygonModifier",
+      "Vector4"
+    ],
+    "methods_used": [
+      "PolygonModifier.triangulate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

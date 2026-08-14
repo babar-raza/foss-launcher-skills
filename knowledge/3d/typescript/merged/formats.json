@@ -1,0 +1,162 @@
+[
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/collada/ColladaExporter.ts",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/collada/ColladaImporter.ts",
+    "line": 16,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxExporter.ts",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxImporter.ts",
+    "line": 18,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfExporter.ts",
+    "line": 80,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfImporter.ts",
+    "line": 30,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjExporter.ts",
+    "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjImporter.ts",
+    "line": 12,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlExporter.ts",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlImporter.ts",
+    "line": 10,
+    "direction": "import"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/collada/ColladaLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/collada/ColladaSaveOptions.ts",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxSaveOptions.ts",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfSaveOptions.ts",
+    "line": 4,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjSaveOptions.ts",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlSaveOptions.ts",
+    "line": 4,
+    "direction": "export"
+  }
+]

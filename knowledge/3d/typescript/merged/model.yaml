@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:46:17.381029+00:00'
+bundle_id: e9e1e4a6-0dc9-48ce-83be-d891ef3b09ae
+config_sha: 8b1fe257c09be32f
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: 3d
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: ee1fe7ec539018d3d1f57529c223556846bf923ff80417b3ca2e24e955bd5aa5
+  extractor_config_sha: 8b1fe257c09be32f
+  products_json_entry_sha: a4d786e83a038d17eaff18e24430a81087224e442e1fda7a61ba1c7828382932
+  scout_api_surface_sha: debe7e1a32874944113239049b0460bbf4f0354deea3a99bd61eaa25d5526c4b
+  scout_claims_sha: 8a5475198b723ac908d9f02609c3bb3ad158934e5f5e9e3a242353b262db5685
+license: MIT
+platform: typescript
+product_name: '@aspose/3d'
+promoted_at: '2026-08-14T11:46:17.512470+00:00'
+repo_sha: 7b959706f2ad976db929f26ec079f43a07d578e1
+repo_url: https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 142
+  enriched_claims: 977
+  forbidden_count: 0
+  scout_claims: 1381
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 2276
+version: 24.12.0
