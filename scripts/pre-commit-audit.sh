@@ -84,6 +84,29 @@ _pc_exit() {
 }
 
 # ---------------------------------------------------------------------------
+_pc_step_start "python version pin"
+# Step -1 (TC-CIR-11, 2026-08-14 CI reliability reassessment): warn when the
+# active .venv's Python version doesn't match .python-version (repo root),
+# which itself matches every CI workflow's actions/setup-python@v5 pin
+# ('3.12'). Previously there was zero local version pin at all (only
+# docs/QUICKSTART.md's looser "3.11+" floor) — confirmed live this pass that
+# the primary dev machine's .venv actually runs 3.13.2, silently diverged
+# from CI's pinned 3.12 with no warning anywhere. WARN, not BLOCK: a version
+# mismatch is not itself proof of a real defect, only an early-warning signal
+# (Part 3's criticality test (a)-(f) is not met by a mismatch alone).
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f ".python-version" ]; then
+    _pinned_pyver=$(cat .python-version | tr -d '[:space:]')
+    _active_pyver=$("$_HOOK_PYTHON" -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')" 2>/dev/null || echo "unknown")
+    if [ "$_active_pyver" != "$_pinned_pyver" ] && [ "$_active_pyver" != "unknown" ]; then
+        echo "WARNING: active .venv Python is ${_active_pyver}, repo pins ${_pinned_pyver} (.python-version,"
+        echo "  matching CI's actions/setup-python@v5 pin). Behavior may diverge from CI silently."
+        echo "  Rebuild .venv with Python ${_pinned_pyver} when convenient."
+    fi
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
 _pc_step_start "reports/ boundary"
 # Step 0: reports/ boundary — local-only artifacts must never be committed
 # ---------------------------------------------------------------------------
@@ -93,13 +116,17 @@ _pc_step_start "reports/ boundary"
 # so that the cleanup commit can untrack already-committed files.
 staged_reports=$(git diff --cached --name-only --diff-filter=ACM | grep '^reports/')
 if [ -n "$staged_reports" ]; then
-    echo "WARNING: Staged files under reports/ violate the local-only artifact boundary:"
+    echo "BLOCKED: Staged files under reports/ violate the local-only artifact boundary:"
     echo "$staged_reports"
     echo ""
     echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/."
     echo "Override tokens are validated from disk (reports/overrides/pending/) — do not stage them."
-    echo "Downgraded from blocking 2026-08-08 (CI rules audit): no test (a)-(f) criticality met —"
-    echo "  git history remains the safety net for an accidentally-committed local-only file."
+    echo "Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment): this check is"
+    echo "  fast, deterministic, and staged-scoped, and content-audit.yml's identical CI-side copy"
+    echo "  never fires under this repo's direct-to-main push model (pull_request-only trigger) —"
+    echo "  the 2026-08-08 downgrade removed the only enforcement that existed, not a redundant one."
+    _pc_step_end "FAIL"
+    _pc_exit 1
 fi
 _pc_step_end "PASS"
 
@@ -176,11 +203,15 @@ if [ -n "$_HOOK_PYTHON" ]; then
     "$_HOOK_PYTHON" scripts/ci/checks/check_content_filenames.py --strict
     if [ $? -ne 0 ]; then
         echo ""
-        echo "WARNING: One or more content files have invalid filenames (see above)."
-        echo "  Rename the file(s) to a valid lowercase slug when convenient."
+        echo "BLOCKED: One or more content files have invalid filenames (see above)."
+        echo "  Rename the file(s) to a valid lowercase slug."
         echo "  Convention: [a-z0-9]+(-[a-z0-9]+)*.md  (no leading/trailing hyphen)"
-        echo "  Downgraded from blocking 2026-08-08 (CI rules audit): cosmetic/consistency,"
-        echo "  no test (a)-(f) criticality met."
+        echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment): this is"
+        echo "  the exact same whole-tree invocation content-audit.yml runs as a blocking check —"
+        echo "  but that workflow is pull_request-only and never fires here, so the 2026-08-08"
+        echo "  downgrade removed the only live enforcement, it did not shift it to CI."
+        _pc_step_end "FAIL"
+        _pc_exit 1
     fi
 else
     echo "[Step 1b] SKIP: .venv not found — filename check skipped." >&2
@@ -248,10 +279,13 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\
         "$_HOOK_PYTHON" scripts/ci/checks/check_plugin_platform.py
         if [ $? -ne 0 ]; then
             echo ""
-            echo "WARNING: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
-            echo "Fix the values above when convenient."
-            echo "Downgraded from blocking 2026-08-08 (CI rules audit): display-value consistency,"
-            echo "  no test (a)-(f) criticality met."
+            echo "BLOCKED: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
+            echo "Fix the values above before committing."
+            echo "Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment): no CI"
+            echo "  workflow runs this check at all — the 2026-08-08 downgrade left this defect"
+            echo "  class with zero enforcement anywhere, not merely a WARN-level local signal."
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     else
         echo "[Step 3] SKIP: .venv not found — plugin_platform check skipped." >&2
@@ -316,20 +350,39 @@ _pc_step_start "content_hash normalization"
 # Step 5: content_hash normalization for staged English content files
 # ---------------------------------------------------------------------------
 # Computes the current body hash for each staged English .md file and updates
-# the stored content_hash in the provenance block if it differs.  Re-stages
-# modified files so the commit includes the corrected hash.
-# Non-blocking: hash normalization is mechanical (analogous to auto-formatting).
-# Note: this may add provenance-only frontmatter changes to the staged diff.
+# the stored content_hash in the provenance block if it differs, writing the
+# correction to the working tree.
+# TC-CIR-10 (2026-08-10, CI reliability reassessment): previously ran with
+# --auto-stage, which silently committed corrected content the operator never
+# reviewed — a direct violation of "do not commit content different from what
+# was reviewed." Now runs --apply WITHOUT --auto-stage: the fix is written to
+# disk (so the operator doesn't have to re-run this by hand), but the commit
+# is BLOCKED until the operator reviews the diff and `git add`s it themselves.
 # Scope: all content/*/en/ sites.  websites.aspose.org hub pages (_index.md)
 # lack provenance by design — they are navigation pages outside the content
 # quality pipeline (no grade, evidence, or staleness tracking expected).
-if [ ${#changed[@]} -gt 0 ]; then
+if [ ${#changed[@]} -gt 0 ] && [ -n "$_HOOK_PYTHON" ]; then
     _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile5"
-    [ -n "$_HOOK_PYTHON" ] && PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
-        --apply --files-from "$_tmpfile5" --auto-stage 2>&1
+    _hash_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
+        --apply --files-from "$_tmpfile5" 2>&1)
+    _hash_status=$?
     rm -f "$_tmpfile5"
-    # Non-blocking: normalization errors are logged but do not block the commit.
+    echo "$_hash_out"
+    _hash_updated=$(echo "$_hash_out" | grep -oE 'Updated: [0-9]+' | grep -oE '[0-9]+' || echo 0)
+    if [ "$_hash_status" -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: content_hash normalization reported errors (see above)."
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+    if [ "${_hash_updated:-0}" -gt 0 ]; then
+        echo ""
+        echo "BLOCKED: content_hash was stale on ${_hash_updated} file(s) and has been corrected"
+        echo "  on disk — review the diff, then 'git add' the corrected file(s) and retry the commit."
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
 fi
 _pc_step_end "PASS"
 
@@ -403,14 +456,18 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
         "$_HOOK_PYTHON" scripts/ci/checks/check_python_placement.py --check-staged
         if [ $? -ne 0 ]; then
             echo ""
-            echo "WARNING: Staged Python file(s) are in forbidden locations (see above)."
+            echo "BLOCKED: Staged Python file(s) are in forbidden locations (see above)."
             echo "  Correct locations:"
             echo "    scripts/maintenance/  (operator one-off; add to scripts/maintenance/registry.yaml)"
             echo "    scripts/pipeline/     (operational; follow PIPELINE.md New File Protocol)"
             echo "    scripts/ci/           (CI-only validator)"
             echo "  See AGENTS.md §4b for the full decision tree."
-            echo "  Downgraded from blocking 2026-08-08 (CI rules audit): maintainability, not"
-            echo "  safety — no test (a)-(f) criticality met."
+            echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment):"
+            echo "  content-audit.yml's --check-baseline copy of this same script is pull_request-only"
+            echo "  and never fires here, so the 2026-08-08 downgrade left the staged-diff mode as the"
+            echo "  only ever-live instance of this check, non-blocking."
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     else
         echo "[Step 7] SKIP: .venv not found — Python placement check skipped." >&2
@@ -563,10 +620,15 @@ if echo "$STAGED_FILES" | grep -qE "$ROOT_DOCS_PATTERN"; then
   fi
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/checks/check_root_docs_truth.py --staged; then
-      echo "[Step 9b] WARNING: root-docs truth check failed. Fix issues above when convenient."
+      echo "[Step 9b] BLOCKED: root-docs truth check failed. Fix issues above before committing."
       echo "  Auto-fix path: /root-docs-refresh (S-121)."
-      echo "  Downgraded from blocking 2026-08-08 (CI rules audit): docs consistency, not"
-      echo "  safety — no test (a)-(f) criticality met."
+      echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment):"
+      echo "  check_root_docs_truth.py has zero CI references anywhere in this repo — this"
+      echo "  same-commit-scoped gate is the ONLY enforcement that exists for this defect class"
+      echo "  (the scheduled weekly full-sweep this step's own comment names as 'Layer 2's job'"
+      echo "  was never built — see backlog ST-070). Downgrading it to WARN left zero coverage."
+      _pc_step_end "FAIL"
+      _pc_exit 1
     else
       echo "[Step 9b] PASS"
     fi
@@ -767,10 +829,12 @@ if [ ${#staged_blog_posts[@]} -gt 0 ]; then
             echo "$_blog_out" | sed 's/^/[Step 15] /'
         fi
         if [ $_blog_exit -ne 0 ]; then
-            echo "[Step 15] WARNING: standards check failed (see above). Fix when convenient."
-            echo "  Downgraded from blocking 2026-08-08 (CI rules audit): no incident found, no"
-            echo "  test (a)-(f) criticality met — distinct from the AGENTS.md §7-mandated blog"
-            echo "  checks (check-blog-slugs.py, validate_frontmatter.py), which stay blocking."
+            echo "[Step 15] BLOCKED: standards check failed (see above). Fix before committing."
+            echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment):"
+            echo "  check_blog_post_standards.py has zero CI references anywhere in this repo —"
+            echo "  the 2026-08-08 downgrade left this defect class with no enforcement at all."
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     fi
 fi
@@ -990,6 +1054,34 @@ fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "grade churn"
+# Step 20b (TC-CIR-03, 2026-08-10 CI reliability reassessment): GUARD-02 grade-
+# churn gate, local counterpart to Step 20's evidence-churn check. Blocks bulk
+# commits where many staged content .md files change only the grade block
+# (grade:/graded_at:/rationale:) with no body content change. The script
+# already supports --mode staged as its default (confirmed: this is a
+# wire-up, not new logic) — this check has been CI-only (content-audit.yml,
+# pull_request-only, never fires) since it was added; this step closes that
+# gap. Override: commit message annotation
+# 'BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [trigger]'.
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_grade_churn.py" ]; then
+    _gc_commit_msg="${BULK_GRADE_MIGRATION_MSG:-$(cat .git/COMMIT_EDITMSG 2>/dev/null || true)}"
+    _gc_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_grade_churn.py --mode staged --commit-msg "$_gc_commit_msg" 2>&1)
+    _gc_exit=$?
+    if [ -n "$_gc_out" ]; then
+        echo "$_gc_out" | sed 's/^/[Step 20b] /'
+    fi
+    if [ $_gc_exit -ne 0 ]; then
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+else
+    echo "[Step 20b] SKIP: .venv not found or check_grade_churn.py missing." >&2
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
 _pc_step_start "grade downgrade gate"
 # Step 21 (HARDEN-A8): grade-downgrade gate on the ACTUAL production write path.
 # check_grade_downgrade.py previously ran only in content-audit.yml, which
@@ -1185,6 +1277,25 @@ if [ ${#staged_skill_files[@]} -gt 0 ]; then
         fi
     else
         echo "[Step 25] SKIP: .venv not found or check_skill_mirror_parity.py missing." >&2
+    fi
+    # TC-CIR-04 (2026-08-10 CI reliability reassessment): skills/registry.json
+    # currency. Previously checked ONLY in skill-governance.yml, which fails
+    # with a manual "run sync_providers.py" instruction rather than
+    # auto-fixing — and only fires on push, after the commit already landed.
+    # A staged skill edit that forgets to regenerate registry.json passed
+    # every local gate before this. Whole-registry check (the script has no
+    # staged-file-scoping flag), gated on the same staged-skill-file trigger
+    # Step 25 already computed above — no redundant file-detection logic.
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_skill_registry_json.py" ]; then
+        _srj_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_skill_registry_json.py 2>&1)
+        _srj_exit=$?
+        echo "$_srj_out" | sed 's/^/[Step 25b] /'
+        if [ $_srj_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 25b] SKIP: .venv not found or check_skill_registry_json.py missing." >&2
     fi
 else
     echo "[Step 25] No staged skill/mirror files — skipping."

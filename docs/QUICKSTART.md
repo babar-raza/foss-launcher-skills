@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - **Windows**: Use Git Bash (MSYS2/MINGW64 from [Git for Windows](https://git-scm.com/downloads)). WSL, PowerShell, and cmd.exe are not supported.
-- **Python**: Python 3.11+ in the repo venv at `.venv/`
+- **Python**: Python 3.12 (pinned in `.python-version` at repo root, matching every CI workflow's `actions/setup-python@v5` pin) in the repo venv at `.venv/`
 - **Git**: Clone the repo, then run `git log --oneline -3` to confirm you're at HEAD
 
 ---

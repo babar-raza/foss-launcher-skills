@@ -2,7 +2,9 @@
 
 Verifies four invariants:
 1. git tracks zero files under reports/ (boundary is clean)
-2. scripts/pre-commit-audit.sh contains the Step 0 guard (warn-only since 2026-08-08)
+2. scripts/pre-commit-audit.sh contains the Step 0 guard (blocking — restored 2026-08-14,
+   TC-CIR-01, after a brief 2026-08-08 to 2026-08-14 warn-only window that removed the
+   only enforcement content-audit.yml's identical, pull_request-only copy never provides)
 3. scripts/post-commit-override.sh does NOT contain git add -f for archived tokens
 4. core.hooksPath points at scripts/githooks/, and each wrapper execs its real,
    tracked source — not a copy that can drift out of sync (2026-08-08 redesign)
@@ -79,25 +81,163 @@ class TestPreCommitGuard:
         )
 
     def test_source_blocks_reports_additions(self):
-        """Guard must grep for staged reports/ additions (warns, does not block — see
-        test_source_reports_guard_is_warn_only: downgraded 2026-08-08, CI rules audit)."""
+        """Guard must grep for staged reports/ additions (blocks — see
+        test_source_reports_guard_is_blocking: restored 2026-08-14, TC-CIR-01)."""
         content = self._SOURCE.read_text(encoding="utf-8")
-        # The guard greps for '^reports/' and warns if found
+        # The guard greps for '^reports/' and blocks if found
         assert "grep '^reports/'" in content or "grep \"^reports/\"" in content, (
             "Step 0 guard must grep for staged files under reports/"
         )
 
-    def test_source_reports_guard_is_warn_only(self):
-        """Step 0 was downgraded from BLOCK to WARN (2026-08-08 CI rules audit: no test
-        (a)-(f) criticality met — git history remains the safety net). The guard must
-        still detect and print the violation, but must not exit the commit."""
+    def test_source_reports_guard_is_blocking(self):
+        """Step 0 was downgraded to WARN on 2026-08-08 (CI rules audit), then restored to
+        BLOCK on 2026-08-14 (TC-CIR-01, CI reliability reassessment): content-audit.yml's
+        identical whole-tree copy is pull_request-only and never fires under this repo's
+        direct-to-main push model, so the WARN window left this defect class with zero
+        live enforcement, not enforcement merely relocated to CI. The guard must detect
+        the violation and exit the commit."""
         content = self._SOURCE.read_text(encoding="utf-8")
         start = content.index("# Step 0:")
         end = content.index("_pc_step_start", start + 1)
         step0_block = content[start:end]
-        assert "WARNING" in step0_block, "Step 0 must still surface the violation as a warning"
-        assert "_pc_exit" not in step0_block, (
-            "Step 0 must not call _pc_exit — it is warn-only, not blocking"
+        assert "BLOCKED" in step0_block, "Step 0 must surface the violation as a blocking error"
+        assert "_pc_exit" in step0_block, (
+            "Step 0 must call _pc_exit — it is blocking, not warn-only"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-01 (2026-08-14, CI reliability reassessment): 6 more steps restored
+# from WARN back to BLOCK — each had lost its only live enforcement on
+# 2026-08-08 without a working CI backstop (Step 9 onboarding-integrity is
+# excluded: it has a genuine, disclosed, working CI backstop and correctly
+# stayed WARN, see the plan's Root Cause D / §R2 incident #8).
+# ---------------------------------------------------------------------------
+
+class TestTierOneRestoredSteps:
+    """Steps 1b, 3, 7, 9b, 15 must be blocking again (TC-CIR-01)."""
+
+    _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
+
+    @staticmethod
+    def _step_block(content: str, start_marker: str, end_marker: str = "_pc_step_start") -> str:
+        start = content.index(start_marker)
+        end = content.index(end_marker, start + 1)
+        return content[start:end]
+
+    def test_step1b_filename_conventions_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 1b:")
+        assert "_pc_exit" in block, "Step 1b must call _pc_exit — it is blocking"
+        assert "BLOCKED" in block
+
+    def test_step3_plugin_platform_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 3:")
+        assert "_pc_exit" in block, "Step 3 must call _pc_exit — it is blocking"
+        assert "BLOCKED" in block
+
+    def test_step7_python_placement_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 7:")
+        assert "_pc_exit" in block, "Step 7 must call _pc_exit — it is blocking"
+        assert "BLOCKED" in block
+
+    def test_step9_onboarding_integrity_stays_warn(self):
+        """Step 9 is the one deliberate, working exception — must NOT be reverted."""
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 9:", end_marker="# Step 9b:")
+        assert "_pc_exit" not in block, (
+            "Step 9 must stay warn-only — ci-eval-consistency.yml's onboarding-integrity "
+            "job is a genuine, disclosed, working CI backstop (push-triggered + weekly "
+            "schedule), unlike the other 6 restored steps"
+        )
+
+    def test_step9b_root_docs_truth_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 9b:")
+        assert "_pc_exit" in block, "Step 9b must call _pc_exit — it is blocking"
+        assert "BLOCKED" in block
+
+    def test_step15_blog_post_standards_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        block = self._step_block(content, "# Step 15:")
+        assert "_pc_exit" in block, "Step 15 must call _pc_exit — it is blocking"
+        assert "BLOCKED" in block
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-10 (2026-08-14): Step 5 must not silently auto-stage corrected content
+# ---------------------------------------------------------------------------
+
+class TestStep5NoSilentAutoStage:
+    _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
+
+    def test_step5_does_not_pass_auto_stage_flag(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        start = content.index("# Step 5:")
+        end = content.index("_pc_step_start", start + 1)
+        step5_block = content[start:end]
+        invocation_lines = [
+            ln for ln in step5_block.splitlines()
+            if "provenance_normalize_hash.py" in ln
+        ]
+        assert invocation_lines, "Step 5 must invoke provenance_normalize_hash.py"
+        assert not any("--auto-stage" in ln for ln in invocation_lines), (
+            "Step 5's actual invocation must not pass --auto-stage — corrected content "
+            "must be reviewed and staged by the operator, not silently committed (TC-CIR-10)"
+        )
+
+    def test_step5_blocks_when_files_were_updated(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        start = content.index("# Step 5:")
+        end = content.index("_pc_step_start", start + 1)
+        step5_block = content[start:end]
+        assert "_pc_exit 1" in step5_block, (
+            "Step 5 must block the commit when content_hash was stale, not silently continue"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-03/04 (2026-08-14): new local checks wired up
+# ---------------------------------------------------------------------------
+
+class TestNewLocalChecksWiredUp:
+    _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
+
+    def test_grade_churn_check_present_and_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "check_grade_churn.py" in content, (
+            "TC-CIR-03: check_grade_churn.py (GUARD-02) must be wired into pre-commit"
+        )
+        start = content.index("_pc_step_start \"grade churn\"")
+        end = content.index("_pc_step_start", start + 1)
+        block = content[start:end]
+        assert "_pc_exit 1" in block
+
+    def test_skill_registry_json_check_present_and_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "check_skill_registry_json.py" in content, (
+            "TC-CIR-04: check_skill_registry_json.py must be wired into pre-commit Step 25"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-11 (2026-08-14): local Python version pin
+# ---------------------------------------------------------------------------
+
+class TestPythonVersionPin:
+    def test_python_version_file_exists_and_matches_ci(self):
+        pin_file = _REPO_ROOT / ".python-version"
+        assert pin_file.exists(), "TC-CIR-11: .python-version must exist at repo root"
+        assert pin_file.read_text(encoding="utf-8").strip() == "3.12", (
+            "Local Python pin must match CI's actions/setup-python@v5 pin ('3.12')"
+        )
+
+    def test_precommit_source_checks_version_pin(self):
+        content = (_REPO_ROOT / "scripts" / "pre-commit-audit.sh").read_text(encoding="utf-8")
+        assert ".python-version" in content, (
+            "TC-CIR-11: pre-commit-audit.sh must read .python-version and warn on mismatch"
         )
 
 
