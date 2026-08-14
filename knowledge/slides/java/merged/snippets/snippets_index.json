@@ -1,0 +1,2159 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "close",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 28,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testAddAuthor",
+    "source_line": 36,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [
+      "CommentAuthor.getInitials",
+      "CommentAuthor.getName",
+      "ICommentAuthor.getInitials",
+      "ICommentAuthor.getName",
+      "Presentation.getCommentAuthors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testAddComment",
+    "source_line": 53,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "ISlide",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Comment.getAuthor",
+      "Comment.getText",
+      "CommentAuthor.getComments",
+      "CommentAuthor.getName",
+      "IComment.getAuthor",
+      "IComment.getText",
+      "ICommentAuthor.getComments",
+      "ICommentAuthor.getName",
+      "ISlide.getName",
+      "Presentation.getCommentAuthors",
+      "Presentation.getSlides",
+      "Slide.getName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testMultipleAuthors",
+    "source_line": 73,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.getCommentAuthors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testGetSlideComments",
+    "source_line": 83,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "ISlide",
+      "PointF",
+      "Presentation",
+      "Size",
+      "Slide"
+    ],
+    "methods_used": [
+      "Comment.getText",
+      "CommentAuthor.getComments",
+      "IComment.getText",
+      "ICommentAuthor.getComments",
+      "ISlide.getSlideComments",
+      "Presentation.getCommentAuthors",
+      "Presentation.getSlides",
+      "Slide.getSlideComments"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testRemoveComment",
+    "source_line": 103,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "ISlide",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "CommentAuthor.getComments",
+      "ICommentAuthor.getComments",
+      "Presentation.getCommentAuthors",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testInsertComment",
+    "source_line": 124,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "ISlide",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Comment.getText",
+      "CommentAuthor.getComments",
+      "IComment.getText",
+      "ICommentAuthor.getComments",
+      "Presentation.getCommentAuthors",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testClearComments",
+    "source_line": 139,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "IComment",
+      "ICommentAuthor",
+      "ISlide",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "CommentAuthor.getComments",
+      "ICommentAuthor.getComments",
+      "Presentation.getCommentAuthors",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/CommentsTest.java",
+    "source_function": "testRemoveAuthor",
+    "source_line": 153,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Comment.remove",
+      "CommentAuthor.getName",
+      "CommentAuthor.remove",
+      "Presentation.getCommentAuthors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "close",
+    "source_line": 21,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 30,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testAddStraightConnector",
+    "source_line": 39,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Connector.getShapeType",
+      "Presentation.getSlides",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testAddStraightConnectorPersists",
+    "source_line": 50,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testBentConnectorAdjustments",
+    "source_line": 63,
+    "classes_used": [
+      "Connector",
+      "IShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Connector.getAdjustments",
+      "Presentation.getSlides",
+      "Shape.getAdjustments",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testConnectShapes",
+    "source_line": 93,
+    "classes_used": [
+      "AutoShape",
+      "Connector",
+      "IConnector",
+      "IShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getShapeType",
+      "Connector.getEndShapeConnectedTo",
+      "Connector.getEndShapeConnectionSiteIndex",
+      "Connector.getShapeType",
+      "Connector.getStartShapeConnectedTo",
+      "Connector.getStartShapeConnectionSiteIndex",
+      "Connector.setEndShapeConnectedTo",
+      "Connector.setEndShapeConnectionSiteIndex",
+      "Connector.setStartShapeConnectedTo",
+      "Connector.setStartShapeConnectionSiteIndex",
+      "IConnector.getEndShapeConnectedTo",
+      "IConnector.getEndShapeConnectionSiteIndex",
+      "IConnector.getShapeType",
+      "IConnector.getStartShapeConnectedTo",
+      "IConnector.getStartShapeConnectionSiteIndex",
+      "IConnector.setEndShapeConnectedTo",
+      "IConnector.setEndShapeConnectionSiteIndex",
+      "IConnector.setStartShapeConnectedTo",
+      "IConnector.setStartShapeConnectionSiteIndex",
+      "IShape.getShapeType",
+      "Presentation.getSlides",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testReroute",
+    "source_line": 129,
+    "classes_used": [
+      "AutoShape",
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getHeight",
+      "AutoShape.getWidth",
+      "Connector.getHeight",
+      "Connector.getWidth",
+      "Connector.reroute",
+      "Connector.setEndShapeConnectedTo",
+      "Connector.setEndShapeConnectionSiteIndex",
+      "Connector.setStartShapeConnectedTo",
+      "Connector.setStartShapeConnectionSiteIndex",
+      "Presentation.getSlides",
+      "Shape.getHeight",
+      "Shape.getWidth",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java",
+    "source_function": "testAdjustmentProperties",
+    "source_line": 148,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Connector.getAdjustments",
+      "Connector.getName",
+      "Presentation.getSlides",
+      "Shape.getAdjustments",
+      "Shape.getName",
+      "Slide.getName",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "close",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 32,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "testCoreProperties",
+    "source_line": 41,
+    "classes_used": [
+      "DocumentProperties",
+      "IDocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.getAuthor",
+      "DocumentProperties.getCategory",
+      "DocumentProperties.getKeywords",
+      "DocumentProperties.getSubject",
+      "DocumentProperties.getTitle",
+      "DocumentProperties.setAuthor",
+      "DocumentProperties.setCategory",
+      "DocumentProperties.setKeywords",
+      "DocumentProperties.setSubject",
+      "DocumentProperties.setTitle",
+      "IDocumentProperties.getAuthor",
+      "IDocumentProperties.getCategory",
+      "IDocumentProperties.getKeywords",
+      "IDocumentProperties.getSubject",
+      "IDocumentProperties.getTitle",
+      "IDocumentProperties.setAuthor",
+      "IDocumentProperties.setCategory",
+      "IDocumentProperties.setKeywords",
+      "IDocumentProperties.setSubject",
+      "IDocumentProperties.setTitle",
+      "Presentation.getDocumentProperties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "testCustomStringProperty",
+    "source_line": 64,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.getCustomPropertyValue",
+      "DocumentProperties.setCustomPropertyValue",
+      "Presentation.getDocumentProperties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "testCustomIntProperty",
+    "source_line": 80,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.getCustomPropertyValue",
+      "DocumentProperties.setCustomPropertyValue",
+      "Presentation.getDocumentProperties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/DocumentPropertiesTest.java",
+    "source_function": "testRemoveCustomProperty",
+    "source_line": 96,
+    "classes_used": [
+      "DocumentProperties",
+      "IDocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.containsCustomProperty",
+      "DocumentProperties.getCountOfCustomProperties",
+      "DocumentProperties.removeCustomProperty",
+      "DocumentProperties.setCustomPropertyValue",
+      "IDocumentProperties.containsCustomProperty",
+      "IDocumentProperties.getCountOfCustomProperties",
+      "IDocumentProperties.removeCustomProperty",
+      "IDocumentProperties.setCustomPropertyValue",
+      "Presentation.getDocumentProperties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "close",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 31,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "clear",
+    "source_line": 42,
+    "classes_used": [
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "testOuterShadow",
+    "source_line": 50,
+    "classes_used": [
+      "AutoShape",
+      "Blur",
+      "Color",
+      "EffectFormat",
+      "OuterShadow",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getEffectFormat",
+      "Color.fromArgb",
+      "EffectFormat.enableOuterShadowEffect",
+      "EffectFormat.getOuterShadowEffect",
+      "OuterShadow.getBlurRadius",
+      "OuterShadow.getDirection",
+      "OuterShadow.getDistance",
+      "OuterShadow.getShadowColor",
+      "OuterShadow.setBlurRadius",
+      "OuterShadow.setDirection",
+      "OuterShadow.setDistance",
+      "Presentation.getSlides",
+      "Shape.getEffectFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "testGlow",
+    "source_line": 76,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "EffectFormat",
+      "Glow",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getEffectFormat",
+      "EffectFormat.enableGlowEffect",
+      "EffectFormat.getGlowEffect",
+      "Glow.getColor",
+      "Glow.getRadius",
+      "Glow.setRadius",
+      "Presentation.getSlides",
+      "Shape.getEffectFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "testSoftEdge",
+    "source_line": 96,
+    "classes_used": [
+      "AutoShape",
+      "EffectFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "SoftEdge"
+    ],
+    "methods_used": [
+      "AutoShape.getEffectFormat",
+      "EffectFormat.enableSoftEdgeEffect",
+      "EffectFormat.getSoftEdgeEffect",
+      "Presentation.getSlides",
+      "Shape.getEffectFormat",
+      "Slide.getShapes",
+      "SoftEdge.getRadius",
+      "SoftEdge.setRadius"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "testBlur",
+    "source_line": 115,
+    "classes_used": [
+      "AutoShape",
+      "Blur",
+      "EffectFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getEffectFormat",
+      "Blur.getRadius",
+      "EffectFormat.getBlurEffect",
+      "EffectFormat.setBlurEffect",
+      "Presentation.getSlides",
+      "Shape.getEffectFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/EffectFormatTest.java",
+    "source_function": "testEnableDisableEffects",
+    "source_line": 133,
+    "classes_used": [
+      "AutoShape",
+      "EffectFormat",
+      "Glow",
+      "OuterShadow",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getEffectFormat",
+      "EffectFormat.disableGlowEffect",
+      "EffectFormat.disableOuterShadowEffect",
+      "EffectFormat.enableGlowEffect",
+      "EffectFormat.enableOuterShadowEffect",
+      "EffectFormat.isNoEffects",
+      "Presentation.getSlides",
+      "Shape.getEffectFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "close",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 31,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "clear",
+    "source_line": 42,
+    "classes_used": [
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "testSolidFill",
+    "source_line": 50,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "FillFormat",
+      "FillType",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "Color.fromArgb",
+      "Color.getB",
+      "Color.getG",
+      "Color.getR",
+      "FillFormat.getFillType",
+      "FillFormat.getSolidFillColor",
+      "FillFormat.setFillType",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "testGradientFill",
+    "source_line": 71,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "FillFormat",
+      "FillType",
+      "GradientFormat",
+      "GradientShape",
+      "GradientStop",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "FillFormat.getFillType",
+      "FillFormat.getGradientFormat",
+      "FillFormat.setFillType",
+      "GradientFormat.getGradientStops",
+      "GradientFormat.setGradientShape",
+      "GradientFormat.setLinearGradientAngle",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "testPatternFill",
+    "source_line": 93,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "FillFormat",
+      "FillType",
+      "PatternFormat",
+      "PatternStyle",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "FillFormat.getFillType",
+      "FillFormat.getPatternFormat",
+      "FillFormat.setFillType",
+      "PatternFormat.getBackColor",
+      "PatternFormat.getForeColor",
+      "PatternFormat.getPatternStyle",
+      "PatternFormat.setPatternStyle",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "testNoFill",
+    "source_line": 114,
+    "classes_used": [
+      "AutoShape",
+      "FillFormat",
+      "FillType",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "FillFormat.getFillType",
+      "FillFormat.setFillType",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/FillFormatTest.java",
+    "source_function": "testPictureFill",
+    "source_line": 130,
+    "classes_used": [
+      "AutoShape",
+      "FillFormat",
+      "FillType",
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFillFormat",
+      "PictureFillMode",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "FillFormat.getFillType",
+      "FillFormat.getPictureFillFormat",
+      "FillFormat.setFillType",
+      "Picture.setImage",
+      "PictureFillFormat.getPicture",
+      "PictureFillFormat.setPictureFillMode",
+      "Presentation.getImages",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "close",
+    "source_line": 29,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 38,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "createTestPng",
+    "source_line": 48,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "testAddImage",
+    "source_line": 63,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.getImages"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "testMultipleImages",
+    "source_line": 73,
+    "classes_used": [
+      "IPPImage",
+      "Image",
+      "Images",
+      "PPImage",
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [
+      "Presentation.getImages",
+      "Size.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "testPictureFrame",
+    "source_line": 92,
+    "classes_used": [
+      "IPPImage",
+      "Image",
+      "Images",
+      "PPImage",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getImages",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ImagesTest.java",
+    "source_function": "testImageFromFile",
+    "source_line": 108,
+    "classes_used": [
+      "IPPImage",
+      "Image",
+      "Images",
+      "PPImage",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getImages",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "close",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 34,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "clear",
+    "source_line": 45,
+    "classes_used": [
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "testLineColorAndWidth",
+    "source_line": 53,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "FillFormat",
+      "FillType",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "AutoShape.getLineFormat",
+      "AutoShape.getWidth",
+      "AutoShape.setWidth",
+      "Color.getR",
+      "FillFormat.getFillType",
+      "FillFormat.getSolidFillColor",
+      "FillFormat.setFillType",
+      "LineFormat.getFillFormat",
+      "LineFormat.getWidth",
+      "LineFormat.setWidth",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Shape.getLineFormat",
+      "Shape.getWidth",
+      "Shape.setWidth",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "testLineDashStyle",
+    "source_line": 75,
+    "classes_used": [
+      "AutoShape",
+      "Color",
+      "FillFormat",
+      "FillType",
+      "LineDashStyle",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getFillFormat",
+      "AutoShape.getLineFormat",
+      "AutoShape.setWidth",
+      "FillFormat.getSolidFillColor",
+      "FillFormat.setFillType",
+      "LineFormat.getDashStyle",
+      "LineFormat.getFillFormat",
+      "LineFormat.setDashStyle",
+      "LineFormat.setWidth",
+      "Presentation.getSlides",
+      "Shape.getFillFormat",
+      "Shape.getLineFormat",
+      "Shape.setWidth",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "dashStyles",
+    "source_line": 95,
+    "classes_used": [
+      "LineDashStyle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/LineFormatTest.java",
+    "source_function": "testMultipleDashStyles",
+    "source_line": 102,
+    "classes_used": [
+      "AutoShape",
+      "LineDashStyle",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getLineFormat",
+      "LineFormat.getDashStyle",
+      "LineFormat.setDashStyle",
+      "Presentation.getSlides",
+      "Shape.getLineFormat",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "close",
+    "source_line": 21,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 30,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "testAddNotes",
+    "source_line": 39,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlide.getNotesTextFrame",
+      "NotesSlideManager.addNotesSlide",
+      "NotesSlideManager.getNotesSlide",
+      "Presentation.getSlides",
+      "Slide.getNotesSlideManager",
+      "TextFrame.getText",
+      "TextFrame.setText"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "testRemoveNotes",
+    "source_line": 56,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "NotesSlideManager.addNotesSlide",
+      "NotesSlideManager.getNotesSlide",
+      "NotesSlideManager.removeNotesSlide",
+      "Presentation.getSlides",
+      "Slide.getNotesSlideManager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "testNotesHeaderFooter",
+    "source_line": 74,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlide.getHeaderFooterManager",
+      "NotesSlide.getNotesTextFrame",
+      "NotesSlideManager.addNotesSlide",
+      "NotesSlideManager.getNotesSlide",
+      "Presentation.getSlides",
+      "Slide.getNotesSlideManager",
+      "TextFrame.setText"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "testNotesParentSlide",
+    "source_line": 98,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "NotesSlide.getParentSlide",
+      "NotesSlideManager.addNotesSlide",
+      "Presentation.getSlides",
+      "Slide.getNotesSlideManager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/NotesSlideTest.java",
+    "source_function": "testNotesSize",
+    "source_line": 109,
+    "classes_used": [
+      "NotesSize",
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [
+      "NotesSize.getSize",
+      "Presentation.getNotesSize",
+      "Size.getHeight",
+      "Size.getWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "close",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 33,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testCreateEmpty",
+    "source_line": 41,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testSaveAndReload",
+    "source_line": 49,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testSaveToStream",
+    "source_line": 59,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testContextManager",
+    "source_line": 69,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testFirstSlideNumber",
+    "source_line": 77,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getFirstSlideNumber",
+      "Presentation.setFirstSlideNumber"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testLoadExisting",
+    "source_line": 90,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testDisposeIsIdempotent",
+    "source_line": 103,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "pot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/PresentationTest.java",
+    "source_function": "testSlideCountAfterAdd",
+    "source_line": 111,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "close",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 32,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "blankSlide",
+    "source_line": 42,
+    "classes_used": [
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testAddAutoShape",
+    "source_line": 50,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getShapeType",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testMultipleShapeTypes",
+    "source_line": 62,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getShapeType",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testInsertAutoShape",
+    "source_line": 77,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testRemoveShape",
+    "source_line": 90,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Slide.getShapes",
+      "Slide.remove"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testRemoveAt",
+    "source_line": 104,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testClearShapes",
+    "source_line": 117,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testShapeFrameProperties",
+    "source_line": 129,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeFrame",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getHeight",
+      "AutoShape.getRotation",
+      "AutoShape.getWidth",
+      "AutoShape.getX",
+      "AutoShape.getY",
+      "AutoShape.setRotation",
+      "Presentation.getSlides",
+      "Shape.getHeight",
+      "Shape.getRotation",
+      "Shape.getWidth",
+      "Shape.getX",
+      "Shape.getY",
+      "Shape.setRotation",
+      "ShapeFrame.getHeight",
+      "ShapeFrame.getRotation",
+      "ShapeFrame.getWidth",
+      "ShapeFrame.getX",
+      "ShapeFrame.getY",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testReorderShapes",
+    "source_line": 149,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getShapeType",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testIterateShapes",
+    "source_line": 162,
+    "classes_used": [
+      "AutoShape",
+      "IShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Size",
+      "Slide"
+    ],
+    "methods_used": [
+      "Size.add",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/ShapesTest.java",
+    "source_function": "testShapePersistsAfterReload",
+    "source_line": 179,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "AutoShape.getShapeType",
+      "Presentation.getSlides",
+      "Shape.getShapeType",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "close",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 32,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testAddEmptySlide",
+    "source_line": 40,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testInsertEmptySlide",
+    "source_line": 50,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testRemoveSlideByRef",
+    "source_line": 61,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides",
+      "Slide.remove"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testRemoveSlideAt",
+    "source_line": 73,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testSlideHidden",
+    "source_line": 84,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides",
+      "Slide.isHidden",
+      "Slide.setHidden"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testCloneSlide",
+    "source_line": 97,
+    "classes_used": [
+      "AutoShape",
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testSlideLayoutAccess",
+    "source_line": 109,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides",
+      "Slide.getLayoutSlide"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testSlideName",
+    "source_line": 117,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getSlides",
+      "Slide.getName",
+      "Slide.setName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testIterateSlides",
+    "source_line": 130,
+    "classes_used": [
+      "ILayoutSlide",
+      "ISlide",
+      "LayoutSlide",
+      "Presentation",
+      "Size",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides",
+      "Size.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/SlidesTest.java",
+    "source_function": "testIndexOf",
+    "source_line": 144,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.getLayoutSlides",
+      "Presentation.getSlides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/TableTest.java",
+    "source_function": "close",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/TableTest.java",
+    "source_function": "saveAndReopen",
+    "source_line": 31,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/TableTest.java",
+    "source_function": "findTable",
+    "source_line": 41,
+    "classes_used": [
+      "IShape",
+      "ISlide",
+      "ITable",
+      "Shape",
+      "Slide",
+      "Table"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.java",
+    "source_file": "tests/integration/org/aspose/slides/foss/integration/TableTest.java",
+    "source_function": "blankSlide",
+    "source_line": 54,
+    "classes_used": [
+      "ISlide",
+      "Presentation",
+      "Shape",
+      "Slide"
+    ],
+    "methods_used": [
+      "ISlide.getShapes",
+      "Presentation.getSlides",
+      "Slide.getShapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

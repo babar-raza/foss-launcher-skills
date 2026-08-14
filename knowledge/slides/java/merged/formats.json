@@ -1,0 +1,252 @@
+[
+  {
+    "format": "PPT",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/SourceFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTX",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/SourceFormat.java",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "ODP",
+    "enum": "SourceFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/SourceFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPT",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PDF",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "XPS",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTX",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "PPSX",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "TIFF",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "ODP",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTM",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPSM",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "POTX",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "POTM",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "HTML",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "SWF",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "OTP",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPS",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "POT",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "FODP",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "GIF",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "HTML5",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "MD",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "SVG",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "JPEG",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "BMP",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/export/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/internal/export/PptxExporter.java",
+    "line": 28,
+    "direction": "export"
+  },
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/slides/foss/internal/export/PptxExporterFactory.java",
+    "line": 9,
+    "direction": "export"
+  }
+]

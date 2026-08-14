@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:55:16.236823+00:00'
+bundle_id: 9d90204c-df52-465c-abcf-d12dfbf799ae
+config_sha: 58e5766a6f6833a4
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: slides
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 149f77fee2c9851f0b49e0626388042a7f500c355dd84a9e38b59905fbf970f0
+  extractor_config_sha: 58e5766a6f6833a4
+  products_json_entry_sha: 5e1d42e1faed9a1fcbdf1d23f9ae851456fec3dc2f695cdc713350b8c5d386d3
+  scout_api_surface_sha: e6bad4c43967b18f9138ab9aa06a33f8cd1a8a4be8c36abd30bd34c34ac8896b
+  scout_claims_sha: 8b3270e2f539b5ba96ea099017c27fa28face7759815e4574afce35bc051d31e
+license: ''
+platform: java
+product_name: aspose-slides-foss
+promoted_at: '2026-08-14T11:55:16.439597+00:00'
+repo_sha: 9968c5b42525919f50bca3cdbcedd3ae1dc382c4
+repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 238
+  enriched_claims: 2621
+  forbidden_count: 2
+  scout_claims: 3685
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 6304
+version: 26.7.0
