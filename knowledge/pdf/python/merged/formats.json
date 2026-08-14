@@ -1,0 +1,156 @@
+[
+  {
+    "format": "PDF",
+    "enum": "SaveFormat",
+    "value": "\"PDF\"",
+    "file": "src/aspose_pdf/save_format.py",
+    "line": 10,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTX",
+    "enum": "SaveFormat",
+    "value": "\"PPTX\"",
+    "file": "src/aspose_pdf/save_format.py",
+    "line": 10,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/html.py",
+    "line": 8,
+    "direction": "export"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/html.py",
+    "line": 79,
+    "direction": "import"
+  },
+  {
+    "format": "Cdr",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/load_options.py",
+    "line": 47,
+    "direction": "import"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/load_options.py",
+    "line": 52,
+    "direction": "import"
+  },
+  {
+    "format": "Cgm",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/load_options.py",
+    "line": 57,
+    "direction": "import"
+  },
+  {
+    "format": "Ofd",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/load_options.py",
+    "line": 62,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/markdown.py",
+    "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/svg.py",
+    "line": 25,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/document.py",
+    "line": 74,
+    "direction": "import"
+  },
+  {
+    "format": "tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/document.py",
+    "line": 574,
+    "direction": "export"
+  },
+  {
+    "format": "verify",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/cms.py",
+    "line": 364,
+    "direction": "export"
+  },
+  {
+    "format": "sign",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/cms.py",
+    "line": 468,
+    "direction": "export"
+  },
+  {
+    "format": "unicode",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/content_stream_parser.py",
+    "line": 1240,
+    "direction": "export"
+  },
+  {
+    "format": "shading",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/rasterizer.py",
+    "line": 1273,
+    "direction": "export"
+  },
+  {
+    "format": "visit",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/simple_pdf.py",
+    "line": 2426,
+    "direction": "export"
+  },
+  {
+    "format": "rgb",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/simple_pdf.py",
+    "line": 10822,
+    "direction": "export"
+  },
+  {
+    "format": "insert",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/facades.py",
+    "line": 379,
+    "direction": "export"
+  }
+]

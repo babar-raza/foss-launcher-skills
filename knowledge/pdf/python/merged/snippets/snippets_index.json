@@ -1,0 +1,1330 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_acc01_font_embedding.py",
+    "source_function": "test_font_embedding_success",
+    "source_line": 59,
+    "classes_used": [
+      "Document",
+      "FontDescriptor",
+      "PdfName"
+    ],
+    "methods_used": [
+      "Document.convert_to_pdfa",
+      "Document.load_from",
+      "Document.validate_pdfa"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_acc01_font_embedding.py",
+    "source_function": "test_font_embedding_missing_file",
+    "source_line": 98,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.convert_to_pdfa",
+      "Document.load_from"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_pdf_padding_constant",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_invalid_key_length_raises",
+    "source_line": 42,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_encrypt_decrypt_aes128_roundtrip",
+    "source_line": 55,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_encrypt_decrypt_aes256_roundtrip",
+    "source_line": 64,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_empty_data_aes",
+    "source_line": 73,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_produces_32_bytes",
+    "source_line": 87,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_different_passwords",
+    "source_line": 95,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_empty_owner_uses_user",
+    "source_line": 102,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_user_key_v4_returns_tuple",
+    "source_line": 109,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_user_key_v4_key_length_affects_result",
+    "source_line": 124,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_file_id_affects_derived_key",
+    "source_line": 140,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_permissions_affect_derived_key",
+    "source_line": 153,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_correct_user_password",
+    "source_line": 172,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_wrong_password_returns_none",
+    "source_line": 187,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_empty_password",
+    "source_line": 201,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_full_encryption_roundtrip_aes128",
+    "source_line": 220,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_object_key_derivation",
+    "source_line": 244,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.derive_object_key"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_generate_file_id",
+    "source_line": 256,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.generate_file_id"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_revision_2_key_derivation",
+    "source_line": 271,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_revision_3_key_derivation",
+    "source_line": 282,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_named_glyphs",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_ligature_and_variant_components",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_algorithmic_uni_forms",
+    "source_line": 30,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_unresolved_and_bad_input",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_base_encoding_tables",
+    "source_line": 44,
+    "classes_used": [
+      "Encoding"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_cff_standard_strings",
+    "source_line": 57,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_bundle_is_deterministic",
+    "source_line": 64,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_returns_32_bytes",
+    "source_line": 8,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_deterministic",
+    "source_line": 15,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_different_salt",
+    "source_line": 23,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_different_password",
+    "source_line": 32,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_with_user_key",
+    "source_line": 39,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_empty_password",
+    "source_line": 50,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_long_password_truncated",
+    "source_line": 56,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_uses_multiple_hash_algorithms",
+    "source_line": 64,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_minimum_64_rounds",
+    "source_line": 78,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_aes256_key_derivation_roundtrip",
+    "source_line": 93,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_from_border_style_array",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_style_d_without_array_defaults",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_solid_border_emits_no_dash",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_from_legacy_border_array",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_applies_to_line_and_freetext",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_open_arrow_end_adds_strokes",
+    "source_line": 61,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_closed_arrow_is_filled",
+    "source_line": 73,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_diamond_and_circle_endings",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_none_ending_draws_only_the_shaft",
+    "source_line": 94,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_polyline_endings_orient_to_end_edges",
+    "source_line": 101,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_square_cloud_border_replaces_rectangle",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_square_without_be_stays_rectangular",
+    "source_line": 126,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_polygon_cloud_border",
+    "source_line": 132,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_be_non_cloud_style_is_ignored",
+    "source_line": 142,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_square_with_stroke_and_fill",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_square_without_colour_defaults_to_black_border",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_circle_uses_bezier_curves",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_line_converts_to_local_coordinates",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_polygon_closes_and_fills",
+    "source_line": 59,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_polyline_is_open_and_stroke_only",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_ink_draws_each_path",
+    "source_line": 80,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_highlight_uses_multiply_blend",
+    "source_line": 89,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_underline_and_strikeout_draw_lines",
+    "source_line": 103,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_draws_wrapped_text_and_border",
+    "source_line": 119,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_fills_background_from_c",
+    "source_line": 134,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_uses_default_appearance_size_and_colour",
+    "source_line": 143,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_wraps_by_glyph_metrics",
+    "source_line": 152,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_caption_size_fits_glyph_metrics",
+    "source_line": 169,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_draws_named_caption_in_red_by_default",
+    "source_line": 184,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_honours_colour_and_contents_fallback",
+    "source_line": 194,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_caret_draws_filled_triangle",
+    "source_line": 203,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_caret_honours_rgb_colour",
+    "source_line": 212,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_unsupported_subtype_returns_none",
+    "source_line": 218,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_missing_geometry_returns_none",
+    "source_line": 224,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_degenerate_rect_returns_none",
+    "source_line": 230,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_annotation_generate_appearance_sets_ap",
+    "source_line": 239,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_highlight_generate_appearance_has_extgstate_resource",
+    "source_line": 251,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_freetext_generate_appearance_registers_font_resource",
+    "source_line": 263,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_stamp_generate_appearance_end_to_end",
+    "source_line": 280,
+    "classes_used": [
+      "Annotation",
+      "AnnotationName"
+    ],
+    "methods_used": [
+      "Annotation.generate_appearance"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_caret_generate_appearance_end_to_end",
+    "source_line": 292,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generate_appearance_unsupported_subtype_returns_false",
+    "source_line": 299,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generate_appearance_keeps_existing_unless_forced",
+    "source_line": 306,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_page_generate_appearances_counts_created",
+    "source_line": 321,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_document_generate_appearances_across_pages",
+    "source_line": 330,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.generate_appearances"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generated_appearance_survives_save_load",
+    "source_line": 343,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.load_from",
+      "Document.save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_flatten_generates_and_inlines_missing_appearance",
+    "source_line": 362,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_flatten_matrix_maps_bbox_to_rect_without_double_scaling",
+    "source_line": 375,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_line_properties_roundtrip",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_text_markup_quadpoints_roundtrip",
+    "source_line": 55,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_polygon_polyline_vertices_roundtrip",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_ink_nested_list_roundtrip",
+    "source_line": 87,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_name_marker_roundtrip_and_equality",
+    "source_line": 96,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_freetext_da_quadding_roundtrip",
+    "source_line": 111,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_stamp_name_roundtrip",
+    "source_line": 124,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_every_known_subtype_roundtrips",
+    "source_line": 135,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_set_property_update_and_delete",
+    "source_line": 146,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_color_convenience_setter",
+    "source_line": 159,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_markup_subclass_wrapping",
+    "source_line": 167,
+    "classes_used": [
+      "Annotation",
+      "MarkupAnnotation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_annotation_property_roundtrip.py",
+    "source_function": "test_enum_accepted_as_subtype",
+    "source_line": 173,
+    "classes_used": [
+      "Annotation",
+      "AnnotationType"
+    ],
+    "methods_used": [
+      "Annotation.get_property"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_annotations.py",
+    "source_function": "test_annotations_add",
+    "source_line": 30,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "verify"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_annotations.py",
+    "source_function": "test_annotations_update",
+    "source_line": 47,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
