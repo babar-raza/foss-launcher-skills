@@ -1,0 +1,21 @@
+family: slides
+platform: cpp
+product_name: aspose_slides_foss
+version: ''
+license: ''
+repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git
+repo_sha: 25adb25c8796f06d9b89cd5f8093e490091195ef
+config_sha: 58e5766a6f6833a4
+stale_since: null
+promoted_at: '2026-07-12T14:38:35.883515+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+stats:
+  scout_claims: 4041
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 3646
+  class_count: 263
+  forbidden_count: 56
+  snippet_count: 100

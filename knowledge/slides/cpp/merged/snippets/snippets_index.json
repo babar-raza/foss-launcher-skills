@@ -1,0 +1,1930 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 70,
+    "classes_used": [
+      "Comment",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.comment_authors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 86,
+    "classes_used": [
+      "Comment",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Comment.author",
+      "Comment.text",
+      "Presentation.comment_authors",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST",
+    "source_line": 106,
+    "classes_used": [
+      "Comment",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.comment_authors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST",
+    "source_line": 115,
+    "classes_used": [
+      "Comment",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.comment_authors",
+      "Presentation.slides",
+      "Slide.get_slide_comments"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 135,
+    "classes_used": [
+      "Comment",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.comment_authors",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST",
+    "source_line": 156,
+    "classes_used": [
+      "Comment",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Comment.text",
+      "Presentation.comment_authors",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST",
+    "source_line": 172,
+    "classes_used": [
+      "Comment",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.comment_authors",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 186,
+    "classes_used": [
+      "Comment",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Comment.remove",
+      "Presentation.comment_authors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST",
+    "source_line": 57,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 68,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 80,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 108,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Connector.end_shape_connected_to",
+      "Connector.set_end_shape_connected_to",
+      "Connector.set_end_shape_connection_site_index",
+      "Connector.set_start_shape_connected_to",
+      "Connector.set_start_shape_connection_site_index",
+      "Connector.start_shape_connected_to",
+      "Presentation.slides",
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST",
+    "source_line": 141,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Connector.reroute",
+      "Connector.set_end_shape_connected_to",
+      "Connector.set_end_shape_connection_site_index",
+      "Connector.set_start_shape_connected_to",
+      "Connector.set_start_shape_connection_site_index",
+      "Presentation.slides",
+      "Shape.height",
+      "Shape.width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp",
+    "source_function": "TEST",
+    "source_line": 159,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.name"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/document_properties_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 50,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.author",
+      "DocumentProperties.category",
+      "DocumentProperties.keywords",
+      "DocumentProperties.set_author",
+      "DocumentProperties.set_category",
+      "DocumentProperties.set_keywords",
+      "DocumentProperties.set_subject",
+      "DocumentProperties.set_title",
+      "DocumentProperties.subject",
+      "DocumentProperties.title",
+      "Presentation.document_properties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/document_properties_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 71,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.get_custom_property_value",
+      "DocumentProperties.set_custom_property_value",
+      "Presentation.document_properties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/document_properties_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 87,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.get_custom_property_value",
+      "DocumentProperties.set_custom_property_value",
+      "Presentation.document_properties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/document_properties_test.cpp",
+    "source_function": "TEST",
+    "source_line": 103,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation"
+    ],
+    "methods_used": [
+      "DocumentProperties.contains_custom_property",
+      "DocumentProperties.count_of_custom_properties",
+      "DocumentProperties.remove_custom_property",
+      "DocumentProperties.set_custom_property_value",
+      "Presentation.document_properties"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 61,
+    "classes_used": [
+      "Color",
+      "EffectFormat",
+      "OuterShadow",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "EffectFormat.enable_outer_shadow_effect",
+      "EffectFormat.outer_shadow_effect",
+      "Presentation.slides",
+      "Shape.effect_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 85,
+    "classes_used": [
+      "Color",
+      "EffectFormat",
+      "Glow",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "EffectFormat.enable_glow_effect",
+      "EffectFormat.glow_effect",
+      "Presentation.slides",
+      "Shape.effect_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 104,
+    "classes_used": [
+      "EffectFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "SoftEdge"
+    ],
+    "methods_used": [
+      "EffectFormat.enable_soft_edge_effect",
+      "EffectFormat.soft_edge_effect",
+      "Presentation.slides",
+      "Shape.effect_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 122,
+    "classes_used": [
+      "Blur",
+      "EffectFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "EffectFormat.blur_effect",
+      "EffectFormat.set_blur_effect",
+      "Presentation.slides",
+      "Shape.effect_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 137,
+    "classes_used": [
+      "EffectFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "EffectFormat.disable_glow_effect",
+      "EffectFormat.disable_outer_shadow_effect",
+      "EffectFormat.enable_glow_effect",
+      "EffectFormat.enable_outer_shadow_effect",
+      "EffectFormat.is_no_effects",
+      "Presentation.slides",
+      "Shape.effect_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 84,
+    "classes_used": [
+      "Color",
+      "FillFormat",
+      "FillType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Color.b",
+      "Color.g",
+      "Color.r",
+      "FillFormat.fill_type",
+      "FillFormat.set_fill_type",
+      "FillFormat.solid_fill_color",
+      "Presentation.slides",
+      "Shape.fill_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 103,
+    "classes_used": [
+      "Color",
+      "FillFormat",
+      "FillType",
+      "GradientShape",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "FillFormat.fill_type",
+      "FillFormat.gradient_format",
+      "FillFormat.set_fill_type",
+      "Presentation.slides",
+      "Shape.fill_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 122,
+    "classes_used": [
+      "Color",
+      "FillFormat",
+      "FillType",
+      "PatternStyle",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "FillFormat.fill_type",
+      "FillFormat.pattern_format",
+      "FillFormat.set_fill_type",
+      "Presentation.slides",
+      "Shape.fill_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 140,
+    "classes_used": [
+      "FillFormat",
+      "FillType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "FillFormat.fill_type",
+      "FillFormat.set_fill_type",
+      "Presentation.slides",
+      "Shape.fill_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 152,
+    "classes_used": [
+      "FillFormat",
+      "FillType",
+      "Picture",
+      "PictureFillMode",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "FillFormat.fill_type",
+      "FillFormat.picture_fill_format",
+      "FillFormat.set_fill_type",
+      "Picture.set_image",
+      "Presentation.images",
+      "Presentation.slides",
+      "Shape.fill_format"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/images_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 166,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Image.size",
+      "Presentation.images"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/images_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 174,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Image.size",
+      "Presentation.images"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/images_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 193,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Image.size",
+      "Presentation.images",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/images_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 206,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Image.size",
+      "Presentation.images",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/line_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 63,
+    "classes_used": [
+      "Color",
+      "FillType",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Color.r",
+      "LineFormat.fill_format",
+      "LineFormat.set_width",
+      "LineFormat.width",
+      "Presentation.slides",
+      "Shape.fill_format",
+      "Shape.line_format",
+      "Shape.set_width",
+      "Shape.width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/line_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 82,
+    "classes_used": [
+      "Color",
+      "FillType",
+      "LineDashStyle",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "LineFormat.dash_style",
+      "LineFormat.fill_format",
+      "LineFormat.set_dash_style",
+      "LineFormat.set_width",
+      "Presentation.slides",
+      "Shape.fill_format",
+      "Shape.line_format",
+      "Shape.set_width",
+      "Slide.shapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/line_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 100,
+    "classes_used": [
+      "LineDashStyle",
+      "LineFormat",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "LineFormat.dash_style",
+      "LineFormat.set_dash_style",
+      "Presentation.slides",
+      "Shape.line_format",
+      "Slide.shapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/notes_slide_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 55,
+    "classes_used": [
+      "NotesSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.notes_slide_manager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/notes_slide_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 70,
+    "classes_used": [
+      "NotesSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.notes_slide_manager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/notes_slide_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 85,
+    "classes_used": [
+      "NotesSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.notes_slide_manager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/notes_slide_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 108,
+    "classes_used": [
+      "NotesSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.notes_slide_manager"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/notes_slide_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 118,
+    "classes_used": [
+      "NotesSize",
+      "NotesSlide",
+      "Presentation",
+      "Size",
+      "Slide"
+    ],
+    "methods_used": [
+      "NotesSize.size",
+      "Presentation.notes_size"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 49,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 56,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 65,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 74,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 84,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.first_slide_number",
+      "Presentation.set_first_slide_number"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 95,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 107,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "pot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/presentation_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 115,
+    "classes_used": [
+      "ILayoutSlide",
+      "LayoutSlide",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 60,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 70,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 83,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 94,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 106,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 117,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 127,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeFrame",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.height",
+      "Shape.rotation",
+      "Shape.set_rotation",
+      "Shape.width",
+      "Shape.x",
+      "Shape.y",
+      "ShapeFrame.height",
+      "ShapeFrame.rotation",
+      "ShapeFrame.width",
+      "ShapeFrame.x",
+      "ShapeFrame.y"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 144,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 155,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/shapes_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 169,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.shape_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 55,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 64,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 74,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides",
+      "Slide.remove"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 85,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 95,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.hidden",
+      "Slide.set_hidden"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 106,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.shapes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 117,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Slide.layout_slide"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 124,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 135,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/slides_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 148,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.layout_slides",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 75,
+    "classes_used": [
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Table.columns",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 87,
+    "classes_used": [
+      "Cell",
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.text_frame",
+      "Presentation.slides",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 109,
+    "classes_used": [
+      "Cell",
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.col_span",
+      "Cell.is_merged_cell",
+      "Presentation.slides",
+      "Table.merge_cells",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 129,
+    "classes_used": [
+      "Cell",
+      "Color",
+      "FillType",
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.cell_format",
+      "Cell.set_width",
+      "Cell.text_frame",
+      "Cell.width",
+      "Presentation.slides",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 164,
+    "classes_used": [
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Table.set_first_row",
+      "Table.set_horizontal_banding",
+      "Table.set_vertical_banding"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 183,
+    "classes_used": [
+      "Presentation",
+      "Row",
+      "Table"
+    ],
+    "methods_used": [
+      "Row.height",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 196,
+    "classes_used": [
+      "Column",
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Column.width",
+      "Table.columns"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/table_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 209,
+    "classes_used": [
+      "Cell",
+      "Color",
+      "FillType",
+      "Presentation",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.cell_format",
+      "Cell.text_frame",
+      "Presentation.slides",
+      "Table.rows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 86,
+    "classes_used": [
+      "NullableBool",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 100,
+    "classes_used": [
+      "Presentation",
+      "TextUnderlineType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 112,
+    "classes_used": [
+      "Presentation",
+      "TextStrikethroughType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 124,
+    "classes_used": [
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 136,
+    "classes_used": [
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.b",
+      "Color.g",
+      "Color.r"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 153,
+    "classes_used": [
+      "FontData",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_formatting_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 166,
+    "classes_used": [
+      "AutoShape",
+      "Paragraph",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "TextAlignment"
+    ],
+    "methods_used": [
+      "AutoShape.text_frame",
+      "Paragraph.paragraph_format",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 59,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 69,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 80,
+    "classes_used": [
+      "Paragraph",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 90,
+    "classes_used": [
+      "Paragraph",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Paragraph.set_text",
+      "Paragraph.text",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 103,
+    "classes_used": [
+      "Portion",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 113,
+    "classes_used": [
+      "Portion",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 125,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "AutoShape.text_frame",
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/text_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 139,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.slides"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/threed_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 63,
+    "classes_used": [
+      "BevelPresetType",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "ThreeDFormat"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.height",
+      "Shape.set_height",
+      "Shape.set_width",
+      "Shape.three_d_format",
+      "Shape.width",
+      "ThreeDFormat.bevel_top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/threed_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 81,
+    "classes_used": [
+      "Camera",
+      "CameraPresetType",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "ThreeDFormat"
+    ],
+    "methods_used": [
+      "Camera.camera_type",
+      "Camera.set_camera_type",
+      "Presentation.slides",
+      "Shape.three_d_format",
+      "ThreeDFormat.camera"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/threed_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 94,
+    "classes_used": [
+      "LightRig",
+      "LightRigPresetType",
+      "LightingDirection",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "ThreeDFormat"
+    ],
+    "methods_used": [
+      "LightRig.direction",
+      "LightRig.light_type",
+      "LightRig.set_direction",
+      "LightRig.set_light_type",
+      "Presentation.slides",
+      "Shape.three_d_format",
+      "ThreeDFormat.light_rig"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/threed_format_test.cpp",
+    "source_function": "TEST_F",
+    "source_line": 110,
+    "classes_used": [
+      "MaterialPresetType",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "ThreeDFormat"
+    ],
+    "methods_used": [
+      "Presentation.slides",
+      "Shape.three_d_format",
+      "ThreeDFormat.depth",
+      "ThreeDFormat.material",
+      "ThreeDFormat.set_depth",
+      "ThreeDFormat.set_material"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.Tests/adjust_value_test.cpp",
+    "source_function": "TEST",
+    "source_line": 17,
+    "classes_used": [
+      "AdjustValue"
+    ],
+    "methods_used": [
+      "AdjustValue.angle_value",
+      "AdjustValue.name",
+      "AdjustValue.raw_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.Tests/adjust_value_test.cpp",
+    "source_function": "TEST",
+    "source_line": 24,
+    "classes_used": [
+      "AdjustValue"
+    ],
+    "methods_used": [
+      "AdjustValue.name",
+      "AdjustValue.raw_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.Tests/adjust_value_test.cpp",
+    "source_function": "TEST",
+    "source_line": 30,
+    "classes_used": [
+      "AdjustValue"
+    ],
+    "methods_used": [
+      "AdjustValue.raw_value",
+      "AdjustValue.set_raw_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.Tests/adjust_value_test.cpp",
+    "source_function": "TEST",
+    "source_line": 36,
+    "classes_used": [
+      "AdjustValue"
+    ],
+    "methods_used": [
+      "AdjustValue.angle_value",
+      "AdjustValue.set_raw_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cpp",
+    "source_file": "tests/Aspose.Slides.Foss.Tests/adjust_value_test.cpp",
+    "source_function": "TEST",
+    "source_line": 44,
+    "classes_used": [
+      "AdjustValue"
+    ],
+    "methods_used": [
+      "AdjustValue.angle_value",
+      "AdjustValue.raw_value",
+      "AdjustValue.set_angle_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
