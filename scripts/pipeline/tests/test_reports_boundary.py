@@ -296,6 +296,16 @@ class TestHookInstallMechanism:
         return result.stdout.strip()
 
     def test_core_hooks_path_configured(self):
+        # TC-CIR-09 (2026-08-14): skip in CI. CI never runs install-hooks.sh
+        # (actions/checkout@v4 gives a fresh, hooks-unconfigured clone every
+        # run) and has no git-hooks concept in the sense this test checks —
+        # asserting this in CI would be a guaranteed, meaningless failure on
+        # every run, not a real signal. This fact is inherently per-checkout
+        # and belongs at session-start (see skills/session-start.md's
+        # hook-install check), not CI. The rest of this class (wrapper
+        # content/executability) IS meaningful in CI and stays unconditional.
+        if os.environ.get("CI", "").lower() == "true" or os.environ.get("GITHUB_ACTIONS", "").lower() == "true":
+            pytest.skip("core.hooksPath is a per-checkout local fact, not meaningful in CI")
         configured = self._configured_hooks_path()
         assert configured == "scripts/githooks", (
             f"core.hooksPath is '{configured}', expected 'scripts/githooks' — "

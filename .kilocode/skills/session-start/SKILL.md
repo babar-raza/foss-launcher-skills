@@ -37,6 +37,23 @@ any user request.
      'operator-directed' exemption from skill-first execution. All work matches
      a registered skill (FULL), requires gap escalation (PARTIAL/NONE), or is
      broken (BROKEN). No other classification exists."
+4b. Verify local git hooks are installed (TC-CIR-09, 2026-08-14 CI reliability
+    reassessment, Root Cause F: hook installation was previously verified only
+    once, at manual `install-hooks.sh` time, never re-checked — "install once
+    and hope"):
+    ```bash
+    hp=$(git config --get core.hooksPath 2>/dev/null || true)
+    if [ "$hp" != "scripts/githooks" ]; then
+      echo "⚠️  Warning: core.hooksPath is '${hp:-<unset>}', expected 'scripts/githooks'."
+      echo "   Pre-commit/commit-msg/post-commit gates will NOT run for this checkout."
+      echo "   Recovery: bash scripts/install-hooks.sh"
+    fi
+    ```
+    Warning only — does not block the session, matching the venv-health check
+    directly above it. A missing hook install is a real risk (every local
+    Tier 1 gate this repo relies on silently does nothing without it) but
+    session-start's role is to surface it loudly, not to auto-repair without
+    the operator's awareness.
 5. Initialize the session ledger (captures dirty-file snapshot for `/commit` scoping):
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
