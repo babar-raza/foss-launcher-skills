@@ -1,0 +1,1414 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_output_path_for",
+    "source_line": 34,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_baseline_map",
+    "source_line": 41,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_skip_when_missing",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_compare_images",
+    "source_line": 55,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_skip_without_tools",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_same_winding_contours_enable_evenodd",
+    "source_line": 30,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_opposite_winding_contours_keep_nonzero",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_single_contour_keeps_nonzero",
+    "source_line": 44,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_render_size_respects_dpi",
+    "source_line": 20,
+    "classes_used": [
+      "Paint",
+      "Path",
+      "PathCommand",
+      "RasterRenderer",
+      "Rect",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_encode_png_and_bmp_signatures",
+    "source_line": 38,
+    "classes_used": [
+      "RasterRenderer",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_encode_jpeg_non_empty",
+    "source_line": 47,
+    "classes_used": [
+      "RasterRenderer",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/image/test_xps_raster_integration.py",
+    "source_function": "test_xps_to_bmp_header",
+    "source_line": 18,
+    "classes_used": [
+      "ImageSaveOptions",
+      "XpsDocument"
+    ],
+    "methods_used": [
+      "XpsDocument.from_file",
+      "XpsDocument.to_image"
+    ],
+    "formats_referenced": [
+      "images",
+      "xps"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_pdf_from_bytes",
+    "source_line": 20,
+    "classes_used": [
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_image_requires_format",
+    "source_line": 28,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_image_png_from_bytes",
+    "source_line": 35,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_eps_metadata_extracts_fields",
+    "source_line": 43,
+    "classes_used": [
+      "McpInput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_xps_to_pdf_from_file",
+    "source_line": 50,
+    "classes_used": [
+      "McpInput",
+      "McpOutput",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "xps"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_xps_to_image_png_from_file",
+    "source_line": 58,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xps"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/mcp/test_server.py",
+    "source_function": "test_create_server_registers_all_tools",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "xps"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/mcp/test_server.py",
+    "source_function": "test_run_invokes_server_with_host_port",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embedded_font_objects_present",
+    "source_line": 27,
+    "classes_used": [
+      "FontCache",
+      "FontResolver",
+      "Matrix",
+      "Path",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontCache.load",
+      "FontResolver.resolve",
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embeds_defined_type42_font_program",
+    "source_line": 66,
+    "classes_used": [
+      "FontCache",
+      "FontResolver",
+      "FontResource",
+      "Matrix",
+      "Path",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontCache.load",
+      "FontCache.metrics_for",
+      "FontResolver.register_defined_font",
+      "FontResolver.resolve",
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embeds_type42_without_cmap_by_synthesized_cmap",
+    "source_line": 119,
+    "classes_used": [
+      "FontResolver",
+      "OperatorRegistry",
+      "Path",
+      "PsConversionPipeline",
+      "PsImage",
+      "PsImageStore",
+      "PsInterpreter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontResolver.resolve",
+      "PsConversionPipeline.build_render_model"
+    ],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/pdf/test_pdf_writer_unicode.py",
+    "source_function": "test_unicode_text_does_not_crash",
+    "source_line": 12,
+    "classes_used": [
+      "Matrix",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "unicode"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arc_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arct_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto1_ps_3",
+    "source_line": 18,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto2_ps_4",
+    "source_line": 21,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto3_ps_5",
+    "source_line": 24,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto4_ps_6",
+    "source_line": 27,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto5_ps_7",
+    "source_line": 30,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs1_ps_8",
+    "source_line": 33,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs2_ps_9",
+    "source_line": 36,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs3_ps_10",
+    "source_line": 39,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_circle1_ps_11",
+    "source_line": 42,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_circle2_ps_12",
+    "source_line": 45,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock1_ps_13",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock2_ps_14",
+    "source_line": 51,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock3_ps_15",
+    "source_line": 54,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock4_ps_16",
+    "source_line": 57,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock5_ps_17",
+    "source_line": 60,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock6_ps_18",
+    "source_line": 63,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto1_ps_19",
+    "source_line": 66,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto2_ps_20",
+    "source_line": 69,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto3_ps_21",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto4_ps_22",
+    "source_line": 75,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp1_ps_23",
+    "source_line": 78,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp2_ps_24",
+    "source_line": 81,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp3_ps_25",
+    "source_line": 84,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_family_ps_26",
+    "source_line": 87,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_heart1_ps_27",
+    "source_line": 90,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_heart2_ps_28",
+    "source_line": 93,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_hull_ps_29",
+    "source_line": 96,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_pacman_ps_30",
+    "source_line": 99,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_piechart_ps_31",
+    "source_line": 102,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_rcurveto_ps_32",
+    "source_line": 105,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots1_ps_33",
+    "source_line": 108,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots2_ps_34",
+    "source_line": 111,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots3_ps_35",
+    "source_line": 114,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary1_ps_36",
+    "source_line": 117,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary2_ps_37",
+    "source_line": 120,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary3_ps_38",
+    "source_line": 123,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary4_ps_39",
+    "source_line": 126,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary5_ps_40",
+    "source_line": 129,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary6_ps_41",
+    "source_line": 132,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox1_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox2_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox3_ps_3",
+    "source_line": 18,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox4_ps_4",
+    "source_line": 21,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox5_ps_5",
+    "source_line": 24,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_borro_ps_6",
+    "source_line": 27,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip1_ps_7",
+    "source_line": 30,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip2_ps_8",
+    "source_line": 33,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip3_ps_9",
+    "source_line": 36,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip4_ps_10",
+    "source_line": 39,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip5_ps_11",
+    "source_line": 42,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip6_ps_12",
+    "source_line": 45,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_fill_ps_13",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_flatten_ps_14",
+    "source_line": 51,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_initial_ps_15",
+    "source_line": 54,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_intersct_ps_16",
+    "source_line": 57,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside1_ps_17",
+    "source_line": 60,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside2_ps_18",
+    "source_line": 63,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside3_ps_19",
+    "source_line": 66,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_pentagon_ps_20",
+    "source_line": 69,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_plyback1_ps_21",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_plyback2_ps_22",
+    "source_line": 75,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_rect_ps_23",
+    "source_line": 78,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_star_ps_24",
+    "source_line": 81,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke1_ps_25",
+    "source_line": 84,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke2_ps_26",
+    "source_line": 87,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke3_ps_27",
+    "source_line": 90,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep1_ps_28",
+    "source_line": 93,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep2_ps_29",
+    "source_line": 96,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep3_ps_30",
+    "source_line": 99,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep4_ps_31",
+    "source_line": 102,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep5_ps_32",
+    "source_line": 105,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/ps/functional/test_ps_functional_color13.py",
+    "source_function": "test_ps_functional_case_color13_arrays_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/ps/functional/test_ps_functional_color13.py",
+    "source_function": "test_ps_functional_case_color13_bright_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/ps/functional/test_ps_functional_color13.py",
+    "source_function": "test_ps_functional_case_color13_cie_ps_3",
+    "source_line": 18,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "format": "Raster",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/image/raster_writer.py",
+    "line": 16,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/pdf/writer.py",
+    "line": 165,
+    "direction": "export"
+  },
+  {
+    "format": "Raster",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/image/raster_renderer.py",
+    "line": 80,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/ps/output.py",
+    "line": 39,
+    "direction": "export"
+  },
+  {
+    "format": "Xps",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/xps/render.py",
+    "line": 90,
+    "direction": "export"
+  },
+  {
+    "format": "unicode",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/pdf/writer.py",
+    "line": 240,
+    "direction": "export"
+  },
+  {
+    "format": "pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/mcp/handlers.py",
+    "line": 31,
+    "direction": "export"
+  },
+  {
+    "format": "front",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/ps/clipper.py",
+    "line": 1183,
+    "direction": "export"
+  },
+  {
+    "format": "images",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/page/xps/document.py",
+    "line": 137,
+    "direction": "export"
+  }
+]
