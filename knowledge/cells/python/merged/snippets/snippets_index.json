@@ -1,0 +1,1614 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_horizontal_alignment",
+    "source_line": 32,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_vertical_alignment",
+    "source_line": 53,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_text_wrap",
+    "source_line": 71,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_shrink_to_fit",
+    "source_line": 85,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_indent_level",
+    "source_line": 99,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_text_rotation",
+    "source_line": 111,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_reading_order",
+    "source_line": 123,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_relative_indent",
+    "source_line": 139,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_comprehensive_alignment_settings",
+    "source_line": 151,
+    "classes_used": [
+      "Alignment",
+      "Cell",
+      "Fill"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_verify_alignment_settings",
+    "source_line": 511,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "examples/test_alignment_properties.py",
+    "source_function": "test_alignment_edge_cases",
+    "source_line": 562,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_auto_filter_range_persistence",
+    "source_line": 36,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_value_filter_persistence",
+    "source_line": 64,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_custom_filter_persistence",
+    "source_line": 97,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_color_filter_persistence",
+    "source_line": 128,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_top10_filter_persistence",
+    "source_line": 158,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_dynamic_filter_persistence",
+    "source_line": 191,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_sort_state_persistence",
+    "source_line": 220,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_multiple_columns_filter_persistence",
+    "source_line": 248,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_filter_button_visibility_persistence",
+    "source_line": 296,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_auto_filter_xml_structure",
+    "source_line": 322,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_clear_filters_persistence",
+    "source_line": 366,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_remove_auto_filter_persistence",
+    "source_line": 394,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_numeric_value_filter_persistence",
+    "source_line": 422,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "examples/test_auto_filter.py",
+    "source_function": "test_set_range_with_indices_persistence",
+    "source_line": 452,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_border_color_settings",
+    "source_line": 32,
+    "classes_used": [
+      "Border",
+      "Borders",
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_border_style_settings",
+    "source_line": 55,
+    "classes_used": [
+      "Border",
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_border_weight_settings",
+    "source_line": 65,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_complete_border_settings",
+    "source_line": 75,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_mixed_border_settings",
+    "source_line": 98,
+    "classes_used": [
+      "Border",
+      "Borders",
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_border_default_values",
+    "source_line": 110,
+    "classes_used": [
+      "Border",
+      "Borders"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_border_copy",
+    "source_line": 135,
+    "classes_used": [
+      "Style"
+    ],
+    "methods_used": [
+      "Style.copy",
+      "Style.set_border"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_comprehensive_border_test",
+    "source_line": 157,
+    "classes_used": [
+      "Border",
+      "Borders",
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_save_border_settings",
+    "source_line": 228,
+    "classes_used": [
+      "Border"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "examples/test_border_settings.py",
+    "source_function": "test_load_and_verify_border_settings",
+    "source_line": 248,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "examples/test_cell_protection_locked.py",
+    "source_function": "test_cell_locked_false_roundtrip",
+    "source_line": 31,
+    "classes_used": [
+      "Cell",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Style.set_formula_hidden",
+      "Style.set_locked",
+      "Workbook.protect",
+      "Workbook.save",
+      "Worksheet.protect"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "examples/test_cell_protection_locked.py",
+    "source_function": "test_protection_in_styles_xml",
+    "source_line": 133,
+    "classes_used": [
+      "Protection",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "examples/test_cell_protection_locked.py",
+    "source_function": "test_unlocked_cell_with_sheet_protection",
+    "source_line": 184,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Protection",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.is_protected",
+      "Workbook.protect",
+      "Workbook.save",
+      "Worksheet.is_protected",
+      "Worksheet.protect"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_integer_values",
+    "source_line": 32,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_double_values",
+    "source_line": 44,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_string_values",
+    "source_line": 56,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_formula_values",
+    "source_line": 77,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_mixed_values",
+    "source_line": 98,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_save_and_load_cell_values",
+    "source_line": 119,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "examples/test_cell_values.py",
+    "source_function": "test_edge_cases",
+    "source_line": 194,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "examples/test_comment_size.py",
+    "source_function": "test_set_comment_with_size",
+    "source_line": 21,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_comment",
+      "Cell.get_comment_size",
+      "Cell.has_comment",
+      "Cell.set_comment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "examples/test_comment_size.py",
+    "source_function": "test_set_comment_size_separately",
+    "source_line": 46,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_comment_size",
+      "Cell.set_comment",
+      "Cell.set_comment_size"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "examples/test_comment_size.py",
+    "source_function": "test_comment_size_persistence",
+    "source_line": 65,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "examples/test_comment_size.py",
+    "source_function": "test_default_comment_size",
+    "source_line": 136,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "examples/test_comment_size.py",
+    "source_function": "test_error_on_size_without_comment",
+    "source_line": 158,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_create_comments",
+    "source_line": 38,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [
+      "Cell.set_comment"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_verify_comments",
+    "source_line": 157,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_comment"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_modify_comments",
+    "source_line": 206,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_verify_modified_comments",
+    "source_line": 260,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_comment"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_clear_comments",
+    "source_line": 308,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [
+      "Cell.clear_comment",
+      "Cell.get_comment",
+      "Cell.set_comment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_comment_api_methods",
+    "source_line": 324,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [
+      "Cell.clear_comment",
+      "Cell.get_comment",
+      "Cell.set_comment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "examples/test_comments.py",
+    "source_function": "test_comment_edge_cases",
+    "source_line": 342,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [
+      "Cell.get_comment",
+      "Cell.set_comment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_cell_value_rules",
+    "source_line": 63,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_text_rules",
+    "source_line": 147,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_date_rules",
+    "source_line": 271,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_duplicate_unique_values",
+    "source_line": 346,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_top_bottom_rules",
+    "source_line": 390,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_above_below_average",
+    "source_line": 455,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_color_scale",
+    "source_line": 499,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_data_bar",
+    "source_line": 549,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_icon_set",
+    "source_line": 584,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_formula_rule",
+    "source_line": 613,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_save_conditional_formatting",
+    "source_line": 646,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_load_conditional_formatting",
+    "source_line": 685,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "examples/test_conditional_formatting.py",
+    "source_function": "test_comprehensive_conditional_formatting",
+    "source_line": 728,
+    "classes_used": [
+      "Cell"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_line_chart",
+    "source_line": 34,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_bar_chart",
+    "source_line": 71,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_pie_chart",
+    "source_line": 118,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_area_chart",
+    "source_line": 153,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_box_whisker_chart",
+    "source_line": 190,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_waterfall_chart",
+    "source_line": 246,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_scatter_chart",
+    "source_line": 278,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_combo_chart",
+    "source_line": 314,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Chart.add_axis",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_stock_chart",
+    "source_line": 370,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_surface_chart",
+    "source_line": 411,
+    "classes_used": [
+      "Chart",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_radar_chart",
+    "source_line": 480,
+    "classes_used": [
+      "Fill",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_treemap_chart",
+    "source_line": 552,
+    "classes_used": [
+      "Table",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_sunburst_chart",
+    "source_line": 595,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_histogram_chart",
+    "source_line": 642,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_funnel_chart",
+    "source_line": 698,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_map_chart",
+    "source_line": 729,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "examples/test_create_all_charts.py",
+    "source_function": "test_create_all_charts",
+    "source_line": 760,
+    "classes_used": [
+      "Chart"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "examples/test_create_exceltable.py",
+    "source_function": "test_create_excel_with_table",
+    "source_line": 22,
+    "classes_used": [
+      "Style",
+      "Table",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "examples/test_create_exceltable.py",
+    "source_function": "test_create_multiple_tables",
+    "source_line": 141,
+    "classes_used": [
+      "Style",
+      "Table",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "examples/test_create_exceltable.py",
+    "source_function": "test_all_create_tables",
+    "source_line": 255,
+    "classes_used": [
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "examples/test_create_picture.py",
+    "source_function": "test_create_excel_with_picture",
+    "source_line": 17,
+    "classes_used": [
+      "Picture",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "examples/test_create_shape.py",
+    "source_function": "test_create_workflow_with_shapes",
+    "source_line": 24,
+    "classes_used": [
+      "Alignment",
+      "Fill",
+      "FillType",
+      "MsoDrawingType",
+      "Shape",
+      "TextAlignmentType",
+      "TextAnchorType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "examples/test_create_shape.py",
+    "source_function": "test_create_approval_workflow",
+    "source_line": 356,
+    "classes_used": [
+      "Alignment",
+      "Fill",
+      "FillType",
+      "MsoDrawingType",
+      "Shape",
+      "TextAlignmentType",
+      "TextAnchorType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "examples/test_create_shape.py",
+    "source_function": "test_all_create_shapes",
+    "source_line": 636,
+    "classes_used": [
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_create_line_sparklines",
+    "source_line": 24,
+    "classes_used": [
+      "Sparkline",
+      "SparklineType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_create_column_sparklines",
+    "source_line": 139,
+    "classes_used": [
+      "Sparkline",
+      "SparklineType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_create_win_loss_sparklines",
+    "source_line": 232,
+    "classes_used": [
+      "Sparkline",
+      "SparklineType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_create_multiple_sparkline_groups",
+    "source_line": 322,
+    "classes_used": [
+      "Sparkline",
+      "SparklineType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_create_sparkline_with_empty_cells",
+    "source_line": 443,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Sparkline",
+      "SparklineEmptyCells",
+      "SparklineType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "examples/test_create_sparkline.py",
+    "source_function": "test_all_create_sparklines",
+    "source_line": 567,
+    "classes_used": [
+      "Sparkline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
