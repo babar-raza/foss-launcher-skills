@@ -1,0 +1,3411 @@
+[
+  {
+    "name": "Header",
+    "kind": "class_definition",
+    "doc": "Header record at file offset 0 defining Compound File Binary (CFB) geometry and allocation chain entry points.",
+    "file": "aspose/email_foss/cfb/reader.py",
+    "line": 25,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "sector_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the sector size.",
+        "line": 66,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_sector_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the mini sector size.",
+        "line": 70,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_signature",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the header signature.",
+        "line": 29,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_clsid",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the header clsid.",
+        "line": 31,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minor_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the minor version.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the major version.",
+        "line": 35,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "byte_order",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the byte order.",
+        "line": 37,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "sector_shift",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the sector shift.",
+        "line": 39,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_sector_shift",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the mini sector shift.",
+        "line": 41,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "reserved",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the reserved.",
+        "line": 43,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_directory_sectors",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of directory sectors.",
+        "line": 45,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_fat_sectors",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of fat sectors.",
+        "line": 47,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_directory_sector_location",
+        "type": "SectorNumber",
+        "writable": false,
+        "doc": "Gets the first directory sector location.",
+        "line": 49,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transaction_signature_number",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the transaction signature number.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_stream_cutoff_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the mini stream cutoff size.",
+        "line": 53,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_mini_fat_sector_location",
+        "type": "SectorNumber",
+        "writable": false,
+        "doc": "Gets the first mini fat sector location.",
+        "line": 55,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_mini_fat_sectors",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of mini fat sectors.",
+        "line": 57,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "first_difat_sector_location",
+        "type": "SectorNumber",
+        "writable": false,
+        "doc": "Gets the first difat sector location.",
+        "line": 59,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "number_of_difat_sectors",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of difat sectors.",
+        "line": 61,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "difat",
+        "type": "List[SectorNumber]",
+        "writable": false,
+        "doc": "Gets the difat.",
+        "line": 63,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.reader.Header"
+  },
+  {
+    "name": "DirectoryEntry",
+    "kind": "class_definition",
+    "doc": "Fixed-size directory record for one storage/stream object and its tree links.",
+    "file": "aspose/email_foss/cfb/reader.py",
+    "line": 75,
+    "bases": [],
+    "methods": [
+      {
+        "name": "is_storage",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if storage is set.",
+        "line": 107,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_stream",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if stream is set.",
+        "line": 110,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_root",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if root is set.",
+        "line": 113,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "stream_id",
+        "type": "StreamId",
+        "writable": false,
+        "doc": "Gets the stream id.",
+        "line": 79,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 81,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "directory_entry_name_length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the directory entry name length.",
+        "line": 83,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "object_type",
+        "type": "DirectoryObjectType",
+        "writable": false,
+        "doc": "Gets the object type.",
+        "line": 85,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "color_flag",
+        "type": "DirectoryColorFlag",
+        "writable": false,
+        "doc": "Gets the color flag.",
+        "line": 87,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "left_sibling_id",
+        "type": "StreamId",
+        "writable": false,
+        "doc": "Gets the left sibling id.",
+        "line": 89,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "right_sibling_id",
+        "type": "StreamId",
+        "writable": false,
+        "doc": "Gets the right sibling id.",
+        "line": 91,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "child_id",
+        "type": "StreamId",
+        "writable": false,
+        "doc": "Gets the child id.",
+        "line": 93,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the clsid.",
+        "line": 95,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the state bits.",
+        "line": 97,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "FileTime",
+        "writable": false,
+        "doc": "Gets the creation time.",
+        "line": 99,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "FileTime",
+        "writable": false,
+        "doc": "Gets the modified time.",
+        "line": 101,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "starting_sector_location",
+        "type": "SectorNumber",
+        "writable": false,
+        "doc": "Gets the starting sector location.",
+        "line": 103,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stream_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the stream size.",
+        "line": 105,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.reader.DirectoryEntry"
+  },
+  {
+    "name": "CFBError",
+    "kind": "class_definition",
+    "doc": "Raised for malformed or unsupported Compound File Binary (CFB) content.",
+    "file": "aspose/email_foss/cfb/reader.py",
+    "line": 117,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.reader.CFBError"
+  },
+  {
+    "name": "CFBReader",
+    "kind": "class_definition",
+    "doc": "Reusable reader for Compound File Binary (CFB) containers.",
+    "file": "aspose/email_foss/cfb/reader.py",
+    "line": 121,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes | mmap.mmap"
+          },
+          {
+            "name": "_mmap_owner",
+            "type": "mmap.mmap | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 166,
+        "is_constructor": true
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          }
+        ],
+        "return_type": "\"CFBReader\"",
+        "doc": "",
+        "line": 181,
+        "is_constructor": false
+      },
+      {
+        "name": "close",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 187,
+        "is_constructor": false
+      },
+      {
+        "name": "get_entry",
+        "params": [
+          {
+            "name": "stream_id",
+            "type": "StreamId"
+          }
+        ],
+        "return_type": "DirectoryEntry",
+        "doc": "",
+        "line": 233,
+        "is_constructor": false
+      },
+      {
+        "name": "get_stream_data",
+        "params": [
+          {
+            "name": "stream_id",
+            "type": "StreamId"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 236,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_storages",
+        "params": [],
+        "return_type": "Iterator[DirectoryEntry]",
+        "doc": "",
+        "line": 244,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_streams",
+        "params": [],
+        "return_type": "Iterator[DirectoryEntry]",
+        "doc": "",
+        "line": 249,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_children",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "StreamId"
+          }
+        ],
+        "return_type": "Iterator[DirectoryEntry]",
+        "doc": "",
+        "line": 254,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_tree",
+        "params": [
+          {
+            "name": "start_stream_id",
+            "type": "StreamId"
+          }
+        ],
+        "return_type": "Iterator[Tuple[int, DirectoryEntry]]",
+        "doc": "Yield a depth-first tree traversal as `(depth, entry)` tuples.",
+        "line": 261,
+        "is_constructor": false
+      },
+      {
+        "name": "find_child_by_name",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "StreamId"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "Optional[DirectoryEntry]",
+        "doc": "",
+        "line": 273,
+        "is_constructor": false
+      },
+      {
+        "name": "resolve_path",
+        "params": [
+          {
+            "name": "names",
+            "type": "Iterable[str]"
+          },
+          {
+            "name": "start_stream_id",
+            "type": "StreamId"
+          }
+        ],
+        "return_type": "Optional[DirectoryEntry]",
+        "doc": "Resolve a storage/stream path by exact directory-entry names.",
+        "line": 279,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "data_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the data size.",
+        "line": 202,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the major version.",
+        "line": 206,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "sector_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the sector size.",
+        "line": 210,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_sector_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the mini sector size.",
+        "line": 214,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "fat_sector_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the fat sector count.",
+        "line": 218,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "directory_entry_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the directory entry count.",
+        "line": 222,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "materialized_stream_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the materialized stream count.",
+        "line": 226,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "file_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the file size.",
+        "line": 230,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "HEADER_LAYOUT",
+        "type": "Dict[str, Tuple[int, int]]",
+        "writable": false,
+        "doc": "Gets the header layout.",
+        "line": 129,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "DIRECTORY_ENTRY_LAYOUT",
+        "type": "Dict[str, Tuple[int, int]]",
+        "writable": false,
+        "doc": "Gets the directory entry layout.",
+        "line": 150,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header",
+        "type": "",
+        "doc": "Gets the header.",
+        "line": 169,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "difat",
+        "type": "List[SectorNumber]",
+        "doc": "Gets the difat.",
+        "line": 171,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "fat",
+        "type": "List[int]",
+        "doc": "Gets the fat.",
+        "line": 172,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_fat",
+        "type": "List[int]",
+        "doc": "Gets the mini fat.",
+        "line": 173,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "directory_entries",
+        "type": "",
+        "doc": "Gets the directory entries.",
+        "line": 174,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "root_entry",
+        "type": "",
+        "doc": "Gets the root entry.",
+        "line": 175,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mini_stream",
+        "type": "",
+        "doc": "Gets the mini stream.",
+        "line": 176,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stream_data",
+        "type": "Dict[StreamId, bytes]",
+        "doc": "Gets the stream data.",
+        "line": 177,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "HEADER_LAYOUT",
+        "value": "{\r\n        \"header_signature\": (0x0000, 8),\r\n        \"header_clsid\": (0x0008, 16),\r\n        \"minor_version\": (0x0018, 2),\r\n        \"major_version\": (0x001A, 2),\r\n        \"byte_order\": (0x001C, 2),\r\n        \"sector_shift\": (0x001E, 2),\r\n        \"mini_sector_shift\": (0x0020, 2),\r\n        \"reserved\": (0x0022, 6),\r\n        \"number_of_directory_sectors\": (0x0028, 4),\r\n        \"number_of_fat_sectors\": (0x002C, 4),\r\n        \"first_directory_sector_location\": (0x0030, 4),\r\n        \"transaction_signature_number\": (0x0034, 4),\r\n        \"mini_stream_cutoff_size\": (0x0038, 4),\r\n        \"first_mini_fat_sector_location\": (0x003C, 4),\r\n        \"number_of_mini_fat_sectors\": (0x0040, 4),\r\n        \"first_difat_sector_location\": (0x0044, 4),\r\n        \"number_of_difat_sectors\": (0x0048, 4),\r\n        \"difat\": (0x004C, 436),\r\n    }"
+      },
+      {
+        "name": "DIRECTORY_ENTRY_LAYOUT",
+        "value": "{\r\n        \"directory_entry_name\": (0, 64),\r\n        \"directory_entry_name_length\": (64, 2),\r\n        \"object_type\": (66, 1),\r\n        \"color_flag\": (67, 1),\r\n        \"left_sibling_id\": (68, 4),\r\n        \"right_sibling_id\": (72, 4),\r\n        \"child_id\": (76, 4),\r\n        \"clsid\": (80, 16),\r\n        \"state_bits\": (96, 4),\r\n        \"creation_time\": (100, 8),\r\n        \"modified_time\": (108, 8),\r\n        \"starting_sector_location\": (116, 4),\r\n        \"stream_size\": (120, 8),\r\n    }"
+      }
+    ],
+    "class_import": "aspose.email_foss.cfb.reader.CFBReader"
+  },
+  {
+    "name": "CFBStream",
+    "kind": "class_definition",
+    "doc": "Mutable stream node used by the CFB writer.",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 26,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the name.",
+        "line": 29,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the data.",
+        "line": 30,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the clsid.",
+        "line": 31,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the state bits.",
+        "line": 32,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "FileTime",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "FileTime",
+        "writable": true,
+        "doc": "Gets or sets the modified time.",
+        "line": 34,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.writer.CFBStream"
+  },
+  {
+    "name": "CFBStorage",
+    "kind": "class_definition",
+    "doc": "Mutable storage node used by the CFB writer.",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 38,
+    "bases": [],
+    "methods": [
+      {
+        "name": "add_storage",
+        "params": [
+          {
+            "name": "storage",
+            "type": "\"CFBStorage\""
+          }
+        ],
+        "return_type": "\"CFBStorage\"",
+        "doc": "",
+        "line": 48,
+        "is_constructor": false
+      },
+      {
+        "name": "add_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "CFBStream"
+          }
+        ],
+        "return_type": "CFBStream",
+        "doc": "",
+        "line": 52,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the name.",
+        "line": 41,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the clsid.",
+        "line": 42,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the state bits.",
+        "line": 43,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "FileTime",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 44,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "FileTime",
+        "writable": true,
+        "doc": "Gets or sets the modified time.",
+        "line": 45,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "children",
+        "type": "list[\"CFBStorage | CFBStream\"]",
+        "writable": true,
+        "doc": "Gets or sets the children.",
+        "line": 46,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.writer.CFBStorage"
+  },
+  {
+    "name": "CFBDocument",
+    "kind": "class_definition",
+    "doc": "Mutable Compound File Binary (CFB) document description.",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 58,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_reader",
+        "params": [
+          {
+            "name": "reader",
+            "type": "CFBReader"
+          }
+        ],
+        "return_type": "\"CFBDocument\"",
+        "doc": "",
+        "line": 67,
+        "is_constructor": false
+      },
+      {
+        "name": "build_storage",
+        "params": [
+          {
+            "name": "entry_id",
+            "type": "int"
+          }
+        ],
+        "return_type": "CFBStorage",
+        "doc": "",
+        "line": 68,
+        "is_constructor": false
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          }
+        ],
+        "return_type": "\"CFBDocument\"",
+        "doc": "",
+        "line": 101,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "root",
+        "type": "CFBStorage",
+        "writable": true,
+        "doc": "Gets or sets the root.",
+        "line": 61,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the major version.",
+        "line": 62,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minor_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the minor version.",
+        "line": 63,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transaction_signature_number",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the transaction signature number.",
+        "line": 64,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.writer.CFBDocument"
+  },
+  {
+    "name": "CFBWriter",
+    "kind": "class_definition",
+    "doc": "Deterministic serializer for Compound File Binary (CFB) containers.",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 123,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_bytes",
+        "params": [
+          {
+            "name": "document",
+            "type": "CFBDocument"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 127,
+        "is_constructor": false
+      },
+      {
+        "name": "write_file",
+        "params": [
+          {
+            "name": "document",
+            "type": "CFBDocument"
+          },
+          {
+            "name": "path",
+            "type": "Path | str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 131,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.cfb.writer.CFBWriter"
+  },
+  {
+    "name": "compare_directory_entry_names",
+    "kind": "function",
+    "doc": "Compare names using the [MS-CFB] sibling ordering rules.",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 106,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "left",
+        "type": "str"
+      },
+      {
+        "name": "right",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "MsgError",
+    "kind": "class_definition",
+    "doc": "Raised for malformed or unsupported MSG structures.",
+    "file": "aspose/email_foss/msg/reader.py",
+    "line": 25,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.reader.MsgError"
+  },
+  {
+    "name": "StorageLayout",
+    "kind": "class_definition",
+    "doc": "Naming and containment rules for recipient, attachment, embedded message, and nameid storages.",
+    "file": "aspose/email_foss/msg/reader.py",
+    "line": 30,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "recipient_storages",
+        "type": "Tuple[DirectoryEntry, ...]",
+        "writable": false,
+        "doc": "Gets the recipient storages.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attachment_storages",
+        "type": "Tuple[DirectoryEntry, ...]",
+        "writable": false,
+        "doc": "Gets the attachment storages.",
+        "line": 34,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "named_property_mapping_storage",
+        "type": "DirectoryEntry",
+        "writable": false,
+        "doc": "Gets the named property mapping storage.",
+        "line": 35,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "top_level_property_stream",
+        "type": "DirectoryEntry",
+        "writable": false,
+        "doc": "Gets the top level property stream.",
+        "line": 36,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.reader.StorageLayout"
+  },
+  {
+    "name": "MsgReader",
+    "kind": "class_definition",
+    "doc": "Normative top-level MSG containment and stream requirements for container traversal.",
+    "file": "aspose/email_foss/msg/reader.py",
+    "line": 39,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "cfb_reader",
+            "type": "CFBReader"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 62,
+        "is_constructor": true
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"MsgReader\"",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "close",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 95,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_top_level_fixed_length_properties",
+        "params": [],
+        "return_type": "Iterator[PropertyEntryFixedLength]",
+        "doc": "",
+        "line": 110,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_recipient_storages",
+        "params": [],
+        "return_type": "Iterator[DirectoryEntry]",
+        "doc": "",
+        "line": 114,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_attachment_storages",
+        "params": [],
+        "return_type": "Iterator[DirectoryEntry]",
+        "doc": "",
+        "line": 118,
+        "is_constructor": false
+      },
+      {
+        "name": "parse_message_property_stream",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "int"
+          }
+        ],
+        "return_type": "Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
+        "doc": "Read the property stream in the top level or an embedded-message storage.",
+        "line": 122,
+        "is_constructor": false
+      },
+      {
+        "name": "parse_subobject_property_stream",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "int"
+          }
+        ],
+        "return_type": "Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
+        "doc": "Read the property stream in recipient/attachment storage and decode fixed-length entries.",
+        "line": 133,
+        "is_constructor": false
+      },
+      {
+        "name": "parse_top_level_property_stream",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "return_type": "Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
+        "doc": "Decode top-level property stream header and fixed-length entries.",
+        "line": 142,
+        "is_constructor": false
+      },
+      {
+        "name": "parse_subobject_property_stream_data",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "return_type": "Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
+        "doc": "Decode recipient/attachment property stream header and fixed-length entries.",
+        "line": 170,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "cfb_reader",
+        "type": "CFBReader",
+        "writable": false,
+        "doc": "Gets the cfb reader.",
+        "line": 78,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "storage_layout",
+        "type": "StorageLayout",
+        "writable": false,
+        "doc": "Gets the storage layout.",
+        "line": 84,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "strict",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the strict.",
+        "line": 88,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "validation_issues",
+        "type": "Tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the validation issues.",
+        "line": 92,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PROPERTY_STREAM_HEADER_TOP_LEVEL_LAYOUT",
+        "type": "Dict[str, Tuple[int, int]]",
+        "writable": false,
+        "doc": "Gets the property stream header top level layout.",
+        "line": 42,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PROPERTY_STREAM_HEADER_SUBOBJECT_LAYOUT",
+        "type": "Dict[str, Tuple[int, int]]",
+        "writable": false,
+        "doc": "Gets the property stream header subobject layout.",
+        "line": 50,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PROPERTY_ENTRY_FIXED_LENGTH_LAYOUT",
+        "type": "Dict[str, Tuple[int, int]]",
+        "writable": false,
+        "doc": "Gets the property entry fixed length layout.",
+        "line": 53,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "PROPERTY_STREAM_HEADER_TOP_LEVEL_LAYOUT",
+        "value": "{\r\n        \"reserved_0\": (0, 8),\r\n        \"next_recipient_id\": (8, 4),\r\n        \"next_attachment_id\": (12, 4),\r\n        \"recipient_count\": (16, 4),\r\n        \"attachment_count\": (20, 4),\r\n        \"reserved_1\": (24, 8),\r\n    }"
+      },
+      {
+        "name": "PROPERTY_STREAM_HEADER_SUBOBJECT_LAYOUT",
+        "value": "{\r\n        \"reserved_0\": (0, 8),\r\n    }"
+      },
+      {
+        "name": "PROPERTY_ENTRY_FIXED_LENGTH_LAYOUT",
+        "value": "{\r\n        \"property_tag\": (0, 4),\r\n        \"flags\": (4, 4),\r\n        \"value\": (8, 8),\r\n    }"
+      }
+    ],
+    "class_import": "aspose.email_foss.msg.reader.MsgReader"
+  },
+  {
+    "name": "MsgStream",
+    "kind": "class_definition",
+    "doc": "Mutable MSG stream node with raw bytes and CFB metadata.",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 42,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the name.",
+        "line": 45,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the data.",
+        "line": 46,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the clsid.",
+        "line": 47,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the state bits.",
+        "line": 48,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 49,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the modified time.",
+        "line": 50,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.writer.MsgStream"
+  },
+  {
+    "name": "MsgStorage",
+    "kind": "class_definition",
+    "doc": "Mutable MSG storage node with role classification and parsed property-stream metadata.",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 54,
+    "bases": [],
+    "methods": [
+      {
+        "name": "add_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "MsgStream"
+          }
+        ],
+        "return_type": "MsgStream",
+        "doc": "",
+        "line": 70,
+        "is_constructor": false
+      },
+      {
+        "name": "add_storage",
+        "params": [
+          {
+            "name": "storage",
+            "type": "\"MsgStorage\""
+          }
+        ],
+        "return_type": "\"MsgStorage\"",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_streams",
+        "params": [],
+        "return_type": "Iterator[MsgStream]",
+        "doc": "",
+        "line": 78,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_storages",
+        "params": [],
+        "return_type": "Iterator[\"MsgStorage\"]",
+        "doc": "",
+        "line": 82,
+        "is_constructor": false
+      },
+      {
+        "name": "find_stream",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "MsgStream | None",
+        "doc": "",
+        "line": 86,
+        "is_constructor": false
+      },
+      {
+        "name": "find_storage",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "\"MsgStorage\" | None",
+        "doc": "",
+        "line": 92,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the name.",
+        "line": 57,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "role",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the role.",
+        "line": 58,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clsid",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the clsid.",
+        "line": 59,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "state_bits",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the state bits.",
+        "line": 60,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "creation_time",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 61,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modified_time",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the modified time.",
+        "line": 62,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "streams",
+        "type": "list[MsgStream]",
+        "writable": true,
+        "doc": "Gets or sets the streams.",
+        "line": 63,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "storages",
+        "type": "list[\"MsgStorage\"]",
+        "writable": true,
+        "doc": "Gets or sets the storages.",
+        "line": 64,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_header_kind",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the property header kind.",
+        "line": 65,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_stream_header",
+        "type": "PropertyStreamHeaderTopLevel | PropertyStreamHeaderSubobject | None",
+        "writable": true,
+        "doc": "Gets or sets the property stream header.",
+        "line": 66,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "fixed_length_properties",
+        "type": "tuple[PropertyEntryFixedLength, ...]",
+        "writable": true,
+        "doc": "Gets or sets the fixed length properties.",
+        "line": 67,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_stream_parse_error",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the property stream parse error.",
+        "line": 68,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.writer.MsgStorage"
+  },
+  {
+    "name": "MsgDocument",
+    "kind": "class_definition",
+    "doc": "Mutable MSG document model that can be serialized through the CFB writer.",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 100,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_reader",
+        "params": [
+          {
+            "name": "reader",
+            "type": "MsgReader"
+          }
+        ],
+        "return_type": "\"MsgDocument\"",
+        "doc": "",
+        "line": 110,
+        "is_constructor": false
+      },
+      {
+        "name": "build_storage",
+        "params": [
+          {
+            "name": "entry",
+            "type": "DirectoryEntry"
+          },
+          {
+            "name": "role",
+            "type": "str"
+          }
+        ],
+        "return_type": "MsgStorage",
+        "doc": "",
+        "line": 113,
+        "is_constructor": false
+      },
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"MsgDocument\"",
+        "doc": "",
+        "line": 163,
+        "is_constructor": false
+      },
+      {
+        "name": "to_cfb_document",
+        "params": [],
+        "return_type": "CFBDocument",
+        "doc": "",
+        "line": 167,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "root",
+        "type": "MsgStorage",
+        "writable": true,
+        "doc": "Gets or sets the root.",
+        "line": 103,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the major version.",
+        "line": 104,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minor_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the minor version.",
+        "line": 105,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transaction_signature_number",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the transaction signature number.",
+        "line": 106,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "strict",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the strict.",
+        "line": 107,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.writer.MsgDocument"
+  },
+  {
+    "name": "MsgWriter",
+    "kind": "class_definition",
+    "doc": "Serializer that writes a MsgDocument into a CFB-backed .msg payload.",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 177,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_bytes",
+        "params": [
+          {
+            "name": "document",
+            "type": "MsgDocument"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 181,
+        "is_constructor": false
+      },
+      {
+        "name": "write_file",
+        "params": [
+          {
+            "name": "document",
+            "type": "MsgDocument"
+          },
+          {
+            "name": "path",
+            "type": "Path | str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.writer.MsgWriter"
+  },
+  {
+    "name": "hash_payload",
+    "kind": "function",
+    "doc": "",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 285,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "SectorMarker",
+    "kind": "class_definition",
+    "doc": "Special FAT marker values reserved for sector allocation metadata.",
+    "file": "aspose/email_foss/cfb/types.py",
+    "line": 30,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "DIFSECT",
+        "value": "0xFFFFFFFC"
+      },
+      {
+        "name": "FATSECT",
+        "value": "0xFFFFFFFD"
+      },
+      {
+        "name": "ENDOFCHAIN",
+        "value": "0xFFFFFFFE"
+      },
+      {
+        "name": "FREESECT",
+        "value": "0xFFFFFFFF"
+      }
+    ],
+    "class_import": "aspose.email_foss.cfb.types.SectorMarker"
+  },
+  {
+    "name": "DirectoryObjectType",
+    "kind": "class_definition",
+    "doc": "Classifies the directory entry payload as unallocated, storage, stream, or root storage.",
+    "file": "aspose/email_foss/cfb/types.py",
+    "line": 43,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "UNKNOWN_OR_UNALLOCATED",
+        "value": "0"
+      },
+      {
+        "name": "STORAGE_OBJECT",
+        "value": "1"
+      },
+      {
+        "name": "STREAM_OBJECT",
+        "value": "2"
+      },
+      {
+        "name": "ROOT_STORAGE_OBJECT",
+        "value": "5"
+      }
+    ],
+    "class_import": "aspose.email_foss.cfb.types.DirectoryObjectType"
+  },
+  {
+    "name": "DirectoryColorFlag",
+    "kind": "class_definition",
+    "doc": "Stores the red-black tree color used by directory sibling links.",
+    "file": "aspose/email_foss/cfb/types.py",
+    "line": 56,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "RED",
+        "value": "0"
+      },
+      {
+        "name": "BLACK",
+        "value": "1"
+      }
+    ],
+    "class_import": "aspose.email_foss.cfb.types.DirectoryColorFlag"
+  },
+  {
+    "name": "MapiNamedProperty",
+    "kind": "class_definition",
+    "doc": "Identifier for a named MAPI property.",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 139,
+    "bases": [],
+    "methods": [
+      {
+        "name": "string",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "property_set",
+            "type": "uuid.UUID | str"
+          }
+        ],
+        "return_type": "\"MapiNamedProperty\"",
+        "doc": "",
+        "line": 149,
+        "is_constructor": false
+      },
+      {
+        "name": "numeric",
+        "params": [
+          {
+            "name": "lid",
+            "type": "int"
+          },
+          {
+            "name": "property_set",
+            "type": "uuid.UUID | str"
+          }
+        ],
+        "return_type": "\"MapiNamedProperty\"",
+        "doc": "",
+        "line": 153,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "property_set",
+        "type": "uuid.UUID",
+        "writable": false,
+        "doc": "Gets the property set.",
+        "line": 142,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "kind",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the kind.",
+        "line": 143,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 144,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "lid",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the lid.",
+        "line": 145,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_id",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the property id.",
+        "line": 146,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiNamedProperty"
+  },
+  {
+    "name": "MapiProperty",
+    "kind": "class_definition",
+    "doc": "Logical MAPI property with optional named-property identity.",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 158,
+    "bases": [],
+    "methods": [
+      {
+        "name": "clone",
+        "params": [],
+        "return_type": "\"MapiProperty\"",
+        "doc": "",
+        "line": 177,
+        "is_constructor": false
+      },
+      {
+        "name": "clear_raw",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 180,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "property_tag",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the property tag.",
+        "line": 174,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_id",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the property id.",
+        "line": 161,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "property_type",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the property type.",
+        "line": 162,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "value",
+        "type": "Any",
+        "writable": true,
+        "doc": "Gets or sets the value.",
+        "line": 163,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the flags.",
+        "line": 164,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "named",
+        "type": "MapiNamedProperty | None",
+        "writable": true,
+        "doc": "Gets or sets the named.",
+        "line": 165,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_inline_value",
+        "type": "bytes | None",
+        "writable": true,
+        "doc": "Gets or sets the raw inline value.",
+        "line": 166,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_size_value",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the raw size value.",
+        "line": 167,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_reserved_value",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the raw reserved value.",
+        "line": 168,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_direct_stream",
+        "type": "bytes | None",
+        "writable": true,
+        "doc": "Gets or sets the raw direct stream.",
+        "line": 169,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_indexed_streams",
+        "type": "tuple[tuple[int, bytes], ...]",
+        "writable": true,
+        "doc": "Gets or sets the raw indexed streams.",
+        "line": 170,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "preserve_raw",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the preserve raw.",
+        "line": 171,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiProperty"
+  },
+  {
+    "name": "MapiPropertyCollection",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 189,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 190,
+        "is_constructor": true
+      },
+      {
+        "name": "set",
+        "params": [
+          {
+            "name": "property",
+            "type": "MapiProperty"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "",
+        "line": 193,
+        "is_constructor": false
+      },
+      {
+        "name": "add",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type",
+            "type": "int | PropertyTypeCode"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          },
+          {
+            "name": "flags",
+            "type": "int"
+          },
+          {
+            "name": "named",
+            "type": "MapiNamedProperty | None"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "",
+        "line": 197,
+        "is_constructor": false
+      },
+      {
+        "name": "get",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "MapiProperty | None",
+        "doc": "",
+        "line": 221,
+        "is_constructor": false
+      },
+      {
+        "name": "remove",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 239,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_properties",
+        "params": [],
+        "return_type": "Iterator[MapiProperty]",
+        "doc": "",
+        "line": 252,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiPropertyCollection"
+  },
+  {
+    "name": "MapiRecipient",
+    "kind": "class_definition",
+    "doc": "Mutable recipient object.",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 258,
+    "bases": [],
+    "methods": [
+      {
+        "name": "set_property",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type_or_value",
+            "type": "int | PropertyTypeCode | Any"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          },
+          {
+            "name": "flags",
+            "type": "int"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "Sets the property value.",
+        "line": 271,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "display_name",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the display name.",
+        "line": 261,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "email_address",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the email address.",
+        "line": 262,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_type",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the recipient type.",
+        "line": 263,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "address_type",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the address type.",
+        "line": 264,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "storage_id",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the storage id.",
+        "line": 265,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "MapiPropertyCollection",
+        "writable": true,
+        "doc": "Gets or sets the properties.",
+        "line": 266,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_streams",
+        "type": "list[MsgStream]",
+        "writable": true,
+        "doc": "Gets or sets the extra streams.",
+        "line": 267,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_storages",
+        "type": "list[MsgStorage]",
+        "writable": true,
+        "doc": "Gets or sets the extra storages.",
+        "line": 268,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_reserved_0",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the header reserved 0.",
+        "line": 269,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiRecipient"
+  },
+  {
+    "name": "MapiAttachment",
+    "kind": "class_definition",
+    "doc": "Mutable attachment object.",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 284,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_bytes",
+        "params": [
+          {
+            "name": "filename",
+            "type": "str"
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "mime_type",
+            "type": "str | None"
+          },
+          {
+            "name": "content_id",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "\"MapiAttachment\"",
+        "doc": "",
+        "line": 320,
+        "is_constructor": false
+      },
+      {
+        "name": "from_embedded_message",
+        "params": [
+          {
+            "name": "message",
+            "type": "\"MapiMessage\""
+          },
+          {
+            "name": "filename",
+            "type": "str | None"
+          },
+          {
+            "name": "mime_type",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "\"MapiAttachment\"",
+        "doc": "",
+        "line": 331,
+        "is_constructor": false
+      },
+      {
+        "name": "set_property",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type_or_value",
+            "type": "int | PropertyTypeCode | Any"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          },
+          {
+            "name": "flags",
+            "type": "int"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "Sets the property value.",
+        "line": 345,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "storage_name",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the storage name.",
+        "line": 300,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_embedded_message",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is embedded message.",
+        "line": 306,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_storage_attachment",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is storage attachment.",
+        "line": 310,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "embedded_storage_name",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the embedded storage name.",
+        "line": 314,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "filename",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the filename.",
+        "line": 287,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the data.",
+        "line": 288,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mime_type",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the mime type.",
+        "line": 289,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "content_id",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the content id.",
+        "line": 290,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attach_method",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the attach method.",
+        "line": 291,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "storage_id",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the storage id.",
+        "line": 292,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "embedded_message",
+        "type": "\"MapiMessage | None\"",
+        "writable": true,
+        "doc": "Gets or sets the embedded message.",
+        "line": 293,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "custom_storage",
+        "type": "MsgStorage | None",
+        "writable": true,
+        "doc": "Gets or sets the custom storage.",
+        "line": 294,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "MapiPropertyCollection",
+        "writable": true,
+        "doc": "Gets or sets the properties.",
+        "line": 295,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_streams",
+        "type": "list[MsgStream]",
+        "writable": true,
+        "doc": "Gets or sets the extra streams.",
+        "line": 296,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_reserved_0",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the header reserved 0.",
+        "line": 297,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiAttachment"
+  },
+  {
+    "name": "MapiMessage",
+    "kind": "class_definition",
+    "doc": "Mutable high-level MSG object with MSG and EmailMessage conversion support.",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 486,
+    "bases": [],
+    "methods": [
+      {
+        "name": "from_file",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          },
+          {
+            "name": "strict",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"MapiMessage\"",
+        "doc": "",
+        "line": 567,
+        "is_constructor": false
+      },
+      {
+        "name": "from_msg_document",
+        "params": [
+          {
+            "name": "document",
+            "type": "MsgDocument"
+          }
+        ],
+        "return_type": "\"MapiMessage\"",
+        "doc": "",
+        "line": 575,
+        "is_constructor": false
+      },
+      {
+        "name": "from_email_message",
+        "params": [
+          {
+            "name": "email_message",
+            "type": "EmailMessage"
+          },
+          {
+            "name": "unicode_strings",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"MapiMessage\"",
+        "doc": "",
+        "line": 619,
+        "is_constructor": false
+      },
+      {
+        "name": "create",
+        "params": [
+          {
+            "name": "subject",
+            "type": "str"
+          },
+          {
+            "name": "body",
+            "type": "str"
+          },
+          {
+            "name": "unicode_strings",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"MapiMessage\"",
+        "doc": "",
+        "line": 716,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_properties",
+        "params": [],
+        "return_type": "Iterator[MapiProperty]",
+        "doc": "",
+        "line": 776,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_property_keys",
+        "params": [
+          {
+            "name": "storage_stream_id",
+            "type": "int"
+          }
+        ],
+        "return_type": "Iterator[tuple[int, int]]",
+        "doc": "",
+        "line": 779,
+        "is_constructor": false
+      },
+      {
+        "name": "set_property",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type_or_value",
+            "type": "int | PropertyTypeCode | Any"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          },
+          {
+            "name": "flags",
+            "type": "int"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "Sets the property value.",
+        "line": 784,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_property",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type",
+            "type": "int | None"
+          },
+          {
+            "name": "storage_stream_id",
+            "type": "int | None"
+          },
+          {
+            "name": "decode",
+            "type": "bool | None"
+          }
+        ],
+        "return_type": "MapiProperty | Any | None",
+        "doc": "",
+        "line": 800,
+        "is_constructor": false
+      },
+      {
+        "name": "get_property_value",
+        "params": [
+          {
+            "name": "property_id",
+            "type": "int | CommonMessagePropertyId | PropertyId"
+          },
+          {
+            "name": "property_type",
+            "type": "int | None"
+          },
+          {
+            "name": "storage_stream_id",
+            "type": "int"
+          },
+          {
+            "name": "decode",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Any | None",
+        "doc": "",
+        "line": 817,
+        "is_constructor": false
+      },
+      {
+        "name": "set_named_property",
+        "params": [
+          {
+            "name": "named_property",
+            "type": "MapiNamedProperty"
+          },
+          {
+            "name": "property_type",
+            "type": "int | PropertyTypeCode"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          },
+          {
+            "name": "flags",
+            "type": "int"
+          }
+        ],
+        "return_type": "MapiProperty",
+        "doc": "Sets the named property value.",
+        "line": 852,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_named_property",
+        "params": [
+          {
+            "name": "named_property",
+            "type": "MapiNamedProperty"
+          },
+          {
+            "name": "property_type",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "MapiProperty | None",
+        "doc": "",
+        "line": 863,
+        "is_constructor": false
+      },
+      {
+        "name": "add_recipient",
+        "params": [
+          {
+            "name": "email_address",
+            "type": "str"
+          },
+          {
+            "name": "display_name",
+            "type": "str | None"
+          },
+          {
+            "name": "recipient_type",
+            "type": "int"
+          }
+        ],
+        "return_type": "MapiRecipient",
+        "doc": "",
+        "line": 869,
+        "is_constructor": false
+      },
+      {
+        "name": "add_attachment",
+        "params": [
+          {
+            "name": "filename",
+            "type": "str"
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "mime_type",
+            "type": "str | None"
+          },
+          {
+            "name": "content_id",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "MapiAttachment",
+        "doc": "",
+        "line": 881,
+        "is_constructor": false
+      },
+      {
+        "name": "add_embedded_message_attachment",
+        "params": [
+          {
+            "name": "message",
+            "type": "\"MapiMessage\""
+          },
+          {
+            "name": "filename",
+            "type": "str | None"
+          },
+          {
+            "name": "mime_type",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "MapiAttachment",
+        "doc": "",
+        "line": 894,
+        "is_constructor": false
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "path",
+            "type": "Path | str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 902,
+        "is_constructor": false
+      },
+      {
+        "name": "to_bytes",
+        "params": [],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 905,
+        "is_constructor": false
+      },
+      {
+        "name": "to_email_message",
+        "params": [],
+        "return_type": "EmailMessage",
+        "doc": "",
+        "line": 908,
+        "is_constructor": false
+      },
+      {
+        "name": "to_email_bytes",
+        "params": [],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 980,
+        "is_constructor": false
+      },
+      {
+        "name": "to_email_string",
+        "params": [],
+        "return_type": "str",
+        "doc": "",
+        "line": 983,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_attachments_info",
+        "params": [],
+        "return_type": "Iterator[MapiAttachment]",
+        "doc": "",
+        "line": 986,
+        "is_constructor": false
+      },
+      {
+        "name": "close",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 990,
+        "is_constructor": false
+      },
+      {
+        "name": "to_msg_document",
+        "params": [],
+        "return_type": "MsgDocument",
+        "doc": "",
+        "line": 1006,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "msg_reader",
+        "type": "MsgReader",
+        "writable": false,
+        "doc": "Gets the msg reader.",
+        "line": 725,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "validation_issues",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the validation issues.",
+        "line": 733,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "subject",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the subject.",
+        "line": 739,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "body",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the body.",
+        "line": 747,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "message_class",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the message class.",
+        "line": 755,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "body_html",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the body html.",
+        "line": 763,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "unicode_strings",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the unicode strings.",
+        "line": 543,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "MapiPropertyCollection",
+        "writable": true,
+        "doc": "Gets or sets the properties.",
+        "line": 544,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipients",
+        "type": "list[MapiRecipient]",
+        "writable": true,
+        "doc": "Gets or sets the recipients.",
+        "line": 545,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attachments",
+        "type": "list[MapiAttachment]",
+        "writable": true,
+        "doc": "Gets or sets the attachments.",
+        "line": 546,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_streams",
+        "type": "list[MsgStream]",
+        "writable": true,
+        "doc": "Gets or sets the extra streams.",
+        "line": 547,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_storages",
+        "type": "list[MsgStorage]",
+        "writable": true,
+        "doc": "Gets or sets the extra storages.",
+        "line": 548,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "nameid_mapping",
+        "type": "_NamedPropertyMapping",
+        "writable": true,
+        "doc": "Gets or sets the nameid mapping.",
+        "line": 549,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "major_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the major version.",
+        "line": 550,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minor_version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the minor version.",
+        "line": 551,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transaction_signature_number",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the transaction signature number.",
+        "line": 552,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_reserved_0",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the header reserved 0.",
+        "line": 553,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header_reserved_1",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the header reserved 1.",
+        "line": 554,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "emit_store_support_mask",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the emit store support mask.",
+        "line": 555,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "emit_compatibility_defaults",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the emit compatibility defaults.",
+        "line": 556,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "preserve_declared_header_counts",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the preserve declared header counts.",
+        "line": 557,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "declared_next_recipient_id",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the declared next recipient id.",
+        "line": 558,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "declared_next_attachment_id",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the declared next attachment id.",
+        "line": 559,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "declared_recipient_count",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the declared recipient count.",
+        "line": 560,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "declared_attachment_count",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the declared attachment count.",
+        "line": 561,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiMessage"
+  },
+  {
+    "name": "PropertyId",
+    "kind": "class_definition",
+    "doc": "Common property identifiers paired with their default MAPI property types.",
+    "file": "aspose/email_foss/msg/property_id.py",
+    "line": 9,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "MESSAGE_CLASS",
+        "value": "(CommonMessagePropertyId.MESSAGE_CLASS, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "TRANSPORT_MESSAGE_HEADERS",
+        "value": "(CommonMessagePropertyId.TRANSPORT_MESSAGE_HEADERS, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "SUBJECT",
+        "value": "(CommonMessagePropertyId.SUBJECT, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "DISPLAY_TO",
+        "value": "(CommonMessagePropertyId.DISPLAY_TO, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "DISPLAY_CC",
+        "value": "(CommonMessagePropertyId.DISPLAY_CC, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "DISPLAY_BCC",
+        "value": "(CommonMessagePropertyId.DISPLAY_BCC, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "INTERNET_MESSAGE_ID",
+        "value": "(CommonMessagePropertyId.INTERNET_MESSAGE_ID, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "MESSAGE_FLAGS",
+        "value": "(CommonMessagePropertyId.MESSAGE_FLAGS, PropertyTypeCode.PTYP_INTEGER32)"
+      },
+      {
+        "name": "INTERNET_CODEPAGE",
+        "value": "(CommonMessagePropertyId.INTERNET_CODEPAGE, PropertyTypeCode.PTYP_INTEGER32)"
+      },
+      {
+        "name": "SENDER_NAME",
+        "value": "(CommonMessagePropertyId.SENDER_NAME, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "SENDER_ADDRESS_TYPE",
+        "value": "(CommonMessagePropertyId.SENDER_ADDRESS_TYPE, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "SENDER_EMAIL_ADDRESS",
+        "value": "(CommonMessagePropertyId.SENDER_EMAIL_ADDRESS, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "MESSAGE_DELIVERY_TIME",
+        "value": "(CommonMessagePropertyId.MESSAGE_DELIVERY_TIME, PropertyTypeCode.PTYP_TIME)"
+      },
+      {
+        "name": "STORE_SUPPORT_MASK",
+        "value": "(CommonMessagePropertyId.STORE_SUPPORT_MASK, PropertyTypeCode.PTYP_INTEGER32)"
+      },
+      {
+        "name": "BODY",
+        "value": "(CommonMessagePropertyId.BODY, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "BODY_HTML",
+        "value": "(CommonMessagePropertyId.BODY_HTML, PropertyTypeCode.PTYP_BINARY)"
+      },
+      {
+        "name": "DISPLAY_NAME",
+        "value": "(CommonMessagePropertyId.DISPLAY_NAME, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "ATTACH_METHOD",
+        "value": "(CommonMessagePropertyId.ATTACH_METHOD, PropertyTypeCode.PTYP_INTEGER32)"
+      },
+      {
+        "name": "ATTACH_DATA_BINARY",
+        "value": "(CommonMessagePropertyId.ATTACH_DATA_BINARY, PropertyTypeCode.PTYP_BINARY)"
+      },
+      {
+        "name": "ATTACH_FILENAME",
+        "value": "(CommonMessagePropertyId.ATTACH_FILENAME, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "ATTACH_LONG_FILENAME",
+        "value": "(CommonMessagePropertyId.ATTACH_LONG_FILENAME, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "ATTACH_MIME_TAG",
+        "value": "(CommonMessagePropertyId.ATTACH_MIME_TAG, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "ATTACH_CONTENT_ID",
+        "value": "(CommonMessagePropertyId.ATTACH_CONTENT_ID, PropertyTypeCode.PTYP_STRING)"
+      },
+      {
+        "name": "SCHEDULE_INFO_DELEGATE_NAMES",
+        "value": "(CommonMessagePropertyId.SCHEDULE_INFO_DELEGATE_NAMES, PropertyTypeCode.PTYP_MULTIPLE_STRING)"
+      },
+      {
+        "name": "SCHEDULE_INFO_MONTHS_BUSY",
+        "value": "(CommonMessagePropertyId.SCHEDULE_INFO_MONTHS_BUSY, PropertyTypeCode.PTYP_MULTIPLE_INTEGER32)"
+      },
+      {
+        "name": "EXAMPLE_TAG_100A",
+        "value": "(CommonMessagePropertyId.EXAMPLE_TAG_100A, PropertyTypeCode.PTYP_BINARY)"
+      },
+      {
+        "name": "EXAMPLE_TAG_101D",
+        "value": "(CommonMessagePropertyId.EXAMPLE_TAG_101D, PropertyTypeCode.PTYP_BINARY)"
+      }
+    ],
+    "class_import": "aspose.email_foss.msg.property_id.PropertyId"
+  },
+  {
+    "name": "CommonMessagePropertyId",
+    "kind": "class_definition",
+    "doc": "Common MAPI property identifiers used by the MSG reader/writer for core message semantics.",
+    "file": "aspose/email_foss/msg/property_tags.py",
+    "line": 6,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "MESSAGE_CLASS",
+        "value": "0x001A"
+      },
+      {
+        "name": "TRANSPORT_MESSAGE_HEADERS",
+        "value": "0x007D"
+      },
+      {
+        "name": "SUBJECT",
+        "value": "0x0037"
+      },
+      {
+        "name": "DISPLAY_TO",
+        "value": "0x0E04"
+      },
+      {
+        "name": "DISPLAY_CC",
+        "value": "0x0E03"
+      },
+      {
+        "name": "DISPLAY_BCC",
+        "value": "0x0E02"
+      },
+      {
+        "name": "INTERNET_MESSAGE_ID",
+        "value": "0x1035"
+      },
+      {
+        "name": "MESSAGE_FLAGS",
+        "value": "0x0E07"
+      },
+      {
+        "name": "INTERNET_CODEPAGE",
+        "value": "0x3FDE"
+      },
+      {
+        "name": "SENDER_NAME",
+        "value": "0x0C1A"
+      },
+      {
+        "name": "SENDER_ADDRESS_TYPE",
+        "value": "0x0C1E"
+      },
+      {
+        "name": "SENDER_EMAIL_ADDRESS",
+        "value": "0x0C1F"
+      },
+      {
+        "name": "MESSAGE_DELIVERY_TIME",
+        "value": "0x0E06"
+      },
+      {
+        "name": "STORE_SUPPORT_MASK",
+        "value": "0x340D"
+      },
+      {
+        "name": "BODY",
+        "value": "0x1000"
+      },
+      {
+        "name": "BODY_HTML",
+        "value": "0x1013"
+      },
+      {
+        "name": "DISPLAY_NAME",
+        "value": "0x3001"
+      },
+      {
+        "name": "ATTACH_METHOD",
+        "value": "0x3705"
+      },
+      {
+        "name": "ATTACH_DATA_BINARY",
+        "value": "0x3701"
+      },
+      {
+        "name": "ATTACH_FILENAME",
+        "value": "0x3704"
+      },
+      {
+        "name": "ATTACH_LONG_FILENAME",
+        "value": "0x3707"
+      },
+      {
+        "name": "ATTACH_MIME_TAG",
+        "value": "0x370E"
+      },
+      {
+        "name": "ATTACH_CONTENT_ID",
+        "value": "0x3712"
+      },
+      {
+        "name": "SCHEDULE_INFO_DELEGATE_NAMES",
+        "value": "0x6844"
+      },
+      {
+        "name": "SCHEDULE_INFO_MONTHS_BUSY",
+        "value": "0x6853"
+      },
+      {
+        "name": "EXAMPLE_TAG_100A",
+        "value": "0x100A"
+      },
+      {
+        "name": "EXAMPLE_TAG_101D",
+        "value": "0x101D"
+      }
+    ],
+    "class_import": "aspose.email_foss.msg.property_tags.CommonMessagePropertyId"
+  },
+  {
+    "name": "PropertyTypeCode",
+    "kind": "class_definition",
+    "doc": "MAPI property type codes used in MSG property tags and value stream names.",
+    "file": "aspose/email_foss/msg/property_types.py",
+    "line": 6,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "PTYP_INTEGER16",
+        "value": "0x0002"
+      },
+      {
+        "name": "PTYP_INTEGER32",
+        "value": "0x0003"
+      },
+      {
+        "name": "PTYP_FLOATING32",
+        "value": "0x0004"
+      },
+      {
+        "name": "PTYP_FLOATING64",
+        "value": "0x0005"
+      },
+      {
+        "name": "PTYP_CURRENCY",
+        "value": "0x0006"
+      },
+      {
+        "name": "PTYP_FLOATINGTIME",
+        "value": "0x0007"
+      },
+      {
+        "name": "PTYP_ERRORCODE",
+        "value": "0x000A"
+      },
+      {
+        "name": "PTYP_BOOLEAN",
+        "value": "0x000B"
+      },
+      {
+        "name": "PTYP_OBJECT",
+        "value": "0x000D"
+      },
+      {
+        "name": "PTYP_INTEGER64",
+        "value": "0x0014"
+      },
+      {
+        "name": "PTYP_STRING8",
+        "value": "0x001E"
+      },
+      {
+        "name": "PTYP_STRING",
+        "value": "0x001F"
+      },
+      {
+        "name": "PTYP_TIME",
+        "value": "0x0040"
+      },
+      {
+        "name": "PTYP_GUID",
+        "value": "0x0048"
+      },
+      {
+        "name": "PTYP_BINARY",
+        "value": "0x0102"
+      },
+      {
+        "name": "PTYP_MULTIPLE_INTEGER16",
+        "value": "0x1002"
+      },
+      {
+        "name": "PTYP_MULTIPLE_INTEGER32",
+        "value": "0x1003"
+      },
+      {
+        "name": "PTYP_MULTIPLE_FLOATING32",
+        "value": "0x1004"
+      },
+      {
+        "name": "PTYP_MULTIPLE_FLOATING64",
+        "value": "0x1005"
+      },
+      {
+        "name": "PTYP_MULTIPLE_CURRENCY",
+        "value": "0x1006"
+      },
+      {
+        "name": "PTYP_MULTIPLE_FLOATINGTIME",
+        "value": "0x1007"
+      },
+      {
+        "name": "PTYP_MULTIPLE_INTEGER64",
+        "value": "0x1014"
+      },
+      {
+        "name": "PTYP_MULTIPLE_STRING8",
+        "value": "0x101E"
+      },
+      {
+        "name": "PTYP_MULTIPLE_STRING",
+        "value": "0x101F"
+      },
+      {
+        "name": "PTYP_MULTIPLE_TIME",
+        "value": "0x1040"
+      },
+      {
+        "name": "PTYP_MULTIPLE_GUID",
+        "value": "0x1048"
+      },
+      {
+        "name": "PTYP_MULTIPLE_BINARY",
+        "value": "0x1102"
+      }
+    ],
+    "class_import": "aspose.email_foss.msg.property_types.PropertyTypeCode"
+  },
+  {
+    "name": "PropertyStreamHeaderTopLevel",
+    "kind": "class_definition",
+    "doc": "Top-level property stream header containing next-id counters and counts for recipients and attachments.",
+    "file": "aspose/email_foss/msg/types.py",
+    "line": 31,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "reserved_0",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the reserved 0.",
+        "line": 35,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "next_recipient_id",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the next recipient id.",
+        "line": 37,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "next_attachment_id",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the next attachment id.",
+        "line": 39,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "recipient_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the recipient count.",
+        "line": 41,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "attachment_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the attachment count.",
+        "line": 43,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "reserved_1",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the reserved 1.",
+        "line": 45,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.types.PropertyStreamHeaderTopLevel"
+  },
+  {
+    "name": "PropertyStreamHeaderSubobject",
+    "kind": "class_definition",
+    "doc": "Property stream header used in recipient and attachment storages, containing only reserved bytes.",
+    "file": "aspose/email_foss/msg/types.py",
+    "line": 49,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "reserved_0",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the reserved 0.",
+        "line": 53,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.types.PropertyStreamHeaderSubobject"
+  },
+  {
+    "name": "PropertyEntryFixedLength",
+    "kind": "class_definition",
+    "doc": "Fixed-length property stream entry containing property tag, flags, and inline 8-byte value payload.",
+    "file": "aspose/email_foss/msg/types.py",
+    "line": 57,
+    "bases": [],
+    "methods": [
+      {
+        "name": "is_mandatory",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if mandatory is set.",
+        "line": 67,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_readable",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if readable is set.",
+        "line": 70,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_writable",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Returns true if writable is set.",
+        "line": 73,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "property_tag",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the property tag.",
+        "line": 61,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the flags.",
+        "line": 63,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "value",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the value.",
+        "line": 65,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "aspose.email_foss.msg.types.PropertyEntryFixedLength"
+  }
+]

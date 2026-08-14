@@ -1,0 +1,58 @@
+[
+  {
+    "format": "CFB",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/cfb/reader.py",
+    "line": 121,
+    "direction": "import"
+  },
+  {
+    "format": "CFB",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 123,
+    "direction": "export"
+  },
+  {
+    "format": "CFB",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/cfb/writer.py",
+    "line": 180,
+    "direction": "export"
+  },
+  {
+    "format": "Msg",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/msg/reader.py",
+    "line": 39,
+    "direction": "import"
+  },
+  {
+    "format": "Msg",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/msg/writer.py",
+    "line": 177,
+    "direction": "export"
+  },
+  {
+    "format": "eml",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 619,
+    "direction": "import"
+  },
+  {
+    "format": "eml",
+    "enum": "",
+    "value": "",
+    "file": "aspose/email_foss/msg/mapi_message.py",
+    "line": 908,
+    "direction": "export"
+  }
+]

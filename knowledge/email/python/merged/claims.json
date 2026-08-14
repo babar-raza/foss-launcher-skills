@@ -1,0 +1,4229 @@
+[
+  {
+    "claim_id": "CLM-email-693c7f",
+    "kind": "api_method",
+    "text": "Header.sector_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f6e530",
+    "kind": "api_method",
+    "text": "Header.mini_sector_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8164a3",
+    "kind": "api_method",
+    "text": "Header.header_signature field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f1043a",
+    "kind": "api_method",
+    "text": "Header.header_clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d27e63",
+    "kind": "api_method",
+    "text": "Header.minor_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-47d609",
+    "kind": "api_method",
+    "text": "Header.major_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-797257",
+    "kind": "api_method",
+    "text": "Header.byte_order field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2b4d44",
+    "kind": "api_method",
+    "text": "Header.sector_shift field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-79072a",
+    "kind": "api_method",
+    "text": "Header.mini_sector_shift field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6d9ec4",
+    "kind": "api_method",
+    "text": "Header.reserved field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-33c46f",
+    "kind": "api_method",
+    "text": "Header.number_of_directory_sectors field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4084c3",
+    "kind": "api_method",
+    "text": "Header.number_of_fat_sectors field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-51cef5",
+    "kind": "api_method",
+    "text": "Header.first_directory_sector_location field of type SectorNumber",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bafb2c",
+    "kind": "api_method",
+    "text": "Header.transaction_signature_number field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2a8a48",
+    "kind": "api_method",
+    "text": "Header.mini_stream_cutoff_size field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-485546",
+    "kind": "api_method",
+    "text": "Header.first_mini_fat_sector_location field of type SectorNumber",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-144e08",
+    "kind": "api_method",
+    "text": "Header.number_of_mini_fat_sectors field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-25cf8d",
+    "kind": "api_method",
+    "text": "Header.first_difat_sector_location field of type SectorNumber",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5c76b0",
+    "kind": "api_method",
+    "text": "Header.number_of_difat_sectors field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dfdf89",
+    "kind": "api_method",
+    "text": "Header.difat field of type List[SectorNumber]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9800b2",
+    "kind": "api_class",
+    "text": "Class Header defined in aspose/email_foss/cfb/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-980d40",
+    "kind": "api_method",
+    "text": "DirectoryEntry.is_storage() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91b00a",
+    "kind": "api_method",
+    "text": "DirectoryEntry.is_stream() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0d3cea",
+    "kind": "api_method",
+    "text": "DirectoryEntry.is_root() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8bf774",
+    "kind": "api_method",
+    "text": "DirectoryEntry.stream_id field of type StreamId",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 79
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aec445",
+    "kind": "api_method",
+    "text": "DirectoryEntry.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-20e033",
+    "kind": "api_method",
+    "text": "DirectoryEntry.directory_entry_name_length field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4c6045",
+    "kind": "api_method",
+    "text": "DirectoryEntry.object_type field of type DirectoryObjectType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dee83c",
+    "kind": "api_method",
+    "text": "DirectoryEntry.color_flag field of type DirectoryColorFlag",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-681046",
+    "kind": "api_method",
+    "text": "DirectoryEntry.left_sibling_id field of type StreamId",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-69a362",
+    "kind": "api_method",
+    "text": "DirectoryEntry.right_sibling_id field of type StreamId",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 91
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2ffdc1",
+    "kind": "api_method",
+    "text": "DirectoryEntry.child_id field of type StreamId",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 93
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bf604a",
+    "kind": "api_method",
+    "text": "DirectoryEntry.clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-678e9a",
+    "kind": "api_method",
+    "text": "DirectoryEntry.state_bits field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2b18ca",
+    "kind": "api_method",
+    "text": "DirectoryEntry.creation_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 99
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-278410",
+    "kind": "api_method",
+    "text": "DirectoryEntry.modified_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4410ad",
+    "kind": "api_method",
+    "text": "DirectoryEntry.starting_sector_location field of type SectorNumber",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 103
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a2e247",
+    "kind": "api_method",
+    "text": "DirectoryEntry.stream_size field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4d3fcc",
+    "kind": "api_class",
+    "text": "Class DirectoryEntry defined in aspose/email_foss/cfb/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-97bbe2",
+    "kind": "api_class",
+    "text": "Class CFBError defined in aspose/email_foss/cfb/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 117
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-abaee5",
+    "kind": "api_method",
+    "text": "CFBReader.__init__(data, _mmap_owner) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1fb91a",
+    "kind": "api_method",
+    "text": "CFBReader.from_file(path) -> \"CFBReader\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 181
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1f139c",
+    "kind": "api_method",
+    "text": "CFBReader.close() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 187
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0c08a3",
+    "kind": "api_method",
+    "text": "CFBReader.get_entry(stream_id) -> DirectoryEntry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 233
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b7436d",
+    "kind": "api_method",
+    "text": "CFBReader.get_stream_data(stream_id) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 236
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0e9e13",
+    "kind": "api_method",
+    "text": "CFBReader.iter_storages() -> Iterator[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 244
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-92130c",
+    "kind": "api_method",
+    "text": "CFBReader.iter_streams() -> Iterator[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 249
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-168522",
+    "kind": "api_method",
+    "text": "CFBReader.iter_children(storage_stream_id) -> Iterator[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 254
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-428d2a",
+    "kind": "api_method",
+    "text": "CFBReader.iter_tree(start_stream_id) -> Iterator[Tuple[int, DirectoryEntry]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 261
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-328dd7",
+    "kind": "api_method",
+    "text": "CFBReader.find_child_by_name(storage_stream_id, name) -> Optional[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 273
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8e82d0",
+    "kind": "api_method",
+    "text": "CFBReader.resolve_path(names, start_stream_id) -> Optional[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 279
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e073a7",
+    "kind": "api_method",
+    "text": "CFBReader.data_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 202
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b37c45",
+    "kind": "api_method",
+    "text": "CFBReader.major_version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 206
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5e2c7b",
+    "kind": "api_method",
+    "text": "CFBReader.sector_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6b196a",
+    "kind": "api_method",
+    "text": "CFBReader.mini_sector_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 214
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-249f85",
+    "kind": "api_method",
+    "text": "CFBReader.fat_sector_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 218
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e4e96f",
+    "kind": "api_method",
+    "text": "CFBReader.directory_entry_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 222
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b47613",
+    "kind": "api_method",
+    "text": "CFBReader.materialized_stream_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 226
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-479c48",
+    "kind": "api_method",
+    "text": "CFBReader.file_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 230
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1778c4",
+    "kind": "api_method",
+    "text": "CFBReader.HEADER_LAYOUT field of type Dict[str, Tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 129
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b4b731",
+    "kind": "api_method",
+    "text": "CFBReader.DIRECTORY_ENTRY_LAYOUT field of type Dict[str, Tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e0a83b",
+    "kind": "api_method",
+    "text": "CFBReader.header field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-060c51",
+    "kind": "api_method",
+    "text": "CFBReader.difat field of type List[SectorNumber]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 171
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5a9961",
+    "kind": "api_method",
+    "text": "CFBReader.fat field of type List[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 172
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dcfff7",
+    "kind": "api_method",
+    "text": "CFBReader.mini_fat field of type List[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 173
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-76042e",
+    "kind": "api_method",
+    "text": "CFBReader.directory_entries field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cb44ae",
+    "kind": "api_method",
+    "text": "CFBReader.root_entry field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 175
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-31343b",
+    "kind": "api_method",
+    "text": "CFBReader.mini_stream field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 176
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a5ca5b",
+    "kind": "api_method",
+    "text": "CFBReader.stream_data field of type Dict[StreamId, bytes]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 177
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ad3e55",
+    "kind": "api_class",
+    "text": "Class CFBReader defined in aspose/email_foss/cfb/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 121
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8d623a",
+    "kind": "api_method",
+    "text": "CFBStream.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f8c73b",
+    "kind": "api_method",
+    "text": "CFBStream.data field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-366e2b",
+    "kind": "api_method",
+    "text": "CFBStream.clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7a28e7",
+    "kind": "api_method",
+    "text": "CFBStream.state_bits field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1a440d",
+    "kind": "api_method",
+    "text": "CFBStream.creation_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-231368",
+    "kind": "api_method",
+    "text": "CFBStream.modified_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-409e44",
+    "kind": "api_class",
+    "text": "Class CFBStream defined in aspose/email_foss/cfb/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cf0759",
+    "kind": "api_method",
+    "text": "CFBStorage.add_storage(storage) -> \"CFBStorage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-473881",
+    "kind": "api_method",
+    "text": "CFBStorage.add_stream(stream) -> CFBStream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-24111f",
+    "kind": "api_method",
+    "text": "CFBStorage.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3511bb",
+    "kind": "api_method",
+    "text": "CFBStorage.clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-50b5e2",
+    "kind": "api_method",
+    "text": "CFBStorage.state_bits field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-176fa5",
+    "kind": "api_method",
+    "text": "CFBStorage.creation_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-22c929",
+    "kind": "api_method",
+    "text": "CFBStorage.modified_time field of type FileTime",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c7e175",
+    "kind": "api_method",
+    "text": "CFBStorage.children field of type list[\"CFBStorage | CFBStream\"]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a331a2",
+    "kind": "api_class",
+    "text": "Class CFBStorage defined in aspose/email_foss/cfb/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-30b151",
+    "kind": "api_method",
+    "text": "CFBDocument.from_reader(reader) -> \"CFBDocument\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f883bf",
+    "kind": "api_method",
+    "text": "CFBDocument.build_storage(entry_id) -> CFBStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e43deb",
+    "kind": "api_method",
+    "text": "CFBDocument.from_file(path) -> \"CFBDocument\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7ea56d",
+    "kind": "api_method",
+    "text": "CFBDocument.root field of type CFBStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cb5bad",
+    "kind": "api_method",
+    "text": "CFBDocument.major_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-186062",
+    "kind": "api_method",
+    "text": "CFBDocument.minor_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d5d58b",
+    "kind": "api_method",
+    "text": "CFBDocument.transaction_signature_number field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-748063",
+    "kind": "api_class",
+    "text": "Class CFBDocument defined in aspose/email_foss/cfb/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9a28ab",
+    "kind": "api_method",
+    "text": "CFBWriter.to_bytes(document) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 127
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3603a9",
+    "kind": "api_method",
+    "text": "CFBWriter.write_file(document, path) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 131
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6f98a6",
+    "kind": "api_class",
+    "text": "Class CFBWriter defined in aspose/email_foss/cfb/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f4de63",
+    "kind": "api_method",
+    "text": "Function compare_directory_entry_names(left, right) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 106
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6fbc5f",
+    "kind": "api_class",
+    "text": "Class MsgError defined in aspose/email_foss/msg/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dc9516",
+    "kind": "api_method",
+    "text": "StorageLayout.recipient_storages field of type Tuple[DirectoryEntry, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4d96f8",
+    "kind": "api_method",
+    "text": "StorageLayout.attachment_storages field of type Tuple[DirectoryEntry, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e9d0c3",
+    "kind": "api_method",
+    "text": "StorageLayout.named_property_mapping_storage field of type DirectoryEntry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-43dade",
+    "kind": "api_method",
+    "text": "StorageLayout.top_level_property_stream field of type DirectoryEntry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-647a74",
+    "kind": "api_class",
+    "text": "Class StorageLayout defined in aspose/email_foss/msg/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b482f9",
+    "kind": "api_method",
+    "text": "MsgReader.__init__(cfb_reader, strict) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-65e674",
+    "kind": "api_method",
+    "text": "MsgReader.from_file(path, strict) -> \"MsgReader\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5771d4",
+    "kind": "api_method",
+    "text": "MsgReader.close() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a6a502",
+    "kind": "api_method",
+    "text": "MsgReader.iter_top_level_fixed_length_properties() -> Iterator[PropertyEntryFixedLength]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-44dee0",
+    "kind": "api_method",
+    "text": "MsgReader.iter_recipient_storages() -> Iterator[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c659ff",
+    "kind": "api_method",
+    "text": "MsgReader.iter_attachment_storages() -> Iterator[DirectoryEntry]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 118
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d39683",
+    "kind": "api_method",
+    "text": "MsgReader.parse_message_property_stream(storage_stream_id) -> Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 122
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-28ceb7",
+    "kind": "api_method",
+    "text": "MsgReader.parse_subobject_property_stream(storage_stream_id) -> Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 133
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5ccb0e",
+    "kind": "api_method",
+    "text": "MsgReader.parse_top_level_property_stream(data) -> Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 142
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8597f1",
+    "kind": "api_method",
+    "text": "MsgReader.parse_subobject_property_stream_data(data) -> Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 170
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-22e85c",
+    "kind": "api_method",
+    "text": "MsgReader.cfb_reader property of type CFBReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-06be4d",
+    "kind": "api_method",
+    "text": "MsgReader.storage_layout property of type StorageLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4b3775",
+    "kind": "api_method",
+    "text": "MsgReader.strict property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-efc71b",
+    "kind": "api_method",
+    "text": "MsgReader.validation_issues property of type Tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3ed894",
+    "kind": "api_method",
+    "text": "MsgReader.PROPERTY_STREAM_HEADER_TOP_LEVEL_LAYOUT field of type Dict[str, Tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-40bbbb",
+    "kind": "api_method",
+    "text": "MsgReader.PROPERTY_STREAM_HEADER_SUBOBJECT_LAYOUT field of type Dict[str, Tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4dbc8d",
+    "kind": "api_method",
+    "text": "MsgReader.PROPERTY_ENTRY_FIXED_LENGTH_LAYOUT field of type Dict[str, Tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-de1420",
+    "kind": "api_class",
+    "text": "Class MsgReader defined in aspose/email_foss/msg/reader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d1bcc6",
+    "kind": "api_method",
+    "text": "MsgStream.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-db15ff",
+    "kind": "api_method",
+    "text": "MsgStream.data field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2c083e",
+    "kind": "api_method",
+    "text": "MsgStream.clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4fadad",
+    "kind": "api_method",
+    "text": "MsgStream.state_bits field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e3cf01",
+    "kind": "api_method",
+    "text": "MsgStream.creation_time field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ab9af7",
+    "kind": "api_method",
+    "text": "MsgStream.modified_time field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-35e25a",
+    "kind": "api_class",
+    "text": "Class MsgStream defined in aspose/email_foss/msg/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7d5a61",
+    "kind": "api_method",
+    "text": "MsgStorage.add_stream(stream) -> MsgStream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2a0d75",
+    "kind": "api_method",
+    "text": "MsgStorage.add_storage(storage) -> \"MsgStorage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-100003",
+    "kind": "api_method",
+    "text": "MsgStorage.iter_streams() -> Iterator[MsgStream]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-161d41",
+    "kind": "api_method",
+    "text": "MsgStorage.iter_storages() -> Iterator[\"MsgStorage\"]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5b143f",
+    "kind": "api_method",
+    "text": "MsgStorage.find_stream(name) -> MsgStream | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f2193a",
+    "kind": "api_method",
+    "text": "MsgStorage.find_storage(name) -> \"MsgStorage\" | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aa263c",
+    "kind": "api_method",
+    "text": "MsgStorage.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ca7ce7",
+    "kind": "api_method",
+    "text": "MsgStorage.role field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-95e3d4",
+    "kind": "api_method",
+    "text": "MsgStorage.clsid field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-79c4c7",
+    "kind": "api_method",
+    "text": "MsgStorage.state_bits field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af4292",
+    "kind": "api_method",
+    "text": "MsgStorage.creation_time field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5bfb35",
+    "kind": "api_method",
+    "text": "MsgStorage.modified_time field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d622d0",
+    "kind": "api_method",
+    "text": "MsgStorage.streams field of type list[MsgStream]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4e308d",
+    "kind": "api_method",
+    "text": "MsgStorage.storages field of type list[\"MsgStorage\"]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f351ab",
+    "kind": "api_method",
+    "text": "MsgStorage.property_header_kind field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-54c19e",
+    "kind": "api_method",
+    "text": "MsgStorage.property_stream_header field of type PropertyStreamHeaderTopLevel | PropertyStreamHeaderSubobject | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d37649",
+    "kind": "api_method",
+    "text": "MsgStorage.fixed_length_properties field of type tuple[PropertyEntryFixedLength, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-15482e",
+    "kind": "api_method",
+    "text": "MsgStorage.property_stream_parse_error field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3fe4e0",
+    "kind": "api_class",
+    "text": "Class MsgStorage defined in aspose/email_foss/msg/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6ccca6",
+    "kind": "api_method",
+    "text": "MsgDocument.from_reader(reader) -> \"MsgDocument\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-afaa25",
+    "kind": "api_method",
+    "text": "MsgDocument.build_storage(entry, role) -> MsgStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-63e4fd",
+    "kind": "api_method",
+    "text": "MsgDocument.from_file(path, strict) -> \"MsgDocument\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 163
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7b8811",
+    "kind": "api_method",
+    "text": "MsgDocument.to_cfb_document() -> CFBDocument",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 167
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-96b870",
+    "kind": "api_method",
+    "text": "MsgDocument.root field of type MsgStorage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 103
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d85f33",
+    "kind": "api_method",
+    "text": "MsgDocument.major_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 104
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b4d3b2",
+    "kind": "api_method",
+    "text": "MsgDocument.minor_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-038538",
+    "kind": "api_method",
+    "text": "MsgDocument.transaction_signature_number field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 106
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e29dc5",
+    "kind": "api_method",
+    "text": "MsgDocument.strict field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c01727",
+    "kind": "api_class",
+    "text": "Class MsgDocument defined in aspose/email_foss/msg/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 100
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fd4fe9",
+    "kind": "api_method",
+    "text": "MsgWriter.to_bytes(document) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 181
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a90351",
+    "kind": "api_method",
+    "text": "MsgWriter.write_file(document, path) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 185
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8d08da",
+    "kind": "api_class",
+    "text": "Class MsgWriter defined in aspose/email_foss/msg/writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 177
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b9d08d",
+    "kind": "api_method",
+    "text": "Function hash_payload(data) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 285
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8cf54d",
+    "kind": "api_class",
+    "text": "Class SectorMarker defined in aspose/email_foss/cfb/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/types.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-43a67e",
+    "kind": "api_class",
+    "text": "Class DirectoryObjectType defined in aspose/email_foss/cfb/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/types.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f1a558",
+    "kind": "api_class",
+    "text": "Class DirectoryColorFlag defined in aspose/email_foss/cfb/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/types.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-119196",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.string(name, property_set) -> \"MapiNamedProperty\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 149
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91ed67",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.numeric(lid, property_set) -> \"MapiNamedProperty\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 153
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8da49a",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.property_set field of type uuid.UUID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 142
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-83b322",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.kind field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 143
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-95f241",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 144
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5ab0d8",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.lid field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 145
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a57138",
+    "kind": "api_method",
+    "text": "MapiNamedProperty.property_id field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 146
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d3e38c",
+    "kind": "api_class",
+    "text": "Class MapiNamedProperty defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1944b8",
+    "kind": "api_method",
+    "text": "MapiProperty.clone() -> \"MapiProperty\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 177
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5df78b",
+    "kind": "api_method",
+    "text": "MapiProperty.clear_raw() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 180
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ebc910",
+    "kind": "api_method",
+    "text": "MapiProperty.property_tag property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ce164b",
+    "kind": "api_method",
+    "text": "MapiProperty.property_id field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 161
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c04878",
+    "kind": "api_method",
+    "text": "MapiProperty.property_type field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 162
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fca3fe",
+    "kind": "api_method",
+    "text": "MapiProperty.value field of type Any",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 163
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-20710b",
+    "kind": "api_method",
+    "text": "MapiProperty.flags field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 164
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af1b0a",
+    "kind": "api_method",
+    "text": "MapiProperty.named field of type MapiNamedProperty | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 165
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-98e04a",
+    "kind": "api_method",
+    "text": "MapiProperty.raw_inline_value field of type bytes | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-54ce00",
+    "kind": "api_method",
+    "text": "MapiProperty.raw_size_value field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 167
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-961ed8",
+    "kind": "api_method",
+    "text": "MapiProperty.raw_reserved_value field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 168
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-46d990",
+    "kind": "api_method",
+    "text": "MapiProperty.raw_direct_stream field of type bytes | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c9d65e",
+    "kind": "api_method",
+    "text": "MapiProperty.raw_indexed_streams field of type tuple[tuple[int, bytes], ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 170
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d43e76",
+    "kind": "api_method",
+    "text": "MapiProperty.preserve_raw field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 171
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-491009",
+    "kind": "api_class",
+    "text": "Class MapiProperty defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 158
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-be83a8",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.__init__() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 190
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-621dc4",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.set(property) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 193
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e2c11e",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.add(property_id, property_type, value, flags, named) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 197
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c6941a",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.get(property_id, property_type) -> MapiProperty | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 221
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-84db4c",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.remove(property_id, property_type) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 239
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1f15bf",
+    "kind": "api_method",
+    "text": "MapiPropertyCollection.iter_properties() -> Iterator[MapiProperty]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 252
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1b482a",
+    "kind": "api_class",
+    "text": "Class MapiPropertyCollection defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 189
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4c2cfc",
+    "kind": "api_method",
+    "text": "MapiRecipient.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 271
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0826e1",
+    "kind": "api_method",
+    "text": "MapiRecipient.display_name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 261
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-566b64",
+    "kind": "api_method",
+    "text": "MapiRecipient.email_address field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 262
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-916955",
+    "kind": "api_method",
+    "text": "MapiRecipient.recipient_type field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 263
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cee0c0",
+    "kind": "api_method",
+    "text": "MapiRecipient.address_type field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 264
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-71477a",
+    "kind": "api_method",
+    "text": "MapiRecipient.storage_id field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 265
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ad2f71",
+    "kind": "api_method",
+    "text": "MapiRecipient.properties field of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 266
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cc539a",
+    "kind": "api_method",
+    "text": "MapiRecipient.extra_streams field of type list[MsgStream]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 267
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91f54e",
+    "kind": "api_method",
+    "text": "MapiRecipient.extra_storages field of type list[MsgStorage]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 268
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-259c6f",
+    "kind": "api_method",
+    "text": "MapiRecipient.header_reserved_0 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 269
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9b383d",
+    "kind": "api_class",
+    "text": "Class MapiRecipient defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 258
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-db7dfc",
+    "kind": "api_method",
+    "text": "MapiAttachment.from_bytes(filename, data, mime_type, content_id) -> \"MapiAttachment\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 320
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-baa3c2",
+    "kind": "api_method",
+    "text": "MapiAttachment.from_embedded_message(message, filename, mime_type) -> \"MapiAttachment\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 331
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-850b4d",
+    "kind": "api_method",
+    "text": "MapiAttachment.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 345
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-34da72",
+    "kind": "api_method",
+    "text": "MapiAttachment.storage_name property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 300
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4f6b44",
+    "kind": "api_method",
+    "text": "MapiAttachment.is_embedded_message property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 306
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7fac26",
+    "kind": "api_method",
+    "text": "MapiAttachment.is_storage_attachment property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 310
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8628f0",
+    "kind": "api_method",
+    "text": "MapiAttachment.embedded_storage_name property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 314
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-60ebc8",
+    "kind": "api_method",
+    "text": "MapiAttachment.filename field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 287
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a5edba",
+    "kind": "api_method",
+    "text": "MapiAttachment.data field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 288
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-478403",
+    "kind": "api_method",
+    "text": "MapiAttachment.mime_type field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 289
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-05dd62",
+    "kind": "api_method",
+    "text": "MapiAttachment.content_id field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 290
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-88f474",
+    "kind": "api_method",
+    "text": "MapiAttachment.attach_method field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 291
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-38ac5d",
+    "kind": "api_method",
+    "text": "MapiAttachment.storage_id field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 292
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f51832",
+    "kind": "api_method",
+    "text": "MapiAttachment.embedded_message field of type \"MapiMessage | None\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 293
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-afeaef",
+    "kind": "api_method",
+    "text": "MapiAttachment.custom_storage field of type MsgStorage | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 294
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3dad98",
+    "kind": "api_method",
+    "text": "MapiAttachment.properties field of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 295
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-15a273",
+    "kind": "api_method",
+    "text": "MapiAttachment.extra_streams field of type list[MsgStream]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 296
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-994aa6",
+    "kind": "api_method",
+    "text": "MapiAttachment.header_reserved_0 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 297
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5a9826",
+    "kind": "api_class",
+    "text": "Class MapiAttachment defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 284
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9db99c",
+    "kind": "api_method",
+    "text": "MapiMessage.from_file(path, strict) -> \"MapiMessage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 567
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0057b0",
+    "kind": "api_method",
+    "text": "MapiMessage.from_msg_document(document) -> \"MapiMessage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 575
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-35aa1e",
+    "kind": "api_method",
+    "text": "MapiMessage.from_email_message(email_message, unicode_strings) -> \"MapiMessage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 619
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c308b2",
+    "kind": "api_method",
+    "text": "MapiMessage.create(subject, body, unicode_strings) -> \"MapiMessage\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 716
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-71cc67",
+    "kind": "api_method",
+    "text": "MapiMessage.iter_properties() -> Iterator[MapiProperty]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 776
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d9d340",
+    "kind": "api_method",
+    "text": "MapiMessage.iter_property_keys(storage_stream_id) -> Iterator[tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 779
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bf0a62",
+    "kind": "api_method",
+    "text": "MapiMessage.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 784
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1257a1",
+    "kind": "api_method",
+    "text": "MapiMessage.get_property(property_id, property_type, storage_stream_id, decode) -> MapiProperty | Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 800
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cb8764",
+    "kind": "api_method",
+    "text": "MapiMessage.get_property_value(property_id, property_type, storage_stream_id, decode) -> Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 817
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-11f651",
+    "kind": "api_method",
+    "text": "MapiMessage.set_named_property(named_property, property_type, value, flags) -> MapiProperty",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 852
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3c3cd9",
+    "kind": "api_method",
+    "text": "MapiMessage.get_named_property(named_property, property_type) -> MapiProperty | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 863
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a579e0",
+    "kind": "api_method",
+    "text": "MapiMessage.add_recipient(email_address, display_name, recipient_type) -> MapiRecipient",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 869
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b49a51",
+    "kind": "api_method",
+    "text": "MapiMessage.add_attachment(filename, data, mime_type, content_id) -> MapiAttachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 881
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ac895c",
+    "kind": "api_method",
+    "text": "MapiMessage.add_embedded_message_attachment(message, filename, mime_type) -> MapiAttachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 894
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c8b202",
+    "kind": "api_method",
+    "text": "MapiMessage.save(path) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 902
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-35100f",
+    "kind": "api_method",
+    "text": "MapiMessage.to_bytes() -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 905
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-404eaa",
+    "kind": "api_method",
+    "text": "MapiMessage.to_email_message() -> EmailMessage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 908
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a40a67",
+    "kind": "api_method",
+    "text": "MapiMessage.to_email_bytes() -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 980
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b8789c",
+    "kind": "api_method",
+    "text": "MapiMessage.to_email_string() -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 983
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6b401d",
+    "kind": "api_method",
+    "text": "MapiMessage.iter_attachments_info() -> Iterator[MapiAttachment]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 986
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4be9c5",
+    "kind": "api_method",
+    "text": "MapiMessage.close() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 990
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-126b1b",
+    "kind": "api_method",
+    "text": "MapiMessage.to_msg_document() -> MsgDocument",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 1006
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b8cd2b",
+    "kind": "api_method",
+    "text": "MapiMessage.msg_reader property of type MsgReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 725
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2ea555",
+    "kind": "api_method",
+    "text": "MapiMessage.validation_issues property of type tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 733
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-50d0b4",
+    "kind": "api_method",
+    "text": "MapiMessage.subject property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 739
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bb1180",
+    "kind": "api_method",
+    "text": "MapiMessage.body property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 747
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-27d944",
+    "kind": "api_method",
+    "text": "MapiMessage.message_class property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 755
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-951d7c",
+    "kind": "api_method",
+    "text": "MapiMessage.body_html property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 763
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-29fa07",
+    "kind": "api_method",
+    "text": "MapiMessage.unicode_strings field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 543
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b549ed",
+    "kind": "api_method",
+    "text": "MapiMessage.properties field of type MapiPropertyCollection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 544
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1b2fb4",
+    "kind": "api_method",
+    "text": "MapiMessage.recipients field of type list[MapiRecipient]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 545
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-eabbd3",
+    "kind": "api_method",
+    "text": "MapiMessage.attachments field of type list[MapiAttachment]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 546
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-76907a",
+    "kind": "api_method",
+    "text": "MapiMessage.extra_streams field of type list[MsgStream]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 547
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-221a76",
+    "kind": "api_method",
+    "text": "MapiMessage.extra_storages field of type list[MsgStorage]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 548
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d2e9ca",
+    "kind": "api_method",
+    "text": "MapiMessage.nameid_mapping field of type _NamedPropertyMapping",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 549
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4f2ad5",
+    "kind": "api_method",
+    "text": "MapiMessage.major_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 550
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-93e616",
+    "kind": "api_method",
+    "text": "MapiMessage.minor_version field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 551
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c96141",
+    "kind": "api_method",
+    "text": "MapiMessage.transaction_signature_number field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 552
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-911d71",
+    "kind": "api_method",
+    "text": "MapiMessage.header_reserved_0 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 553
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ee529f",
+    "kind": "api_method",
+    "text": "MapiMessage.header_reserved_1 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 554
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2d8e58",
+    "kind": "api_method",
+    "text": "MapiMessage.emit_store_support_mask field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 555
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b9548b",
+    "kind": "api_method",
+    "text": "MapiMessage.emit_compatibility_defaults field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 556
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b05d24",
+    "kind": "api_method",
+    "text": "MapiMessage.preserve_declared_header_counts field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 557
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-182192",
+    "kind": "api_method",
+    "text": "MapiMessage.declared_next_recipient_id field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 558
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f77f11",
+    "kind": "api_method",
+    "text": "MapiMessage.declared_next_attachment_id field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 559
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5b375b",
+    "kind": "api_method",
+    "text": "MapiMessage.declared_recipient_count field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 560
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-feb208",
+    "kind": "api_method",
+    "text": "MapiMessage.declared_attachment_count field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 561
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5a8702",
+    "kind": "api_class",
+    "text": "Class MapiMessage defined in aspose/email_foss/msg/mapi_message.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 486
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-40ab25",
+    "kind": "api_class",
+    "text": "Class PropertyId defined in aspose/email_foss/msg/property_id.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/property_id.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e31bb5",
+    "kind": "api_class",
+    "text": "Class CommonMessagePropertyId defined in aspose/email_foss/msg/property_tags.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/property_tags.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-80cc39",
+    "kind": "api_class",
+    "text": "Class PropertyTypeCode defined in aspose/email_foss/msg/property_types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/property_types.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ad2132",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.reserved_0 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4a2c52",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.next_recipient_id field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c0a818",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.next_attachment_id field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-87fdec",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.recipient_count field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-77aa3a",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.attachment_count field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3806ea",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderTopLevel.reserved_1 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-18b58e",
+    "kind": "api_class",
+    "text": "Class PropertyStreamHeaderTopLevel defined in aspose/email_foss/msg/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-395d6d",
+    "kind": "api_method",
+    "text": "PropertyStreamHeaderSubobject.reserved_0 field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a817df",
+    "kind": "api_class",
+    "text": "Class PropertyStreamHeaderSubobject defined in aspose/email_foss/msg/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b7618e",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.is_mandatory() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-569446",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.is_readable() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b6f453",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.is_writable() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-78e9a5",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.property_tag field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8eb2c2",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.flags field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ca48d3",
+    "kind": "api_method",
+    "text": "PropertyEntryFixedLength.value field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-be5fd2",
+    "kind": "api_class",
+    "text": "Class PropertyEntryFixedLength defined in aspose/email_foss/msg/types.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/types.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ab7cd3",
+    "kind": "format_support",
+    "text": "import support for CFB via CFBReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/reader.py",
+        "line": 121
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a61ae5",
+    "kind": "format_support",
+    "text": "export support for CFB via CFBWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f6e2a9",
+    "kind": "format_support",
+    "text": "export support for CFB via _CFBSerializer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 180
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f9246f",
+    "kind": "format_support",
+    "text": "import support for Msg via MsgReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/reader.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5898cf",
+    "kind": "format_support",
+    "text": "export support for Msg via MsgWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/writer.py",
+        "line": 177
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-56afa2",
+    "kind": "format_support",
+    "text": "import support for reader format (method name: from_reader)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/cfb/writer.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c61c5f",
+    "kind": "format_support",
+    "text": "import support for eml/RFC-5322 format (method: def from_email_message)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 619
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4e65af",
+    "kind": "format_support",
+    "text": "export support for eml/RFC-5322 format (method: def to_email_message)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/email_foss/msg/mapi_message.py",
+        "line": 908
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6d7a4e",
+    "kind": "install",
+    "text": "Package name is aspose-email-foss",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-97116f",
+    "kind": "install",
+    "text": "Current version is 26.3",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ac3897",
+    "kind": "license",
+    "text": "Licensed under MIT",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  }
+]

@@ -1,0 +1,497 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_cfb_formats.py",
+    "source_function": "test_v3_round_trip_routes_small_streams_through_mini_stream",
+    "source_line": 18,
+    "classes_used": [
+      "CFBDocument",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBReader.get_stream_data",
+      "CFBReader.resolve_path",
+      "CFBStorage.add_storage",
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_cfb_formats.py",
+    "source_function": "test_v4_round_trip_uses_4096_byte_sectors",
+    "source_line": 47,
+    "classes_used": [
+      "CFBDocument",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBReader.get_stream_data",
+      "CFBReader.resolve_path",
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_cfb_formats.py",
+    "source_function": "test_large_v3_document_emits_difat",
+    "source_line": 65,
+    "classes_used": [
+      "CFBDocument",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBReader.get_stream_data",
+      "CFBReader.resolve_path",
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_cfb_formats.py",
+    "source_function": "test_writer_rejects_duplicate_sibling_names_under_cfb_comparison_rules",
+    "source_line": 80,
+    "classes_used": [
+      "CFBDocument",
+      "CFBError",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_cfb_formats.py",
+    "source_function": "test_reader_rejects_invalid_signature_and_byte_order",
+    "source_line": 88,
+    "classes_used": [
+      "CFBDocument",
+      "CFBError",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_branded_namespace_exports_publishable_modules",
+    "source_line": 43,
+    "classes_used": [
+      "CFBReader",
+      "CFBWriter",
+      "MapiMessage",
+      "MsgReader",
+      "MsgWriter",
+      "PropertyId"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_manual_top_level_property_stream_parsing",
+    "source_line": 51,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "MsgReader",
+      "PropertyId",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MsgReader.parse_top_level_property_stream"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_property_stream_parsers_reject_misaligned_payloads",
+    "source_line": 77,
+    "classes_used": [
+      "MsgError",
+      "MsgReader"
+    ],
+    "methods_used": [
+      "MsgReader.parse_subobject_property_stream",
+      "MsgReader.parse_subobject_property_stream_data",
+      "MsgReader.parse_top_level_property_stream"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_high_level_message_round_trip_preserves_core_msg_structure",
+    "source_line": 85,
+    "classes_used": [
+      "CFBReader",
+      "MapiMessage",
+      "MapiNamedProperty",
+      "MsgDocument",
+      "MsgReader",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "CFBReader.iter_children",
+      "MapiMessage.add_attachment",
+      "MapiMessage.add_recipient",
+      "MapiMessage.create",
+      "MapiMessage.from_msg_document",
+      "MapiMessage.get_named_property",
+      "MapiMessage.set_named_property",
+      "MapiMessage.to_bytes",
+      "MapiNamedProperty.string",
+      "MsgDocument.from_reader",
+      "MsgReader.iter_attachment_storages",
+      "MsgReader.iter_recipient_storages",
+      "MsgReader.parse_subobject_property_stream"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_embedded_message_attachment_round_trip_produces_embedded_message_storage",
+    "source_line": 131,
+    "classes_used": [
+      "CFBReader",
+      "MapiMessage",
+      "MsgDocument",
+      "MsgReader"
+    ],
+    "methods_used": [
+      "CFBReader.resolve_path",
+      "MapiMessage.add_embedded_message_attachment",
+      "MapiMessage.create",
+      "MapiMessage.to_bytes",
+      "MsgDocument.from_reader",
+      "MsgReader.parse_message_property_stream"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_reader_rejects_invalid_recipient_storage_name",
+    "source_line": 154,
+    "classes_used": [
+      "CFBDocument",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter",
+      "MsgError",
+      "MsgReader"
+    ],
+    "methods_used": [
+      "CFBStorage.add_storage",
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_strict_writer_rejects_named_property_mapping_in_embedded_message",
+    "source_line": 164,
+    "classes_used": [
+      "MsgDocument",
+      "MsgError",
+      "MsgStorage",
+      "MsgStream",
+      "MsgWriter"
+    ],
+    "methods_used": [
+      "MsgStorage.add_storage",
+      "MsgStorage.add_stream",
+      "MsgWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_email_message_conversion_round_trip",
+    "source_line": 179,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.add_attachment",
+      "MapiMessage.from_email_message",
+      "MapiMessage.to_email_message"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_readme_quick_start_round_trip",
+    "source_line": 199,
+    "classes_used": [
+      "CFBReader",
+      "MapiMessage",
+      "MsgDocument",
+      "MsgReader",
+      "PropertyId"
+    ],
+    "methods_used": [
+      "MapiMessage.add_attachment",
+      "MapiMessage.add_recipient",
+      "MapiMessage.create",
+      "MapiMessage.from_msg_document",
+      "MapiMessage.set_property",
+      "MapiMessage.to_bytes",
+      "MapiMessage.to_email_message",
+      "MsgDocument.from_reader"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_high_level_property_api_accepts_common_message_property_id",
+    "source_line": 217,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "MapiMessage",
+      "PropertyId",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MapiMessage.create",
+      "MapiMessage.get_property",
+      "MapiMessage.get_property_value",
+      "MapiMessage.set_property"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_high_level_property_api_accepts_typed_property_id_short_form",
+    "source_line": 230,
+    "classes_used": [
+      "MapiMessage",
+      "PropertyId"
+    ],
+    "methods_used": [
+      "MapiMessage.create",
+      "MapiMessage.get_property",
+      "MapiMessage.get_property_value",
+      "MapiMessage.set_property"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_new_messages_emit_minimal_outlook_compatibility_defaults",
+    "source_line": 251,
+    "classes_used": [
+      "CFBReader",
+      "MapiMessage",
+      "MsgDocument",
+      "MsgReader",
+      "PropertyId"
+    ],
+    "methods_used": [
+      "MapiMessage.add_attachment",
+      "MapiMessage.add_recipient",
+      "MapiMessage.create",
+      "MapiMessage.from_msg_document",
+      "MapiMessage.get_property_value",
+      "MapiMessage.set_property",
+      "MapiMessage.to_bytes",
+      "MsgDocument.from_reader"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_msg_formats.py",
+    "source_function": "test_loaded_messages_do_not_gain_new_defaults_on_save",
+    "source_line": 276,
+    "classes_used": [
+      "CFBReader",
+      "MapiMessage",
+      "MsgDocument",
+      "MsgReader",
+      "MsgStorage",
+      "MsgStream",
+      "PropertyId"
+    ],
+    "methods_used": [
+      "MapiMessage.from_msg_document",
+      "MapiMessage.get_property_value",
+      "MapiMessage.to_bytes",
+      "MsgDocument.from_reader",
+      "MsgStorage.add_storage",
+      "MsgStorage.add_stream"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 29,
+    "classes_used": [
+      "MapiMessage",
+      "PropertyId"
+    ],
+    "methods_used": [
+      "MapiMessage.add_attachment",
+      "MapiMessage.add_recipient",
+      "MapiMessage.create",
+      "MapiMessage.from_file",
+      "MapiMessage.save",
+      "MapiMessage.set_property",
+      "MapiMessage.to_email_message"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 92,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.from_file",
+      "MapiMessage.to_email_message"
+    ],
+    "formats_referenced": [
+      "eml",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 104,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.from_email_message",
+      "MapiMessage.save"
+    ],
+    "formats_referenced": [
+      "eml",
+      "msg"
+    ],
+    "provenance": "scout"
+  }
+]

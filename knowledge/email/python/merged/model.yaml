@@ -1,0 +1,21 @@
+family: email
+platform: python
+product_name: aspose-email-foss
+version: '26.3'
+license: MIT
+repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python.git
+repo_sha: c336fa7c1d6b90c6155ecf25a261477640c2b1b6
+config_sha: a1fb6a852b9b8451
+stale_since: null
+promoted_at: '2026-07-12T14:38:29.873029+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+stats:
+  scout_claims: 303
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 303
+  class_count: 30
+  forbidden_count: 0
+  snippet_count: 21
