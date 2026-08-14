@@ -56,6 +56,7 @@ def _ensure_loaded():
         code_block_api,
         code_plausibility,
         dead_internal_link,
+        duplicate_content,
         code_syntax_check,
         content_substance,
         coverage,

@@ -282,6 +282,164 @@ class TestVerifyUnit(unittest.TestCase):
         self.assertEqual(result["verdict"], tac.VERDICT_UNVERIFIABLE)
 
 
+class TestPolarityCheck(unittest.TestCase):
+    """RC-W1-002 (blind-spot audit MT026): a high claim/unit token-overlap
+    match only proves the two are ABOUT the same topic, not that they
+    AGREE. These tests are modeled directly on the real reproduction case:
+    knowledge/html/python/merged/claims.json's CLM-html-aa4514 ("Depends on
+    skia-python>=87.0,<145" -- a native/compiled dependency) was previously
+    cited as *supporting* evidence for kb/html/python/faq.md's "No. The
+    implementation is pure Python -- no browser engine, no compiled
+    extensions" (the opposite assertion), verdict VERIFIED.
+    """
+
+    def _make_knowledge(self):
+        k = MagicMock()
+        k.available = False  # no API surface — isolates the overlap path
+        k.classes = {}
+        k.methods = {}
+        k.properties = {}
+        k.enum_members = {}
+        k.has_method = lambda c, m: False
+        k.has_property = lambda c, m: False
+        k.repo_sha = "abc123"
+        k.version = "1.0.0"
+        return k
+
+    def _mock_router(self, relation: str):
+        router = MagicMock()
+        result = MagicMock()
+        result.status.value = "ok"
+        result.data = {"relation": relation}
+        router.call_chat.return_value = result
+        return router
+
+    def _skia_python_case(self):
+        """The exact repro case, paraphrased from the real knowledge/content."""
+        claims = [{"id": "CLM-html-aa4514", "text": "Depends on skia-python>=87.0,<145"}]
+        claim_index = [("CLM-html-aa4514", claims[0]["text"], tac._tokenize(claims[0]["text"]))]
+        unit = {
+            "id": "U-html-python-faq",
+            "file": "content/kb.aspose.org/en/html/python/faq.md",
+            "line_start": 147,
+            "line_end": 147,
+            "type": "paragraph",
+            "text": (
+                "No. The implementation is pure Python — no browser engine, "
+                "no compiled extensions — so it behaves identically on "
+                "Windows, Linux, and macOS, including CI runners and containers."
+            ),
+        }
+        return unit, claims, claim_index
+
+    def test_baseline_overlap_alone_would_have_verified(self):
+        """Sanity check: confirms overlap between the repro pair is >= 0.5,
+        i.e. this pair actually exercises the polarity-check gate (and
+        without any router, reproduces the pre-fix VERIFIED bug)."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertEqual(result["evidence_chain"]["knowledge_artifact"], "CLM-html-aa4514")
+
+    def test_contradicting_claim_downgrades_to_contradicted(self):
+        """With a router that correctly detects the contradiction, the
+        verdict must flip from VERIFIED to CONTRADICTED."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = self._mock_router(tac.POLARITY_CONTRADICTS)
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertEqual(result["verdict"], tac.VERDICT_CONTRADICTED)
+        self.assertEqual(result["defect_origin"], tac.ORIGIN_GENERATION_FABRICATION)
+        self.assertEqual(result["evidence_chain"]["knowledge_artifact"], "CLM-html-aa4514")
+        self.assertEqual(result["polarity_check"]["relation"], tac.POLARITY_CONTRADICTS)
+        router.call_chat.assert_called_once()
+
+    def test_supporting_claim_stays_verified(self):
+        """A router that says SUPPORTS must not change the pre-fix verdict."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = self._mock_router(tac.POLARITY_SUPPORTS)
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertEqual(result["polarity_check"]["relation"], tac.POLARITY_SUPPORTS)
+
+    def test_unrelated_despite_similarity_falls_through_unchanged(self):
+        """A router that says UNRELATED-DESPITE-SIMILARITY must not force
+        CONTRADICTED -- it falls through to the pre-existing overlap logic."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = self._mock_router(tac.POLARITY_UNRELATED)
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertNotEqual(result["verdict"], tac.VERDICT_CONTRADICTED)
+        self.assertEqual(result["polarity_check"]["relation"], tac.POLARITY_UNRELATED)
+
+    def test_llm_unavailable_fails_open_to_pre_fix_behavior(self):
+        """No router at all (the default) must reproduce the exact pre-fix
+        behavior -- never block or crash the run."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertEqual(result["polarity_check"]["relation"], None)
+
+    def test_llm_call_raising_fails_open(self):
+        """A router whose call_chat() raises must degrade gracefully, not
+        propagate the exception out of verify_unit()."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = MagicMock()
+        router.call_chat.side_effect = RuntimeError("connection refused")
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertIsNone(result["polarity_check"]["relation"])
+
+    def test_llm_bad_status_fails_open(self):
+        """A non-'ok' CallResult status must be treated as unavailable."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = MagicMock()
+        bad_result = MagicMock()
+        bad_result.status.value = "unreachable"
+        router.call_chat.return_value = bad_result
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertIsNone(result["polarity_check"]["relation"])
+
+    def test_low_overlap_never_triggers_llm_call(self):
+        """Bounded-cost guarantee: a weak/incidental overlap match must
+        never spend an LLM call, even when a router is supplied."""
+        knowledge = self._make_knowledge()
+        claims = [{"id": "CLM-1", "text": "totally unrelated vocabulary about spreadsheets"}]
+        claim_index = [("CLM-1", claims[0]["text"], tac._tokenize(claims[0]["text"]))]
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 1, "line_end": 1,
+            "type": "paragraph",
+            "text": "This paragraph discusses something else entirely, on a different topic.",
+        }
+        router = self._mock_router(tac.POLARITY_CONTRADICTS)
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        router.call_chat.assert_not_called()
+        self.assertNotIn("polarity_check", result)
+
+    def test_unrecognized_relation_fails_open(self):
+        """An LLM response with an unparseable/unexpected relation value
+        must be treated as unavailable, not silently trusted."""
+        knowledge = self._make_knowledge()
+        unit, claims, claim_index = self._skia_python_case()
+        router = self._mock_router("MAYBE_KIND_OF")
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index,
+                                 llm_router=router)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+        self.assertIsNone(result["polarity_check"]["relation"])
+
+
 class TestStateDelta(unittest.TestCase):
     """Delta tracking across runs."""
 
@@ -905,6 +1063,25 @@ class TestFindCloneCacheAntiRegression(unittest.TestCase):
                 self.assertNotIn("foss_launcher", result_str)  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
             finally:
                 tac._REPO_ROOT = orig_root
+
+
+class TestResolveNoLlmFlag(unittest.TestCase):
+    """F-18-01 regression test (MT026 adversarial-review follow-up): a prior fix
+    (RC-W1-002) silently flipped the CLI default to LLM-on; this pins the corrected
+    resolution logic for all 4 flag combinations so the regression cannot recur
+    silently -- the original fix was only verified via a one-off manual check."""
+
+    def test_bare_invocation_stays_offline(self):
+        self.assertTrue(tac._resolve_no_llm_flag(no_llm_flag=False, polarity_check_flag=False))
+
+    def test_polarity_check_alone_enables_llm(self):
+        self.assertFalse(tac._resolve_no_llm_flag(no_llm_flag=False, polarity_check_flag=True))
+
+    def test_no_llm_alone_stays_offline(self):
+        self.assertTrue(tac._resolve_no_llm_flag(no_llm_flag=True, polarity_check_flag=False))
+
+    def test_both_flags_no_llm_wins_safe_default(self):
+        self.assertTrue(tac._resolve_no_llm_flag(no_llm_flag=True, polarity_check_flag=True))
 
 
 if __name__ == "__main__":

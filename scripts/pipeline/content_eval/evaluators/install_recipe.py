@@ -145,6 +145,74 @@ _PKG_MANAGER_RE = re.compile(
     re.IGNORECASE,
 )
 
+# RC-W1-003 (Mission MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1, TC-BSA-...-03):
+# _verify_install_accuracy (H-16) already loads data/package_registry.json
+# for every page it checks, but only ever cross-references the package NAME
+# field -- it never reads the neighboring verification.published boolean in
+# the same loaded object. Confirmed live consequence: barcode/python's
+# install/quickstart/getting-started pages (57 files across 5 subdomains)
+# confidently claim the package "is published on PyPI" / link to a PyPI
+# project page, while data/package_registry.json's
+# barcode.python.verification.published is false. _CHANNEL_INFO maps each
+# registry_type to the package-index channel a page might claim availability
+# on (a prose mention of the channel's name, or a link into the channel's
+# own domain) so _verify_publish_channel_claims can catch that contradiction
+# directly -- reusing the same registry lookup shape _verify_install_accuracy
+# already established, not inventing a new one.
+# install_cmd_re reuses the exact same literal-command alternatives as
+# _PKG_NAME_RE above, but applied to *prose* lines (backtick-quoted or
+# plain), not just fenced code blocks -- the real barcode/python defect
+# includes a prose sentence like "Add `pip install aspose-barcode-foss` to
+# your CI pipeline's dependency step." which never appears inside a fenced
+# ```bash block at all, so _verify_install_accuracy's block-scoped scan
+# above would never see it.
+_CHANNEL_INFO: dict[str, dict[str, Any]] = {
+    "pypi": {
+        "name": "PyPI",
+        "domains": ("pypi.org",),
+        "mention_re": re.compile(r"\bPyPI\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"pip\s+install\b", re.IGNORECASE),
+    },
+    "npm": {
+        "name": "npm",
+        "domains": ("npmjs.com", "npmjs.org"),
+        "mention_re": re.compile(r"\bnpm(?:js)?\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"npm\s+install\b", re.IGNORECASE),
+    },
+    "nuget": {
+        "name": "NuGet",
+        "domains": ("nuget.org",),
+        "mention_re": re.compile(r"\bNuGet\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"dotnet\s+add\s+package\b|nuget\s+install\b", re.IGNORECASE),
+    },
+    "cargo": {
+        "name": "crates.io",
+        "domains": ("crates.io",),
+        "mention_re": re.compile(r"\bcrates\.io\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"cargo\s+add\b", re.IGNORECASE),
+    },
+    "maven": {
+        "name": "Maven Central",
+        "domains": ("repo1.maven.org", "search.maven.org", "mvnrepository.com", "central.sonatype.com"),
+        "mention_re": re.compile(r"\bMaven\s+Central\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"<dependency\b|mvn\s+dependency", re.IGNORECASE),
+    },
+    "go_modules": {
+        "name": "the Go module proxy",
+        "domains": ("pkg.go.dev", "proxy.golang.org"),
+        "mention_re": re.compile(r"\bpkg\.go\.dev\b", re.IGNORECASE),
+        "install_cmd_re": re.compile(r"go\s+get\b", re.IGNORECASE),
+    },
+}
+
+# Guard against flagging prose that already tells the truth (e.g. "not yet
+# published on PyPI", "coming soon", "build from source") -- those are
+# accurate, not a contradiction, even though they mention the channel name.
+_NOT_PUBLISHED_NEGATION_RE = re.compile(
+    r"not\s+(?:yet\s+)?(?:published|available)|coming\s+soon|build(?:ing)?\s+from\s+source",
+    re.IGNORECASE,
+)
+
 
 class InstallRecipeEvaluator(BaseEvaluator):
     """Flags documentation pages that demonstrate API usage but lack install guidance,
@@ -170,6 +238,15 @@ class InstallRecipeEvaluator(BaseEvaluator):
         # unconditionally; the docs-only gate below now only scopes the
         # separate "missing install instructions" suggestion.
         accuracy_findings = self._verify_install_accuracy(page)
+        # RC-W1-003: channel-availability prose claims ("published on PyPI",
+        # a link to a PyPI/NuGet/npm/crates.io/Maven Central page) must be
+        # cross-checked against verification.published the same way the
+        # package-name check above cross-checks candidate.name -- and must
+        # run unconditionally, same as accuracy_findings, so it still catches
+        # _index.md and non-docs pages (the real barcode/python defect spans
+        # getting-started/_index.md, which the docs-only/non-index gates
+        # below would otherwise skip).
+        accuracy_findings.extend(self._verify_publish_channel_claims(page))
 
         # Gate: the "missing install instructions" suggestion legitimately
         # only applies to docs subdomain pages with role docs/howto
@@ -358,5 +435,83 @@ class InstallRecipeEvaluator(BaseEvaluator):
                             ),
                             evaluator=self.name,
                         ))
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # RC-W1-003: publish-channel availability claim verification
+    # ------------------------------------------------------------------
+
+    def _verify_publish_channel_claims(self, page: Page) -> list[Finding]:
+        """Cross-check channel-availability prose claims ("published on
+        PyPI", a link to the channel's own domain) against
+        data/package_registry.json's verification.published boolean.
+
+        Mirrors _verify_install_accuracy's registry lookup, but checks a
+        different field of the same already-loaded entry: that check only
+        ever compared candidate.name against install commands, and never
+        read verification.published at all -- this is the fix for that gap
+        (see module docstring / _CHANNEL_INFO comment for the RC-W1-003
+        rationale and the confirmed barcode/python defect it closes)."""
+        if not page.family or not page.platform:
+            return []
+
+        registry = _load_registry_cached()
+        entry = registry.get(page.family, {}).get(page.platform)
+        if not entry:
+            return []
+
+        verification = entry.get("verification") or {}
+        if verification.get("published") is not False:
+            # Only a *confirmed* published=false is a provable contradiction.
+            # published=true, or an unresolved/missing verification
+            # (None/absent), has nothing to contradict a claim with.
+            return []
+
+        channel = _CHANNEL_INFO.get(entry.get("registry_type"))
+        if channel is None:
+            return []
+
+        verified_at = verification.get("verified_at") or "unknown date"
+        findings: list[Finding] = []
+        seen_lines: set[int] = set()
+
+        def _emit(line_no: int, quoted: str) -> None:
+            if line_no in seen_lines:
+                return
+            seen_lines.add(line_no)
+            findings.append(Finding(
+                level="FAIL",
+                category="IR",
+                filepath=str(page.filepath),
+                line_no=line_no,
+                message=(
+                    f"Page claims the package is published on {channel['name']} "
+                    f"(\"{quoted.strip()}\"), but data/package_registry.json records "
+                    f"{page.family}.{page.platform}.verification.published=false "
+                    f"as of {verified_at}"
+                ),
+                suggestion=(
+                    f"Remove or rewrite the {channel['name']} availability claim -- "
+                    f"{page.family}/{page.platform} is not yet published (per "
+                    "data/package_registry.json). Use the package-install shortcode "
+                    "(or equivalent build-from-source guidance) instead of "
+                    "hardcoding install/availability prose."
+                ),
+                evaluator=self.name,
+            ))
+
+        for line_no, line in page.prose_lines:
+            if _NOT_PUBLISHED_NEGATION_RE.search(line):
+                continue
+            if channel["mention_re"].search(line) or channel["install_cmd_re"].search(line):
+                _emit(line_no, line)
+
+        for link in page.links:
+            if _NOT_PUBLISHED_NEGATION_RE.search(link.text):
+                continue
+            url_lower = link.url.lower()
+            if any(domain in url_lower for domain in channel["domains"]):
+                _emit(link.line_no, f"{link.text} -> {link.url}" if link.text else link.url)
 
         return findings

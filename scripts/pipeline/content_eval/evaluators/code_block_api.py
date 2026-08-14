@@ -5,6 +5,21 @@ fenced code blocks and verifies each against api_surface.json.  This closes
 the biggest evaluator blind spot identified in the forensic audit: pages
 graded A that contain broken code examples calling non-existent APIs.
 
+RC-W1-004 (MT026 blind-spot audit): the original version of this evaluator
+only checked whether a class NAME existed somewhere in api_surface.json --
+never whether it was actually reachable/public for its language. Two gaps
+this version closes:
+
+  1. Bare type references (``catch (XmlParsingException ex)``, ``new
+     SomeType(...)``, Python ``from pkg import Name``) carry no ``.member``
+     access, so the original ``_MEMBER_ACCESS_RE`` never saw them at all.
+  2. Even for ``.member`` accesses, a class whose api_surface.json entry now
+     carries ``reachable: false`` (see extraction/api_surface.py) — or that
+     is entirely absent from api_surface.json because is_public() excluded
+     it at scout time (C#/Java `internal` types) — was silently treated as
+     "might be external, don't flag." See ``_reachability.py`` for the full
+     three-language rationale and the primary/live-fallback signal design.
+
 Category: CB (Code Block API)
 """
 
@@ -17,6 +32,7 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from . import _reachability
 
 # Import Knowledge for type checking
 _HERE = Path(__file__).resolve().parent.parent.parent
@@ -37,6 +53,13 @@ from knowledge_core import Knowledge  # noqa: E402
 _MEMBER_ACCESS_RE = re.compile(
     r"\b([A-Z][A-Za-z0-9_]{1,})\s*\.\s*([a-zA-Z_]\w*)"
 )
+
+# RC-W1-004: bare type references — no `.member` involved, so
+# _MEMBER_ACCESS_RE never sees these. This is exactly the shape of the
+# confirmed cells/net defect: `catch (XmlParsingException ex)`.
+_CATCH_CLAUSE_RE = re.compile(r"\bcatch\s*\(\s*([A-Z][A-Za-z0-9_]*)\s+\w+\s*\)")
+_NEW_CONSTRUCTOR_RE = re.compile(r"\bnew\s+([A-Z][A-Za-z0-9_]*)\s*[\(<]")
+_PY_IMPORT_FROM_RE = re.compile(r"^[ \t]*from\s+[\w.]+\s+import\s+(.+)$", re.MULTILINE)
 
 # Language tag normalization
 _LANG_NORMALIZE: dict[str, str] = {
@@ -64,12 +87,43 @@ _IGNORE_CLASSES: frozenset[str] = frozenset({
 })
 
 
+def _extract_bare_type_names(content: str, lang: str) -> list[tuple[str, int]]:
+    """Return [(class_name, char_offset), ...] for bare type references that
+    carry no `.member` access and so are invisible to _MEMBER_ACCESS_RE.
+    """
+    hits: list[tuple[str, int]] = []
+    if lang in ("csharp", "java"):
+        for m in _CATCH_CLAUSE_RE.finditer(content):
+            hits.append((m.group(1), m.start(1)))
+        for m in _NEW_CONSTRUCTOR_RE.finditer(content):
+            hits.append((m.group(1), m.start(1)))
+    elif lang == "python":
+        for m in _PY_IMPORT_FROM_RE.finditer(content):
+            # All names on one `from pkg import A, B, C` line report the
+            # same offset (the line's own start) — precise enough for the
+            # line number a Finding needs; the message names the identifier.
+            line_start = m.start(1)
+            for raw in m.group(1).split(","):
+                name = raw.strip()
+                if " as " in name:
+                    name = name.split(" as ")[0].strip()
+                if name and name[0].isupper():
+                    hits.append((name, line_start))
+    return hits
+
+
 class CodeBlockApiEvaluator(BaseEvaluator):
     """Validates API tokens in code blocks against the knowledge model.
 
     For each fenced code block, extracts ClassName.member patterns and
     checks whether the class exists in api_surface.json and whether the
-    member (method or property) exists on that class.
+    member (method or property) exists on that class (WARN if not).
+
+    RC-W1-004: also extracts bare type references (catch clauses,
+    `new X(...)`, Python `from pkg import Name`) and, for every class
+    reference regardless of shape, checks whether the class is actually
+    reachable/public — not merely present in api_surface.json (FAIL if
+    confirmed unreachable; see module docstring and `_reachability.py`).
     """
 
     name = "code_block_api"
@@ -93,6 +147,11 @@ class CodeBlockApiEvaluator(BaseEvaluator):
             return []
 
         findings: list[Finding] = []
+        # RC-W1-004: avoid emitting the same (class_name, line) reachability
+        # finding twice when a class turns up via both the member-access loop
+        # and the bare-type loop on the same line (e.g. an import line reused
+        # later as `Class.member`).
+        seen_reachability: set[tuple[str, int]] = set()
 
         for block in page.code_blocks:
             # Skip blocks without a recognized language tag
@@ -109,6 +168,20 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                 if class_name in _IGNORE_CLASSES:
                     continue
 
+                line_offset = block.content[:match.start()].count("\n")
+                abs_line = block.start_line + 1 + line_offset
+
+                # RC-W1-004: reachability check runs regardless of whether the
+                # class is known — a class entirely absent from
+                # api_surface.json (e.g. a C# `internal` type, excluded by
+                # is_public() at scout time) still deserves the live fallback
+                # before this evaluator falls back to its long-standing
+                # "might be external, don't flag" default.
+                rf = self._reachability_finding(
+                    class_name, page, knowledge, lang, abs_line, seen_reachability)
+                if rf is not None:
+                    findings.append(rf)
+
                 # Check if class exists in knowledge
                 if class_name not in knowledge.classes:
                     # Don't flag unknown classes — they might be from
@@ -120,9 +193,6 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                         and not knowledge.has_property(class_name, member_name)
                         and not knowledge.has_enum_member(class_name, member_name)):
                     # Member doesn't exist on this class
-                    line_offset = block.content[:match.start()].count("\n")
-                    abs_line = block.start_line + 1 + line_offset
-
                     findings.append(Finding(
                         level="WARN",
                         category="CB",
@@ -141,4 +211,87 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                         evaluator=self.name,
                     ))
 
+            # RC-W1-004: bare type references (catch clauses, `new X(...)`,
+            # Python `from pkg import X`) carry no `.member` access, so the
+            # loop above never sees them.
+            for class_name, offset in _extract_bare_type_names(block.content, lang):
+                if class_name in _IGNORE_CLASSES:
+                    continue
+                line_offset = block.content[:offset].count("\n")
+                abs_line = block.start_line + 1 + line_offset
+                rf = self._reachability_finding(
+                    class_name, page, knowledge, lang, abs_line, seen_reachability)
+                if rf is not None:
+                    findings.append(rf)
+
         return findings
+
+    def _reachability_finding(
+        self,
+        class_name: str,
+        page: Page,
+        knowledge: Any,
+        lang: str,
+        abs_line: int,
+        seen: set[tuple[str, int]],
+    ) -> "Finding | None":
+        """RC-W1-004: FAIL when *class_name* is confirmed unreachable/non-public.
+
+        Primary signal: the `reachable` field on the api_surface.json class
+        entry (set by extraction/api_surface.py). Fallback: a best-effort
+        live clone-cache check (_reachability.live_unreachable) used when the
+        class has no `reachable` key yet, or is absent from api_surface.json
+        entirely (e.g. a C# `internal` type, excluded at scout time).
+        """
+        key = (class_name, abs_line)
+        if key in seen:
+            return None
+
+        class_entry = knowledge.classes.get(class_name)
+        primary = _reachability.class_reachability(class_entry)
+        if primary is False:
+            seen.add(key)
+            return Finding(
+                level="FAIL",
+                category="CB",
+                filepath=str(page.filepath),
+                line_no=abs_line,
+                message=(
+                    f"Code references `{class_name}`, which api_surface.json "
+                    f"marks `reachable: false` — not part of the public API "
+                    f"a real consumer of this package can reach"
+                ),
+                suggestion=(
+                    f"Replace `{class_name}` with a publicly reachable class, "
+                    f"or verify the exact import/usage path a real consumer "
+                    f"would need and document that instead."
+                ),
+                evaluator=self.name,
+            )
+        if primary is True:
+            return None  # explicit positive primary signal — trust it
+
+        # primary is None here: either the class is entirely absent from
+        # api_surface.json (e.g. a C# `internal` type, excluded at scout
+        # time), or it IS present but has no `reachable` key yet (knowledge
+        # not re-scouted since Part 1 landed) — try the live fallback either
+        # way; a class merely existing in api_surface.json is not itself
+        # proof of reachability.
+        is_unreachable, reason = _reachability.live_unreachable(
+            class_name, page.family, page.platform, lang)
+        if is_unreachable:
+            seen.add(key)
+            return Finding(
+                level="FAIL",
+                category="CB",
+                filepath=str(page.filepath),
+                line_no=abs_line,
+                message=f"Code references `{class_name}` — {reason}",
+                suggestion=(
+                    f"Replace `{class_name}` with a publicly reachable class, "
+                    f"or verify the exact import/usage path a real consumer "
+                    f"would need and document that instead."
+                ),
+                evaluator=self.name,
+            )
+        return None

@@ -184,7 +184,7 @@ def _grep_clone_cache(token: str, clone_cache_path: Path) -> str | None:
             [
                 "grep", "-r",
                 "--include=*.java", "--include=*.py", "--include=*.cs",
-                "--include=*.ts", "--include=*.cpp", "--include=*.h",
+                "--include=*.ts", "--include=*.cpp", "--include=*.h", "--include=*.rs",
                 "-l", token, str(clone_cache_path),
             ],
             capture_output=True, text=True, timeout=_GREP_TIMEOUT,

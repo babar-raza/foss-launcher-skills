@@ -1274,6 +1274,48 @@ scripts:
     test_targets: [scripts/pipeline/tests/test_advisory_lock.py]
     deprecated_since: null
     change_impact: "HARDEN-A1 (2026-07-22, new file): shared advisory FileLock extracted from baseline_ledger.py's RPR-C-01 lock, plus pid-liveness fast steal (verifiably-dead holder stolen immediately, not after the stale window). Consumed by baseline_ledger.py, session_ledger.py, skill_context.py, project_phase_store.py."
+  - path: scripts/pipeline/lib/bundle_manifest.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_bundle_manifest.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): provenance schema v2 -- generator_fingerprint() over an explicit curated pipeline-file list (reusing freshness_manifest.compute_output_content_hash's hashing recipe) plus compute_bundle_manifest()/verify_bundle_manifest(), the atomicity boundary tying model.yaml+api_surface.json+formats.md/.json+claims.json together as one bundle with one shared repo_sha. Consumed by promote.py (writer), freshness_guard.py, promote_recover.py."
+  - path: scripts/pipeline/commands/ops/regen_baseline_projections.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_regen_baseline_projections.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): collapses the 3-independently-writable-baseline-SHA problem (data/upstream_baselines.json, data/knowledge_state.json, merged/model.yaml.repo_sha could disagree -- confirmed on pdf/java) into 1 canonical writer (git-tracked model.yaml) + 2 regenerated projections. rebuild_one() replaces promote.py's old ad hoc MT030 dual-write at its acceptance choke point; rebuild_all()/check-staleness are the standalone full-fleet reconciliation path for the scheduled workflow."
+  - path: scripts/pipeline/commands/ops/knowledge_git_migration.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_knowledge_git_migration.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): classifies knowledge/{family}/{platform}/ files against config/knowledge_tracking_policy.yaml (KEEP=git-tracked / DROP=stays gitignored / UNCLASSIFIED=fail-closed, never silently tracked or deleted). `audit` is read-only across the fleet; `apply` stages (git add, never commits) KEEP files for explicitly named products only. Never deletes anything on disk."
   - path: scripts/pipeline/lib/baseline_ledger.py
     kind: library
     lifecycle: active

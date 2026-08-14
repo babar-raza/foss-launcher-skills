@@ -1,0 +1,32 @@
+family: cells
+platform: rust
+version: 1
+
+discovery_hints:
+  package_source_file: Cargo.toml
+  package_extraction: "toml:[package].name"
+  language: rust
+  format_source_glob: "src/**/*.rs"
+  stub_search_hints:
+    - "todo!()"
+    - "unimplemented!()"
+    - "// TODO"
+  runtime_requirement_source: Cargo.toml
+
+discovered_actuals:
+  package_name: "aspose-cells-foss-rust"
+  package_source_actual: Cargo.toml
+  format_files_found: null
+  last_baseline_sha: 0339b7e7dcb65c3ac0f77ddbe0effb69c83f0e2e
+
+language_conventions:
+  method_naming: snake_case
+  enum_values: PascalCase
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

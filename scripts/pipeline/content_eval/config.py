@@ -40,6 +40,7 @@ ALL_EVALUATORS = [
     "cta_wording",
     "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL
     "generic_description_check",  # TC-GDF-001: detect generic fallback descriptions in _index.md
+    "duplicate_content",  # RC-W1-005 (MT026 blind-spot audit): whole-page duplicate/alias-collision detection
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -94,6 +95,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "evidence_format_validity",
     # code_prose_alignment: graduated to DEFAULT (TC-PROMOTE-001, 2026-06-13)
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — index placeholder detection
+    "duplicate_content",  # RC-W1-005: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -131,6 +133,7 @@ DEFAULT_EVALUATORS = [
     "code_prose_alignment",  # graduated from EXPERIMENTAL 2026-06-13 (TC-PROMOTE-001), WARN-only
     "evidence_format_validity",  # added to DEFAULT 2026-07-12 — surfaces stale evidence.formats entries in reports
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — detect placeholder descriptions in _index.md
+    "duplicate_content",  # RC-W1-005: detect duplicate/near-duplicate pages + alias-slug collisions (blog/kb)
 ]
 
 # Platform foreign-code patterns: (regex, description)

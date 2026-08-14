@@ -956,7 +956,7 @@ def _get_source_context(claim: dict, clone_cache: Path) -> str:
     try:
         result = subprocess.run(
             ["grep", "-r", "--include=*.java", "--include=*.py", "--include=*.cs",
-             "--include=*.ts", "--include=*.cpp", "--include=*.h",
+             "--include=*.ts", "--include=*.cpp", "--include=*.h", "--include=*.rs",
              "-l", value, str(clone_cache)],
             capture_output=True, text=True, timeout=10
         )
@@ -1319,7 +1319,7 @@ def _read_build_package(clone_path: Path, profile: dict) -> str | None:
     build_file = clone_path / source_file
     if not build_file.exists():
         # Try common alternatives
-        for alt in ("pom.xml", "setup.py", "pyproject.toml", "package.json", "*.csproj"):
+        for alt in ("pom.xml", "setup.py", "pyproject.toml", "package.json", "*.csproj", "Cargo.toml"):
             candidates = list(clone_path.rglob(alt))
             if candidates:
                 build_file = candidates[0]
@@ -1430,6 +1430,7 @@ def stage2_knowledge_validation(family: str, platform: str, clone_path: Path,
             result = subprocess.run(
                 ["grep", "-r", "--include=*.java", "--include=*.py",
                  "--include=*.cs", "--include=*.ts", "--include=*.cpp", "--include=*.h",
+                 "--include=*.rs",
                  "-l", name, str(clone_path)],
                 capture_output=True, text=True, timeout=10
             )

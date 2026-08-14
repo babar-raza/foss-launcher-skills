@@ -4,6 +4,7 @@ Covers:
   - _tokenize: pure function
   - _classify_paragraph: tier classification logic with synthetic knowledge stubs
   - TIER constants are defined
+  - RC-W1-002: polarity refinement of high-overlap claim matches
 """
 import sys
 from pathlib import Path
@@ -15,11 +16,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from content_audit import (
     _tokenize,
     _classify_paragraph,
+    _resolve_no_llm_flag,
     TIER_SUPPORTED,
     TIER_PROBABLE,
     TIER_WEAK,
     TIER_UNSUPPORTED,
     TIER_CONTRADICTED,
+    POLARITY_SUPPORTS,
+    POLARITY_CONTRADICTS,
+    POLARITY_UNRELATED,
 )
 
 
@@ -189,3 +194,123 @@ class TestClassifyParagraph:
         result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {})
         # Unknown class → api_checked stays False → no api_verified penalty
         assert result["tier"] != TIER_CONTRADICTED
+
+
+# ---------------------------------------------------------------------------
+# RC-W1-002 (blind-spot audit MT026): polarity refinement
+#
+# A high claim/paragraph token-overlap match only proves the two are ABOUT
+# the same topic, not that they AGREE. These tests are modeled directly on
+# the real reproduction case: knowledge/html/python/merged/claims.json's
+# CLM-html-aa4514 ("Depends on skia-python>=87.0,<145" -- a native/compiled
+# dependency) was previously cited as *supporting* evidence for
+# kb/html/python/faq.md's "No. The implementation is pure Python -- no
+# browser engine, no compiled extensions" (the opposite assertion).
+# ---------------------------------------------------------------------------
+
+def _mock_router(relation: str):
+    router = MagicMock()
+    result = MagicMock()
+    result.status.value = "ok"
+    result.data = {"relation": relation}
+    router.call_chat.return_value = result
+    return router
+
+
+def _skia_python_case():
+    """The exact repro pair, paraphrased from the real knowledge/content."""
+    claim_text = "Depends on skia-python>=87.0,<145"
+    claim_tokens = [(claim_text, _tokenize(claim_text))]
+    text = (
+        "No. The implementation is pure Python — no browser engine, "
+        "no compiled extensions — so it behaves identically on Windows, "
+        "Linux, and macOS, including CI runners and containers."
+    )
+    return text, claim_tokens
+
+
+class TestPolarityCheck:
+    def test_baseline_overlap_alone_would_have_contradicted_bug(self):
+        """Sanity check: confirms the repro pair's overlap is >= 0.5 (i.e.
+        this pair actually exercises the polarity-check gate) and that
+        without a router, tiering reproduces the pre-fix SUPPORTED/PROBABLE
+        bug rather than the correct CONTRADICTED."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {})
+        assert result["tier"] in (TIER_SUPPORTED, TIER_PROBABLE)
+
+    def test_contradicting_claim_downgrades_to_contradicted(self):
+        """With a router that correctly detects the contradiction, the tier
+        must flip from SUPPORTED/PROBABLE to CONTRADICTED."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        router = _mock_router(POLARITY_CONTRADICTS)
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {}, llm_router=router)
+        assert result["tier"] == TIER_CONTRADICTED
+        router.call_chat.assert_called_once()
+
+    def test_supporting_claim_stays_unchanged(self):
+        """A router that says SUPPORTS must not change the pre-fix tier."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        router = _mock_router(POLARITY_SUPPORTS)
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {}, llm_router=router)
+        assert result["tier"] in (TIER_SUPPORTED, TIER_PROBABLE)
+
+    def test_unrelated_despite_similarity_falls_through_unchanged(self):
+        """UNRELATED-DESPITE-SIMILARITY must not force CONTRADICTED."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        router = _mock_router(POLARITY_UNRELATED)
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {}, llm_router=router)
+        assert result["tier"] != TIER_CONTRADICTED
+
+    def test_llm_unavailable_fails_open_to_pre_fix_behavior(self):
+        """No router at all (the default) must reproduce the exact pre-fix
+        tiering -- never block or crash the audit."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {})
+        assert result["tier"] in (TIER_SUPPORTED, TIER_PROBABLE)
+
+    def test_llm_call_raising_fails_open(self):
+        """A router whose call_chat() raises must degrade gracefully."""
+        knowledge = _make_knowledge(available=False)
+        text, claim_tokens = _skia_python_case()
+        router = MagicMock()
+        router.call_chat.side_effect = RuntimeError("connection refused")
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {}, llm_router=router)
+        assert result["tier"] in (TIER_SUPPORTED, TIER_PROBABLE)
+
+    def test_low_overlap_never_triggers_llm_call(self):
+        """Bounded-cost guarantee: a weak/incidental overlap match must
+        never spend an LLM call, even when a router is supplied."""
+        knowledge = _make_knowledge(available=False)
+        claim_tokens = _make_claim_tokens(["totally unrelated vocabulary about spreadsheets"])
+        text = "This paragraph discusses something else entirely, on a different topic."
+        router = _mock_router(POLARITY_CONTRADICTS)
+        result = _classify_paragraph(1, text, knowledge, claim_tokens, [], {}, llm_router=router)
+        router.call_chat.assert_not_called()
+        assert result["tier"] != TIER_CONTRADICTED
+
+
+# ---------------------------------------------------------------------------
+# _resolve_no_llm_flag -- F-18-01 regression test (MT026 adversarial-review
+# follow-up): a prior fix (RC-W1-002) silently flipped the CLI default to
+# LLM-on; this pins the corrected resolution logic for all 4 flag
+# combinations so the regression cannot recur silently.
+# ---------------------------------------------------------------------------
+
+class TestResolveNoLlmFlag:
+    def test_bare_invocation_stays_offline(self):
+        assert _resolve_no_llm_flag(no_llm_flag=False, polarity_check_flag=False) is True
+
+    def test_polarity_check_alone_enables_llm(self):
+        assert _resolve_no_llm_flag(no_llm_flag=False, polarity_check_flag=True) is False
+
+    def test_no_llm_alone_stays_offline(self):
+        assert _resolve_no_llm_flag(no_llm_flag=True, polarity_check_flag=False) is True
+
+    def test_both_flags_no_llm_wins_safe_default(self):
+        assert _resolve_no_llm_flag(no_llm_flag=True, polarity_check_flag=True) is True

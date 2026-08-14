@@ -253,6 +253,158 @@ class TestPackageTokenNormalization:
         assert ir == [], f"--upgrade should be skipped as a flag: {ir}"
 
 
+class TestPublishChannelClaimsMatchVerificationPublished:
+    """RC-W1-003 (Mission MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1,
+    TC-BSA-bsa-20260809T044618Z-5891c467551a-03): _verify_install_accuracy
+    already loads data/package_registry.json's verification block for every
+    page it checks, but only ever cross-referenced candidate.name -- never
+    verification.published. Real confirmed defect: barcode/python's
+    verification.published is false (data/package_registry.json, backfilled
+    2026-08-01, no live PyPI match found), yet its getting-started pages
+    across 5 subdomains / 57 files confidently claim the package "is
+    published on PyPI" / link to a PyPI project page. These tests use
+    barcode/python's real registry state as the negative fixture, and a
+    published:true product as the positive (no-false-positive) case.
+    """
+
+    # Mirrors data/package_registry.json's real barcode.python entry
+    # (verified 2026-08-01: "no live match found for any tried candidate;
+    # recorded as not-yet-published with the best available candidate name").
+    _BARCODE_PYTHON_REGISTRY = {
+        "barcode": {"python": {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-barcode-foss"},
+            "candidate_owner": "asposefoss",
+            "verification": {
+                "published": False,
+                "verified_at": "2026-08-01",
+                "verified_owner": None,
+                "evidence_url": None,
+                "method": "pypi-backfill-scan",
+            },
+            "owner_match": None,
+        }},
+        # A published:true PyPI product, to prove the check does not
+        # false-positive on a legitimately-published package that also
+        # mentions PyPI in its prose / links.
+        "cells": {"python": {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-cells-foss"},
+            "candidate_owner": "Aspose",
+            "verification": {
+                "published": True,
+                "verified_at": "2026-08-01",
+                "verified_owner": "Aspose",
+                "evidence_url": "https://pypi.org/pypi/aspose-cells-foss/json",
+                "method": "pypi-json-api",
+            },
+            "owner_match": None,
+        }},
+    }
+
+    def test_barcode_python_pypi_prose_claim_is_fail(self, tmp_path):
+        """Negative case: real barcode/python installation.md prose (adapted
+        from the live file) asserts PyPI availability while
+        verification.published is false -- must FAIL."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation of Aspose.BarCode FOSS for Python\n\n"
+            "Aspose.BarCode FOSS for Python is distributed as a pure-Python "
+            "package on PyPI. There are no native extensions to compile.\n\n"
+            "The simplest way to install Aspose.BarCode FOSS is directly from PyPI:\n\n"
+            "**CI/CD:** Add `pip install aspose-barcode-foss` to your CI pipeline's "
+            "dependency step. No additional setup is required.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        assert len(fails) >= 1, f"expected FAIL for false PyPI claim, got: {findings}"
+        assert any("PyPI" in f.message and "published=false" in f.message for f in fails)
+        assert any("2026-08-01" in f.message for f in fails)
+
+    def test_barcode_python_pypi_link_is_fail(self, tmp_path):
+        """Negative case: a markdown link into pypi.org (license.md's real
+        '[PyPI Page](https://pypi.org/project/aspose-barcode-foss/)') must
+        also FAIL, not just prose mentions of the channel name."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: License\n---\n\n"
+            "## Resources\n\n"
+            "- [PyPI Page](https://pypi.org/project/aspose-barcode-foss/): Package page with full metadata\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/license.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        assert len(fails) >= 1, f"expected FAIL for PyPI link claim, got: {findings}"
+
+    def test_barcode_python_index_page_still_fails(self, tmp_path):
+        """The false claim must be caught on _index.md too, even though the
+        'missing install instructions' INFO suggestion explicitly skips
+        _index.md pages -- RC-W1-003 must run unconditionally, same as
+        _verify_install_accuracy, not gated behind the index-page skip."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Getting Started\n---\n\n"
+            "## Getting Started\n\n"
+            "Install from PyPI using pip:\n\n"
+            "- **[Installation Guide](installation/)**: Virtual environment setup, pip install, and verification\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/_index.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        assert len(fails) >= 1, f"expected FAIL on _index.md, got: {findings}"
+
+    def test_published_true_pypi_mention_is_not_flagged(self, tmp_path):
+        """Positive case: a legitimately-published PyPI product (cells/python,
+        verification.published=true) must NOT be flagged just for mentioning
+        PyPI or linking to its own real PyPI page -- proves no false positive."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Aspose.Cells FOSS for Python is distributed as a pure-Python package on PyPI.\n\n"
+            "- [PyPI Page](https://pypi.org/pypi/aspose-cells-foss/json): Package page with full metadata\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/cells/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"
+                 and "published on PyPI" in f.message]
+        assert fails == [], f"published:true product must not be flagged: {fails}"
+
+    def test_unregistered_family_platform_not_flagged_by_channel_check(self, tmp_path):
+        """A family/platform with no registry entry at all has nothing to
+        contradict a claim with -- must not raise (separate from the
+        existing UNREGISTERED-family FAIL for install commands)."""
+        path = _write_page(
+            tmp_path, "docs.aspose.org/en/unknown-family/python/getting-started/installation.md",
+            "---\ntitle: Installation\n---\n\nThis package is distributed on PyPI.\n",
+        )
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        channel_fails = [f for f in findings if "published on PyPI" in f.message]
+        assert channel_fails == []
+
+    def test_honest_not_yet_published_prose_not_flagged(self, tmp_path):
+        """A page that accurately says the package is NOT yet on PyPI must
+        not be flagged as a contradiction -- it agrees with the registry."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Aspose.BarCode FOSS for Python is not yet published on PyPI. Build from source instead.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if "published on PyPI" in f.message]
+        assert fails == [], f"honest not-yet-published prose must not be flagged: {fails}"
+
+
 class TestMissingInstructionsSuggestionStaysDocsOnly:
     """Regression: the separate 'no install instructions' INFO suggestion must
     NOT start firing on kb/blog/products just because H-16 now runs there too."""

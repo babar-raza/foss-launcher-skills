@@ -102,7 +102,7 @@ def _get_evidence(finding: dict, clone_cache: Path) -> str:
     try:
         result = subprocess.run(
             ["grep", "-r", "--include=*.java", "--include=*.py", "--include=*.cs",
-             "--include=*.ts", "--include=*.cpp", "--include=*.h",
+             "--include=*.ts", "--include=*.cpp", "--include=*.h", "--include=*.rs",
              "-l", search_term, str(clone_cache)],
             capture_output=True, text=True, timeout=10
         )

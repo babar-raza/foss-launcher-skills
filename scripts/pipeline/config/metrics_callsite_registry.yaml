@@ -35,6 +35,8 @@ logical_consumers:
   - {consumer_id: backlink-ai-enrich, path: "scripts/pipeline/commands/ops/backlink_ai_enrich.py"}
   - {consumer_id: backlink-adjudicate, path: "scripts/pipeline/commands/ops/backlink_adjudicate_review.py"}
   - {consumer_id: backlink-copy, path: "scripts/pipeline/commands/ops/generate_product_backlink_copy.py"}
+  - {consumer_id: content-audit-polarity-check, path: "scripts/pipeline/commands/content/content_audit.py"}
+  - {consumer_id: truth-audit-content-polarity-check, path: "scripts/pipeline/commands/diagnostics/truth_audit_content.py"}
 
 # ── Professionalize Transport Call Sites ──────────────────────────────────── #
 

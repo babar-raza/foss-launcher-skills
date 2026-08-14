@@ -76,4 +76,5 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "encoding_check": "1",
     "consumer_usefulness": "2",
     "generic_description_check": "1",  # TC-GDF-001: initial version
+    "duplicate_content": "1",  # RC-W1-005: initial version — whole-page duplicate + alias-collision detection
 }

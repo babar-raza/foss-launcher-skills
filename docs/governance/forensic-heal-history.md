@@ -7,3 +7,4 @@
 
 | Mission ID | Closed At | Products | Taskcards Closed/Total | Unaided-First Verdict | System Recall | Final Verdict |
 |---|---|---|---|---|---|---|
+| MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1 | 2026-08-09T13:15:55.531357Z | cells/rust, barcode/python, html/python, words/python, cells/net | 9/9 | VIOLATED | 3% | SYSTEM_HEALED_WITH_LIMITATIONS |

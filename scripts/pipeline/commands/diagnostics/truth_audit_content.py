@@ -100,6 +100,134 @@ ORIGIN_EVALUATOR_MISS = "EVALUATOR_MISS"
 ORIGIN_SCOUT_MISS = "SCOUT_MISS"
 ORIGIN_ENRICHMENT_HALLUCINATION = "ENRICHMENT_HALLUCINATION"
 
+# ---------------------------------------------------------------------------
+# Polarity check (RC-W1-002, blind-spot audit MT026, added 2026-08-09)
+#
+# The Tier-1 claim-overlap check below (1e) matches a unit to a claim purely
+# by lexical/token overlap. High overlap only proves the unit and the claim
+# are ABOUT the same topic -- it says nothing about whether they AGREE. A
+# claim asserting X and a sentence asserting NOT-X about the same topic
+# share most of their vocabulary and, before this fix, matched here as
+# VERIFIED with the *contradicting* claim cited as the unit's own
+# supporting evidence. Confirmed live: knowledge/html/python/merged/
+# claims.json's CLM-html-aa4514 ("Depends on skia-python>=87.0,<145" -- a
+# native/compiled dependency) was cited as supporting evidence for
+# content/kb.aspose.org/en/html/python/faq.md's "No. The implementation is
+# pure Python -- no browser engine, no compiled extensions" (the opposite
+# assertion), verdict VERIFIED.
+#
+# The functions below add a narrowly-scoped LLM refinement: SUPPORTS /
+# CONTRADICTS / UNRELATED-DESPITE-SIMILARITY. It is invoked only for a unit
+# that already cleared the pre-existing "strong overlap" bar used by the
+# branches below (>= 0.5), so it is a refinement of an already-positive
+# match, not a new full pass over every unit -- LLM calls stay bounded. If
+# the LLM is unavailable or fails for any reason, the refinement returns
+# None and every call site below falls back UNCHANGED to its pre-fix,
+# overlap-only verdict (fail-safe, never fail-closed).
+# ---------------------------------------------------------------------------
+POLARITY_SUPPORTS = "SUPPORTS"
+POLARITY_CONTRADICTS = "CONTRADICTS"
+POLARITY_UNRELATED = "UNRELATED-DESPITE-SIMILARITY"
+_POLARITY_RELATIONS = {POLARITY_SUPPORTS, POLARITY_CONTRADICTS, POLARITY_UNRELATED}
+
+# Matches the "strong overlap" threshold already used by the pre-existing
+# overlap-only VERIFIED branches in verify_unit() (1e) -- the polarity
+# check only refines matches that would already qualify.
+_POLARITY_CHECK_MIN_OVERLAP = 0.5
+
+_POLARITY_SYSTEM_PROMPT = (
+    "You are a strict fact-checking classifier for software product "
+    "documentation. You will be given a KNOWLEDGE CLAIM (verified ground "
+    "truth extracted from the product's source repository) and a CONTENT "
+    "SENTENCE (a sentence from a published documentation page) that was "
+    "matched to it purely by word overlap. Word overlap only means the two "
+    "are about the same topic -- it does NOT mean they agree. Decide "
+    "whether the content sentence SUPPORTS the knowledge claim (asserts "
+    "the same thing), CONTRADICTS it (asserts the opposite or a "
+    "materially different thing), or is UNRELATED-DESPITE-SIMILARITY "
+    "(shares vocabulary but is not actually making a comparable "
+    "assertion). Respond with JSON only, exactly this shape: "
+    '{"relation": "SUPPORTS"} or {"relation": "CONTRADICTS"} or '
+    '{"relation": "UNRELATED-DESPITE-SIMILARITY"}.'
+)
+
+
+def _try_import_llm_router():
+    """Import and instantiate LLMRouter; return None on any failure.
+
+    Mirrors the fail-safe pattern already used by
+    commands/ops/backlink_adjudicate_review.py -- any import, config, or
+    credential problem degrades to "no router available" rather than
+    raising out of the audit run.
+    """
+    try:
+        from commands.ops.llm_router import LLMRouter  # type: ignore
+        return LLMRouter()
+    except Exception:
+        return None
+
+
+def _check_claim_polarity(unit_text: str, claim_text: str, llm_router: Any = None) -> "str | None":
+    """Ask a narrowly-scoped LLM yes/no question: does claim_text SUPPORT,
+    CONTRADICT, or turn out UNRELATED-DESPITE-SIMILARITY to unit_text?
+
+    This is a refinement step only -- see the module-level comment block
+    above. Returns one of POLARITY_SUPPORTS / POLARITY_CONTRADICTS /
+    POLARITY_UNRELATED, or None if the LLM is unavailable, mis-configured,
+    or returns something unparseable. Callers MUST treat None as "polarity
+    unknown" and fall back to the pre-fix, overlap-only verdict -- never as
+    a definitive answer, and never as a reason to abort the run.
+    """
+    if llm_router is None:
+        return None
+    try:
+        from commands.ops.llm_router import LLMCallContext
+        user_prompt = (
+            f"KNOWLEDGE CLAIM: {claim_text}\n\n"
+            f"CONTENT SENTENCE: {unit_text}\n\n"
+            "Relation?"
+        )
+        result = llm_router.call_chat(
+            _POLARITY_SYSTEM_PROMPT,
+            user_prompt,
+            temperature=0.0,
+            # 400, not ~100: confirmed live against the professionalize
+            # endpoint (gpt-oss) that a small budget is silently consumed
+            # entirely by the model's own hidden reasoning tokens, leaving
+            # none for the visible JSON content -- the call then reports
+            # PARSE_FAILED ("choices[0].message.content is None") and this
+            # function correctly (but needlessly) fails open. 400 leaves
+            # headroom above the ~300 observed to be sufficient for this
+            # reply shape.
+            max_tokens=400,
+            context=LLMCallContext.create(
+                "truth-audit-content", "content-verification", "polarity-check"
+            ),
+        )
+        status = getattr(result, "status", None)
+        status_val = status.value if hasattr(status, "value") else str(status).lower()
+        if status_val != "ok":
+            log.warning("Polarity check LLM call not OK (status=%s)", status_val)
+            return None
+        data = getattr(result, "data", None)
+        relation = ""
+        if isinstance(data, dict):
+            relation = str(data.get("relation", "")).strip().upper()
+        elif isinstance(data, str):
+            m = re.search(r"\{.*\}", data, re.DOTALL)
+            if m:
+                try:
+                    relation = str(json.loads(m.group()).get("relation", "")).strip().upper()
+                except (json.JSONDecodeError, AttributeError):
+                    relation = ""
+        if relation in _POLARITY_RELATIONS:
+            return relation
+        log.warning("Polarity check returned unrecognized relation: %r", relation)
+        return None
+    except Exception as exc:  # never let a polarity refinement abort the audit
+        log.warning("Polarity check raised %s: %s", type(exc).__name__, exc)
+        return None
+
 # Scope filters
 SCOPE_MAP = {
     "products": ["products.aspose.org"],
@@ -575,6 +703,7 @@ def verify_unit(
     method_index: dict[str, list[str]] | None = None,
     platform: str = "",
     type_names: set[str] | None = None,
+    llm_router: Any = None,
 ) -> dict:
     """Verify a single unit against knowledge and clone cache.
 
@@ -757,6 +886,42 @@ def verify_unit(
             best_claim_id = claim_id
             best_claim_text = claim_text
 
+    # 1e-polarity (RC-W1-002): a strong overlap match is a candidate for
+    # VERIFIED under the branches below, but never proves agreement -- only
+    # aboutness. Refine it with a bounded LLM check before any of those
+    # branches can fire. See the module-level comment block above
+    # _try_import_llm_router() for full rationale and the fail-safe
+    # contract. This never fires below the pre-existing 0.5 "strong
+    # overlap" bar, so it changes zero behavior for weak/incidental matches.
+    if best_claim_id and best_overlap >= _POLARITY_CHECK_MIN_OVERLAP:
+        claim_polarity = _check_claim_polarity(text, best_claim_text, llm_router)
+        unit["polarity_check"] = {
+            "claim_id": best_claim_id,
+            "overlap": round(best_overlap, 3),
+            "relation": claim_polarity,
+        }
+        if claim_polarity is None:
+            log.warning(
+                "Polarity check unavailable for unit %s (best-overlap claim "
+                "%s, overlap=%.2f) -- falling back to pre-fix overlap-only "
+                "verdict for this unit",
+                unit.get("id", "?"), best_claim_id, best_overlap,
+            )
+        elif claim_polarity == POLARITY_CONTRADICTS:
+            verdict = VERDICT_CONTRADICTED
+            confidence = 0.75
+            tier_resolved_by = 3
+            defect_origin = ORIGIN_GENERATION_FABRICATION
+            evidence_chain["knowledge_artifact"] = best_claim_id
+            if api_checked:
+                evidence_chain["api_surface_entry"] = best_api_entry
+            unit.update(verdict=verdict, confidence=confidence,
+                        evidence_chain=evidence_chain, tier_resolved_by=tier_resolved_by,
+                        defect_origin=defect_origin, review=None)
+            return unit
+        # SUPPORTS or UNRELATED-DESPITE-SIMILARITY: fall through unchanged
+        # to the pre-existing overlap-only branches below.
+
     if api_checked and api_verified_count > 0 and best_overlap >= 0.5:
         verdict = VERDICT_VERIFIED
         confidence = min(0.6 + best_overlap * 0.3, 0.95)
@@ -845,10 +1010,14 @@ def verify_unit(
                             defect_origin=defect_origin, review=None)
                 return unit
 
-    # === Tier 3 (LLM semantic verification) — not yet implemented ===
-    # When implemented, Tier 3 would use LLM to semantically verify claims
-    # against source code. Currently all units reaching this point fall through
-    # to the heuristic classification below.
+    # === Tier 3 (LLM semantic verification) — partially implemented ===
+    # RC-W1-002 (2026-08-09) implemented a narrow slice of Tier 3: the
+    # polarity refinement in step 1e above asks the LLM to confirm
+    # AGREEMENT, not just aboutness, for units that already cleared the
+    # strong-overlap bar. Broader Tier 3 semantic verification against
+    # source code for units that reach *this* point (overlap too weak, or
+    # no claim matched at all) is still not implemented; they continue to
+    # fall through to the heuristic classification below.
 
     # === Tier 1+2 exhausted ===
 
@@ -1077,7 +1246,7 @@ def run_audit(
     family: str,
     platform: str,
     scope: str = "all",
-    no_llm: bool = True,  # Tier 3 not implemented; parameter reserved
+    no_llm: bool = True,  # RC-W1-002: gates the Tier-3 polarity refinement
     max_units: int = 0,
     unit_type_filter: set[str] | None = None,
 ) -> dict:
@@ -1128,6 +1297,20 @@ def run_audit(
         if ctext:
             claim_token_index.append((cid, ctext, _tokenize(ctext)))
 
+    # RC-W1-002: instantiate the polarity-check LLM router ONCE per run, not
+    # per unit -- verify_unit() only spends a call on units that already
+    # cleared the strong-overlap bar, so this stays bounded even when the
+    # router is available. `--no-llm` (previously a reserved no-op) now
+    # disables this Tier-3 refinement; on any router unavailability,
+    # verify_unit()/`_check_claim_polarity()` already fail open on their own.
+    llm_router = None if no_llm else _try_import_llm_router()
+    if not no_llm and llm_router is None:
+        log.warning(
+            "LLM router unavailable -- RC-W1-002 polarity refinement disabled "
+            "for this run; verify_unit() falls back to pre-fix, overlap-only "
+            "verdicts for every unit."
+        )
+
     # --- Step 3: Decompose and verify all pages ---
     all_units: list[dict] = []
     file_summaries: list[dict] = []
@@ -1145,6 +1328,7 @@ def run_audit(
                 unit, knowledge, claims, forbidden, formats,
                 clone_path, claim_token_index, method_index,
                 platform=platform, type_names=type_names,
+                llm_router=llm_router,
             )
             file_verdict_counts[unit["verdict"]] += 1
             all_units.append(unit)
@@ -1315,6 +1499,15 @@ def run_audit(
 # CLI
 # ============================================================================
 
+def _resolve_no_llm_flag(no_llm_flag: bool, polarity_check_flag: bool) -> bool:
+    """F-18-01: the RC-W1-002 polarity check is opt-in, not opt-out -- a bare CLI
+    invocation (`no_llm_flag=False, polarity_check_flag=False`) must resolve to
+    `no_llm=True` (stay offline/deterministic), matching this tool's behavior before
+    RC-W1-002 was ever added. `--no-llm` always wins on conflict (safe default takes
+    precedence when both flags are passed)."""
+    return no_llm_flag or not polarity_check_flag
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="truth_audit_content",
@@ -1325,8 +1518,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scope", default="all",
                         choices=["all", "products", "docs", "blog", "kb", "reference"],
                         help="Subdomain scope (default: all)")
+    parser.add_argument("--polarity-check", action="store_true",
+                        help="RC-W1-002/F-18-01 (opt-in, off by default): enable the "
+                             "LLM-backed polarity refinement (Tier 3). Makes live network "
+                             "calls and is non-deterministic run-to-run; the bare CLI stays "
+                             "fast/offline/deterministic (overlap-only verdicts) unless this "
+                             "is explicitly passed.")
     parser.add_argument("--no-llm", action="store_true",
-                        help="Reserved for future Tier 3 (not yet implemented)")
+                        help="Explicitly disable the polarity refinement even if "
+                             "--polarity-check is also passed (safe default; kept for "
+                             "explicit clarity and backward compatibility -- this is now "
+                             "the default behavior regardless of this flag)")
     parser.add_argument("--max-units", type=int, default=0,
                         help="Maximum units to verify (0 = unlimited)")
     parser.add_argument("--unit-types", default="",
@@ -1347,11 +1549,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.unit_types:
         unit_type_filter = set(args.unit_types.upper().split(","))
 
+    # F-18-01: the polarity check is opt-in (--polarity-check) and off by default, so a bare
+    # CLI invocation stays fast/offline/deterministic exactly as it did before RC-W1-002 --
+    # --no-llm always wins if both are passed (safe default takes precedence on conflict).
+    # Extracted to a pure function (not left inline) specifically so this exact regression --
+    # a prior fix silently flipping the CLI default to LLM-on -- has a direct unit test
+    # (test_truth_audit_content.py::TestResolveNoLlmFlag) rather than only a one-off manual
+    # verification, per F-18-01's own adversarial-review follow-up finding.
+    no_llm = _resolve_no_llm_flag(args.no_llm, args.polarity_check)
     ledger = run_audit(
         family=args.family,
         platform=args.platform,
         scope=args.scope,
-        no_llm=args.no_llm,
+        no_llm=no_llm,
         max_units=args.max_units,
         unit_type_filter=unit_type_filter,
     )
