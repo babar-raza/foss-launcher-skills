@@ -1,0 +1,1769 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ArrayListAdapterTests.cs",
+    "source_function": "ArrayListAdapterInVertexElementTemplate_ShouldWork",
+    "source_line": 11,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "VertexElement.Clear",
+      "VertexElementTemplate.Clear"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ArrayListAdapterTests.cs",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 33,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ArrayListAdapterTests.cs",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 33,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ColladaTests.cs",
+    "source_function": "SaveSceneToCollada_ShouldCreateValidFile",
+    "source_line": 12,
+    "classes_used": [
+      "Box",
+      "Node",
+      "Scene",
+      "Text"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ColladaTests.cs",
+    "source_function": "SaveSceneToColladaStream_ShouldCreateValidOutput",
+    "source_line": 39,
+    "classes_used": [
+      "Box",
+      "ColladaSaveOptions",
+      "Node",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ColladaSaveOptions.ColladaSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ColladaTests.cs",
+    "source_function": "LoadSceneFromCollada_ShouldLoadCorrectly",
+    "source_line": 57,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ColladaTests.cs",
+    "source_function": "ColladaFormat_ShouldBeRegistered",
+    "source_line": 84,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.GetFormatByExtension"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/ColladaTests.cs",
+    "source_function": "ColladaSaveOptions_HasRequiredProperties",
+    "source_line": 93,
+    "classes_used": [
+      "ColladaSaveOptions",
+      "ColladaTransformStyle",
+      "SaveOptions",
+      "Transform"
+    ],
+    "methods_used": [
+      "ColladaSaveOptions.ColladaSaveOptions"
+    ],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToObj_ShouldCreateValidFile",
+    "source_line": 14,
+    "classes_used": [
+      "Box",
+      "Node",
+      "Scene",
+      "Text"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromObj_ShouldLoadCorrectly",
+    "source_line": 40,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "Sphere_ToMesh_ShouldCreateValidMesh",
+    "source_line": 67,
+    "classes_used": [
+      "Mesh",
+      "Sphere"
+    ],
+    "methods_used": [
+      "Mesh.ToMesh",
+      "Sphere.ToMesh"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "Cylinder_ToMesh_ShouldCreateValidMesh",
+    "source_line": 79,
+    "classes_used": [
+      "Cylinder",
+      "Mesh"
+    ],
+    "methods_used": [
+      "Cylinder.ToMesh",
+      "Mesh.ToMesh"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToStl_ShouldCreateValidFile",
+    "source_line": 91,
+    "classes_used": [
+      "Box",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromStlAscii_ShouldLoadCorrectly",
+    "source_line": 116,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromStlBinary_ShouldLoadCorrectly",
+    "source_line": 143,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromUnsupportedFormat_ShouldThrowNotSupportedException",
+    "source_line": 170,
+    "classes_used": [
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToStreamObj_ShouldCreateValidOutput",
+    "source_line": 181,
+    "classes_used": [
+      "Box",
+      "Node",
+      "ObjSaveOptions",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "ObjSaveOptions.ObjSaveOptions",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToStreamStl_ShouldCreateValidOutput",
+    "source_line": 199,
+    "classes_used": [
+      "Box",
+      "Node",
+      "SaveOptions",
+      "Scene",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "Scene.Save",
+      "StlSaveOptions.StlSaveOptions"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromStreamObj_ShouldLoadCorrectly",
+    "source_line": 216,
+    "classes_used": [
+      "LoadOptions",
+      "Mesh",
+      "Node",
+      "ObjLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjLoadOptions.ObjLoadOptions",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromStreamStl_ShouldLoadCorrectly",
+    "source_line": 245,
+    "classes_used": [
+      "LoadOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "StlLoadOptions"
+    ],
+    "methods_used": [
+      "Scene.Open",
+      "StlLoadOptions.StlLoadOptions"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToStreamGltf_ShouldCreateValidOutput",
+    "source_line": 274,
+    "classes_used": [
+      "Box",
+      "FileFormat",
+      "GltfSaveOptions",
+      "Node",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "GltfSaveOptions.GltfSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromStreamGltf_ShouldLoadCorrectly",
+    "source_line": 289,
+    "classes_used": [
+      "GltfLoadOptions",
+      "LoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "GltfLoadOptions.GltfLoadOptions",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromFbx_ShouldLoadCorrectly",
+    "source_line": 308,
+    "classes_used": [
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromFbxWithLoadOptions_ShouldLoadCorrectly",
+    "source_line": 329,
+    "classes_used": [
+      "FbxLoadOptions",
+      "LoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "FbxLoadOptions.FbxLoadOptions",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFrom3mf_ShouldLoadCorrectly",
+    "source_line": 352,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFrom3mf_ShouldVerifyMeshData",
+    "source_line": 379,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToObjFrom3mf_ShouldIncludePolygons",
+    "source_line": 406,
+    "classes_used": [
+      "Line",
+      "ObjSaveOptions",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "ObjSaveOptions.ObjSaveOptions",
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneTo3mfStream_ShouldCreateValidFile",
+    "source_line": 434,
+    "classes_used": [
+      "Box",
+      "Microsoft3MFSaveOptions",
+      "Node",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "Microsoft3MFSaveOptions.Microsoft3MFSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneTo3mfFile_ShouldCreateValidFile",
+    "source_line": 463,
+    "classes_used": [
+      "Box",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneTo3mfWithPrimitive_ShouldCreateValidFile",
+    "source_line": 492,
+    "classes_used": [
+      "Microsoft3MFSaveOptions",
+      "Node",
+      "Primitive",
+      "SaveOptions",
+      "Scene",
+      "Sphere"
+    ],
+    "methods_used": [
+      "Microsoft3MFSaveOptions.Microsoft3MFSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneTo3mfMultipleObjects_ShouldCreateValidFile",
+    "source_line": 516,
+    "classes_used": [
+      "Box",
+      "Microsoft3MFSaveOptions",
+      "Node",
+      "SaveOptions",
+      "Scene",
+      "Sphere"
+    ],
+    "methods_used": [
+      "Microsoft3MFSaveOptions.Microsoft3MFSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "SaveSceneToFbx_ShouldCreateValidBinaryFile",
+    "source_line": 542,
+    "classes_used": [
+      "Box",
+      "FbxSaveOptions",
+      "FileFormat",
+      "Node",
+      "SaveOptions",
+      "Scene",
+      "Text"
+    ],
+    "methods_used": [
+      "FbxSaveOptions.FbxSaveOptions",
+      "Node.CreateChildNode",
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromPlyAscii_ShouldLoadCorrectly",
+    "source_line": 567,
+    "classes_used": [
+      "Entity",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "ply"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromFbx7400Ascii_ShouldLoadCorrectly",
+    "source_line": 591,
+    "classes_used": [
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromPlyBinary_ShouldLoadCorrectly",
+    "source_line": 612,
+    "classes_used": [
+      "Entity",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ply"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromPlyWithLoadOptions_ShouldLoadCorrectly",
+    "source_line": 636,
+    "classes_used": [
+      "Entity",
+      "LoadOptions",
+      "Mesh",
+      "Node",
+      "PlyLoadOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "PlyLoadOptions.PlyLoadOptions",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ply"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromFbx7300Binary_ShouldLoadCorrectly",
+    "source_line": 662,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FileIOTests.cs",
+    "source_function": "LoadSceneFromFbx7500Binary_ShouldLoadCorrectly",
+    "source_line": 688,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "fbx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectObjFormatFromStream_ShouldReturnObjFormat",
+    "source_line": 12,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectStlFormatFromStream_ShouldReturnStlFormat",
+    "source_line": 26,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectGltfFormatFromStream_ShouldReturnGltfFormat",
+    "source_line": 42,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "OpenStreamWithAutoDetectionObj_ShouldLoadCorrectly",
+    "source_line": 58,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "FileFormat.GetFormatByExtension",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "OpenStreamWithAutoDetectionStl_ShouldLoadCorrectly",
+    "source_line": 87,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "FileFormat.GetFormatByExtension",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "OpenStreamWithAutoDetectionGltf_ShouldLoadCorrectly",
+    "source_line": 116,
+    "classes_used": [
+      "FileFormat",
+      "LoadOptions",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "FileFormat.CreateLoadOptions",
+      "FileFormat.Detect",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "OpenStreamWithFilename_ShouldDetectFormatFromFilename",
+    "source_line": 135,
+    "classes_used": [
+      "FileFormat",
+      "LoadOptions",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "FileFormat.CreateLoadOptions",
+      "FileFormat.Detect",
+      "Scene.Open"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectObjFormatFromStreamWithFilename_ShouldReturnObjFormat",
+    "source_line": 164,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectStlFormatFromStreamWithFilename_ShouldReturnStlFormat",
+    "source_line": 177,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "ascii",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/FormatDetectionTests.cs",
+    "source_function": "DetectGltfFormatFromStreamWithFilename_ShouldReturnGltfFormat",
+    "source_line": 190,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.Detect"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "GetTestDataPath",
+    "source_line": 14,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "Save3DSFile_ShouldSaveScene",
+    "source_line": 21,
+    "classes_used": [
+      "FileFormat",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "Save3DSFile_ShouldSaveMesh",
+    "source_line": 53,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "Save3DSFile_ShouldSaveMaterials",
+    "source_line": 93,
+    "classes_used": [
+      "FileFormat",
+      "Material",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "Save3DSFile_ShouldHandleDuplicatedNames",
+    "source_line": 122,
+    "classes_used": [
+      "Box",
+      "Entity",
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Vector4"
+    ],
+    "methods_used": [
+      "Node.AddEntity",
+      "Node.CreateChildNode",
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "CountMeshes",
+    "source_line": 165,
+    "classes_used": [
+      "Mesh",
+      "Node"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSExport.cs",
+    "source_function": "CountNodesByName",
+    "source_line": 183,
+    "classes_used": [
+      "Node"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSImport.cs",
+    "source_function": "GetTestDataPath",
+    "source_line": 12,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSImport.cs",
+    "source_function": "Load3DSFile_ShouldLoadScene",
+    "source_line": 21,
+    "classes_used": [
+      "Entity",
+      "Line",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSImport.cs",
+    "source_function": "Load3DSFile_ShouldLoadMesh",
+    "source_line": 50,
+    "classes_used": [
+      "Entity",
+      "Line",
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/Formats/Test3DSImport.cs",
+    "source_function": "Save3DSFile_ShouldExportScene",
+    "source_line": 82,
+    "classes_used": [
+      "Discreet3dsSaveOptions",
+      "Node",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Open",
+      "Scene.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "GeometryToMeshTests",
+    "source_line": 18,
+    "classes_used": [
+      "Geometry",
+      "Mesh"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "SaveMeshToObj",
+    "source_line": 23,
+    "classes_used": [
+      "Entity",
+      "Mesh",
+      "Node",
+      "ObjSaveOptions",
+      "SaveOptions",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.Save"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Box_ToMesh_ShouldCreateMesh",
+    "source_line": 34,
+    "classes_used": [
+      "Box",
+      "Mesh"
+    ],
+    "methods_used": [
+      "Box.ToMesh",
+      "Mesh.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Cylinder_ToMesh_ShouldCreateMesh",
+    "source_line": 46,
+    "classes_used": [
+      "Cylinder",
+      "Mesh"
+    ],
+    "methods_used": [
+      "Cylinder.ToMesh",
+      "Mesh.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Sphere_ToMesh_ShouldCreateMesh",
+    "source_line": 58,
+    "classes_used": [
+      "Mesh",
+      "Sphere"
+    ],
+    "methods_used": [
+      "Mesh.ToMesh",
+      "Sphere.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Pyramid_ToMesh_ShouldCreateMesh",
+    "source_line": 70,
+    "classes_used": [
+      "Mesh",
+      "Pyramid"
+    ],
+    "methods_used": [
+      "Mesh.ToMesh",
+      "Pyramid.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Torus_ToMesh_ShouldCreateMesh",
+    "source_line": 82,
+    "classes_used": [
+      "Mesh",
+      "Torus"
+    ],
+    "methods_used": [
+      "Mesh.ToMesh",
+      "Torus.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Dish_ToMesh_ShouldCreateMesh",
+    "source_line": 94,
+    "classes_used": [
+      "Dish",
+      "Mesh"
+    ],
+    "methods_used": [
+      "Dish.ToMesh",
+      "Mesh.ToMesh"
+    ],
+    "formats_referenced": [
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/GeometryToMeshTests.cs",
+    "source_function": "Mesh_ToMesh_ShouldReturnSameMesh",
+    "source_line": 106,
+    "classes_used": [
+      "Mesh"
+    ],
+    "methods_used": [
+      "Mesh.CreatePolygon",
+      "Mesh.ToMesh"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "LambertMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 9,
+    "classes_used": [
+      "LambertMaterial",
+      "Material"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "LambertMaterial_NameConstructor_ShouldSetName",
+    "source_line": 17,
+    "classes_used": [
+      "LambertMaterial",
+      "Material"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "LambertMaterial_Properties_ShouldBeSettable",
+    "source_line": 25,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PhongMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 44,
+    "classes_used": [
+      "Material",
+      "PhongMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PhongMaterial_NameConstructor_ShouldSetName",
+    "source_line": 52,
+    "classes_used": [
+      "Material",
+      "PhongMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PhongMaterial_Properties_ShouldBeSettable",
+    "source_line": 60,
+    "classes_used": [
+      "Material",
+      "PhongMaterial",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PbrMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 79,
+    "classes_used": [
+      "Material",
+      "PbrMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PbrMaterial_AlbedoConstructor_ShouldCreateInstance",
+    "source_line": 87,
+    "classes_used": [
+      "Material",
+      "PbrMaterial",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PbrMaterial_Properties_ShouldBeSettable",
+    "source_line": 98,
+    "classes_used": [
+      "Material",
+      "PbrMaterial",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/MaterialTests.cs",
+    "source_function": "PbrMaterial_FromMaterial_ShouldCreateInstance",
+    "source_line": 117,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "PbrMaterial"
+    ],
+    "methods_used": [
+      "PbrMaterial.FromMaterial"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Constructor_ShouldInitializeDefaultValues",
+    "source_line": 10,
+    "classes_used": [
+      "Curve",
+      "CurveDimension",
+      "NurbsCurve",
+      "NurbsType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "ConstructorWithName_ShouldInitializeWithName",
+    "source_line": 23,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "ControlPoints_ShouldBeWritable",
+    "source_line": 31,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve",
+      "Vector4"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Multiplicity_ShouldBeWritable",
+    "source_line": 44,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "KnotVectors_ShouldBeWritable",
+    "source_line": 57,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Order_ShouldBeSettable",
+    "source_line": 71,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Degree_ShouldBeSettable",
+    "source_line": 81,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Rational_ShouldBeSettable",
+    "source_line": 91,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Dimension_ShouldBeSettable",
+    "source_line": 100,
+    "classes_used": [
+      "Curve",
+      "CurveDimension",
+      "NurbsCurve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "CurveType_ShouldBeSettable",
+    "source_line": 109,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve",
+      "NurbsType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "Evaluate_ShouldThrowNotImplementedException",
+    "source_line": 118,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.Evaluate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsCurveTests.cs",
+    "source_function": "EvaluateAt_ShouldThrowNotImplementedException",
+    "source_line": 126,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.EvaluateAt"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Constructor_ShouldInitializeDefaultValues",
+    "source_line": 9,
+    "classes_used": [
+      "NurbsDirection",
+      "NurbsType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "KnotVectors_ShouldBeWritable",
+    "source_line": 22,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Multiplicity_ShouldBeWritable",
+    "source_line": 36,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Order_ShouldBeSettable",
+    "source_line": 49,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Degree_ShouldBeSettable",
+    "source_line": 58,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Divisions_ShouldBeSettable",
+    "source_line": 67,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Type_ShouldBeSettable",
+    "source_line": 76,
+    "classes_used": [
+      "NurbsDirection",
+      "NurbsType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/NurbsDirectionTests.cs",
+    "source_function": "Count_ShouldBeSettable",
+    "source_line": 85,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/roundtrip/MaterialRoundTripTests.cs",
+    "source_function": "CreateSceneWithLambertMaterial_ShouldCreateValidMaterial",
+    "source_line": 23,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cs",
+    "source_file": "src/test/Aspose.ThreeD.Tests/roundtrip/MaterialRoundTripTests.cs",
+    "source_function": "CreateSceneWithPhongMaterial_ShouldCreateValidMaterial",
+    "source_line": 46,
+    "classes_used": [
+      "Material",
+      "PhongMaterial",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

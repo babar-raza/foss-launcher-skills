@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:44:03.302308+00:00'
+bundle_id: 14c7093e-c615-4836-825d-772f7f10aabf
+config_sha: 8b1fe257c09be32f
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: 3d
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: d80d5a6e79ba66961af028b932ceefd636dec752bd3fbb2937f50f449d14531e
+  extractor_config_sha: 8b1fe257c09be32f
+  products_json_entry_sha: d05e178b76338052fc073ca8eae53f4501fd16d8a270e34d5834d1b0a1ad47bb
+  scout_api_surface_sha: 90ddd0b611f0b3b9aacabc0b3cb7ea371c5968a9e39765e4853a568af09351ca
+  scout_claims_sha: fcbe8657cc18bd9cebd9c6d591d2a6cf350fab6d7ad68c554224726d9b434a31
+license: ''
+platform: net
+product_name: Aspose.3D.Converter
+promoted_at: '2026-08-14T11:44:03.462614+00:00'
+repo_sha: 70933ab13eb0e313d9b160c55845011d366b1599
+repo_url: https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 293
+  enriched_claims: 1170
+  forbidden_count: 153
+  scout_claims: 2236
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 3368
+version: 1.0.0
