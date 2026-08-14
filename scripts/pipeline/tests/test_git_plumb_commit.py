@@ -522,3 +522,175 @@ def test_failed_push_with_credentialed_url_does_not_leak_token_in_error(tmp_path
 
     assert fake_token not in str(exc_info.value)
     assert "<redacted>" in str(exc_info.value)
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-05 (2026-08-14, CI reliability reassessment, Root Cause A): Tier 1
+# (pre-commit-audit.sh) parity for plumbed commits. Real fake scripts, no mocking
+# of git_plumb_commit.py's own logic -- matches this file's established convention.
+# ---------------------------------------------------------------------------
+
+def _write_fake_precommit_script(work: Path, *, exit_code: int, extra_shell: str = "") -> None:
+    scripts_dir = work / "scripts"
+    scripts_dir.mkdir(exist_ok=True)
+    script = scripts_dir / "pre-commit-audit.sh"
+    # newline="\n" forces LF line endings even on Windows -- Path.write_text's
+    # default universal-newline translation would otherwise write CRLF, which
+    # bash reads as a literal \r appended to the last token on each line
+    # ("unexpected end of file" / similarly confusing syntax errors), found
+    # live while writing this exact test.
+    with script.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write("#!/bin/bash\n" + extra_shell + f"\nexit {exit_code}\n")
+    script.chmod(0o755)
+
+
+class TestTier1Checks:
+
+    def test_missing_precommit_script_fails_open(self, tmp_path):
+        """No scripts/pre-commit-audit.sh at repo_root (this fixture's default
+        state) -- must not block the commit. Matches this module's existing
+        fail-open policy for missing check infrastructure."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        result = gpc.plumb_commit(
+            ["f.txt"], "no tier1 script present", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+        assert result["pushed"] is True
+
+    def test_tier1_check_blocks_when_precommit_script_fails(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=1)
+
+        head_before = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=work, capture_output=True, text=True,
+        ).stdout.strip()
+
+        with pytest.raises(gpc.PlumbCommitTier1Failed):
+            gpc.plumb_commit(
+                ["f.txt"], "should be blocked by tier1", repo_root=work, branch="main",
+                remote=str(bare), skip_stale_check=True,
+            )
+
+        head_after = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=work, capture_output=True, text=True,
+        ).stdout.strip()
+        assert head_after == head_before, "a blocked Tier 1 check must not advance the branch ref"
+
+    def test_tier1_check_passes_when_precommit_script_succeeds(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=0)
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "tier1 passes", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+        assert result["pushed"] is True
+
+    def test_skip_tier1_checks_bypasses_a_failing_script(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=1)
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "explicit emergency bypass", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True, skip_tier1_checks=True,
+        )
+        assert result["pushed"] is True
+
+    def test_tier1_check_sees_isolated_index_not_real_shared_index(self, tmp_path):
+        """The ST-021 safety property this whole taskcard exists to preserve:
+        the Tier 1 check must see ONLY the files being committed via --files,
+        never anything else a concurrent session might have staged in the real
+        .git/index. Stages a second, unrelated file in the REAL index (simulating
+        a concurrent session's in-flight work) that is NOT part of --files, and
+        has the fake script assert (for real, via `git diff --cached`) that it
+        does not see that file."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        (work / "concurrent_session_file.txt").write_text("someone else's work", encoding="utf-8")
+        subprocess.run(
+            ["git", "add", "concurrent_session_file.txt"], cwd=work, check=True,
+        )
+        _write_fake_precommit_script(
+            work, exit_code=0,
+            extra_shell=(
+                'staged=$(git diff --cached --name-only)\n'
+                'echo "STAGED: $staged"\n'
+                'if echo "$staged" | grep -q "concurrent_session_file.txt"; then\n'
+                '  echo "ISOLATION VIOLATION: saw the real index, not the isolated one"\n'
+                '  exit 1\n'
+                'fi\n'
+                'if ! echo "$staged" | grep -q "f.txt"; then\n'
+                '  echo "did not see the file actually being committed"\n'
+                '  exit 1\n'
+                'fi\n'
+            ),
+        )
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "isolation check", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+        assert result["pushed"] is True
+
+        # And the real index's own staged file must be completely undisturbed
+        # by the plumbed commit (matches the tool's own documented "never
+        # touches the real .git/index" guarantee).
+        real_staged = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"], cwd=work,
+            capture_output=True, text=True,
+        ).stdout
+        assert "concurrent_session_file.txt" in real_staged
+
+    def test_commit_message_reaches_churn_override_env_vars(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        message = "EVIDENCE-RESTAMP: approved by tester on 2026-08-14, reason: test"
+        _write_fake_precommit_script(
+            work, exit_code=0,
+            extra_shell=(
+                'if [ "$EVIDENCE_RESTAMP_MSG" != "' + message + '" ]; then\n'
+                '  echo "EVIDENCE_RESTAMP_MSG not set correctly: $EVIDENCE_RESTAMP_MSG"\n'
+                '  exit 1\n'
+                'fi\n'
+                'if [ "$BULK_GRADE_MIGRATION_MSG" != "' + message + '" ]; then\n'
+                '  echo "BULK_GRADE_MIGRATION_MSG not set correctly"\n'
+                '  exit 1\n'
+                'fi\n'
+            ),
+        )
+        result = gpc.plumb_commit(
+            ["f.txt"], message, repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+        assert result["pushed"] is True
+
+    def test_cli_skip_tier1_checks_flag_wired(self, tmp_path, monkeypatch):
+        """Real CLI invocation (not a source-text check): a failing Tier 1 script
+        blocks main() with a nonzero exit, and --skip-tier1-checks lets the same
+        commit through."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=1)
+
+        gpc.configure(repo_root=work)
+        monkeypatch.chdir(work)
+
+        rc_blocked = gpc.main([
+            "--files", "f.txt", "--message", "chore: should be blocked",
+            "--skills", "S-99", "--plan", "cli test",
+            "--branch", "main", "--remote", str(bare),
+            "--skip-stale-check", "--no-push",
+        ])
+        assert rc_blocked != 0
+
+        rc_bypassed = gpc.main([
+            "--files", "f.txt", "--message", "chore: explicit bypass",
+            "--skills", "S-99", "--plan", "cli test",
+            "--branch", "main", "--remote", str(bare),
+            "--skip-stale-check", "--skip-tier1-checks", "--no-push",
+        ])
+        assert rc_bypassed == 0

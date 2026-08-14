@@ -59,6 +59,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -124,6 +125,32 @@ class PlumbCommitBlocked(PlumbCommitError):
             f"them: {names}. Re-read the current file and reapply your change on "
             f"top of it, or create a governed override: "
             f"override_manager.py create --paths <file> --reason '...' --plan '...'"
+        )
+
+
+class PlumbCommitTier1Failed(PlumbCommitError):
+    """Raised when scripts/pre-commit-audit.sh (this repo's Tier 1 commit-time
+    gate) fails against the isolated temp index -- no commit is created.
+
+    TC-CIR-05 (2026-08-14, CI reliability reassessment, Root Cause A): before this,
+    every commit made through this tool received exactly ONE of pre-commit-audit.sh's
+    ~32 checks (a re-implemented copy of the stale-file-regression check) -- `commit-
+    tree` never invokes git hooks, and this repo has no pre-push hook backstop for
+    plumbed commits either, since they also skip `git push`'s hook the same way. This
+    tool is CLAUDE.md's own sanctioned mechanism for concurrent-session-safe commits,
+    used repeatedly across this very session -- the gap was total, not partial, for
+    every commit that ever went through it.
+    """
+
+    def __init__(self, output: str, exit_code: int):
+        self.output = output
+        self.exit_code = exit_code
+        super().__init__(
+            f"Refusing to commit -- scripts/pre-commit-audit.sh (Tier 1) failed "
+            f"(exit {exit_code}) against the staged content. Fix the violation(s) "
+            f"below, or pass --skip-tier1-checks with an explicit, logged reason "
+            f"for a genuine emergency (matches --skip-stale-check's existing "
+            f"escalation pattern -- not a silent default):\n\n{output}"
         )
 
 
@@ -215,6 +242,61 @@ def _check_for_regressions(
     return uncovered
 
 
+def _run_tier1_checks(
+    tmp_index_path: str, message: str, *, repo_root: Path,
+) -> "subprocess.CompletedProcess | None":
+    """Run scripts/pre-commit-audit.sh (Tier 1) against the isolated temp index --
+    NOT the real .git/index -- by setting GIT_INDEX_FILE for the subprocess. Every
+    git command pre-commit-audit.sh runs (git diff --cached, etc.) transparently
+    reads whatever GIT_INDEX_FILE points at, so this achieves genuine Tier 1 parity
+    without ever touching the shared index a concurrent session might be using
+    (ST-021) -- the same isolation property plumb_commit()'s own read-tree/add-f/
+    write-tree sequence already relies on, extended to cover the check script too.
+
+    Must be called BEFORE the temp index is torn down (i.e. before plumb_commit()'s
+    own `finally: os.unlink(tmp_index_path)`), and AFTER `git add -f` has populated
+    it, so the check sees exactly the content that will become the commit.
+
+    The commit message is passed via EVIDENCE_RESTAMP_MSG / BULK_GRADE_MIGRATION_MSG
+    (the exact env-var override names Steps 20/20b already read) instead of letting
+    those steps fall back to `.git/COMMIT_EDITMSG` -- that file reflects the last
+    real `git commit` in this working tree, if any, not this plumbed commit's actual
+    message, and would silently feed the wrong (or a stale) message into the churn
+    override checks otherwise.
+
+    Returns None (not a CompletedProcess) if scripts/pre-commit-audit.sh does not
+    exist at repo_root -- this tool's own test suite deliberately runs against
+    minimal, isolated fake repos with no governance scripts at all, and a future
+    caller could point this tool at a different repo entirely. Missing check
+    infrastructure must never block an otherwise-valid commit, matching this
+    module's existing fail-open policy for a missing base_sha
+    (_check_for_regressions) and pre-commit-audit.sh's own missing-.venv policy.
+    """
+    script = repo_root / "scripts" / "pre-commit-audit.sh"
+    if not script.exists():
+        return None
+    # Resolve bash to an explicit path -- found live writing this fix's own tests:
+    # on Windows, invoking the bare string "bash" can silently resolve to WSL's
+    # bash.exe (a different filesystem, a different git installation, a different
+    # environment-variable translation) instead of Git Bash, even when
+    # shutil.which("bash") itself correctly reports the Git Bash path. Under WSL
+    # bash, GIT_INDEX_FILE (a Windows path) does not correctly redirect WSL git at
+    # the isolated temp index, silently defeating this whole function's ST-021
+    # isolation guarantee -- confirmed live via a test that staged an unrelated
+    # file in the real index and found the fake check script could still see it.
+    bash_path = shutil.which("bash") or "bash"
+    env = {
+        **os.environ,
+        "GIT_INDEX_FILE": tmp_index_path,
+        "EVIDENCE_RESTAMP_MSG": message,
+        "BULK_GRADE_MIGRATION_MSG": message,
+    }
+    return _COMMAND_RUNNER(
+        [bash_path, "scripts/pre-commit-audit.sh"],
+        cwd=str(repo_root), capture_output=True, text=True, env=env,
+    )
+
+
 def plumb_commit(
     files: list[str],
     message: str,
@@ -226,11 +308,13 @@ def plumb_commit(
     base_sha: "str | None" = None,
     session_id: "str | None" = None,
     skip_stale_check: bool = False,
+    skip_tier1_checks: bool = False,
     push: bool = True,
     ack_gitignored: "list[str] | None" = None,
 ) -> dict[str, Any]:
     """Perform the full isolated git-plumbing commit sequence atomically:
-    stale-file regression check -> temp-index build -> write-tree ->
+    stale-file regression check -> temp-index build -> Tier 1 checks
+    (scripts/pre-commit-audit.sh, against the isolated index) -> write-tree ->
     commit-tree -> push -> local ref sync.
 
     remote: the PUSH DESTINATION passed to `git push <remote> <refspec>` --
@@ -304,6 +388,14 @@ def plumb_commit(
 
         _git_indexed(["read-tree", head_sha])
         _git_indexed(["add", "-f", *files])
+
+        if not skip_tier1_checks:
+            tier1_result = _run_tier1_checks(tmp_index_path, message, repo_root=root)
+            if tier1_result is not None and tier1_result.returncode != 0:
+                raise PlumbCommitTier1Failed(
+                    tier1_result.stdout + tier1_result.stderr, tier1_result.returncode,
+                )
+
         tree_sha = _git_indexed(["write-tree"]).stdout.strip()
     finally:
         try:
@@ -396,6 +488,10 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--base-sha", default=None)
     parser.add_argument("--session-id", default=None)
     parser.add_argument("--skip-stale-check", action="store_true")
+    parser.add_argument("--skip-tier1-checks", action="store_true",
+                        help="Skip scripts/pre-commit-audit.sh (Tier 1). Emergency "
+                             "escape hatch only, matching --skip-stale-check's "
+                             "existing escalation pattern -- not a routine default.")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
     parser.add_argument("--ack-gitignored", nargs="+", default=None,
                         help="Paths in --files that are intentionally .gitignore-matched "
@@ -419,7 +515,8 @@ def main(argv: "list[str] | None" = None) -> int:
             args.files, message,
             branch=args.branch, remote=args.remote,
             base_sha=args.base_sha, session_id=args.session_id,
-            skip_stale_check=args.skip_stale_check, push=not args.no_push,
+            skip_stale_check=args.skip_stale_check,
+            skip_tier1_checks=args.skip_tier1_checks, push=not args.no_push,
             ack_gitignored=args.ack_gitignored,
         )
     except PlumbCommitBlocked as exc:
