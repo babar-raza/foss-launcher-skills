@@ -1,0 +1,2357 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "getCharacteristics_neverNull",
+    "source_line": 20,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "getCharacteristics_isCached",
+    "source_line": 29,
+    "classes_used": [
+      "Annotation",
+      "AppearanceCharacteristics",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "border_setAndRead_rgb",
+    "source_line": 40,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getBorder",
+      "Annotation.setBorder",
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getBorder",
+      "WidgetAnnotation.getCharacteristics",
+      "WidgetAnnotation.setBorder"
+    ],
+    "formats_referenced": [
+      "cs",
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "border_clear_removesEntry",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getBorder",
+      "Annotation.setBorder",
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getBorder",
+      "WidgetAnnotation.getCharacteristics",
+      "WidgetAnnotation.setBorder"
+    ],
+    "formats_referenced": [
+      "cs",
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "background_setAndRead",
+    "source_line": 66,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getBackground",
+      "Document.getPages",
+      "Document.setBackground",
+      "Page.add",
+      "Page.getBackground",
+      "Page.setBackground",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "rotate_default_isZero",
+    "source_line": 78,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "Page.getRotate",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "rotate_setAndRead",
+    "source_line": 87,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "Page.getRotate",
+      "Page.setRotate",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "caption_setAndRead",
+    "source_line": 99,
+    "classes_used": [
+      "Annotation",
+      "Caption",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Submit",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "enumValues_matchSpecBits",
+    "source_line": 11,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re",
+      "Spec",
+      "Value"
+    ],
+    "methods_used": [
+      "AnnotationFlags.getBit"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "fromBits_returnsCorrectFlags",
+    "source_line": 25,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "toBits_encodes",
+    "source_line": 40,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.toBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "roundTrip_bitsEnumBits",
+    "source_line": 48,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits",
+      "AnnotationFlags.toBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "unknownBits_ignored",
+    "source_line": 55,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "ctor_storesReferenceAndPropsDefault",
+    "source_line": 14,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField",
+      "Re",
+      "Ref",
+      "Solid"
+    ],
+    "methods_used": [
+      "RadioButtonOptionField.getStyle",
+      "Re.getWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "setWidth_syncsToOption",
+    "source_line": 23,
+    "classes_used": [
+      "Border",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Field.getBorder",
+      "Field.setWidth",
+      "RadioButtonOptionField.getBorder",
+      "RadioButtonOptionField.setWidth"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "setStyle_syncsToOption",
+    "source_line": 35,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Field.getBorder",
+      "RadioButtonOptionField.getBorder",
+      "RadioButtonOptionField.setStyle"
+    ],
+    "formats_referenced": [
+      "cs",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "ctor_nullOption_throws",
+    "source_line": 49,
+    "classes_used": [
+      "Border",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "existingAnnotationCtor_stillWorks",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Ctor",
+      "Re"
+    ],
+    "methods_used": [
+      "Re.getWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "newFreeText_hasNoneByDefault",
+    "source_line": 12,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getEndingStyle",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "setEndingStyle_roundTrips",
+    "source_line": 21,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getEndingStyle",
+      "FreeTextAnnotation.setEndingStyle",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "setEndingStyle_nullOrNone_removesEntry",
+    "source_line": 34,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Page",
+      "PdfDictionary",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getPdfDictionary",
+      "Document.getPages",
+      "FreeTextAnnotation.getPdfDictionary",
+      "FreeTextAnnotation.setEndingStyle",
+      "Page.add",
+      "Page.getPdfDictionary",
+      "PdfDictionary.get",
+      "TextAnnotation.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "enum_toFromPdfName_roundtrip",
+    "source_line": 18,
+    "classes_used": [
+      "FreeTextIntent",
+      "PdfName",
+      "Text",
+      "Type",
+      "Undefined"
+    ],
+    "methods_used": [
+      "FreeTextIntent.fromPdfName",
+      "FreeTextIntent.toPdfName"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "intent_defaultIsUndefined",
+    "source_line": 32,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "FreeTextIntent",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation",
+      "Undefined"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getIntent",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "intent_setAndRead",
+    "source_line": 43,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "FreeTextIntent",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation",
+      "Type",
+      "Undefined"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getIntent",
+      "FreeTextAnnotation.setIntent",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "rotate_defaultIsZero",
+    "source_line": 69,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getRotate",
+      "Page.add",
+      "Page.getRotate"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "rotate_setAndRead",
+    "source_line": 80,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getRotate",
+      "FreeTextAnnotation.setRotate",
+      "Page.add",
+      "Page.getRotate",
+      "Page.setRotate"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_defaultIsNull",
+    "source_line": 94,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_threePoints_setAndRead",
+    "source_line": 105,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_twoPoints_setAndRead",
+    "source_line": 124,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_setNull_removes",
+    "source_line": 139,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_invalidLength_isNoOp",
+    "source_line": 153,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "highlightAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 18,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "HighlightAnnotation.getQuadPoints",
+      "Page.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "underlineAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 42,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "UnderlineAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "UnderlineAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "strikeOutAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 53,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "StrikeOutAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "StrikeOutAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "squigglyAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 64,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "SquigglyAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "SquigglyAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "cosCtor_doesNotOverrideExistingQuadPoints",
+    "source_line": 75,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "PdfDictionary",
+      "Point",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Annotation.getPdfDictionary",
+      "Document.getPages",
+      "HighlightAnnotation.getPdfDictionary",
+      "HighlightAnnotation.getQuadPoints",
+      "HighlightAnnotation.setQuadPoints",
+      "Page.add",
+      "Page.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "allFourSubtypesAreSet",
+    "source_line": 89,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "SquigglyAnnotation",
+      "StrikeOutAnnotation",
+      "UnderlineAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getSubtype",
+      "Document.getPages",
+      "HighlightAnnotation.getSubtype",
+      "Page.add",
+      "SquigglyAnnotation.getSubtype",
+      "StrikeOutAnnotation.getSubtype",
+      "UnderlineAnnotation.getSubtype"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setText_andGet_roundTrip",
+    "source_line": 12,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getContents",
+      "Document.getPages",
+      "Page.add",
+      "Page.getContents",
+      "WatermarkAnnotation.getContents",
+      "WatermarkAnnotation.getText",
+      "WatermarkAnnotation.setText"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "getText_defaultsToNull",
+    "source_line": 23,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getText"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setOpacity_andGet_roundTrip",
+    "source_line": 32,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getOpacity",
+      "Annotation.setOpacity",
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getOpacity",
+      "WatermarkAnnotation.setOpacity"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setAngle_andGet_roundTrip",
+    "source_line": 43,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getAngle",
+      "WatermarkAnnotation.setAngle"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "subtype_isWatermark",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "PdfDictionary",
+      "PdfName",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getName",
+      "Annotation.getPdfDictionary",
+      "Do.getName",
+      "Document.getPages",
+      "Page.add",
+      "Page.getPdfDictionary",
+      "PdfDictionary.get",
+      "PdfName.getName",
+      "Re.getName",
+      "WatermarkAnnotation.getName",
+      "WatermarkAnnotation.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "resetToSilent",
+    "source_line": 18,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "default_isOff",
+    "source_line": 26,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyOn_enablesWarning",
+    "source_line": 33,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyWarning_enablesWarning",
+    "source_line": 40,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyVerbose_enablesFine",
+    "source_line": 47,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyDebug_enablesAll",
+    "source_line": 54,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyArbitraryJulLevel_works",
+    "source_line": 61,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyInvalid_fallsBackToOff",
+    "source_line": 68,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "setLevelNull_silencesLibrary",
+    "source_line": 75,
+    "classes_used": [
+      "AsposePdfLogging"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.getLevel",
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "off_suppressesChildLoggerWarning",
+    "source_line": 82,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "warning_allowsChildWarningButNotFine",
+    "source_line": 92,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "otf",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "verbose_allowsChildFine",
+    "source_line": 102,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "doesNotTouchRootLogger",
+    "source_line": 110,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Handler",
+      "Root"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_radioOption_wrapsInFormFieldParagraph",
+    "source_line": 20,
+    "classes_used": [
+      "BaseParagraph",
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "Form.size",
+      "FormFieldParagraph.asField",
+      "FormFieldParagraph.asOption",
+      "FormFieldParagraph.getField",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "Paragraphs.size",
+      "RadioButtonOptionField.setOptionName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_checkbox_wrapsInFormFieldParagraph",
+    "source_line": 42,
+    "classes_used": [
+      "BaseParagraph",
+      "Cell",
+      "CheckboxField",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraphs",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "FormFieldParagraph.asField",
+      "FormFieldParagraph.asOption",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_textbox_wrapsInFormFieldParagraph",
+    "source_line": 58,
+    "classes_used": [
+      "BaseParagraph",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Page",
+      "Para",
+      "Paragraphs",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextBoxField"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "FormFieldParagraph.asField",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_multipleFields_appendsInOrder",
+    "source_line": 73,
+    "classes_used": [
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "Form.size",
+      "FormFieldParagraph.getField",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "Paragraphs.size",
+      "RadioButtonOptionField.setOptionName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_alongsideRegularParagraph_mixed",
+    "source_line": 95,
+    "classes_used": [
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextFragment"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "Form.size",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "Paragraphs.size",
+      "RadioButtonOptionField.setOptionName",
+      "TextFragment.TextFragment"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_nullArgs_throwIAE",
+    "source_line": 114,
+    "classes_used": [
+      "BaseParagraph",
+      "Button",
+      "Cell",
+      "Field",
+      "Op",
+      "Option",
+      "Para",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Cell.add"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "formFieldParagraph_ctorNull_throws",
+    "source_line": 125,
+    "classes_used": [
+      "Button",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Para",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "emptyCatalog_allGettersReturnNull",
+    "source_line": 13,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions",
+      "Op",
+      "PdfDictionary",
+      "Re"
+    ],
+    "methods_used": [
+      "DocumentActions.getAfterPrinting",
+      "DocumentActions.getAfterSaving",
+      "DocumentActions.getBeforeClosing",
+      "DocumentActions.getBeforePrinting",
+      "DocumentActions.getBeforeSaving",
+      "DocumentActions.getOpenAction"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "setOpenAction_thenGet_roundTrips",
+    "source_line": 26,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "Op",
+      "PdfAction",
+      "PdfDictionary",
+      "PdfName",
+      "Type",
+      "Uri",
+      "UriAction"
+    ],
+    "methods_used": [
+      "DocumentActions.getOpenAction",
+      "DocumentActions.setOpenAction",
+      "GoToURIAction.getType",
+      "GoToURIAction.getUri",
+      "PdfAction.getType",
+      "PdfDictionary.get",
+      "PdfDictionary.getType",
+      "PdfName.of",
+      "UriAction.getType",
+      "UriAction.getUri"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "setOpenAction_null_removesEntry",
+    "source_line": 44,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "Op",
+      "PdfDictionary",
+      "PdfName"
+    ],
+    "methods_used": [
+      "DocumentActions.setOpenAction",
+      "PdfDictionary.get",
+      "PdfName.of"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "setAfterPrinting_thenGet_roundTrips",
+    "source_line": 56,
+    "classes_used": [
+      "DP",
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "PdfAction",
+      "PdfDictionary",
+      "PdfName",
+      "Uri",
+      "UriAction"
+    ],
+    "methods_used": [
+      "DocumentActions.getAfterPrinting",
+      "DocumentActions.setAfterPrinting",
+      "PdfDictionary.get",
+      "PdfName.of"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "setAfterPrinting_null_removesEntry_andPrunesAAIfEmpty",
+    "source_line": 72,
+    "classes_used": [
+      "DP",
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "PdfDictionary",
+      "PdfName"
+    ],
+    "methods_used": [
+      "DocumentActions.setAfterPrinting",
+      "DocumentActions.setBeforeSaving",
+      "PdfDictionary.get",
+      "PdfName.of"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "allFiveAAEntries_setIndependently",
+    "source_line": 91,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "PdfDictionary",
+      "Uri",
+      "UriAction"
+    ],
+    "methods_used": [
+      "DocumentActions.getAfterPrinting",
+      "DocumentActions.getAfterSaving",
+      "DocumentActions.getBeforeClosing",
+      "DocumentActions.getBeforePrinting",
+      "DocumentActions.getBeforeSaving",
+      "DocumentActions.setAfterPrinting",
+      "DocumentActions.setAfterSaving",
+      "DocumentActions.setBeforeClosing",
+      "DocumentActions.setBeforePrinting",
+      "DocumentActions.setBeforeSaving",
+      "GoToURIAction.getUri",
+      "UriAction.getUri"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "document_getActions_returnsLiveView",
+    "source_line": 109,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions",
+      "GoToURIAction",
+      "Op",
+      "Page",
+      "Re"
+    ],
+    "methods_used": [
+      "Document.getActions",
+      "Document.getPages",
+      "DocumentActions.getOpenAction",
+      "DocumentActions.setOpenAction",
+      "Page.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "src/test/java/org/aspose/pdf/DocumentActionsTest.java",
+    "source_function": "ctor_nullCatalog_throws",
+    "source_line": 123,
+    "classes_used": [
+      "Do",
+      "Document",
+      "DocumentActions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "reedSolomonMatchesSpecExample",
+    "source_line": 27,
+    "classes_used": [
+      "QrEncoder",
+      "Re",
+      "Spec"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "codewordStreamMatchesSpecExample",
+    "source_line": 34,
+    "classes_used": [
+      "Ecc",
+      "QrEncoder",
+      "Spec"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "symbolSizeIsVersionDependent",
+    "source_line": 46,
+    "classes_used": [
+      "Ecc",
+      "QrEncoder"
+    ],
+    "methods_used": [
+      "QrEncoder.encode",
+      "QrEncoder.encodeBytes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "finderPatternsAtThreeCorners",
+    "source_line": 59,
+    "classes_used": [
+      "Corner",
+      "Ecc",
+      "Pattern",
+      "QrEncoder",
+      "Row"
+    ],
+    "methods_used": [
+      "QrEncoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "timingPatternsAlternate",
+    "source_line": 70,
+    "classes_used": [
+      "Ecc",
+      "Pattern",
+      "QrEncoder",
+      "Row"
+    ],
+    "methods_used": [
+      "QrEncoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "capacityTableMatchesSpec",
+    "source_line": 80,
+    "classes_used": [
+      "Data",
+      "Ecc",
+      "QrEncoder",
+      "Spec",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "alignmentPositionsMatchSpec",
+    "source_line": 90,
+    "classes_used": [
+      "Position",
+      "QrEncoder",
+      "Spec"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "rejectsOversizePayload",
+    "source_line": 105,
+    "classes_used": [
+      "Ecc",
+      "QrEncoder"
+    ],
+    "methods_used": [
+      "QrEncoder.encode",
+      "QrEncoder.encodeBytes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "assertFinder",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "isFinderRow",
+    "source_line": 129,
+    "classes_used": [
+      "Row"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/barcode/QrEncoderTest.java",
+    "source_function": "toBytes",
+    "source_line": 138,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "restoreLimit",
+    "source_line": 31,
+    "classes_used": [
+      "DecodeLimits",
+      "Property"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "setCap",
+    "source_line": 36,
+    "classes_used": [
+      "DecodeLimits",
+      "Property"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "deflate",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "flateBombIsRejectedAtCap",
+    "source_line": 54,
+    "classes_used": [
+      "Filter",
+      "FlateFilter",
+      "Message",
+      "Re"
+    ],
+    "methods_used": [
+      "FlateFilter.decode"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "runLengthBombIsRejectedAtCap",
+    "source_line": 66,
+    "classes_used": [
+      "Filter",
+      "Message",
+      "Re",
+      "RunLengthFilter"
+    ],
+    "methods_used": [
+      "RunLengthFilter.decode"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "smallStreamsDecodeNormallyUnderCap",
+    "source_line": 82,
+    "classes_used": [
+      "DecodeLimits",
+      "Filter",
+      "FlateFilter",
+      "LZWFilter",
+      "RunLengthFilter"
+    ],
+    "methods_used": [
+      "DecodeLimits.check",
+      "FlateFilter.decode",
+      "FlateFilter.encode",
+      "LZWFilter.decode",
+      "LZWFilter.encode",
+      "RunLengthFilter.decode",
+      "RunLengthFilter.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
+    "source_function": "capDefaultsAndDisable",
+    "source_line": 96,
+    "classes_used": [
+      "DecodeLimits",
+      "Property"
+    ],
+    "methods_used": [
+      "DecodeLimits.maxDecodedBytes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
+    "source_function": "dwt53_constantLow_zeroHigh_reconstructsConstant",
+    "source_line": 23,
+    "classes_used": [
+      "Filter",
+      "ID",
+      "JPXDecodeFilter"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
+    "source_function": "dwt97_constantLow_zeroHigh_reconstructsConstant",
+    "source_line": 46,
+    "classes_used": [
+      "Filter",
+      "ID",
+      "JPXDecodeFilter"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
+    "source_function": "dwt97_zeroLow_zeroHigh_isZero",
+    "source_line": 68,
+    "classes_used": [
+      "Filter",
+      "JPXDecodeFilter"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
+    "source_function": "dwt97_constantLow_K_check_alternate",
+    "source_line": 82,
+    "classes_used": [
+      "Filter",
+      "JPXDecodeFilter"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
+    "source_function": "dwt97_roundTrip_smallSignal",
+    "source_line": 102,
+    "classes_used": [
+      "DeviceCMYK",
+      "Filter",
+      "ID",
+      "JPXDecodeFilter",
+      "Op",
+      "Operator"
+    ],
+    "methods_used": [
+      "Filter.toString",
+      "ID.toString",
+      "Operator.toString"
+    ],
+    "formats_referenced": [
+      "cmyk"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
+    "source_function": "fixtureTtf",
+    "source_line": 23,
+    "classes_used": [
+      "Font",
+      "Integer",
+      "Map"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
+    "source_function": "resolvesFamilyInConfiguredDir",
+    "source_line": 29,
+    "classes_used": [
+      "Config",
+      "Font",
+      "FontDiskLookup",
+      "Path",
+      "Re",
+      "TrueTypeReader",
+      "Type"
+    ],
+    "methods_used": [
+      "Config.toString",
+      "Font.toString",
+      "FontDiskLookup.loadStyled",
+      "Re.toString",
+      "TrueTypeReader.getNumGlyphs"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
+    "source_function": "emptyDirFallsThroughToNull",
+    "source_line": 38,
+    "classes_used": [
+      "Font",
+      "FontDiskLookup",
+      "Path"
+    ],
+    "methods_used": [
+      "Font.toString",
+      "FontDiskLookup.loadStyled"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
+    "source_function": "missingDirNeverThrows",
+    "source_line": 45,
+    "classes_used": [
+      "Font",
+      "FontDiskLookup"
+    ],
+    "methods_used": [
+      "FontDiskLookup.loadStyled"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
+    "source_function": "styledRequestStillEmbedsAvailableFace",
+    "source_line": 53,
+    "classes_used": [
+      "Font",
+      "FontDiskLookup",
+      "Path",
+      "Re"
+    ],
+    "methods_used": [
+      "Font.toString",
+      "FontDiskLookup.loadStyled",
+      "Re.toString"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/Type0FontBuilderLatinTest.java",
+    "source_function": "glyphs",
+    "source_line": 23,
+    "classes_used": [
+      "Integer",
+      "Map"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/Type0FontBuilderLatinTest.java",
+    "source_function": "syntheticTtfParses",
+    "source_line": 30,
+    "classes_used": [
+      "Font",
+      "Re",
+      "TrueTypeReader",
+      "Type"
+    ],
+    "methods_used": [
+      "TrueTypeReader.getAdvanceWidth",
+      "TrueTypeReader.getGlyphId",
+      "TrueTypeReader.getNumGlyphs",
+      "TrueTypeReader.getUnitsPerEm"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  }
+]

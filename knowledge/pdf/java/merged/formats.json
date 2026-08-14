@@ -1,0 +1,204 @@
+[
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Html",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Xfdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/XfdfExporter.java",
+    "line": 30,
+    "direction": "export"
+  },
+  {
+    "format": "Xfdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/XfdfImporter.java",
+    "line": 29,
+    "direction": "import"
+  },
+  {
+    "format": "CFFFont",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/font/cff/CFFFontLoader.java",
+    "line": 34,
+    "direction": "import"
+  },
+  {
+    "format": "PDF",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/writer/PDFWriter.java",
+    "line": 37,
+    "direction": "export"
+  },
+  {
+    "format": "Xmp",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/xmp/XmpWriter.java",
+    "line": 23,
+    "direction": "export"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/HtmlLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/HtmlSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/PdfSaveOptions.java",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/devices/BmpDevice.java",
+    "line": 17,
+    "direction": "export"
+  },
+  {
+    "format": "Gif",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/devices/GifDevice.java",
+    "line": 28,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/devices/JpegDevice.java",
+    "line": 22,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/devices/TextDevice.java",
+    "line": 26,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/devices/TiffDevice.java",
+    "line": 31,
+    "direction": "export"
+  },
+  {
+    "format": "CMYK",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/colorspace/DeviceCMYK.java",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Gray",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/colorspace/DeviceGray.java",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "RGB",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/colorspace/DeviceRGB.java",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "CS",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/filter/JPXDecodeFilter.java",
+    "line": 411,
+    "direction": "import"
+  },
+  {
+    "format": "Shading",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/pattern/ShadingRenderer.java",
+    "line": 17,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/engine/render/TextRenderer.java",
+    "line": 32,
+    "direction": "export"
+  },
+  {
+    "format": "TTF",
+    "enum": "FontTypes",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/text/FontTypes.java",
+    "line": 7,
+    "direction": "detect"
+  },
+  {
+    "format": "OTF",
+    "enum": "FontTypes",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/text/FontTypes.java",
+    "line": 7,
+    "direction": "detect"
+  },
+  {
+    "format": "Type1",
+    "enum": "FontTypes",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/text/FontTypes.java",
+    "line": 7,
+    "direction": "detect"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/Document.java",
+    "line": 155,
+    "direction": "import"
+  }
+]
