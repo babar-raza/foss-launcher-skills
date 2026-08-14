@@ -30,10 +30,17 @@ for the full incident.
 
 | Hook | Wrapper (tracked) | Real source | Purpose |
 |------|--------------------|--------------|---------|
-| `pre-commit` | `scripts/githooks/pre-commit` | `scripts/pre-commit-audit.sh` | Path guard, deletion gate (Step 1), API audit, and the rest of the numbered steps |
+| `pre-commit` | `scripts/githooks/pre-commit` | `scripts/pre-commit-audit.sh` | Path guard, deletion gate (Step 1), API audit, and the rest of the numbered steps (Tier 1) |
 | `commit-msg` | `scripts/githooks/commit-msg` | `scripts/commit-msg-skills.sh` | Skills invoked field, DGR token validation |
 | `post-commit` | `scripts/githooks/post-commit` | `scripts/post-commit-override.sh` | Override token consumption |
+| `pre-push` | `scripts/githooks/pre-push` | `scripts/pre-push-audit.sh` | Tier 2: governance test suite, Python placement (baseline mode), actionlint on changed workflows, dependency-resolution sanity — added 2026-08-14, TC-CIR-06, CI reliability reassessment. This tier did not exist before this date. |
 | `reference-transaction` | `scripts/githooks/reference-transaction` (tracked directly, no wrapper) | — | Auto-unshallow shallow clones |
+
+`git push --no-verify` bypasses the `pre-push` hook the same way `git commit --no-verify`
+bypasses `pre-commit` — accepted, not solved. CI remains the backstop for a deliberate
+bypass at either tier (see `docs/reference/governance-gates.md` if/when it documents the
+3-tier model; source of truth for now is the CI RELIABILITY REASSESSMENT section of
+`critical-github-and-gitlab-idempotent-meadow.md`).
 
 ## Re-syncing After Governance Updates
 
@@ -66,7 +73,8 @@ If the installer fails, wire the mechanism manually:
 
 ```bash
 chmod +x scripts/githooks/pre-commit scripts/githooks/commit-msg \
-         scripts/githooks/post-commit scripts/githooks/reference-transaction
+         scripts/githooks/post-commit scripts/githooks/pre-push \
+         scripts/githooks/reference-transaction
 git config core.hooksPath scripts/githooks
 ```
 

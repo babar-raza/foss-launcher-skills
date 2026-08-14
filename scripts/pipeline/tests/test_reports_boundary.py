@@ -318,6 +318,7 @@ class TestHookInstallMechanism:
             ("pre-commit", "pre-commit-audit.sh"),
             ("commit-msg", "commit-msg-skills.sh"),
             ("post-commit", "post-commit-override.sh"),
+            ("pre-push", "pre-push-audit.sh"),
         ],
     )
     def test_wrapper_execs_real_source(self, hook_name, real_source):
@@ -335,10 +336,54 @@ class TestHookInstallMechanism:
         assert hook.exists(), "scripts/githooks/reference-transaction missing"
 
     def test_wrappers_are_executable(self):
-        for name in ("pre-commit", "commit-msg", "post-commit", "reference-transaction"):
+        for name in ("pre-commit", "commit-msg", "post-commit", "pre-push", "reference-transaction"):
             wrapper = self._GITHOOKS_DIR / name
             assert wrapper.exists(), f"scripts/githooks/{name} missing"
             assert os.access(wrapper, os.X_OK), (
                 f"scripts/githooks/{name} is not executable — "
                 "run: bash scripts/install-hooks.sh"
             )
+
+
+# ---------------------------------------------------------------------------
+# TC-CIR-06 (2026-08-14): Tier 2 pre-push gate — did not exist before this pass
+# ---------------------------------------------------------------------------
+
+class TestPrePushGate:
+    _SOURCE = _REPO_ROOT / "scripts" / "pre-push-audit.sh"
+
+    def test_source_exists(self):
+        assert self._SOURCE.exists(), "scripts/pre-push-audit.sh must exist (TC-CIR-06)"
+
+    def test_runs_governance_test_suite(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "scripts/ci/tests/" in content
+        assert "test_reports_boundary.py" in content
+
+    def test_runs_python_placement_baseline_mode(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "check_python_placement.py" in content
+        assert "--check-baseline" in content
+
+    def test_runs_actionlint_when_available(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "actionlint" in content
+        assert "command -v actionlint" in content, (
+            "actionlint step must degrade gracefully when not installed, not hard-fail"
+        )
+
+    def test_dependency_check_is_non_blocking(self):
+        """TC-CIR-06: the pip dependency check is network-dependent and must never
+        block a push — only the WARNING branch may reference it, no _pp_fail=1."""
+        content = self._SOURCE.read_text(encoding="utf-8")
+        start = content.index("Check 4")
+        block = content[start:]
+        assert "_pp_fail=1" not in block, (
+            "The dependency-resolution check must stay non-blocking (network-dependent)"
+        )
+
+    def test_no_pre_push_bypasses_stay_accepted_not_silent(self):
+        """--no-verify bypass is accepted policy (Tier 3/CI is the backstop), not
+        something this hook tries to detect or prevent — documented, not enforced."""
+        content = self._SOURCE.read_text(encoding="utf-8")
+        assert "no-verify" in content or "backstop" in content
