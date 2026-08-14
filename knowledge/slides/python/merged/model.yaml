@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T12:07:30.010332+00:00'
+bundle_id: 804c50aa-dd4f-4e97-ab31-27b0fa3cacc5
+config_sha: 58e5766a6f6833a4
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: slides
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 6ddb3b3686b5a91f2e078006e2d2e92a8f5de46ea903e0618e40f07d7149e276
+  extractor_config_sha: 58e5766a6f6833a4
+  products_json_entry_sha: 303bd42f40f7cc383fdaeb4232b6ceaa787720857446892f969819fbd32d5362
+  scout_api_surface_sha: 5cee045dd519451c55959202ec831b7caeb185c1ab49f5a85c81b85149cb8537
+  scout_claims_sha: 4307284d06abaea5811d79d72403b6943056d1ca323bff90689b6612ea8849e8
+license: MIT
+platform: python
+product_name: aspose-slides-foss
+promoted_at: '2026-08-14T12:07:30.265396+00:00'
+repo_sha: ffaf6355fdc7f0b7a66680d742051e809a9d8c5f
+repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 558
+  enriched_claims: 3387
+  forbidden_count: 1
+  scout_claims: 3733
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 7081
+version: 26.8.0

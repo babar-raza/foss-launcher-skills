@@ -1,0 +1,281 @@
+[
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Pptm",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Ppsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Ppsm",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Potx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Potm",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 18,
+    "direction": "export"
+  },
+  {
+    "format": "Pptx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
+    "line": 104,
+    "direction": "export"
+  },
+  {
+    "format": "PPT",
+    "enum": "SourceFormat",
+    "value": "'Ppt'",
+    "file": "aspose/slides_foss/SourceFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTX",
+    "enum": "SourceFormat",
+    "value": "'Pptx'",
+    "file": "aspose/slides_foss/SourceFormat.py",
+    "line": 4,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "ODP",
+    "enum": "SourceFormat",
+    "value": "'Odp'",
+    "file": "aspose/slides_foss/SourceFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPT",
+    "enum": "SaveFormat",
+    "value": "'Ppt'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PDF",
+    "enum": "SaveFormat",
+    "value": "'Pdf'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "XPS",
+    "enum": "SaveFormat",
+    "value": "'Xps'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTX",
+    "enum": "SaveFormat",
+    "value": "'Pptx'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "PPSX",
+    "enum": "SaveFormat",
+    "value": "'Ppsx'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "TIFF",
+    "enum": "SaveFormat",
+    "value": "'Tiff'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "ODP",
+    "enum": "SaveFormat",
+    "value": "'Odp'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPTM",
+    "enum": "SaveFormat",
+    "value": "'Pptm'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "PPSM",
+    "enum": "SaveFormat",
+    "value": "'Ppsm'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "POTX",
+    "enum": "SaveFormat",
+    "value": "'Potx'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "POTM",
+    "enum": "SaveFormat",
+    "value": "'Potm'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "HTML",
+    "enum": "SaveFormat",
+    "value": "'Html'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "SWF",
+    "enum": "SaveFormat",
+    "value": "'Swf'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "OTP",
+    "enum": "SaveFormat",
+    "value": "'Otp'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PPS",
+    "enum": "SaveFormat",
+    "value": "'Pps'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "POT",
+    "enum": "SaveFormat",
+    "value": "'Pot'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "FODP",
+    "enum": "SaveFormat",
+    "value": "'Fodp'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "GIF",
+    "enum": "SaveFormat",
+    "value": "'Gif'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "HTML5",
+    "enum": "SaveFormat",
+    "value": "'Html5'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "MD",
+    "enum": "SaveFormat",
+    "value": "'Md'",
+    "file": "aspose/slides_foss/export/SaveFormat.py",
+    "line": 4,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/export/MarkdownSaveOptions.py",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "cache",
+    "enum": "",
+    "value": "",
+    "file": "aspose/slides_foss/_internal/export/markdown/writers.py",
+    "line": 93,
+    "direction": "export"
+  }
+]

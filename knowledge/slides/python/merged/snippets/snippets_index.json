@@ -1,0 +1,1866 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/conftest.py",
+    "source_function": "test_data_dir",
+    "source_line": 48,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_timeline_not_none",
+    "source_line": 17,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_main_sequence_not_none",
+    "source_line": 22,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_main_sequence_initially_empty",
+    "source_line": 27,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_interactive_sequences_initially_empty",
+    "source_line": 31,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_fade_effect",
+    "source_line": 43,
+    "classes_used": [
+      "Effect",
+      "EffectPresetClassType",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_fly_effect_with_subtype",
+    "source_line": 61,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_multiple_effects",
+    "source_line": 76,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_effect_target_shape",
+    "source_line": 90,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_path_effect",
+    "source_line": 102,
+    "classes_used": [
+      "Effect",
+      "EffectPresetClassType",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_fade_persists",
+    "source_line": 123,
+    "classes_used": [
+      "Effect",
+      "EffectPresetClassType",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_multiple_effects_persist",
+    "source_line": 141,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_no_animation_slide_has_zero_effects",
+    "source_line": 159,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_default_trigger_type",
+    "source_line": 176,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_set_duration",
+    "source_line": 187,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_set_trigger_delay",
+    "source_line": 199,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_timing_persists",
+    "source_line": 211,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_set_trigger_type",
+    "source_line": 229,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_entrance_effect_has_set_behavior",
+    "source_line": 249,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "SetEffect",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_path_effect_has_motion_behavior",
+    "source_line": 262,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "MotionEffect",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_behaviors_iterable",
+    "source_line": 275,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_interactive_sequence",
+    "source_line": 295,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_interactive_sequence_add_effect",
+    "source_line": 305,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_interactive_sequence_persists",
+    "source_line": 320,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_user_path_commands",
+    "source_line": 346,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "MotionCommandPathType",
+      "MotionEffect",
+      "MotionPath",
+      "MotionPathPointsType",
+      "Point",
+      "PointF",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "MotionPath.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_motion_path_clear",
+    "source_line": 376,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "MotionCommandPathType",
+      "MotionPath",
+      "MotionPathPointsType",
+      "Point",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [
+      "MotionPath.add",
+      "MotionPath.clear"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_get_effects_by_shape",
+    "source_line": 401,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_get_count_by_shape",
+    "source_line": 419,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_remove_effect",
+    "source_line": 431,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_remove_at",
+    "source_line": 442,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_remove_by_shape",
+    "source_line": 455,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_clear_sequence",
+    "source_line": 472,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_getitem",
+    "source_line": 492,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_iteration",
+    "source_line": 501,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_len",
+    "source_line": 513,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_default_build_type",
+    "source_line": 530,
+    "classes_used": [
+      "BuildType",
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_set_build_type",
+    "source_line": 541,
+    "classes_used": [
+      "BuildType",
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_predefined_value",
+    "source_line": 561,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_style_visibility",
+    "source_line": 566,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_all_extrusion_properties_exist",
+    "source_line": 570,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_get_or_create_by_value_predefined",
+    "source_line": 575,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [
+      "BehaviorProperty.get_or_create_by_value"
+    ],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_get_or_create_by_value_custom",
+    "source_line": 580,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [
+      "BehaviorProperty.get_or_create_by_value"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_default_is_custom",
+    "source_line": 586,
+    "classes_used": [
+      "Behavior",
+      "BehaviorProperty"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_effect_type_values",
+    "source_line": 599,
+    "classes_used": [
+      "Effect",
+      "EffectType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_effect_subtype_values",
+    "source_line": 605,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_effect_trigger_type_values",
+    "source_line": 610,
+    "classes_used": [
+      "Effect",
+      "EffectTriggerType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_effect_preset_class_type_values",
+    "source_line": 615,
+    "classes_used": [
+      "Effect",
+      "EffectPresetClassType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_build_type_values",
+    "source_line": 621,
+    "classes_used": [
+      "BuildType",
+      "Paragraph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_motion_command_path_type_values",
+    "source_line": 625,
+    "classes_used": [
+      "MotionCommandPathType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_effect_paragraph_returns_effect",
+    "source_line": 652,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_effect_paragraph_targets_correct_paragraph",
+    "source_line": 666,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_add_effect_multiple_paragraphs",
+    "source_line": 685,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_paragraph_animation_round_trip",
+    "source_line": 704,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Format",
+      "Paragraph",
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_get_effects_by_paragraph_no_match",
+    "source_line": 740,
+    "classes_used": [
+      "Effect",
+      "EffectSubtype",
+      "EffectTriggerType",
+      "EffectType",
+      "Paragraph",
+      "Presentation",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_major_gridlines_line_color",
+    "source_line": 21,
+    "classes_used": [
+      "Chart",
+      "ChartLinesFormat",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Format",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_minor_gridlines_line_color",
+    "source_line": 37,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_category_axis_gridlines",
+    "source_line": 52,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_gridlines_dash_style",
+    "source_line": 65,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "LineDashStyle",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_value_axis_text_bold_italic",
+    "source_line": 80,
+    "classes_used": [
+      "Chart",
+      "ChartPortionFormat",
+      "ChartTextFormat",
+      "ChartType",
+      "Format",
+      "NullableBool",
+      "Portion",
+      "PortionFormat",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_text_format_color",
+    "source_line": 98,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_text_format_latin_font",
+    "source_line": 111,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "FontData",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_axis_line_format",
+    "source_line": 124,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Format",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_axis_formatting.py",
+    "source_function": "test_axis_fill_format",
+    "source_line": 140,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Color.from_argb"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_solid_background_on_slide",
+    "source_line": 15,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_solid_background_on_master",
+    "source_line": 32,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_solid_background_on_layout",
+    "source_line": 49,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_gradient_background",
+    "source_line": 70,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "FillType",
+      "Presentation",
+      "TileFlip"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_gradient_background_with_stops",
+    "source_line": 86,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "GradientShape",
+      "Presentation",
+      "Shape"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_pattern_background",
+    "source_line": 110,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "PatternStyle",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_picture_background_stretch",
+    "source_line": 133,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "FillType",
+      "Picture",
+      "PictureFillMode",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_picture_background_tile",
+    "source_line": 154,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "FillType",
+      "Picture",
+      "PictureFillMode",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_themed_background",
+    "source_line": 179,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Presentation",
+      "Theme"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_change_background_type",
+    "source_line": 197,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_clear_background",
+    "source_line": 220,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_effective_own_background",
+    "source_line": 240,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Background.get_effective",
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_effective_inherits_from_master",
+    "source_line": 255,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Background.get_effective",
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_effective_inherits_from_layout",
+    "source_line": 273,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Background.get_effective",
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_background.py",
+    "source_function": "test_different_backgrounds_per_slide",
+    "source_line": 300,
+    "classes_used": [
+      "Background",
+      "BackgroundType",
+      "Color",
+      "FillType",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_add_scatter_data_points",
+    "source_line": 26,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_round_trip_xy_values",
+    "source_line": 40,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_multi_series_round_trip",
+    "source_line": 58,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_all_scatter_subtypes_round_trip",
+    "source_line": 88,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_marker_round_trip",
+    "source_line": 103,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Marker",
+      "MarkerStyleType",
+      "Presentation",
+      "StyleType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_has_no_categories_path",
+    "source_line": 118,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Format",
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_add_bubble_data_points",
+    "source_line": 150,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_round_trip_xys",
+    "source_line": 164,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_size_scale_round_trip",
+    "source_line": 181,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_size_representation_round_trip",
+    "source_line": 198,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_3d_round_trip",
+    "source_line": 211,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_multi_series_round_trip",
+    "source_line": 224,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_emits_xVal_and_yVal",
+    "source_line": 263,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_bubble_emits_xVal_yVal_bubbleSize",
+    "source_line": 275,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_yVal_values_are_non_zero",
+    "source_line": 287,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_3d_bubble_emits_bubble3D_in_ser",
+    "source_line": 301,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Point",
+      "Presentation",
+      "Size"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_plain_bubble_emits_bubble3D_val_0",
+    "source_line": 320,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_straight_line_scatter_emits_smooth_val_0",
+    "source_line": 331,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Point",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_smooth_line_scatter_emits_smooth_val_1",
+    "source_line": 345,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_scatter_via_workbook_cells",
+    "source_line": 364,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_3d_bubble_chart_type_is_preserved",
+    "source_line": 383,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_bubble_scatter.py",
+    "source_function": "test_3d_bubble_adds_bubble3D_val_1_via_chart_type",
+    "source_line": 394,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Format",
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout"
+  }
+]
