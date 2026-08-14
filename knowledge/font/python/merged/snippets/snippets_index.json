@@ -1,0 +1,1503 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_encode_apng_from_rgb",
+    "source_line": 18,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_encode_apng_invalid_size",
+    "source_line": 35,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_sweep",
+    "source_line": 44,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_axis_sweep",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_exposes_presets",
+    "source_line": 77,
+    "classes_used": [
+      "AnimationPreviewBuilder"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.available_presets"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_path_supports_multiple_steps",
+    "source_line": 81,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "AnimationStep",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_path",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_supports_easing_and_coordinate_captions",
+    "source_line": 108,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "AnimationStep",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_path",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_named_instance_path_requires_two_steps",
+    "source_line": 130,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_named_instance_path",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_writes_frame_package",
+    "source_line": 138,
+    "classes_used": [
+      "AnimationFramePackage",
+      "AnimationPreviewBuilder",
+      "AnimationStep",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationFramePackage.write_to",
+      "AnimationPreviewBuilder.build_path",
+      "AnimationPreviewBuilder.build_path_package",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_writes_review_package",
+    "source_line": 167,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "AnimationReviewPackage",
+      "AnimationStep",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_path",
+      "AnimationPreviewBuilder.build_path_review_package",
+      "AnimationReviewPackage.write_to",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_animation.py",
+    "source_function": "test_animation_builder_writes_showcase_package",
+    "source_line": 196,
+    "classes_used": [
+      "AnimationPreviewBuilder",
+      "AnimationShowcasePackage",
+      "AnimationStep",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "AnimationPreviewBuilder.build_path",
+      "AnimationPreviewBuilder.build_path_showcase_package",
+      "AnimationShowcasePackage.write_to",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_loads",
+    "source_line": 18,
+    "classes_used": [
+      "CffFont",
+      "Font"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_font_name_nonempty",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_num_glyphs_positive",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_charstring_zero_is_bytes",
+    "source_line": 30,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_charset_resolves_gid1",
+    "source_line": 34,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_otf_embedded_cff_available",
+    "source_line": 81,
+    "classes_used": [
+      "CffFont",
+      "Font",
+      "FontLoader",
+      "TtfFont"
+    ],
+    "methods_used": [
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "cff",
+      "otf",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_truncated_raises",
+    "source_line": 89,
+    "classes_used": [
+      "Font",
+      "FontLoader",
+      "FontParseException",
+      "FontType"
+    ],
+    "methods_used": [
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_cff_index_empty",
+    "source_line": 95,
+    "classes_used": [
+      "BinaryReader",
+      "CffIndex"
+    ],
+    "methods_used": [
+      "CffIndex.from_reader"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_dict_integer_encoding",
+    "source_line": 100,
+    "classes_used": [
+      "CffDict"
+    ],
+    "methods_used": [
+      "CffDict.from_bytes",
+      "CffDict.get"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_dict_real_encoding",
+    "source_line": 106,
+    "classes_used": [
+      "CffDict"
+    ],
+    "methods_used": [
+      "CffDict.from_bytes",
+      "CffDict.get"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_sid_resolution_standard",
+    "source_line": 114,
+    "classes_used": [
+      "CffIndex"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_sid_resolution_custom",
+    "source_line": 120,
+    "classes_used": [
+      "CffIndex"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_builtin_standard_encoding_uses_standard_table",
+    "source_line": 125,
+    "classes_used": [
+      "CffCharset",
+      "CffEncoding"
+    ],
+    "methods_used": [
+      "CffCharset.standard",
+      "CffEncoding.standard",
+      "CffEncoding.unicode_to_gid"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_builtin_expert_encoding_uses_expert_table",
+    "source_line": 133,
+    "classes_used": [
+      "CffCharset",
+      "CffEncoding"
+    ],
+    "methods_used": [
+      "CffEncoding.expert",
+      "CffEncoding.unicode_to_gid"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_supplemental_encoding_resolves_custom_sid",
+    "source_line": 140,
+    "classes_used": [
+      "BinaryReader",
+      "CffCharset",
+      "CffEncoding",
+      "CffIndex"
+    ],
+    "methods_used": [
+      "CffCharset.from_reader",
+      "CffEncoding.from_reader",
+      "CffEncoding.unicode_to_gid",
+      "CffIndex.from_reader"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_dict_to_bytes_roundtrip_preserves_unknown_ops",
+    "source_line": 150,
+    "classes_used": [
+      "CffDict"
+    ],
+    "methods_used": [
+      "CffDict.from_bytes",
+      "CffDict.get",
+      "CffDict.to_bytes"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/test_cff.py",
+    "source_function": "test_dict_to_bytes_serializes_top_dict_operator",
+    "source_line": 159,
+    "classes_used": [
+      "CffDict",
+      "TopDict",
+      "TopDictOp"
+    ],
+    "methods_used": [
+      "CffDict.from_bytes",
+      "CffDict.get",
+      "CffDict.set",
+      "CffDict.to_bytes"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_notdef_glyph_cff",
+    "source_line": 43,
+    "classes_used": [
+      "Glyph",
+      "GlyphId"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_glyph_path_has_curveto",
+    "source_line": 48,
+    "classes_used": [
+      "CurveTo",
+      "MoveTo"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_curveto_has_three_points",
+    "source_line": 57,
+    "classes_used": [
+      "CurveTo"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_glyph_path_ends_with_closepath",
+    "source_line": 70,
+    "classes_used": [
+      "ClosePath"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_glyph_width_positive",
+    "source_line": 77,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_rlineto",
+    "source_line": 83,
+    "classes_used": [
+      "CffIndex",
+      "ClosePath",
+      "LineTo",
+      "MoveTo",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_width_extraction",
+    "source_line": 105,
+    "classes_used": [
+      "CffIndex",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_subr_inline_equivalent",
+    "source_line": 113,
+    "classes_used": [
+      "CffIndex",
+      "Main",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_invalid_subr_index",
+    "source_line": 126,
+    "classes_used": [
+      "CffIndex",
+      "Font",
+      "FontParseException",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_subr_depth_limit",
+    "source_line": 133,
+    "classes_used": [
+      "CffIndex",
+      "Font",
+      "FontParseException",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_cff_glyphs.py",
+    "source_function": "test_type2_stack_limit",
+    "source_line": 142,
+    "classes_used": [
+      "CffIndex",
+      "Font",
+      "FontParseException",
+      "Type2Interpreter"
+    ],
+    "methods_used": [
+      "Type2Interpreter.interpret"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_cleaner.py",
+    "source_function": "test_clean_for_web_strips_tables_and_mac_names",
+    "source_line": 33,
+    "classes_used": [
+      "Font",
+      "FontCleaner",
+      "FontType"
+    ],
+    "methods_used": [
+      "FontCleaner.clean_for_web"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_cleaner.py",
+    "source_function": "test_clean_for_web_keep_flags_preserve_requested_metadata",
+    "source_line": 46,
+    "classes_used": [
+      "Font",
+      "FontCleaner"
+    ],
+    "methods_used": [
+      "FontCleaner.clean_for_web"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_cleaner.py",
+    "source_function": "test_clean_for_web_supports_wrapper_fonts",
+    "source_line": 63,
+    "classes_used": [
+      "Font",
+      "FontCleaner",
+      "FontConverter",
+      "FontType",
+      "WoffFont"
+    ],
+    "methods_used": [
+      "Font.convert",
+      "FontCleaner.clean_for_web",
+      "FontConverter.convert",
+      "WoffFont.convert"
+    ],
+    "formats_referenced": [
+      "ttf",
+      "woff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_cleaner.py",
+    "source_function": "test_clean_for_web_rejects_non_sfnt_fonts",
+    "source_line": 78,
+    "classes_used": [
+      "Font",
+      "FontCleaner",
+      "FontLoader",
+      "FontNotSupportedException"
+    ],
+    "methods_used": [
+      "FontCleaner.clean_for_web",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "cff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_cleaner.py",
+    "source_function": "test_cleaned_font_round_trips_without_removed_tables",
+    "source_line": 85,
+    "classes_used": [
+      "Font",
+      "FontCleaner",
+      "FontLoader",
+      "FontParseException"
+    ],
+    "methods_used": [
+      "Font.to_bytes",
+      "FontCleaner.clean_for_web",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_version",
+    "source_line": 79,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_info_prints_metadata",
+    "source_line": 86,
+    "classes_used": [
+      "Glyph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_info_accepts_collection_index_for_ttc",
+    "source_line": 96,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "otf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_info_rejects_collection_index_for_non_ttc",
+    "source_line": 112,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_metrics_accepts_collection_index_for_ttc",
+    "source_line": 118,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_info_nonexistent_exits_1",
+    "source_line": 134,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_glyphs_limit",
+    "source_line": 140,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_glyphs_default_limit",
+    "source_line": 148,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_convert_ttf_to_woff",
+    "source_line": 157,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ttf",
+      "woff"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_convert_bad_format",
+    "source_line": 166,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_convert_ttf_to_eot",
+    "source_line": 173,
+    "classes_used": [
+      "EotFont",
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "eot",
+      "otf",
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_metrics_output",
+    "source_line": 182,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_qa_report_writes_json_and_html",
+    "source_line": 191,
+    "classes_used": [
+      "Font"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_qa_report_package_output_writes_artifacts",
+    "source_line": 221,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_meta_clean_writes_cleaned_font",
+    "source_line": 252,
+    "classes_used": [
+      "Font",
+      "FontLoader",
+      "NameRecord"
+    ],
+    "methods_used": [
+      "Font.to_bytes",
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "ttf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_writes_png_for_static_variable_font",
+    "source_line": 287,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_accepts_instance_name",
+    "source_line": 296,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_writes_apng",
+    "source_line": 304,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_path_writes_apng",
+    "source_line": 335,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_path_requires_two_states",
+    "source_line": 365,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_path_package_writes_assets",
+    "source_line": 378,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_path_review_writes_assets",
+    "source_line": 411,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_animation_path_showcase_writes_assets",
+    "source_line": 441,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_writes_svg_when_requested",
+    "source_line": 473,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_accepts_named_instance_plus_override",
+    "source_line": 484,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_accepts_symbolic_axis_presets",
+    "source_line": 500,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_invalid_axis_exits_1",
+    "source_line": 516,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_batch_all_named_writes_multiple_pngs",
+    "source_line": 523,
+    "classes_used": [
+      "Font",
+      "FontLoader"
+    ],
+    "methods_used": [
+      "FontLoader.open"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_batch_selected_names_and_default",
+    "source_line": 534,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_batch_can_write_svg_files",
+    "source_line": 549,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_batch_requires_selection",
+    "source_line": 568,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_writes_axis_sweep_pngs",
+    "source_line": 575,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_requires_primary_values",
+    "source_line": 601,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_can_write_svg_files",
+    "source_line": 608,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_accepts_primary_axis_presets",
+    "source_line": 629,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_sheet_accepts_preset_driven_two_axis_grid",
+    "source_line": 645,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_grid_sheet_writes_composite_png",
+    "source_line": 663,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_compare_writes_comparison_png",
+    "source_line": 688,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_compare_includes_diff_panel_colors",
+    "source_line": 705,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_compare_invalid_axis_exits_1",
+    "source_line": 727,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_waterfall_writes_png",
+    "source_line": 740,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_matrix_writes_png",
+    "source_line": 760,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_family_board_writes_png",
+    "source_line": 776,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_family_export_writes_review_pack",
+    "source_line": 798,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_waterfall_requires_instance_selection",
+    "source_line": 825,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_family_board_requires_instance_selection",
+    "source_line": 832,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_preview_family_export_requires_instance_selection",
+    "source_line": 839,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_compat_prints_compatibility_summary",
+    "source_line": 846,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_compat_json_output",
+    "source_line": 865,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_compat_json_output_file",
+    "source_line": 887,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_compat_json_stdout_and_output_file",
+    "source_line": 910,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_format_compat_issue_includes_geometry_notes",
+    "source_line": 933,
+    "classes_used": [
+      "Glyph",
+      "GlyphCompatibilityIssue",
+      "GlyphOutlineStats"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_format_interpolation_issue_includes_tuple_transitions",
+    "source_line": 979,
+    "classes_used": [
+      "ActiveTupleSummary",
+      "Glyph",
+      "GlyphInterpolationIssue",
+      "TupleScalarDelta"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_delta_prints_active_tuple_summary",
+    "source_line": 1024,
+    "classes_used": [
+      "Glyph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_delta_json_output",
+    "source_line": 1045,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_delta_supports_composite_glyph",
+    "source_line": 1068,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_cli.py",
+    "source_function": "test_var_delta_requires_target",
+    "source_line": 1088,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

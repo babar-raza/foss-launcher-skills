@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T09:34:44.500642+00:00'
+bundle_id: 18f17aa8-797c-4095-8fa5-b22abbf50989
+config_sha: d85d77b6f3b5c86c
+enrichment_status: scout-only
+extractor_hash: a52df5d20ccdf3ca
+family: font
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 99a96bd6f0918be9173aac4e8b4346032bf09b491d51c3c451d1462787805425
+  extractor_config_sha: d85d77b6f3b5c86c
+  products_json_entry_sha: f79068007a52f25fedf113d31066b8421f53841d9b48d9f264efbc9620725857
+  scout_api_surface_sha: 4a87bdfe3eeedb366d0db85925d53e0afd721a8a90a844fe4bf1b97cb420977a
+  scout_claims_sha: 07b7e145edb0cd635a7d4dd10e14465c1a16ee4c6e5f42a779a40eb94ee63f70
+license: MIT
+platform: python
+product_name: aspose-font
+promoted_at: '2026-08-14T09:34:44.666889+00:00'
+repo_sha: 136b6e20c3916ac4c8efac0714948a4136b491a3
+repo_url: https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 267
+  enriched_claims: 2619
+  forbidden_count: 0
+  scout_claims: 2208
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 4826
+version: 1.0.0

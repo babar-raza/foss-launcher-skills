@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T09:34:30.960275+00:00'
+bundle_id: 0c1aaa08-1d79-45cc-a3ab-912b0ca2cb53
+config_sha: 5676a5ada3d9dda2
+enrichment_status: scout-only
+extractor_hash: a52df5d20ccdf3ca
+family: cells
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: c1b0467d49ec0a27066ea05a1f9b39c82ae07cd142378a4d44505c1086edaacf
+  extractor_config_sha: 5676a5ada3d9dda2
+  products_json_entry_sha: 304721dce9f7e62e088f6124543b8708ea47acd819ef1bf42220ecc18ec1b79f
+  scout_api_surface_sha: d25d93bc0233d480d547e65c595dcbee2d5481310bf79facd058f9a0fb9751ff
+  scout_claims_sha: 6a7489288a883e6b41787ca14774c66c8283348077df15ccb5aae964cd205ea9
+license: ''
+platform: go
+product_name: Aspose.CELLS-FOSS for Go
+promoted_at: '2026-08-14T09:34:30.986932+00:00'
+repo_sha: 9f0a4033b59e9127afec7662ec9079b500af8032
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.git
+schema_version: 2
+source: scout_only
+stale_since: null
+stats:
+  class_count: 14
+  enriched_claims: 0
+  forbidden_count: 0
+  scout_claims: 113
+  snippet_count: 20
+  supplemental_claims: 0
+  total_claims: 113
+version: ''

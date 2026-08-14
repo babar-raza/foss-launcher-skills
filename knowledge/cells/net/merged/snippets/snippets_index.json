@@ -1,0 +1,180 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 81,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "Font",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Color.FromArgb",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 109,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "LoadDiagnostics",
+      "LoadOptions",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 137,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "ListObject",
+      "Style",
+      "TableStyleType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 165,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "Cells",
+      "Validation",
+      "ValidationType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "CellArea.CreateCellArea",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 185,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "OperatorType",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "CellArea.CreateCellArea",
+      "Color.FromArgb",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 205,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Comment",
+      "DefinedName",
+      "Hyperlink",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 221,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Chart",
+      "ChartType",
+      "Column",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  }
+]

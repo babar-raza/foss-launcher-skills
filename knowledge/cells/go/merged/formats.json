@@ -1,0 +1,18 @@
+[
+  {
+    "format": "Streaming",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/streaming_reader.go",
+    "line": 21,
+    "direction": "import"
+  },
+  {
+    "format": "byte",
+    "enum": "",
+    "value": "",
+    "file": "verify/check_open_xlsx.go",
+    "line": 180,
+    "direction": "import"
+  }
+]

@@ -1,0 +1,438 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.go",
+    "source_file": "examples/basic/main.go",
+    "source_function": "main",
+    "source_line": 12,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.go",
+    "source_file": "examples/csv_export/main.go",
+    "source_function": "main",
+    "source_line": 13,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.SetFormula",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.ExportToCSV",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.go",
+    "source_file": "examples/csv_import/main.go",
+    "source_function": "main",
+    "source_line": 13,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Get",
+      "Workbook.ImportFromCSV",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [
+      "byte"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.go",
+    "source_file": "examples/data_validation/main.go",
+    "source_function": "main",
+    "source_line": 12,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DataValidation",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.AddDataValidation",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.go",
+    "source_file": "examples/formula/main.go",
+    "source_function": "main",
+    "source_line": 13,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.SetFormula",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.go",
+    "source_file": "examples/load_modify_save/main.go",
+    "source_function": "main",
+    "source_line": 14,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Get",
+      "Cells.Set",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.go",
+    "source_file": "examples/picture/main.go",
+    "source_function": "main",
+    "source_line": 27,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Picture",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Picture.SetAnchor",
+      "Workbook.Save",
+      "Worksheet.AddPicture",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.go",
+    "source_file": "examples/streaming/main.go",
+    "source_function": "main",
+    "source_line": 14,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "StreamingReader",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "StreamingReader.ProcessRows",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [
+      "streaming"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.go",
+    "source_file": "examples/style/main.go",
+    "source_function": "main",
+    "source_line": 12,
+    "classes_used": [
+      "Alignment",
+      "Border",
+      "Cell",
+      "Cells",
+      "Fill",
+      "Font",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.SetStyle",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.go",
+    "source_file": "examples/table/main.go",
+    "source_function": "main",
+    "source_line": 12,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Style",
+      "Table",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.SetFormula",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.AddTable",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 93,
+    "classes_used": [
+      "Cell",
+      "Cells"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 101,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 124,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 142,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.SetFormula",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 200,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DataValidation",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.AddDataValidation",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 231,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Picture",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Picture.SetAnchor",
+      "Workbook.Save",
+      "Worksheet.AddPicture",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 256,
+    "classes_used": [
+      "StreamingReader"
+    ],
+    "methods_used": [
+      "StreamingReader.ProcessRows"
+    ],
+    "formats_referenced": [
+      "streaming"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 281,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Fill",
+      "Font",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.SetStyle",
+      "Cells.Get",
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 312,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Style",
+      "Table",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.Set",
+      "Workbook.Save",
+      "Worksheet.AddTable",
+      "Worksheet.Cells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.go",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 335,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.ImportFromCSV",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

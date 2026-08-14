@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T09:33:47.261072+00:00'
+bundle_id: bf9ddffc-2ad1-4f06-99b3-f39a1e689ade
+config_sha: 5676a5ada3d9dda2
+enrichment_status: scout-only
+extractor_hash: a52df5d20ccdf3ca
+family: cells
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 87fcbc16c4a42d94d047ed52d9ae3d6b0eb355065d9b9ab88e4263a9003637a4
+  extractor_config_sha: 5676a5ada3d9dda2
+  products_json_entry_sha: 9a5c7fc4eb2853500f3fde7727bae534873a3c8a84de3cf49d20bb7eede3f689
+  scout_api_surface_sha: b5160ee9616ce7040ba39354d06d10b984cef9b3a41db5ff073a4fbc6d5b0b39
+  scout_claims_sha: add78d3c42527a85f2dae40a1f6b486d980012878bcf0437d5d5cfad950c1b26
+license: ''
+platform: net
+product_name: Aspose.Cells.FOSS
+promoted_at: '2026-08-14T09:33:47.295871+00:00'
+repo_sha: 6ee32c08a6090a778fab03e66afac731859f93a9
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.git
+schema_version: 2
+source: scout_only
+stale_since: null
+stats:
+  class_count: 96
+  enriched_claims: 0
+  forbidden_count: 0
+  scout_claims: 671
+  snippet_count: 7
+  supplemental_claims: 0
+  total_claims: 665
+version: 26.7.0.0

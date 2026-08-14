@@ -1,0 +1,1404 @@
+[
+  {
+    "name": "RowCallback",
+    "kind": "type_spec",
+    "doc": "RowCallback is invoked by StreamingReader.ProcessRows once for every row in the worksheet.",
+    "file": "aspose/cells_foss/streaming_reader.go",
+    "line": 16,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "StreamingReader",
+    "kind": "type_spec",
+    "doc": "StreamingReader reads an .xlsx workbook row by row without loading the entire sheet XML into memory.",
+    "file": "aspose/cells_foss/streaming_reader.go",
+    "line": 21,
+    "bases": [],
+    "methods": [
+      {
+        "name": "ProcessRows",
+        "doc": "ProcessRows opens the workbook, resolves the named sheet to its XML part, loads the shared-strings table (if present), and then streams through the sheet data one row at a time, calling callback for each row.",
+        "params": [
+          {
+            "name": "sheetName",
+            "type": "string"
+          },
+          {
+            "name": "callback",
+            "type": "RowCallback"
+          }
+        ],
+        "return_type": "error",
+        "line": 38,
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "NewStreamingReader",
+    "kind": "function",
+    "doc": "NewStreamingReader creates a StreamingReader for the .xlsx file at path.",
+    "file": "aspose/cells_foss/streaming_reader.go",
+    "line": 27,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "path",
+        "type": "string"
+      }
+    ],
+    "return_type": "*StreamingReader",
+    "reachable": true
+  },
+  {
+    "name": "LoadWorkbook",
+    "kind": "function",
+    "doc": "LoadWorkbook opens the .xlsx file at path, parses its XML parts, and returns a populated *Workbook.",
+    "file": "aspose/cells_foss/xmlloader.go",
+    "line": 107,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "path",
+        "type": "string"
+      }
+    ],
+    "return_type": "(*Workbook, error)",
+    "reachable": true
+  },
+  {
+    "name": "LoadWithPassword",
+    "kind": "function",
+    "doc": "LoadWithPassword opens an encrypted .xlsx file using the given password.",
+    "file": "aspose/cells_foss/xmlloader.go",
+    "line": 124,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "path",
+        "type": "string"
+      },
+      {
+        "name": "password",
+        "type": "string"
+      }
+    ],
+    "return_type": "(*Workbook, error)",
+    "reachable": true
+  },
+  {
+    "name": "Close",
+    "kind": "function",
+    "doc": "",
+    "file": "aspose/cells_foss/xmlloader.go",
+    "line": 174,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "error",
+    "reachable": true,
+    "receiver_type": "zipReadCloserAdapter"
+  },
+  {
+    "name": "SaveWorkbook",
+    "kind": "function",
+    "doc": "SaveWorkbook writes the workbook to an .xlsx file at path.",
+    "file": "aspose/cells_foss/xmlsaver.go",
+    "line": 88,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "wb",
+        "type": "*Workbook"
+      },
+      {
+        "name": "path",
+        "type": "string"
+      }
+    ],
+    "return_type": "error",
+    "reachable": true
+  },
+  {
+    "name": "Cell",
+    "kind": "type_spec",
+    "doc": "Cell represents a single cell in a worksheet grid.",
+    "file": "aspose/cells_foss/cell.go",
+    "line": 13,
+    "bases": [],
+    "methods": [
+      {
+        "name": "SetStyle",
+        "doc": "SetStyle assigns the given Style to this cell.",
+        "params": [
+          {
+            "name": "style",
+            "type": "*Style"
+          }
+        ],
+        "return_type": "error",
+        "line": 29,
+        "file": "aspose/cells_foss/cell.go",
+        "is_constructor": false
+      },
+      {
+        "name": "GetStyle",
+        "doc": "GetStyle returns the Style currently applied to this cell, or nil when the cell has no parent Workbook or the StyleID cannot be resolved.",
+        "params": [],
+        "return_type": "*Style",
+        "line": 39,
+        "file": "aspose/cells_foss/cell.go",
+        "is_constructor": false
+      },
+      {
+        "name": "SetFormula",
+        "doc": "SetFormula stores a formula expression in this cell and marks the owning Workbook as modified.",
+        "params": [
+          {
+            "name": "formula",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "line": 49,
+        "file": "aspose/cells_foss/cell.go",
+        "is_constructor": false
+      },
+      {
+        "name": "GetFormula",
+        "doc": "GetFormula returns the formula expression stored in this cell, or an empty string when the cell contains no formula.",
+        "params": [],
+        "return_type": "string",
+        "line": 58,
+        "file": "aspose/cells_foss/cell.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "XMLName",
+        "type": "`xml:\"c\"`",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the xml name.",
+        "line": 14,
+        "file": "aspose/cells_foss/cell.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Ref",
+        "type": "`xml:\"r,attr\"`",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the ref.",
+        "line": 15,
+        "file": "aspose/cells_foss/cell.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "StyleID",
+        "type": "`xml:\"s,attr,omitempty\"`",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the style id.",
+        "line": 16,
+        "file": "aspose/cells_foss/cell.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Value",
+        "type": "`xml:\"v,omitempty\"`",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the value.",
+        "line": 17,
+        "file": "aspose/cells_foss/cell.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Formula",
+        "type": "`xml:\"f,omitempty\"`",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the formula.",
+        "line": 18,
+        "file": "aspose/cells_foss/cell.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Cells",
+    "kind": "type_spec",
+    "doc": "Cells is a collection of Cell values indexed by A1-style string references (e.g.",
+    "file": "aspose/cells_foss/cells.go",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "Get",
+        "doc": "Get returns the Cell at the given A1 reference.",
+        "params": [
+          {
+            "name": "ref",
+            "type": "string"
+          }
+        ],
+        "return_type": "(*Cell, error)",
+        "line": 24,
+        "file": "aspose/cells_foss/cells.go",
+        "is_constructor": false
+      },
+      {
+        "name": "Set",
+        "doc": "Set stores a value at the given A1 reference.",
+        "params": [
+          {
+            "name": "ref",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "interface{}"
+          }
+        ],
+        "return_type": "error",
+        "line": 41,
+        "file": "aspose/cells_foss/cells.go",
+        "is_constructor": false
+      },
+      {
+        "name": "Remove",
+        "doc": "Remove deletes the cell at the given A1 reference.",
+        "params": [
+          {
+            "name": "ref",
+            "type": "string"
+          }
+        ],
+        "return_type": "error",
+        "line": 60,
+        "file": "aspose/cells_foss/cells.go",
+        "is_constructor": false
+      },
+      {
+        "name": "All",
+        "doc": "All returns the underlying map of all cells keyed by A1 reference.",
+        "params": [],
+        "return_type": "map[string]*Cell",
+        "line": 76,
+        "file": "aspose/cells_foss/cells.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "CellToString",
+    "kind": "function",
+    "doc": "CellToString converts a cell value to its CSV string representation.",
+    "file": "aspose/cells_foss/csv_handler.go",
+    "line": 180,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "v",
+        "type": "interface{}"
+      }
+    ],
+    "return_type": "string",
+    "reachable": true
+  },
+  {
+    "name": "DataValidation",
+    "kind": "type_spec",
+    "doc": "DataValidation represents a single data-validation rule applied to a range of cells on a worksheet.",
+    "file": "aspose/cells_foss/datavalidation.go",
+    "line": 27,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Type",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the type.",
+        "line": 29,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Ref",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the ref.",
+        "line": 33,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Formula1",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the formula1.",
+        "line": 38,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Formula2",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the formula2.",
+        "line": 41,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "AllowBlank",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the allow blank.",
+        "line": 44,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ShowErrorMessage",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the show error message.",
+        "line": 47,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ErrorTitle",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the error title.",
+        "line": 50,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ErrorMessage",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the error message.",
+        "line": 53,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ErrorStyle",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the error style.",
+        "line": 57,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "CalculateFormula",
+    "kind": "function",
+    "doc": "CalculateFormula evaluates a formula expression against the data in ws and returns the computed result.",
+    "file": "aspose/cells_foss/formula_engine.go",
+    "line": 23,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "formula",
+        "type": "string"
+      },
+      {
+        "name": "ws",
+        "type": "*Worksheet"
+      }
+    ],
+    "return_type": "(interface{}, error)",
+    "reachable": true
+  },
+  {
+    "name": "Picture",
+    "kind": "type_spec",
+    "doc": "Picture represents an image embedded in a worksheet.",
+    "file": "aspose/cells_foss/picture.go",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "SetAnchor",
+        "doc": "SetAnchor positions the picture at the given 0-based row and column.",
+        "params": [
+          {
+            "name": "row",
+            "type": "int"
+          },
+          {
+            "name": "col",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "line": 63,
+        "file": "aspose/cells_foss/picture.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Data",
+        "type": "[]byte",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the data.",
+        "line": 16,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Format",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the format.",
+        "line": 19,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Row",
+        "type": "int",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the row.",
+        "line": 23,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Col",
+        "type": "int",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the col.",
+        "line": 27,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "RowOff",
+        "type": "int64",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the row off.",
+        "line": 30,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ColOff",
+        "type": "int64",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the col off.",
+        "line": 33,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Width",
+        "type": "int",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the width.",
+        "line": 36,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the height.",
+        "line": 39,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Name",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the name.",
+        "line": 42,
+        "file": "aspose/cells_foss/picture.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "NewPicture",
+    "kind": "function",
+    "doc": "NewPicture creates a Picture value from raw image bytes.",
+    "file": "aspose/cells_foss/picture.go",
+    "line": 48,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "[]byte"
+      },
+      {
+        "name": "format",
+        "type": "string"
+      }
+    ],
+    "return_type": "*Picture",
+    "reachable": true
+  },
+  {
+    "name": "Font",
+    "kind": "type_spec",
+    "doc": "Font describes the typographic properties applied to cell text.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 25,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Name",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the name.",
+        "line": 27,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Size",
+        "type": "float64",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the size.",
+        "line": 30,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Bold",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the bold.",
+        "line": 33,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Italic",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the italic.",
+        "line": 36,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Color",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the color.",
+        "line": 40,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Fill",
+    "kind": "type_spec",
+    "doc": "Fill describes the background appearance of a cell.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 48,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Type",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the type.",
+        "line": 50,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Color",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the color.",
+        "line": 53,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Alignment",
+    "kind": "type_spec",
+    "doc": "Alignment controls how cell content is positioned within the cell bounds.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 61,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Horizontal",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the horizontal.",
+        "line": 63,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Vertical",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the vertical.",
+        "line": 66,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "WrapText",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the wrap text.",
+        "line": 70,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Border",
+    "kind": "type_spec",
+    "doc": "Border defines which sides of a cell have a visible rule and the colour of those rules.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 79,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Top",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the top.",
+        "line": 80,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Bottom",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the bottom.",
+        "line": 81,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Left",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the left.",
+        "line": 82,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Right",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the right.",
+        "line": 83,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Color",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the color.",
+        "line": 84,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Style",
+    "kind": "type_spec",
+    "doc": "Style groups font, fill, alignment, and border settings into a named formatting record.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 94,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Font",
+        "type": "*Font",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the font.",
+        "line": 95,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Fill",
+        "type": "*Fill",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the fill.",
+        "line": 96,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Alignment",
+        "type": "*Alignment",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the alignment.",
+        "line": 97,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Border",
+        "type": "*Border",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the border.",
+        "line": 98,
+        "file": "aspose/cells_foss/style.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "NewStyle",
+    "kind": "function",
+    "doc": "NewStyle returns a Style initialised with sensible defaults:",
+    "file": "aspose/cells_foss/style.go",
+    "line": 107,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "*Style",
+    "reachable": true
+  },
+  {
+    "name": "DefaultStyle",
+    "kind": "function",
+    "doc": "DefaultStyle returns the implicit style applied to every cell that has not been assigned an explicit Style.",
+    "file": "aspose/cells_foss/style.go",
+    "line": 122,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "*Style",
+    "reachable": true
+  },
+  {
+    "name": "Table",
+    "kind": "type_spec",
+    "doc": "Table represents a structured range of data (a \"table\" in Excel terminology) with optional header row and built-in auto-filter.",
+    "file": "aspose/cells_foss/table.go",
+    "line": 7,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Name",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the name.",
+        "line": 10,
+        "file": "aspose/cells_foss/table.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Range",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the range.",
+        "line": 15,
+        "file": "aspose/cells_foss/table.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "HasHeaderRow",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the has header row.",
+        "line": 19,
+        "file": "aspose/cells_foss/table.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "StyleName",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the style name.",
+        "line": 24,
+        "file": "aspose/cells_foss/table.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "NewTable",
+    "kind": "function",
+    "doc": "NewTable creates a Table value initialised with sensible defaults.",
+    "file": "aspose/cells_foss/table.go",
+    "line": 29,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "rangeRef",
+        "type": "string"
+      }
+    ],
+    "return_type": "*Table",
+    "reachable": true
+  },
+  {
+    "name": "WriteTestXLSX",
+    "kind": "function",
+    "doc": "WriteTestXLSX creates a minimal valid .xlsx file at dst by writing the given sheet XML and optional shared-strings XML into the appropriate ZIP entries.",
+    "file": "aspose/cells_foss/test_helpers.go",
+    "line": 18,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "dst",
+        "type": "string"
+      },
+      {
+        "name": "sheetXML",
+        "type": "string"
+      },
+      {
+        "name": "sharedStringsXML",
+        "type": "string"
+      }
+    ],
+    "return_type": "error",
+    "reachable": true
+  },
+  {
+    "name": "ReadTestZipEntry",
+    "kind": "function",
+    "doc": "ReadTestZipEntry opens an .xlsx file and returns the raw bytes of the named ZIP entry (e.g.",
+    "file": "aspose/cells_foss/test_helpers.go",
+    "line": 72,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "path",
+        "type": "string"
+      },
+      {
+        "name": "entryName",
+        "type": "string"
+      }
+    ],
+    "return_type": "([]byte, error)",
+    "reachable": true
+  },
+  {
+    "name": "MinimalPNG",
+    "kind": "function",
+    "doc": "MinimalPNG returns a valid 1×1 red PNG image as raw bytes.",
+    "file": "aspose/cells_foss/test_helpers.go",
+    "line": 102,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "[]byte",
+    "reachable": true
+  },
+  {
+    "name": "Workbook",
+    "kind": "type_spec",
+    "doc": "Workbook is the top-level object representing an Excel workbook.",
+    "file": "aspose/cells_foss/workbook.go",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "ExportToCSV",
+        "doc": "ExportToCSV writes the worksheet at sheetIndex to a CSV file using the given delimiter (e.g.",
+        "params": [
+          {
+            "name": "sheetIndex",
+            "type": "int"
+          },
+          {
+            "name": "path",
+            "type": "string"
+          },
+          {
+            "name": "delimiter",
+            "type": "rune"
+          }
+        ],
+        "return_type": "error",
+        "line": 13,
+        "file": "aspose/cells_foss/csv_handler.go",
+        "is_constructor": false
+      },
+      {
+        "name": "ImportFromCSV",
+        "doc": "ImportFromCSV reads a CSV file and imports its contents into a new worksheet with the given name.",
+        "params": [
+          {
+            "name": "path",
+            "type": "string"
+          },
+          {
+            "name": "sheetName",
+            "type": "string"
+          },
+          {
+            "name": "delimiter",
+            "type": "rune"
+          }
+        ],
+        "return_type": "error",
+        "line": 45,
+        "file": "aspose/cells_foss/csv_handler.go",
+        "is_constructor": false
+      },
+      {
+        "name": "SetPassword",
+        "doc": "SetPassword configures an open password for the workbook.",
+        "params": [
+          {
+            "name": "password",
+            "type": "string"
+          }
+        ],
+        "return_type": "error",
+        "line": 41,
+        "file": "aspose/cells_foss/workbook.go",
+        "is_constructor": false
+      },
+      {
+        "name": "VerifyPassword",
+        "doc": "VerifyPassword reports whether pw matches the password that was used to encrypt this workbook (as set by SetPassword, or read from an encrypted file).",
+        "params": [
+          {
+            "name": "pw",
+            "type": "string"
+          }
+        ],
+        "return_type": "bool",
+        "line": 54,
+        "file": "aspose/cells_foss/workbook.go",
+        "is_constructor": false
+      },
+      {
+        "name": "Save",
+        "doc": "Save writes the workbook to the given file path in .xlsx format.",
+        "params": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ],
+        "return_type": "error",
+        "line": 173,
+        "file": "aspose/cells_foss/workbook.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Worksheets",
+        "type": "[]*Worksheet",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the worksheets.",
+        "line": 10,
+        "file": "aspose/cells_foss/workbook.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "SourceXML",
+        "type": "[]byte",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the source xml.",
+        "line": 15,
+        "file": "aspose/cells_foss/workbook.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "StylesXML",
+        "type": "[]byte",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the styles xml.",
+        "line": 19,
+        "file": "aspose/cells_foss/workbook.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Modified",
+        "type": "bool",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the modified.",
+        "line": 31,
+        "file": "aspose/cells_foss/workbook.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FilePath",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the file path.",
+        "line": 35,
+        "file": "aspose/cells_foss/workbook.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "Load",
+    "kind": "function",
+    "doc": "Load opens the .xlsx file at path and returns the populated Workbook.",
+    "file": "aspose/cells_foss/workbook.go",
+    "line": 147,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "path",
+        "type": "string"
+      }
+    ],
+    "return_type": "(*Workbook, error)",
+    "reachable": true
+  },
+  {
+    "name": "NewWorkbook",
+    "kind": "function",
+    "doc": "NewWorkbook creates an empty Workbook containing a single blank worksheet named \"Sheet1\".",
+    "file": "aspose/cells_foss/workbook.go",
+    "line": 154,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "*Workbook",
+    "reachable": true
+  },
+  {
+    "name": "Worksheet",
+    "kind": "type_spec",
+    "doc": "Worksheet represents a single sheet within a workbook.",
+    "file": "aspose/cells_foss/worksheet.go",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "ToCSV",
+        "doc": "ToCSV converts the worksheet's cells into a 2D string slice suitable for writing with encoding/csv.",
+        "params": [
+          {
+            "name": "delimiter",
+            "type": "rune"
+          }
+        ],
+        "return_type": "([][]string, error)",
+        "line": 87,
+        "file": "aspose/cells_foss/csv_handler.go",
+        "is_constructor": false
+      },
+      {
+        "name": "FromCSV",
+        "doc": "FromCSV populates the worksheet with data from a 2D string slice.",
+        "params": [
+          {
+            "name": "data",
+            "type": "[][]string"
+          },
+          {
+            "name": "delimiter",
+            "type": "rune"
+          }
+        ],
+        "return_type": "error",
+        "line": 166,
+        "file": "aspose/cells_foss/csv_handler.go",
+        "is_constructor": false
+      },
+      {
+        "name": "AddDataValidation",
+        "doc": "AddDataValidation appends a data-validation rule to the worksheet.",
+        "params": [
+          {
+            "name": "ref",
+            "type": "string"
+          },
+          {
+            "name": "dv",
+            "type": "*DataValidation"
+          }
+        ],
+        "return_type": "error",
+        "line": 69,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveDataValidation",
+        "doc": "RemoveDataValidation removes the first data-validation rule whose Ref exactly matches the given ref string.",
+        "params": [
+          {
+            "name": "ref",
+            "type": "string"
+          }
+        ],
+        "return_type": "error",
+        "line": 87,
+        "file": "aspose/cells_foss/datavalidation.go",
+        "is_constructor": false
+      },
+      {
+        "name": "AddPicture",
+        "doc": "AddPicture attaches pic to the worksheet, assigns it a unique name, and marks the workbook as modified.",
+        "params": [
+          {
+            "name": "pic",
+            "type": "*Picture"
+          }
+        ],
+        "return_type": "error",
+        "line": 70,
+        "file": "aspose/cells_foss/picture.go",
+        "is_constructor": false
+      },
+      {
+        "name": "AddTable",
+        "doc": "AddTable creates a new Table covering the given range, assigns it a unique auto-generated name (\"Table1\", \"Table2\", …), appends it to the worksheet, and returns it for further configuration.",
+        "params": [
+          {
+            "name": "rangeRef",
+            "type": "string"
+          }
+        ],
+        "return_type": "*Table",
+        "line": 41,
+        "file": "aspose/cells_foss/table.go",
+        "is_constructor": false
+      },
+      {
+        "name": "GetTable",
+        "doc": "GetTable returns the Table with the given name, or nil when no match is found.",
+        "params": [
+          {
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "return_type": "*Table",
+        "line": 52,
+        "file": "aspose/cells_foss/table.go",
+        "is_constructor": false
+      },
+      {
+        "name": "Cells",
+        "doc": "Cells returns the Cells collection for this worksheet, enabling cell-level read and write operations via A1-style references.",
+        "params": [],
+        "return_type": "*Cells",
+        "line": 26,
+        "file": "aspose/cells_foss/worksheet.go",
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Name",
+        "type": "string",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the name.",
+        "line": 7,
+        "file": "aspose/cells_foss/worksheet.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Index",
+        "type": "int",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the index.",
+        "line": 8,
+        "file": "aspose/cells_foss/worksheet.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "DataValidations",
+        "type": "[]*DataValidation",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the data validations.",
+        "line": 15,
+        "file": "aspose/cells_foss/worksheet.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Tables",
+        "type": "[]*Table",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the tables.",
+        "line": 18,
+        "file": "aspose/cells_foss/worksheet.go",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Pictures",
+        "type": "[]*Picture",
+        "kind": "property",
+        "access_mode": "readwrite",
+        "doc": "Gets the pictures.",
+        "line": 21,
+        "file": "aspose/cells_foss/worksheet.go",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": true
+  },
+  {
+    "name": "ReadAt",
+    "kind": "function",
+    "doc": "",
+    "file": "verify/check_open_xlsx.go",
+    "line": 184,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "p",
+        "type": "[]byte"
+      },
+      {
+        "name": "off",
+        "type": "int64"
+      }
+    ],
+    "return_type": "(int, error)",
+    "reachable": true,
+    "receiver_type": "byteReader"
+  }
+]

@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "bundle_id": "bf9ddffc-2ad1-4f06-99b3-f39a1e689ade",
+  "family": "cells",
+  "platform": "net",
+  "repo_sha": "6ee32c08a6090a778fab03e66afac731859f93a9",
+  "generated_at": "2026-08-14T09:33:47.261072+00:00",
+  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "generator_semver": "2.0.0",
+  "members": {
+    "model.yaml": {
+      "sha256": "19e493bc6cd9884eed1432a7e1ef87dfbdc6d9ce1de130dddcc8f9ac91654566",
+      "bytes": 1211
+    },
+    "api_surface.json": {
+      "sha256": "b86f0ce633623d8586d655256b60092a051b61291f189c38763db5ab7829270b",
+      "bytes": 231782
+    },
+    "api_surface.md": {
+      "sha256": "6a7dc6804420f4568d9f2189ad91d08e2f35b2b5ce34d2114c4c013a27a5f32c",
+      "bytes": 32369
+    },
+    "formats.json": {
+      "sha256": "5fa95f112d0ccbbba4d580d5eb60f5be9d2f8c02774f8fcf80142b22fe861449",
+      "bytes": 401
+    },
+    "formats.md": {
+      "sha256": "ffe23929709bc0b1d28dc06fbd3422206804f188666013aedc1536cc4d9763f0",
+      "bytes": 280
+    },
+    "claims.json": {
+      "sha256": "a091c8238daa241180c8d38f70854168ffdadcf9929fbc06c3483a25e163827c",
+      "bytes": 231735
+    },
+    "limitations.md": {
+      "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
+      "bytes": 78
+    },
+    "install.md": {
+      "sha256": "cb4f5d700bcd5d45bbe9c9bcefb31b841d980740b3044994684b11bd7966819e",
+      "bytes": 151
+    },
+    "merge_report.md": {
+      "sha256": "4642b0ed91bad730a5b155099ad6f46f61ed83b43d9815528dc567d89458f2e6",
+      "bytes": 506
+    },
+    "snippets/snippet_001.cs": {
+      "sha256": "ed57d9b379b3cebd05b2dcda48e08e732f42bd8155c98b16702f57f68b3debb3",
+      "bytes": 769
+    },
+    "snippets/snippet_002.cs": {
+      "sha256": "ea441716473c569ce0587bfd21cf4b888276c94ae036e01c587b671321fa8266",
+      "bytes": 444
+    },
+    "snippets/snippet_003.cs": {
+      "sha256": "5e5ffd2712d50c1bc40bfd50a205be4de1a109131c0471a2e2093e18e559c119",
+      "bytes": 691
+    },
+    "snippets/snippet_004.cs": {
+      "sha256": "de46ca54e50b30441ec18aa387b03ceb2795b6f2d07cfe5d62739c168166a775",
+      "bytes": 562
+    },
+    "snippets/snippet_005.cs": {
+      "sha256": "7f1f252f51ec8b85c5b216ce72b1eec8b6cccbaa1d05625007f73cd76e022f99",
+      "bytes": 567
+    },
+    "snippets/snippet_006.cs": {
+      "sha256": "1b83c0ed4fe9e04f210ad36a8ace72ce11374a4e8e87e90b84c5547fc035822c",
+      "bytes": 426
+    },
+    "snippets/snippet_007.cs": {
+      "sha256": "3e3de350db53e149c31e0809b327e9fce7045ce473747d89132c16f4e620400c",
+      "bytes": 419
+    },
+    "snippets/snippets_index.json": {
+      "sha256": "43d2bb1b48ff901c06fa834b5bf516b870292a54e210d78aa77423f47c371b11",
+      "bytes": 3645
+    }
+  },
+  "promote_run_id": "promote-20260814T093347Z",
+  "status": "COMPLETE"
+}
