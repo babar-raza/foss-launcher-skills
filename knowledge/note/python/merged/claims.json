@@ -1,0 +1,4649 @@
+[
+  {
+    "claim_id": "CLM-note-44a2bd",
+    "kind": "api_method",
+    "text": "LogicalNode.kind field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6709ef",
+    "kind": "api_method",
+    "text": "LogicalNode.oid field of type Any",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-92aef4",
+    "kind": "api_method",
+    "text": "LogicalNode.properties field of type dict[str, Any]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b35f2a",
+    "kind": "api_method",
+    "text": "LogicalNode.children field of type list[LogicalNode]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b39b04",
+    "kind": "api_method",
+    "text": "LogicalNode.metadata field of type list[LogicalNode]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f241c3",
+    "kind": "api_class",
+    "text": "Class LogicalNode defined in src/aspose/note/_internal/ms_one/entities/__init__.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-792ef5",
+    "kind": "api_method",
+    "text": "LogicalDocument.root field of type LogicalNode | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4f269e",
+    "kind": "api_class",
+    "text": "Class LogicalDocument defined in src/aspose/note/_internal/ms_one/entities/__init__.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-db5169",
+    "kind": "api_method",
+    "text": "LoadedOneNoteDocument.display_name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1c32d3",
+    "kind": "api_method",
+    "text": "LoadedOneNoteDocument.logical_document field of type LogicalDocument",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-92d71d",
+    "kind": "api_method",
+    "text": "LoadedOneNoteDocument.pages field of type list[Page]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5fd2e5",
+    "kind": "api_method",
+    "text": "LoadedOneNoteDocument.page_histories field of type list[list[Page]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e5bdc3",
+    "kind": "api_class",
+    "text": "Class LoadedOneNoteDocument defined in src/aspose/note/_internal/ms_one/loader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b6493c",
+    "kind": "api_method",
+    "text": "Function load_onenote_document(source, include_page_history) -> LoadedOneNoteDocument",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/ms_one/loader.py",
+        "line": 1044
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-18eb3d",
+    "kind": "api_method",
+    "text": "ExtendedGUID.guid field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-739f08",
+    "kind": "api_method",
+    "text": "ExtendedGUID.n field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-baea0b",
+    "kind": "api_class",
+    "text": "Class ExtendedGUID defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 138
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4fe7ca",
+    "kind": "api_method",
+    "text": "JCID.index field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 145
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b7de90",
+    "kind": "api_method",
+    "text": "JCID.IsBinary field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 146
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0068c1",
+    "kind": "api_method",
+    "text": "JCID.IsPropertySet field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 147
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7d5738",
+    "kind": "api_method",
+    "text": "JCID.IsGraphNode field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 148
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-29093d",
+    "kind": "api_method",
+    "text": "JCID.IsFileData field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 149
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-56ec07",
+    "kind": "api_method",
+    "text": "JCID.IsReadOnly field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ae1119",
+    "kind": "api_class",
+    "text": "Class JCID defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 144
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e15d28",
+    "kind": "api_method",
+    "text": "FileNode.file_node_id field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 155
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-94eb23",
+    "kind": "api_method",
+    "text": "FileNode.payload field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 156
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1f6178",
+    "kind": "api_method",
+    "text": "FileNode.stp_format field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-eeb27e",
+    "kind": "api_method",
+    "text": "FileNode.cb_format field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 158
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-16ec12",
+    "kind": "api_method",
+    "text": "FileNode.base_type field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 159
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c189f1",
+    "kind": "api_class",
+    "text": "Class FileNode defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 154
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c8ee6a",
+    "kind": "api_method",
+    "text": "OneStoreObject.oid field of type ExtendedGUID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 164
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a5ffa4",
+    "kind": "api_method",
+    "text": "OneStoreObject.jcid field of type JCID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 165
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-84fd0c",
+    "kind": "api_method",
+    "text": "OneStoreObject.jcid_name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-cc430d",
+    "kind": "api_method",
+    "text": "OneStoreObject.properties field of type dict[str, Any]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 167
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ac45d9",
+    "kind": "api_method",
+    "text": "OneStoreObject.raw_properties field of type list[tuple[str, Any]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 168
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f13c11",
+    "kind": "api_method",
+    "text": "OneStoreObject.file_data_reference field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7fe1c0",
+    "kind": "api_method",
+    "text": "OneStoreObject.file_extension field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 170
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d180d7",
+    "kind": "api_class",
+    "text": "Class OneStoreObject defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 163
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-272fc8",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.rid field of type ExtendedGUID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 175
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0c90bd",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.rid_dependent field of type ExtendedGUID | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 176
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-35d2f1",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.context_id field of type ExtendedGUID | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 177
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-70cd9d",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.root_roles field of type dict[int, ExtendedGUID]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 178
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-03ea6d",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.objects field of type dict[ExtendedGUID, OneStoreObject]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 179
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-58e61f",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.section_display_name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 180
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-516d74",
+    "kind": "api_method",
+    "text": "RevisionManifestRecord.order_index field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 181
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d3e6e1",
+    "kind": "api_class",
+    "text": "Class RevisionManifestRecord defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c3c512",
+    "kind": "api_method",
+    "text": "RevisionRoleBinding.rid field of type ExtendedGUID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 186
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-023745",
+    "kind": "api_method",
+    "text": "RevisionRoleBinding.context_id field of type ExtendedGUID | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 187
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a5a442",
+    "kind": "api_method",
+    "text": "RevisionRoleBinding.role field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 188
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3fa004",
+    "kind": "api_method",
+    "text": "RevisionRoleBinding.order_index field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 189
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-836dee",
+    "kind": "api_class",
+    "text": "Class RevisionRoleBinding defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 185
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f0d8ef",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.get_latest_root(role, context_id) -> ExtendedGUID | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 203
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-695339",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.iter_latest_roots(role) -> list[tuple[ExtendedGUID | None, ExtendedGUID]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-247bf1",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.get_latest_revision_index(role, context_id) -> int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 220
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-408188",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.gosid field of type ExtendedGUID",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 194
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-febec4",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.root_roles field of type dict[int, ExtendedGUID]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 195
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-56789d",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.objects field of type dict[ExtendedGUID, OneStoreObject]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 196
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-79542c",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.section_display_name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 197
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ba427d",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.revisions field of type list[RevisionManifestRecord]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 198
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c9f1a3",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.role_bindings field of type list[RevisionRoleBinding]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 199
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b97c1d",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.latest_roots_by_context_role field of type dict[tuple[ExtendedGUID | None, int], ExtendedGUID]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 200
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b6f705",
+    "kind": "api_method",
+    "text": "ObjectSpaceState.latest_revision_indices_by_context_role field of type dict[tuple[ExtendedGUID | None, int], int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 201
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-914f8c",
+    "kind": "api_class",
+    "text": "Class ObjectSpaceState defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 193
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-43d878",
+    "kind": "api_method",
+    "text": "OneStoreFile.data field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 234
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-888c10",
+    "kind": "api_method",
+    "text": "OneStoreFile.object_spaces field of type list[ObjectSpaceState]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 235
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-cc75ce",
+    "kind": "api_method",
+    "text": "OneStoreFile.file_data_store field of type dict[str, bytes]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 236
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-793047",
+    "kind": "api_method",
+    "text": "OneStoreFile.display_name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 237
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-107d32",
+    "kind": "api_class",
+    "text": "Class OneStoreFile defined in src/aspose/note/_internal/onestore/parser.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 233
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-09904d",
+    "kind": "api_method",
+    "text": "Function read_value(selected_type) -> Any",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 332
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c7aef7",
+    "kind": "api_method",
+    "text": "Function parse_onestore_file(source) -> OneStoreFile",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/_internal/onestore/parser.py",
+        "line": 780
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e5ea2f",
+    "kind": "api_method",
+    "text": "OutlinePrefixFlowable.__init__() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1239
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-491d39",
+    "kind": "api_method",
+    "text": "OutlinePrefixFlowable.wrap(aW, aH) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1244
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-655c84",
+    "kind": "api_method",
+    "text": "OutlinePrefixFlowable.draw() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1247
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e2330a",
+    "kind": "api_method",
+    "text": "OutlinePrefixFlowable.width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1241
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-90ed29",
+    "kind": "api_method",
+    "text": "OutlinePrefixFlowable.height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1242
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0a6f80",
+    "kind": "api_class",
+    "text": "Class OutlinePrefixFlowable defined in src/aspose/note/saving/pdf_writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1238
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-274f73",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.__init__() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1363
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ee61b2",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.wrap(aW, aH) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1369
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e6e15d",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.draw() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1374
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-136d1b",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.hAlign field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1365
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-94c7b3",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1366
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a350bf",
+    "kind": "api_method",
+    "text": "AttachmentTagFlowable.height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1367
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-07d09e",
+    "kind": "api_class",
+    "text": "Class AttachmentTagFlowable defined in src/aspose/note/saving/pdf_writer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1362
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-153c10",
+    "kind": "api_method",
+    "text": "Function write_pdf(document, options) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/pdf_writer.py",
+        "line": 1743
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b2036c",
+    "kind": "api_class",
+    "text": "Class SaveFormat defined in src/aspose/note/enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8751f6",
+    "kind": "api_class",
+    "text": "Class FileFormat defined in src/aspose/note/enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b1589b",
+    "kind": "api_class",
+    "text": "Class HorizontalAlignment defined in src/aspose/note/enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e6ddf1",
+    "kind": "api_class",
+    "text": "Class TagStatus defined in src/aspose/note/enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7636f0",
+    "kind": "api_class",
+    "text": "Class NodeType defined in src/aspose/note/enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9aa595",
+    "kind": "api_class",
+    "text": "Class AsposeNoteError defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-766573",
+    "kind": "api_class",
+    "text": "Class FileCorruptedException defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-38ae05",
+    "kind": "api_class",
+    "text": "Class IncorrectDocumentStructureException defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-68df5f",
+    "kind": "api_class",
+    "text": "Class IncorrectPasswordException defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-829d25",
+    "kind": "api_method",
+    "text": "UnsupportedFileFormatException.__init__(message, file_format) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9ab095",
+    "kind": "api_method",
+    "text": "UnsupportedFileFormatException.FileFormat property of type FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-fd8037",
+    "kind": "api_class",
+    "text": "Class UnsupportedFileFormatException defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9cb796",
+    "kind": "api_class",
+    "text": "Class UnsupportedSaveFormatException defined in src/aspose/note/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/exceptions.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ac4819",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitDocumentStart(document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c244ff",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitDocumentEnd(document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0c7df4",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitPageStart(page) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 80
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e4d8d7",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitPageEnd(page) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9cea69",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitTitleStart(title) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-533daa",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitTitleEnd(title) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1341f8",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitOutlineStart(outline) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-082312",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitOutlineEnd(outline) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3d9fb3",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitOutlineElementStart(outline_element) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 98
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5d5fbf",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitOutlineElementEnd(outline_element) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c59308",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitRichTextStart(rich_text) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 104
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-90f385",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitRichTextEnd(rich_text) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e468f6",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitImageStart(image) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-546076",
+    "kind": "api_method",
+    "text": "DocumentVisitor.VisitImageEnd(image) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d0dfa3",
+    "kind": "api_class",
+    "text": "Class DocumentVisitor defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b1e020",
+    "kind": "api_method",
+    "text": "License.SetLicense(license_path_or_stream) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 118
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8caace",
+    "kind": "api_class",
+    "text": "Class License defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 117
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-14043d",
+    "kind": "api_method",
+    "text": "Metered.SetMeteredKey(public_key, private_key) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5cf01e",
+    "kind": "api_class",
+    "text": "Class Metered defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 122
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a3b2e3",
+    "kind": "api_method",
+    "text": "LoadOptions.DocumentPassword field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 129
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-115945",
+    "kind": "api_method",
+    "text": "LoadOptions.LoadHistory field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 130
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-2ce974",
+    "kind": "api_class",
+    "text": "Class LoadOptions defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 128
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8d9838",
+    "kind": "api_method",
+    "text": "Node.Accept(visitor) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 161
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-14b30e",
+    "kind": "api_method",
+    "text": "Node.ParentNode property of type Node | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 146
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ad43cb",
+    "kind": "api_method",
+    "text": "Node.Document property of type Document | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 153
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-209f6d",
+    "kind": "api_class",
+    "text": "Class Node defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 134
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5303b6",
+    "kind": "api_method",
+    "text": "CompositeNode.AppendChildLast(node) -> TNode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 185
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-18c27b",
+    "kind": "api_method",
+    "text": "CompositeNode.AppendChildFirst(node) -> TNode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 190
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-27fd82",
+    "kind": "api_method",
+    "text": "CompositeNode.InsertChild(index, node) -> TNode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 195
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0b2a5a",
+    "kind": "api_method",
+    "text": "CompositeNode.RemoveChild(node) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 200
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3d2423",
+    "kind": "api_method",
+    "text": "CompositeNode.GetEnumerator() -> Iterator[Node]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 204
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d5e310",
+    "kind": "api_method",
+    "text": "CompositeNode.GetChildNodes(node_type) -> list[TNode]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8e746c",
+    "kind": "api_method",
+    "text": "CompositeNode.FirstChild property of type Node | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 178
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0f0541",
+    "kind": "api_method",
+    "text": "CompositeNode.LastChild property of type Node | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 182
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-632118",
+    "kind": "api_class",
+    "text": "Class CompositeNode defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-483b6e",
+    "kind": "api_method",
+    "text": "NoteTag.__init__(construction_token, Label, Icon, Status, Highlight, CreationTime, CompletedTime, FontColor) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 228
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-dbeb3a",
+    "kind": "api_method",
+    "text": "NoteTag.CreateYellowStar(label) -> NoteTag",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 328
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-026130",
+    "kind": "api_method",
+    "text": "NoteTag.CreateQuestionMark(label) -> NoteTag",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 332
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9652af",
+    "kind": "api_method",
+    "text": "NoteTag.CreateMusicalNote(label) -> NoteTag",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 336
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e76dc0",
+    "kind": "api_method",
+    "text": "NoteTag.Label property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 274
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3d4785",
+    "kind": "api_method",
+    "text": "NoteTag.Icon property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 282
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3616ee",
+    "kind": "api_method",
+    "text": "NoteTag.Status property of type TagStatus",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 290
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-16a475",
+    "kind": "api_method",
+    "text": "NoteTag.Highlight property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 296
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-44001a",
+    "kind": "api_method",
+    "text": "NoteTag.CreationTime property of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 304
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-311ffd",
+    "kind": "api_method",
+    "text": "NoteTag.CompletedTime property of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 312
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-272567",
+    "kind": "api_method",
+    "text": "NoteTag.FontColor property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 316
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f63f80",
+    "kind": "api_class",
+    "text": "Class NoteTag defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 220
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-024bd5",
+    "kind": "api_method",
+    "text": "ParagraphStyle.__init__(FontName, FontSize, FontColor, Highlight, IsBold, IsItalic, IsUnderline, IsStrikethrough, IsSuperscript, IsSubscript) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-75a57d",
+    "kind": "api_method",
+    "text": "ParagraphStyle.Default() -> ParagraphStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 393
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-97e18e",
+    "kind": "api_method",
+    "text": "ParagraphStyle.FontStyle property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 380
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-28f00b",
+    "kind": "api_method",
+    "text": "ParagraphStyle.FontName field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 368
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d3953d",
+    "kind": "api_method",
+    "text": "ParagraphStyle.FontSize field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 369
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-19d6ed",
+    "kind": "api_method",
+    "text": "ParagraphStyle.FontColor field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 370
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f9a95c",
+    "kind": "api_method",
+    "text": "ParagraphStyle.Highlight field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 371
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-2f3a16",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsBold field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 372
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b7b106",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsItalic field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 373
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f71757",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsUnderline field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 374
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-74291c",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsStrikethrough field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 375
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c832a8",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsSuperscript field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 376
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6e7d81",
+    "kind": "api_method",
+    "text": "ParagraphStyle.IsSubscript field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 377
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-74a72b",
+    "kind": "api_class",
+    "text": "Class ParagraphStyle defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 340
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-428537",
+    "kind": "api_method",
+    "text": "TextStyle.__init__(IsHyperlink, HyperlinkAddress, FontName, FontSize, FontColor, Highlight, Language, IsBold, IsItalic, IsUnderline, IsStrikethrough, IsSuperscript, IsSubscript, IsHidden, IsMathFormatting) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 416
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1fe6c2",
+    "kind": "api_method",
+    "text": "TextStyle.Default() -> TextStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 585
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-2136c9",
+    "kind": "api_method",
+    "text": "TextStyle.DefaultMsOneNoteTitleTextStyle() -> TextStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 589
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-2c772a",
+    "kind": "api_method",
+    "text": "TextStyle.DefaultMsOneNoteTitleDateStyle() -> TextStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 593
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0a85fa",
+    "kind": "api_method",
+    "text": "TextStyle.DefaultMsOneNoteTitleTimeStyle() -> TextStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 597
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-995998",
+    "kind": "api_method",
+    "text": "TextStyle.IsHyperlink property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 452
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9e0587",
+    "kind": "api_method",
+    "text": "TextStyle.HyperlinkAddress property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 460
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0ca7fe",
+    "kind": "api_method",
+    "text": "TextStyle.FontName property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 468
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-66332f",
+    "kind": "api_method",
+    "text": "TextStyle.FontSize property of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 476
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6315e1",
+    "kind": "api_method",
+    "text": "TextStyle.FontColor property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 484
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8f1e39",
+    "kind": "api_method",
+    "text": "TextStyle.Highlight property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 492
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-26e639",
+    "kind": "api_method",
+    "text": "TextStyle.Language property of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 500
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-bcfc64",
+    "kind": "api_method",
+    "text": "TextStyle.IsBold property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 508
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f164f2",
+    "kind": "api_method",
+    "text": "TextStyle.IsItalic property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 516
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8c1bd6",
+    "kind": "api_method",
+    "text": "TextStyle.IsUnderline property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 524
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8e8d0c",
+    "kind": "api_method",
+    "text": "TextStyle.IsStrikethrough property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 532
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8b969c",
+    "kind": "api_method",
+    "text": "TextStyle.IsSuperscript property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 540
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f230b2",
+    "kind": "api_method",
+    "text": "TextStyle.IsSubscript property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 548
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-33abb9",
+    "kind": "api_method",
+    "text": "TextStyle.IsHidden property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 556
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b1c371",
+    "kind": "api_method",
+    "text": "TextStyle.IsMathFormatting property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 564
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8f3b9c",
+    "kind": "api_method",
+    "text": "TextStyle.FontStyle property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 572
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6f1069",
+    "kind": "api_class",
+    "text": "Class TextStyle defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 397
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7332d0",
+    "kind": "api_method",
+    "text": "TextRun.Text field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 623
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-636f6e",
+    "kind": "api_method",
+    "text": "TextRun.Style field of type TextStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 624
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-60445a",
+    "kind": "api_class",
+    "text": "Class TextRun defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 622
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e5bbc7",
+    "kind": "api_method",
+    "text": "RichText.__init__(Text, TextRuns, ParagraphStyle, Alignment, Tags, LastModifiedTime, SpaceBefore, SpaceAfter, LineSpacing) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 641
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-dc8d2f",
+    "kind": "api_method",
+    "text": "RichText.Append(text, style) -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 733
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-534814",
+    "kind": "api_method",
+    "text": "RichText.AppendFront(text, style) -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 745
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-66afcb",
+    "kind": "api_method",
+    "text": "RichText.Clear() -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 748
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f0d5bc",
+    "kind": "api_method",
+    "text": "RichText.GetEnumerator() -> Iterator[str]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 753
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-fb8d01",
+    "kind": "api_method",
+    "text": "RichText.IndexOf(value, startIndex, count, comparison) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 756
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ec0c91",
+    "kind": "api_method",
+    "text": "RichText.Insert(index, text, style) -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 771
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e48077",
+    "kind": "api_method",
+    "text": "RichText.Remove(start, count) -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 780
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-31d1b1",
+    "kind": "api_method",
+    "text": "RichText.Replace(old_value, new_value, style) -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 793
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6925f2",
+    "kind": "api_method",
+    "text": "RichText.Trim() -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 807
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-97a895",
+    "kind": "api_method",
+    "text": "RichText.TrimStart() -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 815
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e35265",
+    "kind": "api_method",
+    "text": "RichText.TrimEnd() -> RichText",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 823
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-fae1fb",
+    "kind": "api_method",
+    "text": "RichText.Text property of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 677
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0d8ee8",
+    "kind": "api_method",
+    "text": "RichText.TextRuns property of type list[TextRun]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 693
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c7f52b",
+    "kind": "api_method",
+    "text": "RichText.ParagraphStyle property of type ParagraphStyle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 697
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1eda62",
+    "kind": "api_method",
+    "text": "RichText.Tags property of type list[NoteTag]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 706
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d07e60",
+    "kind": "api_method",
+    "text": "RichText.Length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 710
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-425453",
+    "kind": "api_method",
+    "text": "RichText.Alignment property of type HorizontalAlignment | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 714
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1324fe",
+    "kind": "api_method",
+    "text": "RichText.IsTitleText property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 722
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-91338c",
+    "kind": "api_method",
+    "text": "RichText.IsTitleDate property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 726
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5dd220",
+    "kind": "api_method",
+    "text": "RichText.IsTitleTime property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 730
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8fc755",
+    "kind": "api_method",
+    "text": "RichText.LastModifiedTime field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 659
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-707bba",
+    "kind": "api_method",
+    "text": "RichText.SpaceBefore field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 660
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3174e6",
+    "kind": "api_method",
+    "text": "RichText.SpaceAfter field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 661
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-04ebb0",
+    "kind": "api_method",
+    "text": "RichText.LineSpacing field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 662
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3cf5b3",
+    "kind": "api_class",
+    "text": "Class RichText defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 627
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-733595",
+    "kind": "api_method",
+    "text": "Title.__init__(TitleText, TitleDate, TitleTime) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 839
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-99595d",
+    "kind": "api_method",
+    "text": "Title.GetEnumerator() -> Iterator[Node]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 888
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e54b55",
+    "kind": "api_method",
+    "text": "Title.GetChildNodes(node_type) -> list[TNode]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 896
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e2d474",
+    "kind": "api_method",
+    "text": "Title.TitleText property of type RichText | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 865
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1d9f7d",
+    "kind": "api_method",
+    "text": "Title.TitleDate property of type RichText | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 873
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-670084",
+    "kind": "api_method",
+    "text": "Title.TitleTime property of type RichText | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 881
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3ad48b",
+    "kind": "api_class",
+    "text": "Class Title defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 836
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f2a4c0",
+    "kind": "api_method",
+    "text": "NumberList.GetNumberedListHeader(number) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 924
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7160a3",
+    "kind": "api_method",
+    "text": "NumberList.Format field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 914
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-918218",
+    "kind": "api_method",
+    "text": "NumberList.NumberFormat field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 915
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-663be0",
+    "kind": "api_method",
+    "text": "NumberList.Font field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 916
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d0551a",
+    "kind": "api_method",
+    "text": "NumberList.FontSize field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 917
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-de8183",
+    "kind": "api_method",
+    "text": "NumberList.FontColor field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 918
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-27dd5d",
+    "kind": "api_method",
+    "text": "NumberList.IsBold field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 919
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ed2596",
+    "kind": "api_method",
+    "text": "NumberList.IsItalic field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 920
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-76cbfd",
+    "kind": "api_method",
+    "text": "NumberList.LastModifiedTime field of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 921
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c5ed86",
+    "kind": "api_method",
+    "text": "NumberList.Restart field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 922
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-44a521",
+    "kind": "api_class",
+    "text": "Class NumberList defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 913
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-332a96",
+    "kind": "api_method",
+    "text": "OutlineElement.NumberList field of type NumberList | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 934
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-345368",
+    "kind": "api_class",
+    "text": "Class OutlineElement defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 933
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d43971",
+    "kind": "api_method",
+    "text": "Outline.HorizontalOffset field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 945
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e79b9e",
+    "kind": "api_method",
+    "text": "Outline.VerticalOffset field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 946
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0e761a",
+    "kind": "api_method",
+    "text": "Outline.MaxWidth field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 947
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4ee54e",
+    "kind": "api_method",
+    "text": "Outline.MaxHeight field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 948
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-536e4c",
+    "kind": "api_method",
+    "text": "Outline.MinWidth field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 949
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-823341",
+    "kind": "api_method",
+    "text": "Outline.ReservedWidth field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 950
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-21d953",
+    "kind": "api_method",
+    "text": "Outline.IndentPosition field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 951
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d686c5",
+    "kind": "api_method",
+    "text": "Outline.DescendantsCannotBeMoved field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 952
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e197e5",
+    "kind": "api_method",
+    "text": "Outline.LastModifiedTime field of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 953
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c0e0b8",
+    "kind": "api_class",
+    "text": "Class Outline defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 944
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-62e491",
+    "kind": "api_method",
+    "text": "Image.__init__(FileName, FilePath, Format, Bytes, Width, Height, OriginalWidth, OriginalHeight, HorizontalOffset, VerticalOffset, Alignment, IsBackground, LastModifiedTime, AlternativeTextTitle, AlternativeTextDescription, HyperlinkUrl, Tags) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 983
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1f57f3",
+    "kind": "api_method",
+    "text": "Image.Replace(image) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1059
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ae2891",
+    "kind": "api_method",
+    "text": "Image.FileName property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1024
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-24c03f",
+    "kind": "api_method",
+    "text": "Image.FilePath property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1028
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-045af0",
+    "kind": "api_method",
+    "text": "Image.Format property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1032
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-44cd97",
+    "kind": "api_method",
+    "text": "Image.Bytes property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1036
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9afad8",
+    "kind": "api_method",
+    "text": "Image.OriginalWidth property of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1040
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5e247b",
+    "kind": "api_method",
+    "text": "Image.OriginalHeight property of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1044
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0f698b",
+    "kind": "api_method",
+    "text": "Image.Tags property of type list[NoteTag]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1048
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-38f385",
+    "kind": "api_method",
+    "text": "Image.Alignment property of type HorizontalAlignment | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1052
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-645b20",
+    "kind": "api_method",
+    "text": "Image.Width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1009
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9babf0",
+    "kind": "api_method",
+    "text": "Image.Height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1010
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3a5aa3",
+    "kind": "api_method",
+    "text": "Image.HorizontalOffset field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1013
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-cba88c",
+    "kind": "api_method",
+    "text": "Image.VerticalOffset field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1014
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3c12ca",
+    "kind": "api_method",
+    "text": "Image.IsBackground field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1016
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-296fd2",
+    "kind": "api_method",
+    "text": "Image.LastModifiedTime field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1017
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6d37ea",
+    "kind": "api_method",
+    "text": "Image.AlternativeTextTitle field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1018
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7792b3",
+    "kind": "api_method",
+    "text": "Image.AlternativeTextDescription field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1019
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4a14fd",
+    "kind": "api_method",
+    "text": "Image.HyperlinkUrl field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1020
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-291d15",
+    "kind": "api_class",
+    "text": "Class Image defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 962
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d4b521",
+    "kind": "api_method",
+    "text": "AttachedFile.__init__(FileName, Bytes, Tags) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1088
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f871a9",
+    "kind": "api_method",
+    "text": "AttachedFile.FileName property of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3a9b9f",
+    "kind": "api_method",
+    "text": "AttachedFile.Bytes property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f6ca69",
+    "kind": "api_method",
+    "text": "AttachedFile.Tags property of type list[NoteTag]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1109
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f9e0ed",
+    "kind": "api_class",
+    "text": "Class AttachedFile defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1085
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-883042",
+    "kind": "api_class",
+    "text": "Class TableCell defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c46d83",
+    "kind": "api_class",
+    "text": "Class TableRow defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1119
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-93962f",
+    "kind": "api_method",
+    "text": "TableColumn.Width field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1125
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4a1ddc",
+    "kind": "api_method",
+    "text": "TableColumn.LockedWidth field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1126
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c4ada3",
+    "kind": "api_class",
+    "text": "Class TableColumn defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1124
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-11e0fe",
+    "kind": "api_method",
+    "text": "Table.__init__(Tags, Columns, IsBordersVisible, LastModifiedTime) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1132
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-639784",
+    "kind": "api_method",
+    "text": "Table.Tags property of type list[NoteTag]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1147
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c3a365",
+    "kind": "api_method",
+    "text": "Table.Columns property of type list[TableColumn]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1151
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-38115a",
+    "kind": "api_method",
+    "text": "Table.IsBordersVisible field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1143
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b0832f",
+    "kind": "api_method",
+    "text": "Table.LastModifiedTime field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1144
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-cd3629",
+    "kind": "api_class",
+    "text": "Class Table defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1129
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3886db",
+    "kind": "api_method",
+    "text": "Page.Clone(cloneHistory) -> Page",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-98d98a",
+    "kind": "api_method",
+    "text": "Page.Title field of type Title | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-85a59d",
+    "kind": "api_method",
+    "text": "Page.Author field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1158
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c6f7a2",
+    "kind": "api_method",
+    "text": "Page.CreationTime field of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1159
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-94d23e",
+    "kind": "api_method",
+    "text": "Page.LastModifiedTime field of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1160
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b014d7",
+    "kind": "api_method",
+    "text": "Page.Level field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1161
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f990e6",
+    "kind": "api_method",
+    "text": "Page.BackgroundColor field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1162
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7a95a9",
+    "kind": "api_method",
+    "text": "Page.Margin field of type Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1163
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d1de0a",
+    "kind": "api_method",
+    "text": "Page.SizeType field of type Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1164
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-d88ad4",
+    "kind": "api_method",
+    "text": "Page.PageLayoutSize field of type Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1165
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7e81c9",
+    "kind": "api_method",
+    "text": "Page.IsConflictPage field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-2bdee3",
+    "kind": "api_method",
+    "text": "Page.PageContentRevisionSummary field of type Any | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1167
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a57a1c",
+    "kind": "api_class",
+    "text": "Class Page defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1156
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7a22ef",
+    "kind": "api_method",
+    "text": "PageHistory.__init__(current) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1189
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c78874",
+    "kind": "api_method",
+    "text": "PageHistory.Add(page) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1205
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e0b680",
+    "kind": "api_method",
+    "text": "PageHistory.AddRange(pages) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1208
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-5dda10",
+    "kind": "api_method",
+    "text": "PageHistory.Clear() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1211
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-eba647",
+    "kind": "api_method",
+    "text": "PageHistory.Contains(page) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1214
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-6080b8",
+    "kind": "api_method",
+    "text": "PageHistory.CopyTo(target, index) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1217
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-3d5468",
+    "kind": "api_method",
+    "text": "PageHistory.GetEnumerator() -> Iterator[Page]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1220
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-38dade",
+    "kind": "api_method",
+    "text": "PageHistory.IndexOf(page) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1223
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0895e4",
+    "kind": "api_method",
+    "text": "PageHistory.Insert(index, page) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1229
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7d4b6f",
+    "kind": "api_method",
+    "text": "PageHistory.Remove(page) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1232
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e5f46c",
+    "kind": "api_method",
+    "text": "PageHistory.RemoveAt(index) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1238
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-c437ed",
+    "kind": "api_method",
+    "text": "PageHistory.RemoveRange(index, count) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1241
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e018bf",
+    "kind": "api_method",
+    "text": "PageHistory.Count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1194
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9f5043",
+    "kind": "api_method",
+    "text": "PageHistory.Current property of type Page",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1198
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-80bf9c",
+    "kind": "api_method",
+    "text": "PageHistory.IsReadOnly property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1202
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-899424",
+    "kind": "api_class",
+    "text": "Class PageHistory defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1186
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-731481",
+    "kind": "api_method",
+    "text": "Document.__init__(source, load_options) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1258
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-660515",
+    "kind": "api_method",
+    "text": "Document.DetectLayoutChanges() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1289
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-72a124",
+    "kind": "api_method",
+    "text": "Document.GetPageHistory(page) -> PageHistory",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1292
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-fa27d9",
+    "kind": "api_method",
+    "text": "Document.Save(target, format_or_options) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1295
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-329888",
+    "kind": "api_method",
+    "text": "Document.FileFormat property of type FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1286
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-8dbd48",
+    "kind": "api_method",
+    "text": "Document.DisplayName field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1260
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-eafc96",
+    "kind": "api_method",
+    "text": "Document.CreationTime field of type datetime | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1261
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-836999",
+    "kind": "api_class",
+    "text": "Class Document defined in src/aspose/note/model.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/model.py",
+        "line": 1257
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-565c4a",
+    "kind": "api_method",
+    "text": "SaveOptions.__init__(save_format, PageIndex, PageCount, FontsSubsystem) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-556c7c",
+    "kind": "api_method",
+    "text": "SaveOptions.SaveFormat property of type SaveFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-ef1f3a",
+    "kind": "api_method",
+    "text": "SaveOptions.PageIndex field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-09abd9",
+    "kind": "api_method",
+    "text": "SaveOptions.PageCount field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-91ccc6",
+    "kind": "api_method",
+    "text": "SaveOptions.FontsSubsystem field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e9b551",
+    "kind": "api_class",
+    "text": "Class SaveOptions defined in src/aspose/note/saving/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-468e57",
+    "kind": "api_method",
+    "text": "PdfSaveOptions.__init__(PageIndex, PageCount, FontsSubsystem, ImageCompression, JpegQuality, PageSettings, PageSplittingAlgorithm) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-4d4be0",
+    "kind": "api_method",
+    "text": "PdfSaveOptions.ImageCompression field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a11df9",
+    "kind": "api_method",
+    "text": "PdfSaveOptions.JpegQuality field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-1a5f18",
+    "kind": "api_method",
+    "text": "PdfSaveOptions.PageSettings field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7d1434",
+    "kind": "api_method",
+    "text": "PdfSaveOptions.PageSplittingAlgorithm field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-7132ab",
+    "kind": "api_class",
+    "text": "Class PdfSaveOptions defined in src/aspose/note/saving/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-56a40c",
+    "kind": "format_support",
+    "text": "export support for Pdf via SaveFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-208562",
+    "kind": "format_support",
+    "text": "Detects format Unknown via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-e79187",
+    "kind": "format_support",
+    "text": "Detects format OneNote2010 via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-f2c7bf",
+    "kind": "format_support",
+    "text": "Detects format OneNoteOnline via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-0696f2",
+    "kind": "format_support",
+    "text": "Detects format OneNote2007 via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/enums.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-604306",
+    "kind": "format_support",
+    "text": "export support for Pdf via PdfSaveOptions",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose/note/saving/options.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-9def23",
+    "kind": "install",
+    "text": "Package name is aspose-note",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-a92417",
+    "kind": "install",
+    "text": "Current version is 26.3.2",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-note-b72d86",
+    "kind": "license",
+    "text": "Licensed under LicenseRef-Aspose-Split",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  }
+]

@@ -1,0 +1,1796 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_aspose_note_compat_smoke.py",
+    "source_function": "test_imports",
+    "source_line": 27,
+    "classes_used": [
+      "Document",
+      "FileFormat",
+      "License",
+      "Metered",
+      "ParagraphStyle",
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_aspose_note_compat_smoke.py",
+    "source_function": "test_title_nodes_are_visible",
+    "source_line": 50,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Title.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_aspose_note_compat_smoke.py",
+    "source_function": "test_outline_has_coordinates_properties",
+    "source_line": 66,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Outline"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Outline.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_aspose_note_compat_smoke.py",
+    "source_function": "test_open_and_save_pdf_to_stream",
+    "source_line": 95,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_aspose_note_compat_smoke.py",
+    "source_function": "test_get_child_nodes_image",
+    "source_line": 108,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_images_exposed_and_have_bytes",
+    "source_line": 27,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_images_are_identical_by_hash",
+    "source_line": 36,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_images_preserve_outline_alignment",
+    "source_line": 46,
+    "classes_used": [
+      "Document",
+      "HorizontalAlignment",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_images_expose_dotnet_compatibility_metadata",
+    "source_line": 61,
+    "classes_used": [
+      "Document",
+      "HorizontalAlignment",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_image_uses_alignment_without_legacy_alias",
+    "source_line": 70,
+    "classes_used": [
+      "HorizontalAlignment",
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_image_read_only_metadata_stays_mutable_via_tags_collection",
+    "source_line": 78,
+    "classes_used": [
+      "Image",
+      "NoteTag"
+    ],
+    "methods_used": [
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_tables_exposed_with_rows_and_cells",
+    "source_line": 111,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Table",
+      "TableCell",
+      "TableRow"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Table.GetChildNodes",
+      "TableCell.GetChildNodes",
+      "TableRow.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_table_collections_are_read_only_properties",
+    "source_line": 127,
+    "classes_used": [
+      "NoteTag",
+      "Table",
+      "TableColumn"
+    ],
+    "methods_used": [
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_attached_files_exposed_and_have_bytes",
+    "source_line": 153,
+    "classes_used": [
+      "AttachedFile",
+      "Document",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_aspose_note_dom_content.py",
+    "source_function": "test_attached_file_metadata_is_read_only",
+    "source_line": 166,
+    "classes_used": [
+      "AttachedFile",
+      "NoteTag"
+    ],
+    "methods_used": [
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_construct_from_path",
+    "source_line": 30,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_construct_from_stream",
+    "source_line": 39,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_document_file_format_enum",
+    "source_line": 45,
+    "classes_used": [
+      "Document",
+      "FileFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_get_child_nodes_page_and_title",
+    "source_line": 51,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Page",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Page.GetChildNodes",
+      "Title.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_richtext_replace_changes_text",
+    "source_line": 76,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.Save",
+      "RichText.Replace"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_richtext_supports_dotnet_text_runs_alias",
+    "source_line": 99,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_page_clone_duplicates_content_tree",
+    "source_line": 118,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Page",
+      "RichText"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Page.Clone",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_page_clone_accepts_clone_history_keyword",
+    "source_line": 129,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Page.Clone",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_accept_visits_document_and_pages",
+    "source_line": 146,
+    "classes_used": [
+      "Document",
+      "DocumentVisitor",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Accept",
+      "Page.Accept"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_document_keeps_subpages_from_multiple_page_spaces",
+    "source_line": 176,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Outline",
+      "OutlineElement",
+      "Page",
+      "RichText",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Outline.GetChildNodes",
+      "OutlineElement.GetChildNodes",
+      "Page.GetChildNodes",
+      "Title.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/test_aspose_note_dom_document.py",
+    "source_function": "test_single_page_fixtures_do_not_create_synthetic_titles",
+    "source_line": 202,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node",
+      "Page",
+      "Table",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes",
+      "Page.GetChildNodes",
+      "Table.GetChildNodes",
+      "Title.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_license_and_metered_are_callable",
+    "source_line": 20,
+    "classes_used": [
+      "License",
+      "Metered"
+    ],
+    "methods_used": [
+      "License.SetLicense",
+      "Metered.SetMeteredKey"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_abstract_compatibility_bases_reject_direct_instantiation",
+    "source_line": 29,
+    "classes_used": [
+      "CompositeNode",
+      "Document",
+      "DocumentVisitor",
+      "Node",
+      "NoteTag",
+      "ParagraphStyle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_encrypted_load_raises_incorrect_password",
+    "source_line": 51,
+    "classes_used": [
+      "Document",
+      "IncorrectPasswordException",
+      "LoadOptions",
+      "RichText"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_document_does_not_expose_non_dotnet_count_method",
+    "source_line": 63,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_parent_node_is_read_only_to_callers",
+    "source_line": 72,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_note_tag_read_only_members_match_dotnet_shape",
+    "source_line": 84,
+    "classes_used": [
+      "NoteTag",
+      "TagStatus"
+    ],
+    "methods_used": [
+      "NoteTag.CreateQuestionMark"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_note_tag_creation_time_uses_datetime_values",
+    "source_line": 98,
+    "classes_used": [
+      "NoteTag",
+      "TagStatus"
+    ],
+    "methods_used": [
+      "NoteTag.CreateYellowStar"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_title_hides_composite_child_mutators",
+    "source_line": 113,
+    "classes_used": [
+      "RichText",
+      "Title"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_unsupported_file_format_exception_exposes_read_only_enum",
+    "source_line": 122,
+    "classes_used": [
+      "FileFormat",
+      "UnsupportedFileFormatException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "onenote2007"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_aspose_note_exceptions_and_stubs.py",
+    "source_function": "test_page_history_constructor_accepts_only_current_page",
+    "source_line": 131,
+    "classes_used": [
+      "Page",
+      "PageHistory"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_parser_keeps_default_and_history_roots_separate",
+    "source_line": 63,
+    "classes_used": [
+      "Node",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_get_page_history_returns_all_revisions_in_order",
+    "source_line": 82,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "Node",
+      "Page",
+      "PageHistory"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.GetPageHistory",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_parser_materializes_incremental_current_roots",
+    "source_line": 93,
+    "classes_used": [
+      "Image",
+      "Node",
+      "Page",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_incremental_history_reconstructs_simple_table_versions",
+    "source_line": 111,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "Node",
+      "Page",
+      "PageHistory",
+      "Table"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.GetPageHistory",
+      "Page.GetChildNodes",
+      "Table.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_simple_table_published_history_matches_ui_structure",
+    "source_line": 127,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "Node",
+      "Page",
+      "PageHistory",
+      "Table"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.GetPageHistory",
+      "Page.GetChildNodes",
+      "Table.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_aspose_note_history.py",
+    "source_function": "test_incremental_history_reconstructs_image_alignment_versions",
+    "source_line": 153,
+    "classes_used": [
+      "Document",
+      "Image",
+      "LoadOptions",
+      "Node",
+      "Page",
+      "PageHistory"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.GetPageHistory",
+      "Image.GetChildNodes",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_aspose_note_pdf_goldens.py",
+    "source_function": "test_pdf_goldens_match_manifest",
+    "source_line": 34,
+    "classes_used": [
+      "Document",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_aspose_note_pdf_goldens.py",
+    "source_function": "test_numbered_list_fixture_preserves_list_markers",
+    "source_line": 91,
+    "classes_used": [
+      "Document",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_aspose_note_pdf_goldens.py",
+    "source_function": "test_attachment_fixture_exports_filename_only",
+    "source_line": 122,
+    "classes_used": [
+      "AttachedFile",
+      "Document",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_runs_preserved",
+    "source_line": 26,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_has_some_non_default_style",
+    "source_line": 36,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_textstyle_uses_dotnet_property_names_only",
+    "source_line": 67,
+    "classes_used": [
+      "HorizontalAlignment",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "TextStyle.Default"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_textstyle_rejects_legacy_keyword_aliases",
+    "source_line": 92,
+    "classes_used": [
+      "TextStyle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_stores_alignment_on_richtext",
+    "source_line": 109,
+    "classes_used": [
+      "HorizontalAlignment",
+      "ParagraphStyle",
+      "RichText"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_paragraphstyle_exposes_default_text_properties",
+    "source_line": 121,
+    "classes_used": [
+      "ParagraphStyle"
+    ],
+    "methods_used": [
+      "ParagraphStyle.Default"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_uses_paragraphstyle_as_default_text_style",
+    "source_line": 144,
+    "classes_used": [
+      "ParagraphStyle",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_append_without_explicit_style_uses_paragraphstyle_defaults",
+    "source_line": 157,
+    "classes_used": [
+      "ParagraphStyle",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "RichText.Append"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_rejects_legacy_keyword_aliases",
+    "source_line": 170,
+    "classes_used": [
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_textrun_does_not_expose_run_boundaries",
+    "source_line": 179,
+    "classes_used": [
+      "TextRun"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_richtext_collection_properties_are_read_only",
+    "source_line": 187,
+    "classes_used": [
+      "NoteTag",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_aspose_note_richtext_formatting.py",
+    "source_function": "test_formatted_richtext_run_boundaries_align_with_visible_text",
+    "source_line": 204,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_options_is_abstract_compatibility_base",
+    "source_line": 29,
+    "classes_used": [
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_root_namespace_does_not_export_save_options",
+    "source_line": 36,
+    "classes_used": [
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_save_options_roundtrip",
+    "source_line": 42,
+    "classes_used": [
+      "Page",
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_format_exports_only_pdf",
+    "source_line": 54,
+    "classes_used": [
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_options_expose_common_base_properties",
+    "source_line": 59,
+    "classes_used": [
+      "Page",
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_format_is_read_only",
+    "source_line": 69,
+    "classes_used": [
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_pdf_with_pdfsaveoptions",
+    "source_line": 88,
+    "classes_used": [
+      "Document",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_pdf_infers_format_from_path_extension",
+    "source_line": 97,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_renders_note_tags",
+    "source_line": 109,
+    "classes_used": [
+      "Document",
+      "Image",
+      "NoteTag",
+      "Page",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "NoteTag.CreateMusicalNote",
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_renders_tags_in_visual_reverse_order",
+    "source_line": 180,
+    "classes_used": [
+      "Document",
+      "Image",
+      "NoteTag",
+      "Page",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "NoteTag.CreateMusicalNote",
+      "NoteTag.CreateQuestionMark",
+      "NoteTag.CreateYellowStar",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_question_tag_uses_distinct_color",
+    "source_line": 245,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_does_not_duplicate_rich_text",
+    "source_line": 251,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_applies_rich_text_run_styles",
+    "source_line": 324,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions",
+      "TextRun",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_preserves_spaces_and_inline_metadata",
+    "source_line": 408,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_converts_image_size_from_centimeters_to_points",
+    "source_line": 479,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.AppendChildLast",
+      "Image.AppendChildLast",
+      "Page.AppendChildLast"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_skips_internal_hyperlink_markup",
+    "source_line": 551,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_creates_clickable_hyperlinks",
+    "source_line": 606,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_applies_default_hyperlink_style",
+    "source_line": 662,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Page",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_uses_base14_fonts_by_default",
+    "source_line": 720,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_pdf_writer_uses_unicode_font_for_cyrillic",
+    "source_line": 726,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_aspose_note_save_options.py",
+    "source_function": "test_save_non_pdf_path_raises",
+    "source_line": 753,
+    "classes_used": [
+      "Document",
+      "SaveFormat",
+      "UnsupportedSaveFormatException"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_aspose_note_tags.py",
+    "source_function": "test_image_with_tag_exposes_tags",
+    "source_line": 54,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_aspose_note_tags.py",
+    "source_function": "test_table_with_tag_exposes_tags",
+    "source_line": 69,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Table"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Table.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_aspose_note_tags.py",
+    "source_function": "test_richtext_tags_exposed",
+    "source_line": 84,
+    "classes_used": [
+      "Document",
+      "Node",
+      "Outline",
+      "OutlineElement",
+      "RichText"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Outline.GetChildNodes",
+      "OutlineElement.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_aspose_note_tags.py",
+    "source_function": "test_outline_element_tags_and_list_metadata",
+    "source_line": 120,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node",
+      "NumberList",
+      "Outline",
+      "OutlineElement",
+      "RichText",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Document.Save",
+      "Image.GetChildNodes",
+      "Outline.GetChildNodes",
+      "OutlineElement.GetChildNodes"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_aspose_note_tags.py",
+    "source_function": "test_attachment_with_tag_fixture_has_tags_somewhere",
+    "source_line": 212,
+    "classes_used": [
+      "AttachedFile",
+      "Document",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_imports_smoke.py",
+    "source_function": "test_imports_smoke",
+    "source_line": 13,
+    "classes_used": [
+      "Document",
+      "Outline",
+      "Page",
+      "ParagraphStyle",
+      "PdfSaveOptions",
+      "RichText",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 31,
+    "classes_used": [
+      "Document",
+      "Table",
+      "Title"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 46,
+    "classes_used": [
+      "Document",
+      "RichText",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 274,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 284,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 296,
+    "classes_used": [
+      "Document",
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 309,
+    "classes_used": [
+      "Document",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 323,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node",
+      "Outline",
+      "OutlineElement",
+      "Page",
+      "RichText",
+      "Table",
+      "Title"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes",
+      "Outline.GetChildNodes",
+      "OutlineElement.GetChildNodes",
+      "Page.GetChildNodes",
+      "Table.GetChildNodes",
+      "Title.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 342,
+    "classes_used": [
+      "Document",
+      "DocumentVisitor",
+      "Image",
+      "Page",
+      "RichText"
+    ],
+    "methods_used": [
+      "Document.Accept",
+      "Image.Accept",
+      "Page.Accept",
+      "RichText.Accept"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 370,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "TextRun"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 382,
+    "classes_used": [
+      "Document",
+      "Image",
+      "Node",
+      "RichText",
+      "Table"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Image.GetChildNodes",
+      "Table.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 403,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "Table",
+      "TableCell",
+      "TableRow"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Table.GetChildNodes",
+      "TableCell.GetChildNodes",
+      "TableRow.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 421,
+    "classes_used": [
+      "AttachedFile",
+      "Document",
+      "Node",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 435,
+    "classes_used": [
+      "Document",
+      "Node",
+      "NumberList",
+      "Outline",
+      "OutlineElement"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Outline.GetChildNodes",
+      "OutlineElement.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

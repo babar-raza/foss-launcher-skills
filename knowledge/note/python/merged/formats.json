@@ -1,0 +1,43 @@
+[
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "\"pdf\"",
+    "file": "src/aspose/note/enums.py",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "OneNote2010",
+    "enum": "FileFormat",
+    "value": "\"onenote2010\"",
+    "file": "src/aspose/note/enums.py",
+    "line": 10,
+    "direction": "detect"
+  },
+  {
+    "format": "OneNoteOnline",
+    "enum": "FileFormat",
+    "value": "\"onenoteonline\"",
+    "file": "src/aspose/note/enums.py",
+    "line": 10,
+    "direction": "detect"
+  },
+  {
+    "format": "OneNote2007",
+    "enum": "FileFormat",
+    "value": "\"onenote2007\"",
+    "file": "src/aspose/note/enums.py",
+    "line": 10,
+    "direction": "detect"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/note/saving/options.py",
+    "line": 31,
+    "direction": "export"
+  }
+]

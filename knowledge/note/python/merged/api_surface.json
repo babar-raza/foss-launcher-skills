@@ -1,0 +1,4810 @@
+[
+  {
+    "name": "LogicalNode",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the kind.",
+        "line": 9,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "oid",
+        "type": "Any",
+        "writable": true,
+        "doc": "Gets or sets the oid.",
+        "line": 10,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "dict[str, Any]",
+        "writable": true,
+        "doc": "Gets or sets the properties.",
+        "line": 11,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "children",
+        "type": "list[LogicalNode]",
+        "writable": true,
+        "doc": "Gets or sets the children.",
+        "line": 12,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "metadata",
+        "type": "list[LogicalNode]",
+        "writable": true,
+        "doc": "Gets or sets the metadata.",
+        "line": 13,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.ms_one.entities.LogicalNode"
+  },
+  {
+    "name": "LogicalDocument",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/ms_one/entities/__init__.py",
+    "line": 17,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "root",
+        "type": "LogicalNode | None",
+        "writable": true,
+        "doc": "Gets or sets the root.",
+        "line": 18,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.ms_one.entities.LogicalDocument"
+  },
+  {
+    "name": "LoadedOneNoteDocument",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/ms_one/loader.py",
+    "line": 49,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "display_name",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the display name.",
+        "line": 50,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "logical_document",
+        "type": "LogicalDocument",
+        "writable": true,
+        "doc": "Gets or sets the logical document.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "pages",
+        "type": "list[Page]",
+        "writable": true,
+        "doc": "Gets or sets the pages.",
+        "line": 52,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_histories",
+        "type": "list[list[Page]]",
+        "writable": true,
+        "doc": "Gets or sets the page histories.",
+        "line": 53,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.ms_one.loader.LoadedOneNoteDocument"
+  },
+  {
+    "name": "load_onenote_document",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/note/_internal/ms_one/loader.py",
+    "line": 1044,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "source",
+        "type": "str | Path | BinaryIO"
+      },
+      {
+        "name": "include_page_history",
+        "type": "bool"
+      }
+    ],
+    "return_type": "LoadedOneNoteDocument"
+  },
+  {
+    "name": "ExtendedGUID",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 138,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "guid",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the guid.",
+        "line": 139,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "n",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the n.",
+        "line": 140,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.ExtendedGUID"
+  },
+  {
+    "name": "JCID",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 144,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "index",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the index.",
+        "line": 145,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBinary",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is binary.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsPropertySet",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is property set.",
+        "line": 147,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsGraphNode",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is graph node.",
+        "line": 148,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsFileData",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is file data.",
+        "line": 149,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsReadOnly",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is read only.",
+        "line": 150,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.JCID"
+  },
+  {
+    "name": "FileNode",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 154,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "file_node_id",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the file node id.",
+        "line": 155,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "payload",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the payload.",
+        "line": 156,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stp_format",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the stp format.",
+        "line": 157,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "cb_format",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the cb format.",
+        "line": 158,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "base_type",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the base type.",
+        "line": 159,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.FileNode"
+  },
+  {
+    "name": "OneStoreObject",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 163,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "oid",
+        "type": "ExtendedGUID",
+        "writable": true,
+        "doc": "Gets or sets the oid.",
+        "line": 164,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "jcid",
+        "type": "JCID",
+        "writable": true,
+        "doc": "Gets or sets the jcid.",
+        "line": 165,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "jcid_name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the jcid name.",
+        "line": 166,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "properties",
+        "type": "dict[str, Any]",
+        "writable": true,
+        "doc": "Gets or sets the properties.",
+        "line": 167,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_properties",
+        "type": "list[tuple[str, Any]]",
+        "writable": true,
+        "doc": "Gets or sets the raw properties.",
+        "line": 168,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "file_data_reference",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the file data reference.",
+        "line": 169,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "file_extension",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the file extension.",
+        "line": 170,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.OneStoreObject"
+  },
+  {
+    "name": "RevisionManifestRecord",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 174,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "rid",
+        "type": "ExtendedGUID",
+        "writable": true,
+        "doc": "Gets or sets the rid.",
+        "line": 175,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "rid_dependent",
+        "type": "ExtendedGUID | None",
+        "writable": true,
+        "doc": "Gets or sets the rid dependent.",
+        "line": 176,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "context_id",
+        "type": "ExtendedGUID | None",
+        "writable": true,
+        "doc": "Gets or sets the context id.",
+        "line": 177,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "root_roles",
+        "type": "dict[int, ExtendedGUID]",
+        "writable": true,
+        "doc": "Gets or sets the root roles.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "objects",
+        "type": "dict[ExtendedGUID, OneStoreObject]",
+        "writable": true,
+        "doc": "Gets or sets the objects.",
+        "line": 179,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "section_display_name",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the section display name.",
+        "line": 180,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "order_index",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the order index.",
+        "line": 181,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.RevisionManifestRecord"
+  },
+  {
+    "name": "RevisionRoleBinding",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 185,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "rid",
+        "type": "ExtendedGUID",
+        "writable": true,
+        "doc": "Gets or sets the rid.",
+        "line": 186,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "context_id",
+        "type": "ExtendedGUID | None",
+        "writable": true,
+        "doc": "Gets or sets the context id.",
+        "line": 187,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "role",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the role.",
+        "line": 188,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "order_index",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the order index.",
+        "line": 189,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.RevisionRoleBinding"
+  },
+  {
+    "name": "ObjectSpaceState",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 193,
+    "bases": [],
+    "methods": [
+      {
+        "name": "get_latest_root",
+        "params": [
+          {
+            "name": "role",
+            "type": "int"
+          },
+          {
+            "name": "context_id",
+            "type": "ExtendedGUID | None"
+          }
+        ],
+        "return_type": "ExtendedGUID | None",
+        "doc": "",
+        "line": 203,
+        "is_constructor": false
+      },
+      {
+        "name": "iter_latest_roots",
+        "params": [
+          {
+            "name": "role",
+            "type": "int"
+          }
+        ],
+        "return_type": "list[tuple[ExtendedGUID | None, ExtendedGUID]]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "get_latest_revision_index",
+        "params": [
+          {
+            "name": "role",
+            "type": "int"
+          },
+          {
+            "name": "context_id",
+            "type": "ExtendedGUID | None"
+          }
+        ],
+        "return_type": "int | None",
+        "doc": "",
+        "line": 220,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "gosid",
+        "type": "ExtendedGUID",
+        "writable": true,
+        "doc": "Gets or sets the gosid.",
+        "line": 194,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "root_roles",
+        "type": "dict[int, ExtendedGUID]",
+        "writable": true,
+        "doc": "Gets or sets the root roles.",
+        "line": 195,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "objects",
+        "type": "dict[ExtendedGUID, OneStoreObject]",
+        "writable": true,
+        "doc": "Gets or sets the objects.",
+        "line": 196,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "section_display_name",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the section display name.",
+        "line": 197,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "revisions",
+        "type": "list[RevisionManifestRecord]",
+        "writable": true,
+        "doc": "Gets or sets the revisions.",
+        "line": 198,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "role_bindings",
+        "type": "list[RevisionRoleBinding]",
+        "writable": true,
+        "doc": "Gets or sets the role bindings.",
+        "line": 199,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "latest_roots_by_context_role",
+        "type": "dict[tuple[ExtendedGUID | None, int], ExtendedGUID]",
+        "writable": true,
+        "doc": "Gets or sets the latest roots by context role.",
+        "line": 200,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "latest_revision_indices_by_context_role",
+        "type": "dict[tuple[ExtendedGUID | None, int], int]",
+        "writable": true,
+        "doc": "Gets or sets the latest revision indices by context role.",
+        "line": 201,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.ObjectSpaceState"
+  },
+  {
+    "name": "OneStoreFile",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 233,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "data",
+        "type": "bytes",
+        "writable": true,
+        "doc": "Gets or sets the data.",
+        "line": 234,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "object_spaces",
+        "type": "list[ObjectSpaceState]",
+        "writable": true,
+        "doc": "Gets or sets the object spaces.",
+        "line": 235,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "file_data_store",
+        "type": "dict[str, bytes]",
+        "writable": true,
+        "doc": "Gets or sets the file data store.",
+        "line": 236,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "display_name",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the display name.",
+        "line": 237,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note._internal.onestore.parser.OneStoreFile"
+  },
+  {
+    "name": "read_value",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 332,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "selected_type",
+        "type": "int"
+      }
+    ],
+    "return_type": "Any"
+  },
+  {
+    "name": "parse_onestore_file",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/note/_internal/onestore/parser.py",
+    "line": 780,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "source",
+        "type": "str | Path | BinaryIO"
+      }
+    ],
+    "return_type": "OneStoreFile"
+  },
+  {
+    "name": "OutlinePrefixFlowable",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/saving/pdf_writer.py",
+    "line": 1238,
+    "bases": [
+      "Flowable"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 1239,
+        "is_constructor": true
+      },
+      {
+        "name": "wrap",
+        "params": [
+          {
+            "name": "aW",
+            "type": ""
+          },
+          {
+            "name": "aH",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 1244,
+        "is_constructor": false
+      },
+      {
+        "name": "draw",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 1247,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 1241,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 1242,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note.saving.pdf_writer.OutlinePrefixFlowable"
+  },
+  {
+    "name": "AttachmentTagFlowable",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/saving/pdf_writer.py",
+    "line": 1362,
+    "bases": [
+      "Flowable"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 1363,
+        "is_constructor": true
+      },
+      {
+        "name": "wrap",
+        "params": [
+          {
+            "name": "aW",
+            "type": ""
+          },
+          {
+            "name": "aH",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 1369,
+        "is_constructor": false
+      },
+      {
+        "name": "draw",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 1374,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "hAlign",
+        "type": "",
+        "doc": "Gets the h align.",
+        "line": 1365,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 1366,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 1367,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note.saving.pdf_writer.AttachmentTagFlowable"
+  },
+  {
+    "name": "write_pdf",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/note/saving/pdf_writer.py",
+    "line": 1743,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "document",
+        "type": ""
+      },
+      {
+        "name": "options",
+        "type": "PdfSaveOptions"
+      }
+    ],
+    "return_type": "bytes"
+  },
+  {
+    "name": "SaveFormat",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/enums.py",
+    "line": 6,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "enum_members": [
+      {
+        "name": "Pdf",
+        "value": "\"pdf\""
+      }
+    ],
+    "class_import": "note.enums.SaveFormat"
+  },
+  {
+    "name": "FileFormat",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/enums.py",
+    "line": 10,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "enum_members": [
+      {
+        "name": "Unknown",
+        "value": "\"unknown\""
+      },
+      {
+        "name": "OneNote2010",
+        "value": "\"onenote2010\""
+      },
+      {
+        "name": "OneNoteOnline",
+        "value": "\"onenoteonline\""
+      },
+      {
+        "name": "OneNote2007",
+        "value": "\"onenote2007\""
+      }
+    ],
+    "class_import": "note.enums.FileFormat"
+  },
+  {
+    "name": "HorizontalAlignment",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/enums.py",
+    "line": 17,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "enum_members": [
+      {
+        "name": "Left",
+        "value": "\"left\""
+      },
+      {
+        "name": "Center",
+        "value": "\"center\""
+      },
+      {
+        "name": "Right",
+        "value": "\"right\""
+      }
+    ],
+    "class_import": "note.enums.HorizontalAlignment"
+  },
+  {
+    "name": "TagStatus",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/enums.py",
+    "line": 23,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "enum_members": [
+      {
+        "name": "Open",
+        "value": "0"
+      },
+      {
+        "name": "Completed",
+        "value": "1"
+      },
+      {
+        "name": "Disabled",
+        "value": "2"
+      }
+    ],
+    "class_import": "note.enums.TagStatus"
+  },
+  {
+    "name": "NodeType",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/enums.py",
+    "line": 29,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "enum_members": [
+      {
+        "name": "Document",
+        "value": "\"document\""
+      },
+      {
+        "name": "Page",
+        "value": "\"page\""
+      },
+      {
+        "name": "Outline",
+        "value": "\"outline\""
+      },
+      {
+        "name": "OutlineElement",
+        "value": "\"outline_element\""
+      },
+      {
+        "name": "RichText",
+        "value": "\"rich_text\""
+      },
+      {
+        "name": "Image",
+        "value": "\"image\""
+      },
+      {
+        "name": "Table",
+        "value": "\"table\""
+      },
+      {
+        "name": "AttachedFile",
+        "value": "\"attached_file\""
+      }
+    ],
+    "class_import": "note.enums.NodeType"
+  },
+  {
+    "name": "AsposeNoteError",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 25,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.AsposeNoteError"
+  },
+  {
+    "name": "FileCorruptedException",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 29,
+    "bases": [
+      "AsposeNoteError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.FileCorruptedException"
+  },
+  {
+    "name": "IncorrectDocumentStructureException",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 33,
+    "bases": [
+      "AsposeNoteError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.IncorrectDocumentStructureException"
+  },
+  {
+    "name": "IncorrectPasswordException",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 37,
+    "bases": [
+      "AsposeNoteError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.IncorrectPasswordException"
+  },
+  {
+    "name": "UnsupportedFileFormatException",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 41,
+    "bases": [
+      "AsposeNoteError"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "message",
+            "type": "str"
+          },
+          {
+            "name": "file_format",
+            "type": "FileFormat | str | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 44,
+        "is_constructor": true
+      }
+    ],
+    "properties": [
+      {
+        "name": "FileFormat",
+        "type": "FileFormat",
+        "writable": false,
+        "doc": "Gets the file format.",
+        "line": 53,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.UnsupportedFileFormatException"
+  },
+  {
+    "name": "UnsupportedSaveFormatException",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/exceptions.py",
+    "line": 57,
+    "bases": [
+      "AsposeNoteError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "class_import": "note.exceptions.UnsupportedSaveFormatException"
+  },
+  {
+    "name": "DocumentVisitor",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 68,
+    "bases": [],
+    "methods": [
+      {
+        "name": "VisitDocumentStart",
+        "params": [
+          {
+            "name": "document",
+            "type": "Document"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitDocumentEnd",
+        "params": [
+          {
+            "name": "document",
+            "type": "Document"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 77,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitPageStart",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 80,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitPageEnd",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 83,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitTitleStart",
+        "params": [
+          {
+            "name": "title",
+            "type": "Title"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 86,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitTitleEnd",
+        "params": [
+          {
+            "name": "title",
+            "type": "Title"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 89,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitOutlineStart",
+        "params": [
+          {
+            "name": "outline",
+            "type": "Outline"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 92,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitOutlineEnd",
+        "params": [
+          {
+            "name": "outline",
+            "type": "Outline"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 95,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitOutlineElementStart",
+        "params": [
+          {
+            "name": "outline_element",
+            "type": "OutlineElement"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 98,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitOutlineElementEnd",
+        "params": [
+          {
+            "name": "outline_element",
+            "type": "OutlineElement"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 101,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitRichTextStart",
+        "params": [
+          {
+            "name": "rich_text",
+            "type": "RichText"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 104,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitRichTextEnd",
+        "params": [
+          {
+            "name": "rich_text",
+            "type": "RichText"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 107,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitImageStart",
+        "params": [
+          {
+            "name": "image",
+            "type": "Image"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 110,
+        "is_constructor": false
+      },
+      {
+        "name": "VisitImageEnd",
+        "params": [
+          {
+            "name": "image",
+            "type": "Image"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 113,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "class_import": "note.model.DocumentVisitor"
+  },
+  {
+    "name": "License",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 117,
+    "bases": [],
+    "methods": [
+      {
+        "name": "SetLicense",
+        "params": [
+          {
+            "name": "license_path_or_stream",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 118,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "class_import": "note.model.License"
+  },
+  {
+    "name": "Metered",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 122,
+    "bases": [],
+    "methods": [
+      {
+        "name": "SetMeteredKey",
+        "params": [
+          {
+            "name": "public_key",
+            "type": "str"
+          },
+          {
+            "name": "private_key",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 123,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "class_import": "note.model.Metered"
+  },
+  {
+    "name": "LoadOptions",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 128,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "DocumentPassword",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the document password.",
+        "line": 129,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LoadHistory",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the load history.",
+        "line": 130,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.LoadOptions"
+  },
+  {
+    "name": "Node",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 134,
+    "bases": [],
+    "methods": [
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Node"
+  },
+  {
+    "name": "CompositeNode",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 169,
+    "bases": [
+      "Node"
+    ],
+    "methods": [
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.CompositeNode"
+  },
+  {
+    "name": "NoteTag",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 220,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "construction_token",
+            "type": "object | None"
+          },
+          {
+            "name": "Label",
+            "type": "str | None"
+          },
+          {
+            "name": "Icon",
+            "type": "int | None"
+          },
+          {
+            "name": "Status",
+            "type": "TagStatus | int | str | None"
+          },
+          {
+            "name": "Highlight",
+            "type": "int | None"
+          },
+          {
+            "name": "CreationTime",
+            "type": "datetime | int | None"
+          },
+          {
+            "name": "CompletedTime",
+            "type": "datetime | int | None"
+          },
+          {
+            "name": "FontColor",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 228,
+        "is_constructor": true
+      },
+      {
+        "name": "CreateYellowStar",
+        "params": [
+          {
+            "name": "label",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "NoteTag",
+        "doc": "",
+        "line": 328,
+        "is_constructor": false
+      },
+      {
+        "name": "CreateQuestionMark",
+        "params": [
+          {
+            "name": "label",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "NoteTag",
+        "doc": "",
+        "line": 332,
+        "is_constructor": false
+      },
+      {
+        "name": "CreateMusicalNote",
+        "params": [
+          {
+            "name": "label",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "NoteTag",
+        "doc": "",
+        "line": 336,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Label",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the label.",
+        "line": 274,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Icon",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the icon.",
+        "line": 282,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Status",
+        "type": "TagStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 290,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Highlight",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the highlight.",
+        "line": 296,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "CreationTime",
+        "type": "datetime | None",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 304,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "CompletedTime",
+        "type": "datetime | None",
+        "writable": false,
+        "doc": "Gets the completed time.",
+        "line": 312,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontColor",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the font color.",
+        "line": 316,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.NoteTag"
+  },
+  {
+    "name": "ParagraphStyle",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 340,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "FontName",
+            "type": "str | None"
+          },
+          {
+            "name": "FontSize",
+            "type": "float | None"
+          },
+          {
+            "name": "FontColor",
+            "type": "int | None"
+          },
+          {
+            "name": "Highlight",
+            "type": "int | None"
+          },
+          {
+            "name": "IsBold",
+            "type": "bool"
+          },
+          {
+            "name": "IsItalic",
+            "type": "bool"
+          },
+          {
+            "name": "IsUnderline",
+            "type": "bool"
+          },
+          {
+            "name": "IsStrikethrough",
+            "type": "bool"
+          },
+          {
+            "name": "IsSuperscript",
+            "type": "bool"
+          },
+          {
+            "name": "IsSubscript",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 354,
+        "is_constructor": true
+      },
+      {
+        "name": "Default",
+        "params": [],
+        "return_type": "ParagraphStyle",
+        "doc": "",
+        "line": 393,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FontStyle",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the font style.",
+        "line": 380,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontName",
+        "type": "",
+        "doc": "Gets the font name.",
+        "line": 368,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontSize",
+        "type": "",
+        "doc": "Gets the font size.",
+        "line": 369,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontColor",
+        "type": "",
+        "doc": "Gets the font color.",
+        "line": 370,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Highlight",
+        "type": "",
+        "doc": "Gets the highlight.",
+        "line": 371,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBold",
+        "type": "",
+        "doc": "Gets the is bold.",
+        "line": 372,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsItalic",
+        "type": "",
+        "doc": "Gets the is italic.",
+        "line": 373,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsUnderline",
+        "type": "",
+        "doc": "Gets the is underline.",
+        "line": 374,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsStrikethrough",
+        "type": "",
+        "doc": "Gets the is strikethrough.",
+        "line": 375,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsSuperscript",
+        "type": "",
+        "doc": "Gets the is superscript.",
+        "line": 376,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsSubscript",
+        "type": "",
+        "doc": "Gets the is subscript.",
+        "line": 377,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.ParagraphStyle"
+  },
+  {
+    "name": "TextStyle",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 397,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "IsHyperlink",
+            "type": "bool"
+          },
+          {
+            "name": "HyperlinkAddress",
+            "type": "str | None"
+          },
+          {
+            "name": "FontName",
+            "type": "str | None"
+          },
+          {
+            "name": "FontSize",
+            "type": "float | None"
+          },
+          {
+            "name": "FontColor",
+            "type": "int | None"
+          },
+          {
+            "name": "Highlight",
+            "type": "int | None"
+          },
+          {
+            "name": "Language",
+            "type": "int | None"
+          },
+          {
+            "name": "IsBold",
+            "type": "bool"
+          },
+          {
+            "name": "IsItalic",
+            "type": "bool"
+          },
+          {
+            "name": "IsUnderline",
+            "type": "bool"
+          },
+          {
+            "name": "IsStrikethrough",
+            "type": "bool"
+          },
+          {
+            "name": "IsSuperscript",
+            "type": "bool"
+          },
+          {
+            "name": "IsSubscript",
+            "type": "bool"
+          },
+          {
+            "name": "IsHidden",
+            "type": "bool"
+          },
+          {
+            "name": "IsMathFormatting",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 416,
+        "is_constructor": true
+      },
+      {
+        "name": "Default",
+        "params": [],
+        "return_type": "TextStyle",
+        "doc": "",
+        "line": 585,
+        "is_constructor": false
+      },
+      {
+        "name": "DefaultMsOneNoteTitleTextStyle",
+        "params": [],
+        "return_type": "TextStyle",
+        "doc": "",
+        "line": 589,
+        "is_constructor": false
+      },
+      {
+        "name": "DefaultMsOneNoteTitleDateStyle",
+        "params": [],
+        "return_type": "TextStyle",
+        "doc": "",
+        "line": 593,
+        "is_constructor": false
+      },
+      {
+        "name": "DefaultMsOneNoteTitleTimeStyle",
+        "params": [],
+        "return_type": "TextStyle",
+        "doc": "",
+        "line": 597,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "IsHyperlink",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is hyperlink.",
+        "line": 452,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "HyperlinkAddress",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the hyperlink address.",
+        "line": 460,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontName",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the font name.",
+        "line": 468,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontSize",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the font size.",
+        "line": 476,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontColor",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the font color.",
+        "line": 484,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Highlight",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the highlight.",
+        "line": 492,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Language",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the language.",
+        "line": 500,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBold",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is bold.",
+        "line": 508,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsItalic",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is italic.",
+        "line": 516,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsUnderline",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is underline.",
+        "line": 524,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsStrikethrough",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is strikethrough.",
+        "line": 532,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsSuperscript",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is superscript.",
+        "line": 540,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsSubscript",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is subscript.",
+        "line": 548,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsHidden",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is hidden.",
+        "line": 556,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsMathFormatting",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is math formatting.",
+        "line": 564,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontStyle",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the font style.",
+        "line": 572,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.TextStyle"
+  },
+  {
+    "name": "TextRun",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 622,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Text",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the text.",
+        "line": 623,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Style",
+        "type": "TextStyle",
+        "writable": true,
+        "doc": "Gets or sets the style.",
+        "line": 624,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.TextRun"
+  },
+  {
+    "name": "RichText",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 627,
+    "bases": [
+      "Node"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "Text",
+            "type": "str"
+          },
+          {
+            "name": "TextRuns",
+            "type": "list[TextRun] | None"
+          },
+          {
+            "name": "ParagraphStyle",
+            "type": "ParagraphStyle | None"
+          },
+          {
+            "name": "Alignment",
+            "type": "HorizontalAlignment | None"
+          },
+          {
+            "name": "Tags",
+            "type": "list[NoteTag] | None"
+          },
+          {
+            "name": "LastModifiedTime",
+            "type": "datetime | None"
+          },
+          {
+            "name": "SpaceBefore",
+            "type": "float | None"
+          },
+          {
+            "name": "SpaceAfter",
+            "type": "float | None"
+          },
+          {
+            "name": "LineSpacing",
+            "type": "float | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 641,
+        "is_constructor": true
+      },
+      {
+        "name": "Append",
+        "params": [
+          {
+            "name": "text",
+            "type": "str"
+          },
+          {
+            "name": "style",
+            "type": "TextStyle | None"
+          }
+        ],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 733,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendFront",
+        "params": [
+          {
+            "name": "text",
+            "type": "str"
+          },
+          {
+            "name": "style",
+            "type": "TextStyle | None"
+          }
+        ],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 745,
+        "is_constructor": false
+      },
+      {
+        "name": "Clear",
+        "params": [],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 748,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[str]",
+        "doc": "",
+        "line": 753,
+        "is_constructor": false
+      },
+      {
+        "name": "IndexOf",
+        "params": [
+          {
+            "name": "value",
+            "type": "str"
+          },
+          {
+            "name": "startIndex",
+            "type": "int"
+          },
+          {
+            "name": "count",
+            "type": "int | None"
+          },
+          {
+            "name": "comparison",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 756,
+        "is_constructor": false
+      },
+      {
+        "name": "Insert",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "text",
+            "type": "str"
+          },
+          {
+            "name": "style",
+            "type": "TextStyle | None"
+          }
+        ],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 771,
+        "is_constructor": false
+      },
+      {
+        "name": "Remove",
+        "params": [
+          {
+            "name": "start",
+            "type": "int"
+          },
+          {
+            "name": "count",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 780,
+        "is_constructor": false
+      },
+      {
+        "name": "Replace",
+        "params": [
+          {
+            "name": "old_value",
+            "type": "str"
+          },
+          {
+            "name": "new_value",
+            "type": "str"
+          },
+          {
+            "name": "style",
+            "type": "TextStyle | None"
+          }
+        ],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 793,
+        "is_constructor": false
+      },
+      {
+        "name": "Trim",
+        "params": [],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 807,
+        "is_constructor": false
+      },
+      {
+        "name": "TrimStart",
+        "params": [],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 815,
+        "is_constructor": false
+      },
+      {
+        "name": "TrimEnd",
+        "params": [],
+        "return_type": "RichText",
+        "doc": "",
+        "line": 823,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Text",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the text.",
+        "line": 677,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "TextRuns",
+        "type": "list[TextRun]",
+        "writable": false,
+        "doc": "Gets the text runs.",
+        "line": 693,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParagraphStyle",
+        "type": "ParagraphStyle",
+        "writable": true,
+        "doc": "Gets or sets the paragraph style.",
+        "line": 697,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Tags",
+        "type": "list[NoteTag]",
+        "writable": false,
+        "doc": "Gets the tags.",
+        "line": 706,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the length.",
+        "line": 710,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Alignment",
+        "type": "HorizontalAlignment | None",
+        "writable": true,
+        "doc": "Gets or sets the alignment.",
+        "line": 714,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsTitleText",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is title text.",
+        "line": 722,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsTitleDate",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is title date.",
+        "line": 726,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsTitleTime",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is title time.",
+        "line": 730,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "",
+        "doc": "Gets the last modified time.",
+        "line": 659,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "SpaceBefore",
+        "type": "",
+        "doc": "Gets the space before.",
+        "line": 660,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "SpaceAfter",
+        "type": "",
+        "doc": "Gets the space after.",
+        "line": 661,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LineSpacing",
+        "type": "",
+        "doc": "Gets the line spacing.",
+        "line": 662,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.RichText"
+  },
+  {
+    "name": "Title",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 836,
+    "bases": [
+      "Node"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "TitleText",
+            "type": "RichText | None"
+          },
+          {
+            "name": "TitleDate",
+            "type": "RichText | None"
+          },
+          {
+            "name": "TitleTime",
+            "type": "RichText | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 839,
+        "is_constructor": true
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 888,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 896,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "TitleText",
+        "type": "RichText | None",
+        "writable": true,
+        "doc": "Gets or sets the title text.",
+        "line": 865,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "TitleDate",
+        "type": "RichText | None",
+        "writable": true,
+        "doc": "Gets or sets the title date.",
+        "line": 873,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "TitleTime",
+        "type": "RichText | None",
+        "writable": true,
+        "doc": "Gets or sets the title time.",
+        "line": 881,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Title"
+  },
+  {
+    "name": "NumberList",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 913,
+    "bases": [],
+    "methods": [
+      {
+        "name": "GetNumberedListHeader",
+        "params": [
+          {
+            "name": "number",
+            "type": "int"
+          }
+        ],
+        "return_type": "str",
+        "doc": "",
+        "line": 924,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Format",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the format.",
+        "line": 914,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "NumberFormat",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the number format.",
+        "line": 915,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Font",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the font.",
+        "line": 916,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontSize",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the font size.",
+        "line": 917,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontColor",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the font color.",
+        "line": 918,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBold",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is bold.",
+        "line": 919,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsItalic",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is italic.",
+        "line": 920,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "datetime | None",
+        "writable": true,
+        "doc": "Gets or sets the last modified time.",
+        "line": 921,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Restart",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the restart.",
+        "line": 922,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.NumberList"
+  },
+  {
+    "name": "OutlineElement",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 933,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "NumberList",
+        "type": "NumberList | None",
+        "writable": true,
+        "doc": "Gets or sets the number list.",
+        "line": 934,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.OutlineElement"
+  },
+  {
+    "name": "Outline",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 944,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "HorizontalOffset",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the horizontal offset.",
+        "line": 945,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "VerticalOffset",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the vertical offset.",
+        "line": 946,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "MaxWidth",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the max width.",
+        "line": 947,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "MaxHeight",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the max height.",
+        "line": 948,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "MinWidth",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the min width.",
+        "line": 949,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ReservedWidth",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the reserved width.",
+        "line": 950,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IndentPosition",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the indent position.",
+        "line": 951,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "DescendantsCannotBeMoved",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the descendants cannot be moved.",
+        "line": 952,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "datetime | None",
+        "writable": true,
+        "doc": "Gets or sets the last modified time.",
+        "line": 953,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Outline"
+  },
+  {
+    "name": "Image",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 962,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "FileName",
+            "type": "str | None"
+          },
+          {
+            "name": "FilePath",
+            "type": "str | None"
+          },
+          {
+            "name": "Format",
+            "type": "str | None"
+          },
+          {
+            "name": "Bytes",
+            "type": "bytes"
+          },
+          {
+            "name": "Width",
+            "type": "float | None"
+          },
+          {
+            "name": "Height",
+            "type": "float | None"
+          },
+          {
+            "name": "OriginalWidth",
+            "type": "float | None"
+          },
+          {
+            "name": "OriginalHeight",
+            "type": "float | None"
+          },
+          {
+            "name": "HorizontalOffset",
+            "type": "float | None"
+          },
+          {
+            "name": "VerticalOffset",
+            "type": "float | None"
+          },
+          {
+            "name": "Alignment",
+            "type": "HorizontalAlignment | None"
+          },
+          {
+            "name": "IsBackground",
+            "type": "bool"
+          },
+          {
+            "name": "LastModifiedTime",
+            "type": "datetime | None"
+          },
+          {
+            "name": "AlternativeTextTitle",
+            "type": "str | None"
+          },
+          {
+            "name": "AlternativeTextDescription",
+            "type": "str | None"
+          },
+          {
+            "name": "HyperlinkUrl",
+            "type": "str | None"
+          },
+          {
+            "name": "Tags",
+            "type": "list[NoteTag] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 983,
+        "is_constructor": true
+      },
+      {
+        "name": "Replace",
+        "params": [
+          {
+            "name": "image",
+            "type": "Image"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1059,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FileName",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the file name.",
+        "line": 1024,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FilePath",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the file path.",
+        "line": 1028,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Format",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the format.",
+        "line": 1032,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Bytes",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the bytes.",
+        "line": 1036,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "OriginalWidth",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the original width.",
+        "line": 1040,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "OriginalHeight",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the original height.",
+        "line": 1044,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Tags",
+        "type": "list[NoteTag]",
+        "writable": false,
+        "doc": "Gets the tags.",
+        "line": 1048,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Alignment",
+        "type": "HorizontalAlignment | None",
+        "writable": true,
+        "doc": "Gets or sets the alignment.",
+        "line": 1052,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 1009,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 1010,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "HorizontalOffset",
+        "type": "",
+        "doc": "Gets the horizontal offset.",
+        "line": 1013,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "VerticalOffset",
+        "type": "",
+        "doc": "Gets the vertical offset.",
+        "line": 1014,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBackground",
+        "type": "",
+        "doc": "Gets the is background.",
+        "line": 1016,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "",
+        "doc": "Gets the last modified time.",
+        "line": 1017,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "AlternativeTextTitle",
+        "type": "",
+        "doc": "Gets the alternative text title.",
+        "line": 1018,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "AlternativeTextDescription",
+        "type": "",
+        "doc": "Gets the alternative text description.",
+        "line": 1019,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "HyperlinkUrl",
+        "type": "",
+        "doc": "Gets the hyperlink url.",
+        "line": 1020,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Image"
+  },
+  {
+    "name": "AttachedFile",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1085,
+    "bases": [
+      "Node"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "FileName",
+            "type": "str | None"
+          },
+          {
+            "name": "Bytes",
+            "type": "bytes"
+          },
+          {
+            "name": "Tags",
+            "type": "list[NoteTag] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1088,
+        "is_constructor": true
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FileName",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the file name.",
+        "line": 1101,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Bytes",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the bytes.",
+        "line": 1105,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Tags",
+        "type": "list[NoteTag]",
+        "writable": false,
+        "doc": "Gets the tags.",
+        "line": 1109,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.AttachedFile"
+  },
+  {
+    "name": "TableCell",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1114,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.TableCell"
+  },
+  {
+    "name": "TableRow",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1119,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.TableRow"
+  },
+  {
+    "name": "TableColumn",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1124,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Width",
+        "type": "float | None",
+        "writable": true,
+        "doc": "Gets or sets the width.",
+        "line": 1125,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LockedWidth",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the locked width.",
+        "line": 1126,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.TableColumn"
+  },
+  {
+    "name": "Table",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1129,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "Tags",
+            "type": "list[NoteTag] | None"
+          },
+          {
+            "name": "Columns",
+            "type": "list[TableColumn] | None"
+          },
+          {
+            "name": "IsBordersVisible",
+            "type": "bool"
+          },
+          {
+            "name": "LastModifiedTime",
+            "type": "datetime | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1132,
+        "is_constructor": true
+      },
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Tags",
+        "type": "list[NoteTag]",
+        "writable": false,
+        "doc": "Gets the tags.",
+        "line": 1147,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Columns",
+        "type": "list[TableColumn]",
+        "writable": false,
+        "doc": "Gets the columns.",
+        "line": 1151,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsBordersVisible",
+        "type": "",
+        "doc": "Gets the is borders visible.",
+        "line": 1143,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "",
+        "doc": "Gets the last modified time.",
+        "line": 1144,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Table"
+  },
+  {
+    "name": "Page",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1156,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "Clone",
+        "params": [
+          {
+            "name": "cloneHistory",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Page",
+        "doc": "",
+        "line": 1169,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Title",
+        "type": "Title | None",
+        "writable": true,
+        "doc": "Gets or sets the title.",
+        "line": 1157,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Author",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the author.",
+        "line": 1158,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "CreationTime",
+        "type": "datetime | None",
+        "writable": true,
+        "doc": "Gets or sets the creation time.",
+        "line": 1159,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastModifiedTime",
+        "type": "datetime | None",
+        "writable": true,
+        "doc": "Gets or sets the last modified time.",
+        "line": 1160,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Level",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the level.",
+        "line": 1161,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "BackgroundColor",
+        "type": "int | None",
+        "writable": true,
+        "doc": "Gets or sets the background color.",
+        "line": 1162,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Margin",
+        "type": "Any | None",
+        "writable": true,
+        "doc": "Gets or sets the margin.",
+        "line": 1163,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "SizeType",
+        "type": "Any | None",
+        "writable": true,
+        "doc": "Gets or sets the size type.",
+        "line": 1164,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageLayoutSize",
+        "type": "Any | None",
+        "writable": true,
+        "doc": "Gets or sets the page layout size.",
+        "line": 1165,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsConflictPage",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is conflict page.",
+        "line": 1166,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageContentRevisionSummary",
+        "type": "Any | None",
+        "writable": true,
+        "doc": "Gets or sets the page content revision summary.",
+        "line": 1167,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Page"
+  },
+  {
+    "name": "PageHistory",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1186,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "current",
+            "type": "Page"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1189,
+        "is_constructor": true
+      },
+      {
+        "name": "Add",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1205,
+        "is_constructor": false
+      },
+      {
+        "name": "AddRange",
+        "params": [
+          {
+            "name": "pages",
+            "type": "list[Page]"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1208,
+        "is_constructor": false
+      },
+      {
+        "name": "Clear",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 1211,
+        "is_constructor": false
+      },
+      {
+        "name": "Contains",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 1214,
+        "is_constructor": false
+      },
+      {
+        "name": "CopyTo",
+        "params": [
+          {
+            "name": "target",
+            "type": "list[Page]"
+          },
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1217,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Page]",
+        "doc": "",
+        "line": 1220,
+        "is_constructor": false
+      },
+      {
+        "name": "IndexOf",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 1223,
+        "is_constructor": false
+      },
+      {
+        "name": "Insert",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1229,
+        "is_constructor": false
+      },
+      {
+        "name": "Remove",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 1232,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveAt",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1238,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveRange",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "count",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1241,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "Count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the count.",
+        "line": 1194,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Current",
+        "type": "Page",
+        "writable": false,
+        "doc": "Gets the current.",
+        "line": 1198,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsReadOnly",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is read only.",
+        "line": 1202,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.PageHistory"
+  },
+  {
+    "name": "Document",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/model.py",
+    "line": 1257,
+    "bases": [
+      "CompositeNode"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "source",
+            "type": "str | Path | BinaryIO | None"
+          },
+          {
+            "name": "load_options",
+            "type": "LoadOptions | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1258,
+        "is_constructor": true
+      },
+      {
+        "name": "DetectLayoutChanges",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 1289,
+        "is_constructor": false
+      },
+      {
+        "name": "GetPageHistory",
+        "params": [
+          {
+            "name": "page",
+            "type": "Page"
+          }
+        ],
+        "return_type": "PageHistory",
+        "doc": "",
+        "line": 1292,
+        "is_constructor": false
+      },
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "target",
+            "type": "str | Path | BinaryIO"
+          },
+          {
+            "name": "format_or_options",
+            "type": "SaveFormat | SaveOptions | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 1295,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildLast",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 185,
+        "is_constructor": false
+      },
+      {
+        "name": "AppendChildFirst",
+        "params": [
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 190,
+        "is_constructor": false
+      },
+      {
+        "name": "InsertChild",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "node",
+            "type": "TNode"
+          }
+        ],
+        "return_type": "TNode",
+        "doc": "",
+        "line": 195,
+        "is_constructor": false
+      },
+      {
+        "name": "RemoveChild",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": false
+      },
+      {
+        "name": "GetEnumerator",
+        "params": [],
+        "return_type": "Iterator[Node]",
+        "doc": "",
+        "line": 204,
+        "is_constructor": false
+      },
+      {
+        "name": "GetChildNodes",
+        "params": [
+          {
+            "name": "node_type",
+            "type": "type[TNode]"
+          }
+        ],
+        "return_type": "list[TNode]",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "Accept",
+        "params": [
+          {
+            "name": "visitor",
+            "type": "DocumentVisitor"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "FileFormat",
+        "type": "FileFormat",
+        "writable": false,
+        "doc": "Gets the file format.",
+        "line": 1286,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "DisplayName",
+        "type": "str | None",
+        "doc": "Gets the display name.",
+        "line": 1260,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "CreationTime",
+        "type": "datetime | None",
+        "doc": "Gets the creation time.",
+        "line": 1261,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FirstChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the first child.",
+        "line": 178,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "LastChild",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the last child.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ParentNode",
+        "type": "Node | None",
+        "writable": false,
+        "doc": "Gets the parent node.",
+        "line": 146,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Document",
+        "type": "Document | None",
+        "writable": false,
+        "doc": "Gets the document.",
+        "line": 153,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "class_import": "note.model.Document"
+  },
+  {
+    "name": "SaveOptions",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/saving/options.py",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "save_format",
+            "type": "SaveFormat"
+          },
+          {
+            "name": "PageIndex",
+            "type": "int"
+          },
+          {
+            "name": "PageCount",
+            "type": "int | None"
+          },
+          {
+            "name": "FontsSubsystem",
+            "type": "Any | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 11,
+        "is_constructor": true
+      }
+    ],
+    "properties": [
+      {
+        "name": "SaveFormat",
+        "type": "SaveFormat",
+        "writable": false,
+        "doc": "Gets the save format.",
+        "line": 27,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageIndex",
+        "type": "",
+        "doc": "Gets the page index.",
+        "line": 22,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageCount",
+        "type": "",
+        "doc": "Gets the page count.",
+        "line": 23,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontsSubsystem",
+        "type": "",
+        "doc": "Gets the fonts subsystem.",
+        "line": 24,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note.saving.options.SaveOptions"
+  },
+  {
+    "name": "PdfSaveOptions",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose/note/saving/options.py",
+    "line": 31,
+    "bases": [
+      "SaveOptions"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "PageIndex",
+            "type": "int"
+          },
+          {
+            "name": "PageCount",
+            "type": "int | None"
+          },
+          {
+            "name": "FontsSubsystem",
+            "type": "Any | None"
+          },
+          {
+            "name": "ImageCompression",
+            "type": "Any | None"
+          },
+          {
+            "name": "JpegQuality",
+            "type": "int | None"
+          },
+          {
+            "name": "PageSettings",
+            "type": "Any | None"
+          },
+          {
+            "name": "PageSplittingAlgorithm",
+            "type": "Any | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 34,
+        "is_constructor": true
+      }
+    ],
+    "properties": [
+      {
+        "name": "ImageCompression",
+        "type": "",
+        "doc": "Gets the image compression.",
+        "line": 46,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "JpegQuality",
+        "type": "",
+        "doc": "Gets the jpeg quality.",
+        "line": 47,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageSettings",
+        "type": "",
+        "doc": "Gets the page settings.",
+        "line": 48,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageSplittingAlgorithm",
+        "type": "",
+        "doc": "Gets the page splitting algorithm.",
+        "line": 49,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "SaveFormat",
+        "type": "SaveFormat",
+        "writable": false,
+        "doc": "Gets the save format.",
+        "line": 27,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageIndex",
+        "type": "",
+        "doc": "Gets the page index.",
+        "line": 22,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "PageCount",
+        "type": "",
+        "doc": "Gets the page count.",
+        "line": 23,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FontsSubsystem",
+        "type": "",
+        "doc": "Gets the fonts subsystem.",
+        "line": 24,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "class_import": "note.saving.options.PdfSaveOptions"
+  }
+]

@@ -1,0 +1,21 @@
+family: note
+platform: python
+product_name: aspose-note
+version: 26.3.2
+license: LicenseRef-Aspose-Split
+repo_url: https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python.git
+repo_sha: 6d97a522a9ed24708687911f1aabb76e2dea2da7
+config_sha: 8c48120efd479f40
+stale_since: null
+promoted_at: '2026-07-12T14:38:31.127804+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+stats:
+  scout_claims: 333
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 333
+  class_count: 50
+  forbidden_count: 0
+  snippet_count: 97
