@@ -1791,6 +1791,217 @@ def _append_advisory_decision(
     refresh_run._save_manifest(manifest)
 
 
+def test_casefold_path_diff_treats_case_only_variance_as_a_match():
+    """Case-only path pairs (Windows/macOS filesystem aliasing, e.g. a
+    generator writing 'Camera.md' where git still tracks 'camera.md') must
+    not surface as a real diff on either side."""
+    a_only, b_only = refresh_run._casefold_path_diff(
+        {"content/reference.aspose.org/en/3d/java/camera.md", "content/x/Real.md"},
+        {"content/reference.aspose.org/en/3d/java/Camera.md", "content/y/Other.md"},
+    )
+    assert a_only == {"content/x/Real.md"}
+    assert b_only == {"content/y/Other.md"}
+
+
+def test_casefold_path_diff_collapses_case_insensitive_duplicate():
+    """A genuine duplicate that differs only in case on both sides is a
+    match, not a diff entry from either set."""
+    a_only, b_only = refresh_run._casefold_path_diff(
+        {"content/a.md"}, {"content/A.md"}
+    )
+    assert a_only == set()
+    assert b_only == set()
+
+
+def test_assert_scope_ownership_tolerates_case_only_receipt_path(tmp_path: Path):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding: the OCC
+    guard's allowed-hash lookup must merge case-insensitively too, or a
+    receipt recorded under the generator's canonical casing ('Camera.md')
+    fails to authorize the identical physical file the scope pinned under
+    git's tracked casing ('camera.md')."""
+    page_path = "content/reference.aspose.org/en/pdf/net/camera.md"
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("---\ntitle: Camera\n---\n\nBody.\n", encoding="utf-8")
+    file_hash = refresh_run._path_hash(page_path)
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-CASEFOLD-OCC", session_id="s1"
+    )
+    manifest["scope"]["paths"] = [page_path]
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CASEFOLD-OCC"
+    scope_path = run_root / "scope.json"
+    scope_path.parent.mkdir(parents=True, exist_ok=True)
+    scope_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "run_id": manifest["run_id"],
+                "family": "pdf",
+                "platform": "net",
+                "paths": [page_path],
+                "initial_hashes": {page_path: file_hash},
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifest["scope"]["digest"] = refresh_run._scope_digest(
+        [page_path], manifest["scope"].get("input_digest")
+    )
+    manifest["output_digests"]["scope"] = refresh_run._file_digest(scope_path)
+
+    # Receipt recorded under the generator's canonical class-name casing,
+    # differing from the scope manifest's git-tracked casing above.
+    receipt_page_path = "content/reference.aspose.org/en/pdf/net/Camera.md"
+    receipt_path = run_root / "receipts" / "RCP-001.yaml"
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    receipt_path.write_text(
+        yaml.safe_dump(
+            {
+                "content_refresh_receipt": {
+                    "receipt_id": "RCP-001",
+                    "run_id": manifest["run_id"],
+                    "page_path": receipt_page_path,
+                    "old_hash": file_hash,
+                    "new_hash": file_hash,
+                }
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    decisions_path = run_root / "page_decisions.jsonl"
+    decisions_path.write_text(
+        json.dumps(
+            {
+                "run_id": manifest["run_id"],
+                "page_path": receipt_page_path,
+                "receipt_ref": "receipts/RCP-001.yaml",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    refresh_run._save_manifest(manifest)
+
+    refresh_run._assert_scope_ownership(manifest)  # must not raise
+
+
+def test_augment_initial_hashes_treats_authorized_write_as_unchanged(
+    tmp_path: Path,
+):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding:
+    _assert_run_evidence_ready's reconciliation call must not report a
+    deliberately receipt-less page (TC-DUPIDX-02's _index.md regeneration)
+    as 'missing' once its resulting hash has been recorded as authorized --
+    but any OTHER, unauthorized drift on that same page must still block."""
+    page_path = "content/reference.aspose.org/en/pdf/net/_index.md"
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("Original.\n", encoding="utf-8")
+    initial_hash = refresh_run._path_hash(page_path)
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-AUGMENT"
+
+    # No write yet: augmentation is a no-op (nothing recorded).
+    assert refresh_run._augment_initial_hashes_with_extra_allowed(
+        {page_path: initial_hash}, run_root
+    ) == {page_path: initial_hash}
+
+    # Authorized write: current hash becomes the accepted baseline.
+    page.write_text("Regenerated by TC-DUPIDX-02.\n", encoding="utf-8")
+    authorized_hash = refresh_run._path_hash(page_path)
+    refresh_run._record_extra_allowed_hash(run_root, page_path, authorized_hash)
+    augmented = refresh_run._augment_initial_hashes_with_extra_allowed(
+        {page_path: initial_hash}, run_root
+    )
+    assert augmented[page_path] == authorized_hash
+
+    # Further, unauthorized drift on top of the authorized write must still
+    # surface as a real diff -- the fix narrows the gap, it doesn't remove
+    # the safety property. Current bytes match neither the recorded
+    # authorized hash nor the original initial_hash, so no override applies
+    # and the caller's real_missing check still sees a mismatch.
+    page.write_text("Unauthorized further edit.\n", encoding="utf-8")
+    still_augmented = refresh_run._augment_initial_hashes_with_extra_allowed(
+        {page_path: initial_hash}, run_root
+    )
+    assert still_augmented[page_path] == initial_hash
+    assert refresh_run._path_hash(page_path) != still_augmented[page_path]
+
+
+def test_assert_scope_ownership_honors_recorded_extra_allowed_hash(tmp_path: Path):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding: the
+    TC-DUPIDX-02 grouped-index regeneration deliberately writes _index.md
+    with no page_decisions.jsonl row of its own (see that call site's
+    comment) -- _record_extra_allowed_hash() must authorize the resulting
+    hash so this OCC guard does not block on the write it was told to make."""
+    page_path = "content/reference.aspose.org/en/pdf/net/_index.md"
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("---\ntitle: Index\n---\n\nOriginal.\n", encoding="utf-8")
+    initial_hash = refresh_run._path_hash(page_path)
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-EXTRA-HASH", session_id="s1"
+    )
+    manifest["scope"]["paths"] = [page_path]
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-EXTRA-HASH"
+    scope_path = run_root / "scope.json"
+    scope_path.parent.mkdir(parents=True, exist_ok=True)
+    scope_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "run_id": manifest["run_id"],
+                "family": "pdf",
+                "platform": "net",
+                "paths": [page_path],
+                "initial_hashes": {page_path: initial_hash},
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifest["scope"]["digest"] = refresh_run._scope_digest(
+        [page_path], manifest["scope"].get("input_digest")
+    )
+    manifest["output_digests"]["scope"] = refresh_run._file_digest(scope_path)
+    refresh_run._save_manifest(manifest)
+
+    # Simulate the generate-index writer: rewrites the file with no receipt
+    # or decision row, exactly like apply_run()'s TC-DUPIDX-02 call site.
+    page.write_text("---\ntitle: Index\n---\n\nRegenerated.\n", encoding="utf-8")
+    new_hash = refresh_run._path_hash(page_path)
+    assert new_hash != initial_hash
+
+    with pytest.raises(refresh_run.RefreshRunError, match="changed outside"):
+        refresh_run._assert_scope_ownership(manifest)
+
+    refresh_run._record_extra_allowed_hash(run_root, page_path, new_hash)
+    refresh_run._assert_scope_ownership(manifest)  # must not raise
+
+
+def test_reconcile_scope_and_decisions_tolerates_case_only_page_path(
+    tmp_path: Path,
+):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding: a scope
+    manifest built from git's tracked casing ('camera.md') and a decision row
+    written with the generator's canonical class-name casing ('Camera.md')
+    describe the same physical page on a case-insensitive filesystem and must
+    not be reported as both missing and unexpected."""
+    scope_paths = ["content/reference.aspose.org/en/3d/java/camera.md"]
+    decision_rows = [
+        {
+            "page_path": "content/reference.aspose.org/en/3d/java/Camera.md",
+            "disposition": "EVIDENCE_ONLY",
+        }
+    ]
+    real_missing, real_unexpected = refresh_run._reconcile_scope_and_decisions(
+        scope_paths, decision_rows, initial_hashes={}
+    )
+    assert real_missing == []
+    assert real_unexpected == []
+
+
 def test_evidence_ready_tolerates_out_of_scope_additive_generated_row(
     tmp_path: Path,
 ):
@@ -2716,6 +2927,102 @@ def test_bind_commit_rejects_raw_byte_substitution_with_same_body_hash(
             commit_sha,
             session_id="session-1",
         )
+
+
+def test_bind_commit_tolerates_preexisting_crlf_committed_content(
+    tmp_path: Path,
+):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding: a page
+    that was already CRLF in git history (untouched, NOT_AFFECTED
+    disposition) has a receipt.new_hash computed from the real CRLF bytes,
+    but a body_hash_after/frontmatter_hash_after computed from a
+    universal-newline (LF-normalized) read at write time. Verifying via a
+    raw .decode() of `git cat-file --filters` output preserves the real
+    CRLF and produces a false mismatch against those LF-based hashes."""
+    import hashlib as _hashlib
+    from commands.content.body_refresh import _frontmatter_hash, _normalized_body_hash
+
+    commit_sha = "d" * 40
+    page_path = "content/docs.aspose.org/en/pdf/net/page.md"
+    lf_text = "---\ntitle: Test\n---\n\nGrounded body.\n"
+    crlf_bytes = lf_text.replace("\n", "\r\n").encode("utf-8")
+    raw_hash = "sha256:" + _hashlib.sha256(crlf_bytes).hexdigest()
+
+    def commit_runner(args: list[str], **kwargs: object):
+        binary = kwargs.get("text") is False
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA + "\n"
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha + "\n"
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\n"
+                "Refresh-Run: RUN-PREEXISTING-CRLF\n"
+                f"Refresh-Base: {HEAD_SHA}\n"
+                f"Refresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            output = page_path + "\n"
+        elif args[:3] == ["git", "cat-file", "--filters"]:
+            if binary:
+                return subprocess.CompletedProcess(args, 0, crlf_bytes, b"")
+            output = crlf_bytes.decode("utf-8")
+        else:
+            output = ""
+        rendered = output.encode("utf-8") if binary else output
+        empty = b"" if binary else ""
+        return subprocess.CompletedProcess(args, 0, rendered, empty)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-PREEXISTING-CRLF",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["paths"] = [page_path]
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["validation"] = {
+        field: "PASS" for field in refresh_run.VALIDATION_FIELDS
+    }
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    # _write_run_evidence writes the page and derives its receipt/decision
+    # hashes from that written (LF) content -- but the receipt's own
+    # new_hash must match the CRLF bytes actually "committed" above, so
+    # overwrite it post-hoc the same way the real writer would have (raw
+    # hash of final bytes, LF-based body/frontmatter hashes).
+    _write_run_evidence(tmp_path, manifest, include_validation=True)
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-PREEXISTING-CRLF"
+    receipt_path = run_root / "receipts/RCP-001.yaml"
+    receipt_doc = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))
+    receipt_doc["content_refresh_receipt"]["new_hash"] = raw_hash
+    receipt_path.write_text(yaml.safe_dump(receipt_doc, sort_keys=False), encoding="utf-8")
+    decisions_path = run_root / "page_decisions.jsonl"
+    rows = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    for row in rows:
+        row["body_hash_after"] = _normalized_body_hash(lf_text)
+        row["frontmatter_hash_after"] = _frontmatter_hash(lf_text)
+        row["receipt_digest"] = refresh_run._file_digest(receipt_path)
+    decisions_path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(decisions_path)
+    manifest["output_digests"]["receipts"] = "sha256:" + _hashlib.sha256(
+        f"{receipt_path.name}:{refresh_run._file_digest(receipt_path)}".encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+    refresh_run._transition(manifest, "VALIDATING")
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+
+    refresh_run.bind_commit(
+        "pdf", "net", "RUN-PREEXISTING-CRLF", commit_sha, session_id="session-1",
+    )  # must not raise
 
 
 def test_bind_commit_tolerates_out_of_scope_additive_generated_page(

@@ -47,6 +47,10 @@ from core.env_loader import load_env  # noqa: E402
 load_env()
 
 from lib.knowledge_tiers import is_tier2_claim_id  # noqa: E402
+from commands.ops.refresh_run import (  # noqa: E402
+    _casefold_path_diff,
+    _load_extra_allowed_hashes,
+)
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_HERE = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands/ -> pipeline/
@@ -419,10 +423,24 @@ def _validate_bound_run_evidence(
             else "MISSING"
         )
 
-    missing = [
-        p for p in scope_path_set.difference(decision_paths)
-        if _current_hash(p) != initial_hashes.get(p, "MISSING")
-    ]
+    # Case-insensitive-filesystem aliasing (e.g. 'camera.md' vs 'Camera.md')
+    # can make the SAME physical page appear under different casing in
+    # scope vs decision paths; treat such pairs as a match, not a real
+    # scope/decision gap (mirrors refresh_run.py's own OCC-guard fix for
+    # the identical class of finding, confirmed live 2026-08-14, 3d/java).
+    missing_candidates, _ = _casefold_path_diff(scope_path_set, set(decision_paths))
+    extra_allowed = _load_extra_allowed_hashes(run_root)
+    missing = []
+    for p in missing_candidates:
+        if _current_hash(p) == initial_hashes.get(p, "MISSING"):
+            continue
+        # Some writers deliberately record no decision row for an
+        # authorized out-of-band write (e.g. TC-DUPIDX-02's _index.md
+        # regeneration, or an S-73 manual-edit fallback) -- accept it if
+        # its current hash matches a recorded extra-allowed value.
+        if _current_hash(p) in extra_allowed.get(p, set()):
+            continue
+        missing.append(p)
     from commands.content.body_refresh import _normalized_body_hash
 
     empty_hash = _normalized_body_hash("")
@@ -439,8 +457,9 @@ def _validate_bound_run_evidence(
             return False
         return True
 
+    _, unexpected_candidates = _casefold_path_diff(scope_path_set, set(decision_paths))
     unexpected = [
-        p for p in set(decision_paths).difference(scope_path_set)
+        p for p in unexpected_candidates
         if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
     ]
     scoped_decision_paths = [p for p in decision_paths if p in scope_path_set]
@@ -1117,6 +1136,7 @@ def check_coverage_completeness(
     decision_rows: list[dict] | None = None,
     scope_paths: list[str] | None = None,
     initial_hashes: dict[str, str] | None = None,
+    run_root: Path | None = None,
 ) -> tuple[bool, list[str]]:
     """Check 6: Verify page_decisions.json covers all discovered English pages.
 
@@ -1135,6 +1155,17 @@ def check_coverage_completeness(
             refresh_run.py._reconcile_scope_and_decisions already applies to the
             scope/decision reconciliation gate. Only a page whose bytes actually changed
             with no recorded decision is a real coverage gap.
+        run_root: the bound run's root dir, if any. Used two ways, mirroring
+            refresh_run.py's own fixes for this exact defect class
+            (confirmed live 2026-08-14, 3d/java): (1) `discovered_rel` vs
+            `recorded_paths` is compared casefold-tolerant, since a
+            case-insensitive-filesystem alias (e.g. 'camera.md' tracked in
+            git vs 'Camera.md' the generator wrote) is the same physical
+            page, not a real coverage gap; (2) a page recorded only in
+            `_record_extra_allowed_hash`'s sidecar (deliberately
+            receipt-less writes like TC-DUPIDX-02's _index.md regeneration,
+            or an S-73 manual-edit fallback) is exempt when its current
+            bytes match the authorized hash.
 
     Returns:
         (passed: bool, failures: list[str])
@@ -1190,14 +1221,21 @@ def check_coverage_completeness(
         except Exception as exc:
             return False, [f"Could not read page_decisions.json: {exc}"]
 
-    uncovered = [p for p in discovered_rel if p not in recorded_paths]
-    if initial_hashes:
+    uncovered, _ = _casefold_path_diff(set(discovered_rel), recorded_paths)
+    # Preserve discovered_rel's original order/dedup semantics instead of the
+    # arbitrary set order _casefold_path_diff returns.
+    uncovered = [p for p in discovered_rel if p in uncovered]
+    if initial_hashes or run_root is not None:
+        extra_allowed = _load_extra_allowed_hashes(run_root) if run_root else {}
+
         def _unchanged(rel: str) -> bool:
             target = REPO_ROOT / rel
             if not target.is_file():
                 return False
             current = "sha256:" + hashlib.sha256(target.read_bytes()).hexdigest()
-            return current == initial_hashes.get(rel)
+            if current == (initial_hashes or {}).get(rel):
+                return True
+            return current in extra_allowed.get(rel, set())
 
         uncovered = [p for p in uncovered if not _unchanged(p)]
     uncovered_frac = len(uncovered) / total
@@ -1261,10 +1299,12 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     run_decisions: list[dict] | None = None
     run_scope: list[str] | None = None
     run_initial_hashes: dict[str, str] | None = None
+    run_root_for_coverage: Path | None = None
     if run_id is not None:
         try:
             bound = _load_bound_run(family, platform, run_id)
             bound_manifest = bound["manifest"]
+            run_root_for_coverage = bound["run_root"]
             run_decisions = _load_run_decisions(bound["run_root"], run_id)
             _validate_run_receipts(bound["run_root"], run_id, run_decisions)
             _validate_bound_run_evidence(
@@ -1645,6 +1685,7 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         decision_rows=run_decisions,
         scope_paths=run_scope,
         initial_hashes=run_initial_hashes,
+        run_root=run_root_for_coverage,
     )
     failures.extend(check6_failures)
     if not check6_passed:

@@ -353,6 +353,33 @@ def _path_hash(relative_path: str) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _casefold_path_diff(a: set[str], b: set[str]) -> tuple[set[str], set[str]]:
+    """Set difference for content paths, tolerant of case-only variance.
+
+    Windows and default-config macOS filesystems are case-insensitive: a
+    generator writing 'Camera.md' when git still tracks 'camera.md' silently
+    aliases to the same on-disk file rather than registering as a rename, so
+    git-diff output, decision-row page_path values, and a scope manifest
+    built at different pipeline stages can each report a different casing
+    for the identical physical page (confirmed live, 2026-08-14: 3d/java's
+    scope reconciliation reported camera.md/entity.md/light.md/material.md/
+    mesh.md as both "missing" and "unexpected" simultaneously purely from
+    casing, even though 25c5081230 had already fixed this exact page set
+    once before -- the case only differed in the tool's own path bookkeeping,
+    not on disk). Case-only pairs are real matches, not scope violations;
+    only a genuine case-insensitive duplicate (same casefolded key, both
+    sides supply it) collapses to one entry and is excluded from both output
+    sets, same as an exact match would be.
+
+    Returns (a_only, b_only): items with no casefold match on the other side.
+    """
+    a_keys = {p.casefold(): p for p in a}
+    b_keys = {p.casefold(): p for p in b}
+    a_only = {p for key, p in a_keys.items() if key not in b_keys}
+    b_only = {p for key, p in b_keys.items() if key not in a_keys}
+    return a_only, b_only
+
+
 def _reconcile_scope_and_decisions(
     scope_paths: list[str],
     decision_rows: list[dict[str, Any]],
@@ -387,8 +414,9 @@ def _reconcile_scope_and_decisions(
 
     scope_set = set(scope_paths)
     decision_paths = {row.get("page_path") for row in decision_rows}
-    missing = sorted(scope_set - decision_paths)
-    unexpected = sorted(decision_paths - scope_set)
+    missing_set, unexpected_set = _casefold_path_diff(scope_set, decision_paths)
+    missing = sorted(missing_set)
+    unexpected = sorted(unexpected_set)
 
     real_missing = [
         p for p in missing
@@ -417,7 +445,9 @@ def _reconcile_scope_and_decisions(
 
 
 def _allowed_commit_paths(
-    scope_paths: list[str], decision_rows: list[dict[str, Any]]
+    scope_paths: list[str],
+    decision_rows: list[dict[str, Any]],
+    run_root: Path | None = None,
 ) -> set[str]:
     """Return the pinned scope plus any provably-additive GENERATED pages.
 
@@ -429,6 +459,14 @@ def _allowed_commit_paths(
     post-write reconciliation: GENERATED with body_hash_before == the hash of
     empty content cannot have clobbered existing content, which is the
     property scope-pinning exists to protect.
+
+    run_root: when given, also allows any path recorded in
+    _record_extra_allowed_hash's sidecar (TC-DUPIDX-02's deliberately
+    receipt-less _index.md regeneration, an S-73 manual-edit fallback, or a
+    pre-commit-hook content_hash normalization touching an already-authorized
+    file) -- mirrors the same tolerance _assert_scope_ownership's OCC guard
+    already applies, so a committed path isn't flagged twice for the same
+    already-authorized reason (confirmed live 2026-08-14, 3d/java).
     """
     from commands.content.body_refresh import _normalized_body_hash
 
@@ -440,6 +478,8 @@ def _allowed_commit_paths(
         if row.get("disposition") == "GENERATED"
         and row.get("body_hash_before") == empty_hash
     )
+    if run_root is not None:
+        allowed.update(_load_extra_allowed_hashes(run_root).keys())
     return allowed
 
 
@@ -481,16 +521,103 @@ def _assert_pinned_scope(manifest: dict[str, Any]) -> dict[str, Any]:
     return scope
 
 
+def _extra_allowed_hashes_path(run_root: Path) -> Path:
+    return run_root / "extra_allowed_hashes.json"
+
+
+def _record_extra_allowed_hash(run_root: Path, page_path: str, file_hash: str) -> None:
+    """Authorize an out-of-band write with no receipt of its own.
+
+    Some writers deliberately bypass the receipt/decision ledger -- e.g. the
+    TC-DUPIDX-02 grouped-index regeneration in apply_run(), which rewrites
+    _index.md without emitting a page_decisions.jsonl row (folding it into
+    the pinned scope would make _reconcile_scope_and_decisions() see a
+    phantom missing/unexpected entry for it, per that call site's own
+    comment). _assert_scope_ownership()'s later OCC check has no such
+    carve-out and, unpatched, blocks on exactly this deliberate write
+    (confirmed live 2026-08-14 on 3d/java). This sidecar closes that gap
+    without touching the digest-pinned scope.json.
+    """
+    path = _extra_allowed_hashes_path(run_root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data: dict[str, list[str]] = {}
+    if path.is_file():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            data = {}
+    data.setdefault(page_path, [])
+    if file_hash not in data[page_path]:
+        data[page_path].append(file_hash)
+    path.write_text(
+        json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
+def _load_extra_allowed_hashes(run_root: Path) -> dict[str, set[str]]:
+    path = _extra_allowed_hashes_path(run_root)
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {
+        key: set(value)
+        for key, value in data.items()
+        if isinstance(value, list)
+    }
+
+
+def _augment_initial_hashes_with_extra_allowed(
+    initial_hashes: dict[str, str], run_root: Path
+) -> dict[str, str]:
+    """Treat an authorized out-of-band write (_record_extra_allowed_hash) as
+    'unchanged from initial' for _reconcile_scope_and_decisions()'s
+    missing-page hash check, so a deliberately receipt-less write -- e.g.
+    TC-DUPIDX-02's _index.md regeneration in apply_run() -- is not reported
+    as a real scope/decision gap (confirmed live 2026-08-14 on 3d/java).
+    Only takes effect when the CURRENT on-disk hash is itself one of the
+    authorized values; any other drift still blocks, same as before.
+    """
+    extra = _load_extra_allowed_hashes(run_root)
+    if not extra:
+        return initial_hashes
+    augmented = dict(initial_hashes)
+    for page_path, hashes in extra.items():
+        current = _path_hash(page_path)
+        if current in hashes:
+            augmented[page_path] = current
+    return augmented
+
+
 def _assert_scope_ownership(manifest: dict[str, Any]) -> None:
-    """OCC guard for uncommitted/concurrent edits and interrupted resumes."""
+    """OCC guard for uncommitted/concurrent edits and interrupted resumes.
+
+    Hash keys are merged case-insensitively (casefold) before comparison:
+    Windows/macOS filesystem aliasing means a receipt recorded for
+    'Camera.md' authorizes the same physical file found at 'camera.md' in
+    scope, and vice versa -- the OCC-guard counterpart to the same gap
+    _casefold_path_diff() closes for scope/decision reconciliation
+    (confirmed live 2026-08-14 on 3d/java).
+    """
     run_root = _run_root(
         manifest["family"], manifest["platform"], manifest["run_id"]
     )
     scope = _assert_pinned_scope(manifest)
     initial_hashes = dict(scope.get("initial_hashes") or {})
-    allowed_hashes = {
-        path: {value} for path, value in initial_hashes.items()
-    }
+    allowed_hashes: dict[str, set[str]] = {}
+    display_path: dict[str, str] = {}
+
+    def _add(page_path: str, file_hash: Any) -> None:
+        key = page_path.casefold()
+        allowed_hashes.setdefault(key, set()).add(file_hash)
+        display_path.setdefault(key, page_path)
+
+    for path, value in initial_hashes.items():
+        _add(path, value)
 
     decisions_path = run_root / "page_decisions.jsonl"
     if decisions_path.is_file():
@@ -508,21 +635,29 @@ def _assert_scope_ownership(manifest: dict[str, Any]) -> None:
                 receipt_path.read_text(encoding="utf-8")
             ) or {}
             receipt = receipt_doc.get("content_refresh_receipt") or {}
-            allowed_hashes.setdefault(row["page_path"], set()).add(
-                receipt.get("new_hash")
-            )
+            _add(row["page_path"], receipt.get("new_hash"))
+
+    extra_path = _extra_allowed_hashes_path(run_root)
+    if extra_path.is_file():
+        try:
+            extra = json.loads(extra_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            extra = {}
+        for page_path, hashes in extra.items():
+            for file_hash in hashes:
+                _add(page_path, file_hash)
 
     conflicts = [
-        path
-        for path, acceptable in allowed_hashes.items()
+        display_path[key]
+        for key, acceptable in allowed_hashes.items()
         if not acceptable
         or any(not isinstance(value, str) for value in acceptable)
-        or _path_hash(path) not in acceptable
+        or _path_hash(display_path[key]) not in acceptable
     ]
     if conflicts:
         raise RefreshRunError(
             "Scoped working files changed outside a validated run checkpoint: "
-            f"{conflicts[:5]}"
+            f"{sorted(conflicts)[:5]}"
         )
 
 
@@ -637,7 +772,9 @@ def _assert_run_evidence_ready(
     # page is still a genuine integrity problem and remains a hard block.
     decision_paths = [str(row.get("page_path")) for row in decision_rows]
     real_missing, real_unexpected = _reconcile_scope_and_decisions(
-        scope_paths, decision_rows, initial_hashes
+        scope_paths,
+        decision_rows,
+        _augment_initial_hashes_with_extra_allowed(initial_hashes, run_root),
     )
     scoped_decision_paths = [p for p in decision_paths if p in set(scope_paths)]
     if (
@@ -1712,6 +1849,12 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
                     "reference index generator-version re-invocation",
                     manifest=manifest,
                 )
+                # This write emits no page_decisions.jsonl row (see the
+                # TC-DUPIDX-02 comment above) -- authorize its resulting hash
+                # so the later _assert_scope_ownership() OCC check in
+                # verify_run() does not block on its own deliberate write.
+                index_rel = index_path.relative_to(_repo_root).as_posix()
+                _record_extra_allowed_hash(run_root, index_rel, _path_hash(index_rel))
 
     manifest["receipt_refs"] = [
         path.relative_to(_repo_root).as_posix() for path in receipts
@@ -2395,11 +2538,14 @@ def bind_commit(
             if path
         }
         allowed_paths = _allowed_commit_paths(
-            list(manifest.get("scope", {}).get("paths") or []), decision_rows
+            list(manifest.get("scope", {}).get("paths") or []),
+            decision_rows,
+            run_root=_run_root(family, platform, run_id),
         )
         if not changed_paths:
             raise RefreshRunError(f"Commit {resolved} has no changed paths")
-        unexpected = sorted(changed_paths.difference(allowed_paths))
+        unexpected_set, _ = _casefold_path_diff(changed_paths, allowed_paths)
+        unexpected = sorted(unexpected_set)
         if unexpected:
             raise RefreshRunError(
                 "Refresh commit contains paths outside the pinned run scope: "
@@ -2414,27 +2560,57 @@ def bind_commit(
                 "RETIRED",
             }:
                 expected_changed.add(str(row.get("page_path")))
-        if changed_paths != expected_changed:
+        # Authorized out-of-band writes (TC-DUPIDX-02, S-73 manual-edit
+        # fallback, or a pre-commit-hook content_hash normalization on an
+        # already-authorized file) have no decision row by design; treat
+        # them as expected too, mirroring _allowed_commit_paths above
+        # (confirmed live 2026-08-14, 3d/java).
+        expected_changed.update(
+            _load_extra_allowed_hashes(_run_root(family, platform, run_id)).keys()
+        )
+        missing_changed_set, unexpected_changed_set = _casefold_path_diff(
+            expected_changed, changed_paths
+        )
+        if missing_changed_set or unexpected_changed_set:
             raise RefreshRunError(
                 "Refresh commit paths do not exactly match change decisions: "
-                f"missing={sorted(expected_changed - changed_paths)[:5]}, "
-                f"unexpected={sorted(changed_paths - expected_changed)[:5]}"
+                f"missing={sorted(missing_changed_set)[:5]}, "
+                f"unexpected={sorted(unexpected_changed_set)[:5]}"
             )
         from commands.content.body_refresh import (
             _frontmatter_hash,
             _normalized_body_hash,
         )
 
+        extra_allowed_for_bind = _load_extra_allowed_hashes(
+            _run_root(family, platform, run_id)
+        )
+        # git's tree object is case-sensitive even on a case-insensitive
+        # filesystem: a decision row recording the generator's canonical
+        # class-name casing ('Camera.md') resolves to nothing via a direct
+        # `git cat-file <sha>:Camera.md` lookup when the tree actually
+        # tracks it as 'camera.md' (confirmed live 2026-08-14, 3d/java --
+        # git add on Windows never renamed the already-tracked lowercase
+        # path). Resolve each decision row's page_path to its real
+        # git-tracked casing via a full tree listing at this commit --
+        # `changed_paths` alone is not enough: a NOT_AFFECTED page's decision
+        # row still needs this resolution but was never rewritten, so it
+        # never appears in `git diff-tree`'s changed-paths output.
+        tree_listing = _git("ls-tree", "-r", "--name-only", resolved)
+        changed_path_by_casefold = {
+            p.casefold(): p for p in tree_listing.splitlines() if p
+        }
         hash_mismatches: list[str] = []
         for row in decision_rows:
             page_path = str(row["page_path"])
+            git_path = changed_path_by_casefold.get(page_path.casefold(), page_path)
             result = _command_runner(
                 [
                     "git",
                     "cat-file",
                     "--filters",
-                    f"--path={page_path}",
-                    f"{resolved}:{page_path}",
+                    f"--path={git_path}",
+                    f"{resolved}:{git_path}",
                 ],
                 cwd=str(_repo_root),
                 capture_output=True,
@@ -2458,7 +2634,19 @@ def bind_commit(
                 "sha256:" + hashlib.sha256(committed_bytes).hexdigest()
             )
             try:
-                committed_text = committed_bytes.decode("utf-8")
+                # Universal-newline decode, matching every other text read in
+                # this module (Path.read_text() always normalizes CRLF->LF).
+                # A raw .decode() preserves real CRLF bytes some pre-existing
+                # committed pages carry (confirmed live 2026-08-14, 3d/java:
+                # working-with-3d-formats-in-java/index.md was already CRLF
+                # in git history, untouched -- NOT_AFFECTED disposition), and
+                # the receipt's body/frontmatter hashes were computed at
+                # write time from a universal-newline read, so comparing a
+                # raw CRLF decode against them is a false mismatch, not a
+                # real content difference.
+                committed_text = committed_bytes.decode("utf-8").replace(
+                    "\r\n", "\n"
+                )
             except UnicodeDecodeError:
                 hash_mismatches.append(page_path)
                 continue
@@ -2469,7 +2657,16 @@ def bind_commit(
                 or _frontmatter_hash(committed_text)
                 != row.get("frontmatter_hash_after")
             ):
-                hash_mismatches.append(page_path)
+                # A page can carry a valid S-84-chain receipt AND a later
+                # authorized out-of-band edit (e.g. an S-73 manual-edit
+                # fallback fixing a stale API reference the chain's own
+                # strategies didn't resolve) -- the receipt then legitimately
+                # predates the final committed bytes. Accept it only when the
+                # committed content matches the SUBSEQUENT authorization, not
+                # merely because an extra_allowed entry exists for the path
+                # (confirmed live 2026-08-14, 3d/java).
+                if committed_raw_hash not in extra_allowed_for_bind.get(page_path, set()):
+                    hash_mismatches.append(page_path)
         if hash_mismatches:
             raise RefreshRunError(
                 "Bound commit content does not match run decisions: "

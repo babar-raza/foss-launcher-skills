@@ -1488,6 +1488,27 @@ class TestRebuildAll:
             "Should detect body change as meaningful"
         )
 
+    def test_has_meaningful_change_ignores_crlf_only_difference(self, tmp_path):
+        """Regression test for the 2026-08-14 3d/java --rebuild-all finding: a
+        body that is byte-identical except for CRLF vs LF line terminators
+        must not read as a meaningful change. Before this fix, a CRLF-written
+        staged candidate (confirmed live: safe_content_write's staging output
+        had CRLF terminators against LF-committed HEAD) was flagged here as
+        changed, triggering a write attempt that the receipt validator's own
+        CRLF-normalizing hash check then correctly rejected as
+        BODY_UPDATED-with-identical-body -- leaving an orphan receipt with no
+        matching page_decisions.jsonl row."""
+        from batch_reference import _has_meaningful_change
+        existing = tmp_path / "page.md"
+        existing.write_text(
+            "---\ntitle: Foo\n---\nSame body.\nSecond line.\n",
+            encoding="utf-8",
+        )
+        new_content = "---\ntitle: Foo\n---\r\nSame body.\r\nSecond line.\r\n"
+        assert not _has_meaningful_change(existing, new_content), (
+            "Should treat a CRLF-only difference as not meaningful"
+        )
+
     def test_rebuild_all_preserves_content_created_at(self, tmp_path):
         """--rebuild-all must not change content_created_at of existing pages."""
         merged, page_dir = self._make_setup(tmp_path, ["Alpha"])

@@ -62,7 +62,7 @@ load_env()
 
 from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
-from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
+from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError, _normalize_body  # noqa: E402
 from lib.backlink_targets import load_target_map, resolve_backlink, target_map_age_days, STALE_WARN_DAYS  # noqa: E402
 from lib.reference_filter import (  # noqa: E402
     _passes_platform_scope,
@@ -989,6 +989,16 @@ def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
     they are all rewritten by attach_evidence() / update_mechanism() after the
     body write anyway.
 
+    Bodies are compared via the same CRLF/trailing-whitespace normalization
+    lib.provenance.compute_content_hash() already uses for content_hash, not a
+    bare .rstrip(). Without this, a body that is logically identical but
+    differs only in line endings (confirmed live 2026-08-14, 3d/java
+    --rebuild-all: staged output had CRLF terminators against LF-committed
+    HEAD) reads as "meaningfully changed" here, triggering a write attempt
+    that the receipt validator's own (CRLF-normalizing) hash check then
+    correctly refuses as BODY_UPDATED-with-identical-body -- leaving an
+    orphan receipt with no page_decisions.jsonl row.
+
     Returns True (treat as changed) if the existing file cannot be read.
     """
     try:
@@ -996,7 +1006,19 @@ def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
     except OSError:
         return True
 
-    return _extract_body(existing).rstrip() != _extract_body(new_content).rstrip()
+    # _FRONTMATTER_FENCE_RE matches a bare "---\n" only: a CRLF-carrying
+    # new_content ("---\r\n") fails the fence match entirely, so
+    # _extract_body falls back to returning the FULL text (frontmatter
+    # included) rather than just the body -- guaranteeing a spurious
+    # "different" verdict even when the actual prose is identical. Collapse
+    # CRLF before fence-matching, not just when normalizing the extracted
+    # body, so the same page's fence is found on both sides.
+    existing = existing.replace("\r\n", "\n")
+    new_content = new_content.replace("\r\n", "\n")
+
+    return _normalize_body(_extract_body(existing)) != _normalize_body(
+        _extract_body(new_content)
+    )
 
 
 # ---------------------------------------------------------------------------

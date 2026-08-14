@@ -931,6 +931,55 @@ class TestCheck6CoverageCompleteness:
         assert passed
         assert failures == []
 
+    def test_check6_tolerates_case_only_decision_path(self, tmp_path):
+        """Regression test for the 2026-08-14 3d/java scoped-run finding:
+        Check 6 compared discovered pages against page_decisions.json paths
+        with plain string equality -- a decision recorded under the
+        generator's canonical class-name casing ('Camera.md') must not read
+        as coverage-missing against the on-disk page git tracks as
+        'camera.md' (case-insensitive filesystem aliasing, the same
+        physical page)."""
+        d = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "java"
+        self._write_page(d, "camera.md")
+
+        self._write_decisions(
+            tmp_path / "review", "3d", "java",
+            ["content/reference.aspose.org/en/3d/java/Camera.md"]
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "3d", "java", review_root=tmp_path / "review"
+        )
+
+        assert passed
+        assert failures == []
+
+    def test_check6_exempts_page_covered_only_by_extra_allowed_hash(self, tmp_path):
+        """Regression test for the 2026-08-14 3d/java scoped-run finding: a
+        page whose only record is _record_extra_allowed_hash's sidecar
+        (TC-DUPIDX-02's deliberately receipt-less _index.md regeneration, or
+        an S-73 manual-edit fallback) must not read as a coverage gap when
+        its current bytes match the authorized hash."""
+        import hashlib
+        from commands.ops.refresh_run import _record_extra_allowed_hash
+
+        d = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "java"
+        page = self._write_page(d, "_index.md")
+        rel = "content/reference.aspose.org/en/3d/java/_index.md"
+
+        self._write_decisions(tmp_path / "review", "3d", "java", [])
+
+        run_root = tmp_path / "reports/refresh_runs/3d/java/RUN-EXTRA"
+        current_hash = "sha256:" + hashlib.sha256(page.read_bytes()).hexdigest()
+        _record_extra_allowed_hash(run_root, rel, current_hash)
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "3d", "java", review_root=tmp_path / "review", run_root=run_root,
+        )
+
+        assert passed
+        assert failures == []
+
     def test_check6_pass_no_content_pages(self, tmp_path):
         """Check 6 PASS when no content pages are discovered (product not generated yet)."""
         passed, failures = post_refresh_verify.check_coverage_completeness(
@@ -1863,6 +1912,84 @@ def _build_bound_evidence(tmp_path, run_id, scoped_page, extra_decision=None):
     }
     decisions = [json.loads(line) for line in lines]
     return manifest, run_root, decisions
+
+
+def test_bound_evidence_tolerates_case_only_decision_path(tmp_path):
+    """Regression test for the 2026-08-14 3d/java scoped-run finding: this
+    script's own scope/decision reconciliation duplicated refresh_run.py's
+    case-sensitivity gap. A decision recorded under the generator's
+    canonical class-name casing ('Camera.md') must not be reported as
+    missing-and-unexpected against a scope pinned under git's tracked
+    casing ('camera.md') for the identical physical page."""
+    scoped_page = "content/reference.aspose.org/en/pdf/net/camera.md"
+    decision_page = "content/reference.aspose.org/en/pdf/net/Camera.md"
+
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CASEFOLD"
+    (run_root / "receipts").mkdir(parents=True)
+    page = tmp_path / scoped_page
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("original\n", encoding="utf-8")
+    file_hash = "sha256:" + hashlib.sha256(page.read_bytes()).hexdigest()
+
+    receipt_path = run_root / "receipts/RCP-001.yaml"
+    raw = yaml.safe_dump({
+        "content_refresh_receipt": {
+            "receipt_id": "RCP-001", "run_id": "RUN-CASEFOLD", "page_path": decision_page,
+            "locale": "en", "change_ids": [], "strategy_used": "REFERENCE_REGENERATION",
+            "old_hash": file_hash, "new_hash": file_hash,
+            "verdict": "NOT_AFFECTED", "generated_at": "2026-08-14T00:00:00Z",
+        }
+    }, sort_keys=False).encode("utf-8")
+    receipt_path.write_bytes(raw)
+
+    decision = {
+        "schema_version": 1, "run_id": "RUN-CASEFOLD", "page_path": decision_page,
+        "surface": "reference", "locale": "en", "intended_action": "REFERENCE_UPDATE",
+        "disposition": "NOT_AFFECTED",
+        "body_hash_before": file_hash, "body_hash_after": file_hash,
+        "frontmatter_hash_before": "sha256:fm", "frontmatter_hash_after": "sha256:fm",
+        "receipt_ref": "receipts/RCP-001.yaml",
+        "receipt_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+        "evidence_claims_checked": [], "evidence_apis_checked": [],
+        "validator_results": {"receipt": "PASS", "forbidden_claims": "PASS", "regrounding": "PASS"},
+    }
+    decisions_path = run_root / "page_decisions.jsonl"
+    decisions_path.write_text(json.dumps(decision) + "\n", encoding="utf-8")
+
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(json.dumps({
+        "schema_version": 1, "run_id": "RUN-CASEFOLD", "family": "pdf", "platform": "net",
+        "paths": [scoped_page], "initial_hashes": {scoped_page: file_hash},
+    }), encoding="utf-8")
+
+    def _digest(path):
+        return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+    scope_digest = "sha256:" + hashlib.sha256(
+        json.dumps({"paths": [scoped_page], "input_digest": None},
+                    sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    receipts_digest = "sha256:" + hashlib.sha256(
+        f"{receipt_path.name}:{_digest(receipt_path)}".encode("utf-8")
+    ).hexdigest()
+    manifest = {
+        "run_id": "RUN-CASEFOLD", "family": "pdf", "platform": "net",
+        "scope": {"paths": [scoped_page], "digest": scope_digest, "input_digest": None},
+        "output_digests": {
+            "scope": _digest(scope_path),
+            "page_decisions": _digest(decisions_path),
+            "receipts": receipts_digest,
+        },
+        "receipt_refs": [receipt_path.relative_to(tmp_path).as_posix()],
+        "page_decision_ref": decisions_path.relative_to(tmp_path).as_posix(),
+    }
+    decisions = [decision]
+
+    post_refresh_verify.configure(repo_root=tmp_path)
+    try:
+        post_refresh_verify._validate_bound_run_evidence(manifest, run_root, decisions)  # must not raise
+    finally:
+        post_refresh_verify.configure()
 
 
 def test_bound_evidence_tolerates_out_of_scope_additive_generated_row(tmp_path):
