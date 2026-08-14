@@ -1,0 +1,21 @@
+family: html
+platform: python
+product_name: aspose-html-foss
+version: 0.1.0
+license: MIT
+repo_url: https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git
+repo_sha: c2356ec872fd7d64c14a0ae8cc043eea1a03847e
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-07-25T15:50:47.602779+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 2012
+  enriched_claims: 132
+  supplemental_claims: 0
+  total_claims: 2144
+  class_count: 244
+  forbidden_count: 14
+  snippet_count: 100

@@ -1,0 +1,18 @@
+[
+  {
+    "format": "start",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_html/dom/_range.py",
+    "line": 872,
+    "direction": "export"
+  },
+  {
+    "format": "blob",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_html/dom/html/_embedded_elements.py",
+    "line": 1370,
+    "direction": "export"
+  }
+]

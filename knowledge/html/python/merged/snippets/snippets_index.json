@@ -1,0 +1,1285 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf8",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf16_le",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf16_be",
+    "source_line": 41,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_overrides_prescan",
+    "source_line": 49,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_meta_charset_double_quote",
+    "source_line": 63,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_meta_charset_single_quote",
+    "source_line": 67,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_http_equiv",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_limit_1024",
+    "source_line": 76,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_no_charset",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_override_latin1_maps_to_windows1252",
+    "source_line": 91,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_override_invalid_label",
+    "source_line": 97,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_default_utf8",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_empty_bytes",
+    "source_line": 112,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_case_insensitive",
+    "source_line": 123,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_whitespace",
+    "source_line": 127,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_aliases",
+    "source_line": 131,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_windows1252_non_ascii",
+    "source_line": 153,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_gbk",
+    "source_line": 159,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_shift_jis",
+    "source_line": 167,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_crlf_normalised",
+    "source_line": 179,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_lone_cr_normalised",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_replacement_char_recorded",
+    "source_line": 197,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_result_has_encoding_attr",
+    "source_line": 208,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_public_api_doctest",
+    "source_line": 214,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_smoke_all_codecs",
+    "source_line": 241,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_public_exports",
+    "source_line": 252,
+    "classes_used": [
+      "EncodingDetectionResult",
+      "UnsupportedEncodingError"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_unsupported_encoding_raises",
+    "source_line": 258,
+    "classes_used": [
+      "UnsupportedEncodingError"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_single_token",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_four_tokens",
+    "source_line": 41,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_two_tokens",
+    "source_line": 51,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_three_tokens",
+    "source_line": 61,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_single_token",
+    "source_line": 76,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_two_tokens",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_four_tokens",
+    "source_line": 96,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_three_tokens",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_single_token",
+    "source_line": 121,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_four_tokens",
+    "source_line": 131,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_two_tokens",
+    "source_line": 141,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_three_tokens",
+    "source_line": 151,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_width",
+    "source_line": 166,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_style",
+    "source_line": 171,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_color",
+    "source_line": 176,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_shorthand_regression",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_top_shorthand_regression",
+    "source_line": 202,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_beats_type_selector_author_rule",
+    "source_line": 26,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_beats_class_selector_author_rule",
+    "source_line": 49,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_author_important_beats_inline_normal",
+    "source_line": 78,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_important_beats_author_important_by_specificity",
+    "source_line": 100,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_class_beats_type_selector",
+    "source_line": 133,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_id_beats_class_selector",
+    "source_line": 150,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_compound_selector_beats_type_selector",
+    "source_line": 167,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_later_rule_wins_same_specificity",
+    "source_line": 190,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_later_stylesheet_wins_same_specificity",
+    "source_line": 206,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_no_rule_no_property",
+    "source_line": 231,
+    "classes_used": [
+      "Document",
+      "Element"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element",
+      "Element.append_child",
+      "Element.get_computed_style"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_only_resolves",
+    "source_line": 239,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_shorthand_expansion_still_works",
+    "source_line": 248,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_important_without_inline",
+    "source_line": 264,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_author_stylesheet_property_resolves",
+    "source_line": 277,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_color_inherits_to_child",
+    "source_line": 62,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_local_color_overrides_inherited",
+    "source_line": 74,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_text_align_inherits_to_child",
+    "source_line": 91,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_word_spacing_inherits",
+    "source_line": 101,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_visibility_inherits",
+    "source_line": 109,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_list_style_type_inherits_to_child",
+    "source_line": 124,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_list_style_position_inherits",
+    "source_line": 139,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_background_color_does_not_inherit",
+    "source_line": 154,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_margin_top_does_not_inherit",
+    "source_line": 164,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_non_inherited_property",
+    "source_line": 179,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_inherited_property",
+    "source_line": 190,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_root_returns_initial",
+    "source_line": 199,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_initial_on_inherited_resets_to_empty",
+    "source_line": 216,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_initial_on_non_inherited_returns_empty",
+    "source_line": 227,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_color_acts_as_inherit",
+    "source_line": 242,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_text_align_acts_as_inherit",
+    "source_line": 253,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_background_color_acts_as_initial",
+    "source_line": 269,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_margin_top_acts_as_initial",
+    "source_line": 279,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_inherited_property_acts_as_inherit",
+    "source_line": 294,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_non_inherited_acts_as_initial",
+    "source_line": 305,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_text_align_on_root_returns_initial",
+    "source_line": 313,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_color_propagates_through_two_ancestor_levels",
+    "source_line": 330,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_nearest_ancestor_wins_in_deep_chain",
+    "source_line": 342,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_text_align_propagates_through_two_levels",
+    "source_line": 353,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_child_local_rule_overrides_deep_inherited_value",
+    "source_line": 361,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_letter_spacing_inherits",
+    "source_line": 377,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_white_space_inherits",
+    "source_line": 382,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_word_break_inherits",
+    "source_line": 387,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_cursor_inherits",
+    "source_line": 392,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_pointer_events_inherits",
+    "source_line": 397,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_border_collapse_inherits",
+    "source_line": 402,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_writing_mode_inherits",
+    "source_line": 407,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_direction_inherits",
+    "source_line": 412,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_font_variant_inherits",
+    "source_line": 417,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_quotes_inherits",
+    "source_line": 422,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_x_present",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_y_present",
+    "source_line": 28,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_present",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_position_present",
+    "source_line": 34,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_box_sizing_present",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_z_index_present",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_float_present",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
