@@ -1,0 +1,6783 @@
+[
+  {
+    "name": "SourceLocation",
+    "kind": "class_definition",
+    "doc": "Immutable position marker attached to every character for error messages.",
+    "file": "src/aspose_tex/_input/reader.py",
+    "line": 26,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "filename",
+        "type": "str",
+        "doc": "Gets the filename.",
+        "line": 35,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "line",
+        "type": "int",
+        "doc": "Gets the line.",
+        "line": 36,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "column",
+        "type": "int",
+        "doc": "Gets the column.",
+        "line": 37,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.reader.SourceLocation"
+  },
+  {
+    "name": "InputSource",
+    "kind": "class_definition",
+    "doc": "Abstract single input source — one file or one string buffer.",
+    "file": "src/aspose_tex/_input/reader.py",
+    "line": 44,
+    "bases": [
+      "abc.ABC"
+    ],
+    "methods": [
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "str",
+        "doc": "",
+        "line": 52,
+        "is_constructor": false
+      },
+      {
+        "name": "read_line",
+        "params": [],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 56,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_input.reader.InputSource"
+  },
+  {
+    "name": "FileInputSource",
+    "kind": "class_definition",
+    "doc": "Reads TeX source from a file on disk.",
+    "file": "src/aspose_tex/_input/reader.py",
+    "line": 64,
+    "bases": [
+      "InputSource"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "path",
+            "type": "pathlib.Path"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 76,
+        "is_constructor": true
+      },
+      {
+        "name": "read_line",
+        "params": [],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 84,
+        "is_constructor": false
+      },
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "str",
+        "doc": "",
+        "line": 52,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "doc": "Gets the name.",
+        "line": 81,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.reader.FileInputSource"
+  },
+  {
+    "name": "StringInputSource",
+    "kind": "class_definition",
+    "doc": "Reads TeX source from an in-memory :class:`str` or :class:`bytes` value.",
+    "file": "src/aspose_tex/_input/reader.py",
+    "line": 103,
+    "bases": [
+      "InputSource"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "text",
+            "type": "str | bytes"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 114,
+        "is_constructor": true
+      },
+      {
+        "name": "read_line",
+        "params": [],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 129,
+        "is_constructor": false
+      },
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "str",
+        "doc": "",
+        "line": 52,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "doc": "Gets the name.",
+        "line": 126,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.reader.StringInputSource"
+  },
+  {
+    "name": "InputReader",
+    "kind": "class_definition",
+    "doc": "Manages a stack of :class:`InputSource` objects and provides a\r\n character-by-character stream with ``^^`` notation decoded and\r\n line/column positions attached.",
+    "file": "src/aspose_tex/_input/reader.py",
+    "line": 218,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "source",
+            "type": "InputSource"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 240,
+        "is_constructor": true
+      },
+      {
+        "name": "push",
+        "params": [
+          {
+            "name": "source",
+            "type": "InputSource"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 249,
+        "is_constructor": false
+      },
+      {
+        "name": "pop",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 254,
+        "is_constructor": false
+      },
+      {
+        "name": "peek",
+        "params": [],
+        "return_type": "tuple[str, SourceLocation] | None",
+        "doc": "",
+        "line": 278,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "current_location",
+        "type": "SourceLocation",
+        "doc": "Gets the current location.",
+        "line": 305,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "at_end",
+        "type": "bool",
+        "doc": "Gets the at end.",
+        "line": 314,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.reader.InputReader"
+  },
+  {
+    "name": "DviFontDef",
+    "kind": "class_definition",
+    "doc": "Font metadata for a DVI ``fnt_def`` command.",
+    "file": "src/aspose_tex/_output/dvi_writer.py",
+    "line": 97,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "font_num",
+        "type": "int",
+        "doc": "Gets the font num.",
+        "line": 120,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "cs_name",
+        "type": "str",
+        "doc": "Gets the cs name.",
+        "line": 121,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tfm_name",
+        "type": "str",
+        "doc": "Gets the tfm name.",
+        "line": 122,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "checksum",
+        "type": "int",
+        "doc": "Gets the checksum.",
+        "line": 123,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "design_size_sp",
+        "type": "int",
+        "doc": "Gets the design size sp.",
+        "line": 124,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "scaled_size_sp",
+        "type": "int",
+        "doc": "Gets the scaled size sp.",
+        "line": 125,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_output.dvi_writer.DviFontDef"
+  },
+  {
+    "name": "DviWriter",
+    "kind": "class_definition",
+    "doc": "Writes DVI version 2 output; implements ``ShipoutBackend``.",
+    "file": "src/aspose_tex/_output/dvi_writer.py",
+    "line": 132,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.RawIOBase | io.BytesIO"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          },
+          {
+            "name": "mag",
+            "type": "int"
+          },
+          {
+            "name": "comment",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 153,
+        "is_constructor": true
+      },
+      {
+        "name": "shipout",
+        "params": [
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "box",
+            "type": "VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 203,
+        "is_constructor": false
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 277,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes",
+        "doc": "Returns the bytes.",
+        "line": 321,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "seen",
+        "type": "set[str]",
+        "doc": "Gets the seen.",
+        "line": 361,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "result",
+        "type": "list[str]",
+        "doc": "Gets the result.",
+        "line": 362,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_output.dvi_writer.DviWriter"
+  },
+  {
+    "name": "PdfWriter",
+    "kind": "class_definition",
+    "doc": "Writes a PDF 1.4 file; implements ``ShipoutBackend``.",
+    "file": "src/aspose_tex/_output/pdf_writer.py",
+    "line": 141,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO | io.BufferedWriter"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          },
+          {
+            "name": "mag",
+            "type": "int"
+          },
+          {
+            "name": "page_width_pt",
+            "type": "float"
+          },
+          {
+            "name": "page_height_pt",
+            "type": "float"
+          },
+          {
+            "name": "producer",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 162,
+        "is_constructor": true
+      },
+      {
+        "name": "shipout",
+        "params": [
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "box",
+            "type": "VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 224,
+        "is_constructor": false
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 275,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes",
+        "doc": "Returns the bytes.",
+        "line": 296,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "seen",
+        "type": "set[str]",
+        "doc": "Gets the seen.",
+        "line": 354,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "result",
+        "type": "list[str]",
+        "doc": "Gets the result.",
+        "line": 355,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "widths",
+        "type": "list[int]",
+        "doc": "Gets the widths.",
+        "line": 660,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_output.pdf_writer.PdfWriter"
+  },
+  {
+    "name": "SvgWriter",
+    "kind": "class_definition",
+    "doc": "Writes SVG 1.1 output; implements ``ShipoutBackend``.",
+    "file": "src/aspose_tex/_output/svg_writer.py",
+    "line": 248,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          },
+          {
+            "name": "mag",
+            "type": "int"
+          },
+          {
+            "name": "page_width_pt",
+            "type": "float"
+          },
+          {
+            "name": "page_height_pt",
+            "type": "float"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 274,
+        "is_constructor": true
+      },
+      {
+        "name": "shipout",
+        "params": [
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "box",
+            "type": "VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 314,
+        "is_constructor": false
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 344,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes",
+        "doc": "Returns the bytes.",
+        "line": 377,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_all_pages",
+        "params": [],
+        "return_type": "list[bytes]",
+        "doc": "Returns the all pages.",
+        "line": 392,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "parts",
+        "type": "list[str]",
+        "doc": "Gets the parts.",
+        "line": 678,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "used_glyphs",
+        "type": "dict[tuple[str, float, int], _SvgFontRecord]",
+        "doc": "Gets the used glyphs.",
+        "line": 685,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "lines",
+        "type": "list[str]",
+        "doc": "Gets the lines.",
+        "line": 737,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_output.svg_writer.SvgWriter"
+  },
+  {
+    "name": "build_stub_handlers",
+    "kind": "function",
+    "doc": "Return alignment primitive stubs keyed by control-sequence name.",
+    "file": "src/aspose_tex/_engine/alignment.py",
+    "line": 53,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "dict[str, Callable[[], None]]"
+  },
+  {
+    "name": "HBoxBuilder",
+    "kind": "class_definition",
+    "doc": "Accumulates nodes for one horizontal box.",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 441,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          },
+          {
+            "name": "badness_sink",
+            "type": "Callable[[int], None] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 456,
+        "is_constructor": true
+      },
+      {
+        "name": "add_char",
+        "params": [
+          {
+            "name": "char",
+            "type": "int"
+          },
+          {
+            "name": "font_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 466,
+        "is_constructor": false
+      },
+      {
+        "name": "add_kern",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "explicit",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 498,
+        "is_constructor": false
+      },
+      {
+        "name": "add_glue",
+        "params": [
+          {
+            "name": "glue",
+            "type": "Glue"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 507,
+        "is_constructor": false
+      },
+      {
+        "name": "add_penalty",
+        "params": [
+          {
+            "name": "penalty",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 511,
+        "is_constructor": false
+      },
+      {
+        "name": "add_rule",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          },
+          {
+            "name": "depth",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 515,
+        "is_constructor": false
+      },
+      {
+        "name": "add_box",
+        "params": [
+          {
+            "name": "box",
+            "type": "HlistNode | VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 519,
+        "is_constructor": false
+      },
+      {
+        "name": "build",
+        "params": [
+          {
+            "name": "target_width",
+            "type": "int | None"
+          },
+          {
+            "name": "spread",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "HlistNode",
+        "doc": "",
+        "line": 523,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.box_builder.HBoxBuilder"
+  },
+  {
+    "name": "VBoxBuilder",
+    "kind": "class_definition",
+    "doc": "Accumulates nodes for one vertical box.",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 563,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          },
+          {
+            "name": "badness_sink",
+            "type": "Callable[[int], None] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 574,
+        "is_constructor": true
+      },
+      {
+        "name": "add_hbox",
+        "params": [
+          {
+            "name": "box",
+            "type": "HlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 584,
+        "is_constructor": false
+      },
+      {
+        "name": "add_vbox",
+        "params": [
+          {
+            "name": "box",
+            "type": "VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 588,
+        "is_constructor": false
+      },
+      {
+        "name": "add_kern",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 592,
+        "is_constructor": false
+      },
+      {
+        "name": "add_glue",
+        "params": [
+          {
+            "name": "glue",
+            "type": "Glue"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 596,
+        "is_constructor": false
+      },
+      {
+        "name": "add_penalty",
+        "params": [
+          {
+            "name": "penalty",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 600,
+        "is_constructor": false
+      },
+      {
+        "name": "add_rule",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          },
+          {
+            "name": "depth",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 604,
+        "is_constructor": false
+      },
+      {
+        "name": "build",
+        "params": [
+          {
+            "name": "target_height",
+            "type": "int | None"
+          },
+          {
+            "name": "spread",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "VlistNode",
+        "doc": "",
+        "line": 608,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.box_builder.VBoxBuilder"
+  },
+  {
+    "name": "vsplit_at_height",
+    "kind": "function",
+    "doc": "Split *box* at *target_height* sp and return ``(top, residue)``.",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 179,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "box",
+        "type": "VlistNode"
+      },
+      {
+        "name": "target_height",
+        "type": "int"
+      },
+      {
+        "name": "splittopskip",
+        "type": "Glue"
+      }
+    ],
+    "return_type": "tuple[VlistNode, VlistNode | None]"
+  },
+  {
+    "name": "compute_badness",
+    "kind": "function",
+    "doc": "Return TeX badness for a box that needs *shortage* sp of flex.",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 252,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "shortage",
+        "type": "int"
+      },
+      {
+        "name": "total_flex",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "set_glue_hbox",
+    "kind": "function",
+    "doc": "Set glue-set fields on *box* in-place.",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 315,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "box",
+        "type": "HlistNode"
+      },
+      {
+        "name": "target_width",
+        "type": "int"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "set_glue_vbox",
+    "kind": "function",
+    "doc": "Set glue-set fields on *box* in-place (vertical analogue of ``set_glue_hbox``).",
+    "file": "src/aspose_tex/_engine/box_builder.py",
+    "line": 370,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "box",
+        "type": "VlistNode"
+      },
+      {
+        "name": "target_height",
+        "type": "int"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "OverfullBoxWarning",
+    "kind": "class_definition",
+    "doc": "Issued when an hbox or vbox is overfull (badness == INF_BAD, box too wide).",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 69,
+    "bases": [
+      "UserWarning"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.box_primitives.OverfullBoxWarning"
+  },
+  {
+    "name": "UnderfullBoxWarning",
+    "kind": "class_definition",
+    "doc": "Issued when an hbox or vbox is underfull (badness > 100 with only finite glue).",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 73,
+    "bases": [
+      "UserWarning"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.box_primitives.UnderfullBoxWarning"
+  },
+  {
+    "name": "apply_shift",
+    "kind": "function",
+    "doc": "Return *box* with ``shift_amount`` set to *amount*.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 101,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "box",
+        "type": "HlistNode | VlistNode"
+      },
+      {
+        "name": "amount",
+        "type": "int"
+      },
+      {
+        "name": "vertical",
+        "type": "bool"
+      }
+    ],
+    "return_type": "HlistNode | VlistNode"
+  },
+  {
+    "name": "exec_vtop",
+    "kind": "function",
+    "doc": "Build ``\\\\vtop`` with its baseline at the first item.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 196,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "group_stack",
+        "type": "GroupStack"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "target_height",
+        "type": "int | None"
+      },
+      {
+        "name": "spread",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "VlistNode"
+  },
+  {
+    "name": "exec_unbox",
+    "kind": "function",
+    "doc": "Return nodes spliced by ``\\\\unhbox`` / ``\\\\unvbox`` families.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 221,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "copy",
+        "type": "bool"
+      },
+      {
+        "name": "vertical",
+        "type": "bool"
+      }
+    ],
+    "return_type": "list"
+  },
+  {
+    "name": "exec_unskip",
+    "kind": "function",
+    "doc": "Remove a trailing ``GlueNode`` from a node list target if present.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 240,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "target",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_unkern",
+    "kind": "function",
+    "doc": "Remove a trailing ``KernNode`` from a node list target if present.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 247,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "target",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_unpenalty",
+    "kind": "function",
+    "doc": "Remove a trailing ``PenaltyNode`` from a node list target if present.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 254,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "target",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_lastbox",
+    "kind": "function",
+    "doc": "Remove and return the trailing box node from a list target.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 261,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "target",
+        "type": ""
+      },
+      {
+        "name": "mode",
+        "type": ""
+      }
+    ],
+    "return_type": "HlistNode | VlistNode | None"
+  },
+  {
+    "name": "exec_vsplit",
+    "kind": "function",
+    "doc": "Execute simplified ``\\\\vsplit<n> to <dimen>`` for M3.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 408,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "splittopskip",
+        "type": "Glue"
+      },
+      {
+        "name": "split_capture_callback",
+        "type": ""
+      }
+    ],
+    "return_type": "VlistNode | None"
+  },
+  {
+    "name": "exec_char",
+    "kind": "function",
+    "doc": "Execute ``\\\\char<n>`` and append the character to the current hlist.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 503,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "par_list_or_hbuilder",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_accent",
+    "kind": "function",
+    "doc": "Execute ``\\\\accent<n><char>`` as a kerned hbox holding accent and base.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 510,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "par_list_or_hbuilder",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_discretionary",
+    "kind": "function",
+    "doc": "Execute ``\\\\discretionary{pre}{post}{nobreak}``.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 590,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "group_stack",
+        "type": "GroupStack"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "par_list_or_hbuilder",
+        "type": ""
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_hbox",
+    "kind": "function",
+    "doc": "Scan ``{...}`` content and build an ``HlistNode``.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 613,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "group_stack",
+        "type": "GroupStack"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "target_width",
+        "type": "int | None"
+      },
+      {
+        "name": "spread",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "HlistNode"
+  },
+  {
+    "name": "exec_vbox",
+    "kind": "function",
+    "doc": "Scan ``{...}`` content and build a ``VlistNode``.",
+    "file": "src/aspose_tex/_engine/box_primitives.py",
+    "line": 852,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "group_stack",
+        "type": "GroupStack"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "target_height",
+        "type": "int | None"
+      },
+      {
+        "name": "spread",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "VlistNode"
+  },
+  {
+    "name": "BoxRegisterSet",
+    "kind": "class_definition",
+    "doc": "256 box registers with group-scoped save/restore.",
+    "file": "src/aspose_tex/_engine/box_registers.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 44,
+        "is_constructor": true
+      },
+      {
+        "name": "setbox",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          },
+          {
+            "name": "box",
+            "type": "_BoxSlot"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 53,
+        "is_constructor": false
+      },
+      {
+        "name": "getbox",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "_BoxSlot",
+        "doc": "",
+        "line": 76,
+        "is_constructor": false
+      },
+      {
+        "name": "copybox",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "_BoxSlot",
+        "doc": "",
+        "line": 90,
+        "is_constructor": false
+      },
+      {
+        "name": "peekbox",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "_BoxSlot",
+        "doc": "",
+        "line": 104,
+        "is_constructor": false
+      },
+      {
+        "name": "get_wd",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 112,
+        "is_constructor": false
+      },
+      {
+        "name": "get_ht",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 118,
+        "is_constructor": false
+      },
+      {
+        "name": "get_dp",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 124,
+        "is_constructor": false
+      },
+      {
+        "name": "set_wd",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the wd value.",
+        "line": 130,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_ht",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the ht value.",
+        "line": 142,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_dp",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the dp value.",
+        "line": 154,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.box_registers.BoxRegisterSet"
+  },
+  {
+    "name": "CodeArrays",
+    "kind": "class_definition",
+    "doc": "Five 256-entry int arrays with IniTeX defaults and group save/restore.",
+    "file": "src/aspose_tex/_engine/code_arrays.py",
+    "line": 113,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 133,
+        "is_constructor": true
+      },
+      {
+        "name": "get_mathcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 145,
+        "is_constructor": false
+      },
+      {
+        "name": "set_mathcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the mathcode value.",
+        "line": 150,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_delcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 167,
+        "is_constructor": false
+      },
+      {
+        "name": "set_delcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the delcode value.",
+        "line": 172,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_sfcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 189,
+        "is_constructor": false
+      },
+      {
+        "name": "set_sfcode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the sfcode value.",
+        "line": 194,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_lccode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 211,
+        "is_constructor": false
+      },
+      {
+        "name": "set_lccode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the lccode value.",
+        "line": 216,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_uccode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 233,
+        "is_constructor": false
+      },
+      {
+        "name": "set_uccode",
+        "params": [
+          {
+            "name": "char_code",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the uccode value.",
+        "line": 238,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.code_arrays.CodeArrays"
+  },
+  {
+    "name": "parse_integer",
+    "kind": "function",
+    "doc": "Read a TeX integer constant from the expander token stream.",
+    "file": "src/aspose_tex/_engine/dimparser.py",
+    "line": 83,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "allow_negative",
+        "type": "bool"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "parse_dimen",
+    "kind": "function",
+    "doc": "Read a TeX dimension from the expander token stream.",
+    "file": "src/aspose_tex/_engine/dimparser.py",
+    "line": 222,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "em_sp",
+        "type": "int"
+      },
+      {
+        "name": "ex_sp",
+        "type": "int"
+      },
+      {
+        "name": "allow_negative",
+        "type": "bool"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "parse_glue",
+    "kind": "function",
+    "doc": "Read a TeX glue specification from the expander token stream.",
+    "file": "src/aspose_tex/_engine/dimparser.py",
+    "line": 431,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "em_sp",
+        "type": "int"
+      },
+      {
+        "name": "ex_sp",
+        "type": "int"
+      }
+    ],
+    "return_type": "Glue"
+  },
+  {
+    "name": "RegisterProvider",
+    "kind": "class_definition",
+    "doc": "Protocol for providing register values to the expansion engine.",
+    "file": "src/aspose_tex/_engine/expansion.py",
+    "line": 65,
+    "bases": [
+      "Protocol"
+    ],
+    "methods": [
+      {
+        "name": "get_tokens_for_the",
+        "params": [
+          {
+            "name": "token",
+            "type": "Token"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "list[Token]",
+        "doc": "",
+        "line": 71,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.expansion.RegisterProvider"
+  },
+  {
+    "name": "BoxProvider",
+    "kind": "class_definition",
+    "doc": "Protocol for non-consuming box-register reads used by ``\\\\ifbox`` tests.",
+    "file": "src/aspose_tex/_engine/expansion.py",
+    "line": 90,
+    "bases": [
+      "Protocol"
+    ],
+    "methods": [
+      {
+        "name": "peekbox",
+        "params": [
+          {
+            "name": "reg",
+            "type": "int"
+          }
+        ],
+        "return_type": "HlistNode | VlistNode | None",
+        "doc": "",
+        "line": 93,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.expansion.BoxProvider"
+  },
+  {
+    "name": "Expander",
+    "kind": "class_definition",
+    "doc": "TeX macro expansion engine.",
+    "file": "src/aspose_tex/_engine/expansion.py",
+    "line": 102,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "reader",
+            "type": "InputReader"
+          },
+          {
+            "name": "tokenizer",
+            "type": "Tokenizer"
+          },
+          {
+            "name": "catcodes",
+            "type": "CatcodeTable"
+          },
+          {
+            "name": "max_depth",
+            "type": "int"
+          },
+          {
+            "name": "register_provider",
+            "type": "RegisterProvider | None"
+          },
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          },
+          {
+            "name": "input_resolver",
+            "type": "Callable[[str], pathlib.Path] | None"
+          },
+          {
+            "name": "mode_stack_provider",
+            "type": "Callable[[], ModeKind] | None"
+          },
+          {
+            "name": "box_provider",
+            "type": "BoxProvider | None"
+          },
+          {
+            "name": "job_name_provider",
+            "type": "Callable[[], str] | None"
+          },
+          {
+            "name": "code_arrays_provider",
+            "type": "Callable[[], CodeArrays] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 142,
+        "is_constructor": true
+      },
+      {
+        "name": "peek",
+        "params": [],
+        "return_type": "Token | None",
+        "doc": "",
+        "line": 192,
+        "is_constructor": false
+      },
+      {
+        "name": "push_tokens",
+        "params": [
+          {
+            "name": "tokens",
+            "type": "list[Token]"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 201,
+        "is_constructor": false
+      },
+      {
+        "name": "define",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "meaning",
+            "type": "Meaning"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 222,
+        "is_constructor": false
+      },
+      {
+        "name": "fire_after_assignment",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 824,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "macros",
+        "type": "dict[str, Meaning]",
+        "doc": "Gets the macros.",
+        "line": 218,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "replacement",
+        "type": "list[Token]",
+        "doc": "Gets the replacement.",
+        "line": 434,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "args",
+        "type": "dict[int, list[Token]]",
+        "doc": "Gets the args.",
+        "line": 450,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "delimiters",
+        "type": "list[Token]",
+        "doc": "Gets the delimiters.",
+        "line": 456,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "run",
+        "type": "list[Token]",
+        "doc": "Gets the run.",
+        "line": 472,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tokens",
+        "type": "list[Token]",
+        "doc": "Gets the tokens.",
+        "line": 505,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "buf",
+        "type": "list[Token]",
+        "doc": "Gets the buf.",
+        "line": 527,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "pattern",
+        "type": "list",
+        "doc": "Gets the pattern.",
+        "line": 612,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "result",
+        "type": "list",
+        "doc": "Gets the result.",
+        "line": 648,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "chars",
+        "type": "list[str]",
+        "doc": "Gets the chars.",
+        "line": 788,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "converted",
+        "type": "list[Token]",
+        "doc": "Gets the converted.",
+        "line": 880,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "digits",
+        "type": "list[str]",
+        "doc": "Gets the digits.",
+        "line": 1220,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tokens",
+        "type": "list[Token]",
+        "doc": "Gets the tokens.",
+        "line": 1292,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tokens",
+        "type": "list[Token]",
+        "doc": "Gets the tokens.",
+        "line": 1309,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "chars",
+        "type": "list[str]",
+        "doc": "Gets the chars.",
+        "line": 1362,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.expansion.Expander"
+  },
+  {
+    "name": "GroupKind",
+    "kind": "class_definition",
+    "doc": "Kind of TeX group.",
+    "file": "src/aspose_tex/_engine/group.py",
+    "line": 19,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "BRACE",
+        "value": "auto()"
+      },
+      {
+        "name": "SEMI_SIMPLE",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_engine.group.GroupKind"
+  },
+  {
+    "name": "GroupStack",
+    "kind": "class_definition",
+    "doc": "TeX group save/restore stack.",
+    "file": "src/aspose_tex/_engine/group.py",
+    "line": 48,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 75,
+        "is_constructor": true
+      },
+      {
+        "name": "set_global",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 100,
+        "is_constructor": false
+      },
+      {
+        "name": "consume_global",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 104,
+        "is_constructor": false
+      },
+      {
+        "name": "open_group",
+        "params": [
+          {
+            "name": "kind",
+            "type": "GroupKind"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 112,
+        "is_constructor": false
+      },
+      {
+        "name": "close_group",
+        "params": [],
+        "return_type": "tuple[list[Token], GroupKind]",
+        "doc": "",
+        "line": 127,
+        "is_constructor": false
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "key",
+            "type": "tuple"
+          },
+          {
+            "name": "restore_fn",
+            "type": "Callable[[], None]"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 154,
+        "is_constructor": false
+      },
+      {
+        "name": "push_aftergroup",
+        "params": [
+          {
+            "name": "token",
+            "type": "Token"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 179,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 85,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_global_pending",
+        "type": "bool",
+        "doc": "Gets the is global pending.",
+        "line": 94,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.group.GroupStack"
+  },
+  {
+    "name": "InsertAccumulator",
+    "kind": "class_definition",
+    "doc": "Per-class accumulator of ``\\\\insert<n>{<vlist>}`` payloads.",
+    "file": "src/aspose_tex/_engine/inserts.py",
+    "line": 16,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 19,
+        "is_constructor": true
+      },
+      {
+        "name": "append",
+        "params": [
+          {
+            "name": "node",
+            "type": "InsertNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 29,
+        "is_constructor": false
+      },
+      {
+        "name": "get_class",
+        "params": [
+          {
+            "name": "class_",
+            "type": "int"
+          }
+        ],
+        "return_type": "list",
+        "doc": "",
+        "line": 34,
+        "is_constructor": false
+      },
+      {
+        "name": "flush_to_box_registers",
+        "params": [
+          {
+            "name": "box_regs",
+            "type": "BoxRegisterSet"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "clear",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 64,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.inserts.InsertAccumulator"
+  },
+  {
+    "name": "QuantityKind",
+    "kind": "class_definition",
+    "doc": "Value category for a TeX internal quantity.",
+    "file": "src/aspose_tex/_engine/internal_quantities.py",
+    "line": 24,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "INT",
+        "value": "1"
+      },
+      {
+        "name": "DIMEN",
+        "value": "2"
+      },
+      {
+        "name": "SKIP",
+        "value": "3"
+      },
+      {
+        "name": "MUSKIP",
+        "value": "4"
+      }
+    ],
+    "class_import": "_engine.internal_quantities.QuantityKind"
+  },
+  {
+    "name": "InternalQuantityRegistry",
+    "kind": "class_definition",
+    "doc": "r\"\"\"Lookup and dispatcher for callback-backed TeX internal quantities.",
+    "file": "src/aspose_tex/_engine/internal_quantities.py",
+    "line": 44,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "mode_stack",
+            "type": "ModeStack"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 70,
+        "is_constructor": true
+      },
+      {
+        "name": "register",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "kind",
+            "type": "QuantityKind"
+          },
+          {
+            "name": "getter",
+            "type": "Callable[[], int | Glue]"
+          },
+          {
+            "name": "setter",
+            "type": "Callable[[int | Glue], None] | None"
+          },
+          {
+            "name": "allowed_modes",
+            "type": "frozenset[ModeKind] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "lookup",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "_Entry | None",
+        "doc": "",
+        "line": 98,
+        "is_constructor": false
+      },
+      {
+        "name": "read_value",
+        "params": [
+          {
+            "name": "entry",
+            "type": "_Entry"
+          }
+        ],
+        "return_type": "int | Glue",
+        "doc": "",
+        "line": 102,
+        "is_constructor": false
+      },
+      {
+        "name": "dispatch_assignment",
+        "params": [
+          {
+            "name": "entry",
+            "type": "_Entry"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 107,
+        "is_constructor": false
+      },
+      {
+        "name": "dispatch_the",
+        "params": [
+          {
+            "name": "entry",
+            "type": "_Entry"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "list[Token]",
+        "doc": "",
+        "line": 132,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "value",
+        "type": "int | Glue",
+        "doc": "Gets the value.",
+        "line": 117,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.internal_quantities.InternalQuantityRegistry"
+  },
+  {
+    "name": "ModeKind",
+    "kind": "class_definition",
+    "doc": "TeX processing modes ( FR-1, FR-1/FR-2).",
+    "file": "src/aspose_tex/_engine/interpreter.py",
+    "line": 96,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "OUTER_VERTICAL",
+        "value": "auto()"
+      },
+      {
+        "name": "HORIZONTAL",
+        "value": "auto()"
+      },
+      {
+        "name": "INTERNAL_VERTICAL",
+        "value": "auto()"
+      },
+      {
+        "name": "RESTRICTED_HORIZONTAL",
+        "value": "auto()"
+      },
+      {
+        "name": "MATH",
+        "value": "auto()"
+      },
+      {
+        "name": "MATH_DISPLAY",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_engine.interpreter.ModeKind"
+  },
+  {
+    "name": "ModeStack",
+    "kind": "class_definition",
+    "doc": "LIFO mode stack; starts with OUTER_VERTICAL.",
+    "file": "src/aspose_tex/_engine/interpreter.py",
+    "line": 121,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 134,
+        "is_constructor": true
+      },
+      {
+        "name": "push",
+        "params": [
+          {
+            "name": "mode",
+            "type": "ModeKind"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 142,
+        "is_constructor": false
+      },
+      {
+        "name": "pop",
+        "params": [],
+        "return_type": "ModeKind",
+        "doc": "",
+        "line": 146,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "current",
+        "type": "ModeKind",
+        "doc": "Gets the current.",
+        "line": 138,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.interpreter.ModeStack"
+  },
+  {
+    "name": "TeXInterpreter",
+    "kind": "class_definition",
+    "doc": "Central TeX interpreter: wires all engine components into a pipeline.",
+    "file": "src/aspose_tex/_engine/interpreter.py",
+    "line": 210,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "extra_font_paths",
+            "type": "list[Path] | None"
+          },
+          {
+            "name": "extra_format_paths",
+            "type": "list[Path] | None"
+          },
+          {
+            "name": "load_format",
+            "type": "bool | str | None"
+          },
+          {
+            "name": "messages",
+            "type": "list[str] | None"
+          },
+          {
+            "name": "job_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 222,
+        "is_constructor": true
+      },
+      {
+        "name": "run",
+        "params": [
+          {
+            "name": "source",
+            "type": "InputSource"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 254,
+        "is_constructor": false
+      },
+      {
+        "name": "run_with_device",
+        "params": [
+          {
+            "name": "source",
+            "type": "InputSource"
+          },
+          {
+            "name": "device",
+            "type": "OutputDevice"
+          },
+          {
+            "name": "mag",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 283,
+        "is_constructor": false
+      },
+      {
+        "name": "load_format",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 484,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "load_format",
+        "type": "bool | str | None",
+        "doc": "Gets the load format.",
+        "line": 245,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "primitives",
+        "type": "dict[str, object]",
+        "doc": "Gets the primitives.",
+        "line": 540,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tokens",
+        "type": "list[Token]",
+        "doc": "Gets the tokens.",
+        "line": 1822,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "at_sp",
+        "type": "int | None",
+        "doc": "Gets the at sp.",
+        "line": 1962,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "scaled",
+        "type": "int | None",
+        "doc": "Gets the scaled.",
+        "line": 1963,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "chars",
+        "type": "list[str]",
+        "doc": "Gets the chars.",
+        "line": 1993,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.interpreter.TeXInterpreter"
+  },
+  {
+    "name": "exec_message",
+    "kind": "function",
+    "doc": "r\"\"\"Execute ``\\message{<balanced text>}``.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 24,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_write",
+    "kind": "function",
+    "doc": "r\"\"\"Execute ``\\write<n>{<balanced text>}``.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 31,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      },
+      {
+        "name": "immediate",
+        "type": "bool"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_errmessage",
+    "kind": "function",
+    "doc": "r\"\"\"Execute ``\\errmessage{<text>}`` in M3 batch-mode style.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 52,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_immediate",
+    "kind": "function",
+    "doc": "r\"\"\"Execute the ``\\immediate`` prefix.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 64,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_openin",
+    "kind": "function",
+    "doc": "r\"\"\"Parse ``\\openin<n>=<filename>`` then raise the M5 placeholder.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 81,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_openout",
+    "kind": "function",
+    "doc": "r\"\"\"Parse ``\\openout<n>=<filename>`` then raise the M5 placeholder.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 89,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      },
+      {
+        "name": "immediate",
+        "type": "bool"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_closein",
+    "kind": "function",
+    "doc": "r\"\"\"Parse ``\\closein<n>`` then raise the M5 placeholder.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 98,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_closeout",
+    "kind": "function",
+    "doc": "r\"\"\"Parse ``\\closeout<n>`` then raise the M5 placeholder.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 104,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      },
+      {
+        "name": "immediate",
+        "type": "bool"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_read",
+    "kind": "function",
+    "doc": "Parse ``\\read<n> to <CS>`` then raise the M5 placeholder.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 111,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_ifeof",
+    "kind": "function",
+    "doc": "r\"\"\"Execute ``\\ifeof<n>`` as always-false in M3.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 126,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "bool"
+  },
+  {
+    "name": "exec_dump",
+    "kind": "function",
+    "doc": "r\"\"\"Terminate format loading and inject ``\\everyjob`` tokens.",
+    "file": "src/aspose_tex/_engine/io_primitives.py",
+    "line": 132,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "interp",
+        "type": "TeXInterpreter"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "make_leaders",
+    "kind": "function",
+    "doc": "Build a leaders node from a payload box/rule and skip glue.",
+    "file": "src/aspose_tex/_engine/leaders.py",
+    "line": 28,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "kind",
+        "type": "LeadersKind"
+      },
+      {
+        "name": "payload",
+        "type": "HlistNode | VlistNode | RuleNode"
+      },
+      {
+        "name": "glue",
+        "type": "Glue"
+      }
+    ],
+    "return_type": "LeadersNode"
+  },
+  {
+    "name": "parse_leaders",
+    "kind": "function",
+    "doc": "r\"\"\"Parse ``\\leaders <box-or-rule> <skip>`` and return a node.",
+    "file": "src/aspose_tex/_engine/leaders.py",
+    "line": 37,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "expander",
+        "type": "Expander"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "group_stack",
+        "type": "GroupStack"
+      },
+      {
+        "name": "box_regs",
+        "type": "BoxRegisterSet"
+      },
+      {
+        "name": "kind",
+        "type": "LeadersKind"
+      }
+    ],
+    "return_type": "LeadersNode"
+  },
+  {
+    "name": "LinebreakParams",
+    "kind": "class_definition",
+    "doc": "All tunable parameters required by the line-breaker.",
+    "file": "src/aspose_tex/_engine/linebreak.py",
+    "line": 50,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "hsize",
+        "type": "int",
+        "doc": "Gets the hsize.",
+        "line": 69,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tolerance",
+        "type": "int",
+        "doc": "Gets the tolerance.",
+        "line": 70,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "pretolerance",
+        "type": "int",
+        "doc": "Gets the pretolerance.",
+        "line": 71,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "linepenalty",
+        "type": "int",
+        "doc": "Gets the linepenalty.",
+        "line": 72,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "adjdemerits",
+        "type": "int",
+        "doc": "Gets the adjdemerits.",
+        "line": 73,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "leftskip",
+        "type": "Glue",
+        "doc": "Gets the leftskip.",
+        "line": 74,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "rightskip",
+        "type": "Glue",
+        "doc": "Gets the rightskip.",
+        "line": 75,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "parfillskip",
+        "type": "Glue",
+        "doc": "Gets the parfillskip.",
+        "line": 76,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.linebreak.LinebreakParams"
+  },
+  {
+    "name": "break_paragraph",
+    "kind": "function",
+    "doc": "Run Knuth-Plass and return the typeset lines.",
+    "file": "src/aspose_tex/_engine/linebreak.py",
+    "line": 449,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "nodes",
+        "type": "list"
+      },
+      {
+        "name": "params",
+        "type": "LinebreakParams"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "warnings",
+        "type": "list[str] | None"
+      }
+    ],
+    "return_type": "list[HlistNode]"
+  },
+  {
+    "name": "MacroDefinition",
+    "kind": "class_definition",
+    "doc": "A user-defined macro produced by \\\\def / \\\\edef / \\\\gdef / \\\\xdef.",
+    "file": "src/aspose_tex/_engine/macro.py",
+    "line": 16,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "param_pattern",
+        "type": "tuple",
+        "doc": "Gets the param pattern.",
+        "line": 38,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "replacement",
+        "type": "tuple",
+        "doc": "Gets the replacement.",
+        "line": 39,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "long",
+        "type": "bool",
+        "doc": "Gets the long.",
+        "line": 40,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "outer",
+        "type": "bool",
+        "doc": "Gets the outer.",
+        "line": 41,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.macro.MacroDefinition"
+  },
+  {
+    "name": "MarksProvider",
+    "kind": "class_definition",
+    "doc": "Expansion-side provider for TeX's five mark-reader primitives.",
+    "file": "src/aspose_tex/_engine/marks.py",
+    "line": 15,
+    "bases": [
+      "Protocol"
+    ],
+    "methods": [
+      {
+        "name": "get_marks_tokens",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 18,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.marks.MarksProvider"
+  },
+  {
+    "name": "MarksRegistry",
+    "kind": "class_definition",
+    "doc": "Tracks page and split marks for the current interpreter run.",
+    "file": "src/aspose_tex/_engine/marks.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 26,
+        "is_constructor": true
+      },
+      {
+        "name": "execute_mark",
+        "params": [
+          {
+            "name": "tokens",
+            "type": "tuple[Token, ...]"
+          }
+        ],
+        "return_type": "MarkNode",
+        "doc": "",
+        "line": 34,
+        "is_constructor": false
+      },
+      {
+        "name": "record_mark_on_shipout",
+        "params": [
+          {
+            "name": "page_nodes",
+            "type": "list"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 38,
+        "is_constructor": false
+      },
+      {
+        "name": "first_mark",
+        "params": [],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 46,
+        "is_constructor": false
+      },
+      {
+        "name": "top_mark",
+        "params": [],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 50,
+        "is_constructor": false
+      },
+      {
+        "name": "bot_mark",
+        "params": [],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 54,
+        "is_constructor": false
+      },
+      {
+        "name": "split_first_mark",
+        "params": [],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 58,
+        "is_constructor": false
+      },
+      {
+        "name": "split_bot_mark",
+        "params": [],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 62,
+        "is_constructor": false
+      },
+      {
+        "name": "capture_split",
+        "params": [
+          {
+            "name": "head_nodes",
+            "type": "list"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 66,
+        "is_constructor": false
+      },
+      {
+        "name": "reset_for_new_page",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 72,
+        "is_constructor": false
+      },
+      {
+        "name": "get_marks_tokens",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "tuple[Token, ...]",
+        "doc": "",
+        "line": 80,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "found",
+        "type": "list[MarkNode]",
+        "doc": "Gets the found.",
+        "line": 96,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.marks.MarksRegistry"
+  },
+  {
+    "name": "MathOperandKind",
+    "kind": "class_definition",
+    "doc": "Operand pattern consumed by one math-shell primitive.",
+    "file": "src/aspose_tex/_engine/math_shell.py",
+    "line": 26,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "NONE",
+        "value": "0"
+      },
+      {
+        "name": "INT_DELIMITER",
+        "value": "1"
+      },
+      {
+        "name": "INT_MATHCHAR",
+        "value": "2"
+      },
+      {
+        "name": "DELIM",
+        "value": "3"
+      },
+      {
+        "name": "MATH_FIELD",
+        "value": "4"
+      },
+      {
+        "name": "MATHACCENT",
+        "value": "5"
+      },
+      {
+        "name": "RADICAL",
+        "value": "6"
+      },
+      {
+        "name": "DIMEN_OPERAND",
+        "value": "7"
+      },
+      {
+        "name": "MUDIMEN",
+        "value": "8"
+      },
+      {
+        "name": "MUGLUE",
+        "value": "9"
+      },
+      {
+        "name": "DELIM_DELIM",
+        "value": "10"
+      },
+      {
+        "name": "DELIM_DELIM_DIMEN",
+        "value": "11"
+      },
+      {
+        "name": "FOUR_BALANCED",
+        "value": "12"
+      }
+    ],
+    "class_import": "_engine.math_shell.MathOperandKind"
+  },
+  {
+    "name": "MathShellRegistry",
+    "kind": "class_definition",
+    "doc": "Consumes known math-mode primitives without producing nodes.",
+    "file": "src/aspose_tex/_engine/math_shell.py",
+    "line": 90,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "expander",
+            "type": "Expander"
+          },
+          {
+            "name": "code_arrays",
+            "type": "CodeArrays"
+          },
+          {
+            "name": "math_family_registry",
+            "type": "MathFamilyRegistry"
+          },
+          {
+            "name": "mode_provider",
+            "type": "Callable[[], ModeKind] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 105,
+        "is_constructor": true
+      },
+      {
+        "name": "dispatch_if_known",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 125,
+        "is_constructor": false
+      },
+      {
+        "name": "consume_math_field",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 133,
+        "is_constructor": false
+      },
+      {
+        "name": "exec_eqno_or_leqno",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 141,
+        "is_constructor": false
+      },
+      {
+        "name": "check_left_right_balanced",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 147,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "left_right_depth",
+        "type": "int",
+        "doc": "Gets the left right depth.",
+        "line": 121,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.math_shell.MathShellRegistry"
+  },
+  {
+    "name": "ParamKind",
+    "kind": "class_definition",
+    "doc": "Kind of a named TeX parameter ( FR-10).",
+    "file": "src/aspose_tex/_engine/named_parameters.py",
+    "line": 27,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "INT",
+        "value": "1"
+      },
+      {
+        "name": "DIMEN",
+        "value": "2"
+      },
+      {
+        "name": "SKIP",
+        "value": "3"
+      },
+      {
+        "name": "MUSKIP",
+        "value": "4"
+      },
+      {
+        "name": "TOKS",
+        "value": "5"
+      }
+    ],
+    "class_import": "_engine.named_parameters.ParamKind"
+  },
+  {
+    "name": "NamedParameterRegistry",
+    "kind": "class_definition",
+    "doc": "Lookup + dispatcher for TeX named parameters.",
+    "file": "src/aspose_tex/_engine/named_parameters.py",
+    "line": 55,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "register_set",
+            "type": "RegisterSet"
+          },
+          {
+            "name": "group_stack",
+            "type": "GroupStack"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 97,
+        "is_constructor": true
+      },
+      {
+        "name": "register",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "kind",
+            "type": "ParamKind"
+          },
+          {
+            "name": "slot",
+            "type": "int"
+          },
+          {
+            "name": "default",
+            "type": "int | Glue | list[Token] | None"
+          },
+          {
+            "name": "on_set",
+            "type": "Callable[[Any], None] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 109,
+        "is_constructor": false
+      },
+      {
+        "name": "lookup",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "_Entry | None",
+        "doc": "",
+        "line": 152,
+        "is_constructor": false
+      },
+      {
+        "name": "set_on_set",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "callback",
+            "type": "Callable[[Any], None] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the on set value.",
+        "line": 156,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "dispatch_assignment",
+        "params": [
+          {
+            "name": "entry",
+            "type": "_Entry"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 208,
+        "is_constructor": false
+      },
+      {
+        "name": "dispatch_the",
+        "params": [
+          {
+            "name": "entry",
+            "type": "_Entry"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "list[Token]",
+        "doc": "",
+        "line": 252,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "value",
+        "type": "Any",
+        "doc": "Gets the value.",
+        "line": 232,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.named_parameters.NamedParameterRegistry"
+  },
+  {
+    "name": "GlueSign",
+    "kind": "class_definition",
+    "doc": "Glue setting direction.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 44,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "NORMAL",
+        "value": "0"
+      },
+      {
+        "name": "STRETCHING",
+        "value": "1"
+      },
+      {
+        "name": "SHRINKING",
+        "value": "2"
+      }
+    ],
+    "class_import": "_engine.nodes.GlueSign"
+  },
+  {
+    "name": "LeadersKind",
+    "kind": "class_definition",
+    "doc": "r\"\"\"Leader distribution kind for ``\\leaders`` family nodes.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 57,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "NORMAL",
+        "value": "0"
+      },
+      {
+        "name": "C",
+        "value": "1"
+      },
+      {
+        "name": "X",
+        "value": "2"
+      }
+    ],
+    "class_import": "_engine.nodes.LeadersKind"
+  },
+  {
+    "name": "CharNode",
+    "kind": "class_definition",
+    "doc": "A typeset character.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 70,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "char",
+        "type": "int",
+        "doc": "Gets the char.",
+        "line": 86,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_name",
+        "type": "str",
+        "doc": "Gets the font name.",
+        "line": 87,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.CharNode"
+  },
+  {
+    "name": "KernNode",
+    "kind": "class_definition",
+    "doc": "Fixed inter-character or inter-word spacing.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 91,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 104,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "explicit",
+        "type": "bool",
+        "doc": "Gets the explicit.",
+        "line": 105,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.KernNode"
+  },
+  {
+    "name": "GlueNode",
+    "kind": "class_definition",
+    "doc": "Stretchable/shrinkable space.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 109,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "glue",
+        "type": "Glue",
+        "doc": "Gets the glue.",
+        "line": 121,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.GlueNode"
+  },
+  {
+    "name": "PenaltyNode",
+    "kind": "class_definition",
+    "doc": "Line/page break incentive.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 125,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "penalty",
+        "type": "int",
+        "doc": "Gets the penalty.",
+        "line": 137,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.PenaltyNode"
+  },
+  {
+    "name": "RuleNode",
+    "kind": "class_definition",
+    "doc": "Filled rectangle (``\\\\hrule`` / ``\\\\vrule``).",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 141,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 154,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "doc": "Gets the height.",
+        "line": 155,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 156,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.RuleNode"
+  },
+  {
+    "name": "DiscretionaryNode",
+    "kind": "class_definition",
+    "doc": "Line-break alternative from ``\\\\discretionary{pre}{post}{nobreak}``.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 160,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "pre",
+        "type": "tuple",
+        "doc": "Gets the pre.",
+        "line": 168,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "post",
+        "type": "tuple",
+        "doc": "Gets the post.",
+        "line": 169,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "nobreak",
+        "type": "tuple",
+        "doc": "Gets the nobreak.",
+        "line": 170,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.DiscretionaryNode"
+  },
+  {
+    "name": "LeadersNode",
+    "kind": "class_definition",
+    "doc": "Repeated rule or box payload across a glue skip.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 174,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "LeadersKind",
+        "doc": "Gets the kind.",
+        "line": 181,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "payload",
+        "type": "object",
+        "doc": "Gets the payload.",
+        "line": 182,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue",
+        "type": "Glue",
+        "doc": "Gets the glue.",
+        "line": 183,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.LeadersNode"
+  },
+  {
+    "name": "MarkNode",
+    "kind": "class_definition",
+    "doc": "r\"\"\"Page mark sentinel from ``\\mark{...}``.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 187,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "tokens",
+        "type": "tuple",
+        "doc": "Gets the tokens.",
+        "line": 190,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.MarkNode"
+  },
+  {
+    "name": "InsertNode",
+    "kind": "class_definition",
+    "doc": "r\"\"\"An ``\\insert<n>{<vlist>}`` contribution.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 194,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "class_",
+        "type": "int",
+        "doc": "Gets the class .",
+        "line": 225,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "vlist",
+        "type": "tuple",
+        "doc": "Gets the vlist.",
+        "line": 226,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "doc": "Gets the height.",
+        "line": 227,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 228,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "floating_penalty",
+        "type": "int",
+        "doc": "Gets the floating penalty.",
+        "line": 229,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "split_top_skip",
+        "type": "Glue",
+        "doc": "Gets the split top skip.",
+        "line": 230,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "split_max_depth",
+        "type": "int",
+        "doc": "Gets the split max depth.",
+        "line": 231,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.InsertNode"
+  },
+  {
+    "name": "WhatsitNode",
+    "kind": "class_definition",
+    "doc": "Extensibility hook for special material (e.g.",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 235,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "data",
+        "type": "object",
+        "doc": "Gets the data.",
+        "line": 242,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.WhatsitNode"
+  },
+  {
+    "name": "HlistNode",
+    "kind": "class_definition",
+    "doc": "A horizontal box (``\\\\hbox``).",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 250,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "list",
+        "type": "list",
+        "doc": "Gets the list.",
+        "line": 275,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 276,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "doc": "Gets the height.",
+        "line": 277,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 278,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "shift_amount",
+        "type": "int",
+        "doc": "Gets the shift amount.",
+        "line": 279,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_sign",
+        "type": "GlueSign",
+        "doc": "Gets the glue sign.",
+        "line": 280,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_order",
+        "type": "GlueOrder",
+        "doc": "Gets the glue order.",
+        "line": 281,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_set",
+        "type": "float",
+        "doc": "Gets the glue set.",
+        "line": 282,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.HlistNode"
+  },
+  {
+    "name": "VlistNode",
+    "kind": "class_definition",
+    "doc": "A vertical box (``\\\\vbox``).",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 286,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "list",
+        "type": "list",
+        "doc": "Gets the list.",
+        "line": 300,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 301,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "doc": "Gets the height.",
+        "line": 302,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 303,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "shift_amount",
+        "type": "int",
+        "doc": "Gets the shift amount.",
+        "line": 304,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_sign",
+        "type": "GlueSign",
+        "doc": "Gets the glue sign.",
+        "line": 305,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_order",
+        "type": "GlueOrder",
+        "doc": "Gets the glue order.",
+        "line": 306,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "glue_set",
+        "type": "float",
+        "doc": "Gets the glue set.",
+        "line": 307,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.nodes.VlistNode"
+  },
+  {
+    "name": "deep_copy_node",
+    "kind": "function",
+    "doc": "Return a deep copy of *node* (for ``\\\\copy`` semantics).",
+    "file": "src/aspose_tex/_engine/nodes.py",
+    "line": 351,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "node",
+        "type": "(\r\n CharNode\r\n | HlistNode\r\n | VlistNode\r\n | GlueNode\r\n | KernNode\r\n | PenaltyNode\r\n | RuleNode\r\n | DiscretionaryNode\r\n | LeadersNode\r\n | MarkNode\r\n | InsertNode\r\n | WhatsitNode\r\n )"
+      }
+    ],
+    "return_type": "(\r\n CharNode\r\n | HlistNode\r\n | VlistNode\r\n | GlueNode\r\n | KernNode\r\n | PenaltyNode\r\n | RuleNode\r\n | DiscretionaryNode\r\n | LeadersNode\r\n | MarkNode\r\n | InsertNode\r\n | WhatsitNode\r\n)"
+  },
+  {
+    "name": "PageBuilderConfig",
+    "kind": "class_definition",
+    "doc": "Mutable configuration for the page builder.",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 99,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "vsize",
+        "type": "int",
+        "doc": "Gets the vsize.",
+        "line": 137,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "topskip",
+        "type": "Glue",
+        "doc": "Gets the topskip.",
+        "line": 138,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "max_depth",
+        "type": "int",
+        "doc": "Gets the max depth.",
+        "line": 139,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "baselineskip",
+        "type": "Glue",
+        "doc": "Gets the baselineskip.",
+        "line": 140,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "lineskip",
+        "type": "Glue",
+        "doc": "Gets the lineskip.",
+        "line": 141,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "lineskiplimit",
+        "type": "int",
+        "doc": "Gets the lineskiplimit.",
+        "line": 142,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "max_dead_cycles",
+        "type": "int",
+        "doc": "Gets the max dead cycles.",
+        "line": 143,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "hsize",
+        "type": "int",
+        "doc": "Gets the hsize.",
+        "line": 146,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.PageBuilderConfig"
+  },
+  {
+    "name": "ShipoutBackend",
+    "kind": "class_definition",
+    "doc": "Receives completed page boxes for output (DVI / PDF / SVG).",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 153,
+    "bases": [
+      "Protocol"
+    ],
+    "methods": [
+      {
+        "name": "shipout",
+        "params": [
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "box",
+            "type": "VlistNode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 165,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.ShipoutBackend"
+  },
+  {
+    "name": "PageNumberRegister",
+    "kind": "class_definition",
+    "doc": "Read/write access to \\\\pageno (aliased to \\\\count0 in plain TeX).",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 179,
+    "bases": [
+      "Protocol"
+    ],
+    "methods": [
+      {
+        "name": "get_pageno",
+        "params": [],
+        "return_type": "int",
+        "doc": "Returns the pageno.",
+        "line": 196,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_pageno",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the pageno value.",
+        "line": 200,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.PageNumberRegister"
+  },
+  {
+    "name": "OutputRoutineBase",
+    "kind": "class_definition",
+    "doc": "Abstract output routine.",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 209,
+    "bases": [
+      "abc.ABC"
+    ],
+    "methods": [
+      {
+        "name": "execute",
+        "params": [
+          {
+            "name": "body_nodes",
+            "type": "list"
+          },
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "backend",
+            "type": "ShipoutBackend"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 239,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.OutputRoutineBase"
+  },
+  {
+    "name": "PlainOutputRoutine",
+    "kind": "class_definition",
+    "doc": "Plain-TeX default output routine, M2 implementation.",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 323,
+    "bases": [
+      "OutputRoutineBase"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "hsize",
+            "type": "int"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager | None"
+          },
+          {
+            "name": "pageno_register",
+            "type": "PageNumberRegister | None"
+          },
+          {
+            "name": "config",
+            "type": "PageBuilderConfig | None"
+          },
+          {
+            "name": "footline_baselineskip_sp",
+            "type": "int"
+          },
+          {
+            "name": "headline_shift_sp",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 374,
+        "is_constructor": true
+      },
+      {
+        "name": "execute",
+        "params": [
+          {
+            "name": "body_nodes",
+            "type": "list"
+          },
+          {
+            "name": "page_number",
+            "type": "int"
+          },
+          {
+            "name": "backend",
+            "type": "ShipoutBackend"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 391,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "page_nodes",
+        "type": "list",
+        "doc": "Gets the page nodes.",
+        "line": 435,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "nodes",
+        "type": "list",
+        "doc": "Gets the nodes.",
+        "line": 490,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.PlainOutputRoutine"
+  },
+  {
+    "name": "PageBuilder",
+    "kind": "class_definition",
+    "doc": "Assembles typeset vertical material into pages.",
+    "file": "src/aspose_tex/_engine/page_builder.py",
+    "line": 540,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "config",
+            "type": "PageBuilderConfig"
+          },
+          {
+            "name": "backend",
+            "type": "ShipoutBackend"
+          },
+          {
+            "name": "output_routine",
+            "type": "OutputRoutineBase | None"
+          },
+          {
+            "name": "pageno_register",
+            "type": "PageNumberRegister | None"
+          },
+          {
+            "name": "marks_registry",
+            "type": "MarksRegistry | None"
+          },
+          {
+            "name": "box_registers",
+            "type": "BoxRegisterSet | None"
+          },
+          {
+            "name": "insert_accumulator",
+            "type": "InsertAccumulator | None"
+          },
+          {
+            "name": "named_params",
+            "type": "NamedParameterRegistry | None"
+          },
+          {
+            "name": "expander",
+            "type": "Expander | None"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 560,
+        "is_constructor": true
+      },
+      {
+        "name": "contribute",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 754,
+        "is_constructor": false
+      },
+      {
+        "name": "end_of_document",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 850,
+        "is_constructor": false
+      },
+      {
+        "name": "skip_next_interline",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 864,
+        "is_constructor": false
+      },
+      {
+        "name": "off_interline",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 868,
+        "is_constructor": false
+      },
+      {
+        "name": "remove_last_node",
+        "params": [],
+        "return_type": "Node | None",
+        "doc": "",
+        "line": 872,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_at_top_of_page",
+        "type": "bool",
+        "doc": "Gets the is at top of page.",
+        "line": 655,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_total",
+        "type": "int",
+        "doc": "Gets the page total.",
+        "line": 670,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_goal",
+        "type": "int",
+        "doc": "Gets the page goal.",
+        "line": 675,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_depth",
+        "type": "int",
+        "doc": "Gets the page depth.",
+        "line": 680,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_stretch",
+        "type": "int",
+        "doc": "Gets the page stretch.",
+        "line": 685,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_fil_stretch",
+        "type": "int",
+        "doc": "Gets the page fil stretch.",
+        "line": 690,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_filstretch",
+        "type": "int",
+        "doc": "Gets the page filstretch.",
+        "line": 695,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_fill_stretch",
+        "type": "int",
+        "doc": "Gets the page fill stretch.",
+        "line": 700,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_fillstretch",
+        "type": "int",
+        "doc": "Gets the page fillstretch.",
+        "line": 705,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_filll_stretch",
+        "type": "int",
+        "doc": "Gets the page filll stretch.",
+        "line": 710,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_filllstretch",
+        "type": "int",
+        "doc": "Gets the page filllstretch.",
+        "line": 715,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_shrink",
+        "type": "int",
+        "doc": "Gets the page shrink.",
+        "line": 720,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "dead_cycles",
+        "type": "int",
+        "doc": "Gets the dead cycles.",
+        "line": 725,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "insert_penalties",
+        "type": "int",
+        "doc": "Gets the insert penalties.",
+        "line": 730,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_number",
+        "type": "int",
+        "doc": "Gets the page number.",
+        "line": 735,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "output_cycle_pending",
+        "type": "bool",
+        "doc": "Gets the output cycle pending.",
+        "line": 746,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "kept",
+        "type": "list",
+        "doc": "Gets the kept.",
+        "line": 1131,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.page_builder.PageBuilder"
+  },
+  {
+    "name": "make_vfil_glue",
+    "kind": "function",
+    "doc": "r\"\"\"\\vfil — 0pt plus 1fil.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 23,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_vfill_glue",
+    "kind": "function",
+    "doc": "r\"\"\"\\vfill — 0pt plus 1fill.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 39,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_vfilneg_glue",
+    "kind": "function",
+    "doc": "r\"\"\"\\vfilneg — 0pt minus 1fil.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 55,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_vss_glue",
+    "kind": "function",
+    "doc": "r\"\"\"\\vss — 0pt plus 1fil minus 1fil.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 71,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "exec_nointerlineskip",
+    "kind": "function",
+    "doc": "r\"\"\"\\nointerlineskip — suppress interline glue for the next box only.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 87,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "page_builder",
+        "type": "PageBuilder"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_offinterlineskip",
+    "kind": "function",
+    "doc": "r\"\"\"\\offinterlineskip — disable all subsequent interline glue.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 96,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "page_builder",
+        "type": "PageBuilder"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "exec_shipout",
+    "kind": "function",
+    "doc": "r\"\"\"\\shipout — send a completed box directly to the output backend.",
+    "file": "src/aspose_tex/_engine/page_primitives.py",
+    "line": 105,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "box",
+        "type": "VlistNode"
+      },
+      {
+        "name": "page_number",
+        "type": "int"
+      },
+      {
+        "name": "backend",
+        "type": "ShipoutBackend"
+      },
+      {
+        "name": "page_builder",
+        "type": "PageBuilder"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "ParagraphList",
+    "kind": "class_definition",
+    "doc": "Accumulates nodes for the current paragraph (horizontal mode).",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 29,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "parindent",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 43,
+        "is_constructor": true
+      },
+      {
+        "name": "append",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 70,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_empty",
+        "type": "bool",
+        "doc": "Gets the is empty.",
+        "line": 84,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "nodes",
+        "type": "list",
+        "doc": "Gets the nodes.",
+        "line": 89,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.par_primitives.ParagraphList"
+  },
+  {
+    "name": "exec_par",
+    "kind": "function",
+    "doc": "Finalise the paragraph and run line breaking.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 94,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "par_list",
+        "type": "ParagraphList"
+      },
+      {
+        "name": "params",
+        "type": "LinebreakParams"
+      },
+      {
+        "name": "font_manager",
+        "type": "FontManager"
+      },
+      {
+        "name": "warnings",
+        "type": "list[str] | None"
+      }
+    ],
+    "return_type": "list[HlistNode]"
+  },
+  {
+    "name": "exec_penalty",
+    "kind": "function",
+    "doc": "Append PenaltyNode(value) to par_list.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 146,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "value",
+        "type": "int"
+      },
+      {
+        "name": "par_list",
+        "type": "ParagraphList"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "make_hfil_glue",
+    "kind": "function",
+    "doc": "r\"\"\"Return a GlueNode for \\hfil — 0pt plus 1fil.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 164,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_hfill_glue",
+    "kind": "function",
+    "doc": "r\"\"\"Return a GlueNode for \\hfill — 0pt plus 1fill.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 186,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_hfilneg_glue",
+    "kind": "function",
+    "doc": "r\"\"\"Return a GlueNode for \\hfilneg — 0pt minus 1fil.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 208,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "make_hss_glue",
+    "kind": "function",
+    "doc": "r\"\"\"Return a GlueNode for \\hss — 0pt plus 1fil minus 1fil.",
+    "file": "src/aspose_tex/_engine/par_primitives.py",
+    "line": 230,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "GlueNode"
+  },
+  {
+    "name": "GlueOrder",
+    "kind": "class_definition",
+    "doc": "Stretch/shrink order for TeX glue.",
+    "file": "src/aspose_tex/_engine/registers.py",
+    "line": 31,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "NORMAL",
+        "value": "0"
+      },
+      {
+        "name": "FIL",
+        "value": "1"
+      },
+      {
+        "name": "FILL",
+        "value": "2"
+      },
+      {
+        "name": "FILLL",
+        "value": "3"
+      }
+    ],
+    "class_import": "_engine.registers.GlueOrder"
+  },
+  {
+    "name": "Glue",
+    "kind": "class_definition",
+    "doc": "Immutable TeX glue value (skip register content).",
+    "file": "src/aspose_tex/_engine/registers.py",
+    "line": 44,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 55,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stretch",
+        "type": "int",
+        "doc": "Gets the stretch.",
+        "line": 56,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "stretch_order",
+        "type": "GlueOrder",
+        "doc": "Gets the stretch order.",
+        "line": 57,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "shrink",
+        "type": "int",
+        "doc": "Gets the shrink.",
+        "line": 58,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "shrink_order",
+        "type": "GlueOrder",
+        "doc": "Gets the shrink order.",
+        "line": 59,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_engine.registers.Glue"
+  },
+  {
+    "name": "RegisterBank",
+    "kind": "class_definition",
+    "doc": "320-slot arrays for all five TeX register families.",
+    "file": "src/aspose_tex/_engine/registers.py",
+    "line": 75,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 88,
+        "is_constructor": true
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.registers.RegisterBank"
+  },
+  {
+    "name": "RegisterSet",
+    "kind": "class_definition",
+    "doc": "TeX register set: implements ``RegisterProvider`` and the execution interface.",
+    "file": "src/aspose_tex/_engine/registers.py",
+    "line": 108,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "year_reg",
+            "type": "int"
+          },
+          {
+            "name": "month_reg",
+            "type": "int"
+          },
+          {
+            "name": "day_reg",
+            "type": "int"
+          },
+          {
+            "name": "time_reg",
+            "type": "int"
+          },
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 150,
+        "is_constructor": true
+      },
+      {
+        "name": "get_tokens_for_the",
+        "params": [
+          {
+            "name": "token",
+            "type": "Token"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "list[Token]",
+        "doc": "",
+        "line": 191,
+        "is_constructor": false
+      },
+      {
+        "name": "execute",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "expander",
+            "type": "Expander"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 306,
+        "is_constructor": false
+      },
+      {
+        "name": "get_count",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 564,
+        "is_constructor": false
+      },
+      {
+        "name": "set_count",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the count value.",
+        "line": 584,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_dimen",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 620,
+        "is_constructor": false
+      },
+      {
+        "name": "set_dimen",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the dimen value.",
+        "line": 628,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_skip",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Glue",
+        "doc": "",
+        "line": 660,
+        "is_constructor": false
+      },
+      {
+        "name": "set_skip",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "Glue"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the skip value.",
+        "line": 668,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_muskip",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Glue",
+        "doc": "",
+        "line": 690,
+        "is_constructor": false
+      },
+      {
+        "name": "set_muskip",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "Glue"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the muskip value.",
+        "line": 698,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_toks",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "list[Token]",
+        "doc": "",
+        "line": 720,
+        "is_constructor": false
+      },
+      {
+        "name": "set_toks",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value",
+            "type": "list[Token]"
+          },
+          {
+            "name": "_internal",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the toks value.",
+        "line": 728,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "define_alias",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "family",
+            "type": "str"
+          },
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 752,
+        "is_constructor": false
+      },
+      {
+        "name": "resolve_alias",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "tuple[str, int] | None",
+        "doc": "",
+        "line": 782,
+        "is_constructor": false
+      },
+      {
+        "name": "define_constant",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "kind",
+            "type": "str"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 786,
+        "is_constructor": false
+      },
+      {
+        "name": "resolve_constant",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "tuple[str, int] | None",
+        "doc": "",
+        "line": 817,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_engine.registers.RegisterSet"
+  },
+  {
+    "name": "FontEncoding",
+    "kind": "class_definition",
+    "doc": "Maps TeX character codes (0-255) to PostScript glyph names.",
+    "file": "src/aspose_tex/_fonts/encoding.py",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "pfb",
+            "type": "PfbData"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 33,
+        "is_constructor": true
+      },
+      {
+        "name": "glyph_name",
+        "params": [
+          {
+            "name": "code",
+            "type": "int"
+          }
+        ],
+        "return_type": "str",
+        "doc": "",
+        "line": 44,
+        "is_constructor": false
+      },
+      {
+        "name": "char_code",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int | None",
+        "doc": "",
+        "line": 55,
+        "is_constructor": false
+      },
+      {
+        "name": "differences",
+        "params": [],
+        "return_type": "list[tuple[int, str]]",
+        "doc": "",
+        "line": 66,
+        "is_constructor": false
+      },
+      {
+        "name": "has_code",
+        "params": [
+          {
+            "name": "code",
+            "type": "int"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 77,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_fonts.encoding.FontEncoding"
+  },
+  {
+    "name": "FontManager",
+    "kind": "class_definition",
+    "doc": "Manages font loading, caching, and current-font tracking.",
+    "file": "src/aspose_tex/_fonts/font_manager.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "extra_search_paths",
+            "type": "list[Path] | None"
+          },
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 43,
+        "is_constructor": true
+      },
+      {
+        "name": "load_font",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "tfm_name",
+            "type": "str"
+          },
+          {
+            "name": "at_sp",
+            "type": "int | None"
+          },
+          {
+            "name": "scaled",
+            "type": "int | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 65,
+        "is_constructor": false
+      },
+      {
+        "name": "select_font",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 109,
+        "is_constructor": false
+      },
+      {
+        "name": "is_font",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 147,
+        "is_constructor": false
+      },
+      {
+        "name": "get_metrics",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "FontMetrics | None",
+        "doc": "",
+        "line": 151,
+        "is_constructor": false
+      },
+      {
+        "name": "font_def_info",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "tuple[str, int, int, int] | None",
+        "doc": "",
+        "line": 155,
+        "is_constructor": false
+      },
+      {
+        "name": "fontdimen",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 179,
+        "is_constructor": false
+      },
+      {
+        "name": "set_fontdimen",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value_sp",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the fontdimen value.",
+        "line": 194,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "skewchar",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 210,
+        "is_constructor": false
+      },
+      {
+        "name": "set_skewchar",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the skewchar value.",
+        "line": 217,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "hyphenchar",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 230,
+        "is_constructor": false
+      },
+      {
+        "name": "set_hyphenchar",
+        "params": [
+          {
+            "name": "cs_name",
+            "type": "str"
+          },
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the hyphenchar value.",
+        "line": 237,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "find_pfb",
+        "params": [
+          {
+            "name": "tfm_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "bytes | None",
+        "doc": "",
+        "line": 254,
+        "is_constructor": false
+      },
+      {
+        "name": "load_pfb",
+        "params": [
+          {
+            "name": "tfm_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "PfbData | None",
+        "doc": "",
+        "line": 289,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "current_metrics",
+        "type": "FontMetrics | None",
+        "doc": "Gets the current metrics.",
+        "line": 137,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.font_manager.FontManager"
+  },
+  {
+    "name": "CharMetrics",
+    "kind": "class_definition",
+    "doc": "Character metrics for one glyph, in scaled points.",
+    "file": "src/aspose_tex/_fonts/font_metrics.py",
+    "line": 22,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 32,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "doc": "Gets the height.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depth",
+        "type": "int",
+        "doc": "Gets the depth.",
+        "line": 34,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "italic",
+        "type": "int",
+        "doc": "Gets the italic.",
+        "line": 35,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.font_metrics.CharMetrics"
+  },
+  {
+    "name": "FontMetrics",
+    "kind": "class_definition",
+    "doc": "Scaled font metrics at a specific output size.",
+    "file": "src/aspose_tex/_fonts/font_metrics.py",
+    "line": 38,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "tfm",
+            "type": "TfmData"
+          },
+          {
+            "name": "at_sp",
+            "type": "int"
+          },
+          {
+            "name": "tfm_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 65,
+        "is_constructor": true
+      },
+      {
+        "name": "has_char",
+        "params": [
+          {
+            "name": "code",
+            "type": "int"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 107,
+        "is_constructor": false
+      },
+      {
+        "name": "char_metrics",
+        "params": [
+          {
+            "name": "code",
+            "type": "int"
+          }
+        ],
+        "return_type": "CharMetrics",
+        "doc": "",
+        "line": 123,
+        "is_constructor": false
+      },
+      {
+        "name": "kern",
+        "params": [
+          {
+            "name": "code1",
+            "type": "int"
+          },
+          {
+            "name": "code2",
+            "type": "int"
+          }
+        ],
+        "return_type": "int | None",
+        "doc": "",
+        "line": 161,
+        "is_constructor": false
+      },
+      {
+        "name": "ligature",
+        "params": [
+          {
+            "name": "code1",
+            "type": "int"
+          },
+          {
+            "name": "code2",
+            "type": "int"
+          }
+        ],
+        "return_type": "int | None",
+        "doc": "",
+        "line": 182,
+        "is_constructor": false
+      },
+      {
+        "name": "fontdimen",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "",
+        "line": 259,
+        "is_constructor": false
+      },
+      {
+        "name": "set_fontdimen",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "value_sp",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the fontdimen value.",
+        "line": 279,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "design_size_sp",
+        "type": "int",
+        "doc": "Gets the design size sp.",
+        "line": 84,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "at_size_sp",
+        "type": "int",
+        "doc": "Gets the at size sp.",
+        "line": 89,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "tfm_name",
+        "type": "str",
+        "doc": "Gets the tfm name.",
+        "line": 94,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "checksum",
+        "type": "int",
+        "doc": "Gets the checksum.",
+        "line": 99,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.font_metrics.FontMetrics"
+  },
+  {
+    "name": "MathFamilyRegistry",
+    "kind": "class_definition",
+    "doc": "Stores math-family font CS names for 16 TeX math families.",
+    "file": "src/aspose_tex/_fonts/math_family_registry.py",
+    "line": 22,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "group_stack",
+            "type": "GroupStack"
+          },
+          {
+            "name": "font_manager",
+            "type": "FontManager"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 36,
+        "is_constructor": true
+      },
+      {
+        "name": "get_text",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          }
+        ],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 43,
+        "is_constructor": false
+      },
+      {
+        "name": "get_script",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          }
+        ],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 48,
+        "is_constructor": false
+      },
+      {
+        "name": "get_scriptscript",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          }
+        ],
+        "return_type": "str | None",
+        "doc": "",
+        "line": 53,
+        "is_constructor": false
+      },
+      {
+        "name": "set_text",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          },
+          {
+            "name": "font_cs",
+            "type": "str"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the text value.",
+        "line": 58,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_script",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          },
+          {
+            "name": "font_cs",
+            "type": "str"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the script value.",
+        "line": 62,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_scriptscript",
+        "params": [
+          {
+            "name": "family",
+            "type": "int"
+          },
+          {
+            "name": "font_cs",
+            "type": "str"
+          },
+          {
+            "name": "global_",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the scriptscript value.",
+        "line": 66,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_fonts.math_family_registry.MathFamilyRegistry"
+  },
+  {
+    "name": "PfbData",
+    "kind": "class_definition",
+    "doc": "Immutable parsed data from a PFB file.",
+    "file": "src/aspose_tex/_fonts/pfb_parser.py",
+    "line": 30,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "ascii_header",
+        "type": "bytes",
+        "doc": "Gets the ascii header.",
+        "line": 44,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "binary_body",
+        "type": "bytes",
+        "doc": "Gets the binary body.",
+        "line": 45,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ascii_trailer",
+        "type": "bytes",
+        "doc": "Gets the ascii trailer.",
+        "line": 46,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_name",
+        "type": "str",
+        "doc": "Gets the font name.",
+        "line": 47,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "encoding",
+        "type": "dict[int, str]",
+        "doc": "Gets the encoding.",
+        "line": 48,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.pfb_parser.PfbData"
+  },
+  {
+    "name": "parse_pfb",
+    "kind": "function",
+    "doc": "Parse a PFB binary blob into a PfbData structure.",
+    "file": "src/aspose_tex/_fonts/pfb_parser.py",
+    "line": 51,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "PfbData"
+  },
+  {
+    "name": "TfmData",
+    "kind": "class_definition",
+    "doc": "Immutable raw data parsed from a single TFM file.",
+    "file": "src/aspose_tex/_fonts/tfm_parser.py",
+    "line": 23,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "checksum",
+        "type": "int",
+        "doc": "Gets the checksum.",
+        "line": 55,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "design_size_sp",
+        "type": "int",
+        "doc": "Gets the design size sp.",
+        "line": 56,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "bc",
+        "type": "int",
+        "doc": "Gets the bc.",
+        "line": 57,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ec",
+        "type": "int",
+        "doc": "Gets the ec.",
+        "line": 58,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "widths_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the widths fw.",
+        "line": 59,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "heights_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the heights fw.",
+        "line": 60,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "depths_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the depths fw.",
+        "line": 61,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "italics_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the italics fw.",
+        "line": 62,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "char_info",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the char info.",
+        "line": 63,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "lig_kern",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the lig kern.",
+        "line": 64,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "kerns_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the kerns fw.",
+        "line": 65,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "params_fw",
+        "type": "tuple[int, ...]",
+        "doc": "Gets the params fw.",
+        "line": 66,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.tfm_parser.TfmData"
+  },
+  {
+    "name": "parse_tfm",
+    "kind": "function",
+    "doc": "Parse raw TFM bytes into a TfmData.",
+    "file": "src/aspose_tex/_fonts/tfm_parser.py",
+    "line": 69,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "TfmData"
+  },
+  {
+    "name": "GlyphOutline",
+    "kind": "class_definition",
+    "doc": "Glyph outline extracted from a Type 1 charstring.",
+    "file": "src/aspose_tex/_fonts/type1_outlines.py",
+    "line": 24,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "doc": "Gets the width.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "svg_path",
+        "type": "str",
+        "doc": "Gets the svg path.",
+        "line": 34,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_fonts.type1_outlines.GlyphOutline"
+  },
+  {
+    "name": "decrypt_eexec",
+    "kind": "function",
+    "doc": "Decrypt an eexec-encrypted binary segment.",
+    "file": "src/aspose_tex/_fonts/type1_outlines.py",
+    "line": 41,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "bytes"
+  },
+  {
+    "name": "decrypt_charstring",
+    "kind": "function",
+    "doc": "Decrypt a Type 1 charstring.",
+    "file": "src/aspose_tex/_fonts/type1_outlines.py",
+    "line": 65,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "name": "leniv",
+        "type": "int"
+      }
+    ],
+    "return_type": "bytes"
+  },
+  {
+    "name": "extract_glyph_outlines",
+    "kind": "function",
+    "doc": "Extract all glyph outlines from a Type 1 PFB font.",
+    "file": "src/aspose_tex/_fonts/type1_outlines.py",
+    "line": 673,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "pfb",
+        "type": "PfbData"
+      }
+    ],
+    "return_type": "dict[int, GlyphOutline]"
+  },
+  {
+    "name": "Catcode",
+    "kind": "class_definition",
+    "doc": "The 16 TeX character categories (TeXbook §8).",
+    "file": "src/aspose_tex/_input/catcode.py",
+    "line": 19,
+    "bases": [
+      "enum.IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "internal",
+    "enum_members": [
+      {
+        "name": "ESCAPE",
+        "value": "0"
+      },
+      {
+        "name": "BEGIN_GROUP",
+        "value": "1"
+      },
+      {
+        "name": "END_GROUP",
+        "value": "2"
+      },
+      {
+        "name": "MATH_SHIFT",
+        "value": "3"
+      },
+      {
+        "name": "ALIGNMENT",
+        "value": "4"
+      },
+      {
+        "name": "END_OF_LINE",
+        "value": "5"
+      },
+      {
+        "name": "PARAMETER",
+        "value": "6"
+      },
+      {
+        "name": "SUPERSCRIPT",
+        "value": "7"
+      },
+      {
+        "name": "SUBSCRIPT",
+        "value": "8"
+      },
+      {
+        "name": "IGNORED",
+        "value": "9"
+      },
+      {
+        "name": "SPACE",
+        "value": "10"
+      },
+      {
+        "name": "LETTER",
+        "value": "11"
+      },
+      {
+        "name": "OTHER",
+        "value": "12"
+      },
+      {
+        "name": "ACTIVE",
+        "value": "13"
+      },
+      {
+        "name": "COMMENT",
+        "value": "14"
+      },
+      {
+        "name": "INVALID",
+        "value": "15"
+      }
+    ],
+    "class_import": "_input.catcode.Catcode"
+  },
+  {
+    "name": "CatcodeTable",
+    "kind": "class_definition",
+    "doc": "Mutable mapping from character to :class:`Catcode`.",
+    "file": "src/aspose_tex/_input/catcode.py",
+    "line": 83,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "group_stack",
+            "type": "GroupStack | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 98,
+        "is_constructor": true
+      },
+      {
+        "name": "get",
+        "params": [
+          {
+            "name": "char",
+            "type": "str"
+          }
+        ],
+        "return_type": "Catcode",
+        "doc": "",
+        "line": 109,
+        "is_constructor": false
+      },
+      {
+        "name": "set",
+        "params": [
+          {
+            "name": "char",
+            "type": "str"
+          },
+          {
+            "name": "catcode",
+            "type": "Catcode"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 125,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "internal",
+    "class_import": "_input.catcode.CatcodeTable"
+  },
+  {
+    "name": "CharToken",
+    "kind": "class_definition",
+    "doc": "A character token: a single character with its catcode at scan time.",
+    "file": "src/aspose_tex/_input/token.py",
+    "line": 15,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "char",
+        "type": "str",
+        "doc": "Gets the char.",
+        "line": 27,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "catcode",
+        "type": "Catcode",
+        "doc": "Gets the catcode.",
+        "line": 28,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.token.CharToken"
+  },
+  {
+    "name": "ControlSequenceToken",
+    "kind": "class_definition",
+    "doc": "A control-sequence token produced by an escape character.",
+    "file": "src/aspose_tex/_input/token.py",
+    "line": 32,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "doc": "Gets the name.",
+        "line": 51,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.token.ControlSequenceToken"
+  },
+  {
+    "name": "Tokenizer",
+    "kind": "class_definition",
+    "doc": "Converts the character stream from :class:`InputReader` into TeX tokens.",
+    "file": "src/aspose_tex/_input/tokenizer.py",
+    "line": 31,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "reader",
+            "type": "InputReader"
+          },
+          {
+            "name": "catcodes",
+            "type": "CatcodeTable"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 59,
+        "is_constructor": true
+      },
+      {
+        "name": "peek",
+        "params": [],
+        "return_type": "Token | None",
+        "doc": "",
+        "line": 209,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "name_chars",
+        "type": "list[str]",
+        "doc": "Gets the name chars.",
+        "line": 108,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "internal",
+    "class_import": "_input.tokenizer.Tokenizer"
+  },
+  {
+    "name": "AsposeTeXError",
+    "kind": "class_definition",
+    "doc": "Base exception for all aspose_tex errors.",
+    "file": "src/aspose_tex/exceptions.py",
+    "line": 4,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "exceptions.AsposeTeXError"
+  },
+  {
+    "name": "InputError",
+    "kind": "class_definition",
+    "doc": "Raised for input reading failures (file not found, stack underflow, etc.).",
+    "file": "src/aspose_tex/exceptions.py",
+    "line": 8,
+    "bases": [
+      "AsposeTeXError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "exceptions.InputError"
+  },
+  {
+    "name": "EngineError",
+    "kind": "class_definition",
+    "doc": "Raised for TeX engine errors (infinite recursion, undefined register, etc.).",
+    "file": "src/aspose_tex/exceptions.py",
+    "line": 12,
+    "bases": [
+      "AsposeTeXError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "exceptions.EngineError"
+  },
+  {
+    "name": "FontError",
+    "kind": "class_definition",
+    "doc": "Raised for font-related failures (TFM not found, corrupt file, invalid char, etc.).",
+    "file": "src/aspose_tex/exceptions.py",
+    "line": 16,
+    "bases": [
+      "AsposeTeXError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "exceptions.FontError"
+  },
+  {
+    "name": "OutputFormat",
+    "kind": "class_definition",
+    "doc": "Supported output formats.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 26,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "DVI",
+        "value": "\"dvi\""
+      },
+      {
+        "name": "PDF",
+        "value": "\"pdf\""
+      },
+      {
+        "name": "SVG",
+        "value": "\"svg\""
+      }
+    ],
+    "class_import": "presentation.OutputFormat"
+  },
+  {
+    "name": "TeXOptions",
+    "kind": "class_definition",
+    "doc": "r\"\"\"Configuration for a TeX processing job.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 45,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "job_name",
+        "type": "str",
+        "doc": "Gets the job name.",
+        "line": 77,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "magnification",
+        "type": "int",
+        "doc": "Gets the magnification.",
+        "line": 78,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_font_paths",
+        "type": "list[Path]",
+        "doc": "Gets the extra font paths.",
+        "line": 79,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "load_format",
+        "type": "bool | str | None",
+        "doc": "Gets the load format.",
+        "line": 80,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "extra_format_paths",
+        "type": "list[Path]",
+        "doc": "Gets the extra format paths.",
+        "line": 81,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.TeXOptions"
+  },
+  {
+    "name": "OutputDevice",
+    "kind": "class_definition",
+    "doc": "Abstract base class for all output devices.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 89,
+    "bases": [
+      "abc.ABC"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 107,
+        "is_constructor": true
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 145,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes | None",
+        "doc": "Returns the bytes.",
+        "line": 152,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "destination",
+        "type": "Path | io.BytesIO",
+        "doc": "Gets the destination.",
+        "line": 118,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.OutputDevice"
+  },
+  {
+    "name": "DviDevice",
+    "kind": "class_definition",
+    "doc": "DVI output device -- wraps ``DviWriter``.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 172,
+    "bases": [
+      "OutputDevice"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 200,
+        "is_constructor": true
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 231,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes | None",
+        "doc": "Returns the bytes.",
+        "line": 243,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "destination",
+        "type": "Path | io.BytesIO",
+        "doc": "Gets the destination.",
+        "line": 118,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.DviDevice"
+  },
+  {
+    "name": "PdfDevice",
+    "kind": "class_definition",
+    "doc": "PDF output device -- wraps ``PdfWriter``.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 266,
+    "bases": [
+      "OutputDevice"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 283,
+        "is_constructor": true
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 314,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes | None",
+        "doc": "Returns the bytes.",
+        "line": 326,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "destination",
+        "type": "Path | io.BytesIO",
+        "doc": "Gets the destination.",
+        "line": 118,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.PdfDevice"
+  },
+  {
+    "name": "SvgDevice",
+    "kind": "class_definition",
+    "doc": "SVG output device -- wraps ``SvgWriter``.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 349,
+    "bases": [
+      "OutputDevice"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Path | io.BytesIO | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 370,
+        "is_constructor": true
+      },
+      {
+        "name": "finalize",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 401,
+        "is_constructor": false
+      },
+      {
+        "name": "get_bytes",
+        "params": [],
+        "return_type": "bytes | None",
+        "doc": "Returns the bytes.",
+        "line": 413,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "get_all_pages",
+        "params": [],
+        "return_type": "list[bytes] | None",
+        "doc": "Returns the all pages.",
+        "line": 430,
+        "is_constructor": false,
+        "doc_source": "name_inference"
+      }
+    ],
+    "properties": [
+      {
+        "name": "destination",
+        "type": "Path | io.BytesIO",
+        "doc": "Gets the destination.",
+        "line": 118,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.SvgDevice"
+  },
+  {
+    "name": "TeXJob",
+    "kind": "class_definition",
+    "doc": "Main entry point for processing TeX input.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 450,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "source",
+            "type": "InputSource"
+          },
+          {
+            "name": "device",
+            "type": "OutputDevice"
+          },
+          {
+            "name": "options",
+            "type": "TeXOptions | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 481,
+        "is_constructor": true
+      },
+      {
+        "name": "run",
+        "params": [],
+        "return_type": "bytes | None",
+        "doc": "",
+        "line": 512,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "messages",
+        "type": "list[str]",
+        "doc": "Gets the messages.",
+        "line": 499,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "presentation.TeXJob"
+  },
+  {
+    "name": "create_input_source",
+    "kind": "function",
+    "doc": "Create an ``InputSource`` from a file path, string, or bytes.",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 547,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "source",
+        "type": "Path | str | bytes"
+      }
+    ],
+    "return_type": "InputSource"
+  }
+]

@@ -1,0 +1,1 @@
+def test_moveleft_in_horizontal_mode_raises(self) -> None:

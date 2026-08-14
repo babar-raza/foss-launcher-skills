@@ -1,0 +1,1 @@
+def test_eqalign_in_math_mode_raises_not_implemented(self) -> None:

@@ -1,0 +1,1 @@
+def test_define_constant_then_resolve(self) -> None:

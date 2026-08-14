@@ -1,0 +1,1 @@
+def test_document_with_unused_alignment_macro_succeeds(self) -> None:

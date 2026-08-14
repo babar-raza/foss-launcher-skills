@@ -1,0 +1,1 @@
+def test_parshape_negative_count_raises(self) -> None:

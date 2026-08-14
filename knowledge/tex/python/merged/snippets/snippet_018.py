@@ -1,0 +1,1 @@
+def test_def_with_span_omit_noalign_in_body_does_not_raise(self) -> None:

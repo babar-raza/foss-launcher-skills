@@ -1,0 +1,1 @@
+def test_chardef_value_overflow_raises(self) -> None:

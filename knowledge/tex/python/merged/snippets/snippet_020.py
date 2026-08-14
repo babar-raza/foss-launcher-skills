@@ -1,0 +1,1 @@
+def test_define_then_invoke_then_raises(self) -> None:

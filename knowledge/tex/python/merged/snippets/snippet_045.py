@@ -1,0 +1,1 @@
+def test_setbox_from_lastbox_removes_tail_box(self) -> None:

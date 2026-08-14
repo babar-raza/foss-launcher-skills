@@ -1,0 +1,1 @@
+def test_def_matrix_with_halign_body_does_not_raise(self) -> None:

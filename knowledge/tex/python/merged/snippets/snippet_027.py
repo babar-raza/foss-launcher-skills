@@ -1,0 +1,1 @@
+def test_plain_format_alignment_head_name_is_registered(self, name: str) -> None:

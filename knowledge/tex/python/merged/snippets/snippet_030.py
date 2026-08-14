@@ -1,0 +1,1 @@
+def test_let_par_eq_cr_without_call_succeeds(self) -> None:

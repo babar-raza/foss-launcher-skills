@@ -1,0 +1,1 @@
+def test_vrule_defaults(self) -> None:

@@ -1,0 +1,1 @@
+def test_active_char_let_to_control_sequence_dispatches(self) -> None:

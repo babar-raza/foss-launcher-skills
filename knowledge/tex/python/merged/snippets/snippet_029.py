@@ -1,0 +1,1 @@
+def test_let_par_eq_cr_succeeds_but_calling_par_raises(self) -> None:

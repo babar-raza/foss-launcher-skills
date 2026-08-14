@@ -1,0 +1,1 @@
+def test_char65_in_horizontal_mode_emits_char_node(self) -> None:

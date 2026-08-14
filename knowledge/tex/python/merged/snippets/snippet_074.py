@@ -1,0 +1,1 @@
+def test_default_end_of_line(self):

@@ -1,0 +1,21 @@
+family: tex
+platform: python
+product_name: aspose-tex
+version: '26.5'
+license: MIT
+repo_url: https://github.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python.git
+repo_sha: 2f4bfab3863e66ef32868f5464685eb4c2d36911
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-07-12T14:38:39.444903+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 523
+  enriched_claims: 93
+  supplemental_claims: 0
+  total_claims: 613
+  class_count: 83
+  forbidden_count: 4
+  snippet_count: 100

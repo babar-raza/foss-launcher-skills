@@ -1,0 +1,1 @@
+def test_vsplit_void_register_sets_void(self) -> None:

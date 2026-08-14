@@ -1,0 +1,1 @@
+def test_default_math_shift(self):

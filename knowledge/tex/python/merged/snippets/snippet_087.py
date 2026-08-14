@@ -1,0 +1,1 @@
+def test_independent_instances(self):

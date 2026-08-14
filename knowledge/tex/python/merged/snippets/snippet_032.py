@@ -1,0 +1,1 @@
+def test_char_out_of_range_raises(self) -> None:
