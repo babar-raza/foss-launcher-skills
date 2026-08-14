@@ -1,0 +1,21 @@
+family: barcode
+platform: python
+product_name: aspose-barcode-foss
+version: 0.1.0
+license: MIT
+repo_url: https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git
+repo_sha: 53f2c3350b8171f2c8275e7b1a178f218695ac45
+config_sha: 9eb739354976e8b5
+stale_since: null
+promoted_at: '2026-07-13T09:24:06.217823+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 313
+  enriched_claims: 62
+  supplemental_claims: 0
+  total_claims: 375
+  class_count: 79
+  forbidden_count: 6
+  snippet_count: 100

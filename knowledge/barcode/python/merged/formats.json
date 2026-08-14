@@ -1,0 +1,52 @@
+[
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+    "line": 12,
+    "direction": "export",
+    "caveat": "NotImplementedError — PdfRenderer.render, Barcode.to_pdf raise NotImplementedError"
+  },
+  {
+    "format": "Png",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/_internal/renderers/png.py",
+    "line": 28,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/_internal/renderers/svg.py",
+    "line": 46,
+    "direction": "export"
+  },
+  {
+    "format": "svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/result.py",
+    "line": 62,
+    "direction": "export"
+  },
+  {
+    "format": "png",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/result.py",
+    "line": 74,
+    "direction": "export"
+  },
+  {
+    "format": "pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_barcode_foss/result.py",
+    "line": 86,
+    "direction": "export",
+    "caveat": "NotImplementedError — PdfRenderer.render, Barcode.to_pdf raise NotImplementedError"
+  }
+]

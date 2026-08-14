@@ -1,0 +1,4811 @@
+[
+  {
+    "name": "build_default_registry",
+    "kind": "function",
+    "doc": "Build a fresh registry populated with the default definitions.",
+    "file": "src/aspose_barcode_foss/_internal/bootstrap.py",
+    "line": 199,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "SymbologyRegistry"
+  },
+  {
+    "name": "build_default_service",
+    "kind": "function",
+    "doc": "Build a fresh default service with a fresh registry.",
+    "file": "src/aspose_barcode_foss/_internal/bootstrap.py",
+    "line": 369,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [],
+    "return_type": "BarcodeService"
+  },
+  {
+    "name": "SymbologyEncoder",
+    "kind": "class_definition",
+    "doc": "Abstract interface implemented by all symbology encoders.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/base.py",
+    "line": 12,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.base.SymbologyEncoder"
+  },
+  {
+    "name": "Code128Encoder",
+    "kind": "class_definition",
+    "doc": "Encode data into a Code 128 symbol.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/code128.py",
+    "line": 81,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "Code128Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode a Code 128 payload.",
+        "line": 84,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.code128.Code128Encoder"
+  },
+  {
+    "name": "Code39Encoder",
+    "kind": "class_definition",
+    "doc": "Encode data into a Code 39 (base or Full-ASCII) symbol.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/code39.py",
+    "line": 57,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "object | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode a Code 39 payload into a flat module-row symbol.",
+        "line": 60,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.code39.Code39Encoder"
+  },
+  {
+    "name": "Ean13Encoder",
+    "kind": "class_definition",
+    "doc": "Encode normalized payloads into EAN-13 symbols.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/ean13.py",
+    "line": 24,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "Ean13Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode an EAN-13 payload into a 95-module, 2-row ModuleMatrix.",
+        "line": 27,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.ean13.Ean13Encoder"
+  },
+  {
+    "name": "Ean8Encoder",
+    "kind": "class_definition",
+    "doc": "Encode normalized payloads into EAN-8 symbols.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/ean8.py",
+    "line": 23,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "Ean8Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode an EAN-8 payload into a 67-module, 2-row ModuleMatrix.",
+        "line": 26,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.ean8.Ean8Encoder"
+  },
+  {
+    "name": "QrEncoder",
+    "kind": "class_definition",
+    "doc": "Encode text data into a QR Code byte-mode symbol.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/qr.py",
+    "line": 40,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode a QR payload into the final masked N*N module matrix.",
+        "line": 43,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.qr.QrEncoder"
+  },
+  {
+    "name": "UpcaEncoder",
+    "kind": "class_definition",
+    "doc": "Encode data into a UPC-A symbol.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/upca.py",
+    "line": 30,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "UpcaOptions | EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode a UPC-A payload into a 95-module, 2-row ModuleMatrix.",
+        "line": 33,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.upca.UpcaEncoder"
+  },
+  {
+    "name": "UpceEncoder",
+    "kind": "class_definition",
+    "doc": "Encode normalized payloads into UPC-E symbols.",
+    "file": "src/aspose_barcode_foss/_internal/encoders/upce.py",
+    "line": 26,
+    "bases": [
+      "SymbologyEncoder"
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "UpceOptions | EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode a UPC-E payload into a 51-module, 2-row ModuleMatrix.",
+        "line": 29,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.encoders.upce.UpceEncoder"
+  },
+  {
+    "name": "BarcodeError",
+    "kind": "class_definition",
+    "doc": "Base exception for the barcode library.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 4,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.BarcodeError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "SymbologyNotFoundError",
+    "kind": "class_definition",
+    "doc": "Raised when a requested symbology is not registered.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 8,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.SymbologyNotFoundError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "EncodingError",
+    "kind": "class_definition",
+    "doc": "Raised when encoding fails.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 12,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.EncodingError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "RenderingError",
+    "kind": "class_definition",
+    "doc": "Raised when rendering fails.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 16,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.RenderingError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "InvalidInputError",
+    "kind": "class_definition",
+    "doc": "Raised when the provided input is technically invalid.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 20,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.InvalidInputError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "UnsupportedFeatureError",
+    "kind": "class_definition",
+    "doc": "Raised when a requested feature is not supported by the library.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 24,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.UnsupportedFeatureError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "UnsupportedCapabilityError",
+    "kind": "class_definition",
+    "doc": "Raised when a symbology does not support a requested capability.",
+    "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+    "line": 28,
+    "bases": [
+      "BarcodeError"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.exceptions.UnsupportedCapabilityError",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "RenderedArtifact",
+    "kind": "class_definition",
+    "doc": "Backend output produced by a renderer.",
+    "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
+    "line": 9,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "data",
+        "type": "str | bytes",
+        "writable": false,
+        "doc": "Gets the data.",
+        "line": 12,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "media_type",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the media type.",
+        "line": 13,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "backend",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the backend.",
+        "line": 14,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.artifacts.RenderedArtifact"
+  },
+  {
+    "name": "SymbologyCapabilities",
+    "kind": "class_definition",
+    "doc": "Capability metadata for one symbology.",
+    "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+    "line": 14,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "gs1_support",
+        "type": "SupportLevel",
+        "writable": false,
+        "doc": "Gets the gs1 support.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_support",
+        "type": "SupportLevel",
+        "writable": false,
+        "doc": "Gets the eci support.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "structured_append_support",
+        "type": "SupportLevel",
+        "writable": false,
+        "doc": "Gets the structured append support.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "binary_input_support",
+        "type": "SupportLevel",
+        "writable": false,
+        "doc": "Gets the binary input support.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "rendering_outputs",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the rendering outputs.",
+        "line": 21,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.capabilities.SymbologyCapabilities"
+  },
+  {
+    "name": "Code128EncodeMode",
+    "kind": "class_definition",
+    "doc": "Supported public Code 128 encode-mode requests.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 9,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "AUTO",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_A",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_B",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_C",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_AB",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_AC",
+        "value": "auto()"
+      },
+      {
+        "name": "CODE_BC",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_internal.models.options.Code128EncodeMode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Code39EncodeMode",
+    "kind": "class_definition",
+    "doc": "Supported Code 39 encode modes.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 21,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "BASE",
+        "value": "auto()"
+      },
+      {
+        "name": "FULL_ASCII",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_internal.models.options.Code39EncodeMode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "QrEncodeMode",
+    "kind": "class_definition",
+    "doc": "Supported public QR Code encode-mode requests.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 28,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "AUTO",
+        "value": "auto()"
+      },
+      {
+        "name": "NUMERIC",
+        "value": "auto()"
+      },
+      {
+        "name": "ALPHANUMERIC",
+        "value": "auto()"
+      },
+      {
+        "name": "BYTE",
+        "value": "auto()"
+      },
+      {
+        "name": "KANJI",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_internal.models.options.QrEncodeMode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "QrErrorCorrectionLevel",
+    "kind": "class_definition",
+    "doc": "Supported QR Code error correction levels.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 38,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "L",
+        "value": "auto()"
+      },
+      {
+        "name": "M",
+        "value": "auto()"
+      },
+      {
+        "name": "Q",
+        "value": "auto()"
+      },
+      {
+        "name": "H",
+        "value": "auto()"
+      }
+    ],
+    "class_import": "_internal.models.options.QrErrorCorrectionLevel",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "EncodeOptions",
+    "kind": "class_definition",
+    "doc": "Base type for symbology-specific encoding options.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 48,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.EncodeOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Code128Options",
+    "kind": "class_definition",
+    "doc": "Encoding options for Code 128.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 56,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "encode_mode",
+        "type": "Code128EncodeMode",
+        "writable": false,
+        "doc": "Gets the encode mode.",
+        "line": 59,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.Code128Options",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Code39Options",
+    "kind": "class_definition",
+    "doc": "Encoding options for Code 39.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 63,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "full_ascii",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the full ascii.",
+        "line": 66,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "add_check_digit",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the add check digit.",
+        "line": 67,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.Code39Options",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "QrOptions",
+    "kind": "class_definition",
+    "doc": "Encoding options for QR Code.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 71,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "error_correction_level",
+        "type": "QrErrorCorrectionLevel | str | None",
+        "writable": false,
+        "doc": "Gets the error correction level.",
+        "line": 74,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "version",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the version.",
+        "line": 75,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mask",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the mask.",
+        "line": 76,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "encoding_mode",
+        "type": "QrEncodeMode | str | None",
+        "writable": false,
+        "doc": "Gets the encoding mode.",
+        "line": 77,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.QrOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Ean13Options",
+    "kind": "class_definition",
+    "doc": "Encoding options for EAN-13.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 81,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "allow_check_digit_input",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the allow check digit input.",
+        "line": 84,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.Ean13Options",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Ean8Options",
+    "kind": "class_definition",
+    "doc": "Encoding options for EAN-8.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 88,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "allow_check_digit_input",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the allow check digit input.",
+        "line": 91,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.Ean8Options",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "UpcaOptions",
+    "kind": "class_definition",
+    "doc": "Encoding options for UPC-A.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 95,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "allow_check_digit_input",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the allow check digit input.",
+        "line": 98,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.UpcaOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "UpceOptions",
+    "kind": "class_definition",
+    "doc": "Encoding options for UPC-E.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 102,
+    "bases": [
+      "EncodeOptions"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "number_system",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the number system.",
+        "line": 105,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "allow_check_digit_input",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the allow check digit input.",
+        "line": 106,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 51,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 52,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.UpceOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "RenderOptions",
+    "kind": "class_definition",
+    "doc": "User-supplied rendering options.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 110,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "scale",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the scale.",
+        "line": 113,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "dpi",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the dpi.",
+        "line": 114,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "module_width",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the module width.",
+        "line": 115,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "module_height",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the module height.",
+        "line": 116,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "quiet_zone",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the quiet zone.",
+        "line": 117,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "foreground_color",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the foreground color.",
+        "line": 118,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "background_color",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the background color.",
+        "line": 119,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transparent_background",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the transparent background.",
+        "line": 120,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "show_text",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the show text.",
+        "line": 121,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_family",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the font family.",
+        "line": 122,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_size",
+        "type": "float | None",
+        "writable": false,
+        "doc": "Gets the font size.",
+        "line": 123,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.RenderOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "ResolvedRenderOptions",
+    "kind": "class_definition",
+    "doc": "Fully resolved rendering configuration.",
+    "file": "src/aspose_barcode_foss/_internal/models/options.py",
+    "line": 127,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "scale",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the scale.",
+        "line": 130,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "dpi",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the dpi.",
+        "line": 131,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "module_width",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the module width.",
+        "line": 132,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "module_height",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the module height.",
+        "line": 133,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "quiet_zone",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the quiet zone.",
+        "line": 134,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "foreground_color",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the foreground color.",
+        "line": 135,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "background_color",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the background color.",
+        "line": 136,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "transparent_background",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the transparent background.",
+        "line": 137,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "show_text",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the show text.",
+        "line": 138,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_family",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the font family.",
+        "line": 139,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "font_size",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the font size.",
+        "line": 140,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.options.ResolvedRenderOptions",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "NormalizedPayload",
+    "kind": "class_definition",
+    "doc": "Validated payload ready for the encoding layer.",
+    "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+    "line": 23,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "symbology",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the symbology.",
+        "line": 26,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "str | bytes",
+        "writable": false,
+        "doc": "Gets the data.",
+        "line": 27,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "input_kind",
+        "type": "InputKind",
+        "writable": false,
+        "doc": "Gets the input kind.",
+        "line": 28,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_message",
+        "type": "Gs1Message | None",
+        "writable": false,
+        "doc": "Gets the gs1 message.",
+        "line": 29,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_designator",
+        "type": "EciDesignator | None",
+        "writable": false,
+        "doc": "Gets the eci designator.",
+        "line": 30,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "code128_encode_mode",
+        "type": "Code128EncodeMode | None",
+        "writable": false,
+        "doc": "Gets the code128 encode mode.",
+        "line": 31,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "code39_encode_mode",
+        "type": "Code39EncodeMode | None",
+        "writable": false,
+        "doc": "Gets the code39 encode mode.",
+        "line": 32,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "code39_add_check_digit",
+        "type": "bool | None",
+        "writable": false,
+        "doc": "Gets the code39 add check digit.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "qr_error_correction_level",
+        "type": "QrErrorCorrectionLevel | None",
+        "writable": false,
+        "doc": "Gets the qr error correction level.",
+        "line": 34,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "qr_version",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the qr version.",
+        "line": 35,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "qr_mask",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the qr mask.",
+        "line": 36,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "qr_encoding_mode",
+        "type": "QrEncodeMode | None",
+        "writable": false,
+        "doc": "Gets the qr encoding mode.",
+        "line": 37,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "qr_eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the qr eci assignment number.",
+        "line": 38,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "metadata",
+        "type": "Mapping[str, object] | None",
+        "writable": false,
+        "doc": "Gets the metadata.",
+        "line": 39,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.payloads.NormalizedPayload"
+  },
+  {
+    "name": "ModuleMatrix",
+    "kind": "class_definition",
+    "doc": "Logical module grid returned by an encoder.",
+    "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+    "line": 11,
+    "bases": [],
+    "methods": [
+      {
+        "name": "get",
+        "params": [
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          }
+        ],
+        "return_type": "int",
+        "doc": "Return the state of a single module.",
+        "line": 44,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the width.",
+        "line": 14,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the height.",
+        "line": 15,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "modules",
+        "type": "tuple[tuple[int, ...], ...]",
+        "writable": false,
+        "doc": "Gets the modules.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "row_heights_x",
+        "type": "tuple[float, ...] | None",
+        "writable": false,
+        "doc": "Gets the row heights x.",
+        "line": 17,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.symbols.ModuleMatrix"
+  },
+  {
+    "name": "SymbolMetadata",
+    "kind": "class_definition",
+    "doc": "Renderer-neutral metadata about an encoded symbol.",
+    "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+    "line": 52,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "symbology",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the symbology.",
+        "line": 55,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "normalized_data",
+        "type": "str | bytes",
+        "writable": false,
+        "doc": "Gets the normalized data.",
+        "line": 56,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "display_text",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the display text.",
+        "line": 57,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "input_kind",
+        "type": "InputKind",
+        "writable": false,
+        "doc": "Gets the input kind.",
+        "line": 58,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "gs1_enabled",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the gs1 enabled.",
+        "line": 59,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Gets the eci assignment number.",
+        "line": 60,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.symbols.SymbolMetadata"
+  },
+  {
+    "name": "EncodedSymbol",
+    "kind": "class_definition",
+    "doc": "Encoded symbol returned by a symbology encoder.",
+    "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+    "line": 73,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "matrix",
+        "type": "ModuleMatrix",
+        "writable": false,
+        "doc": "Gets the matrix.",
+        "line": 76,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "metadata",
+        "type": "SymbolMetadata",
+        "writable": false,
+        "doc": "Gets the metadata.",
+        "line": 77,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.symbols.EncodedSymbol"
+  },
+  {
+    "name": "TextSegment",
+    "kind": "class_definition",
+    "doc": "One segment of human-readable text.",
+    "file": "src/aspose_barcode_foss/_internal/models/text.py",
+    "line": 9,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "text",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the text.",
+        "line": 25,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "anchor",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the anchor.",
+        "line": 26,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "offset_x",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the offset x.",
+        "line": 27,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "offset_y",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the offset y.",
+        "line": 28,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.text.TextSegment"
+  },
+  {
+    "name": "TextLayout",
+    "kind": "class_definition",
+    "doc": "Logical text layout derived from a symbol and rendering options.",
+    "file": "src/aspose_barcode_foss/_internal/models/text.py",
+    "line": 32,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "segments",
+        "type": "tuple[TextSegment, ...]",
+        "writable": false,
+        "doc": "Gets the segments.",
+        "line": 40,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.models.text.TextLayout"
+  },
+  {
+    "name": "InputParser",
+    "kind": "class_definition",
+    "doc": "Abstract parser that validates and normalizes public input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/base.py",
+    "line": 11,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.base.InputParser"
+  },
+  {
+    "name": "Code128InputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize Code 128 input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/code128.py",
+    "line": 29,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "Code128Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a Code 128 payload.",
+        "line": 32,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.code128.Code128InputParser"
+  },
+  {
+    "name": "Code39InputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize Code 39 input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/code39.py",
+    "line": 20,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "default_full_ascii",
+            "type": "bool"
+          },
+          {
+            "name": "symbology_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Store the definition's default mode and emitted symbology name.",
+        "line": 23,
+        "is_constructor": true
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "Code39Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a Code 39 payload.",
+        "line": 28,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.code39.Code39InputParser"
+  },
+  {
+    "name": "Ean13InputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize EAN-13 input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/ean13.py",
+    "line": 12,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "Ean13Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce an EAN-13 payload.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.ean13.Ean13InputParser"
+  },
+  {
+    "name": "Ean8InputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize EAN-8 input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/ean8.py",
+    "line": 12,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "Ean8Options | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce an EAN-8 payload.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.ean8.Ean8InputParser"
+  },
+  {
+    "name": "QrInputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize QR Code input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/qr.py",
+    "line": 47,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "symbology_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Store the emitted symbology name.",
+        "line": 50,
+        "is_constructor": true
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "QrOptions | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a QR payload.",
+        "line": 54,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.qr.QrInputParser"
+  },
+  {
+    "name": "UpcaInputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize UPC-A input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/upca.py",
+    "line": 14,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "UpcaOptions | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a UPC-A payload.",
+        "line": 17,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.upca.UpcaInputParser"
+  },
+  {
+    "name": "UpceInputParser",
+    "kind": "class_definition",
+    "doc": "Validate and normalize UPC-E input.",
+    "file": "src/aspose_barcode_foss/_internal/parsers/upce.py",
+    "line": 12,
+    "bases": [
+      "InputParser"
+    ],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "UpceOptions | EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a UPC-E payload.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.parsers.upce.UpceInputParser"
+  },
+  {
+    "name": "SymbologyProfile",
+    "kind": "class_definition",
+    "doc": "Defaults and policies for a symbology.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+    "line": 13,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.base.SymbologyProfile"
+  },
+  {
+    "name": "Code128Profile",
+    "kind": "class_definition",
+    "doc": "Profile for Code 128 defaults and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/code128.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.code128.Code128Profile"
+  },
+  {
+    "name": "Code39Profile",
+    "kind": "class_definition",
+    "doc": "Profile for Code 39 defaults and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/code39.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.code39.Code39Profile"
+  },
+  {
+    "name": "Ean13Profile",
+    "kind": "class_definition",
+    "doc": "Profile for EAN-13 defaults, capabilities, and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/ean13.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.ean13.Ean13Profile"
+  },
+  {
+    "name": "Ean8Profile",
+    "kind": "class_definition",
+    "doc": "Profile for EAN-8 defaults, capabilities, and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/ean8.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.ean8.Ean8Profile"
+  },
+  {
+    "name": "QrProfile",
+    "kind": "class_definition",
+    "doc": "Profile for QR Code defaults and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/qr.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.qr.QrProfile"
+  },
+  {
+    "name": "UpcaProfile",
+    "kind": "class_definition",
+    "doc": "Profile for UPC-A defaults and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/upca.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.upca.UpcaProfile"
+  },
+  {
+    "name": "UpceProfile",
+    "kind": "class_definition",
+    "doc": "Profile for UPC-E defaults, capabilities, and text behavior.",
+    "file": "src/aspose_barcode_foss/_internal/profiles/upce.py",
+    "line": 11,
+    "bases": [
+      "SymbologyProfile"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 16,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "status",
+        "type": "SymbologyStatus",
+        "writable": false,
+        "doc": "Gets the status.",
+        "line": 17,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "defaults",
+        "type": "ResolvedRenderOptions",
+        "writable": false,
+        "doc": "Gets the defaults.",
+        "line": 18,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "capabilities",
+        "type": "SymbologyCapabilities",
+        "writable": false,
+        "doc": "Gets the capabilities.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_policy",
+        "type": "TextLayoutPolicy",
+        "writable": false,
+        "doc": "Gets the text policy.",
+        "line": 20,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "spec_references",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the spec references.",
+        "line": 21,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "known_limitations",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the known limitations.",
+        "line": 22,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.profiles.upce.UpceProfile"
+  },
+  {
+    "name": "SymbologyDefinition",
+    "kind": "class_definition",
+    "doc": "Bundle the components required to support one symbology.",
+    "file": "src/aspose_barcode_foss/_internal/registry.py",
+    "line": 28,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 31,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "parser",
+        "type": "InputParser",
+        "writable": false,
+        "doc": "Gets the parser.",
+        "line": 32,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "encoder",
+        "type": "SymbologyEncoder",
+        "writable": false,
+        "doc": "Gets the encoder.",
+        "line": 33,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "profile",
+        "type": "SymbologyProfile",
+        "writable": false,
+        "doc": "Gets the profile.",
+        "line": 34,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "aliases",
+        "type": "tuple[str, ...]",
+        "writable": false,
+        "doc": "Gets the aliases.",
+        "line": 35,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.registry.SymbologyDefinition"
+  },
+  {
+    "name": "SymbologyRegistry",
+    "kind": "class_definition",
+    "doc": "Store complete symbology definitions keyed by canonical ids and aliases.",
+    "file": "src/aspose_barcode_foss/_internal/registry.py",
+    "line": 38,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "Initialize an empty registry.",
+        "line": 41,
+        "is_constructor": true
+      },
+      {
+        "name": "get_definition",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyDefinition",
+        "doc": "Return the definition registered for a symbology name.",
+        "line": 46,
+        "is_constructor": false
+      },
+      {
+        "name": "get_parser",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "InputParser",
+        "doc": "Return the input parser registered for a symbology name.",
+        "line": 59,
+        "is_constructor": false
+      },
+      {
+        "name": "get_encoder",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyEncoder",
+        "doc": "Return the encoder registered for a symbology name.",
+        "line": 63,
+        "is_constructor": false
+      },
+      {
+        "name": "get_profile",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyProfile",
+        "doc": "Return the profile registered for a symbology name.",
+        "line": 67,
+        "is_constructor": false
+      },
+      {
+        "name": "get_text_policy",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "TextLayoutPolicy",
+        "doc": "Return the text layout policy registered for a symbology name.",
+        "line": 71,
+        "is_constructor": false
+      },
+      {
+        "name": "register",
+        "params": [
+          {
+            "name": "definition",
+            "type": "SymbologyDefinition"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Register a complete symbology definition.",
+        "line": 75,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.registry.SymbologyRegistry"
+  },
+  {
+    "name": "EncoderRegistry",
+    "kind": "class_definition",
+    "doc": "Backward-compatible alias for the earlier registry name.",
+    "file": "src/aspose_barcode_foss/_internal/registry.py",
+    "line": 108,
+    "bases": [
+      "SymbologyRegistry"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "Initialize an empty registry.",
+        "line": 41,
+        "is_constructor": true
+      },
+      {
+        "name": "get_definition",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyDefinition",
+        "doc": "Return the definition registered for a symbology name.",
+        "line": 46,
+        "is_constructor": false
+      },
+      {
+        "name": "get_parser",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "InputParser",
+        "doc": "Return the input parser registered for a symbology name.",
+        "line": 59,
+        "is_constructor": false
+      },
+      {
+        "name": "get_encoder",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyEncoder",
+        "doc": "Return the encoder registered for a symbology name.",
+        "line": 63,
+        "is_constructor": false
+      },
+      {
+        "name": "get_profile",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "SymbologyProfile",
+        "doc": "Return the profile registered for a symbology name.",
+        "line": 67,
+        "is_constructor": false
+      },
+      {
+        "name": "get_text_policy",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          }
+        ],
+        "return_type": "TextLayoutPolicy",
+        "doc": "Return the text layout policy registered for a symbology name.",
+        "line": 71,
+        "is_constructor": false
+      },
+      {
+        "name": "register",
+        "params": [
+          {
+            "name": "definition",
+            "type": "SymbologyDefinition"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Register a complete symbology definition.",
+        "line": 75,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.registry.EncoderRegistry"
+  },
+  {
+    "name": "Renderer",
+    "kind": "class_definition",
+    "doc": "Abstract renderer interface.",
+    "file": "src/aspose_barcode_foss/_internal/renderers/base.py",
+    "line": 13,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "render",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "layout",
+            "type": "TextLayout"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "RenderedArtifact",
+        "doc": "Render an encoded symbol into a backend-specific artifact.",
+        "line": 17,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.renderers.base.Renderer",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "PdfRenderer",
+    "kind": "class_definition",
+    "doc": "Render a barcode into PDF or another vector-friendly artifact.",
+    "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+    "line": 12,
+    "bases": [
+      "Renderer"
+    ],
+    "methods": [
+      {
+        "name": "render",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "layout",
+            "type": "TextLayout"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "RenderedArtifact",
+        "doc": "Render an encoded symbol as PDF.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.renderers.pdf.PdfRenderer",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "PngRenderer",
+    "kind": "class_definition",
+    "doc": "Render a barcode into PNG output.",
+    "file": "src/aspose_barcode_foss/_internal/renderers/png.py",
+    "line": 28,
+    "bases": [
+      "Renderer"
+    ],
+    "methods": [
+      {
+        "name": "render",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "layout",
+            "type": "TextLayout"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "RenderedArtifact",
+        "doc": "Render an encoded symbol as PNG.",
+        "line": 39,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.renderers.png.PngRenderer",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "SvgRenderer",
+    "kind": "class_definition",
+    "doc": "Render a barcode into SVG output.",
+    "file": "src/aspose_barcode_foss/_internal/renderers/svg.py",
+    "line": 46,
+    "bases": [
+      "Renderer"
+    ],
+    "methods": [
+      {
+        "name": "render",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "layout",
+            "type": "TextLayout"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "RenderedArtifact",
+        "doc": "Render an encoded symbol as SVG.",
+        "line": 49,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.renderers.svg.SvgRenderer",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "OptionsResolver",
+    "kind": "class_definition",
+    "doc": "Merge user-supplied render options with symbology defaults.",
+    "file": "src/aspose_barcode_foss/_internal/resolver.py",
+    "line": 17,
+    "bases": [],
+    "methods": [
+      {
+        "name": "coerce_options",
+        "params": [
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "RenderOptions | None",
+        "doc": "Normalize supported option input into a RenderOptions instance.",
+        "line": 20,
+        "is_constructor": false
+      },
+      {
+        "name": "merge_options",
+        "params": [
+          {
+            "name": "earlier",
+            "type": "RenderOptions | None"
+          },
+          {
+            "name": "later",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "RenderOptions | None",
+        "doc": "Merge two unresolved option layers with later values taking priority.",
+        "line": 41,
+        "is_constructor": false
+      },
+      {
+        "name": "resolve",
+        "params": [
+          {
+            "name": "profile",
+            "type": "SymbologyProfile"
+          },
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "ResolvedRenderOptions",
+        "doc": "Resolve the final render configuration.",
+        "line": 56,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.resolver.OptionsResolver"
+  },
+  {
+    "name": "BarcodeService",
+    "kind": "class_definition",
+    "doc": "Coordinate encoder selection, option resolution, and result creation.",
+    "file": "src/aspose_barcode_foss/_internal/service.py",
+    "line": 34,
+    "bases": [],
+    "methods": [
+      {
+        "name": "generate",
+        "params": [
+          {
+            "name": "symbology",
+            "type": "str"
+          },
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "encode",
+            "type": "EncodeOptions | None"
+          },
+          {
+            "name": "render",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "Barcode",
+        "doc": "Build a barcode object for the requested symbology.",
+        "line": 40,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "registry",
+        "type": "SymbologyRegistry",
+        "writable": true,
+        "doc": "Gets or sets the registry.",
+        "line": 37,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "options_resolver",
+        "type": "OptionsResolver",
+        "writable": true,
+        "doc": "Gets or sets the options resolver.",
+        "line": 38,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.service.BarcodeService"
+  },
+  {
+    "name": "get_code128_code_set_b_value",
+    "kind": "function",
+    "doc": "Return the Code Set B codeword value for one printable character.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+    "line": 344,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "character",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "get_code128_code_set_c_value",
+    "kind": "function",
+    "doc": "Return the Code Set C codeword value for a two-digit pair.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+    "line": 355,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "pair",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "get_code128_code_set_a_value",
+    "kind": "function",
+    "doc": "Return the Code Set A codeword value for one character.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+    "line": 367,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "character",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "get_code128_pattern",
+    "kind": "function",
+    "doc": "Return the module pattern for one Code 128 codeword value.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+    "line": 381,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "codeword",
+        "type": "int"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "get_code39_pattern",
+    "kind": "function",
+    "doc": "Return the 9-bit wide/narrow pattern for a base character or '*'.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+    "line": 219,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "char",
+        "type": "str"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "get_code39_value",
+    "kind": "function",
+    "doc": "Return the modulo-43 value (0–42) for a base character.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+    "line": 229,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "char",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "expand_full_ascii",
+    "kind": "function",
+    "doc": "Expand *text* into a base Code 39 sequence via the Full-ASCII map.",
+    "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+    "line": 242,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "text",
+        "type": "str"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "code39_checksum",
+    "kind": "function",
+    "doc": "Return the modulo-43 check value over a base-character string (NF-4).",
+    "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+    "line": 255,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "base_chars",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "checksum_char",
+    "kind": "function",
+    "doc": "Return the base character whose modulo-43 value equals *value* (0–42).",
+    "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+    "line": 260,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "value",
+        "type": "int"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "encode_digit",
+    "kind": "function",
+    "doc": "Return the flat 0/1 module sequence for *digit* in *number_set*.",
+    "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+    "line": 142,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "digit",
+        "type": "int"
+      },
+      {
+        "name": "number_set",
+        "type": "Literal[\"A\", \"B\", \"C\"]"
+      }
+    ],
+    "return_type": "tuple[int, ...]"
+  },
+  {
+    "name": "compute_check_digit",
+    "kind": "function",
+    "doc": "Compute the modulo-10 EAN/UPC check digit for a string of data digits.",
+    "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+    "line": 172,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "digits",
+        "type": "str"
+      },
+      {
+        "name": "start_weight",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "upce_zero_suppress",
+    "kind": "function",
+    "doc": "Apply ISO 15420 zero-suppression to a 12-digit GTIN-12.",
+    "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+    "line": 207,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "gtin12",
+        "type": "str"
+      }
+    ],
+    "return_type": "str | None"
+  },
+  {
+    "name": "EciDesignator",
+    "kind": "class_definition",
+    "doc": "Normalized ECI designator.",
+    "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+    "line": 9,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "assignment_number",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the assignment number.",
+        "line": 12,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 13,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.standards.eci.EciDesignator"
+  },
+  {
+    "name": "EciHelper",
+    "kind": "class_definition",
+    "doc": "Validate and normalize ECI metadata.",
+    "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+    "line": 16,
+    "bases": [],
+    "methods": [
+      {
+        "name": "normalize",
+        "params": [
+          {
+            "name": "value",
+            "type": "int | str"
+          }
+        ],
+        "return_type": "EciDesignator",
+        "doc": "Normalize a public ECI value into an internal designator.",
+        "line": 19,
+        "is_constructor": false
+      },
+      {
+        "name": "validate",
+        "params": [
+          {
+            "name": "designator",
+            "type": "EciDesignator"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Validate an internal ECI designator.",
+        "line": 23,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.standards.eci.EciHelper"
+  },
+  {
+    "name": "Gs1ApplicationIdentifier",
+    "kind": "class_definition",
+    "doc": "One GS1 application identifier.",
+    "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "line": 9,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "value",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the value.",
+        "line": 12,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.standards.gs1.Gs1ApplicationIdentifier"
+  },
+  {
+    "name": "Gs1ElementString",
+    "kind": "class_definition",
+    "doc": "One GS1 element string.",
+    "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "line": 16,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "application_identifier",
+        "type": "Gs1ApplicationIdentifier",
+        "writable": false,
+        "doc": "Gets the application identifier.",
+        "line": 19,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the data.",
+        "line": 20,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.standards.gs1.Gs1ElementString"
+  },
+  {
+    "name": "Gs1Message",
+    "kind": "class_definition",
+    "doc": "Structured GS1 payload produced by the parser layer.",
+    "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "line": 24,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "elements",
+        "type": "tuple[Gs1ElementString, ...]",
+        "writable": false,
+        "doc": "Gets the elements.",
+        "line": 27,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.standards.gs1.Gs1Message"
+  },
+  {
+    "name": "Gs1Helper",
+    "kind": "class_definition",
+    "doc": "Parse and validate GS1 payloads.",
+    "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "line": 30,
+    "bases": [],
+    "methods": [
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "value",
+            "type": "str"
+          }
+        ],
+        "return_type": "Gs1Message",
+        "doc": "Parse a public GS1 string into a structured payload.",
+        "line": 33,
+        "is_constructor": false
+      },
+      {
+        "name": "validate",
+        "params": [
+          {
+            "name": "message",
+            "type": "Gs1Message"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Validate a structured GS1 payload.",
+        "line": 37,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.standards.gs1.Gs1Helper"
+  },
+  {
+    "name": "alignment_centers",
+    "kind": "function",
+    "doc": "Return the concrete alignment-pattern centres for ``version`` as (row, col) pairs.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/alignment.py",
+    "line": 64,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[tuple[int, int]]"
+  },
+  {
+    "name": "latin1_bytes",
+    "kind": "function",
+    "doc": "Return the Latin-1 (ISO-8859-1) byte values of text; raise ValueError on code points > 255.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/bitstream.py",
+    "line": 28,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "text",
+        "type": "str"
+      }
+    ],
+    "return_type": "list[int]"
+  },
+  {
+    "name": "build_data_codewords",
+    "kind": "function",
+    "doc": "Assemble the data-codeword list for the (version, ECC) symbol from an ordered segment list.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/bitstream.py",
+    "line": 39,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "segments",
+        "type": "list[Segment]"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "list[int]"
+  },
+  {
+    "name": "gmul",
+    "kind": "function",
+    "doc": "Multiply two GF(256) elements.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/galois.py",
+    "line": 44,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "a",
+        "type": "int"
+      },
+      {
+        "name": "b",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "rs_generator_poly",
+    "kind": "function",
+    "doc": "Derive the degree-n RS generator polynomial as integer GF(256) coefficients.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/galois.py",
+    "line": 56,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "n",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[int]"
+  },
+  {
+    "name": "format_info",
+    "kind": "function",
+    "doc": "Return the 15-char MSB-first format-information bit string for ``ecc_letter``/``mask``.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/info_strings.py",
+    "line": 41,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      },
+      {
+        "name": "mask",
+        "type": "int"
+      }
+    ],
+    "return_type": "str"
+  },
+  {
+    "name": "version_info",
+    "kind": "function",
+    "doc": "Return the 18-char MSB-first version-information bit string for ``version`` (7–40).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/info_strings.py",
+    "line": 107,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "str | None"
+  },
+  {
+    "name": "apply_mask",
+    "kind": "function",
+    "doc": "Return a NEW grid with every non-function module XOR-toggled where the mask predicate holds.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 36,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      },
+      {
+        "name": "mask_id",
+        "type": "int"
+      },
+      {
+        "name": "is_function",
+        "type": "Sequence[Sequence[bool]]"
+      }
+    ],
+    "return_type": "list[list[int]]"
+  },
+  {
+    "name": "penalty_n1",
+    "kind": "function",
+    "doc": "N1: for each row and each column, every run of >=5 same-colour adds 3 + (runLength - 5).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 74,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "penalty_n2",
+    "kind": "function",
+    "doc": "N2: each 2x2 block of one colour adds 3 (every overlapping 2x2 sub-block counted).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 86,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "penalty_n3",
+    "kind": "function",
+    "doc": "N3: each occurrence of `10111010000` or `00001011101` in any row/column adds 40.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 114,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "penalty_n4",
+    "kind": "function",
+    "doc": "N4: dark-ratio deviation from 50%; add 10*k for k = min(|prev-50|, |next-50|) // 5.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 126,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "penalty",
+    "kind": "function",
+    "doc": "Total mask penalty: N1 + N2 + N3 + N4 on the masked, fully-assembled grid.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 138,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "Grid"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "select_best_mask",
+    "kind": "function",
+    "doc": "Return the lowest-penalty mask id over 0..7; ties resolved to the lowest mask number.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+    "line": 143,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "build_for_mask",
+        "type": "Callable[[int], Grid]"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "build_function_patterns",
+    "kind": "function",
+    "doc": "Build the function patterns and reservation map for ``version``.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+    "line": 37,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "tuple[list[list[int]], list[list[bool]]]"
+  },
+  {
+    "name": "place_data",
+    "kind": "function",
+    "doc": "Place ``bitstream`` into the non-reserved modules by the zig-zag rule (mutates/returns modules).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+    "line": 109,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "list[list[int]]"
+      },
+      {
+        "name": "is_function",
+        "type": "list[list[bool]]"
+      },
+      {
+        "name": "bitstream",
+        "type": "list[int]"
+      }
+    ],
+    "return_type": "list[list[int]]"
+  },
+  {
+    "name": "write_format_info",
+    "kind": "function",
+    "doc": "Write the 15-bit format-information string into both reserved areas in order (mutates/returns).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+    "line": 136,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "list[list[int]]"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      },
+      {
+        "name": "mask",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[list[int]]"
+  },
+  {
+    "name": "write_version_info",
+    "kind": "function",
+    "doc": "Write the 18-bit version-information string into both reserved 3x6 blocks in order (v>=7).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+    "line": 156,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "modules",
+        "type": "list[list[int]]"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[list[int]]"
+  },
+  {
+    "name": "assemble",
+    "kind": "function",
+    "doc": "Assemble the final immutable QR grid for ``version``/``ecc_letter``/``mask``.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+    "line": 171,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      },
+      {
+        "name": "bitstream",
+        "type": "list[int]"
+      },
+      {
+        "name": "mask",
+        "type": "int"
+      }
+    ],
+    "return_type": "tuple[tuple[int, ...], ...]"
+  },
+  {
+    "name": "rs_encode",
+    "kind": "function",
+    "doc": "Return the ec_count Reed-Solomon error-correction codewords for the data.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/reed_solomon.py",
+    "line": 16,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data_codewords",
+        "type": "list[int]"
+      },
+      {
+        "name": "ec_count",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[int]"
+  },
+  {
+    "name": "forced_segments",
+    "kind": "function",
+    "doc": "Return a single ``Segment(mode, text)`` after validating every character is eligible.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+    "line": 92,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "text",
+        "type": "str"
+      },
+      {
+        "name": "mode",
+        "type": "QrMode"
+      }
+    ],
+    "return_type": "list[Segment]"
+  },
+  {
+    "name": "segment_optimal",
+    "kind": "function",
+    "doc": "Return the minimal-bit segment sequence for text at version (the boundary DP).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+    "line": 113,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "text",
+        "type": "str"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "list[Segment]"
+  },
+  {
+    "name": "segments_bit_length",
+    "kind": "function",
+    "doc": "Return the total data-bit length of segments at version (headers + counts + data).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+    "line": 210,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "segments",
+        "type": "list[Segment]"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "eci_assignment_number",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "encoding_bit_length",
+    "kind": "function",
+    "doc": "Return the data-bit length for text at version under mode (the parser's version-search entry).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+    "line": 231,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "text",
+        "type": "str"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "mode",
+        "type": "QrEncodeMode"
+      },
+      {
+        "name": "eci",
+        "type": "int | None"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "QrMode",
+    "kind": "class_definition",
+    "doc": "Internal QR data mode (no ``AUTO`` — that lives only on the public ``QrEncodeMode``).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 42,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "indicator",
+        "type": "int",
+        "writable": false,
+        "doc": "Return the 4-bit mode indicator for this mode.",
+        "line": 51
+      }
+    ],
+    "visibility": "public",
+    "enum_members": [
+      {
+        "name": "NUMERIC",
+        "value": "\"numeric\""
+      },
+      {
+        "name": "ALPHANUMERIC",
+        "value": "\"alphanumeric\""
+      },
+      {
+        "name": "BYTE",
+        "value": "\"byte\""
+      },
+      {
+        "name": "KANJI",
+        "value": "\"kanji\""
+      }
+    ],
+    "class_import": "_internal.standards.qr.segments.QrMode"
+  },
+  {
+    "name": "Segment",
+    "kind": "class_definition",
+    "doc": "A single QR data segment: a mode and the verbatim input text it encodes.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 183,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "mode",
+        "type": "QrMode",
+        "writable": false,
+        "doc": "Gets the mode.",
+        "line": 186,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the text.",
+        "line": 187,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "_internal.standards.qr.segments.Segment"
+  },
+  {
+    "name": "count_indicator_bits",
+    "kind": "function",
+    "doc": "Return the character-count-indicator bit length (Table 3) for mode at version.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 87,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "mode",
+        "type": "QrMode"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "is_numeric",
+    "kind": "function",
+    "doc": "Return True if ch is a single decimal digit '0'-'9'.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 107,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "ch",
+        "type": "str"
+      }
+    ],
+    "return_type": "bool"
+  },
+  {
+    "name": "is_alphanumeric",
+    "kind": "function",
+    "doc": "Return True if ch is in the 45-character alphanumeric table.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 112,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "ch",
+        "type": "str"
+      }
+    ],
+    "return_type": "bool"
+  },
+  {
+    "name": "shift_jis_double_byte",
+    "kind": "function",
+    "doc": "Return the big-endian Shift-JIS code C if ch is Kanji-encodable, else None.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 117,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "ch",
+        "type": "str"
+      }
+    ],
+    "return_type": "int | None"
+  },
+  {
+    "name": "kanji_value",
+    "kind": "function",
+    "doc": "Return the 13-bit packed Kanji value for a Shift-JIS code C.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 136,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "code",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "numeric_data_bits",
+    "kind": "function",
+    "doc": "Return the numeric data-bit length for n digits: 10 bits / group of 3, +7 or +4 tail.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 157,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "n",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "alphanumeric_data_bits",
+    "kind": "function",
+    "doc": "Return the alphanumeric data-bit length for n chars: 11 bits / pair, +6 for a trailing single.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 162,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "n",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "byte_data_bits",
+    "kind": "function",
+    "doc": "Return the byte-mode data-bit length for n bytes: 8 bits each.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 167,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "n",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "kanji_data_bits",
+    "kind": "function",
+    "doc": "Return the Kanji data-bit length for n Kanji characters: 13 bits each.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 172,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "n",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "emit_segment",
+    "kind": "function",
+    "doc": "Append mode indicator + count indicator + data bits for segment to bits (in order).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 268,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "bits",
+        "type": "list[int]"
+      },
+      {
+        "name": "segment",
+        "type": "Segment"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "segment_data_bits",
+    "kind": "function",
+    "doc": "Return the data-bit length of segment (excluding the 4-bit mode + count indicator).",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 275,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "segment",
+        "type": "Segment"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "segment_total_bits",
+    "kind": "function",
+    "doc": "Return the full segment bit length: 4 (mode) + count_indicator_bits + data bits.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 287,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "segment",
+        "type": "Segment"
+      },
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "emit_eci_header",
+    "kind": "function",
+    "doc": "Append the ECI header: the 0111 indicator then the range-selected assignment number.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "line": 297,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "bits",
+        "type": "list[int]"
+      },
+      {
+        "name": "assignment_number",
+        "type": "int"
+      }
+    ],
+    "return_type": "None"
+  },
+  {
+    "name": "symbol_size",
+    "kind": "function",
+    "doc": "Return the module side length of a QR symbol: 4*version + 17 (v1=21 ..",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 19,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "data_codewords",
+    "kind": "function",
+    "doc": "Return the number of data codewords for the (version, ECC) symbol.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 198,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "ec_per_block",
+    "kind": "function",
+    "doc": "Return the number of EC codewords per block for the (version, ECC) symbol.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 203,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "block_structure",
+    "kind": "function",
+    "doc": "Return the block structure as [(count, data_per_block), ...] for the (version, ECC) symbol.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 208,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      }
+    ],
+    "return_type": "list[tuple[int, int]]"
+  },
+  {
+    "name": "total_codewords",
+    "kind": "function",
+    "doc": "Return the total (data + EC) codeword count for the (version, ECC) symbol.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 213,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      },
+      {
+        "name": "ecc_letter",
+        "type": "str"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "byte_count_bits",
+    "kind": "function",
+    "doc": "Return the byte-mode character-count indicator bit length: 8 for v1-9, 16 for v10-40.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 223,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "remainder_bits",
+    "kind": "function",
+    "doc": "Return the number of remainder bits appended after data placement for the version.",
+    "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+    "line": 242,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "version",
+        "type": "int"
+      }
+    ],
+    "return_type": "int"
+  },
+  {
+    "name": "TextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Abstract interface for symbology-specific text layout.",
+    "file": "src/aspose_barcode_foss/_internal/text/base.py",
+    "line": 12,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Create logical text layout for an encoded symbol.",
+        "line": 16,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.base.TextLayoutPolicy"
+  },
+  {
+    "name": "Code128TextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for Code 128.",
+    "file": "src/aspose_barcode_foss/_internal/text/code128.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for Code 128.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.code128.Code128TextLayoutPolicy"
+  },
+  {
+    "name": "Code39TextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for Code 39.",
+    "file": "src/aspose_barcode_foss/_internal/text/code39.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for Code 39.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.code39.Code39TextLayoutPolicy"
+  },
+  {
+    "name": "Ean13TextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for EAN-13.",
+    "file": "src/aspose_barcode_foss/_internal/text/ean13.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for EAN-13.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.ean13.Ean13TextLayoutPolicy"
+  },
+  {
+    "name": "Ean8TextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for EAN-8.",
+    "file": "src/aspose_barcode_foss/_internal/text/ean8.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for EAN-8.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.ean8.Ean8TextLayoutPolicy"
+  },
+  {
+    "name": "QrTextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide no-op text layout for QR Code (no human-readable line).",
+    "file": "src/aspose_barcode_foss/_internal/text/qr.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Return an empty layout; QR Code has no human-readable text line.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.qr.QrTextLayoutPolicy"
+  },
+  {
+    "name": "UpcaTextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for UPC-A.",
+    "file": "src/aspose_barcode_foss/_internal/text/upca.py",
+    "line": 11,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for UPC-A.",
+        "line": 14,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.upca.UpcaTextLayoutPolicy"
+  },
+  {
+    "name": "UpceTextLayoutPolicy",
+    "kind": "class_definition",
+    "doc": "Provide text layout behavior for UPC-E.",
+    "file": "src/aspose_barcode_foss/_internal/text/upce.py",
+    "line": 12,
+    "bases": [
+      "TextLayoutPolicy"
+    ],
+    "methods": [
+      {
+        "name": "create_layout",
+        "params": [
+          {
+            "name": "symbol",
+            "type": "EncodedSymbol"
+          },
+          {
+            "name": "options",
+            "type": "ResolvedRenderOptions"
+          }
+        ],
+        "return_type": "TextLayout",
+        "doc": "Build text layout for UPC-E.",
+        "line": 15,
+        "is_constructor": false
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "class_import": "_internal.text.upce.UpceTextLayoutPolicy"
+  },
+  {
+    "name": "generate",
+    "kind": "function",
+    "doc": "Create a barcode for the requested symbology.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 29,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "symbology",
+        "type": "str"
+      },
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "EncodeOptions | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "code128",
+    "kind": "function",
+    "doc": "Create a Code 128 barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 45,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "Code128Options | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "code39",
+    "kind": "function",
+    "doc": "Create a Code 39 (base, 43-character set) barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 55,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "Code39Options | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "code39ext",
+    "kind": "function",
+    "doc": "Create an Extended / Full-ASCII Code 39 barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 65,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "Code39Options | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "ean13",
+    "kind": "function",
+    "doc": "Create an EAN-13 barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 75,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "Ean13Options | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "ean8",
+    "kind": "function",
+    "doc": "Create an EAN-8 barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 85,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "Ean8Options | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "upca",
+    "kind": "function",
+    "doc": "Create a UPC-A barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 95,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "UpcaOptions | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "upce",
+    "kind": "function",
+    "doc": "Create a UPC-E barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 105,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "UpceOptions | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "qr",
+    "kind": "function",
+    "doc": "Create a QR Code (Model 2) barcode.",
+    "file": "src/aspose_barcode_foss/api.py",
+    "line": 115,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "str | bytes"
+      },
+      {
+        "name": "encode",
+        "type": "QrOptions | None"
+      },
+      {
+        "name": "render",
+        "type": "RenderOptions | None"
+      }
+    ],
+    "return_type": "Barcode",
+    "exported_via_package_init": true
+  },
+  {
+    "name": "Barcode",
+    "kind": "class_definition",
+    "doc": "Public barcode object returned by the high-level API.",
+    "file": "src/aspose_barcode_foss/result.py",
+    "line": 20,
+    "bases": [],
+    "methods": [
+      {
+        "name": "render",
+        "params": [
+          {
+            "name": "renderer",
+            "type": "Renderer"
+          },
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "RenderedArtifact",
+        "doc": "Render the barcode with the provided renderer.",
+        "line": 27,
+        "is_constructor": false
+      },
+      {
+        "name": "to_svg",
+        "params": [
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "str",
+        "doc": "Render the barcode as SVG.",
+        "line": 62,
+        "is_constructor": false
+      },
+      {
+        "name": "to_png",
+        "params": [
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "Render the barcode as PNG.",
+        "line": 74,
+        "is_constructor": false
+      },
+      {
+        "name": "to_pdf",
+        "params": [
+          {
+            "name": "options",
+            "type": "RenderOptions | None"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "Render the barcode as PDF when the backend is available.",
+        "line": 86,
+        "is_constructor": false
+      }
+    ],
+    "properties": [
+      {
+        "name": "symbol",
+        "type": "EncodedSymbol",
+        "writable": true,
+        "doc": "Gets or sets the symbol.",
+        "line": 23,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "profile",
+        "type": "SymbologyProfile",
+        "writable": true,
+        "doc": "Gets or sets the profile.",
+        "line": 24,
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "default_render_options",
+        "type": "RenderOptions | None",
+        "writable": true,
+        "doc": "Gets or sets the default render options.",
+        "line": 25,
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "class_import": "result.Barcode",
+    "exported_via_package_init": true
+  }
+]

@@ -1,0 +1,5330 @@
+[
+  {
+    "claim_id": "CLM-barcode-9d4983",
+    "kind": "api_method",
+    "text": "Function build_default_registry() -> SymbologyRegistry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/bootstrap.py",
+        "line": 199
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-1b55b6",
+    "kind": "api_method",
+    "text": "Function build_default_service() -> BarcodeService",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/bootstrap.py",
+        "line": 369
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c73095",
+    "kind": "api_method",
+    "text": "SymbologyEncoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8fe32a",
+    "kind": "api_class",
+    "text": "Class SymbologyEncoder defined in src/aspose_barcode_foss/_internal/encoders/base.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f1fc61",
+    "kind": "api_method",
+    "text": "Code128Encoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/code128.py",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ca727a",
+    "kind": "api_class",
+    "text": "Class Code128Encoder defined in src/aspose_barcode_foss/_internal/encoders/code128.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/code128.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b23fdf",
+    "kind": "api_method",
+    "text": "Code39Encoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/code39.py",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a87520",
+    "kind": "api_class",
+    "text": "Class Code39Encoder defined in src/aspose_barcode_foss/_internal/encoders/code39.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/code39.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-db5e7c",
+    "kind": "api_method",
+    "text": "Ean13Encoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean13.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ede8d4",
+    "kind": "api_class",
+    "text": "Class Ean13Encoder defined in src/aspose_barcode_foss/_internal/encoders/ean13.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean13.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8fe8f2",
+    "kind": "api_method",
+    "text": "Ean8Encoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean8.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bf1482",
+    "kind": "api_class",
+    "text": "Class Ean8Encoder defined in src/aspose_barcode_foss/_internal/encoders/ean8.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean8.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-1c386e",
+    "kind": "api_method",
+    "text": "QrEncoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/qr.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-20707d",
+    "kind": "api_class",
+    "text": "Class QrEncoder defined in src/aspose_barcode_foss/_internal/encoders/qr.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/qr.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6b1334",
+    "kind": "api_method",
+    "text": "UpcaEncoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/upca.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-23035f",
+    "kind": "api_class",
+    "text": "Class UpcaEncoder defined in src/aspose_barcode_foss/_internal/encoders/upca.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/upca.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3ed7ac",
+    "kind": "api_method",
+    "text": "UpceEncoder.encode(payload, options) -> EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/upce.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-fe107b",
+    "kind": "api_class",
+    "text": "Class UpceEncoder defined in src/aspose_barcode_foss/_internal/encoders/upce.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/encoders/upce.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-02d079",
+    "kind": "api_class",
+    "text": "Class BarcodeError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-826560",
+    "kind": "api_class",
+    "text": "Class SymbologyNotFoundError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-44f1aa",
+    "kind": "api_class",
+    "text": "Class EncodingError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-23f361",
+    "kind": "api_class",
+    "text": "Class RenderingError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8ae8fa",
+    "kind": "api_class",
+    "text": "Class InvalidInputError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-86aa12",
+    "kind": "api_class",
+    "text": "Class UnsupportedFeatureError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bb16e2",
+    "kind": "api_class",
+    "text": "Class UnsupportedCapabilityError defined in src/aspose_barcode_foss/_internal/exceptions.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/exceptions.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ca1e92",
+    "kind": "api_method",
+    "text": "RenderedArtifact.data field of type str | bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cf82ef",
+    "kind": "api_method",
+    "text": "RenderedArtifact.media_type field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-116d37",
+    "kind": "api_method",
+    "text": "RenderedArtifact.backend field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7b9dc6",
+    "kind": "api_class",
+    "text": "Class RenderedArtifact defined in src/aspose_barcode_foss/_internal/models/artifacts.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-4d5ea5",
+    "kind": "api_method",
+    "text": "SymbologyCapabilities.gs1_support field of type SupportLevel",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c07825",
+    "kind": "api_method",
+    "text": "SymbologyCapabilities.eci_support field of type SupportLevel",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cd60fd",
+    "kind": "api_method",
+    "text": "SymbologyCapabilities.structured_append_support field of type SupportLevel",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a5da6a",
+    "kind": "api_method",
+    "text": "SymbologyCapabilities.binary_input_support field of type SupportLevel",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-af2148",
+    "kind": "api_method",
+    "text": "SymbologyCapabilities.rendering_outputs field of type tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6175b9",
+    "kind": "api_class",
+    "text": "Class SymbologyCapabilities defined in src/aspose_barcode_foss/_internal/models/capabilities.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d02495",
+    "kind": "api_class",
+    "text": "Class Code128EncodeMode defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0acab0",
+    "kind": "api_class",
+    "text": "Class Code39EncodeMode defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d77986",
+    "kind": "api_class",
+    "text": "Class QrEncodeMode defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-48c418",
+    "kind": "api_class",
+    "text": "Class QrErrorCorrectionLevel defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-425e7f",
+    "kind": "api_method",
+    "text": "EncodeOptions.gs1_enabled field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a79a5d",
+    "kind": "api_method",
+    "text": "EncodeOptions.eci_assignment_number field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-06f4b3",
+    "kind": "api_class",
+    "text": "Class EncodeOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cbcd32",
+    "kind": "api_method",
+    "text": "Code128Options.encode_mode field of type Code128EncodeMode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7b10ea",
+    "kind": "api_class",
+    "text": "Class Code128Options defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9f47bf",
+    "kind": "api_method",
+    "text": "Code39Options.full_ascii field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-af8640",
+    "kind": "api_method",
+    "text": "Code39Options.add_check_digit field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-037165",
+    "kind": "api_class",
+    "text": "Class Code39Options defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ed3a2f",
+    "kind": "api_method",
+    "text": "QrOptions.error_correction_level field of type QrErrorCorrectionLevel | str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-92c974",
+    "kind": "api_method",
+    "text": "QrOptions.version field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-177383",
+    "kind": "api_method",
+    "text": "QrOptions.mask field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7e3413",
+    "kind": "api_method",
+    "text": "QrOptions.encoding_mode field of type QrEncodeMode | str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ccd16c",
+    "kind": "api_class",
+    "text": "Class QrOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f2da55",
+    "kind": "api_method",
+    "text": "Ean13Options.allow_check_digit_input field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-90c063",
+    "kind": "api_class",
+    "text": "Class Ean13Options defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-78cbbd",
+    "kind": "api_method",
+    "text": "Ean8Options.allow_check_digit_input field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 91
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-97ea09",
+    "kind": "api_class",
+    "text": "Class Ean8Options defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-066b10",
+    "kind": "api_method",
+    "text": "UpcaOptions.allow_check_digit_input field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 98
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-63fd06",
+    "kind": "api_class",
+    "text": "Class UpcaOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-982285",
+    "kind": "api_method",
+    "text": "UpceOptions.number_system field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3e3726",
+    "kind": "api_method",
+    "text": "UpceOptions.allow_check_digit_input field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 106
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7607e5",
+    "kind": "api_class",
+    "text": "Class UpceOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 102
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-4a8542",
+    "kind": "api_method",
+    "text": "RenderOptions.scale field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-4cb7ab",
+    "kind": "api_method",
+    "text": "RenderOptions.dpi field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5ca051",
+    "kind": "api_method",
+    "text": "RenderOptions.module_width field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 115
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7f55cc",
+    "kind": "api_method",
+    "text": "RenderOptions.module_height field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 116
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a962b3",
+    "kind": "api_method",
+    "text": "RenderOptions.quiet_zone field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 117
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ed8d8c",
+    "kind": "api_method",
+    "text": "RenderOptions.foreground_color field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 118
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-496392",
+    "kind": "api_method",
+    "text": "RenderOptions.background_color field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 119
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-09ab9a",
+    "kind": "api_method",
+    "text": "RenderOptions.transparent_background field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-985b57",
+    "kind": "api_method",
+    "text": "RenderOptions.show_text field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 121
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-368e2a",
+    "kind": "api_method",
+    "text": "RenderOptions.font_family field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 122
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-dc39c9",
+    "kind": "api_method",
+    "text": "RenderOptions.font_size field of type float | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a1b4d7",
+    "kind": "api_class",
+    "text": "Class RenderOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8baac3",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.scale field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 130
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-455b97",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.dpi field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 131
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-e415dd",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.module_width field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 132
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2978de",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.module_height field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 133
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cd3b14",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.quiet_zone field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 134
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-583825",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.foreground_color field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 135
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7bd17c",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.background_color field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 136
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f994ab",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.transparent_background field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 137
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-969c41",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.show_text field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 138
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-397a84",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.font_family field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-429cf1",
+    "kind": "api_method",
+    "text": "ResolvedRenderOptions.font_size field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8f72de",
+    "kind": "api_class",
+    "text": "Class ResolvedRenderOptions defined in src/aspose_barcode_foss/_internal/models/options.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
+        "line": 127
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-099801",
+    "kind": "api_method",
+    "text": "NormalizedPayload.symbology field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cb9ece",
+    "kind": "api_method",
+    "text": "NormalizedPayload.data field of type str | bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-016f5d",
+    "kind": "api_method",
+    "text": "NormalizedPayload.input_kind field of type InputKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c032fd",
+    "kind": "api_method",
+    "text": "NormalizedPayload.gs1_message field of type Gs1Message | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-362d38",
+    "kind": "api_method",
+    "text": "NormalizedPayload.eci_designator field of type EciDesignator | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d63bd9",
+    "kind": "api_method",
+    "text": "NormalizedPayload.code128_encode_mode field of type Code128EncodeMode | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0688b4",
+    "kind": "api_method",
+    "text": "NormalizedPayload.code39_encode_mode field of type Code39EncodeMode | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-e62b0f",
+    "kind": "api_method",
+    "text": "NormalizedPayload.code39_add_check_digit field of type bool | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7ab3e2",
+    "kind": "api_method",
+    "text": "NormalizedPayload.qr_error_correction_level field of type QrErrorCorrectionLevel | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f1ed35",
+    "kind": "api_method",
+    "text": "NormalizedPayload.qr_version field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ef2aa7",
+    "kind": "api_method",
+    "text": "NormalizedPayload.qr_mask field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-97cd01",
+    "kind": "api_method",
+    "text": "NormalizedPayload.qr_encoding_mode field of type QrEncodeMode | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cc475b",
+    "kind": "api_method",
+    "text": "NormalizedPayload.qr_eci_assignment_number field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f14bea",
+    "kind": "api_method",
+    "text": "NormalizedPayload.metadata field of type Mapping[str, object] | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-554545",
+    "kind": "api_class",
+    "text": "Class NormalizedPayload defined in src/aspose_barcode_foss/_internal/models/payloads.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-907664",
+    "kind": "api_method",
+    "text": "ModuleMatrix.get(x, y) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d8f826",
+    "kind": "api_method",
+    "text": "ModuleMatrix.width field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a659a4",
+    "kind": "api_method",
+    "text": "ModuleMatrix.height field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-82ef35",
+    "kind": "api_method",
+    "text": "ModuleMatrix.modules field of type tuple[tuple[int, ...], ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-1ebd81",
+    "kind": "api_method",
+    "text": "ModuleMatrix.row_heights_x field of type tuple[float, ...] | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-54f82f",
+    "kind": "api_class",
+    "text": "Class ModuleMatrix defined in src/aspose_barcode_foss/_internal/models/symbols.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ad6132",
+    "kind": "api_method",
+    "text": "SymbolMetadata.symbology field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-57a113",
+    "kind": "api_method",
+    "text": "SymbolMetadata.normalized_data field of type str | bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5ec7e0",
+    "kind": "api_method",
+    "text": "SymbolMetadata.display_text field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-20c26a",
+    "kind": "api_method",
+    "text": "SymbolMetadata.input_kind field of type InputKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-80ee84",
+    "kind": "api_method",
+    "text": "SymbolMetadata.gs1_enabled field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f504ac",
+    "kind": "api_method",
+    "text": "SymbolMetadata.eci_assignment_number field of type int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0b5146",
+    "kind": "api_class",
+    "text": "Class SymbolMetadata defined in src/aspose_barcode_foss/_internal/models/symbols.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c179ac",
+    "kind": "api_method",
+    "text": "EncodedSymbol.matrix field of type ModuleMatrix",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-35023a",
+    "kind": "api_method",
+    "text": "EncodedSymbol.metadata field of type SymbolMetadata",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-27406c",
+    "kind": "api_class",
+    "text": "Class EncodedSymbol defined in src/aspose_barcode_foss/_internal/models/symbols.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3e9ac4",
+    "kind": "api_method",
+    "text": "TextSegment.text field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-eb8a8b",
+    "kind": "api_method",
+    "text": "TextSegment.anchor field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b84f89",
+    "kind": "api_method",
+    "text": "TextSegment.offset_x field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-10c72a",
+    "kind": "api_method",
+    "text": "TextSegment.offset_y field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6080f7",
+    "kind": "api_class",
+    "text": "Class TextSegment defined in src/aspose_barcode_foss/_internal/models/text.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-09e2fa",
+    "kind": "api_method",
+    "text": "TextLayout.segments field of type tuple[TextSegment, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-32bc93",
+    "kind": "api_class",
+    "text": "Class TextLayout defined in src/aspose_barcode_foss/_internal/models/text.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-43ad20",
+    "kind": "api_method",
+    "text": "InputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d3edcd",
+    "kind": "api_class",
+    "text": "Class InputParser defined in src/aspose_barcode_foss/_internal/parsers/base.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f26c09",
+    "kind": "api_method",
+    "text": "Code128InputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/code128.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c97a82",
+    "kind": "api_class",
+    "text": "Class Code128InputParser defined in src/aspose_barcode_foss/_internal/parsers/code128.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/code128.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9f4d07",
+    "kind": "api_method",
+    "text": "Code39InputParser.__init__(default_full_ascii, symbology_name) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/code39.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b36bec",
+    "kind": "api_method",
+    "text": "Code39InputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/code39.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-17622b",
+    "kind": "api_class",
+    "text": "Class Code39InputParser defined in src/aspose_barcode_foss/_internal/parsers/code39.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/code39.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5dff08",
+    "kind": "api_method",
+    "text": "Ean13InputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean13.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0dd600",
+    "kind": "api_class",
+    "text": "Class Ean13InputParser defined in src/aspose_barcode_foss/_internal/parsers/ean13.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean13.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-045548",
+    "kind": "api_method",
+    "text": "Ean8InputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean8.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-56e90b",
+    "kind": "api_class",
+    "text": "Class Ean8InputParser defined in src/aspose_barcode_foss/_internal/parsers/ean8.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean8.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-031449",
+    "kind": "api_method",
+    "text": "QrInputParser.__init__(symbology_name) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/qr.py",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-927b84",
+    "kind": "api_method",
+    "text": "QrInputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/qr.py",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-66da40",
+    "kind": "api_class",
+    "text": "Class QrInputParser defined in src/aspose_barcode_foss/_internal/parsers/qr.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/qr.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-7688f3",
+    "kind": "api_method",
+    "text": "UpcaInputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/upca.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0947c0",
+    "kind": "api_class",
+    "text": "Class UpcaInputParser defined in src/aspose_barcode_foss/_internal/parsers/upca.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/upca.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-739eb3",
+    "kind": "api_method",
+    "text": "UpceInputParser.parse(data, options) -> NormalizedPayload",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/upce.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-aa3283",
+    "kind": "api_class",
+    "text": "Class UpceInputParser defined in src/aspose_barcode_foss/_internal/parsers/upce.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/parsers/upce.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c4624d",
+    "kind": "api_method",
+    "text": "SymbologyProfile.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-e63516",
+    "kind": "api_method",
+    "text": "SymbologyProfile.status field of type SymbologyStatus",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-39c8ba",
+    "kind": "api_method",
+    "text": "SymbologyProfile.defaults field of type ResolvedRenderOptions",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-82c081",
+    "kind": "api_method",
+    "text": "SymbologyProfile.capabilities field of type SymbologyCapabilities",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ad5ca5",
+    "kind": "api_method",
+    "text": "SymbologyProfile.text_policy field of type TextLayoutPolicy",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-33d9ea",
+    "kind": "api_method",
+    "text": "SymbologyProfile.spec_references field of type tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ed98ec",
+    "kind": "api_method",
+    "text": "SymbologyProfile.known_limitations field of type tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3e28fc",
+    "kind": "api_class",
+    "text": "Class SymbologyProfile defined in src/aspose_barcode_foss/_internal/profiles/base.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-309c5c",
+    "kind": "api_class",
+    "text": "Class Code128Profile defined in src/aspose_barcode_foss/_internal/profiles/code128.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/code128.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-396562",
+    "kind": "api_class",
+    "text": "Class Code39Profile defined in src/aspose_barcode_foss/_internal/profiles/code39.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/code39.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d60be8",
+    "kind": "api_class",
+    "text": "Class Ean13Profile defined in src/aspose_barcode_foss/_internal/profiles/ean13.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/ean13.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-dc1120",
+    "kind": "api_class",
+    "text": "Class Ean8Profile defined in src/aspose_barcode_foss/_internal/profiles/ean8.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/ean8.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3c3721",
+    "kind": "api_class",
+    "text": "Class QrProfile defined in src/aspose_barcode_foss/_internal/profiles/qr.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/qr.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-28cb84",
+    "kind": "api_class",
+    "text": "Class UpcaProfile defined in src/aspose_barcode_foss/_internal/profiles/upca.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/upca.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a193aa",
+    "kind": "api_class",
+    "text": "Class UpceProfile defined in src/aspose_barcode_foss/_internal/profiles/upce.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/profiles/upce.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-91054d",
+    "kind": "api_method",
+    "text": "SymbologyDefinition.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0c220a",
+    "kind": "api_method",
+    "text": "SymbologyDefinition.parser field of type InputParser",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5f7cfb",
+    "kind": "api_method",
+    "text": "SymbologyDefinition.encoder field of type SymbologyEncoder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c07f39",
+    "kind": "api_method",
+    "text": "SymbologyDefinition.profile field of type SymbologyProfile",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a21691",
+    "kind": "api_method",
+    "text": "SymbologyDefinition.aliases field of type tuple[str, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8fe217",
+    "kind": "api_class",
+    "text": "Class SymbologyDefinition defined in src/aspose_barcode_foss/_internal/registry.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5859f4",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.__init__() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-35ad15",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.get_definition(name) -> SymbologyDefinition",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-36b809",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.get_parser(name) -> InputParser",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-fc9c64",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.get_encoder(name) -> SymbologyEncoder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3f70e6",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.get_profile(name) -> SymbologyProfile",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ae11d9",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.get_text_policy(name) -> TextLayoutPolicy",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0589e2",
+    "kind": "api_method",
+    "text": "SymbologyRegistry.register(definition) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-98b4e2",
+    "kind": "api_class",
+    "text": "Class SymbologyRegistry defined in src/aspose_barcode_foss/_internal/registry.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-50c007",
+    "kind": "api_class",
+    "text": "Class EncoderRegistry defined in src/aspose_barcode_foss/_internal/registry.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-71db60",
+    "kind": "api_method",
+    "text": "Renderer.render(symbol, layout, options) -> RenderedArtifact",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/base.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b85609",
+    "kind": "api_class",
+    "text": "Class Renderer defined in src/aspose_barcode_foss/_internal/renderers/base.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/base.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-48c6ab",
+    "kind": "api_method",
+    "text": "PdfRenderer.render(symbol, layout, options) -> RenderedArtifact",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a081d3",
+    "kind": "api_class",
+    "text": "Class PdfRenderer defined in src/aspose_barcode_foss/_internal/renderers/pdf.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bea1ac",
+    "kind": "api_method",
+    "text": "PngRenderer.render(symbol, layout, options) -> RenderedArtifact",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/png.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c110dd",
+    "kind": "api_class",
+    "text": "Class PngRenderer defined in src/aspose_barcode_foss/_internal/renderers/png.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/png.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-03a559",
+    "kind": "api_method",
+    "text": "SvgRenderer.render(symbol, layout, options) -> RenderedArtifact",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/svg.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-af6302",
+    "kind": "api_class",
+    "text": "Class SvgRenderer defined in src/aspose_barcode_foss/_internal/renderers/svg.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/svg.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-df0f2e",
+    "kind": "api_method",
+    "text": "OptionsResolver.coerce_options(options) -> RenderOptions | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/resolver.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-21d431",
+    "kind": "api_method",
+    "text": "OptionsResolver.merge_options(earlier, later) -> RenderOptions | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/resolver.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b2ef28",
+    "kind": "api_method",
+    "text": "OptionsResolver.resolve(profile, options) -> ResolvedRenderOptions",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/resolver.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2492b4",
+    "kind": "api_class",
+    "text": "Class OptionsResolver defined in src/aspose_barcode_foss/_internal/resolver.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/resolver.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-51f2d7",
+    "kind": "api_method",
+    "text": "BarcodeService.generate(symbology, data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/service.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-740707",
+    "kind": "api_method",
+    "text": "BarcodeService.registry field of type SymbologyRegistry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/service.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3ef7bc",
+    "kind": "api_method",
+    "text": "BarcodeService.options_resolver field of type OptionsResolver",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/service.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b928f5",
+    "kind": "api_class",
+    "text": "Class BarcodeService defined in src/aspose_barcode_foss/_internal/service.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/service.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-55d80b",
+    "kind": "api_method",
+    "text": "Function get_code128_code_set_b_value(character) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+        "line": 344
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-df0ca0",
+    "kind": "api_method",
+    "text": "Function get_code128_code_set_c_value(pair) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+        "line": 355
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-593563",
+    "kind": "api_method",
+    "text": "Function get_code128_code_set_a_value(character) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+        "line": 367
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c5ef2c",
+    "kind": "api_method",
+    "text": "Function get_code128_pattern(codeword) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code128.py",
+        "line": 381
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-97eb7d",
+    "kind": "api_method",
+    "text": "Function get_code39_pattern(char) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+        "line": 219
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-462d9a",
+    "kind": "api_method",
+    "text": "Function get_code39_value(char) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+        "line": 229
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-38e905",
+    "kind": "api_method",
+    "text": "Function expand_full_ascii(text) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+        "line": 242
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-354378",
+    "kind": "api_method",
+    "text": "Function code39_checksum(base_chars) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+        "line": 255
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a4f607",
+    "kind": "api_method",
+    "text": "Function checksum_char(value) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/code39.py",
+        "line": 260
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c62e11",
+    "kind": "api_method",
+    "text": "Function encode_digit(digit, number_set) -> tuple[int, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+        "line": 142
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-793382",
+    "kind": "api_method",
+    "text": "Function compute_check_digit(digits, start_weight) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+        "line": 172
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ae00a5",
+    "kind": "api_method",
+    "text": "Function upce_zero_suppress(gtin12) -> str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/ean.py",
+        "line": 207
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-56d1f3",
+    "kind": "api_method",
+    "text": "EciDesignator.assignment_number field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6b718e",
+    "kind": "api_method",
+    "text": "EciDesignator.name field of type str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-77d614",
+    "kind": "api_class",
+    "text": "Class EciDesignator defined in src/aspose_barcode_foss/_internal/standards/eci.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-02b2a3",
+    "kind": "api_method",
+    "text": "EciHelper.normalize(value) -> EciDesignator",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-76c3c6",
+    "kind": "api_method",
+    "text": "EciHelper.validate(designator) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ed9d64",
+    "kind": "api_class",
+    "text": "Class EciHelper defined in src/aspose_barcode_foss/_internal/standards/eci.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-eb096e",
+    "kind": "api_method",
+    "text": "Gs1ApplicationIdentifier.value field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-07244a",
+    "kind": "api_class",
+    "text": "Class Gs1ApplicationIdentifier defined in src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-72f70c",
+    "kind": "api_method",
+    "text": "Gs1ElementString.application_identifier field of type Gs1ApplicationIdentifier",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-35560a",
+    "kind": "api_method",
+    "text": "Gs1ElementString.data field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-43349e",
+    "kind": "api_class",
+    "text": "Class Gs1ElementString defined in src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d6433e",
+    "kind": "api_method",
+    "text": "Gs1Message.elements field of type tuple[Gs1ElementString, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-741bd0",
+    "kind": "api_class",
+    "text": "Class Gs1Message defined in src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6cb21f",
+    "kind": "api_method",
+    "text": "Gs1Helper.parse(value) -> Gs1Message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-08d5e9",
+    "kind": "api_method",
+    "text": "Gs1Helper.validate(message) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8400ed",
+    "kind": "api_class",
+    "text": "Class Gs1Helper defined in src/aspose_barcode_foss/_internal/standards/gs1.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2d0fd4",
+    "kind": "api_method",
+    "text": "Function alignment_centers(version) -> list[tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/alignment.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b35434",
+    "kind": "api_method",
+    "text": "Function latin1_bytes(text) -> list[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/bitstream.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d7b24b",
+    "kind": "api_method",
+    "text": "Function build_data_codewords(segments, version, ecc_letter, eci_assignment_number) -> list[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/bitstream.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-eddb39",
+    "kind": "api_method",
+    "text": "Function gmul(a, b) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/galois.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-88e709",
+    "kind": "api_method",
+    "text": "Function rs_generator_poly(n) -> list[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/galois.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-1a9f64",
+    "kind": "api_method",
+    "text": "Function format_info(ecc_letter, mask) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/info_strings.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d5bd29",
+    "kind": "api_method",
+    "text": "Function version_info(version) -> str | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/info_strings.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-999494",
+    "kind": "api_method",
+    "text": "Function apply_mask(modules, mask_id, is_function) -> list[list[int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cff5bd",
+    "kind": "api_method",
+    "text": "Function penalty_n1(modules) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-416eb5",
+    "kind": "api_method",
+    "text": "Function penalty_n2(modules) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-aaa2c6",
+    "kind": "api_method",
+    "text": "Function penalty_n3(modules) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c5c623",
+    "kind": "api_method",
+    "text": "Function penalty_n4(modules) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 126
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-87fb22",
+    "kind": "api_method",
+    "text": "Function penalty(modules) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 138
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a4253b",
+    "kind": "api_method",
+    "text": "Function select_best_mask(build_for_mask) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/masking.py",
+        "line": 143
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-449305",
+    "kind": "api_method",
+    "text": "Function build_function_patterns(version) -> tuple[list[list[int]], list[list[bool]]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5e9937",
+    "kind": "api_method",
+    "text": "Function place_data(modules, is_function, bitstream) -> list[list[int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+        "line": 109
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-dac5dd",
+    "kind": "api_method",
+    "text": "Function write_format_info(modules, ecc_letter, mask) -> list[list[int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+        "line": 136
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ea6dbc",
+    "kind": "api_method",
+    "text": "Function write_version_info(modules, version) -> list[list[int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+        "line": 156
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b54456",
+    "kind": "api_method",
+    "text": "Function assemble(version, ecc_letter, bitstream, mask) -> tuple[tuple[int, ...], ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/matrix.py",
+        "line": 171
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5d3540",
+    "kind": "api_method",
+    "text": "Function rs_encode(data_codewords, ec_count) -> list[int]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/reed_solomon.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-48dfd0",
+    "kind": "api_method",
+    "text": "Function forced_segments(text, mode) -> list[Segment]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-4c6884",
+    "kind": "api_method",
+    "text": "Function segment_optimal(text, version) -> list[Segment]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-68239d",
+    "kind": "api_method",
+    "text": "Function segments_bit_length(segments, version, eci_assignment_number) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-4e938f",
+    "kind": "api_method",
+    "text": "Function encoding_bit_length(text, version, mode, eci) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segmentation.py",
+        "line": 231
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d23038",
+    "kind": "api_method",
+    "text": "QrMode.indicator property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c158fb",
+    "kind": "api_class",
+    "text": "Class QrMode defined in src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d2e23a",
+    "kind": "api_method",
+    "text": "Segment.mode field of type QrMode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 186
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-00141e",
+    "kind": "api_method",
+    "text": "Segment.text field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 187
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9ed70d",
+    "kind": "api_class",
+    "text": "Class Segment defined in src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 183
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-a45db2",
+    "kind": "api_method",
+    "text": "Function count_indicator_bits(mode, version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9b64cb",
+    "kind": "api_method",
+    "text": "Function is_numeric(ch) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b913e1",
+    "kind": "api_method",
+    "text": "Function is_alphanumeric(ch) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 112
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b132e5",
+    "kind": "api_method",
+    "text": "Function shift_jis_double_byte(ch) -> int | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 117
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-be49aa",
+    "kind": "api_method",
+    "text": "Function kanji_value(code) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 136
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d4438f",
+    "kind": "api_method",
+    "text": "Function numeric_data_bits(n) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2a3537",
+    "kind": "api_method",
+    "text": "Function alphanumeric_data_bits(n) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 162
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bff9c7",
+    "kind": "api_method",
+    "text": "Function byte_data_bits(n) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 167
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-df30e1",
+    "kind": "api_method",
+    "text": "Function kanji_data_bits(n) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 172
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8a5f03",
+    "kind": "api_method",
+    "text": "Function emit_segment(bits, segment, version) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 268
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ed29e8",
+    "kind": "api_method",
+    "text": "Function segment_data_bits(segment, version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 275
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0e5c7b",
+    "kind": "api_method",
+    "text": "Function segment_total_bits(segment, version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 287
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bb2b31",
+    "kind": "api_method",
+    "text": "Function emit_eci_header(bits, assignment_number) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
+        "line": 297
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5ef37d",
+    "kind": "api_method",
+    "text": "Function symbol_size(version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-3f200a",
+    "kind": "api_method",
+    "text": "Function data_codewords(version, ecc_letter) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 198
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0c02fa",
+    "kind": "api_method",
+    "text": "Function ec_per_block(version, ecc_letter) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 203
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cc33d6",
+    "kind": "api_method",
+    "text": "Function block_structure(version, ecc_letter) -> list[tuple[int, int]]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 208
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-62a3f3",
+    "kind": "api_method",
+    "text": "Function total_codewords(version, ecc_letter) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 213
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9d59f4",
+    "kind": "api_method",
+    "text": "Function byte_count_bits(version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 223
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-985a87",
+    "kind": "api_method",
+    "text": "Function remainder_bits(version) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/tables.py",
+        "line": 242
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-819215",
+    "kind": "api_method",
+    "text": "TextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/base.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-109169",
+    "kind": "api_class",
+    "text": "Class TextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/base.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/base.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-591eea",
+    "kind": "api_method",
+    "text": "Code128TextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/code128.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c716bb",
+    "kind": "api_class",
+    "text": "Class Code128TextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/code128.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/code128.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-461b42",
+    "kind": "api_method",
+    "text": "Code39TextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/code39.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6bcc16",
+    "kind": "api_class",
+    "text": "Class Code39TextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/code39.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/code39.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-c81bc1",
+    "kind": "api_method",
+    "text": "Ean13TextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/ean13.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-936fde",
+    "kind": "api_class",
+    "text": "Class Ean13TextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/ean13.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/ean13.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-b7f920",
+    "kind": "api_method",
+    "text": "Ean8TextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/ean8.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-9f2666",
+    "kind": "api_class",
+    "text": "Class Ean8TextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/ean8.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/ean8.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2e63fa",
+    "kind": "api_method",
+    "text": "QrTextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/qr.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-720df4",
+    "kind": "api_class",
+    "text": "Class QrTextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/qr.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/qr.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5965f3",
+    "kind": "api_method",
+    "text": "UpcaTextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/upca.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5c90ed",
+    "kind": "api_class",
+    "text": "Class UpcaTextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/upca.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/upca.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-763aa1",
+    "kind": "api_method",
+    "text": "UpceTextLayoutPolicy.create_layout(symbol, options) -> TextLayout",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/upce.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cd01f9",
+    "kind": "api_class",
+    "text": "Class UpceTextLayoutPolicy defined in src/aspose_barcode_foss/_internal/text/upce.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/text/upce.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-f11bef",
+    "kind": "api_method",
+    "text": "Function generate(symbology, data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-585c2d",
+    "kind": "api_method",
+    "text": "Function code128(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-bdd089",
+    "kind": "api_method",
+    "text": "Function code39(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6cd17e",
+    "kind": "api_method",
+    "text": "Function code39ext(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-e65f25",
+    "kind": "api_method",
+    "text": "Function ean13(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-269fcf",
+    "kind": "api_method",
+    "text": "Function ean8(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ec0aab",
+    "kind": "api_method",
+    "text": "Function upca(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-43d177",
+    "kind": "api_method",
+    "text": "Function upce(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-0fa3b5",
+    "kind": "api_method",
+    "text": "Function qr(data, encode, render) -> Barcode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/api.py",
+        "line": 115
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-89a9fe",
+    "kind": "api_method",
+    "text": "Barcode.render(renderer, options) -> RenderedArtifact",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-6cafeb",
+    "kind": "api_method",
+    "text": "Barcode.to_svg(options) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ac2e08",
+    "kind": "api_method",
+    "text": "Barcode.to_png(options) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cdbac8",
+    "kind": "api_method",
+    "text": "Barcode.to_pdf(options) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d1cfb4",
+    "kind": "api_method",
+    "text": "Barcode.symbol field of type EncodedSymbol",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-997b4d",
+    "kind": "api_method",
+    "text": "Barcode.profile field of type SymbologyProfile",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-65435f",
+    "kind": "api_method",
+    "text": "Barcode.default_render_options field of type RenderOptions | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-abe811",
+    "kind": "api_class",
+    "text": "Class Barcode defined in src/aspose_barcode_foss/result.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-5c60a4",
+    "kind": "format_support",
+    "text": "export support for Pdf via PdfRenderer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-2794b6",
+    "kind": "format_support",
+    "text": "export support for Png via PngRenderer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/png.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-615b98",
+    "kind": "format_support",
+    "text": "export support for Svg via SvgRenderer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/svg.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-424fc0",
+    "kind": "format_support",
+    "text": "export support for svg format (method name: to_svg)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-8e1383",
+    "kind": "format_support",
+    "text": "export support for png format (method name: to_png)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-04970e",
+    "kind": "format_support",
+    "text": "export support for pdf format (method name: to_pdf)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ca5609",
+    "kind": "limitation",
+    "text": "Not implemented: PdfRenderer.render in src/aspose_barcode_foss/_internal/renderers/pdf.py:23",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-fbdcba",
+    "kind": "limitation",
+    "text": "Not implemented: EciHelper.normalize in src/aspose_barcode_foss/_internal/standards/eci.py:21",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-d75ba8",
+    "kind": "limitation",
+    "text": "Not implemented: EciHelper.validate in src/aspose_barcode_foss/_internal/standards/eci.py:25",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-630001",
+    "kind": "limitation",
+    "text": "Not implemented: Gs1Helper.parse in src/aspose_barcode_foss/_internal/standards/gs1.py:35",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-1222ae",
+    "kind": "limitation",
+    "text": "Not implemented: Gs1Helper.validate in src/aspose_barcode_foss/_internal/standards/gs1.py:39",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-cb1a28",
+    "kind": "limitation",
+    "text": "Not implemented: Barcode.to_pdf in src/aspose_barcode_foss/result.py:92",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/aspose_barcode_foss/result.py",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-30b5d7",
+    "kind": "install",
+    "text": "Package name is aspose-barcode-foss",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-417235",
+    "kind": "install",
+    "text": "Current version is 0.1.0",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-ac3897",
+    "kind": "license",
+    "text": "Licensed under MIT",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-barcode-839a51",
+    "kind": "dependency",
+    "text": "Depends on Pillow>=10.1.0",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-barcode-python-cc09b13e",
+    "text": "Aspose.Barcode for Python lets developers generate deterministic, standards‑compliant barcodes in pure Python.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A pure-Python library for barcode generation. It produces deterministic, standards‑compliant barcodes and renders them as SVG or PNG."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-309ae695",
+    "text": "RenderOptions lets you control scale, DPI, module dimensions, colors, and text visibility for any rendering call.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Rendering is controlled with `RenderOptions`, passed as the keyword‑only `options` argument: ... Available fields: `scale`, `dpi`, `module_width`, `module_height`, `quiet_zone`, `foreground_color`, `background_color`, `transparent_background`, `show_text`, `font_family`, `font_size`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-da5838c9",
+    "text": "Code128Options.encode_mode accepts values from the Code128EncodeMode enum, such as AUTO or CODE_C, to influence the encoding strategy.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: Code128Options ... Properties: encode_mode, gs1_enabled, eci_assignment_number"
+      },
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: Code128EncodeMode ... Enum values: AUTO, CODE_A, CODE_B, CODE_C, CODE_AB, CODE_AC, CODE_BC"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-2283cbbf",
+    "text": "Aspose.Barcode‑FOSS lets developers generate deterministic, standards‑compliant barcodes and render them directly as SVG or PNG files.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It produces deterministic, standards‑compliant barcodes and renders them as SVG or PNG."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-36216e59",
+    "text": "A generic `generate(name, data)` function creates any supported barcode by its canonical name or alias, falling back to the same helpers used directly.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Select a symbology by name with `generate()`:\n```python\nfrom aspose_barcode_foss import generate\nbarcode = generate(\"code128\", \"ABC-123\")\n```"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-c5b9123c",
+    "text": "Pass a `RenderOptions` instance to `to_svg()` or `to_png()` to control scale, DPI, module dimensions, colors, quiet zone, and whether human‑readable text is shown.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "svg = barcode.to_svg(options=RenderOptions(scale=2.0, show_text=True))\npng = barcode.to_png(options=RenderOptions(dpi=300, module_width=3.0))"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-ae56fe55",
+    "text": "After creating a barcode, the `symbol.matrix` property gives access to a `ModuleMatrix` where `width` and `height` report the number of modules in each dimension.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/all_symbologies.py",
+        "snippet": "matrix = factory(data).symbol.matrix\nprint(f\"... -> {matrix.width}x{matrix.height} modules\")"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-2426120c",
+    "text": "Use `EncoderRegistry.get_encoder(name)` to retrieve the low‑level `SymbologyEncoder` for a given symbology when custom processing is required.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "source/registry.py",
+        "snippet": "class EncoderRegistry:\n    Methods: get_encoder(name) -> SymbologyEncoder"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-bee1a49d",
+    "text": "Catching `InvalidInputError` lets applications report user‑friendly messages for malformed payloads, as demonstrated in the error‑handling example.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/error_handling.py",
+        "snippet": "except InvalidInputError as error:\n    print(f\"InvalidInputError: {error}\")"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-d4f00453",
+    "text": "Aspose.Barcode for Python enables developers to generate deterministic, standards‑compliant barcodes for linear and 2D symbologies and render them as SVG or PNG.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Linear and 2D symbologies: Code 128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E, and QR Code."
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "Render a barcode into SVG output.\nRender a barcode into PNG output."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-6c3c6bc8",
+    "text": "Use PdfRenderer.render(symbol, layout, options) to obtain a RenderedArtifact containing PDF data for any encoded symbol.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PdfRenderer\n  Docstring: Render a barcode into PDF or another vector-friendly artifact.\n  Methods: render(symbol, layout, options) -> RenderedArtifact"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-5b09c52d",
+    "text": "Render a barcode to PNG by creating a PngRenderer and calling render(symbol, layout, options), which returns a RenderedArtifact with media_type \"image/png\".",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PngRenderer\n  Docstring: Render a barcode into PNG output.\n  Methods: render(symbol, layout, options) -> RenderedArtifact"
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RenderedArtifact\n  Docstring: Backend output produced by a renderer.\n  Properties: data, media_type, backend"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-2ef35cde",
+    "text": "Control visual appearance of rendered barcodes with RenderOptions, setting properties such as scale, dpi, foreground_color, background_color, quiet_zone, and show_text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RenderOptions\n  Docstring: User-supplied rendering options.\n  Properties: scale, dpi, module_width, module_height, quiet_zone, foreground_color, background_color, transparent_background, show_text, font_family"
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "svg = barcode.to_svg(options=RenderOptions(scale=2.0, show_text=True))\npng = barcode.to_png(options=RenderOptions(dpi=300, module_width=3.0))"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-4b3953d0",
+    "text": "Specify QR Code error correction level via QrOptions.error_correction_level using the QrErrorCorrectionLevel enum (L, M, Q, H).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: QrOptions\n  Docstring: Encoding options for QR Code.\n  Properties: error_correction_level, version, mask, encoding_mode, gs1_enabled, eci_assignment_number"
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: QrErrorCorrectionLevel\n  Docstring: Supported QR Code error correction levels.\n  Enum values: L, M, Q, H"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-4e2199b1",
+    "text": "Select the public QR encode mode with QrOptions.encoding_mode using QrEncodeMode enum values (AUTO, NUMERIC, ALPHANUMERIC, BYTE, KANJI).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: QrOptions\n  Properties: ... encoding_mode, ..."
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: QrEncodeMode\n  Docstring: Supported public QR Code encode-mode requests.\n  Enum values: AUTO, NUMERIC, ALPHANUMERIC, BYTE, KANJI"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-26ee0f7f",
+    "text": "If a symbology name is unknown, generate() raises SymbologyNotFoundError; catch this exception to handle invalid requests gracefully.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/error_handling.py",
+        "snippet": "try:\n    generate(\"datamatrix\", \"data\")  # unknown symbology\nexcept SymbologyNotFoundError as error:\n    print(f\"SymbologyNotFoundError: {error}\")"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-61f60dc7",
+    "text": "When input data does not satisfy a symbology’s requirements, the library raises InvalidInputError; validate inputs before calling the helper functions.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/error_handling.py",
+        "snippet": "try:\n    code128(\"\")  # empty input\nexcept InvalidInputError as error:\n    print(f\"InvalidInputError: {error}\")\n\ntry:\n    ean13(\"123\")  # wrong number of digits\nexcept InvalidInputError as error:\n    print(f\"InvalidInputError: {error}\")"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-ecd2aecc",
+    "text": "The SymbolMetadata class provides renderer‑neutral information such as the symbology name, normalized data, display text, and GS1/ECI flags.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SymbolMetadata\n  Docstring: Renderer-neutral metadata about an encoded symbol.\n  Properties: symbology, normalized_data, display_text, input_kind, gs1_enabled, eci_assignment_number"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-9e86f8f1",
+    "text": "Aspose.Barcode for Python enables developers to generate deterministic, standards‑compliant barcodes across linear and 2D symbologies using a pure‑Python API.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A pure-Python library for barcode generation. It produces deterministic, standards‑compliant barcodes and renders them as SVG or PNG."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-54f330b7",
+    "text": "All symbology definitions, parsers, encoders, and text policies are centrally managed by SymbologyRegistry, which looks up components by their canonical name or alias.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SymbologyRegistry ... Methods: get_definition(name) -> SymbologyDefinition; get_parser(name) -> InputParser; get_encoder(name) -> SymbologyEncoder; get_profile(name) -> SymbologyProfile; get_text_policy(name) -> TextLayoutPolicy; register(definition) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-789a1659",
+    "text": "Human‑readable text placement is provided by pluggable TextLayoutPolicy implementations such as UpcaTextLayoutPolicy and UpceTextLayoutPolicy.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UpcaTextLayoutPolicy ... Methods: create_layout(symbol, options) -> TextLayout"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UpceTextLayoutPolicy ... Methods: create_layout(symbol, options) -> TextLayout"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-23649ce8",
+    "text": "To encode a UPC‑A barcode, call UpcaEncoder.encode(payload, options) which returns an EncodedSymbol ready for rendering.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UpcaEncoder ... Methods: encode(payload, options) -> EncodedSymbol"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-9f84b79f",
+    "text": "UpcaInputParser.parse(data, options) validates raw UPC‑A input and returns a NormalizedPayload that can be passed to the encoder.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UpcaInputParser ... Methods: parse(data, options) -> NormalizedPayload"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-22dae13b",
+    "text": "UpcaOptions expose properties like allow_check_digit_input, gs1_enabled, and eci_assignment_number to control UPC‑A encoding behavior.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UpcaOptions ... Properties: allow_check_digit_input, gs1_enabled, eci_assignment_number"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-d1edb6d3",
+    "text": "SymbologyRegistry.get_encoder(name) returns the SymbologyEncoder implementation for the requested symbology, raising SymbologyNotFoundError if the name is unknown.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SymbologyRegistry ... Methods: get_encoder(name) -> SymbologyEncoder"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SymbologyNotFoundError ... Raised when a requested symbology is not registered."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-32529305",
+    "text": "If you request a symbology that is not registered, SymbologyNotFoundError is raised; ensure the name matches a key in SymbologyRegistry.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SymbologyNotFoundError ... Raised when a requested symbology is not registered."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-2d913aac",
+    "text": "When a symbology does not support a requested capability, UnsupportedCapabilityError is raised, indicating the operation is not available for that barcode type.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: UnsupportedCapabilityError ... Raised when a symbology does not support a requested capability."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-2337f115",
+    "text": "The `ean13` class produces an EAN‑13 barcode from a 12‑digit data string (the check digit is computed automatically).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "| EAN-13 | `ean13()` | 12 digits (check digit computed), or 13 with `allow_check_digit_input=True` |"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-7cc40146",
+    "text": "The `ean8` class generates an EAN‑8 barcode from a 7‑digit data string (the check digit is computed automatically).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "| EAN-8 | `ean8()` | 7 digits (check digit computed), or 8 with `allow_check_digit_input=True` |"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-bccc50e8",
+    "text": "The `compute_check_digit` function calculates the modulo‑10 check digit for EAN/UPC data strings.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class compute_check_digit\n  Docstring: Compute the modulo-10 EAN/UPC check digit for a string of data digits."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-6d7c8284",
+    "text": "The `checksum_char` function returns the base character whose modulo‑43 value matches a given integer (0–42).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class checksum_char\n  Docstring: Return the base character whose modulo-43 value equals *value* (0–42)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-9cc1774e",
+    "text": "The library groups QR‑code utilities that let developers compute bit lengths, build data codewords, and assemble final QR grids.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "Classes: alphanumeric_data_bits, byte_count_bits, byte_data_bits, count_indicator_bits, data_codewords, block_structure, build_data_codewords, build_function_patterns, apply_mask, assemble"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-e17162d5",
+    "text": "The `alphanumeric_data_bits` function returns the QR alphanumeric payload bit length (11 bits per character pair plus 6 bits for a trailing single).",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class alphanumeric_data_bits\n  Docstring: Return the alphanumeric data-bit length for n chars: 11 bits / pair, +6 for a trailing single."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-606b8933",
+    "text": "The `byte_data_bits` function returns 8 bits for each byte in QR byte‑mode encoding.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class byte_data_bits\n  Docstring: Return the byte-mode data-bit length for n bytes: 8 bits each."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-9d70c786",
+    "text": "The `byte_count_bits` function reports the QR byte‑mode character‑count indicator length (8 bits for versions 1‑9, 16 bits for versions 10‑40).",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class byte_count_bits\n  Docstring: Return the byte-mode character-count indicator bit length: 8 for v1-9, 16 for v10-40."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-3aa8fa1c",
+    "text": "The `data_codewords` function returns the total number of data codewords for a specific QR version and error‑correction level.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class data_codewords\n  Docstring: Return the number of data codewords for the (version, ECC) symbol."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-8d55e913",
+    "text": "The `block_structure` function provides the QR block distribution as a list of (count, data_per_block) tuples for a given version and ECC.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class block_structure\n  Docstring: Return the block structure as [(count, data_per_block), ...] for the (version, ECC) symbol."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-6bd7f529",
+    "text": "The `build_data_codewords` function assembles the ordered data‑codeword list for a QR symbol from its data segments.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class build_data_codewords\n  Docstring: Assemble the data-codeword list for the (version, ECC) symbol from an ordered segment list."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-20d6b7ca",
+    "text": "The `build_function_patterns` function creates the QR function‑pattern map and reservation layout for a given version.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class build_function_patterns\n  Docstring: Build the function patterns and reservation map for ``version``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-81477979",
+    "text": "The `apply_mask` function returns a new QR grid with non‑function modules XOR‑toggled wherever a mask predicate evaluates true.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.83,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class apply_mask\n  Docstring: Return a NEW grid with every non-function module XOR-toggled where the mask predicate holds."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-0bf4483e",
+    "text": "The `assemble` function builds the final immutable QR grid for a specified version, error‑correction level, and mask pattern.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.82,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.py",
+        "snippet": "class assemble\n  Docstring: Assemble the final immutable QR grid for ``version``/``ecc_letter``/``mask``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-92a7f72d",
+    "text": "The generate function creates a barcode for the requested symbology by name.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: generate\n  Docstring: Create a barcode for the requested symbology."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-60f837ae",
+    "text": "The kanji_data_bits function returns the data‑bit length (13 bits per character) for a given number of Kanji characters, and kanji_value packs a Shift‑JIS code into its 13‑bit representation.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: kanji_data_bits\n  Docstring: Return the Kanji data-bit length for n Kanji characters: 13 bits each."
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: kanji_value\n  Docstring: Return the 13-bit packed Kanji value for a Shift-JIS code C."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-10692448",
+    "text": "format_info returns the 15‑character MSB‑first format‑information bit string for a specified error‑correction level and mask.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: format_info\n  Docstring: Return the 15-char MSB-first format-information bit string for ``ecc_letter``/``mask``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-617fd85d",
+    "text": "ec_per_block returns the number of error‑correction codewords per block for a given QR version and ECC level.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ec_per_block\n  Docstring: Return the number of EC codewords per block for the (version, ECC) symbol."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-e1ef02bb",
+    "text": "encode_digit returns the flat 0/1 module sequence for a digit within the specified number set.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: encode_digit\n  Docstring: Return the flat 0/1 module sequence for *digit* in *number_set*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-b9f3748d",
+    "text": "emit_segment appends the mode indicator, count indicator, and data bits for a segment to the bit stream in order.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: emit_segment\n  Docstring: Append mode indicator + count indicator + data bits for segment to bits (in order)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-4c8838d9",
+    "text": "The `symbol_size` class returns the side length of a QR symbol in modules, calculated as 4 × version + 17.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: symbol_size\n  Docstring: Return the module side length of a QR symbol: 4*version + 17 (v1=21 .."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-491d1b9e",
+    "text": "The `total_codewords` class returns the total number of data and error‑correction codewords for a given version and ECC level.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: total_codewords\n  Docstring: Return the total (data + EC) codeword count for the (version, ECC) symbol."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-6ede5f0b",
+    "text": "The `segment_data_bits` class returns the data‑bit length of a segment, excluding mode and count indicators.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: segment_data_bits\n  Docstring: Return the data-bit length of segment (excluding the 4-bit mode + count indicator)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-dc626726",
+    "text": "The `segment_total_bits` class returns the full bit length of a segment, including the 4‑bit mode and count indicator.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: segment_total_bits\n  Docstring: Return the full segment bit length: 4 (mode) + count_indicator_bits + data bits."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-f03a64df",
+    "text": "The `segments_bit_length` class returns the total data‑bit length of all segments for a given QR version, including headers and counts.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: segments_bit_length\n  Docstring: Return the total data-bit length of segments at version (headers + counts + data)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-566a4cc3",
+    "text": "The `numeric_data_bits` class calculates the number of data bits required to encode a numeric string of length n.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: numeric_data_bits\n  Docstring: Return the numeric data-bit length for n digits: 10 bits / group of 3, +7 or +4 tail."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-f1d4c3b4",
+    "text": "The `shift_jis_double_byte` class returns the big‑endian Shift‑JIS code for a Kanji‑encodable character, or None otherwise.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: shift_jis_double_byte\n  Docstring: Return the big-endian Shift-JIS code C if ch is Kanji-encodable, else None."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-6ebe2a97",
+    "text": "The `penalty_n1` class calculates the N1 penalty for runs of five or more same‑colour modules in rows and columns.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: penalty_n1\n  Docstring: N1: for each row and each column, every run of >=5 same-colour adds 3 + (runLength - 5)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-ede59f77",
+    "text": "The `penalty_n2` class calculates the N2 penalty for each overlapping 2×2 block of identical colour modules.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: penalty_n2\n  Docstring: N2: each 2x2 block of one colour adds 3 (every overlapping 2x2 sub-block counted)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-592ef2c1",
+    "text": "The `penalty_n3` class adds a penalty of 40 for each occurrence of the pattern `10111010000` or its inverse in any row or column.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: penalty_n3\n  Docstring: N3: each occurrence of `10111010000` or `00001011101` in any row/column adds 40."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-d4526112",
+    "text": "The `penalty_n4` class penalises deviation of the dark module ratio from 50 % by adding 10 × k, where k is the nearest 5 % step.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: penalty_n4\n  Docstring: N4: dark-ratio deviation from 50%; add 10*k for k = min(|prev-50|, |next-50|) // 5."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-b5a1211d",
+    "text": "The `remainder_bits` class returns the number of bits appended after data placement for a given QR version.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: remainder_bits\n  Docstring: Return the number of remainder bits appended after data placement for the version."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-0a5f6948",
+    "text": "The Aspose.Barcode library lets developers generate UPC‑A barcodes using the upca class.",
+    "kind": "feature",
+    "page_role": "products",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: upca\n  Docstring: Create a UPC-A barcode."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-d5857309",
+    "text": "write_format_info takes a 15‑bit format string and writes it into both reserved areas of a QR matrix, returning the mutated matrix.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: write_format_info\n  Docstring: Write the 15-bit format-information string into both reserved areas in order (mutates/returns)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-barcode-python-3b8a7ab0",
+    "text": "write_version_info mutates the QR matrix to embed the 18‑bit version information for versions 7 and above.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: write_version_info\n  Docstring: Write the 18-bit version-information string into both reserved 3x6 blocks in order (v>=7)."
+      }
+    ],
+    "provenance": "enriched"
+  }
+]

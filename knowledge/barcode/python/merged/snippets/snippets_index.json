@@ -1,0 +1,1296 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/api/test_api_entrypoints.py",
+    "source_function": "test_generate_delegates_to_the_default_service",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/api/test_api_entrypoints.py",
+    "source_function": "test_symbology_helpers_delegate_with_canonical_ids",
+    "source_line": 69,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_rejects_blank_and_non_string_symbologies",
+    "source_line": 186,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [
+      "BarcodeService.generate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_runs_parse_before_encode_and_forwards_encode_options",
+    "source_line": 199,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_returns_barcode_with_normalized_render_options",
+    "source_line": 216,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_default_barcode_service_generates_and_renders_ean_upc_symbols",
+    "source_line": 249,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_rejects_invalid_render_options_before_running_pipeline",
+    "source_line": 269,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_wraps_parser_not_implemented_errors",
+    "source_line": 281,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_wraps_encoder_not_implemented_errors",
+    "source_line": 300,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_propagates_typed_domain_errors",
+    "source_line": 330,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_generate_returns_a_public_code128_barcode",
+    "source_line": 13,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_code128_helper_returns_a_public_code128_barcode",
+    "source_line": 22,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_code128_public_result_renders_to_svg",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_returns_definitions_for_canonical_names",
+    "source_line": 108,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition",
+      "SymbologyRegistry.get_encoder",
+      "SymbologyRegistry.get_parser",
+      "SymbologyRegistry.get_profile",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_returns_definitions_for_aliases",
+    "source_line": 124,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_raises_for_unknown_names",
+    "source_line": 138,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_rejects_duplicate_canonical_names",
+    "source_line": 146,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_rejects_duplicate_aliases",
+    "source_line": 155,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_derives_text_policy_from_the_profile",
+    "source_line": 164,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_profile",
+      "SymbologyRegistry.get_text_policy",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_default_registry_bootstrap_registers_canonical_names_and_aliases",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_default_service_bootstrap_wires_registry_and_options_resolver",
+    "source_line": 209,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [
+      "SymbologyRegistry.get_definition"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_golden_modules",
+    "source_line": 53,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_additional_code_set_b_golden_modules",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_reference_behavior_vectors",
+    "source_line": 84,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_auto_encodes_single_space_via_code_set_b",
+    "source_line": 91,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_supports_code_set_b_compatible_modes",
+    "source_line": 120,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_invalid_payload_contract",
+    "source_line": 167,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_unsupported_text_characters",
+    "source_line": 180,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_reference_invalid_text_cases",
+    "source_line": 193,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_c_non_digit_input",
+    "source_line": 201,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_code_set_c_golden_vectors",
+    "source_line": 213,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_code_set_a_golden_vectors",
+    "source_line": 226,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_fnc_golden_vectors",
+    "source_line": 247,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_auto_switching_golden_vectors",
+    "source_line": 265,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_c_odd_length_input",
+    "source_line": 273,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_a_lowercase",
+    "source_line": 279,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_auto_del_character",
+    "source_line": 285,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_accepts_supported_text_and_option_forms",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_bytes_input",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_preserves_supported_whitespace_verbatim",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_preserves_supported_typed_encode_modes",
+    "source_line": 66,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_unsupported_capabilities",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_empty_text",
+    "source_line": 92,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_text_that_conflicts_with_the_requested_mode",
+    "source_line": 107,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_accepts_control_characters_in_auto_mode",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_non_enum_encode_modes",
+    "source_line": 137,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_unsupported_option_containers",
+    "source_line": 144,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/encoding/test_code39_golden_vectors.py",
+    "source_function": "test_code39_encoder_matches_golden_modules",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [
+      "Code39Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/encoding/test_code39_golden_vectors.py",
+    "source_function": "test_code39_encoder_renders_display_text",
+    "source_line": 48,
+    "classes_used": [],
+    "methods_used": [
+      "Code39Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_base_text_with_full_payload_equality",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_every_base_sub_group",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_uses_definition_full_ascii_default",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_option_override_enables_full_ascii_on_base_definition",
+    "source_line": 58,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_option_override_disables_full_ascii_on_ext_definition",
+    "source_line": 65,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_carries_check_digit_request",
+    "source_line": 72,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_defaults_check_digit_to_false",
+    "source_line": 79,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_plain_encode_options_container",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_bytes_input",
+    "source_line": 94,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_empty_text",
+    "source_line": 100,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_unsupported_capabilities",
+    "source_line": 113,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_base_out_of_set_characters",
+    "source_line": 130,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_non_ascii_in_full_ascii_mode",
+    "source_line": 136,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_star_in_full_ascii_mode",
+    "source_line": 142,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_preserves_whitespace_verbatim",
+    "source_line": 150,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_unsupported_option_containers",
+    "source_line": 160,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row0_matches_golden_module_string",
+    "source_line": 28,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_matrix_dimensions",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row_heights_match_iso_constants",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row1_guard_extension_mask",
+    "source_line": 54,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_metadata_fields",
+    "source_line": 64,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_computes_check_digit_from_12_digit_input",
+    "source_line": 13,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_second_known_12_digit_value",
+    "source_line": 20,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_13_digit_input_when_flag_is_set",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_encode_options_base_type",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_bytes_input",
+    "source_line": 44,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_string_input",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_empty_string",
+    "source_line": 56,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_whitespace_only_string",
+    "source_line": 62,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_digit_characters_and_reports_position",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_digit_characters_at_first_position",
+    "source_line": 74,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_ascii_digits",
+    "source_line": 80,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_wrong_length",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_various_wrong_lengths",
+    "source_line": 93,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_13_digit_input_without_flag",
+    "source_line": 100,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_wrong_check_digit_when_flag_is_set",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_unsupported_capabilities",
+    "source_line": 122,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_unsupported_option_containers",
+    "source_line": 132,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row0_matches_golden_module_string",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_matrix_dimensions",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row_heights_match_iso_constants",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row1_guard_extension_mask",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_metadata_fields",
+    "source_line": 54,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_computes_check_digit_from_7_digit_input",
+    "source_line": 13,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_computes_check_digit_for_second_value",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_accepts_8_digit_input_when_flag_is_set",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_accepts_encode_options_base_type",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_bytes_input",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_non_string_input",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_empty_string",
+    "source_line": 49,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_whitespace_only_string",
+    "source_line": 55,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
