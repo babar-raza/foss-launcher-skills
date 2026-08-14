@@ -1,0 +1,407 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.rs",
+    "source_file": "samples/basic.rs",
+    "source_function": "main",
+    "source_line": 8,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.display_string_value",
+      "Cell.value_type",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save",
+      "Workbook.worksheet"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.rs",
+    "source_file": "samples/charts.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Column",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Chart.get_chart_type",
+      "Chart.get_lower_right_column",
+      "Chart.get_lower_right_row",
+      "Chart.get_name",
+      "Chart.get_upper_left_column",
+      "Chart.get_upper_left_row",
+      "Chart.set_name",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.rs",
+    "source_file": "samples/comments.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Comment",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Comment.get_author",
+      "Comment.get_is_visible",
+      "Comment.get_note",
+      "Comment.set_author",
+      "Comment.set_height",
+      "Comment.set_is_visible",
+      "Comment.set_note",
+      "Comment.set_width",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.rs",
+    "source_file": "samples/conditional_formatting.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "CellValue",
+      "Color",
+      "Fill",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "OperatorType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_style",
+      "Cell.get_type",
+      "CellValue.get_type",
+      "FormatCondition.get_icon_set_type",
+      "FormatCondition.get_style",
+      "FormatCondition.get_type",
+      "FormatCondition.set_bar_color",
+      "FormatCondition.set_color_scale_count",
+      "FormatCondition.set_direction",
+      "FormatCondition.set_icon_set_type",
+      "FormatCondition.set_max_color",
+      "FormatCondition.set_mid_color",
+      "FormatCondition.set_min_color",
+      "FormatCondition.set_negative_bar_color",
+      "FormatCondition.set_priority",
+      "FormatCondition.set_reverse_icons",
+      "FormatCondition.set_show_border",
+      "FormatCondition.set_show_icon_only",
+      "FormatCondition.set_stop_if_true",
+      "FormatCondition.set_style",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.rs",
+    "source_file": "samples/document_properties.rs",
+    "source_function": "main",
+    "source_line": 8,
+    "classes_used": [
+      "Comment",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Comment.get_author",
+      "Comment.set_author",
+      "Workbook.get_document_properties",
+      "Workbook.get_document_properties_mut",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.rs",
+    "source_file": "samples/hyperlinks_and_names.rs",
+    "source_function": "main",
+    "source_line": 10,
+    "classes_used": [
+      "Cell",
+      "Font",
+      "FontUnderlineType",
+      "Hyperlink",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_style",
+      "Font.set_color",
+      "Font.set_name",
+      "Font.set_underline",
+      "Hyperlink.get_address",
+      "Hyperlink.get_area",
+      "Hyperlink.set_screen_tip",
+      "Hyperlink.set_text_to_display",
+      "Workbook.get_defined_names",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.rs",
+    "source_file": "samples/list_objects.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Column",
+      "TableStyleType",
+      "TotalsCalculation",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.rs",
+    "source_file": "samples/loading.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "LoadOptions",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.get_load_diagnostics",
+      "Workbook.get_worksheets",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save",
+      "Workbook.worksheet"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.rs",
+    "source_file": "samples/pagesetup.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "PageOrientation",
+      "PageOrientationType",
+      "PaperSizeType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.get_worksheets_mut",
+      "Workbook.save",
+      "Workbook.worksheet_at"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.rs",
+    "source_file": "samples/pictures.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Picture",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Picture.get_image_type",
+      "Picture.get_lower_right_column",
+      "Picture.get_lower_right_row",
+      "Picture.get_name",
+      "Picture.get_upper_left_column",
+      "Picture.get_upper_left_row",
+      "Picture.set_lower_right_column",
+      "Picture.set_name",
+      "Picture.set_upper_left_column",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.rs",
+    "source_file": "samples/shapes.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "AutoShapeType",
+      "Shape",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Shape.get_auto_shape_type",
+      "Shape.get_name",
+      "Shape.set_name",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.rs",
+    "source_file": "samples/styles.rs",
+    "source_function": "main",
+    "source_line": 11,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.get_worksheets_mut",
+      "Workbook.save",
+      "Workbook.worksheet"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.rs",
+    "source_file": "samples/validations.rs",
+    "source_function": "main",
+    "source_line": 9,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "OperatorType",
+      "Validation",
+      "ValidationAlertType",
+      "ValidationType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.get_type",
+      "Validation.add_area",
+      "Validation.get_formula1",
+      "Validation.get_formula2",
+      "Validation.get_type",
+      "Validation.set_alert_style",
+      "Validation.set_error_message",
+      "Validation.set_error_title",
+      "Validation.set_formula1",
+      "Validation.set_formula2",
+      "Validation.set_ignore_blank",
+      "Validation.set_in_cell_drop_down",
+      "Validation.set_input_message",
+      "Validation.set_input_title",
+      "Validation.set_operator",
+      "Validation.set_show_error",
+      "Validation.set_show_input",
+      "Validation.set_type",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.rs",
+    "source_file": "samples/worksheet_settings.rs",
+    "source_function": "main",
+    "source_line": 7,
+    "classes_used": [
+      "Color",
+      "Column",
+      "Row",
+      "VisibilityType",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Column.get_width",
+      "Row.get_height",
+      "Workbook.get_protection_mut",
+      "Workbook.get_worksheets",
+      "Workbook.get_worksheets_mut",
+      "Workbook.protect",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 75,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Cell.display_string_value",
+      "Workbook.get_worksheets_mut",
+      "Workbook.save",
+      "Workbook.worksheet"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "format": "Xlsx",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/Aspose.Cells_FOSS/LoadFormat.rs",
+    "line": 3,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Xlsx",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Cells_FOSS/SaveFormat.rs",
+    "line": 3,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Cells_FOSS/Workbook.rs",
+    "line": 508,
+    "direction": "export"
+  }
+]

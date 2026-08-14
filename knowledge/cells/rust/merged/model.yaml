@@ -1,0 +1,21 @@
+family: cells
+platform: rust
+product_name: aspose-cells-foss-rust
+version: 26.7.0
+license: MIT
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git
+repo_sha: 0339b7e7dcb65c3ac0f77ddbe0effb69c83f0e2e
+config_sha: 5676a5ada3d9dda2
+stale_since: null
+promoted_at: '2026-07-25T05:22:53.286822+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 2153
+  enriched_claims: 93
+  supplemental_claims: 0
+  total_claims: 1926
+  class_count: 213
+  forbidden_count: 0
+  snippet_count: 15
