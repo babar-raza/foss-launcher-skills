@@ -413,8 +413,11 @@ scripts:
       ref: launch-product
     test_targets:
       - scripts/pipeline/tests/test_launch_gate.py
+      - scripts/pipeline/tests/test_launch_gate_l16.py
+      - scripts/pipeline/tests/test_freshness_guard_migration.py
     deprecated_since: null
     notes: "pre-launch readiness checker; 8 automated gates (L-01 through L-08)"
+    change_impact: "FRESH-001 (2026-08-14, T7): L-01/L-06 migrated from a raw model.yaml stale_since read to the shared freshness_guard.is_generation_allowed(mode='degraded') gate -- highest-blast-radius call site, migrated last, behavioral equivalence verified before merge."
 
   - path: scripts/pipeline/commands/launch/readiness_scorecard.py
     kind: entrypoint
@@ -442,10 +445,11 @@ scripts:
     backing:
       kind: workflow
       ref: system-heal
-    test_targets: ["scripts/pipeline/tests/test_readiness_gate.py"]
+    test_targets: ["scripts/pipeline/tests/test_readiness_gate.py", "scripts/pipeline/tests/test_freshness_guard_migration.py"]
     requires_test: false
     deprecated_since: null
     notes: "TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict"
+    change_impact: "FRESH-001 (2026-08-14, T7): G-04 migrated from a raw model.yaml stale_since read to the shared freshness_guard.is_generation_allowed(mode='degraded') gate -- highest-blast-radius call site, migrated last, behavioral equivalence verified before merge."
 
   - path: scripts/pipeline/commands/diagnostics/human_review_sampler.py
     kind: entrypoint
@@ -533,8 +537,12 @@ scripts:
       ref: truth-merge
     test_targets:
       - scripts/pipeline/tests/test_merge_determinism.py
+      - scripts/pipeline/tests/test_promote_integration.py
+      - scripts/pipeline/tests/test_promote_preserves_history.py
+      - scripts/pipeline/tests/test_promote_semantic_dedup.py
+      - scripts/pipeline/tests/test_promote_atomic.py
     deprecated_since: null
-    notes: "scout → merged knowledge promotion; replaces deleted merge.py"
+    notes: "scout → merged knowledge promotion; replaces deleted merge.py. FRESH-001 (2026-08-14): schema v2 provenance fields (generator_fingerprint, bundle_id, input_hashes), formats.md provenance header, and promote_atomic() -- staged-then-swap atomic promotion via an isolated merged.staging.{bundle_id}/ dir, self-verified against bundle_manifest.json before swap. Ships atomic-by-default (PROMOTE_ATOMIC_BUNDLE env var / --no-atomic CLI flag to opt out). See promote_recover.py for the paired recovery tool."
 
   - path: scripts/pipeline/commands/knowledge/refresh_knowledge.py
     kind: entrypoint
@@ -548,9 +556,10 @@ scripts:
       ref: knowledge-update
     test_targets:
       - scripts/pipeline/tests/test_refresh_knowledge.py
+      - scripts/pipeline/tests/test_refresh_knowledge_regen_lock.py
     deprecated_since: null
     requires_test: true
-    change_impact: "HIGH: pipeline orchestrator; controls scout→enrich→promote→index sequencing"
+    change_impact: "HIGH: pipeline orchestrator; controls scout→enrich→promote→index sequencing. FRESH-001 (2026-08-14): the chain now runs under knowledge_regen_lock.acquire_regen_lock() (T4) -- lock contention degrades to a 'failed' return instead of racing another concurrent refresh for the same product."
     notes: "knowledge pipeline orchestrator; runs scout → enrich → promote → index"
 
   - path: scripts/pipeline/commands/ops/refresh_review.py
@@ -629,9 +638,10 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_batch_reference.py
       - tests/test_batch_reference.py
+      - scripts/pipeline/tests/test_freshness_guard_migration.py
     requires_test: true
     deprecated_since: null
-    change_impact: null
+    change_impact: "FRESH-001 (2026-08-14, T7): the stale-knowledge STOP check migrated from a raw model.yaml stale_since read to the shared freshness_guard.is_generation_allowed(mode='degraded') gate -- lowest-blast-radius call site, migrated first, behavioral equivalence verified before merge."
     notes: "batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty; --update flag regenerates only classes in knowledge_delta.json modified_apis"
 
   - path: scripts/pipeline/commands/content/run_content_eval.py
@@ -1196,9 +1206,9 @@ scripts:
       kind: internal
       ref: null
     requires_test: true
-    test_targets: [scripts/pipeline/tests/test_refresh_run.py, scripts/pipeline/tests/test_schema_validators_refresh.py]
+    test_targets: [scripts/pipeline/tests/test_refresh_run.py, scripts/pipeline/tests/test_schema_validators_refresh.py, scripts/pipeline/tests/test_freshness_guard_migration.py]
     deprecated_since: null
-    change_impact: "Refresh recovery control plane: binds S-84 stages to one explicit run_id, pre-refresh Git base, source/model SHAs, product lock, session owner, progressive schema-v3 manifest, legal state transitions, run-scoped scope/receipt/decision paths, blocking validation, and commit trailers. Local reports remain operational state; Git/source remain authoritative."
+    change_impact: "Refresh recovery control plane: binds S-84 stages to one explicit run_id, pre-refresh Git base, source/model SHAs, product lock, session owner, progressive schema-v3 manifest, legal state transitions, run-scoped scope/receipt/decision paths, blocking validation, and commit trailers. Local reports remain operational state; Git/source remain authoritative. FRESH-001 (2026-08-14, T7): _model_state() migrated from a raw stale_since read to the shared freshness_guard.is_generation_allowed(mode='degraded') gate, preserving its exact return-dict/raise contract."
     notes: "Official S-84 execution boundary. Commands: start, run, resume, verify, status, bind-commit, abandon."
 
   - path: scripts/pipeline/commands/ops/refresh_run_forensics.py
@@ -1274,6 +1284,34 @@ scripts:
     test_targets: [scripts/pipeline/tests/test_advisory_lock.py]
     deprecated_since: null
     change_impact: "HARDEN-A1 (2026-07-22, new file): shared advisory FileLock extracted from baseline_ledger.py's RPR-C-01 lock, plus pid-liveness fast steal (verifiably-dead holder stolen immediately, not after the stale window). Consumed by baseline_ledger.py, session_ledger.py, skill_context.py, project_phase_store.py."
+  - path: scripts/pipeline/lib/freshness_guard.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_freshness_guard.py, scripts/pipeline/tests/test_freshness_guard_migration.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): single source of truth for knowledge-bundle freshness -- 8-state model (CURRENT/STALE/REFRESHING/REFRESH_FAILED/UPSTREAM_UNAVAILABLE/PROVENANCE_MISSING/CORRUPT/LAST_KNOWN_GOOD) with strict/degraded/offline modes, replacing every ad hoc `model.yaml['stale_since'] is not None` check across batch_reference.py, refresh_run.py, launch_gate.py, readiness_gate.py. resolve_baseline() collapses the 3-independently-writable-baseline problem: model.yaml (now git-tracked) is canonical; upstream_baselines.json/knowledge_state.json are regenerated projections, consulted as fallback and cross-checked for CORRUPT (disagreement), not trusted blindly."
+  - path: scripts/pipeline/lib/knowledge_regen_lock.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_knowledge_regen_lock.py, scripts/pipeline/tests/test_refresh_knowledge_regen_lock.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): thin owner-labelled wrapper over advisory_lock.FileLock guarding the full scout->enrich->promote->index chain per product (knowledge/{family}/{platform}/merged/.regen.lock), closing the gap where refresh_knowledge.py's own merged/<->merged.bak backup-restore around that chain had no lock at all. Wired into refresh_knowledge.py's refresh() -- the single convergence point every caller (manual /knowledge-update, refresh_run.py subprocess, S-90's skill-level invocation, scheduled bounded-auto-regen) already goes through."
   - path: scripts/pipeline/lib/bundle_manifest.py
     kind: library
     lifecycle: active
@@ -1288,6 +1326,34 @@ scripts:
     test_targets: [scripts/pipeline/tests/test_bundle_manifest.py]
     deprecated_since: null
     change_impact: "FRESH-001 (2026-08-14, new file): provenance schema v2 -- generator_fingerprint() over an explicit curated pipeline-file list (reusing freshness_manifest.compute_output_content_hash's hashing recipe) plus compute_bundle_manifest()/verify_bundle_manifest(), the atomicity boundary tying model.yaml+api_surface.json+formats.md/.json+claims.json together as one bundle with one shared repo_sha. Consumed by promote.py (writer), freshness_guard.py, promote_recover.py."
+  - path: scripts/pipeline/commands/ops/bounded_auto_regen.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_bounded_auto_regen.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): selector for the closed-loop scheduled workflow (T10) -- LOW/MEDIUM-impact products only, capped at 3/run, oldest-flagged-first, skip (never block) on regen-lock contention. HIGH impact always routes to check_upstream_drift.py's deduped issue instead. regen/lock/commit callables are injectable so the orchestration logic is fully unit-tested without invoking the real S-12->S-14 chain or git_plumb_commit.py."
+  - path: scripts/pipeline/commands/ops/promote_recover.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_promote_recover.py]
+    deprecated_since: null
+    change_impact: "FRESH-001 (2026-08-14, new file): detects and corrects the 3 well-defined interrupted-swap states (STATE_A/B/C, see docs/workflows/knowledge-bundle-recovery.md) a knowledge/{family}/{platform}/ product directory can be left in if promote_atomic() (promote.py) is interrupted mid-swap. Runs automatically as promote_atomic()'s own first step; also a standalone CLI for manual inspection (--dry-run) and repair."
   - path: scripts/pipeline/commands/ops/regen_baseline_projections.py
     kind: entrypoint
     lifecycle: active

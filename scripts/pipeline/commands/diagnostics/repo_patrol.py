@@ -51,6 +51,12 @@ from pathlib import Path
 _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/diagnostics/ -> commands/ -> pipeline/
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
+# FRESH-001 (2026-08-14): unconditional (not inside configure()) so bare imports of
+# freshness_guard resolve even when configure() is never explicitly called, which is
+# the normal production case -- module-level REPO_ROOT/etc. below are used directly.
+_LIB_DIR = _PIPELINE_DIR / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
 
 from core.env_loader import load_env  # noqa: E402
 load_env()
@@ -78,6 +84,26 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
     KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
     REPORTS_DIR = REPO_ROOT / "reports" / "discovery"
     HISTORY_DIR = REPORTS_DIR / "history"
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- see batch_reference.py for the same
+    # pattern/rationale. _get_stored_sha() below delegates to it. Imported as a bare
+    # "freshness_guard" (matching batch_reference.py/refresh_run.py/launch_gate.py/
+    # readiness_gate.py's import style) so all call sites share the SAME sys.modules
+    # entry -- importing it as `lib.freshness_guard` instead would create a second,
+    # independently-configured module object and silently break this propagation.
+    #
+    # IMPORTANT: the sys.path entry for lib/ must come from this FILE's own real
+    # location (__file__), never from REPO_ROOT -- that is test-overridable to a
+    # fake product-data root and does not point at the actual pipeline code
+    # location, which is fixed regardless of what repo_root a test configures.
+    try:
+        real_lib_dir = str(_PIPELINE_DIR / "lib")  # _PIPELINE_DIR = scripts/pipeline/ (module-top constant)
+        if real_lib_dir not in sys.path:
+            sys.path.insert(0, real_lib_dir)
+        import freshness_guard as _freshness_guard
+        _freshness_guard.configure(repo_root=REPO_ROOT)
+    except ImportError:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -801,40 +827,55 @@ def cmd_sweep() -> dict:
 def _get_stored_sha(family: str, platform: str) -> str | None:
     """Resolve the stored baseline SHA for a product.
 
-    MT030-2026-08-13: reads data/upstream_baselines.json first (git-committed,
-    survives a fresh clone) and falls back to the local model.yaml scalar
-    (gitignored) only when no durable entry exists yet. Before this fix,
-    upstream_baselines.json (the file the SCHEDULED .github/workflows/
-    upstream-monitor.yml cron actually reads) had zero writers anywhere in the
-    codebase and stayed frozen at whatever SHA it was seeded with -- confirmed
-    live on pdf/java, still "39c9840f..." (pre-2026-07-16) after two real
-    refreshes moved model.yaml's repo_sha on to "be089a7e...". The cron path and
-    this sweep path were silently comparing against two different, mutually
-    unreconciled baselines. promote.py now writes both at the same acceptance
-    choke point (knowledge_state.update_upstream_baseline), so this is a
-    reconciliation fix, not a new source of truth.
+    FRESH-001 (2026-08-14): delegates to freshness_guard.resolve_baseline() --
+    behavior-preserving refactor of the resolution LOGIC (still tries the same
+    sources, in an order that is now intentionally different, see below), not a
+    new source of truth. Previously this function duplicated its own ad hoc
+    2-source priority (data/upstream_baselines.json first, model.yaml scalar
+    fallback -- the MT030-2026-08-13 fix for pdf/java's frozen-baseline
+    incident). Now that merged/model.yaml is git-tracked (T0/T2), it is the
+    canonical writer and is checked FIRST; upstream_baselines.json and
+    knowledge_state.json are regenerated projections consulted as fallback (see
+    freshness_guard.py's module docstring for the full collapsed-resolution
+    rationale). This is an intentional priority flip, not a regression: the
+    MT030 fix made upstream_baselines.json take priority specifically because
+    model.yaml was NOT durable at the time; now that it is, the durability
+    argument for preferring the projection over the source no longer applies.
     """
+    sha, _source = _resolve_stored_sha_via_freshness_guard(family, platform)
+    return sha
+
+
+def _resolve_stored_sha_via_freshness_guard(family: str, platform: str) -> tuple[str | None, str]:
+    try:
+        from freshness_guard import resolve_baseline
+        return resolve_baseline(family, platform)
+    except ImportError:
+        pass
+
+    # Fallback if freshness_guard is unimportable for some reason (should not
+    # happen in a correctly configured checkout) -- preserves old behavior
+    # rather than returning None outright.
     try:
         baselines = json.loads(UPSTREAM_BASELINES_PATH.read_text(encoding="utf-8"))
         val = baselines.get(f"{family}/{platform}")
         if val:
-            return val
+            return val, "upstream_baselines.json"
     except (OSError, json.JSONDecodeError):
-        pass  # fall through to the local model.yaml scalar
-
+        pass
     model_path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
     if not model_path.is_file():
-        return None
+        return None, "none"
     try:
         text = model_path.read_text(encoding="utf-8")
         for line in text.splitlines():
             stripped = line.strip()
             if stripped.startswith("repo_sha:"):
                 val = stripped.split(":", 1)[1].strip().strip("'\"")
-                return val if val else None
-        return None
+                return (val, "model.yaml") if val else (None, "none")
+        return None, "none"
     except OSError:
-        return None
+        return None, "none"
 
 
 def _classify_impact(

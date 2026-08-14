@@ -45,6 +45,17 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 _REGISTRY_PATH = REPO_ROOT / "data" / "products.json"
 
+# FRESH-001 (2026-08-14): this module previously had no sys.path bootstrap of its
+# own (relies entirely on being invoked with PYTHONPATH=scripts/pipeline set), which
+# is enough for scripts/pipeline/{core,commands,...} subpackage imports but NOT for
+# bare imports of lib/ modules like knowledge_regen_lock (used in refresh() below) --
+# scripts/pipeline/lib itself is never on sys.path from PYTHONPATH alone. Unconditional
+# (not test-only) so this works identically under pytest (where conftest.py already
+# adds lib/, making this a harmless no-op) and in real CLI/subprocess invocation.
+_LIB_DIR = _DEFAULT_REPO_ROOT / "scripts" / "pipeline" / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+
 
 def configure(
     *,
@@ -840,6 +851,40 @@ def refresh(
     # Auto-set stale_since before running the pipeline (records when refresh started).
     _set_stale_since(family, platform)
 
+    # FRESH-001 (2026-08-14, T4): the scout->enrich->promote->index chain (including
+    # this function's own merged/<->merged.bak backup-restore around it) previously had
+    # NO lock -- two concurrent refresh_knowledge.py invocations for the same product
+    # (manual /knowledge-update, S-90's auto-refresh, and now the scheduled
+    # bounded-auto-regen path) could race on the same merged/merged.bak directories.
+    # Held for the whole chain, not per-step; acquired BEFORE refresh_run.py's own
+    # content-refresh lock is ever taken (fixed ordering, documented in
+    # knowledge_regen_lock.py, to prevent deadlock).
+    from knowledge_regen_lock import acquire_regen_lock, LockTimeout as RegenLockTimeout
+    try:
+        with acquire_regen_lock(family, platform, owner="refresh-knowledge",
+                                 knowledge_root=KNOWLEDGE_ROOT):
+            return _run_refresh_chain(family, platform, clone, head, current,
+                                       compulsory_enrich=compulsory_enrich, skip_enrich=skip_enrich)
+    except RegenLockTimeout:
+        print(f"  {family}/{platform}: another process is already refreshing this "
+              f"product's knowledge (regen lock busy) — skipping this run")
+        return "failed"
+
+
+def _run_refresh_chain(
+    family: str,
+    platform: str,
+    clone: Path,
+    head: str,
+    current: "str | None",
+    *,
+    compulsory_enrich: bool,
+    skip_enrich: bool,
+) -> str:
+    """The scout -> enrich -> promote -> index chain, run under refresh()'s regen
+    lock. Extracted to its own function (unchanged body) purely so refresh() can wrap
+    the call in a `with acquire_regen_lock(...):` block without re-indenting ~120
+    lines of existing, working logic."""
     merged_dir = KNOWLEDGE_ROOT / family / platform / "merged"
     bak_dir = KNOWLEDGE_ROOT / family / platform / "merged.bak"
 

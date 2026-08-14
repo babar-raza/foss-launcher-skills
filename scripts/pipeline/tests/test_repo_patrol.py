@@ -445,10 +445,19 @@ class TestGetStoredSha:
         assert repo_patrol._get_stored_sha("nonexistent", "platform") is None
 
     def test_no_sha_line(self, tmp_path):
+        # FRESH-001 (2026-08-14): _get_stored_sha() delegates to
+        # freshness_guard.resolve_baseline(), whose last-resort fallback samples
+        # evidence.model_sha from committed content frontmatter (baseline_resolver's
+        # existing _sample_content_model_sha) -- a real, intentional new source the
+        # old ad hoc 2-source implementation never had. Its default discover_content_fn
+        # is not repo-root-isolated (scans the REAL repo's content/ tree), so a real
+        # product like "3d"/"python" would otherwise leak a real committed SHA here;
+        # patched out to test the true "nothing resolves at all" floor.
         model_dir = tmp_path / "knowledge" / "3d" / "python" / "merged"
         model_dir.mkdir(parents=True)
         (model_dir / "model.yaml").write_text("other: value\n")
-        assert repo_patrol._get_stored_sha("3d", "python") is None
+        with patch("baseline_resolver._sample_content_model_sha", return_value=None):
+            assert repo_patrol._get_stored_sha("3d", "python") is None
 
     def test_quoted_sha(self, tmp_path):
         model_dir = tmp_path / "knowledge" / "3d" / "python" / "merged"
@@ -458,20 +467,31 @@ class TestGetStoredSha:
 
 
 class TestGetStoredShaDualSource:
-    """MT030-2026-08-13: data/upstream_baselines.json takes priority over
-    model.yaml's scalar -- the fix for the two-baseline drift confirmed on
-    pdf/java (upstream_baselines.json frozen at a pre-refresh SHA while
-    model.yaml had already moved on through two real knowledge refreshes)."""
+    """FRESH-001 (2026-08-14): _get_stored_sha() now delegates to
+    freshness_guard.resolve_baseline(), which prefers merged/model.yaml (now
+    git-tracked, T0/T2, and therefore the canonical writer) over
+    data/upstream_baselines.json (now a regenerated, derived projection -- see
+    freshness_guard.py's module docstring). This intentionally reverses the
+    MT030-2026-08-13 fix's priority: that fix made upstream_baselines.json win
+    specifically because model.yaml was NOT durable at the time (gitignored);
+    now that it is durable, the projection is the fallback, not the source."""
 
-    def test_upstream_baselines_json_takes_priority(self, tmp_path):
+    def test_model_yaml_takes_priority_over_upstream_baselines_json(self, tmp_path):
         model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"
         model_dir.mkdir(parents=True)
-        (model_dir / "model.yaml").write_text("repo_sha: stale_model_yaml_sha\n")
+        (model_dir / "model.yaml").write_text("repo_sha: current_model_yaml_sha\n")
         (tmp_path / "data").mkdir(exist_ok=True)
         (tmp_path / "data" / "upstream_baselines.json").write_text(
-            '{"pdf/java": "current_durable_sha"}'
+            '{"pdf/java": "stale_projection_sha"}'
         )
-        assert repo_patrol._get_stored_sha("pdf", "java") == "current_durable_sha"
+        assert repo_patrol._get_stored_sha("pdf", "java") == "current_model_yaml_sha"
+
+    def test_falls_back_to_upstream_baselines_when_model_yaml_absent(self, tmp_path):
+        (tmp_path / "data").mkdir(exist_ok=True)
+        (tmp_path / "data" / "upstream_baselines.json").write_text(
+            '{"pdf/java": "projection_sha"}'
+        )
+        assert repo_patrol._get_stored_sha("pdf", "java") == "projection_sha"
 
     def test_falls_back_to_model_yaml_when_product_not_in_baselines(self, tmp_path):
         model_dir = tmp_path / "knowledge" / "pdf" / "java" / "merged"

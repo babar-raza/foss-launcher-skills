@@ -45,7 +45,10 @@ def _make_api_surface(tmp_path: Path, entries: list[dict], family: str = "fake",
     merged.mkdir(parents=True)
     (merged / "api_surface.json").write_text(json.dumps(entries), encoding="utf-8")
     (merged / "model.yaml").write_text(
-        yaml.safe_dump({"stale_since": None, "version": "1.0.0"}),
+        # repo_sha is required for freshness_guard.resolve_baseline() to resolve a
+        # baseline (FRESH-001 T7) -- a real promote.py-written model.yaml always sets
+        # this key, even if empty; fixtures mirror that shape here.
+        yaml.safe_dump({"stale_since": None, "version": "1.0.0", "repo_sha": "test-fixture-sha"}),
         encoding="utf-8",
     )
     return merged / "api_surface.json"
@@ -1266,7 +1269,7 @@ class TestUpdateDeltaBehavior:
         merged.mkdir(parents=True)
         (merged / "api_surface.json").write_text(json.dumps(entries), encoding="utf-8")
         (merged / "model.yaml").write_text(
-            yaml.safe_dump({"stale_since": None, "version": "1.0.0"}),
+            yaml.safe_dump({"stale_since": None, "version": "1.0.0", "repo_sha": "test-fixture-sha"}),
         )
         # Only Beta is modified — Alpha and Gamma are unchanged
         (merged / "knowledge_delta.json").write_text(json.dumps({

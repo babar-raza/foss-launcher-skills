@@ -36,6 +36,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 import session_identity  # noqa: E402
+import freshness_guard  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write, atomic_write_bytes  # noqa: E402
 from lib.schema_validators import (  # noqa: E402
@@ -114,6 +115,10 @@ def configure(
     _command_runner = command_runner or subprocess.run
     _source_sha_resolver = source_sha_resolver
     _now = now or (lambda: datetime.now(timezone.utc))
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- see batch_reference.py for the same
+    # pattern/rationale.
+    freshness_guard.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -206,9 +211,15 @@ def _model_state(family: str, platform: str) -> dict[str, Any]:
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     except Exception as exc:
         raise RefreshRunError(f"Knowledge model is unreadable: {exc}") from exc
-    if data.get("stale_since") is not None:
+    # FRESH-001 (2026-08-14, T7): migrated from a raw stale_since read to the shared
+    # freshness_guard gate (degraded mode — no network call, matching this function's
+    # prior no-network behavior). Preserves the exact contract callers depend on:
+    # return the parsed model dict on success, raise RefreshRunError otherwise.
+    allowed, fresh_result = freshness_guard.is_generation_allowed(family, platform, mode="degraded")
+    if not allowed:
         raise RefreshRunError(
-            f"Knowledge model is stale since {data.get('stale_since')}; refresh knowledge first"
+            f"Knowledge model is not fresh (state={fresh_result.state}): {fresh_result.reason}; "
+            f"refresh knowledge first"
         )
     sha = data.get("repo_sha")
     if not isinstance(sha, str) or not sha:

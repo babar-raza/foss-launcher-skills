@@ -56,6 +56,14 @@ _HERE = Path(__file__).resolve().parent
 _DEFAULT_REPO_ROOT = _HERE.parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
+# FRESH-001 (2026-08-14): unconditional (not only inside configure()) so bare
+# imports of freshness_guard resolve from gate_l01_knowledge_freshness()/
+# gate_l06_promote_validation() even when configure() is never explicitly called,
+# which is the normal production case (module-level _REPO_ROOT/etc. are used as-is).
+_REAL_LIB_DIR = str(_HERE.parent.parent / "lib")  # commands/launch/ -> commands/ -> pipeline/ -> lib/
+if _REAL_LIB_DIR not in sys.path:
+    sys.path.insert(0, _REAL_LIB_DIR)
+
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
@@ -64,6 +72,17 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
     _KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
     _CONTENT_ROOT = _REPO_ROOT / "content"
     _SCRIPTS_PIPELINE = _REPO_ROOT / "scripts" / "pipeline"
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- see batch_reference.py for the same
+    # pattern/rationale. L-01/L-06 are the highest-blast-radius call sites (launch
+    # gates), migrated last per the plan's low-to-high rollout order. (_REAL_LIB_DIR
+    # is already unconditionally on sys.path at module load -- see its definition
+    # above -- so this only needs to propagate the repo_root override.)
+    try:
+        import freshness_guard as _freshness_guard
+        _freshness_guard.configure(repo_root=_REPO_ROOT)
+    except ImportError:
+        pass
 
 # Prefer the project virtualenv; fall back to system Python.
 _VENV_PYTHON_WIN = _REPO_ROOT / ".venv" / "Scripts" / "python.exe"
@@ -134,7 +153,12 @@ def _run(
 # ---------------------------------------------------------------------------
 
 def gate_l01_knowledge_freshness(family: str, platform: str) -> GateResult:
-    """L-01: model.yaml stale_since must be null."""
+    """L-01: knowledge model must be fresh (FRESH-001 T7: shared freshness_guard gate,
+    migrated from a raw model.yaml stale_since read). This is a launch-blocking gate
+    -- never passes allow_last_known_good, and degraded mode is used here (not strict)
+    to preserve this gate's prior no-network-call behavior exactly; a live upstream
+    check is a deliberate, separate hardening left for a follow-up, not silently
+    added to an existing gate's contract."""
     model_path = _KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
     if not model_path.exists():
         return GateResult(
@@ -142,23 +166,22 @@ def gate_l01_knowledge_freshness(family: str, platform: str) -> GateResult:
             f"model.yaml not found at {model_path.relative_to(_REPO_ROOT)}",
         )
     try:
-        import yaml  # noqa: PLC0415
-        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+        from freshness_guard import is_generation_allowed  # noqa: PLC0415
+        allowed, result = is_generation_allowed(family, platform, mode="degraded")
     except Exception as exc:
         return GateResult(
             "L-01", "Knowledge freshness", STATUS_FAIL,
-            f"model.yaml parse error: {exc}",
+            f"freshness check error: {exc}",
         )
 
-    stale_since = data.get("stale_since")
-    if stale_since is None:
+    if allowed:
         return GateResult(
             "L-01", "Knowledge freshness", STATUS_PASS,
-            "stale_since=null",
+            f"state={result.state}: {result.reason}",
         )
     return GateResult(
         "L-01", "Knowledge freshness", STATUS_FAIL,
-        f"stale_since={stale_since!r} -- run S-12->S-14 before launch",
+        f"state={result.state}: {result.reason} -- run S-12->S-14 before launch",
     )
 
 
@@ -395,21 +418,20 @@ def gate_l06_promote_validation(family: str, platform: str) -> GateResult:
             f"missing merged artifacts: {', '.join(missing_artifacts)}",
         )
 
-    # Re-check stale_since from model.yaml
+    # Re-check freshness (FRESH-001 T7: shared gate, was a raw stale_since re-read)
     try:
-        import yaml  # noqa: PLC0415
-        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
-        stale_since = data.get("stale_since")
+        from freshness_guard import is_generation_allowed  # noqa: PLC0415
+        allowed, result = is_generation_allowed(family, platform, mode="degraded")
     except Exception as exc:
         return GateResult(
             "L-06", "Promote validation", STATUS_FAIL,
-            f"model.yaml parse error: {exc}",
+            f"freshness check error: {exc}",
         )
 
-    if stale_since is not None:
+    if not allowed:
         return GateResult(
             "L-06", "Promote validation", STATUS_FAIL,
-            f"stale_since={stale_since!r} -- knowledge must be fresh before launch",
+            f"state={result.state}: {result.reason} -- knowledge must be fresh before launch",
         )
 
     return GateResult(

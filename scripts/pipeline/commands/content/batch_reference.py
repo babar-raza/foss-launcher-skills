@@ -135,6 +135,17 @@ def configure(
         content_root if content_root is not None
         else root / "content" / "reference.aspose.org" / "en"
     )
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- it is a separate module with its own
+    # REPO_ROOT/KNOWLEDGE_ROOT globals, and the freshness gate below must see the
+    # same tree this module was just pointed at (production repo_root in real use;
+    # a test's tmp_path under `batch_reference.configure(repo_root=tmp_path)`).
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+        import freshness_guard as _freshness_guard
+        _freshness_guard.configure(repo_root=root)
+    except ImportError:
+        pass
 
 
 def _canonical_reference_path(page_path: Path) -> str:
@@ -1614,10 +1625,19 @@ def run(family: str, platform: str, kind_arg: str = "all",
         try:
             import yaml
             model = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
-            if model.get("stale_since") is not None:
-                print(f"STOP: Knowledge model is stale (stale_since={model['stale_since']}). "
-                      f"Run /knowledge-diff then /knowledge-update {family} {platform} "
-                      f"before generating content.")
+            # FRESH-001 (2026-08-14, T7): migrated from a raw stale_since read to the
+            # shared freshness_guard gate — degraded mode (no network call, appropriate
+            # for this high-volume generation-time caller) still honors an authored
+            # stale_since flag exactly as before, and additionally catches CORRUPT
+            # (disagreeing baseline sources) and REFRESHING/REFRESH_FAILED, none of
+            # which the old check could see.
+            sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+            from freshness_guard import is_generation_allowed
+            allowed, fresh_result = is_generation_allowed(family, platform, mode="degraded")
+            if not allowed:
+                print(f"STOP: Knowledge model is not fresh (state={fresh_result.state}: "
+                      f"{fresh_result.reason}). Run /knowledge-diff then "
+                      f"/knowledge-update {family} {platform} before generating content.")
                 sys.exit(1)
             model_sha = model.get("repo_sha", "") or ""
             model_version = model.get("version", "") or ""

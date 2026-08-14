@@ -1,0 +1,97 @@
+# knowledge_tracking_policy.yaml — declarative git-tracking classification for knowledge/
+#
+# CONTRACT: scripts/pipeline/config/knowledge_tracking_policy.yaml
+#   purpose: knowledge/ was entirely gitignored (except knowledge/_overrides/), which meant
+#            no generated fact bundle (model.yaml, api_surface.json, formats.md, claims.json)
+#            had any git history, diffability, blame, or cross-session/cross-machine
+#            durability. This is the root cause behind a whole family of provenance bugs
+#            (see docs/workflows/knowledge-git-tracking-migration.md). This file expresses,
+#            declaratively, which files under knowledge/{family}/{platform}/ become
+#            git-tracked going forward, and which stay local/gitignored — so the decision
+#            can be corrected with evidence during rollout without a code change.
+#   read by: scripts/pipeline/commands/ops/knowledge_git_migration.py (classification engine)
+#   fail-closed: any file matching neither a keep_patterns nor a drop_patterns glob is
+#            reported as UNCLASSIFIED and left untouched (never tracked, never deleted).
+#
+# Path variables available in patterns: {family}, {platform} are NOT substituted here —
+# patterns are matched against the path relative to knowledge/{family}/{platform}/ for
+# each product directory found under knowledge/. So "merged/model.yaml" matches
+# knowledge/cells/net/merged/model.yaml, knowledge/pdf/java/merged/model.yaml, etc.
+
+schema_version: 1
+
+# Directories that are never walked as "products" (not family/platform pairs).
+excluded_top_level_dirs:
+  - _vectors      # regenerable search/RAG embeddings (627M measured 2026-08-14 — 78% of
+                   # knowledge/ by itself). Zero provenance value in tracking raw vectors.
+  - _overrides    # already tracked via its own .gitignore carve-out (RPR-J-03); not a
+                   # product directory, left untouched by this policy.
+
+# Files/globs (relative to knowledge/{family}/{platform}/) that become git-tracked.
+# These are the actual fact bundle: the source-of-truth-hierarchy artifacts (AGENTS.md
+# §2a priorities 2-5) plus the literal cited code snippets (AGENTS.md §11).
+keep_patterns:
+  - merged/model.yaml
+  - merged/bundle_manifest.json
+  - merged/api_surface.json
+  - merged/api_surface.md
+  - merged/formats.json
+  - merged/formats.md
+  - merged/claims.json
+  - merged/limitations.md
+  - merged/install.md
+  - merged/merge_report.md
+  - merged/snippets/**
+
+# Files/globs that stay local/gitignored. Each has an explicit reason — "clean up" in
+# this design means narrowing what's tracked going forward, never deleting anything
+# already on disk (a DROP classification is a strict no-op on disk).
+drop_patterns:
+  - scout/**
+    # Intermediate/pre-merge working data. merged/ is the authoritative tier per
+    # AGENTS.md §2a; scout/ is regenerable by rerunning scout.py at the pinned commit.
+    # Also where the largest single files live (scout/absent_evidence.json measured up
+    # to 20.4MB on knowledge/words/net/ alone).
+  - .pipeline_state.json
+    # Pure local run bookkeeping (per-step completion timestamps for this checkout only).
+  - merged/pipeline_run.json
+    # Superseded by git commit metadata once merged/ is tracked.
+  - merged/baseline_ledger.jsonl
+  - merged/baseline_ledger_head.json
+    # Superseded by `git log`/`git show` on the now-tracked model.yaml. Kept locally as
+    # a fast index only — no longer the durability mechanism (see freshness_guard.py
+    # resolve_baseline() resolution order in docs/workflows/freshness-and-bounded-regen.md).
+  - merged/knowledge_delta.json
+  - merged/knowledge_delta.prev.json
+    # Superseded by `git diff` between commits. The .prev.json snapshot pattern is
+    # itself an instance of the "local cache of past state" problem this migration
+    # eliminates — keeping it tracked would just move the staleness risk one level down.
+  - merged/format_delta.json
+  - merged/manifest_delta.json
+    # Found live 2026-08-14 during the fleet audit (T11): refresh_knowledge.py's own
+    # per-refresh delta computations (_write_format_delta/_write_manifest_delta) --
+    # same "superseded by git diff once tracked" reasoning as knowledge_delta.json.
+  - merged/conflict_receipts.jsonl
+  - merged/merge_conflicts.json
+  - merged/merge_conflicts.md
+    # Found live 2026-08-14 (T11). merge_conflicts.md is legacy/residual -- promote.py
+    # already actively deletes it when present ("Remove legacy merge_conflicts.md").
+    # conflict_receipts.jsonl/merge_conflicts.json are local audit-trail artifacts of
+    # the same conflict-detection subsystem, not published facts.
+  - merged/workarounds.json
+  - merged/test_context.md
+    # Found live 2026-08-14 (T11). Provenance/consumer unverified -- classified DROP
+    # (safe default: stays exactly as gitignored as today) per this policy's own
+    # fail-closed principle, same treatment as index.json/class_graph.json/
+    # coverage_matrix.json above. Revisit by grepping for read-sites before ever
+    # promoting either to keep_patterns.
+
+# Provisional: appear to be derived summaries regenerable purely from the tracked
+# api_surface.json/claims.json, not independent sources of truth — but this has NOT
+# been verified against every consumer in the codebase, so they are classified DROP
+# (safe default: stays exactly as gitignored as it is today) rather than KEEP, pending
+# that verification. Revisit by grepping for read-sites before ever promoting these to
+# keep_patterns.
+  - merged/index.json
+  - merged/class_graph.json
+  - merged/coverage_matrix.json

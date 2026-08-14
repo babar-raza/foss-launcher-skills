@@ -50,11 +50,30 @@ _HERE = Path(__file__).resolve().parent
 _DEFAULT_REPO_ROOT = _HERE.parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
+# FRESH-001 (2026-08-14): unconditional (not only inside configure()) so bare
+# imports of freshness_guard resolve from gate_g04_knowledge_staleness() even when
+# configure() is never explicitly called, which is the normal production case
+# (module-level _REPO_ROOT is used as-is).
+_REAL_LIB_DIR = str(_HERE.parent.parent / "lib")  # commands/launch/ -> commands/ -> pipeline/ -> lib/
+if _REAL_LIB_DIR not in sys.path:
+    sys.path.insert(0, _REAL_LIB_DIR)
+
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
     global _REPO_ROOT
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- see batch_reference.py for the same
+    # pattern/rationale. G-04 is a launch-blocking readiness gate, migrated last
+    # per the plan's low-to-high blast-radius rollout order. (_REAL_LIB_DIR is
+    # already unconditionally on sys.path at module load -- see above -- so this
+    # only needs to propagate the repo_root override.)
+    try:
+        import freshness_guard as _freshness_guard
+        _freshness_guard.configure(repo_root=_REPO_ROOT)
+    except ImportError:
+        pass
 
 
 # Prefer the project virtualenv; fall back to system Python.
@@ -149,7 +168,9 @@ def gate_g03_dar_coverage(env: dict | None = None) -> GateResult:
 
 
 def gate_g04_knowledge_staleness(family: str, platform: str) -> GateResult:
-    """G-04: knowledge model stale_since must be null."""
+    """G-04: knowledge must be fresh (FRESH-001 T7: shared freshness_guard gate,
+    migrated from a raw model.yaml stale_since read). Degraded mode preserves this
+    gate's prior no-network-call behavior exactly."""
     model_path = _REPO_ROOT / "knowledge" / family / platform / "merged" / "model.yaml"
     if not model_path.exists():
         return GateResult(
@@ -157,16 +178,16 @@ def gate_g04_knowledge_staleness(family: str, platform: str) -> GateResult:
             f"model.yaml not found: knowledge/{family}/{platform}/merged/model.yaml",
         )
     try:
-        import yaml  # noqa: PLC0415
-        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+        from freshness_guard import is_generation_allowed  # noqa: PLC0415
+        allowed, result = is_generation_allowed(family, platform, mode="degraded")
     except Exception as exc:
-        return GateResult("G-04", "Knowledge staleness", STATUS_FAIL, f"model.yaml parse error: {exc}")
-    stale_since = data.get("stale_since")
-    if stale_since is None:
-        return GateResult("G-04", "Knowledge staleness", STATUS_PASS, "stale_since: null (fresh)")
+        return GateResult("G-04", "Knowledge staleness", STATUS_FAIL, f"freshness check error: {exc}")
+    if allowed:
+        return GateResult("G-04", "Knowledge staleness", STATUS_PASS,
+                           f"state={result.state}: {result.reason}")
     return GateResult(
         "G-04", "Knowledge staleness", STATUS_FAIL,
-        f"stale_since: {stale_since} — refresh knowledge before shipping",
+        f"state={result.state}: {result.reason} — refresh knowledge before shipping",
     )
 
 
