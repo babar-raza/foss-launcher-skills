@@ -1,0 +1,590 @@
+[
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/IO/PdfReader.cs",
+    "line": 8,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/IO/PdfWriter.cs",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "HTML",
+    "enum": "LoadFormat",
+    "value": "0",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "XPS",
+    "enum": "LoadFormat",
+    "value": "1",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "EPUB",
+    "enum": "LoadFormat",
+    "value": "2",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PS",
+    "enum": "LoadFormat",
+    "value": "3",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PCL",
+    "enum": "LoadFormat",
+    "value": "4",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "SVG",
+    "enum": "LoadFormat",
+    "value": "5",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "MHT",
+    "enum": "LoadFormat",
+    "value": "6",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "TEX",
+    "enum": "LoadFormat",
+    "value": "7",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "DJVU",
+    "enum": "LoadFormat",
+    "value": "8",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "OFD",
+    "enum": "LoadFormat",
+    "value": "9",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "CGM",
+    "enum": "LoadFormat",
+    "value": "10",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "APS",
+    "enum": "LoadFormat",
+    "value": "11",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "MD",
+    "enum": "LoadFormat",
+    "value": "13",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "TXT",
+    "enum": "LoadFormat",
+    "value": "14",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "CDR",
+    "enum": "LoadFormat",
+    "value": "15",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PDFXML",
+    "enum": "LoadFormat",
+    "value": "16",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "RTF",
+    "enum": "LoadFormat",
+    "value": "17",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "XSLFO",
+    "enum": "LoadFormat",
+    "value": "18",
+    "file": "src/Options/LoadFormat.cs",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "0",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Html",
+    "enum": "SaveFormat",
+    "value": "1",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Xps",
+    "enum": "SaveFormat",
+    "value": "2",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Doc",
+    "enum": "SaveFormat",
+    "value": "3",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Tiff",
+    "enum": "SaveFormat",
+    "value": "4",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Epub",
+    "enum": "SaveFormat",
+    "value": "5",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Svg",
+    "enum": "SaveFormat",
+    "value": "7",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "MobiXml",
+    "enum": "SaveFormat",
+    "value": "8",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "DocX",
+    "enum": "SaveFormat",
+    "value": "9",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Pptx",
+    "enum": "SaveFormat",
+    "value": "10",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Excel",
+    "enum": "SaveFormat",
+    "value": "11",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Markdown",
+    "enum": "SaveFormat",
+    "value": "12",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Aps",
+    "enum": "SaveFormat",
+    "value": "13",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "None",
+    "enum": "SaveFormat",
+    "value": "14",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Eps",
+    "enum": "SaveFormat",
+    "value": "15",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PdfXml",
+    "enum": "SaveFormat",
+    "value": "16",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Ps",
+    "enum": "SaveFormat",
+    "value": "17",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "TeX",
+    "enum": "SaveFormat",
+    "value": "18",
+    "file": "src/Options/SaveFormat.cs",
+    "line": 8,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Asn1",
+    "enum": "",
+    "value": "",
+    "file": "src/Security/Asn1Reader.cs",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Asn1",
+    "enum": "",
+    "value": "",
+    "file": "src/Security/Asn1Writer.cs",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Md",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/MdLoadOptions.cs",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/SvgLoadOptions.cs",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Txt",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/TxtLoadOptions.cs",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/BmpDevice.cs",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Gif",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/GifDevice.cs",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/JpegDevice.cs",
+    "line": 26,
+    "direction": "export"
+  },
+  {
+    "format": "IPage",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/PageRenderer.cs",
+    "line": 32,
+    "direction": "export"
+  },
+  {
+    "format": "Null",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/PageRenderer.cs",
+    "line": 48,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/SvgDevice.cs",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/TextDevice.cs",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/TiffDevice.cs",
+    "line": 7,
+    "direction": "export"
+  },
+  {
+    "format": "Xfa",
+    "enum": "",
+    "value": "",
+    "file": "src/Forms/Xfa/XfaRenderer.cs",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/Html/HtmlFragment.cs",
+    "line": 107,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/Html/HtmlSaveOptions.cs",
+    "line": 16,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/IO/Filters/JpegDecoder.cs",
+    "line": 22,
+    "direction": "import"
+  },
+  {
+    "format": "Packet",
+    "enum": "",
+    "value": "",
+    "file": "src/IO/Filters/JpxDecoder.cs",
+    "line": 1220,
+    "direction": "import"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/IO/JpegEncoder.cs",
+    "line": 48,
+    "direction": "export"
+  },
+  {
+    "format": "Base64",
+    "enum": "ImageFileType",
+    "value": "",
+    "file": "src/Image.cs",
+    "line": 163,
+    "direction": "detect"
+  },
+  {
+    "format": "Dicom",
+    "enum": "ImageFileType",
+    "value": "",
+    "file": "src/Image.cs",
+    "line": 163,
+    "direction": "detect"
+  },
+  {
+    "format": "Svg",
+    "enum": "ImageFileType",
+    "value": "",
+    "file": "src/Image.cs",
+    "line": 163,
+    "direction": "detect"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/Options/SaveOptions.cs",
+    "line": 144,
+    "direction": "export"
+  },
+  {
+    "format": "Unified",
+    "enum": "",
+    "value": "",
+    "file": "src/Options/SaveOptions.cs",
+    "line": 153,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/Options/SaveOptions.cs",
+    "line": 182,
+    "direction": "export"
+  },
+  {
+    "format": "TTF",
+    "enum": "FontTypes",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 826,
+    "direction": "detect"
+  },
+  {
+    "format": "OTF",
+    "enum": "FontTypes",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 826,
+    "direction": "detect"
+  },
+  {
+    "format": "Type1",
+    "enum": "FontType",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 833,
+    "direction": "detect"
+  },
+  {
+    "format": "TrueType",
+    "enum": "FontType",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 833,
+    "direction": "detect"
+  },
+  {
+    "format": "Type0",
+    "enum": "FontType",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 833,
+    "direction": "detect"
+  },
+  {
+    "format": "Type3",
+    "enum": "FontType",
+    "value": "",
+    "file": "src/Text/FontRepository.cs",
+    "line": 833,
+    "direction": "detect"
+  }
+]

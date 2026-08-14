@@ -1,0 +1,22 @@
+config_sha: e034fc744e7fe760
+enrichment_status: full
+extractor_hash: 0ecb6563ee3d6dd3
+family: pdf
+has_conflicts: false
+license: ''
+platform: net
+product_name: Aspose.PDF.FOSS
+promoted_at: '2026-07-29T16:30:10.275035+00:00'
+repo_sha: 8a3131b9a6f7e97c20214896c615dbee86272459
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET.git
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 854
+  enriched_claims: 1272
+  forbidden_count: 2
+  scout_claims: 7558
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 8664
+version: 26.7.0
