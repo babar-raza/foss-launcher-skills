@@ -1,0 +1,33 @@
+bundle_generated_at: '2026-08-14T11:46:58.238413+00:00'
+bundle_id: 65f90ba4-aa0a-41c1-a6ac-7c6b85803d47
+config_sha: 5676a5ada3d9dda2
+enrichment_status: full
+extractor_hash: a52df5d20ccdf3ca
+family: cells
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: f7786e4e3e06eb3e99b52a840f76037ca18f48903f849f6e437c0d0261361858
+  extractor_config_sha: 5676a5ada3d9dda2
+  products_json_entry_sha: bd3c76701bd5ce307c68891e33b97023c1c7b8de11da83d51785df48827b1b48
+  scout_api_surface_sha: 9d6dfbd391138d99e5ce2a1120fa5a6e2e88d351810947057a422999797d9be0
+  scout_claims_sha: 8912430e036bd3487a50762822ba674427cca5e510f8b2363c5fc112b0e3e371
+license: ''
+platform: cpp
+product_name: Aspose.CELLS-FOSS for Cpp
+promoted_at: '2026-08-14T11:46:58.383753+00:00'
+repo_sha: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 200
+  enriched_claims: 434
+  forbidden_count: 100
+  scout_claims: 2328
+  snippet_count: 89
+  supplemental_claims: 0
+  total_claims: 2611
+version: ''
