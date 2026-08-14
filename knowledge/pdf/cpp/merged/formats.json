@@ -1,0 +1,122 @@
+[
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/bmp_device.hpp",
+    "line": 20,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/document.hpp",
+    "line": 42,
+    "direction": "export"
+  },
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/document.hpp",
+    "line": 43,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/document.hpp",
+    "line": 44,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/document.hpp",
+    "line": 45,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/jpeg_device.hpp",
+    "line": 21,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/page.hpp",
+    "line": 31,
+    "direction": "export"
+  },
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/page.hpp",
+    "line": 32,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/page.hpp",
+    "line": 33,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/page.hpp",
+    "line": 34,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/svg_load_options.hpp",
+    "line": 20,
+    "direction": "import"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/text_device.hpp",
+    "line": 31,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "include/aspose/pdf/tiff_device.hpp",
+    "line": 32,
+    "direction": "export"
+  },
+  {
+    "format": "scratch",
+    "enum": "",
+    "value": "",
+    "file": "include/internal/binarize_bradley.hpp",
+    "line": 15,
+    "direction": "import"
+  },
+  {
+    "format": "unicode",
+    "enum": "",
+    "value": "",
+    "file": "include/internal/to_unicode.hpp",
+    "line": 6,
+    "direction": "export"
+  }
+]

@@ -1,0 +1,21 @@
+family: pdf
+platform: cpp
+product_name: Aspose_PDF_FOSS
+version: 1.0.0
+license: ''
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp.git
+repo_sha: 40858b60e9babbab4865180e00e2db39f2ba27f8
+config_sha: e034fc744e7fe760
+stale_since: null
+promoted_at: '2026-07-28T19:55:56.462024+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+stats:
+  scout_claims: 2754
+  enriched_claims: 382
+  supplemental_claims: 0
+  total_claims: 3049
+  class_count: 340
+  forbidden_count: 9
+  snippet_count: 100

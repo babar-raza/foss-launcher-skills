@@ -1,0 +1,1900 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cpp",
+    "source_file": "tests/actions_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 29,
+    "classes_used": [
+      "NamedAction",
+      "Page",
+      "PredefinedAction",
+      "String"
+    ],
+    "methods_used": [
+      "NamedAction.Name",
+      "NamedAction.ToString"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cpp",
+    "source_file": "tests/actions_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 40,
+    "classes_used": [
+      "JavascriptAction",
+      "String"
+    ],
+    "methods_used": [
+      "JavascriptAction.GetECMAScriptString",
+      "JavascriptAction.Script"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cpp",
+    "source_file": "tests/actions_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 48,
+    "classes_used": [
+      "FileSpecification",
+      "Form",
+      "SubmitFormAction"
+    ],
+    "methods_used": [
+      "FileSpecification.Name",
+      "SubmitFormAction.Flags",
+      "SubmitFormAction.Url"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cpp",
+    "source_file": "tests/actions_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 57,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "FileSpecification",
+      "Form",
+      "JavascriptAction",
+      "LinkAnnotation",
+      "NamedAction",
+      "Page",
+      "PredefinedAction",
+      "Rect",
+      "Rectangle",
+      "String",
+      "SubmitFormAction"
+    ],
+    "methods_used": [
+      "Annotation.Name",
+      "Document.Pages",
+      "FileSpecification.Name",
+      "Form.Add",
+      "LinkAnnotation.Action",
+      "NamedAction.Name",
+      "SubmitFormAction.Url"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 30,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Count",
+      "AnnotationCollection.IsReadOnly"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 36,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "Rotation"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Count"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 48,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Delete"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 57,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Contains",
+      "AnnotationCollection.Count",
+      "AnnotationCollection.Remove"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 70,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Count",
+      "AnnotationCollection.Delete"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 88,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Clear",
+      "AnnotationCollection.Contains",
+      "AnnotationCollection.Count"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cpp",
+    "source_file": "tests/annotation_collection_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 97,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "Value"
+    ],
+    "methods_used": [
+      "AnnotationCollection.Add",
+      "AnnotationCollection.Contains",
+      "AnnotationCollection.Count",
+      "AnnotationCollection.Delete"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cpp",
+    "source_file": "tests/annotation_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 70,
+    "classes_used": [
+      "Annotation",
+      "AnnotationType",
+      "Circle",
+      "Document",
+      "Page",
+      "Path"
+    ],
+    "methods_used": [
+      "Annotation.AnnotationType",
+      "Annotation.Contents",
+      "Document.Pages"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cpp",
+    "source_file": "tests/annotation_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 87,
+    "classes_used": [
+      "Annotation",
+      "AnnotationType",
+      "Circle",
+      "Document",
+      "Page",
+      "Path"
+    ],
+    "methods_used": [
+      "Annotation.AnnotationType",
+      "Document.Pages",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cpp",
+    "source_file": "tests/annotation_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 110,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Page",
+      "Path"
+    ],
+    "methods_used": [
+      "Document.Pages",
+      "Document.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cpp",
+    "source_file": "tests/annotation_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 130,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Page",
+      "Path"
+    ],
+    "methods_used": [
+      "Annotation.Contents",
+      "Document.Pages",
+      "Document.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cpp",
+    "source_file": "tests/annotation_save_through_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 64,
+    "classes_used": [
+      "Annotation",
+      "Array",
+      "Dict",
+      "Document",
+      "IndirectObject",
+      "Page",
+      "Rect",
+      "Rectangle",
+      "Ref",
+      "String",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.Contents",
+      "Annotation.Rect",
+      "Document.Pages",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cpp",
+    "source_file": "tests/annotation_save_through_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 167,
+    "classes_used": [
+      "Annotation",
+      "Document"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cpp",
+    "source_file": "tests/annotation_save_through_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 183,
+    "classes_used": [
+      "Annotation",
+      "Dict",
+      "Document",
+      "Page",
+      "Rect",
+      "Rectangle",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.Contents",
+      "Annotation.Rect",
+      "Document.Pages",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 45,
+    "classes_used": [
+      "Annotation",
+      "AnnotationSelector"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 51,
+    "classes_used": [
+      "Annotation",
+      "AnnotationSelector"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 58,
+    "classes_used": [
+      "Annotation",
+      "AnnotationSelector"
+    ],
+    "methods_used": [
+      "Annotation.Accept"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 68,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "AnnotationSelector"
+    ],
+    "methods_used": [
+      "Annotation.Accept",
+      "AnnotationCollection.Accept",
+      "AnnotationCollection.Add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 83,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "AnnotationSelector"
+    ],
+    "methods_used": [
+      "Annotation.Accept",
+      "AnnotationCollection.Accept"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cpp",
+    "source_file": "tests/annotation_selector_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 90,
+    "classes_used": [
+      "Annotation",
+      "AnnotationSelector"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 41,
+    "classes_used": [
+      "Annotation",
+      "AnnotationType",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 50,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 60,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 70,
+    "classes_used": [
+      "TextAlignment",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 76,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 84,
+    "classes_used": [
+      "Border",
+      "BorderEffect",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 89,
+    "classes_used": [
+      "Border",
+      "BorderEffect",
+      "BorderStyle"
+    ],
+    "methods_used": [
+      "Border.Effect",
+      "Border.EffectIntensity",
+      "Border.HCornerRadius",
+      "Border.Style",
+      "Border.VCornerRadius",
+      "Border.Width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 110,
+    "classes_used": [
+      "Characteristics",
+      "Rotation"
+    ],
+    "methods_used": [
+      "Characteristics.Rotate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 117,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "AnnotationType",
+      "Font",
+      "HorizontalAlignment",
+      "Page",
+      "TextAlignment"
+    ],
+    "methods_used": [
+      "Annotation.ActiveState",
+      "Annotation.Alignment",
+      "Annotation.AnnotationType",
+      "Annotation.Contents",
+      "Annotation.Flags",
+      "Annotation.FullName",
+      "Annotation.HorizontalAlignment",
+      "Annotation.Name",
+      "Annotation.PageIndex",
+      "Annotation.UpdateAppearanceOnConvert",
+      "Annotation.UseFontSubset"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 133,
+    "classes_used": [
+      "Annotation",
+      "Rect",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Annotation.Height",
+      "Annotation.Rect",
+      "Annotation.Width",
+      "Rectangle.Height",
+      "Rectangle.LLX",
+      "Rectangle.URX",
+      "Rectangle.URY",
+      "Rectangle.Width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 146,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Color",
+      "Font",
+      "HorizontalAlignment",
+      "TextAlignment"
+    ],
+    "methods_used": [
+      "Annotation.ActiveState",
+      "Annotation.Alignment",
+      "Annotation.Color",
+      "Annotation.Contents",
+      "Annotation.Flags",
+      "Annotation.HorizontalAlignment",
+      "Annotation.Name",
+      "Annotation.UpdateAppearanceOnConvert",
+      "Annotation.UseFontSubset",
+      "Color.Color"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cpp",
+    "source_file": "tests/annotation_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 171,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "BorderStyle",
+      "Ref",
+      "Value"
+    ],
+    "methods_used": [
+      "Annotation.Border",
+      "Annotation.Width",
+      "Border.Style",
+      "Border.Width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cpp",
+    "source_file": "tests/attachment_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 66,
+    "classes_used": [
+      "Document",
+      "PdfExtractor"
+    ],
+    "methods_used": [
+      "Document.EmbeddedFiles",
+      "PdfExtractor.GetAttachNames",
+      "PdfExtractor.GetAttachment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cpp",
+    "source_file": "tests/attachment_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 88,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.EmbeddedFiles",
+      "Document.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cpp",
+    "source_file": "tests/attachment_load_on_open_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 110,
+    "classes_used": [
+      "Document",
+      "PdfExtractor"
+    ],
+    "methods_used": [
+      "Document.EmbeddedFiles",
+      "Document.Save",
+      "PdfExtractor.GetAttachment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 31,
+    "classes_used": [
+      "MarginInfo"
+    ],
+    "methods_used": [
+      "MarginInfo.Bottom",
+      "MarginInfo.Left",
+      "MarginInfo.Right",
+      "MarginInfo.Top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 39,
+    "classes_used": [
+      "MarginInfo"
+    ],
+    "methods_used": [
+      "MarginInfo.Bottom",
+      "MarginInfo.Left",
+      "MarginInfo.Right",
+      "MarginInfo.Top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 48,
+    "classes_used": [
+      "MarginInfo"
+    ],
+    "methods_used": [
+      "MarginInfo.Bottom",
+      "MarginInfo.Left",
+      "MarginInfo.Right",
+      "MarginInfo.Top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 60,
+    "classes_used": [
+      "Value",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 68,
+    "classes_used": [
+      "HorizontalAlignment",
+      "Value"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 78,
+    "classes_used": [
+      "Hyperlink"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 84,
+    "classes_used": [
+      "BaseParagraph",
+      "HorizontalAlignment",
+      "Hyperlink",
+      "Line",
+      "Page",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "BaseParagraph.HorizontalAlignment",
+      "BaseParagraph.Hyperlink",
+      "BaseParagraph.IsFirstParagraphInColumn",
+      "BaseParagraph.IsInLineParagraph",
+      "BaseParagraph.IsInNewPage",
+      "BaseParagraph.IsKeptWithNext",
+      "BaseParagraph.Margin",
+      "BaseParagraph.VerticalAlignment",
+      "BaseParagraph.ZIndex",
+      "Hyperlink.Hyperlink"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 99,
+    "classes_used": [
+      "BaseParagraph",
+      "HorizontalAlignment",
+      "Line",
+      "MarginInfo",
+      "Page",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "BaseParagraph.HorizontalAlignment",
+      "BaseParagraph.IsFirstParagraphInColumn",
+      "BaseParagraph.IsInLineParagraph",
+      "BaseParagraph.IsInNewPage",
+      "BaseParagraph.IsKeptWithNext",
+      "BaseParagraph.Margin",
+      "BaseParagraph.VerticalAlignment",
+      "BaseParagraph.ZIndex",
+      "MarginInfo.Bottom",
+      "MarginInfo.Left",
+      "MarginInfo.Right",
+      "MarginInfo.Top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cpp",
+    "source_file": "tests/base_paragraph_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 125,
+    "classes_used": [
+      "BaseParagraph",
+      "Hyperlink"
+    ],
+    "methods_used": [
+      "BaseParagraph.Hyperlink",
+      "Hyperlink.Hyperlink"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cpp",
+    "source_file": "tests/bitmap_info_test.cpp",
+    "source_function": "main",
+    "source_line": 17,
+    "classes_used": [
+      "BitmapInfo",
+      "Form"
+    ],
+    "methods_used": [
+      "BitmapInfo.Format",
+      "BitmapInfo.Height",
+      "BitmapInfo.PixelBytes",
+      "BitmapInfo.Width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 45,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 63,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 90,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 112,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 119,
+    "classes_used": [
+      "Signature"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 129,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 142,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 158,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 174,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cpp",
+    "source_file": "tests/bmp_decoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 187,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cpp",
+    "source_file": "tests/bmp_device_e2e_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 32,
+    "classes_used": [
+      "BmpDevice",
+      "Device",
+      "Document",
+      "Page",
+      "Rect",
+      "Resolution"
+    ],
+    "methods_used": [
+      "BmpDevice.Process",
+      "Document.Pages"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cpp",
+    "source_file": "tests/bmp_device_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 11,
+    "classes_used": [
+      "BmpDevice",
+      "Device"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cpp",
+    "source_file": "tests/bmp_device_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 16,
+    "classes_used": [
+      "BmpDevice",
+      "Device",
+      "Resolution"
+    ],
+    "methods_used": [
+      "Resolution.X"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cpp",
+    "source_file": "tests/bmp_device_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 22,
+    "classes_used": [
+      "BmpDevice",
+      "Device"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cpp",
+    "source_file": "tests/bmp_device_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 28,
+    "classes_used": [
+      "BmpDevice",
+      "Device",
+      "Page",
+      "PageSize",
+      "Resolution"
+    ],
+    "methods_used": [
+      "PageSize.Height",
+      "PageSize.Width",
+      "Resolution.X"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cpp",
+    "source_file": "tests/bmp_device_test.cpp",
+    "source_function": "main",
+    "source_line": 25,
+    "classes_used": [
+      "BmpDevice",
+      "Device",
+      "Document",
+      "Page",
+      "Resolution"
+    ],
+    "methods_used": [
+      "BmpDevice.Process",
+      "Document.Pages"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 60,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Compression",
+      "Image",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 96,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Image",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 128,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Compression",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 151,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 193,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Image",
+      "Option",
+      "Options",
+      "Row"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 208,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Image",
+      "Option",
+      "Options",
+      "Row"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 222,
+    "classes_used": [
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 235,
+    "classes_used": [
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cpp",
+    "source_file": "tests/bmp_encoder_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 244,
+    "classes_used": [
+      "Color",
+      "ColorType",
+      "Option",
+      "Options"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cpp",
+    "source_file": "tests/border_info_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 19,
+    "classes_used": [
+      "Array",
+      "Color",
+      "Graph",
+      "GraphInfo",
+      "Line",
+      "Properties",
+      "Rotation"
+    ],
+    "methods_used": [
+      "Color.A",
+      "Color.Color",
+      "GraphInfo.Color",
+      "GraphInfo.DashArray",
+      "GraphInfo.DashPhase",
+      "GraphInfo.IsDoubled",
+      "GraphInfo.LineWidth",
+      "GraphInfo.RotationAngle",
+      "GraphInfo.ScalingRateX"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cpp",
+    "source_file": "tests/border_info_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 42,
+    "classes_used": [
+      "Border",
+      "BorderSide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cpp",
+    "source_file": "tests/border_info_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 51,
+    "classes_used": [
+      "Border",
+      "BorderInfo",
+      "Line"
+    ],
+    "methods_used": [
+      "BorderInfo.Left",
+      "BorderInfo.RoundedBorderRadius",
+      "BorderInfo.Top"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cpp",
+    "source_file": "tests/border_info_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 58,
+    "classes_used": [
+      "Border",
+      "BorderInfo",
+      "BorderSide",
+      "Color",
+      "Graph",
+      "GraphInfo",
+      "Line"
+    ],
+    "methods_used": [
+      "BorderInfo.Bottom",
+      "BorderInfo.Left",
+      "BorderInfo.Right",
+      "BorderInfo.RoundedBorderRadius",
+      "BorderInfo.Top",
+      "Color.A",
+      "Color.Color",
+      "Graph.Left",
+      "Graph.Top",
+      "GraphInfo.Color",
+      "GraphInfo.LineWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 78,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 83,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 88,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 94,
+    "classes_used": [
+      "Image",
+      "Row",
+      "Rows"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 100,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 105,
+    "classes_used": [
+      "Image",
+      "Row"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 111,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 118,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 123,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 127,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 131,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 135,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 140,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cpp",
+    "source_file": "tests/ccitt_encode_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 155,
+    "classes_used": [
+      "Image",
+      "Params",
+      "Row",
+      "Rows"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cpp",
+    "source_file": "tests/cell_image_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 60,
+    "classes_used": [
+      "Border",
+      "BorderInfo",
+      "BorderSide",
+      "Cell",
+      "Cells",
+      "Document",
+      "Image",
+      "Page",
+      "Paragraphs",
+      "Resources",
+      "Row",
+      "Rows",
+      "Table"
+    ],
+    "methods_used": [
+      "BorderInfo.Left",
+      "BorderInfo.Top",
+      "Cell.BackgroundImage",
+      "Cells.Add",
+      "Cells.Count",
+      "Document.Pages",
+      "Document.Save",
+      "Paragraphs.Add",
+      "Paragraphs.Count",
+      "Resources.Images",
+      "Resources.Resources",
+      "Row.Cells",
+      "Row.DefaultCellBorder",
+      "Rows.Add",
+      "Rows.Count",
+      "Rows.Rows"
+    ],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cpp",
+    "source_file": "tests/cell_image_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 89,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Document",
+      "Image",
+      "Page",
+      "Paragraphs",
+      "Resources",
+      "Row",
+      "Rows",
+      "Table"
+    ],
+    "methods_used": [
+      "Cell.BackgroundImageFile",
+      "Cells.Add",
+      "Cells.Count",
+      "Document.Pages",
+      "Document.Save",
+      "Paragraphs.Add",
+      "Paragraphs.Count",
+      "Resources.Images",
+      "Resources.Resources",
+      "Row.Cells",
+      "Rows.Add",
+      "Rows.Count",
+      "Rows.Rows"
+    ],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cpp",
+    "source_file": "tests/cell_image_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 109,
+    "classes_used": [
+      "Cell",
+      "Image"
+    ],
+    "methods_used": [
+      "Cell.BackgroundImage"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cpp",
+    "source_file": "tests/cells_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 23,
+    "classes_used": [
+      "Border",
+      "Cell",
+      "HorizontalAlignment",
+      "Rect",
+      "Rectangle",
+      "Row"
+    ],
+    "methods_used": [
+      "Border.Width",
+      "Cell.Alignment",
+      "Cell.ColSpan",
+      "Cell.IsNoBorder",
+      "Cell.IsWordWrapped",
+      "Cell.RowSpan",
+      "Cell.Width",
+      "Rectangle.Width"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cpp",
+    "source_file": "tests/cells_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 35,
+    "classes_used": [
+      "Border",
+      "BorderInfo",
+      "BorderSide",
+      "Cell",
+      "Color",
+      "HorizontalAlignment",
+      "Line",
+      "Properties",
+      "Row"
+    ],
+    "methods_used": [
+      "BorderInfo.Top",
+      "Cell.Alignment",
+      "Cell.BackgroundColor",
+      "Cell.Border",
+      "Cell.ColSpan",
+      "Cell.IsNoBorder",
+      "Cell.RowSpan",
+      "Color.A",
+      "Row.BackgroundColor",
+      "Row.Border"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cpp",
+    "source_file": "tests/cells_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 52,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "HorizontalAlignment"
+    ],
+    "methods_used": [
+      "Cell.Alignment",
+      "Cells.Add",
+      "Cells.Count",
+      "Cells.RemoveRange"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cpp",
+    "source_file": "tests/color_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 28,
+    "classes_used": [
+      "Color"
+    ],
+    "methods_used": [
+      "Color.A"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cpp",
+    "source_file": "tests/color_smoke_test.cpp",
+    "source_function": "TEST",
+    "source_line": 33,
+    "classes_used": [
+      "Color"
+    ],
+    "methods_used": [
+      "Color.A"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]
