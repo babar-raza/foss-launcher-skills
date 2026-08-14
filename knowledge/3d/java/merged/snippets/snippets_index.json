@@ -1,0 +1,1477 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.java",
+    "source_file": "src/test/java/com/aspose/threed/ArrayListAdapterTests.java",
+    "source_function": "ArrayListAdapterInVertexElementTemplate_ShouldWork",
+    "source_line": 8,
+    "classes_used": [
+      "ArrayListAdapter",
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "ArrayListAdapter.add",
+      "ArrayListAdapter.clear",
+      "ArrayListAdapter.get",
+      "ArrayListAdapter.size",
+      "VertexElement.clear",
+      "VertexElementTemplate.clear",
+      "VertexElementTemplate.getData"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.java",
+    "source_file": "src/test/java/com/aspose/threed/ArrayListAdapterTests.java",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 27,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.java",
+    "source_file": "src/test/java/com/aspose/threed/ArrayListAdapterTests.java",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 27,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.java",
+    "source_file": "src/test/java/com/aspose/threed/ColladaTests.java",
+    "source_function": "colladaSaveOptionsHasRequiredProperties",
+    "source_line": 7,
+    "classes_used": [
+      "ColladaSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "collada"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectObjFormatFromStream_ShouldReturnObjFormat",
+    "source_line": 10,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectStlFormatFromStream_ShouldReturnStlFormat",
+    "source_line": 26,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectGltfFormatFromStream_ShouldReturnGltfFormat",
+    "source_line": 42,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "openStreamWithAutoDetectionObj_ShouldLoadCorrectly",
+    "source_line": 58,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.getFormatByExtension",
+      "Mesh.getControlPoints",
+      "Mesh.getPolygonCount",
+      "Node.getChildNodes",
+      "Node.getEntities",
+      "Scene.getRootNode",
+      "Scene.open",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "openStreamWithAutoDetectionStl_ShouldLoadCorrectly",
+    "source_line": 87,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.getFormatByExtension",
+      "Mesh.getControlPoints",
+      "Mesh.getPolygonCount",
+      "Node.getChildNodes",
+      "Node.getEntities",
+      "Scene.getRootNode",
+      "Scene.open",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "openStreamWithAutoDetectionGltf_ShouldLoadCorrectly",
+    "source_line": 116,
+    "classes_used": [
+      "FileFormat",
+      "ImportException",
+      "LoadOptions",
+      "Node",
+      "Scene",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.createLoadOptions",
+      "FileFormat.detect",
+      "Scene.getRootNode",
+      "Scene.open",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "openStreamWithFilename_ShouldDetectFormatFromFilename",
+    "source_line": 135,
+    "classes_used": [
+      "FileFormat",
+      "ImportException",
+      "LoadOptions",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.createLoadOptions",
+      "FileFormat.detect",
+      "Mesh.getControlPoints",
+      "Mesh.getPolygonCount",
+      "Node.getChildNodes",
+      "Node.getEntities",
+      "Scene.getRootNode",
+      "Scene.open",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectObjFormatFromStreamWithFilename_ShouldReturnObjFormat",
+    "source_line": 164,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "obj"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectStlFormatFromStreamWithFilename_ShouldReturnStlFormat",
+    "source_line": 180,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.java",
+    "source_file": "src/test/java/com/aspose/threed/FormatDetectionTests.java",
+    "source_function": "detectGltfFormatFromStreamWithFilename_ShouldReturnGltfFormat",
+    "source_line": 196,
+    "classes_used": [
+      "FileFormat",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.detect",
+      "FileFormat.getExtension",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "exception",
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.java",
+    "source_file": "src/test/java/com/aspose/threed/GltfFormatTest.java",
+    "source_function": "testGltfLoadOptions",
+    "source_line": 7,
+    "classes_used": [
+      "GltfLoadOptions",
+      "LoadOptions"
+    ],
+    "methods_used": [
+      "GltfLoadOptions.getFlipTexCoordV",
+      "GltfLoadOptions.setFlipTexCoordV"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.java",
+    "source_file": "src/test/java/com/aspose/threed/GltfFormatTest.java",
+    "source_function": "testGltfSaveOptions",
+    "source_line": 19,
+    "classes_used": [
+      "FileContentType",
+      "FileFormat",
+      "GltfSaveOptions",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "GltfSaveOptions.getBufferFile",
+      "GltfSaveOptions.getPrettyPrint",
+      "GltfSaveOptions.getSaveExtras",
+      "GltfSaveOptions.setBufferFile",
+      "GltfSaveOptions.setPrettyPrint",
+      "GltfSaveOptions.setSaveExtras"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.java",
+    "source_file": "src/test/java/com/aspose/threed/GltfFormatTest.java",
+    "source_function": "testGltfFormatDetection",
+    "source_line": 39,
+    "classes_used": [
+      "FileFormat"
+    ],
+    "methods_used": [
+      "FileFormat.getCanExport",
+      "FileFormat.getCanImport",
+      "FileFormat.getFormatByExtension"
+    ],
+    "formats_referenced": [
+      "gltf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "lambertMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 8,
+    "classes_used": [
+      "LambertMaterial",
+      "Material"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "lambertMaterial_NameConstructor_ShouldSetName",
+    "source_line": 15,
+    "classes_used": [
+      "LambertMaterial",
+      "Material"
+    ],
+    "methods_used": [
+      "LambertMaterial.getName",
+      "Material.getName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "lambertMaterial_Properties_ShouldBeSettable",
+    "source_line": 22,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Vector3"
+    ],
+    "methods_used": [
+      "LambertMaterial.getAmbientColor",
+      "LambertMaterial.getDiffuseColor",
+      "LambertMaterial.getEmissiveColor",
+      "LambertMaterial.getTransparency",
+      "LambertMaterial.getTransparentColor",
+      "LambertMaterial.setAmbientColor",
+      "LambertMaterial.setDiffuseColor",
+      "LambertMaterial.setEmissiveColor",
+      "LambertMaterial.setTransparency",
+      "LambertMaterial.setTransparentColor"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "phongMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 40,
+    "classes_used": [
+      "Material",
+      "PhongMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "phongMaterial_NameConstructor_ShouldSetName",
+    "source_line": 47,
+    "classes_used": [
+      "Material",
+      "PhongMaterial"
+    ],
+    "methods_used": [
+      "Material.getName",
+      "PhongMaterial.getName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "phongMaterial_Properties_ShouldBeSettable",
+    "source_line": 54,
+    "classes_used": [
+      "Material",
+      "PhongMaterial",
+      "Vector3"
+    ],
+    "methods_used": [
+      "PhongMaterial.getReflectionColor",
+      "PhongMaterial.getReflectionFactor",
+      "PhongMaterial.getShininess",
+      "PhongMaterial.getSpecularColor",
+      "PhongMaterial.getSpecularFactor",
+      "PhongMaterial.setReflectionColor",
+      "PhongMaterial.setReflectionFactor",
+      "PhongMaterial.setShininess",
+      "PhongMaterial.setSpecularColor",
+      "PhongMaterial.setSpecularFactor"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "pbrMaterial_DefaultConstructor_ShouldCreateInstance",
+    "source_line": 72,
+    "classes_used": [
+      "Material",
+      "PbrMaterial"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "pbrMaterial_Properties_ShouldBeSettable",
+    "source_line": 79,
+    "classes_used": [
+      "Material",
+      "PbrMaterial",
+      "Vector3"
+    ],
+    "methods_used": [
+      "PbrMaterial.getAlbedo",
+      "PbrMaterial.getMetallicFactor",
+      "PbrMaterial.getOcclusionFactor",
+      "PbrMaterial.getRoughnessFactor",
+      "PbrMaterial.getTransparency",
+      "PbrMaterial.setAlbedo",
+      "PbrMaterial.setMetallicFactor",
+      "PbrMaterial.setOcclusionFactor",
+      "PbrMaterial.setRoughnessFactor",
+      "PbrMaterial.setTransparency"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.java",
+    "source_file": "src/test/java/com/aspose/threed/MaterialTests.java",
+    "source_function": "pbrMaterial_FromMaterial_ShouldCreateInstance",
+    "source_line": 97,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "PbrMaterial"
+    ],
+    "methods_used": [
+      "PbrMaterial.fromMaterial"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "constructor_ShouldInitializeDefaultValues",
+    "source_line": 8,
+    "classes_used": [
+      "Curve",
+      "CurveDimension",
+      "NurbsCurve",
+      "NurbsType"
+    ],
+    "methods_used": [
+      "NurbsCurve.getCurveType",
+      "NurbsCurve.getDegree",
+      "NurbsCurve.getDimension",
+      "NurbsCurve.getOrder",
+      "NurbsCurve.getRational"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "constructorWithName_ShouldInitializeWithName",
+    "source_line": 20,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "Curve.getName",
+      "NurbsCurve.getName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "controlPoints_ShouldBeWritable",
+    "source_line": 27,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve",
+      "Vector4"
+    ],
+    "methods_used": [
+      "NurbsCurve.getControlPoints"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "multiplicity_ShouldBeWritable",
+    "source_line": 39,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getMultiplicity"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "knotVectors_ShouldBeWritable",
+    "source_line": 51,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getKnotVectors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "order_ShouldBeSettable",
+    "source_line": 64,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getDegree",
+      "NurbsCurve.getOrder",
+      "NurbsCurve.setOrder"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "degree_ShouldBeSettable",
+    "source_line": 73,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getDegree",
+      "NurbsCurve.getOrder",
+      "NurbsCurve.setDegree"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "rational_ShouldBeSettable",
+    "source_line": 82,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getRational",
+      "NurbsCurve.setRational"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "dimension_ShouldBeSettable",
+    "source_line": 90,
+    "classes_used": [
+      "Curve",
+      "CurveDimension",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.getDimension",
+      "NurbsCurve.setDimension"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "curveType_ShouldBeSettable",
+    "source_line": 98,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve",
+      "NurbsType"
+    ],
+    "methods_used": [
+      "NurbsCurve.getCurveType",
+      "NurbsCurve.setCurveType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "evaluate_ShouldThrowUnsupportedOperationException",
+    "source_line": 106,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.evaluate"
+    ],
+    "formats_referenced": [
+      "exception"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsCurveTests.java",
+    "source_function": "evaluateAt_ShouldThrowUnsupportedOperationException",
+    "source_line": 113,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve"
+    ],
+    "methods_used": [
+      "NurbsCurve.evaluateAt"
+    ],
+    "formats_referenced": [
+      "exception"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "constructor_ShouldInitializeDefaultValues",
+    "source_line": 8,
+    "classes_used": [
+      "NurbsDirection",
+      "NurbsType"
+    ],
+    "methods_used": [
+      "NurbsDirection.getCount",
+      "NurbsDirection.getDegree",
+      "NurbsDirection.getDivisions",
+      "NurbsDirection.getOrder",
+      "NurbsDirection.getType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "knotVectors_ShouldBeWritable",
+    "source_line": 20,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getKnotVectors"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "multiplicity_ShouldBeWritable",
+    "source_line": 33,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getMultiplicity"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "order_ShouldBeSettable",
+    "source_line": 45,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getOrder",
+      "NurbsDirection.setOrder"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "degree_ShouldBeSettable",
+    "source_line": 53,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getDegree",
+      "NurbsDirection.setDegree"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "divisions_ShouldBeSettable",
+    "source_line": 61,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getDivisions",
+      "NurbsDirection.setDivisions"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "type_ShouldBeSettable",
+    "source_line": 69,
+    "classes_used": [
+      "NurbsDirection",
+      "NurbsType"
+    ],
+    "methods_used": [
+      "NurbsDirection.getType",
+      "NurbsDirection.setType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.java",
+    "source_file": "src/test/java/com/aspose/threed/NurbsDirectionTests.java",
+    "source_function": "count_ShouldBeSettable",
+    "source_line": 77,
+    "classes_used": [
+      "NurbsDirection"
+    ],
+    "methods_used": [
+      "NurbsDirection.getCount",
+      "NurbsDirection.setCount"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.java",
+    "source_file": "src/test/java/com/aspose/threed/SceneTest.java",
+    "source_function": "testSceneCreation",
+    "source_line": 7,
+    "classes_used": [
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.getName",
+      "Scene.getName",
+      "Scene.getRootNode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.java",
+    "source_file": "src/test/java/com/aspose/threed/SceneTest.java",
+    "source_function": "testNodeCreation",
+    "source_line": 14,
+    "classes_used": [
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.createChildNode",
+      "Node.getChildNodes",
+      "Node.getName",
+      "Scene.getName",
+      "Scene.getRootNode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.java",
+    "source_file": "src/test/java/com/aspose/threed/SceneTest.java",
+    "source_function": "testTransform",
+    "source_line": 23,
+    "classes_used": [
+      "Node",
+      "Transform"
+    ],
+    "methods_used": [
+      "Node.getTransform",
+      "Transform.getTranslation",
+      "Transform.setTranslation"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testStlBinaryExport",
+    "source_line": 13,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "SaveOptions",
+      "Scene",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "FileFormat.toString",
+      "Mesh.addControlPoint",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Node.toString",
+      "Scene.getRootNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testStlAsciiExport",
+    "source_line": 47,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "SaveOptions",
+      "Scene",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "FileFormat.toString",
+      "Mesh.addControlPoint",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Node.toString",
+      "Scene.getRootNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testCreateSimpleStlBinary",
+    "source_line": 79,
+    "classes_used": [
+      "LoadOptions",
+      "Node",
+      "Scene",
+      "StlLoadOptions",
+      "Stream"
+    ],
+    "methods_used": [
+      "Node.toString",
+      "Scene.fromFile",
+      "Scene.getRootNode",
+      "Stream.write"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testCreateSimpleStlAscii",
+    "source_line": 104,
+    "classes_used": [
+      "LoadOptions",
+      "Node",
+      "Scene",
+      "StlLoadOptions"
+    ],
+    "methods_used": [
+      "Node.toString",
+      "Scene.fromFile",
+      "Scene.getRootNode"
+    ],
+    "formats_referenced": [
+      "exception",
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testStlLoadOptions",
+    "source_line": 130,
+    "classes_used": [
+      "CoordinateSystem",
+      "FileFormat",
+      "LoadOptions",
+      "StlLoadOptions"
+    ],
+    "methods_used": [
+      "StlLoadOptions.getFlipCoordinateSystem",
+      "StlLoadOptions.setFlipCoordinateSystem"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.java",
+    "source_file": "src/test/java/com/aspose/threed/StlFormatTest.java",
+    "source_function": "testStlSaveOptions",
+    "source_line": 142,
+    "classes_used": [
+      "CoordinateSystem",
+      "FileFormat",
+      "SaveOptions",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "StlSaveOptions.getFlipCoordinateSystem",
+      "StlSaveOptions.setFlipCoordinateSystem"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.java",
+    "source_file": "src/test/java/com/aspose/threed/Vector3Test.java",
+    "source_function": "testConstructor",
+    "source_line": 7,
+    "classes_used": [
+      "Vector3"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.java",
+    "source_file": "src/test/java/com/aspose/threed/Vector3Test.java",
+    "source_function": "testAdd",
+    "source_line": 15,
+    "classes_used": [
+      "Vector3"
+    ],
+    "methods_used": [
+      "Vector3.add"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.java",
+    "source_file": "src/test/java/com/aspose/threed/Vector3Test.java",
+    "source_function": "testDot",
+    "source_line": 25,
+    "classes_used": [
+      "Vector3"
+    ],
+    "methods_used": [
+      "Vector3.dot"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.java",
+    "source_file": "src/test/java/com/aspose/threed/Vector3Test.java",
+    "source_function": "testCross",
+    "source_line": 32,
+    "classes_used": [
+      "Vector3"
+    ],
+    "methods_used": [
+      "Vector3.cross",
+      "Vector3.get",
+      "Vector3.getUnitX",
+      "Vector3.getUnitY"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "data_ShouldBeWritable",
+    "source_line": 8,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "VertexElementTemplate.getData"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "copyTo_ShouldCopyData",
+    "source_line": 20,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "VertexElementTemplate.copyTo",
+      "VertexElementTemplate.getData"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "setData_ShouldSetData",
+    "source_line": 34,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "VertexElementTemplate.getData",
+      "VertexElementTemplate.setData"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "clear_ShouldClearData",
+    "source_line": 47,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [
+      "VertexElement.clear",
+      "VertexElementTemplate.clear",
+      "VertexElementTemplate.getData"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 59,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.java",
+    "source_file": "src/test/java/com/aspose/threed/VertexElementTemplateTests.java",
+    "source_function": "TestVertexElementTemplate",
+    "source_line": 59,
+    "classes_used": [
+      "Vertex",
+      "VertexElement",
+      "VertexElementTemplate"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 94,
+    "classes_used": [
+      "FileFormat",
+      "Scene"
+    ],
+    "methods_used": [
+      "Scene.fromFile",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 104,
+    "classes_used": [
+      "Mesh",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Mesh.addControlPoint",
+      "Mesh.createPolygon",
+      "Node.createChildNode",
+      "Scene.getRootNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 134,
+    "classes_used": [
+      "FileFormat",
+      "SaveOptions",
+      "Scene",
+      "StlSaveOptions"
+    ],
+    "methods_used": [
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 150,
+    "classes_used": [
+      "FileFormat",
+      "Mesh",
+      "Node",
+      "Scene",
+      "Stream"
+    ],
+    "methods_used": [
+      "FileFormat.getFormatByExtension",
+      "Mesh.getControlPoints",
+      "Mesh.getPolygonCount",
+      "Node.getChildNodes",
+      "Node.getEntities",
+      "Scene.getRootNode",
+      "Scene.open",
+      "Stream.close",
+      "Stream.wrap"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 165,
+    "classes_used": [
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.createChildNode",
+      "Node.getChildNodes",
+      "Node.getName",
+      "Scene.getName",
+      "Scene.getRootNode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 174,
+    "classes_used": [
+      "Node",
+      "Transform",
+      "Vector3"
+    ],
+    "methods_used": [
+      "Node.createChildNode",
+      "Node.getTransform",
+      "Transform.getTranslation",
+      "Transform.setTranslation"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 182,
+    "classes_used": [
+      "LambertMaterial",
+      "Material",
+      "Vector3"
+    ],
+    "methods_used": [
+      "LambertMaterial.setAmbientColor",
+      "LambertMaterial.setDiffuseColor",
+      "LambertMaterial.setTransparency"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 192,
+    "classes_used": [
+      "Material",
+      "PbrMaterial",
+      "Vector3"
+    ],
+    "methods_used": [
+      "PbrMaterial.setAlbedo",
+      "PbrMaterial.setMetallicFactor",
+      "PbrMaterial.setRoughnessFactor"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 203,
+    "classes_used": [
+      "Curve",
+      "CurveDimension",
+      "NurbsCurve",
+      "NurbsType"
+    ],
+    "methods_used": [
+      "NurbsCurve.getCurveType",
+      "NurbsCurve.getDegree",
+      "NurbsCurve.getDimension",
+      "NurbsCurve.setOrder"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 217,
+    "classes_used": [
+      "Vector3"
+    ],
+    "methods_used": [
+      "Vector3.add",
+      "Vector3.cross",
+      "Vector3.dot"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  }
+]

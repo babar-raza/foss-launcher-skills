@@ -1,0 +1,258 @@
+[
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 332,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 513,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 604,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 611,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 619,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 797,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 803,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FileFormat.java",
+    "line": 809,
+    "direction": "export"
+  },
+  {
+    "format": "A3dw",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/A3dwSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Amf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/AmfSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/ColladaSaveOptions.java",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Draco",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/DracoSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FbxLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/FbxSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/GltfLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/GltfSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Html5",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/Html5SaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Jt",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/JtLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/ObjLoadOptions.java",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/ObjSaveOptions.java",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/PdfLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/PdfSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/PlyLoadOptions.java",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/PlySaveOptions.java",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Exception",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/RendererException.java",
+    "line": 3,
+    "direction": "export"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/RvmLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/RvmSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/StlLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/StlSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/U3dLoadOptions.java",
+    "line": 6,
+    "direction": "import"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/U3dSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Usd",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/UsdSaveOptions.java",
+    "line": 6,
+    "direction": "export"
+  }
+]

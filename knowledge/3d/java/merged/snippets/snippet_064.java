@@ -1,0 +1,3 @@
+public TestVertexElementTemplate() {
+            super();
+        }
