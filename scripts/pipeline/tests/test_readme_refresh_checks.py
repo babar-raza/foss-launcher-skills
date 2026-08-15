@@ -13,6 +13,7 @@ through. `check_diagram_connectivity` (orphan-reachability) is replaced by
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -250,6 +251,72 @@ def test_column_balance_flags_unbalanced_split():
     )
     findings = checks.check_diagram_column_balance(text)
     assert findings and "not balanced" in findings[0]["reason"]
+
+
+# --- check_diagram_label_token_length (MT040, Thirtieth incident, 2026-08-14) ----------------
+
+
+def test_label_token_length_clean_fixtures_all_pass():
+    for name, text in CLEAN_FIXTURES.items():
+        assert checks.check_diagram_label_token_length(text) == [], name
+
+
+def test_label_token_length_flags_a_real_overlong_unbroken_token():
+    # A synthetic but realistic overlong single token (no spaces) -- the exact shape of the
+    # real, open, unfixed upstream mermaid-js#6424 "Long Words are Cut Off" defect class.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["SupercalifragilisticexpialidociousCollectionManager"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_label_token_length(text)
+    assert findings and findings[0]["token"] == "SupercalifragilisticexpialidociousCollectionManager"
+    assert findings[0]["token_length"] > 28
+
+
+def test_label_token_length_flags_overlong_container_title():
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Cap"]
+  end
+  subgraph Outputs["OutputsAndAccessibleContentForEveryProducedArtifact"]
+    o1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    findings = checks.check_diagram_label_token_length(text)
+    assert findings and findings[0]["node_id"] == "Outputs"
+
+
+def test_label_token_length_does_not_flag_real_corpus_longest_tokens():
+    # The two longest real single-token labels found anywhere in the live 30-product corpus
+    # during the MT040 investigation -- both independently confirmed to render cleanly (no
+    # overflow) against the real Mermaid renderer. Must never be flagged.
+    text = _wrap(
+        """flowchart TD
+  PRODUCT["P"]
+  subgraph Capabilities["Core Capabilities"]
+    c1["Named range management (DefinedNameCollection)"]
+    c2["Text extraction with TextAbsorber and TextFragmentAbsorber"]
+  end
+  subgraph Outputs["Outputs"]
+    o1["Out"]
+  end
+  PRODUCT --> Capabilities --> Outputs"""
+    )
+    assert checks.check_diagram_label_token_length(text) == []
+
+
+def test_label_token_length_no_mermaid_block_is_vacuous():
+    assert checks.check_diagram_label_token_length("# No diagram here\n") == []
 
 
 # --- check_diagram_known_subgraph_ids ---------------------------------------------------------
@@ -1018,6 +1085,89 @@ def test_examples_table_collapsed_matches_title_cased_heading():
     assert findings and "not inside a <details> block" in findings[0]["reason"]
 
 
+# --- check_api_reference_detail_collapsed (2026-08-15, MT045, TC-HARDEN-67) -----------------------
+
+
+def test_api_reference_detail_collapsed_flags_real_barcode_python_table_only_shape():
+    # Real, captured shape: barcode/python's own defective candidate has NO curated member
+    # bullets -- table-only (module table + Enumerations subsection), fully expanded, zero
+    # <details> tags anywhere in the section. This is the primary, real proof case, not a
+    # hypothetical table+bullets fixture.
+    text = (
+        "## API Reference\n\n"
+        "`Barcode` is the primary entry point: it is returned by `generate()` and every "
+        "per-symbology helper.\n\n"
+        "### Core API\n\n"
+        "| Class | Description |\n|---|---|\n"
+        "| `Barcode` | The public barcode object returned by every encoding helper. |\n\n"
+        "#### Enumerations\n\n"
+        "| Enumeration | Description |\n|---|---|\n"
+        "| `Code128EncodeMode` | Code 128 Code Set selection. |\n\n"
+        "## Documentation & Resources\n"
+    )
+    findings = checks.check_api_reference_detail_collapsed(text)
+    assert findings and "not inside a <details> block" in findings[0]["reason"]
+
+
+def test_api_reference_detail_collapsed_flags_table_plus_bullets_general_case():
+    text = (
+        "## API Reference\n\n"
+        "`Workbook` is the primary entry point.\n\n"
+        "| Class | Description |\n|---|---|\n| `Workbook` | The workbook object. |\n\n"
+        "- `Workbook` -- open, save, and manage worksheets.\n\n"
+        "## Documentation & Resources\n"
+    )
+    findings = checks.check_api_reference_detail_collapsed(text)
+    assert findings and "not inside a <details> block" in findings[0]["reason"]
+
+    fixed = (
+        "## API Reference\n\n"
+        "`Workbook` is the primary entry point.\n\n"
+        "<details><summary>View the Full API Surface</summary>\n\n"
+        "| Class | Description |\n|---|---|\n| `Workbook` | The workbook object. |\n\n"
+        "- `Workbook` -- open, save, and manage worksheets.\n\n"
+        "</details>\n\n"
+        "## Documentation & Resources\n"
+    )
+    assert checks.check_api_reference_detail_collapsed(fixed) == []
+
+
+def test_api_reference_detail_collapsed_passes_smallest_real_surface_size_independence_proof():
+    # Size-independence proof: a genuinely small (11-class-shaped, tex/python-style) table
+    # still must collapse -- the rule is deterministic and unconditional, never a row-count
+    # threshold.
+    text = (
+        "## API Reference\n\n"
+        "`TeXJob` is the primary entry point.\n\n"
+        "<details><summary>View the Full API Surface</summary>\n\n"
+        "| Class | Description |\n|---|---|\n| `TeXJob` | Compiles a TeX document. |\n\n"
+        "</details>\n\n"
+        "## Documentation & Resources\n"
+    )
+    assert checks.check_api_reference_detail_collapsed(text) == []
+
+
+def test_api_reference_detail_collapsed_noop_when_no_detail_content():
+    text = (
+        "## API Reference\n\n"
+        "`Workbook` is the primary entry point in this library.\n\n"
+        "## Documentation & Resources\n"
+    )
+    assert checks.check_api_reference_detail_collapsed(text) == []
+
+
+def test_api_reference_detail_collapsed_no_false_positive_on_ordinary_prose():
+    # A plain intro sentence naming real classes mid-prose, outside any table/bullet, must
+    # never trip the collapse gate.
+    text = (
+        "## API Reference\n\n"
+        "This library exposes `Workbook` and `Worksheet` as its primary entry points, along "
+        "with a small set of helper classes for styling and formulas.\n\n"
+        "## Documentation & Resources\n"
+    )
+    assert checks.check_api_reference_detail_collapsed(text) == []
+
+
 # --- check_heading_title_case ----------------------------------------------------------------------
 
 
@@ -1139,6 +1289,7 @@ _ALL_SECTIONS_README = """# Foo
 ## At a Glance
 ## Key Capabilities
 ## Installation
+## Dependencies
 ## Quick Start
 ## Additional Examples
 ## API Reference
@@ -1260,6 +1411,187 @@ def test_check_enterprise_edition_link_resolves_trailing_slash_and_case_normaliz
     text = "See [Aspose.Foo Enterprise Edition](HTTPS://PRODUCTS.ASPOSE.COM/foo/net)."
     enterprise_link = {"url": "https://products.aspose.com/foo/net/"}
     assert checks.check_enterprise_edition_link_resolves(text, enterprise_link) == []
+
+
+# --- check_enterprise_edition_anchor_matches_relationship (TC-HARDEN-62, MT043, Thirty-Third
+# incident; CORRECTED 2026-08-14, MT044, Thirty-Fourth incident) -----------------------------------
+# Trigger: cells/typescript's real, live candidate linked "Aspose.Cells for .NET -- Enterprise
+# Edition" to a family-level URL that has nothing specifically to do with .NET -- both check_
+# enterprise_edition_naming (anchor text/context) and check_enterprise_edition_link_resolves
+# (href-vs-verified-target) passed this cleanly, since neither ever checked the anchor's own
+# PLATFORM CLAIM against what the resolved destination actually represents.
+# MT044 correction: MT043's own fix then went too far the other way -- it REQUIRED a "via
+# {language}" qualifier plus a disclosure sentence for any compound/bridge URL, exposing exactly
+# the implementation-bridge detail the plan now permanently forbids. The "exact"/"bridge" split
+# is gone; both collapse into one "platform" relationship using only a normalized, public-facing
+# `public_platform` name -- never an implementation qualifier.
+
+
+def test_enterprise_anchor_relationship_flags_the_real_cells_typescript_defect():
+    text = ("This limitation does not apply to [Aspose.Cells for .NET — Enterprise Edition]"
+            "(https://products.aspose.com/cells/), which adds full production support.")
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/", "relationship": "family",
+        "public_platform": None,
+    }
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link)
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "platform_claim_on_family_link"
+
+
+def test_enterprise_anchor_relationship_flags_words_net_family_shape():
+    # A second, real, confirmed instance of the same defect class -- different platform name,
+    # identical root cause (a family destination, a platform-specific anchor).
+    text = "See [Aspose.Words for .NET — Enterprise Edition](https://products.aspose.com/words/)."
+    enterprise_link = {
+        "url": "https://products.aspose.com/words/", "relationship": "family",
+        "public_platform": None,
+    }
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link)
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "platform_claim_on_family_link"
+
+
+def test_enterprise_anchor_relationship_passes_real_family_neutral_anchor():
+    text = "See [Aspose.Cells — Enterprise Edition](https://products.aspose.com/cells/)."
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/", "relationship": "family",
+        "public_platform": None,
+    }
+    assert checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link) == []
+
+
+def test_enterprise_anchor_relationship_passes_platform_only_anchor_for_compound_url():
+    # Real, confirmed shape: cells/python resolves to a real compound (python-net) URL. Under the
+    # CORRECTED contract, the anchor names only "Python" -- no bridge qualifier, no disclosure
+    # prose required or permitted. This is the exact real cells/python content this session
+    # already published under the corrected wording.
+    text = ("See [Aspose.Cells for Python — Enterprise Edition]"
+            "(https://products.aspose.com/cells/python-net/), which adds full production support.")
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/python-net/", "relationship": "platform",
+        "public_platform": "Python",
+    }
+    assert checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link) == []
+
+
+def test_enterprise_anchor_relationship_flags_bridge_wording_as_wrong_platform_name():
+    # The old, now-forbidden "for Python via .NET" form must fail under the new contract too --
+    # ".NET" is a "wrong_platform_name" the anchor must not carry (the bridge-disclosure PROSE
+    # half of this defect is caught separately by check_no_implementation_bridge_disclosure).
+    text = ("See [Aspose.Cells for Python via .NET — Enterprise Edition]"
+            "(https://products.aspose.com/cells/python-net/), which adds full production support.")
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/python-net/", "relationship": "platform",
+        "public_platform": "Python",
+    }
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link)
+    reasons = {f["reason"] for f in findings}
+    assert "wrong_platform_name" in reasons
+
+
+def test_enterprise_anchor_relationship_passes_real_platform_shape_exact_slug():
+    # Real, already-correct, already-shipped shape -- cells/java resolves to the real, exact
+    # cells/java/ platform page. Proves the fix doesn't regress the already-clean products.
+    text = "See [Aspose.Cells for Java — Enterprise Edition](https://products.aspose.com/cells/java/)."
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/java/", "relationship": "platform",
+        "public_platform": "Java",
+    }
+    assert checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link) == []
+
+
+def test_enterprise_anchor_relationship_flags_wrong_platform_name():
+    text = "See [Aspose.Cells for Python — Enterprise Edition](https://products.aspose.com/cells/java/)."
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/java/", "relationship": "platform",
+        "public_platform": "Java",
+    }
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link)
+    reasons = {f["reason"] for f in findings}
+    assert "missing_platform_name" in reasons
+    assert "wrong_platform_name" in reasons
+
+
+def test_enterprise_anchor_relationship_flags_unresolved_relationship():
+    text = "See [Aspose.Cells Enterprise Edition](https://products.aspose.com/cells/mystery/)."
+    enterprise_link = {
+        "url": "https://products.aspose.com/cells/mystery/", "relationship": "unresolved",
+        "public_platform": None,
+    }
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link)
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "no_classifiable_relationship"
+
+
+def test_enterprise_anchor_relationship_flags_when_no_relationship_at_all():
+    text = "See [Aspose.Cells Enterprise Edition](https://products.aspose.com/cells/whatever/)."
+    findings = checks.check_enterprise_edition_anchor_matches_relationship(text, {"relationship": None})
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "no_classifiable_relationship"
+
+
+def test_enterprise_anchor_relationship_ignores_non_enterprise_links():
+    assert checks.check_enterprise_edition_anchor_matches_relationship(_ASPOSE_ORG_LINK, None) == []
+
+
+# --- check_no_implementation_bridge_disclosure (MT044 replacement for TC-HARDEN-62's own
+# "missing_bridge_disclosure" requirement, Thirty-Fourth incident, 2026-08-14) ----------------------
+# Portfolio-wide, document-wide -- not scoped to the Enterprise-link paragraph. Fixtures use real,
+# captured-verbatim forbidden phrasings from the mission brief plus the 9 real bridge-wording
+# instances found in the two-tree audit.
+
+
+def test_no_implementation_bridge_disclosure_flags_via_language():
+    text = "Aspose.Email for Python via .NET — Enterprise Edition adds full production support."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    assert len(findings) == 1
+    assert findings[0]["reason"] == "implementation_bridge_disclosure"
+
+
+def test_no_implementation_bridge_disclosure_flags_implemented_through():
+    text = "This edition is implemented through .NET rather than a pure Python engine."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    assert len(findings) >= 1
+
+
+def test_no_implementation_bridge_disclosure_flags_backed_by():
+    text = "The Go edition is backed by C++ under the hood."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    assert len(findings) == 1
+
+
+def test_no_implementation_bridge_disclosure_flags_wrapper_around():
+    text = "It is essentially a wrapper around the Java implementation."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    assert len(findings) == 1
+
+
+def test_no_implementation_bridge_disclosure_flags_binding_to():
+    text = "The Node.js package is a binding to the underlying C++ engine."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    assert len(findings) == 1
+
+
+def test_no_implementation_bridge_disclosure_flags_rather_than_native():
+    text = "API implemented via .NET rather than as a native Python engine."
+    findings = checks.check_no_implementation_bridge_disclosure(text)
+    # "via .NET" and "rather than as a native" both match -- at least one finding, both patterns
+    # individually confirmed elsewhere; this fixture proves the compound real-world sentence fires.
+    assert len(findings) >= 1
+
+
+def test_no_implementation_bridge_disclosure_silent_on_clean_text():
+    text = ("Aspose.Cells for Python — Enterprise Edition adds full production support and "
+            "broader format coverage. See the Quick Start example below for usage.")
+    assert checks.check_no_implementation_bridge_disclosure(text) == []
+
+
+def test_no_implementation_bridge_disclosure_ignores_fenced_code():
+    # A real code identifier containing "via" phrasing inside a fenced block must never trip this
+    # -- fenced content is stripped first, matching this module's own established convention.
+    text = "```python\n# implemented via .NET internally, see docs\nprint('hi')\n```"
+    assert checks.check_no_implementation_bridge_disclosure(text) == []
 
 
 def test_check_required_sections_all_present():
@@ -1486,6 +1818,77 @@ def test_check_process_narration_smells_clean_text():
     assert checks.check_process_narration_smells(text) == []
 
 
+def test_check_process_narration_smells_flags_generation_mechanism_narration():
+    # 2026-08-14 (MT039, Twenty-Ninth incident): "the table/index/section below/above mirrors
+    # [source]'s own [structure]" -- describes HOW this document's own section was composed,
+    # not a product fact. Real, captured-verbatim shapes across the portfolio.
+    assert checks.check_process_narration_smells(
+        "The library's reference index lists 80 public types; the table below mirrors its "
+        "own module organization for easier lookup."
+    )
+    assert checks.check_process_narration_smells(
+        "The full, generated class index below mirrors `reference.aspose.org`'s own module "
+        "grouping."
+    )
+    assert checks.check_process_narration_smells(
+        "The library ships 96 public types, summarized in the module-grouped table below "
+        "(mirrors [reference.aspose.org's own class index](https://reference.aspose.org/cells/net/))."
+    )
+    assert checks.check_process_narration_smells(
+        "Every public type is documented across the module-grouped tables below, mirroring "
+        "[the full reference](https://reference.aspose.org/pdf/java/)."
+    )
+    assert checks.check_process_narration_smells(
+        "For deeper drill-down, the API Reference section above mirrors the same data."
+    )
+
+
+def test_check_process_narration_smells_flags_grouped_exactly_as():
+    assert checks.check_process_narration_smells(
+        "Every public class is listed below, grouped exactly as `reference.aspose.org` "
+        "organizes them."
+    )
+
+
+def test_check_process_narration_smells_does_not_flag_legitimate_mirror_usage():
+    # Negative controls: real, already-shipped uses of "mirror(s)/mirroring" describing a
+    # genuine product fact, never this document's own table/index/section structure.
+    assert checks.check_process_narration_smells(
+        "`MirroredProfile` wraps a color profile with its axes reversed."
+    ) == []
+    assert checks.check_process_narration_smells(
+        "The `HTMLElement` interface mirrors the WHATWG `window.customElements` API."
+    ) == []
+    assert checks.check_process_narration_smells(
+        "`TextPortion` mirrors OperatorCollection but is detached from any page."
+    ) == []
+    assert checks.check_process_narration_smells(
+        "Standard font names use codes mirroring PDF 32000 §12.3.2.2 names."
+    ) == []
+    assert checks.check_process_narration_smells(
+        "The API shape mirrors Aspose.PDF for .NET where natural, and diverges where the "
+        "language idiom calls for it."
+    ) == []
+    assert checks.check_process_narration_smells(
+        "(mirrors the project's CI, which runs on Ubuntu and Windows.)"
+    ) == []
+
+
+def test_check_process_narration_smells_widened_upstream_own_pattern():
+    # 2026-08-14 (MT039): widened from "repository" alone to also catch "project"/"readme" --
+    # a confirmed synonym-evasion instance used the identical shape with a different noun.
+    assert checks.check_process_narration_smells(
+        "The examples below mirror the upstream project's own usage examples."
+    )
+    assert checks.check_process_narration_smells(
+        "The install steps reproduce the upstream readme's own build instructions."
+    )
+    # Regression: the original, already-tested "repository" form still fires.
+    assert checks.check_process_narration_smells(
+        "These are reproduced from its own the upstream repository's own README.md."
+    )
+
+
 _UPSTREAM_ISSUES_WITH_BLOCKING = """# Upstream issues
 
 ## Broken pip install
@@ -1582,6 +1985,24 @@ def test_check_dropped_content_flags_upstream_issues_md_bare_mention():
     # "cited or summarized" -- a bare, non-linked mention must be caught too, not just a
     # markdown link target.
     new_readme = "## Development and Testing\n\nSee upstream-issues.md for details.\n"
+    result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
+    assert any("upstream-issues.md" in label.lower() for label in result["internal_labels"])
+
+
+def test_check_dropped_content_flags_upstream_issues_md_inside_api_reference_section():
+    # MT048 (note/python pilot, 2026-08-15): the real, confirmed shape -- an earlier draft of
+    # note/python's real API Reference table cited "upstream-issues.md" by name for the
+    # AsposeNoteError re-export gap. check_no_upstream_issue_leaked_into_readme deliberately
+    # exempts the whole "## API Reference" section (real class names legitimately recur there),
+    # so a bare filename citation placed specifically INSIDE that section is exactly the shape
+    # that check cannot catch. This proves the complementary mechanism -- check_dropped_content's
+    # internal_labels scan (this function) -- is genuinely unconditional and has NO section
+    # exemption, so it still catches this exact shape even where the sibling check would not.
+    new_readme = (
+        "## API Reference\n\n"
+        "| Class | Description |\n|---|---|\n"
+        "| `AsposeNoteError` | Not re-exported from the top level; see upstream-issues.md. |\n"
+    )
     result = checks.check_dropped_content("Old readme.\n", new_readme, "irrelevant")
     assert any("upstream-issues.md" in label.lower() for label in result["internal_labels"])
 
@@ -3168,6 +3589,181 @@ def test_installation_check_noop_when_candidate_data_incomplete():
     assert checks.check_installation_matches_package_registry(text, install_info) == []
 
 
+# --- check_installation_matches_package_registry: badge-row extension (TC-HARDEN-59, MT042) ------
+
+
+def test_installation_check_badge_scan_passes_matching_package_version_badge():
+    text = (
+        "[![PyPI](https://img.shields.io/pypi/v/aspose-email-foss.svg)]"
+        "(https://pypi.org/project/aspose-email-foss/) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+        "## Installation\n\n```bash\npython -m pip install aspose-email-foss\n```\n"
+    )
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_badge_scan_flags_wrong_package_version_badge():
+    text = (
+        "[![PyPI](https://img.shields.io/pypi/v/totally-different-package.svg)]"
+        "(https://pypi.org/project/totally-different-package/) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+        "## Installation\n\n```bash\npython -m pip install aspose-email-foss\n```\n"
+    )
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    findings = checks.check_installation_matches_package_registry(text, install_info)
+    reasons = [f for f in findings if "badge classified" in f["reason"]]
+    assert len(reasons) == 1
+    assert reasons[0]["expected"] == "aspose-email-foss"
+
+
+def test_installation_check_badge_scan_ignores_non_package_version_badges():
+    text = (
+        "[![Contributors](https://img.shields.io/github/contributors/org/repo.svg)]"
+        "(https://github.com/org/repo/graphs/contributors) "
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+        "## Installation\n\n```bash\npython -m pip install aspose-email-foss\n```\n"
+    )
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    assert checks.check_installation_matches_package_registry(text, install_info) == []
+
+
+def test_installation_check_badge_scan_noop_when_unpublished():
+    # fallback_text_required=True -- badge scan must never run (nothing to compare against).
+    text = (
+        "[![PyPI](https://img.shields.io/pypi/v/totally-wrong.svg)](https://pypi.org/project/totally-wrong/)\n\n"
+        "## Installation\n\nA PyPI package has not been published yet. Install from source:\n"
+    )
+    assert checks.check_installation_matches_package_registry(
+        text, {"fallback_text_required": True}
+    ) == []
+
+
+def test_installation_check_badge_scan_noop_when_no_registry_data():
+    text = "[![PyPI](https://img.shields.io/pypi/v/whatever.svg)](https://pypi.org/project/whatever/)\n"
+    assert checks.check_installation_matches_package_registry(
+        text, {"source": "package_registry_missing"}
+    ) == []
+
+
+def test_installation_check_badge_scan_runs_even_with_no_installation_section():
+    # A real gap the original Installation-only scan could never catch: a wrong package_version
+    # badge with no ## Installation section present at all.
+    text = "[![PyPI](https://img.shields.io/pypi/v/totally-wrong.svg)](https://pypi.org/project/totally-wrong/)\n"
+    install_info = {
+        "fallback_text_required": False, "registry_type": "pypi",
+        "candidate": {"name": "aspose-email-foss"},
+    }
+    findings = checks.check_installation_matches_package_registry(text, install_info)
+    assert len(findings) == 1
+    assert findings[0]["expected"] == "aspose-email-foss"
+
+
+# --- check_badge_row_meets_verified_floor / check_badge_available_fact_not_shown (TC-HARDEN-58/
+# 59, MT042, Thirty-Second incident) ---------------------------------------------------------------
+# Trigger: a real, clean-room `cells/typescript` candidate shipped with a single License badge --
+# every other real, currently-shipped candidate in the portfolio has 2-5, zero exceptions. The
+# existing badge mechanism is entirely reconciliation-scoped (preserve/dedup an OLD badge) and
+# vacuously passes when the old README has zero badges, exactly this case.
+
+
+def _available(**overrides):
+    base = {
+        "license": {"available": False, "reason": "n/a"},
+        "package_version": {"available": False, "reason": "n/a"},
+        "language_version": {"available": False, "reason": "n/a"},
+        "ci_build_status": {"available": False, "reason": "n/a"},
+        "contributor_count": {"available": False, "reason": "n/a"},
+    }
+    base.update(overrides)
+    return base
+
+
+def test_badge_floor_flags_the_real_cells_typescript_shape():
+    # The real, original defect: License only, while contributor_count is genuinely available
+    # (a real, resolvable GitHub repo) and unused.
+    text = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n"
+    available = _available(
+        license={"available": True},
+        contributor_count={"available": True, "alt_text": "Contributors"},
+    )
+    findings = checks.check_badge_row_meets_verified_floor(text, available)
+    assert len(findings) == 1
+    assert findings[0]["category"] is None
+
+
+def test_badge_floor_passes_license_plus_contributors():
+    text = (
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) "
+        "[![Contributors](https://img.shields.io/github/contributors/org/repo.svg)]"
+        "(https://github.com/org/repo/graphs/contributors)\n"
+    )
+    available = _available(
+        license={"available": True}, contributor_count={"available": True},
+    )
+    assert checks.check_badge_row_meets_verified_floor(text, available) == []
+
+
+def test_badge_floor_passes_license_plus_ci_instead_of_contributors():
+    # Never mandates a SPECIFIC second category -- 6 of 30 real portfolio products use CI/build
+    # in this slot instead of Contributors, a legitimate, already-precedented editorial choice.
+    text = (
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) "
+        "[![Build](https://github.com/org/repo/actions/workflows/ci.yml/badge.svg)]"
+        "(https://github.com/org/repo/actions/workflows/ci.yml)\n"
+    )
+    available = _available(
+        license={"available": True}, contributor_count={"available": True},
+        ci_build_status={"available": True},
+    )
+    assert checks.check_badge_row_meets_verified_floor(text, available) == []
+
+
+def test_badge_floor_flags_missing_license_badge():
+    text = "[![Contributors](https://img.shields.io/github/contributors/org/repo.svg)](https://github.com/org/repo/graphs/contributors)\n"
+    available = _available(license={"available": True}, contributor_count={"available": True})
+    findings = checks.check_badge_row_meets_verified_floor(text, available)
+    assert len(findings) == 1
+    assert findings[0]["category"] == "license"
+
+
+def test_badge_floor_vacuous_pass_when_nothing_available():
+    # A real, genuinely license-less/repo-unresolvable product -- never fabricate a badge to
+    # force a pass, never fail on the absence of a fact this function can't verify either way.
+    text = "# Some Product\n"
+    assert checks.check_badge_row_meets_verified_floor(text, _available()) == []
+
+
+def test_badge_available_fact_not_shown_flags_unused_available_category():
+    text = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n"
+    available = _available(
+        license={"available": True},
+        contributor_count={"available": True, "alt_text": "Contributors", "image_url": "x"},
+    )
+    findings = checks.check_badge_available_fact_not_shown(text, available)
+    categories = {f["category"] for f in findings}
+    assert "contributor_count" in categories
+
+
+def test_badge_available_fact_not_shown_silent_when_already_shown():
+    text = (
+        "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) "
+        "[![Contributors](https://img.shields.io/github/contributors/org/repo.svg)]"
+        "(https://github.com/org/repo/graphs/contributors)\n"
+    )
+    available = _available(license={"available": True}, contributor_count={"available": True})
+    assert checks.check_badge_available_fact_not_shown(text, available) == []
+
+
 def test_api_reference_classes_exist_flags_fabricated_class():
     text = _wrap(
         """flowchart TD
@@ -3744,6 +4340,279 @@ def test_no_upstream_issue_leaked_ignores_fenced_code_blocks():
     ) == []
 
 
+# --- Thirty-Seventh incident (2026-08-16): Installation/Quick Start leak blind spot ---------
+
+# Real, captured-verbatim upstream-issues.md entry (html/python, trimmed to the BLOCKING entry
+# only -- the INFORMATIONAL test-fixture entry is irrelevant to fingerprint extraction since
+# only BLOCKING/FUNCTIONAL-DEFECT entries are fingerprinted). This is the exact real entry that
+# motivated this incident.
+_REAL_HTML_PYTHON_UPSTREAM_ISSUES = """# Upstream issues -- Aspose.HTML FOSS for Python
+
+Verified: 2026-08-13 against `runs/.clone_cache/aspose_html_python/`.
+
+## No `pip install` variant succeeds -- broken build-backend name
+
+- **Severity**: BLOCKING
+- **Evidence**: `pyproject.toml`'s `[build-system]` table reads:
+  ```toml
+  [build-system]
+  requires = ["setuptools>=68"]
+  build-backend = "setuptools.backends.legacy:build"
+  ```
+  `setuptools.backends` is not a real module in any released version of setuptools -- the real
+  legacy-compatible PEP 517 backend is `setuptools.build_meta:__legacy__` (a `__legacy__` object
+  inside the `setuptools.build_meta` module, not a separate `backends` subpackage).
+- **Impact**: `pip` resolves and invokes the `[build-system]` table for every install source --
+  a local path, an editable local path (`pip install -e .`), or a `git+https` URL -- so every
+  one of them fails identically with `ModuleNotFoundError: No module named
+  'setuptools.backends'` before any of this package's own code ever runs.
+- **Real, working install path**: the repository's own `pyproject.toml` already points pytest at
+  `src/` directly (`[tool.pytest.ini_options]` sets `pythonpath = ["src"]`), so the test suite
+  never depends on the package being pip-installed. Clone the repository, `pip install` the one
+  real runtime dependency (`skia-python>=87.0,<145`), and add `src/` to `PYTHONPATH` instead of
+  installing the package itself.
+- **Not fixable here**: the broken build-backend string lives in the upstream repository's own
+  `pyproject.toml`; a README cannot change another file's contents.
+"""
+
+# Reconstructed pre-fix regression shape (this exact wording is not preserved anywhere on disk --
+# `reports/` is gitignored and the real orchestrating session's fix landed with no prior commit
+# to diff against -- so this rebuilds the incident's own described shape: exact broken
+# build-backend string, exact correct value, exact `ModuleNotFoundError` message, and an
+# audit-style "every variant fails identically" scope claim) directly from
+# `_REAL_HTML_PYTHON_UPSTREAM_ISSUES`'s own Evidence/Impact bullets above, which is how the
+# leak is described to have happened -- forensic detail copied out of upstream-issues.md and
+# narrated in the README's own Installation section instead of a plain pointer.
+_RECONSTRUCTED_HTML_PYTHON_LEAK_INSTALLATION = (
+    "## Installation\n\n"
+    "A PyPI package has not been published yet. Attempting `pip install` (from a local path, "
+    "an editable local path, or a `git+https` URL) fails identically in every case: "
+    "`pyproject.toml`'s `[build-system]` table declares "
+    '`build-backend = "setuptools.backends.legacy:build"`, but `setuptools.backends` is not a '
+    "real module in any released version of setuptools -- the real legacy-compatible backend is "
+    "`setuptools.build_meta:__legacy__`, not `setuptools.backends`. As a result, `pip install` "
+    "raises `ModuleNotFoundError: No module named 'setuptools.backends'` before any of this "
+    "package's own code ever runs. Install by putting the source tree on `PYTHONPATH` directly "
+    "instead:\n\n"
+    "```bash\n"
+    "git clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git\n"
+    "```\n"
+)
+
+# The real, current, already-fixed html/python Installation section (verbatim from
+# reports/repo-presenter-regen-full/html/python/readme.md, 2026-08-16) -- the orchestrating
+# session's own fix, which this new check must NEVER flag.
+_REAL_HTML_PYTHON_FIXED_INSTALLATION = (
+    "## Installation\n\n"
+    "A PyPI package has not been published yet, and `pip install` fails for this repository at "
+    "any source (local path, editable local path, or a `git+https` URL) — see "
+    "[upstream-issues.md](upstream-issues.md) for the root cause. Until that's fixed upstream, "
+    "install by putting the source tree on `PYTHONPATH` directly — the same mechanism the "
+    "repository's own test suite already relies on (`pyproject.toml`'s "
+    "`[tool.pytest.ini_options]` sets `pythonpath = [\"src\"]`):\n\n"
+    "```bash\n"
+    "git clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git\n"
+    "cd Aspose.HTML-FOSS-for-Python\n"
+    'pip install "skia-python>=87.0,<145"\n'
+    "```\n\n"
+    "Then add `src/` to `PYTHONPATH` (Linux/macOS: "
+    '`export PYTHONPATH="$PWD/src:$PYTHONPATH"`; Windows: '
+    "`set PYTHONPATH=%cd%\\src;%PYTHONPATH%`).\n\n"
+    "The distribution is named `aspose-html-foss`; the import package is `aspose_html`. The "
+    "package requires Python 3.10 or later; `skia-python` (used internally for text-layout "
+    "metrics) is its one real runtime dependency. JavaScript execution is optional — "
+    "install `quickjs` directly to use it:\n\n"
+    "```bash\n"
+    'pip install "quickjs>=1.19,<2"\n'
+    "```\n"
+)
+
+# Real, captured-verbatim words/net BLOCKING entry (trimmed) -- a genuine portfolio example of
+# an Installation section that legitimately overlaps 2+ real fingerprint tokens (`dotnet add
+# package`, `dotnet build Aspose.Words.sln -c Release`, `Aspose.Words/Aspose.Words.csproj`) with
+# zero diagnostic narration -- must never fire.
+_REAL_WORDS_NET_UPSTREAM_ISSUES = """# Upstream issues -- Aspose.Words FOSS for .NET
+
+Verified: 2026-08-13 against https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-.NET
+
+## Repo is unbuildable from a clean clone -- missing NuGet package dependency
+- **Severity**: BLOCKING
+- **Evidence**: `Aspose.Words/Aspose.Words.csproj` carries an unconditional `PackageReference
+  Include="Aspose.EnumExtensionsGenerator" Version="1.0.2"`. A live check returns a real HTTP
+  404 -- this package has never been published, so `dotnet build Aspose.Words.sln -c Release`
+  on a genuinely fresh clone fails at restore with `NU1101`.
+- **Impact**: a contributor building from source hits this immediately. Does not affect end
+  users -- `Aspose.Words.FOSS` itself is genuinely published on nuget.org, so this candidate's
+  Installation section uses `dotnet add package` rather than a from-source build.
+- **Not fixable here**: lives entirely in the upstream repository's own project files.
+"""
+
+_REAL_WORDS_NET_INSTALLATION = (
+    "## Installation\n\n"
+    "Install from NuGet:\n\n"
+    "```bash\n"
+    "dotnet add package Aspose.Words.FOSS\n"
+    "```\n\n"
+    "Or build from source:\n\n"
+    "```bash\n"
+    "git clone https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-.NET.git\n"
+    "cd Aspose.Words-FOSS-for-.NET\n"
+    "dotnet build Aspose.Words.sln -c Release\n"
+    "```\n\n"
+    "Then reference `Aspose.Words/Aspose.Words.csproj` from your project. The library targets "
+    ".NET Standard 2.0, so it runs on .NET Framework 4.6.2+ and .NET 6/8/10, on Windows, Linux, "
+    "and macOS.\n"
+)
+
+# Real, captured-verbatim slides/cpp Installation section (CMake-based) -- a genuine portfolio
+# example with zero fingerprint overlap at all against its own (unrelated, example-code-defect)
+# upstream-issues.md entries.
+_REAL_SLIDES_CPP_UPSTREAM_ISSUES = """# Upstream issues -- Aspose.Slides FOSS for C++
+
+## README "Notes" example does not compile -- `add_notes_slide()` returns a pointer, not a reference
+- **Severity**: FUNCTIONAL-DEFECT
+- **Evidence**: the real README's "Notes" example writes
+  `auto& notes = pres.slides()[0].notes_slide_manager().add_notes_slide();`.
+  `include/Aspose/Slides/Foss/i_notes_slide_manager.h:19` declares
+  `INotesSlide* add_notes_slide()` -- a pointer return, not a reference.
+- **Impact**: a developer copy-pasting the README's own Notes example gets a compiler error.
+- **Not fixable here**: upstream README example code.
+"""
+
+_REAL_SLIDES_CPP_INSTALLATION = (
+    "## Installation\n\n"
+    "No NuGet package has been published for this library yet — it ships as CMake source "
+    "you build and link directly.\n\n"
+    "```bash\n"
+    "cmake -B build -DCMAKE_BUILD_TYPE=Release\n"
+    "cmake --build build\n"
+    "```\n\n"
+    "Requires a C++20 compiler and CMake 3.20+ (`CMAKE_CXX_STANDARD 20` is set in "
+    "`CMakeLists.txt`).\n"
+)
+
+
+def _readme_with_installation(installation_section: str) -> str:
+    return (
+        "# Some Product\n\n"
+        "## At a Glance\n\n"
+        "```mermaid\nflowchart TD\n  A --> B\n```\n\n"
+        f"{installation_section}\n"
+        "## Key Capabilities\n\n- Does a thing.\n"
+    )
+
+
+def test_install_quickstart_leak_flags_reconstructed_regression_shape():
+    # (a) the REAL, described pre-fix html/python shape must fire.
+    text = _readme_with_installation(_RECONSTRUCTED_HTML_PYTHON_LEAK_INSTALLATION)
+    findings = checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_HTML_PYTHON_UPSTREAM_ISSUES
+    )
+    assert findings
+    assert findings[0]["heading"] == "Installation"
+    assert len(findings[0]["matched_tokens"]) >= 2
+
+
+def test_install_quickstart_leak_clean_on_real_fixed_html_python_text():
+    # (b) the REAL, current, already-fixed html/python text must NOT fire.
+    text = _readme_with_installation(_REAL_HTML_PYTHON_FIXED_INSTALLATION)
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_HTML_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_install_quickstart_leak_clean_on_real_words_net_text_despite_token_overlap():
+    # (c1) real, legitimate specificity that DOES share 2+ fingerprint tokens with a real
+    # BLOCKING entry (`dotnet add package`, `dotnet build Aspose.Words.sln -c Release`,
+    # `Aspose.Words/Aspose.Words.csproj`) must still not fire -- no diagnostic narration.
+    text = _readme_with_installation(_REAL_WORDS_NET_INSTALLATION)
+    findings = checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_WORDS_NET_UPSTREAM_ISSUES
+    )
+    assert findings == []
+
+
+def test_install_quickstart_leak_clean_on_real_slides_cpp_cmake_text():
+    # (c2) real, legitimate CMake specificity with zero fingerprint overlap at all.
+    text = _readme_with_installation(_REAL_SLIDES_CPP_INSTALLATION)
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_SLIDES_CPP_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_install_quickstart_leak_clean_on_real_html_python_own_optional_dependency_prose():
+    # (c3) real, legitimate specificity for a DIFFERENT part of the same product's own
+    # Installation section (the optional `quickjs` extra) -- shares zero fingerprint tokens
+    # with the BLOCKING entry, must not fire.
+    installation = (
+        "## Installation\n\n"
+        "JavaScript execution is optional — install `quickjs` directly to use it:\n\n"
+        "```bash\n"
+        'pip install "quickjs>=1.19,<2"\n'
+        "```\n"
+    )
+    text = _readme_with_installation(installation)
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_HTML_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_install_quickstart_leak_scoped_to_installation_and_quick_start_only():
+    # A Scope and Limitations paragraph with the same reconstructed leak text must NOT be
+    # caught by this narrow check (that is check_no_upstream_issue_leaked_into_readme's job,
+    # for every OTHER section) -- confirms this check really is scoped to just the two named
+    # headings, not accidentally scanning the whole document.
+    text = (
+        "# Some Product\n\n"
+        "## At a Glance\n\n"
+        "```mermaid\nflowchart TD\n  A --> B\n```\n\n"
+        "## Scope and Limitations\n\n"
+        + _RECONSTRUCTED_HTML_PYTHON_LEAK_INSTALLATION.replace("## Installation", "").strip()
+        + "\n"
+    )
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_HTML_PYTHON_UPSTREAM_ISSUES
+    ) == []
+
+
+def test_install_quickstart_leak_noop_without_upstream_issues_text():
+    text = _readme_with_installation(_RECONSTRUCTED_HTML_PYTHON_LEAK_INSTALLATION)
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(text, "") == []
+
+
+def test_install_quickstart_leak_noop_when_no_extractable_fingerprints():
+    text = _readme_with_installation(_RECONSTRUCTED_HTML_PYTHON_LEAK_INSTALLATION)
+    clean_upstream = "# Upstream issues\n\nNo upstream issues identified during verification.\n"
+    assert checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, clean_upstream
+    ) == []
+
+
+def test_install_quickstart_leak_fires_in_quick_start_too():
+    # The Quick Start heading gets the same protection as Installation, not just Installation.
+    quick_start = (
+        "## Quick Start\n\n"
+        "Note: `pip install` (from a local path, an editable local path, or a `git+https` URL) "
+        "fails identically in every case because `setuptools.backends` is not a real module in "
+        "any released version of setuptools -- the real legacy-compatible backend is "
+        "`setuptools.build_meta:__legacy__`, not `setuptools.backends`, and `pip install` "
+        "raises `ModuleNotFoundError: No module named 'setuptools.backends'` before any of "
+        "this package's own code ever runs.\n"
+    )
+    text = (
+        "# Some Product\n\n"
+        "## At a Glance\n\n"
+        "```mermaid\nflowchart TD\n  A --> B\n```\n\n"
+        f"{quick_start}\n"
+        "## Key Capabilities\n\n- Does a thing.\n"
+    )
+    findings = checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+        text, _REAL_HTML_PYTHON_UPSTREAM_ISSUES
+    )
+    assert findings
+    assert findings[0]["heading"] == "Quick Start"
+
+
 def test_key_capabilities_quality_flags_too_few_bullets():
     text = _wrap("flowchart TD\n  A --> B", extra_section="- Loads a file.\n- Saves a file.\n")
     findings = checks.check_key_capabilities_quality(text)
@@ -3797,6 +4666,313 @@ def test_key_capabilities_quality_noop_without_section():
     # absence (different heading entirely) is a true no-op.
     text_no_section = text.replace("## Key capabilities", "## Something Else")
     assert checks.check_key_capabilities_quality(text_no_section) == []
+
+
+# --- check_key_capabilities_structural_variety / check_key_capabilities_formatting -------------
+# (TC-HARDEN-40/41, MT037, Twenty-Seventh incident, 2026-08-13)
+
+# Real, captured-shape reproduction of cells/java's own pre-fix Key Capabilities section
+# (10 bullets, 8 identifier-first -- the exact ratio that motivated this check).
+_CELLS_JAVA_DRY_SHAPE = (
+    "- The primary entry point is `Workbook`, which owns a `WorksheetCollection` of "
+    "`Worksheet` objects.\n"
+    "- `Style` carries a cell's full formatting -- font, borders, fill, alignment, and "
+    "number format.\n"
+    "- `Row` and `Column` support explicit sizing, hiding, and outline grouping.\n"
+    "- Merged cells, defined names, and hyperlinks round-trip through load and save.\n"
+    "- `ValidationCollection` applies data validation rules scoped to `CellArea` ranges.\n"
+    "- `AutoFilter` supports color filters, dynamic filters, and sort conditions.\n"
+    "- `PageSetup` configures page setup and print layout for a worksheet.\n"
+    "- `CommentCollection` adds, edits, and removes cell comments with author and text.\n"
+    "- `ChartCollection.add()` creates 18 of the 25 real `ChartType` values programmatically.\n"
+    "- `CalculationProperties` configures calculation mode and iterative calculation.\n"
+)
+
+_VARIED_OPENINGS_SHAPE = (
+    "- Open and create Excel workbooks with full round-trip save via `Workbook`.\n"
+    "- `Style` carries a cell's full formatting -- font, borders, fill, and alignment.\n"
+    "- Merge cells, define names, and add hyperlinks that round-trip through load and save.\n"
+    "- `ValidationCollection` applies data validation rules scoped to `CellArea` ranges.\n"
+    "- Filter worksheet ranges with color, dynamic, and top-10 filters via `AutoFilter`.\n"
+)
+
+
+def test_key_capabilities_structural_variety_flags_real_cells_java_shape():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_CELLS_JAVA_DRY_SHAPE)
+    findings = checks.check_key_capabilities_structural_variety(text)
+    assert len(findings) == 1
+    assert "8 of 10" in findings[0]["reason"]
+    assert len(findings[0]["identifier_first_bullets"]) == 8
+
+
+def test_key_capabilities_structural_variety_clean_on_varied_openings():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_VARIED_OPENINGS_SHAPE)
+    assert checks.check_key_capabilities_structural_variety(text) == []
+
+
+def test_key_capabilities_structural_variety_boundary_at_70_percent():
+    # Exactly 7 of 10 identifier-first -- the ">= 0.7" boundary must fire, not just ">".
+    bullets = "".join(f"- `Id{i}` does a real, verified thing with real detail.\n" for i in range(7))
+    bullets += "".join(f"- Does a real thing with `Id{i}` involved somewhere in the middle.\n" for i in range(3))
+    text = _wrap("flowchart TD\n  A --> B", extra_section=bullets)
+    findings = checks.check_key_capabilities_structural_variety(text)
+    assert len(findings) == 1
+    assert "7 of 10" in findings[0]["reason"]
+
+
+def test_key_capabilities_structural_variety_noop_without_section():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_CELLS_JAVA_DRY_SHAPE)
+    text_no_section = text.replace("## Key capabilities", "## Something Else")
+    assert checks.check_key_capabilities_structural_variety(text_no_section) == []
+
+
+def test_key_capabilities_formatting_flags_unmatched_backtick():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- Loads a file via `Workbook and saves it too.\n",
+    )
+    findings = checks.check_key_capabilities_formatting(text)
+    assert any(f["reason"] == "unmatched backtick in bullet" for f in findings)
+
+
+def test_key_capabilities_formatting_flags_missing_terminal_punctuation():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- Loads and saves Excel workbooks via `Workbook`\n",
+    )
+    findings = checks.check_key_capabilities_formatting(text)
+    assert any(f["reason"] == "bullet does not end with terminal punctuation" for f in findings)
+
+
+def test_key_capabilities_formatting_flags_lowercase_bullet_start():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section="- loads and saves Excel workbooks via `Workbook`.\n",
+    )
+    findings = checks.check_key_capabilities_formatting(text)
+    assert any(
+        f["reason"] == "bullet starts with a lowercase letter (not a backtick-quoted identifier)"
+        for f in findings
+    )
+
+
+def test_key_capabilities_formatting_clean_on_real_well_formed_section():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Open and create PDFs with full round-trip save via `Document` and `Page`.\n"
+            "- Extract and search text via `TextAbsorber` and `TextFragmentAbsorber`.\n"
+            "- Fill and build AcroForm fields via `Form` and `FormEditor`.\n"
+        ),
+    )
+    assert checks.check_key_capabilities_formatting(text) == []
+
+
+def test_key_capabilities_formatting_handles_wrapped_bullet_without_false_positive():
+    # The near-universal real shape: a bullet's closing punctuation lands on a wrapped
+    # continuation line, not the opening line -- must not false-positive on either check.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- The primary entry point is `Workbook`, which owns a `WorksheetCollection`\n"
+            "  of `Worksheet` objects for reading and writing values.\n"
+        ),
+    )
+    assert checks.check_key_capabilities_formatting(text) == []
+    assert checks.check_key_capabilities_structural_variety(text) == []
+
+
+def test_key_capabilities_formatting_noop_without_section():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_CELLS_JAVA_DRY_SHAPE)
+    text_no_section = text.replace("## Key capabilities", "## Something Else")
+    assert checks.check_key_capabilities_formatting(text_no_section) == []
+
+
+# --- check_section_intro_no_meta_narration (MT046, Thirty-Sixth incident, TC-HARDEN-71) ---------
+
+# The real, captured-verbatim font/python sentence that triggered this incident.
+_REAL_FONT_PYTHON_META_NARRATION = (
+    "Here's what you get — a Capability Snapshot of why teams use it, grouped by real "
+    "module rather than by workflow label. Python API Highlights and CLI Highlights are both "
+    "covered inline via backtick-quoted class/command names below, and variable-font-first "
+    "workflows remain the deepest, most actively developed surface area (`instancing.py` "
+    "alone is the largest module in the library)."
+)
+
+
+def test_section_intro_no_meta_narration_flags_real_font_python_sentence():
+    text = (
+        "## Key Capabilities\n\n"
+        f"{_REAL_FONT_PYTHON_META_NARRATION}\n\n"
+        "- Loads and edits fonts via `FontLoader.open()`.\n"
+    )
+    findings = checks.check_section_intro_no_meta_narration(text)
+    assert len(findings) == 1
+    assert findings[0]["section"] == "Key Capabilities"
+    assert findings[0]["matched_phrase"]
+
+
+def test_section_intro_no_meta_narration_matches_all_three_subpatterns():
+    # Direct proof (not merely asserted) that the real sentence trips every one of the three
+    # named sub-patterns independently, per this incident's own Validation item 1.
+    intro = checks._extract_section_intro_prose(_REAL_FONT_PYTHON_META_NARRATION)
+    assert re.search(r"\brather than by\b", intro, re.IGNORECASE)
+    assert re.search(r"\bcovered inline\b", intro, re.IGNORECASE)
+    assert re.search(
+        r"`[\w./-]+\.(?:py)`\s*(?:alone\s+)?is the (?:largest|biggest|smallest)\b",
+        intro, re.IGNORECASE,
+    )
+
+
+def test_section_intro_no_meta_narration_clean_on_real_email_cpp_sentence():
+    # Real, legitimate, already-shipped portfolio convention: a genuine product-architecture
+    # fact ("grouped below by processing layer"), not document-structure commentary. Must
+    # never be flagged -- this is the exact negative control that rules out a naive bare
+    # "grouped by" pattern.
+    text = (
+        "## Key Capabilities\n\n"
+        "Features are grouped below by processing layer, from low-level CFB container "
+        "access up through the high-level `mapi_message` API.\n\n"
+        "- Reads and writes CFB storages via `mapi_message`.\n"
+    )
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_section_intro_no_meta_narration_clean_on_real_email_python_sentence():
+    text = (
+        "## Key Capabilities\n\n"
+        "The following features are grouped by processing layer, from low-level CFB and "
+        "MSG access up through the high-level `MapiMessage` API and its `EmailMessage` "
+        "bridge.\n\n"
+        "- Reads and writes CFB storages via `MapiMessage`.\n"
+    )
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_section_intro_no_meta_narration_clean_on_real_slides_sentence():
+    text = (
+        "## Key Capabilities\n\n"
+        "Features cover the full authoring surface — from presentation I/O and shape "
+        "creation to fill, line, and 3D formatting.\n\n"
+        "- Opens and saves presentations via `Presentation`.\n"
+    )
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_section_intro_no_meta_narration_noop_when_no_intro_sentence():
+    # The common, already-correct shape (barcode/python, cells/python): no framing sentence
+    # at all, real content starts immediately with the first bullet.
+    text = "## Key Capabilities\n\n- Encodes Code 128, Code 39, EAN/UPC, and QR barcodes.\n"
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_section_intro_no_meta_narration_flags_additional_examples_section():
+    text = (
+        "## Additional Examples\n\n"
+        f"{_REAL_FONT_PYTHON_META_NARRATION}\n\n"
+        "- A worked example.\n"
+    )
+    findings = checks.check_section_intro_no_meta_narration(text)
+    assert len(findings) == 1
+    assert findings[0]["section"] == "Additional Examples"
+
+
+def test_section_intro_no_meta_narration_clean_on_real_additional_examples_intro():
+    text = (
+        "## Additional Examples\n\n"
+        "More real, runnable snippets are collected below.\n\n"
+        "- Loads a scene and converts it to glTF.\n"
+    )
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_section_intro_no_meta_narration_noop_when_sections_absent():
+    text = "## Installation\n\nRun `pip install aspose-font-foss`.\n"
+    assert checks.check_section_intro_no_meta_narration(text) == []
+
+
+def test_extract_section_intro_prose_stops_at_bullet_fence_and_subheading():
+    assert checks._extract_section_intro_prose("Intro line.\n\n- Bullet one.\n") == "Intro line."
+    assert checks._extract_section_intro_prose("Intro line.\n\n```python\nx = 1\n```\n") == "Intro line."
+    assert checks._extract_section_intro_prose("Intro line.\n\n### Sub Heading\n") == "Intro line."
+    assert checks._extract_section_intro_prose("- Bullet one.\n") == ""
+
+
+# --- filter_relevant_seo_keywords / _seo_keyword_wrong_platform (TC-HARDEN-39, MT037) -----------
+
+# Real, captured-verbatim keyword phrases from keywords/cells.json's own `cells/java`
+# products.aspose.org entry -- confirmed live to be 10-of-10 contaminated with .NET/C# terms
+# despite the entry being for the Java platform page.
+_REAL_CONTAMINATED_JAVA_KEYWORDS = [
+    "Aspose.Cells for .NET free open source alternative",
+    "Open source Excel library for .NET alternative to Aspose",
+    "Free .NET library to read write Excel files",
+    "Open source C# Excel API like Aspose",
+    "Aspose.Cells alternative open source .NET",
+    "Free C# library for Excel manipulation without Aspose",
+    "Open source spreadsheet library for .NET Core",
+    "C# read write Excel file open source library",
+    "Aspose.Cells .NET free alternative",
+    "Open source Excel interop alternative for .NET",
+]
+
+
+def test_filter_relevant_seo_keywords_drops_real_contaminated_java_phrases():
+    kept = checks.filter_relevant_seo_keywords(_REAL_CONTAMINATED_JAVA_KEYWORDS, "cells", "java")
+    assert kept == []
+
+
+def test_filter_relevant_seo_keywords_keeps_genuinely_relevant_phrase():
+    keywords = [
+        "Open source Excel library for Java",
+        "Free Java library to read write Excel files",
+    ]
+    kept = checks.filter_relevant_seo_keywords(keywords, "cells", "java")
+    assert kept == keywords
+
+
+def test_filter_relevant_seo_keywords_caps_at_six():
+    keywords = [f"Open source Excel library for Java number {i}" for i in range(10)]
+    kept = checks.filter_relevant_seo_keywords(keywords, "cells", "java")
+    assert len(kept) == 6
+
+
+def test_filter_relevant_seo_keywords_drops_ungrounded_phrase():
+    # No family name, no known relevance term, no known format -- nothing to verify it against.
+    kept = checks.filter_relevant_seo_keywords(["Something totally unrelated to anything"], "cells", "java")
+    assert kept == []
+
+
+def test_filter_relevant_seo_keywords_keeps_phrase_naming_a_known_format():
+    kept = checks.filter_relevant_seo_keywords(
+        ["Java XLSX manipulation toolkit"], "cells", "java", known_format_names={"XLSX"},
+    )
+    assert kept == ["Java XLSX manipulation toolkit"]
+
+
+def test_seo_keyword_wrong_platform_true_for_other_platform_token():
+    assert checks._seo_keyword_wrong_platform("Open source Excel library for .NET", "java") is True
+
+
+def test_seo_keyword_wrong_platform_false_for_own_platform_token():
+    assert checks._seo_keyword_wrong_platform("Open source Excel library for Java", "java") is False
+
+
+def test_seo_keyword_wrong_platform_false_when_no_platform_token_present():
+    assert checks._seo_keyword_wrong_platform("Open source Excel library", "java") is False
+
+
+def test_seo_keyword_wrong_platform_flags_mixed_platform_phrase_even_when_own_platform_named():
+    """Real bug found live on cells/typescript's real keywords/cells.json entry: a phrase
+    naming BOTH the correct platform and a contaminating one ("Aspose.Cells for .NET
+    TypeScript library") was not flagged, because the original logic excused any other-
+    platform mention as long as the correct platform was also present somewhere."""
+    assert checks._seo_keyword_wrong_platform(
+        "Aspose.Cells for .NET TypeScript library", "typescript"
+    ) is True
+    assert checks._seo_keyword_wrong_platform(
+        "free .NET spreadsheet library for TypeScript", "typescript"
+    ) is True
 
 
 _3D_NET_WATERMARK_CAPABILITY_BULLET = (
@@ -3994,6 +5170,70 @@ def test_scope_limitations_format_flags_missing_enterprise_paragraph():
 
 def test_scope_limitations_format_noop_without_section():
     text = _wrap("flowchart TD\n  A --> B", extra_section="- Does a thing.\n")
+    assert checks.check_scope_limitations_format(text) == []
+
+
+# --- check_scope_limitations_format bug fix (2026-08-15, MT045, TC-HARDEN-68) ----------------------
+#
+# The prior implementation classified raw, blank-line-stripped PHYSICAL lines as
+# bullet/non-bullet independently -- so a bullet's own wrapped continuation line (no "- "
+# prefix of its own) landed in non_bullet_lines even though it was really the tail of a
+# bulleted Limitations item. Fixed by routing through _iter_leak_scan_units (the same,
+# already-hardened bullet-with-continuation grouping built for
+# check_no_upstream_issue_leaked_into_readme, TC-HARDEN-38).
+
+_REAL_BARCODE_PYTHON_SCOPE_BULLETED_ENTERPRISE = (
+    "- This library only generates (encodes) barcodes -- it does not read or decode "
+    "existing barcode images for any symbology.\n"
+    "- PDF rendering is not implemented -- `Barcode.to_pdf()` and `PdfRenderer.render()` "
+    "both raise `NotImplementedError`. SVG and PNG rendering are implemented for every "
+    "symbology. For PDF rendering and additional symbologies, see the\n"
+    "[Aspose.BarCode for Python -- Enterprise Edition]"
+    "(https://products.aspose.com/barcode/python-net/), which adds\n"
+    "the full commercial rendering pipeline and broader symbology coverage on top of this "
+    "FOSS API surface.\n"
+    "- ECI (Extended Channel Interpretation) normalization and validation are not "
+    "implemented in this FOSS build.\n"
+)
+
+
+def test_scope_limitations_format_flags_real_barcode_python_bulleted_continuation_enterprise_link():
+    # Real, captured-verbatim defect: the Enterprise Edition link sits as a wrapped
+    # continuation of the "PDF rendering is not implemented" bullet -- no blank line before
+    # it, same physical list item. The prior, buggy implementation missed this entirely
+    # (enterprise_in_prose=True/enterprise_in_bullet=False, the exact silently-passing
+    # combination this check exists to catch).
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n"
+        + _REAL_BARCODE_PYTHON_SCOPE_BULLETED_ENTERPRISE
+    ))
+    findings = checks.check_scope_limitations_format(text)
+    assert any(f["reason"] == "enterprise_paragraph_is_bulleted" for f in findings)
+
+
+_REAL_EMAIL_PYTHON_SCOPE_LIST = (
+    "- Reads and writes `.msg` and `.eml` messages, but does not resolve embedded OLE "
+    "compound-document attachments beyond the first nesting level -- a real, disclosed "
+    "constraint verified against the current parser.\n"
+    "- Calendar (`.ics`) support covers `VEVENT` only; `VTODO` and `VJOURNAL` components "
+    "are parsed but not round-tripped on save.\n\n"
+    "These limitations apply only to the FOSS edition -- see "
+    "[Aspose.Email for Python -- Enterprise Edition]"
+    "(https://products.aspose.com/email/python-net/), which adds full MIME/S-MIME support "
+    "and broader calendar round-tripping.\n"
+)
+
+
+def test_scope_limitations_format_bug_fix_no_false_positive_on_wrapped_bullet_plus_separate_paragraph():
+    # Regression guard for the fix itself: a bullet with its own long, wrapped continuation
+    # line (no blank line, the real, near-universal shape for any bullet >~80 chars in this
+    # portfolio) sitting above a genuinely separate, blank-line-delimited Enterprise
+    # paragraph must still pass. A naive "just group continuation lines" fix (without
+    # _iter_leak_scan_units's own blank-line-first paragraph split) was directly simulated
+    # to false-positive on exactly this shape.
+    text = _wrap("flowchart TD\n  A --> B", extra_section=(
+        "- Does a thing.\n\n## Scope and Limitations\n\n" + _REAL_EMAIL_PYTHON_SCOPE_LIST
+    ))
     assert checks.check_scope_limitations_format(text) == []
 
 
@@ -4326,6 +5566,55 @@ def test_disposition_coverage_flags_missing_evidence_ref():
 
 def test_disposition_coverage_vacuous_pass_when_no_content_units():
     assert checks.check_content_unit_disposition_coverage([], []) == []
+
+
+# --- check_content_unit_excerpt_matches_extraction (hard gate, MT048) -----------------------
+
+
+def test_excerpt_matches_extraction_clean_when_excerpts_agree():
+    units = [{"unit_id": "u0001", "excerpt": _NOTE_PYTHON_OFFICIAL_CLAIM}]
+    dispositions = [_content_unit(unit_id="u0001", excerpt=_NOTE_PYTHON_OFFICIAL_CLAIM)]
+    assert checks.check_content_unit_excerpt_matches_extraction(units, dispositions) == []
+
+
+def test_excerpt_matches_extraction_flags_real_position_based_drift():
+    # The exact MT030 Phase 2 shape (2026-08-10, "recovering a unit earlier in a document shifts
+    # every later unit's unit_id"): a disposition entry authored against one excerpt, but the
+    # live extractor now reports COMPLETELY DIFFERENT content under the same unit_id (e.g. a unit
+    # was inserted earlier in the document, shifting every later id by one). unit_id-presence
+    # alone (check_content_unit_disposition_coverage) cannot see this -- u0002 still exists.
+    units = [{"unit_id": "u0002", "excerpt": "A newly-inserted, unrelated sentence about `Zeta`."}]
+    dispositions = [_content_unit(unit_id="u0002", excerpt=_NOTE_PYTHON_OFFICIAL_CLAIM)]
+    findings = checks.check_content_unit_excerpt_matches_extraction(units, dispositions)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0002"
+    assert "drift" in findings[0]["reason"]
+
+
+def test_excerpt_matches_extraction_tolerates_emoji_and_whitespace_only_differences():
+    # A cosmetic re-run difference (emoji rendering, whitespace) must NOT false-positive --
+    # reuses _normalize_for_drop_match, the same tolerance check_dropped_content's own heading-
+    # rename comparison already relies on.
+    units = [{
+        "unit_id": "u0001",
+        "excerpt": "**Official  Aspose project** -- 100% free and open-source, with no hidden costs.",
+    }]
+    dispositions = [_content_unit(unit_id="u0001", excerpt=_NOTE_PYTHON_OFFICIAL_CLAIM)]
+    assert checks.check_content_unit_excerpt_matches_extraction(units, dispositions) == []
+
+
+def test_excerpt_matches_extraction_silent_for_dangling_unit_id():
+    # A unit_id absent from the live extraction entirely is check_content_unit_disposition_
+    # coverage's own job -- this function must not duplicate that finding.
+    units = [{"unit_id": "u0001", "excerpt": _NOTE_PYTHON_OFFICIAL_CLAIM}]
+    dispositions = [_content_unit(unit_id="u9999", excerpt="something else entirely")]
+    assert checks.check_content_unit_excerpt_matches_extraction(units, dispositions) == []
+
+
+def test_excerpt_matches_extraction_vacuous_when_stored_excerpt_empty():
+    units = [{"unit_id": "u0001", "excerpt": _NOTE_PYTHON_OFFICIAL_CLAIM}]
+    dispositions = [_content_unit(unit_id="u0001", excerpt="")]
+    assert checks.check_content_unit_excerpt_matches_extraction(units, dispositions) == []
 
 
 # --- check_content_unit_evidence_resolves (hard gate) --------------------------------------------
@@ -5100,6 +6389,47 @@ def test_classify_badge_categories_real_cells_go_shapes():
         assert checks.classify_badge(badge)["category"] == expected_category, badge
 
 
+def test_classify_badge_python_pyversions_badge_is_language_version():
+    # 2026-08-14 (cells/python regeneration): the portfolio-standard shields.io Python-compat
+    # badge -- bare "Python" or "Python versions" alt text, "/pypi/pyversions/" image URL --
+    # was falling through to package_version via link_url's bare pypi.org match, causing
+    # check_no_duplicate_badges_in_candidate to misfire against the real, distinct PyPI-version
+    # badge every Python product pairs it with. Real, captured-verbatim shapes.
+    cases = [
+        {"alt_text": "Python", "image_url": "https://img.shields.io/pypi/pyversions/aspose-cells-foss.svg",
+         "link_url": "https://pypi.org/project/aspose-cells-foss/"},
+        {"alt_text": "Python versions", "image_url": "https://img.shields.io/pypi/pyversions/aspose-email-foss.svg",
+         "link_url": "https://pypi.org/project/aspose-email-foss/"},
+    ]
+    for badge in cases:
+        assert checks.classify_badge(badge)["category"] == "language_version", badge
+
+
+def test_classify_badge_cpp_static_version_badge_is_language_version():
+    # 2026-08-14 (MT042, TC-HARDEN-58): found live -- 2 real, currently-shipped C++ products
+    # (email/cpp, slides/cpp) have a real static "C++ 17"/"C++20" language-version badge that
+    # fell through to "unknown" the moment check_badge_row_meets_verified_floor first ran
+    # against real content, since "c%2b%2b" was never in the language_version image_url list.
+    cases = [
+        {"alt_text": "C++", "image_url": "https://img.shields.io/badge/C%2B%2B-17-blue.svg", "link_url": "CMakeLists.txt"},
+        {"alt_text": "C++20", "image_url": "https://img.shields.io/badge/C%2B%2B-20-00599C?logo=cplusplus", "link_url": "CMakeLists.txt"},
+    ]
+    for badge in cases:
+        assert checks.classify_badge(badge)["category"] == "language_version", badge
+
+
+def test_check_no_duplicate_badges_in_candidate_does_not_flag_real_python_pypi_pair():
+    # Regression proof for the fix above, at the full-check level, not just classify_badge.
+    text = (
+        "# Aspose.Cells FOSS for Python\n\n"
+        "[![PyPI version](https://img.shields.io/pypi/v/aspose-cells-foss.svg)]"
+        "(https://pypi.org/project/aspose-cells-foss/) "
+        "[![Python](https://img.shields.io/pypi/pyversions/aspose-cells-foss.svg)]"
+        "(https://pypi.org/project/aspose-cells-foss/)\n"
+    )
+    assert checks.check_no_duplicate_badges_in_candidate(text) == []
+
+
 def test_classify_badge_unknown_for_unrecognized_shape():
     badge = {"alt_text": "Aspose.Cells FOSS for Go", "image_url": "https://products.aspose.org/media/cells/go/banner-readme.png", "link_url": "https://products.aspose.org/cells/go/"}
     assert checks.classify_badge(badge)["category"] == "unknown"
@@ -5490,3 +6820,1104 @@ def test_project_structure_canonical_tree_format_flags_missing_fenced_block():
     findings = checks.check_project_structure_canonical_tree_format(text)
     assert len(findings) == 1
     assert "no fenced code block" in findings[0]["reason"]
+
+
+# ==================================================================================================
+# Thirty-First incident / MT041 (2026-08-14): dependency accuracy. The real, captured-verbatim
+# defect this whole mission exists to fix: cells/rust's real, live Installation sentence stated
+# "Requires a recent stable Rust toolchain (2021 edition) -- no external runtime or Microsoft
+# Office installation is needed" while its own Cargo.toml declares 7 real runtime crates (chrono,
+# zip, sha2, base64, serde_json, roxmltree, getrandom) -- a same-document contradiction against
+# that file's own, correct Intro paragraph, which already, correctly named all 7. (The live file
+# has since been independently healed to remove this specific sentence during other work this
+# session -- the text below is preserved verbatim from the original, confirmed incident, per this
+# project's own "prove it against the real, captured defect" discipline, not a synthetic stand-in.)
+# ==================================================================================================
+
+_CELLS_RUST_REAL_INTRO = (
+    "Aspose.Cells FOSS for Rust is a free, open-source, pure-Rust library for creating,\n"
+    "loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks.\n"
+    "It exposes an API modeled after Aspose.Cells, so\n"
+    "the familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust\n"
+    "programs with no proprietary runtime, no Microsoft Office installation, and no external\n"
+    "Aspose dependency. The OOXML packaging -- ZIP container, relationships, shared strings,\n"
+    "styles, worksheet XML, and charts -- is implemented from scratch on top of a small set of\n"
+    "general-purpose crates: `zip` (package container), `roxmltree` (XML parsing), `chrono`\n"
+    "(date/time), `sha2` / `base64` / `getrandom` (protection hashing), and `serde_json`.\n"
+)
+_CELLS_RUST_REAL_BAD_INSTALLATION = (
+    "## Installation\n\n"
+    "```toml\n[dependencies]\naspose-cells-foss-rust = { git = "
+    '"https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust" }\n```\n\n'
+    "Requires a recent stable Rust toolchain (2021 edition) -- no external runtime or "
+    "Microsoft Office installation is needed.\n"
+)
+_CELLS_RUST_REAL_BAD_README = (
+    "# Aspose.Cells FOSS for Rust\n\n" + _CELLS_RUST_REAL_INTRO + "\n"
+    + _CELLS_RUST_REAL_BAD_INSTALLATION + "\n## License\n\nMIT.\n"
+)
+
+_CELLS_RUST_DEPENDENCY_SNAPSHOT = {
+    "family": "cells", "platform": "rust", "ecosystem": "cargo", "applicable": True,
+    "not_applicable_reason": None,
+    "required": [
+        {"name": n, "ecosystem": "cargo", "version_constraint": v, "source_type": "registry",
+         "category": "required", "dev_only": False, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"}
+        for n, v in [
+            ("chrono", "0.4"), ("zip", "0.6"), ("sha2", "0.10"), ("base64", "0.22"),
+            ("serde_json", "1"), ("roxmltree", "0.20"), ("getrandom", "0.3"),
+        ]
+    ],
+    "optional": [], "native_system": [], "proprietary_runtime": [], "development": [],
+    "source_manifest_path": "Cargo.toml", "source_revision": "0339b7e7",
+    "extracted_at": "2026-08-14T00:00:00Z", "extractor_schema_version": "dep-snapshot-v1",
+    "parse_errors": [],
+}
+
+
+def test_check_unqualified_dependency_claims_fires_on_real_cells_rust_sentence():
+    """The mandatory fail-closed fixture (mission regression test #7)."""
+    findings = checks.check_unqualified_dependency_claims(_CELLS_RUST_REAL_BAD_README)
+    assert findings
+    assert any("no external runtime" in f["phrase"] for f in findings)
+
+
+def test_check_unqualified_dependency_claims_flags_no_external_dependencies():
+    assert checks.check_unqualified_dependency_claims(
+        "This library has no external dependencies."
+    )
+
+
+def test_check_unqualified_dependency_claims_flags_dependency_free():
+    assert checks.check_unqualified_dependency_claims("A fully dependency-free crate.")
+
+
+def test_check_unqualified_dependency_claims_flags_completely_standalone():
+    assert checks.check_unqualified_dependency_claims("This is completely standalone.")
+
+
+def test_check_unqualified_dependency_claims_passes_scoped_crate_claim():
+    assert checks.check_unqualified_dependency_claims(
+        "This library has no external runtime crate dependencies beyond the standard build."
+    ) == []
+
+
+def test_check_unqualified_dependency_claims_passes_scoped_native_claim():
+    assert checks.check_unqualified_dependency_claims(
+        "There are no native system libraries required to build this project."
+    ) == []
+
+
+def test_check_unqualified_dependency_claims_passes_scoped_proprietary_runtime_claim():
+    assert checks.check_unqualified_dependency_claims(
+        "The library requires no proprietary Aspose runtime to operate."
+    ) == []
+
+
+def test_check_dependency_snapshot_completeness_blocks_on_missing_snapshot():
+    findings = checks.check_dependency_snapshot_completeness("# Product\n", None)
+    assert len(findings) == 1
+    assert "no DependencySnapshot" in findings[0]["reason"]
+
+
+def test_check_dependency_snapshot_completeness_blocks_on_invariant_violation():
+    bad = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, applicable=False, not_applicable_reason=None)
+    findings = checks.check_dependency_snapshot_completeness("# Product\n", bad)
+    assert len(findings) == 1
+
+
+def test_check_dependency_snapshot_completeness_passes_ok_snapshot():
+    assert checks.check_dependency_snapshot_completeness("# Product\n", _CELLS_RUST_DEPENDENCY_SNAPSHOT) == []
+
+
+def test_check_dependency_direct_transitive_confusion_flags_unreal_name():
+    text = (
+        "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `chrono` 0.4 -- date handling.\n- `some-transitive-crate` 1.0 -- not real.\n"
+    )
+    findings = checks.check_dependency_direct_transitive_confusion(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert len(findings) == 1
+    assert findings[0]["name"] == "some-transitive-crate"
+
+
+def test_check_dependency_direct_transitive_confusion_clean_on_real_manifest_names():
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `chrono` 0.4 -- date handling.\n"
+    assert checks.check_dependency_direct_transitive_confusion(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT) == []
+
+
+def test_bulleted_dependency_names_does_not_truncate_dotted_npm_scoped_name():
+    # Real bug found live 2026-08-14 against cells/typescript: splitting on "." truncated the
+    # real npm-scoped dependency "@zip.js/zip.js" to "@zip", producing a false
+    # check_dependency_direct_transitive_confusion finding against a real manifest entry.
+    text = (
+        "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `@zip.js/zip.js` ^2.8.21 -- reads and writes the ZIP container.\n"
+        "- `@xmldom/xmldom` ^0.8.10 -- parses XML.\n"
+    )
+    snapshot = dict(
+        _CELLS_RUST_DEPENDENCY_SNAPSHOT,
+        required=[
+            {"name": "@zip.js/zip.js", "ecosystem": "npm", "version_constraint": "^2.8.21",
+             "source_type": "registry", "category": "required", "dev_only": False,
+             "activating_feature": None, "platform_condition": None, "role": "runtime",
+             "purpose": None, "is_direct": True, "extraction_confidence": "structured_parse"},
+            {"name": "@xmldom/xmldom", "ecosystem": "npm", "version_constraint": "^0.8.10",
+             "source_type": "registry", "category": "required", "dev_only": False,
+             "activating_feature": None, "platform_condition": None, "role": "runtime",
+             "purpose": None, "is_direct": True, "extraction_confidence": "structured_parse"},
+        ],
+    )
+    assert checks.check_dependency_direct_transitive_confusion(text, snapshot) == []
+
+
+def test_check_dependency_optional_presented_as_required_flags_misplacement():
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, optional=[
+        {"name": "rayon", "ecosystem": "cargo", "version_constraint": "1", "source_type": "registry",
+         "category": "optional", "dev_only": False, "activating_feature": "parallel",
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+    ])
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `rayon` 1 -- parallel save.\n"
+    findings = checks.check_dependency_optional_presented_as_required(text, snapshot)
+    assert len(findings) == 1
+    assert findings[0]["name"] == "rayon"
+
+
+def test_check_dependency_dev_only_presented_as_runtime_flags_misplacement():
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, development=[
+        {"name": "criterion", "ecosystem": "cargo", "version_constraint": "0.5", "source_type": "registry",
+         "category": "required", "dev_only": True, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+    ])
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `criterion` 0.5 -- benchmarks.\n"
+    findings = checks.check_dependency_dev_only_presented_as_runtime(text, snapshot)
+    assert len(findings) == 1
+    assert findings[0]["name"] == "criterion"
+
+
+def test_check_dependency_scope_claim_matches_evidence_flags_unproven_proprietary_claim():
+    text = "This crate requires no proprietary Aspose runtime to operate."
+    findings = checks.check_dependency_scope_claim_matches_evidence(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert len(findings) == 1
+
+
+def test_check_dependencies_intro_contradiction_fires_on_real_cells_rust_shape():
+    """The same-file-contradiction fixture (mission regression test #15): the real Intro
+    paragraph correctly names real crates while a later section states an unqualified claim."""
+    findings = checks.check_dependencies_intro_contradiction(
+        _CELLS_RUST_REAL_BAD_README, _CELLS_RUST_DEPENDENCY_SNAPSHOT,
+    )
+    assert findings
+
+
+def test_check_dependencies_intro_contradiction_clean_when_both_sections_agree():
+    good_installation = (
+        "## Installation\n\n```toml\n[dependencies]\naspose-cells-foss-rust = "
+        '{ git = "https://..." }\n```\n\nRequires a recent stable Rust toolchain '
+        "(2021 edition or later). No proprietary Aspose runtime and no Microsoft Office "
+        "installation is required.\n\n## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `chrono` 0.4 -- date/time handling.\n"
+    )
+    good_readme = (
+        "# Aspose.Cells FOSS for Rust\n\n" + _CELLS_RUST_REAL_INTRO + "\n"
+        + good_installation + "\n## License\n\nMIT.\n"
+    )
+    assert checks.check_dependencies_intro_contradiction(good_readme, _CELLS_RUST_DEPENDENCY_SNAPSHOT) == []
+
+
+def test_check_dependency_native_system_scope_limitations_placement_flags_duplicate():
+    text = (
+        "## Dependencies\n\n### Native and System Requirements\n\n"
+        "- Requires a recent stable Rust toolchain (2021 edition or later).\n\n"
+        "## Scope and Limitations\n\n"
+        "- Requires a recent stable Rust toolchain (2021 edition or later).\n\n"
+        "This project is licensed under the [MIT License](LICENSE), which permits broader "
+        "commercial use via [Aspose.Cells for Rust -- Enterprise Edition](https://products.aspose.com/cells/rust/).\n"
+    )
+    findings = checks.check_dependency_native_system_scope_limitations_placement(text)
+    assert len(findings) == 1
+
+
+def test_check_dependency_native_system_scope_limitations_placement_clean_no_duplicate():
+    text = (
+        "## Dependencies\n\n### Native and System Requirements\n\n"
+        "- Requires a recent stable Rust toolchain (2021 edition or later).\n\n"
+        "## Scope and Limitations\n\n- Some unrelated limitation entirely.\n"
+    )
+    assert checks.check_dependency_native_system_scope_limitations_placement(text) == []
+
+
+def test_check_dependency_disposition_reconciliation_flags_narrative_only_evidence():
+    dispositions = [{
+        "unit_id": "u0001", "classification": "5_dependency_claim", "disposition": "merged_verbatim",
+        "target_section": "Dependencies",
+        "verification": {"status": "verified_against_manifest", "evidence_ref": "trust me, it's fine"},
+    }]
+    findings = checks.check_dependency_disposition_reconciliation([], dispositions, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0001"
+
+
+def test_check_dependency_disposition_reconciliation_passes_real_manifest_evidence():
+    dispositions = [{
+        "unit_id": "u0001", "classification": "5_dependency_claim", "disposition": "merged_verbatim",
+        "target_section": "Dependencies",
+        "verification": {"status": "verified_against_manifest", "evidence_ref": "Cargo.toml (chrono)"},
+    }]
+    findings = checks.check_dependency_disposition_reconciliation([], dispositions, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert findings == []
+
+
+def test_check_required_sections_requires_dependencies_heading():
+    """Mission regression test #17."""
+    missing = checks.check_required_sections(_ALL_SECTIONS_README.replace("## Dependencies\n", ""))
+    assert "Dependencies" in missing
+    assert checks.check_required_sections(_ALL_SECTIONS_README) == []
+
+
+def test_5_dependency_claim_disposition_round_trips_through_unmodified_coverage_check():
+    """Proves TC-HARDEN-54's own central claim: extending the enum sets alone is sufficient --
+    zero new hard-gate code needed in check_content_unit_disposition_coverage itself."""
+    content_units = [{"unit_id": "u0001", "excerpt": "Depends on chrono, zip, and sha2."}]
+    dispositions = [{
+        "unit_id": "u0001", "classification": "5_dependency_claim", "disposition": "merged_verbatim",
+        "target_section": "Dependencies",
+        "verification": {"status": "verified_against_manifest", "evidence_ref": "Cargo.toml [dependencies]"},
+    }]
+    assert checks.check_content_unit_disposition_coverage(content_units, dispositions) == []
+
+
+def test_check_dependency_section_manifest_corroboration_handles_multi_crate_bullet():
+    """Real bug found running against the real, corrected cells/rust candidate: a single,
+    natural bullet naming 3 related crates together must not silently drop 2 of them."""
+    text = (
+        "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `sha2` 0.10, `base64` 0.22, `getrandom` 0.3 -- hashing and encoding.\n"
+    )
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, required=[
+        e for e in _CELLS_RUST_DEPENDENCY_SNAPSHOT["required"]
+        if e["name"] in ("sha2", "base64", "getrandom")
+    ])
+    assert checks.check_dependency_section_manifest_corroboration(text, snapshot, None) == []
+
+
+def test_check_dependency_version_pin_freshness_does_not_confuse_crate_name_digit_with_version():
+    """Real bug found the same way: `sha2` itself contains a digit, so a whole-bullet version
+    scan matched "2" (from the crate name) before ever reaching the real "0.10" that follows
+    it. Each name must be paired only with the version immediately following its own token."""
+    text = (
+        "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `sha2` 0.10, `base64` 0.22, `getrandom` 0.3 -- hashing and encoding.\n"
+    )
+    findings = checks.check_dependency_version_pin_freshness(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert findings == []
+
+
+def test_check_dependency_version_pin_freshness_still_fires_on_real_mismatch():
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `chrono` 0.9 -- date handling.\n"
+    findings = checks.check_dependency_version_pin_freshness(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT)
+    assert len(findings) == 1
+    assert findings[0]["name"] == "chrono"
+    assert findings[0]["readme_version"] == "0.9"
+
+
+def test_build_dependency_verification_matrix_scores_real_cells_rust_snapshot():
+    readme = (
+        "# Aspose.Cells FOSS for Rust\n\n" + _CELLS_RUST_REAL_INTRO + "\n"
+        + "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `chrono` 0.4 -- date/time handling.\n"
+        "- `zip` 0.6 -- ZIP container.\n"
+    )
+    matrix = checks.build_dependency_verification_matrix(_CELLS_RUST_DEPENDENCY_SNAPSHOT, readme)
+    rows_by_name = {r["name"]: r for r in matrix["rows"]}
+    assert rows_by_name["chrono"]["in_readme_dependencies_section"] is True
+    assert rows_by_name["chrono"]["in_readme_prose_elsewhere"] is True  # named in the real Intro
+    assert rows_by_name["chrono"]["status"] == "VERIFIED"
+    # roxmltree is a real required dep, mentioned in the Intro, but never listed in the
+    # Dependencies section in this deliberately-incomplete test README -- still corroborated
+    # via prose alone (1 signal), correctly flagged NEEDS_REVIEW, not silently dropped.
+    assert rows_by_name["roxmltree"]["in_readme_dependencies_section"] is False
+    assert rows_by_name["roxmltree"]["status"] == "NEEDS_REVIEW"
+
+
+# =================================================================================================
+# Thirty-Seventh incident / MT047 (2026-08-15): TC-HARDEN-74/75/76/78 -- font/python preservation
+# audit hardening. Every fixture below is a small, real, captured-verbatim excerpt of font/python's
+# own actual old README / source (or, where a control-pair contrast is needed, a hermetic tmp_path
+# clone cache populated with real, captured file content) -- per the mission's own explicit
+# instruction NOT to turn font/python's full README into a universal golden template.
+# =================================================================================================
+
+# Real, captured-verbatim excerpt of font/python's actual old README (runs/.clone_cache/
+# aspose_font_python/README.md) -- the exact section (## Python API Highlights) whose ~120-line
+# code block plus one real trailing prose sentence fell through BOTH extract_old_readme_content_
+# units and extract_old_readme_structural_units simultaneously (Stage 1's own sharper root-cause
+# finding). Trimmed to the real opening imports/calls plus the real trailing sentence -- not the
+# whole 130-line block -- while still exceeding _CODE_UNIT_SPLIT_THRESHOLD (15 non-blank lines)
+# so the compound-block-splitting behavior is genuinely exercised, not just asserted.
+_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT = """## Python API Highlights
+
+```python
+from aspose_font import FontLoader, FontPreviewBuilder, FontQaReporter, WebFontBuilder
+from aspose_font import FontCleaner
+from aspose_font.subsetter import FontSubsetter
+
+font = FontLoader.open("Roboto-VariableFont_wdth,wght.ttf")
+
+subset_result = FontSubsetter.subset_for_web_with_coverage(
+    font,
+    presets=("latin", "arabic"),
+    text="Aspose مرحبا",
+)
+print(subset_result.font.num_glyphs)
+print(subset_result.coverage.covered_count, subset_result.coverage.missing_codepoints)
+
+preview = FontPreviewBuilder.build(font, instance_name="Bold", text="Preview")
+preview.write_to("preview.png")
+
+menu_named = font.instantiate(
+    {"wght": 700, "wdth": 75},
+    naming_strategy="ribbi-safe",
+    legacy_family_name="Acme Sans Menu",
+    typographic_family_name="Acme Sans Pro",
+    stat_policy="static",
+)
+print(menu_named.ttf_tables.name.get(1), menu_named.ttf_tables.name.get(16))
+
+preview = font.preview_naming_policy(
+    {"wght": 700, "wdth": 75},
+    naming_strategy="ribbi-safe",
+    stat_policy="static",
+)
+print(preview.stat_diagnostics.generated_stat_axis_value_flags)
+
+live_bundle = WebFontBuilder.build(
+    font,
+    include_woff=False,
+    variable_mode="live",
+)
+print(live_bundle.manifest["requested_variable_mode"], live_bundle.manifest["export_mode"])
+
+static_stat_bundle = WebFontBuilder.build(
+    font,
+    include_woff=False,
+    variable_mode="static",
+    instance_name="Bold",
+    stat_policy="static",
+)
+print(static_stat_bundle.manifest["requested_stat_policy"])
+
+grid_package = font.smart_instancer.build_axis_grid_web_family_package(
+    "wght",
+    [400.0, 700.0],
+    family_name="Roboto Grid",
+    include_woff=False,
+    preview_text="Grid Family",
+    naming_strategy="preserve-family",
+)
+grid_package.write_to("web-grid-family")
+print(grid_package.manifest["bundles"][1]["review_label"])
+```
+
+The generated grid-family package links back to the demo-site direction: `family.html` shows
+coordinate labels like `wdth=100 wght=700`, while `family-manifest.json` exposes the same
+`review_label` and `instance_coordinates` fields for automation.
+"""
+
+# Real, captured-verbatim excerpt of font/python's actual old README's own "## CLI Highlights"
+# section -- the real 4-category structure (general inspection/conversion, variable-font previews,
+# QA tooling, web packaging), each category separated by a real blank line in the source.
+_REAL_FONT_PYTHON_CLI_HIGHLIGHTS_EXCERPT = """## CLI Highlights
+
+```bash
+# General inspection and conversion
+aspose-font info Roboto.ttf
+aspose-font convert Roboto.ttf Roboto.woff2 --to woff2
+aspose-font meta-clean Roboto.ttf Roboto-clean.ttf
+
+# Variable-font previews and review boards
+aspose-font preview Roboto-VariableFont_wdth,wght.ttf preview.svg --instance-name Bold --format svg
+aspose-font var-instance Roboto-VariableFont_wdth,wght.ttf bold-condensed.ttf --instance wght=Bold --instance wdth=Condensed
+aspose-font var-info Roboto-VariableFont_wdth,wght.ttf
+aspose-font preview-grid-sheet Roboto-VariableFont_wdth,wght.ttf grid-sheet.png --axis wght --use-presets
+
+# QA tooling
+aspose-font qa-report Roboto-VariableFont_wdth,wght.ttf --preset latin --text "Aspose QA" --json-output qa-report.json --html-output qa-report.html
+aspose-font var-compat Roboto-VariableFont_wdth,wght.ttf --before-instance-name Regular --after-instance-name "Condensed Bold" --text Aspose
+aspose-font var-delta Roboto-VariableFont_wdth,wght.ttf --instance-name Bold --char A
+
+# Web packaging
+aspose-font web-build Roboto-VariableFont_wdth,wght.ttf web-out --instance-name Bold --template editorial --no-woff
+aspose-font web-family Roboto-VariableFont_wdth,wght.ttf family-out --instance-name Bold --naming-strategy preserve-family --no-woff
+aspose-font web-grid Roboto-VariableFont_wdth,wght.ttf grid-web --axis wght --use-presets --no-woff
+```
+"""
+
+
+# --- extract_old_readme_code_units (TC-HARDEN-74) -------------------------------------------
+
+
+def test_extract_code_units_unconditional_real_python_api_highlights():
+    # Stage 8 test 1: the exact bug this incident found -- a section combining a large code block
+    # with real trailing prose must produce BOTH a real prose unit (via extract_old_readme_content_
+    # units, already correctly capturing the trailing sentence today) AND real code units (via the
+    # new, unconditional extractor) -- never neither, never the code silently swallowed.
+    prose_units = checks.extract_old_readme_content_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    code_units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    assert any("grid-family package" in u["excerpt"] for u in prose_units)
+    assert len(code_units) > 1
+    assert all(u["heading_context"] == "Python API Highlights" for u in code_units)
+    all_fingerprints = {call for u in code_units for call in u["api_call_fingerprint"]}
+    assert "FontSubsetter.subset_for_web_with_coverage" in all_fingerprints
+    assert "font.preview_naming_policy" in all_fingerprints
+
+
+def test_extract_code_units_compound_block_splits_on_real_blank_line_boundaries():
+    # Stage 8 test 2: the real Python API Highlights excerpt exceeds _CODE_UNIT_SPLIT_THRESHOLD
+    # non-blank lines and has real blank-line boundaries -- must split into multiple c%04d{letter}
+    # sub-units, not stay one monolithic unit.
+    code_units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    unit_ids = [u["unit_id"] for u in code_units]
+    assert len(unit_ids) > 1
+    assert all(uid.startswith("c0001") for uid in unit_ids)
+    assert unit_ids == sorted(unit_ids)
+    assert unit_ids[0] == "c0001a"
+
+
+def test_extract_code_units_single_block_no_letter_suffix():
+    text = "## Installation\n\n```bash\npip install aspose-font\n```\n"
+    units = checks.extract_old_readme_code_units(text)
+    assert len(units) == 1
+    assert units[0]["unit_id"] == "c0001"
+
+
+def test_extract_code_units_is_deterministic():
+    # Stage 8 test 9 / TC-HARDEN-80's own machinery-layer idempotency proof, at unit-test scope:
+    # running the extractor twice against identical input must produce byte-identical (here,
+    # value-identical) structured output.
+    r1 = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    r2 = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    assert r1 == r2
+    assert json.dumps(r1, sort_keys=True) == json.dumps(r2, sort_keys=True)
+
+
+def test_extract_code_units_cli_highlights_four_real_categories():
+    units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_CLI_HIGHLIGHTS_EXCERPT)
+    categories = [checks._cli_unit_category(u["code_text"]) for u in units]
+    categories = [c for c in categories if c]
+    assert categories == [
+        "General inspection and conversion",
+        "Variable-font previews and review boards",
+        "QA tooling",
+        "Web packaging",
+    ]
+
+
+# --- check_code_example_disposition_coverage / no_exact_duplicate_merge (TC-HARDEN-74) ------
+
+
+def _code_disposition(unit_id="c0001a", disposition="merged_reframed",
+                       target_section="Additional Examples", api_call_fingerprint=("FontSubsetter.subset_for_web_with_coverage",),
+                       excluded_reason=None, evidence_status="verified_against_source",
+                       evidence_type="clone_cache_path", evidence_ref="src/aspose_font/subsetter.py"):
+    return {
+        "unit_id": unit_id, "heading_context": "Python API Highlights", "language": "python",
+        "api_call_fingerprint": list(api_call_fingerprint), "disposition": disposition,
+        "target_section": target_section, "excluded_reason": excluded_reason,
+        "verification": {"status": evidence_status, "evidence_type": evidence_type, "evidence_ref": evidence_ref},
+    }
+
+
+def test_check_code_example_disposition_coverage_vacuous_on_empty():
+    assert checks.check_code_example_disposition_coverage([], []) == []
+
+
+def test_check_code_example_disposition_coverage_flags_missing_entry():
+    units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    findings = checks.check_code_example_disposition_coverage(units, [])
+    assert len(findings) == len(units)
+    assert all("no disposition entry" in f["reason"] for f in findings)
+
+
+def test_check_code_example_disposition_coverage_clean_on_well_formed_entries():
+    units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    dispositions = [
+        _code_disposition(unit_id=u["unit_id"], api_call_fingerprint=tuple(u["api_call_fingerprint"]) or ("placeholder",))
+        for u in units
+    ]
+    assert checks.check_code_example_disposition_coverage(units, dispositions) == []
+
+
+def test_check_code_example_disposition_coverage_rejects_invalid_target_section():
+    units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_API_HIGHLIGHTS_EXCERPT)
+    dispositions = [_code_disposition(unit_id=u["unit_id"], target_section="Not A Real Section") for u in units]
+    findings = checks.check_code_example_disposition_coverage(units, dispositions)
+    assert any("real target_section" in f["reason"] for f in findings)
+
+
+def test_check_code_example_no_exact_duplicate_merge_flags_identical_fingerprint():
+    dispositions = [
+        _code_disposition(unit_id="c0001a"),
+        _code_disposition(unit_id="c0002a"),  # same fingerprint, same target_section -- duplicate
+    ]
+    findings = checks.check_code_example_no_exact_duplicate_merge(dispositions)
+    assert len(findings) == 1
+    assert set(findings[0]["unit_ids"]) == {"c0001a", "c0002a"}
+
+
+def test_check_code_example_no_exact_duplicate_merge_clean_on_distinct_fingerprints():
+    dispositions = [
+        _code_disposition(unit_id="c0001a", api_call_fingerprint=("FontSubsetter.subset_for_web_with_coverage",)),
+        _code_disposition(unit_id="c0002a", api_call_fingerprint=("font.preview_naming_policy",)),
+    ]
+    assert checks.check_code_example_no_exact_duplicate_merge(dispositions) == []
+
+
+def test_code_example_evidence_resolves_reuses_content_unit_evidence_resolves(tmp_path):
+    # TC-HARDEN-74's own explicit reuse requirement: check_content_unit_evidence_resolves is
+    # reused VERBATIM as the code-example evidence-resolution gate -- no new implementation.
+    (tmp_path / "subsetter.py").write_text("class FontSubsetter:\n    pass\n", encoding="utf-8")
+    good = [_code_disposition(evidence_ref="subsetter.py")]
+    bad = [_code_disposition(evidence_ref="does_not_exist.py")]
+    assert checks.check_content_unit_evidence_resolves(good, str(tmp_path)) == []
+    findings = checks.check_content_unit_evidence_resolves(bad, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["reason"].startswith("cited evidence does not resolve")
+
+
+# --- check_code_example_api_coverage_survives (TC-HARDEN-75) --------------------------------
+
+
+def test_check_code_example_api_coverage_survives_fails_closed_on_real_fontsubsetter_gap():
+    # Stage 8 test 3: the real, confirmed defect this check exists to catch -- a disposition
+    # claiming FontSubsetter.subset_for_web_with_coverage survives, against a candidate with zero
+    # matching code anywhere (the real font/python shape before this incident's own fix).
+    candidate_without_subsetting = (
+        "## Quick Start\n\n```python\nfrom aspose_font import FontLoader\n"
+        'font = FontLoader.open("Roboto.ttf")\nprint(font.font_name)\n```\n'
+    )
+    dispositions = [_code_disposition(
+        unit_id="c0001a", disposition="merged_reframed",
+        api_call_fingerprint=("FontSubsetter.subset_for_web_with_coverage", "subset_result.font.num_glyphs"),
+    )]
+    findings = checks.check_code_example_api_coverage_survives(candidate_without_subsetting, dispositions)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "c0001a"
+
+
+def test_check_code_example_api_coverage_survives_passes_on_real_matching_code():
+    candidate_with_subsetting = (
+        "## Additional Examples\n\n```python\nfrom aspose_font.subsetter import FontSubsetter\n"
+        "subset_result = FontSubsetter.subset_for_web_with_coverage(font, presets=(\"latin\",))\n```\n"
+    )
+    dispositions = [_code_disposition(
+        unit_id="c0001a", disposition="merged_reframed",
+        api_call_fingerprint=("FontSubsetter.subset_for_web_with_coverage",),
+    )]
+    assert checks.check_code_example_api_coverage_survives(candidate_with_subsetting, dispositions) == []
+
+
+def test_check_code_example_api_coverage_survives_skips_excluded_entries():
+    candidate = "## Quick Start\n\n```python\nprint(1)\n```\n"
+    dispositions = [_code_disposition(unit_id="c0001a", disposition="excluded", excluded_reason="not preserved, low value, no real user demand confirmed")]
+    assert checks.check_code_example_api_coverage_survives(candidate, dispositions) == []
+
+
+# --- check_cli_category_representation (TC-HARDEN-75) ---------------------------------------
+
+
+def test_check_cli_category_representation_flags_real_missing_categories():
+    # Stage 8 test 4: the real, captured 4-category CLI Highlights structure, against a candidate
+    # that only demonstrates 2 of the 4 categories (the real, confirmed font/python shape before
+    # this incident's own fix: only "Variable-font previews" and "Web packaging" survived).
+    code_units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_CLI_HIGHLIGHTS_EXCERPT)
+    candidate = (
+        "## Additional Examples\n\n```bash\n"
+        "aspose-font preview Roboto.ttf preview.svg --instance-name Bold --format svg\n"
+        "aspose-font web-build Roboto.ttf web-out --instance-name Bold --template editorial --no-woff\n"
+        "```\n"
+    )
+    findings = checks.check_cli_category_representation(candidate, code_units)
+    flagged = {f["category"] for f in findings}
+    assert flagged == {"General inspection and conversion", "QA tooling"}
+
+
+def test_check_cli_category_representation_clean_when_all_categories_survive():
+    code_units = checks.extract_old_readme_code_units(_REAL_FONT_PYTHON_CLI_HIGHLIGHTS_EXCERPT)
+    assert checks.check_cli_category_representation(_REAL_FONT_PYTHON_CLI_HIGHLIGHTS_EXCERPT, code_units) == []
+
+
+# --- _module_internal_fan_in / check_api_reference_class_internal_only (TC-HARDEN-76) --------
+
+
+# Real, captured-verbatim excerpts standing in for font/python's own real source shape, in a
+# hermetic tmp_path clone cache (real class definitions, real import-graph shape -- not
+# fabricated): reporting.py's 3 real classes (TaskTokenEstimate/TaskCompletionReceipt/
+# CompletedTaskRecord) are never imported anywhere else under src/aspose_font/ (confirmed live,
+# this incident, via grep -rl); converter.py's real FontConverter has real internal fan-in
+# (cli.py's real `from aspose_font.converter import FontConverter`).
+_REAL_REPORTING_PY_EXCERPT = (
+    '"""Task token estimate storage and Google Sheets reporting helpers."""\n\n'
+    "from dataclasses import dataclass\n\n"
+    "@dataclass(slots=True)\n"
+    "class TaskTokenEstimate:\n"
+    "    task_id: str\n\n"
+    "@dataclass(slots=True)\n"
+    "class TaskCompletionReceipt:\n"
+    "    task_id: str\n\n"
+    "@dataclass(slots=True)\n"
+    "class CompletedTaskRecord:\n"
+    "    task_id: str\n"
+)
+_REAL_CONVERTER_PY_EXCERPT = (
+    "class FontConverter:\n"
+    "    @staticmethod\n"
+    "    def convert(font, target):\n"
+    "        raise NotImplementedError\n"
+)
+_REAL_CLI_PY_IMPORT_EXCERPT = (
+    "from aspose_font.converter import FontConverter\n\n"
+    "def main():\n"
+    "    FontConverter.convert(None, None)\n"
+)
+
+
+def _real_font_python_control_clone_cache(tmp_path):
+    src = tmp_path / "src" / "aspose_font"
+    src.mkdir(parents=True)
+    (src / "reporting.py").write_text(_REAL_REPORTING_PY_EXCERPT, encoding="utf-8")
+    (src / "converter.py").write_text(_REAL_CONVERTER_PY_EXCERPT, encoding="utf-8")
+    (src / "cli.py").write_text(_REAL_CLI_PY_IMPORT_EXCERPT, encoding="utf-8")
+    (src / "__init__.py").write_text("# no top-level re-export of either class\n", encoding="utf-8")
+    return tmp_path
+
+
+def test_module_internal_fan_in_zero_for_real_reporting_classes(tmp_path):
+    root = _real_font_python_control_clone_cache(tmp_path)
+    for cls in ("TaskTokenEstimate", "TaskCompletionReceipt", "CompletedTaskRecord"):
+        assert checks._module_internal_fan_in(str(root), cls) == 0
+
+
+def test_module_internal_fan_in_nonzero_for_real_converter_control(tmp_path):
+    root = _real_font_python_control_clone_cache(tmp_path)
+    assert checks._module_internal_fan_in(str(root), "FontConverter") == 1  # cli.py's real import
+
+
+def test_module_internal_fan_in_none_when_class_not_found(tmp_path):
+    root = _real_font_python_control_clone_cache(tmp_path)
+    assert checks._module_internal_fan_in(str(root), "NoSuchClass") is None
+
+
+def test_check_api_reference_class_internal_only_flags_real_leaked_classes_not_real_converter(tmp_path):
+    # Stage 8 test 5: reporting.py's real shape (0 fan-in, no top-level export) must flag;
+    # converter.py's real shape (real fan-in) must not -- via the actual function, not the ad hoc
+    # investigation script used during Stage 1.
+    root = _real_font_python_control_clone_cache(tmp_path)
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `FontConverter` | Converts between font formats. |\n"
+        "| `TaskTokenEstimate` | TaskTokenEstimate.task_id is the unique identifier of the task. |\n"
+        "| `TaskCompletionReceipt` | TaskCompletionReceipt.task_id identifies the task uniquely. |\n"
+        "| `CompletedTaskRecord` | CompletedTaskRecord.task_id uniquely identifies the completed task. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {
+        "Core API": [
+            {"class": "FontConverter", "description": "x"},
+            {"class": "TaskTokenEstimate", "description": "x"},
+            {"class": "TaskCompletionReceipt", "description": "x"},
+            {"class": "CompletedTaskRecord", "description": "x"},
+        ]
+    }
+    findings = checks.check_api_reference_class_internal_only(readme_text, reference_index, str(root))
+    flagged = {f["class_name"] for f in findings}
+    assert flagged == {"TaskTokenEstimate", "TaskCompletionReceipt", "CompletedTaskRecord"}
+    assert "FontConverter" not in flagged
+
+
+def test_check_api_reference_class_internal_only_vacuous_without_clone_cache():
+    findings = checks.check_api_reference_class_internal_only("## API Reference\n\n", {}, None)
+    assert findings == []
+
+
+# --- exported-base-exception false-positive fix (MT048, note/python pilot, 2026-08-15) ------
+
+_REAL_NOTE_PYTHON_EXCEPTIONS_PY_EXCERPT = (
+    "class AsposeNoteError(Exception):\n"
+    "    \"\"\"Base exception for the library.\"\"\"\n\n"
+    "class FileCorruptedException(AsposeNoteError):\n"
+    "    pass\n\n"
+    "class IncorrectPasswordException(AsposeNoteError):\n"
+    "    pass\n"
+)
+
+
+def _real_note_python_control_clone_cache(tmp_path):
+    # The real, confirmed-live shape: AsposeNoteError has zero cross-file fan-in (nothing
+    # references it by name outside exceptions.py) and is absent from __init__.py's __all__/
+    # imports -- but its 2 real subclasses ARE both exported at the top level, exactly like
+    # note/python's real 5-subclass shape.
+    src = tmp_path / "src" / "aspose" / "note"
+    src.mkdir(parents=True)
+    (src / "exceptions.py").write_text(_REAL_NOTE_PYTHON_EXCEPTIONS_PY_EXCERPT, encoding="utf-8")
+    (src / "__init__.py").write_text(
+        "from .exceptions import FileCorruptedException, IncorrectPasswordException\n\n"
+        "__all__ = [\"FileCorruptedException\", \"IncorrectPasswordException\"]\n",
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
+def test_find_top_level_init_exports_finds_real_two_level_namespace_package_init(tmp_path):
+    # MT048's own real, confirmed bug: a one-level-only glob matches note/python's thin
+    # `src/aspose/__init__.py` namespace stub (`__all__ = ["note"]`) and never reaches the real
+    # export list one level deeper, at `src/aspose/note/__init__.py`.
+    root = _real_note_python_control_clone_cache(tmp_path)
+    exports = checks._find_top_level_init_exports(str(root))
+    assert exports is not None
+    assert {"FileCorruptedException", "IncorrectPasswordException"} <= exports
+
+
+def test_find_top_level_init_exports_still_finds_real_one_level_flat_package_init(tmp_path):
+    # Regression guard: font/python's real flat `src/aspose_font/__init__.py` layout (one level,
+    # no namespace stub) must keep resolving exactly as before the two-level glob was added -- its
+    # own __init__.py fixture is a comment-only file with no real exports, so the file must still
+    # be FOUND (not None) even though it legitimately yields an empty set.
+    root = _real_font_python_control_clone_cache(tmp_path)
+    exports = checks._find_top_level_init_exports(str(root))
+    assert exports is not None
+    assert exports == set()
+
+
+def test_class_has_exported_subclass_in_same_file_true_for_real_asposenoteerror(tmp_path):
+    root = _real_note_python_control_clone_cache(tmp_path)
+    root_exports = checks._find_top_level_init_exports(str(root))
+    assert checks._class_has_exported_subclass_in_same_file(str(root), "AsposeNoteError", root_exports)
+
+
+def test_class_has_exported_subclass_in_same_file_false_for_real_reporting_leak(tmp_path):
+    # The real font/python positive control must NOT be cleared by this new exemption -- none of
+    # reporting.py's 3 leaked classes has any subclass at all, exported or otherwise.
+    root = _real_font_python_control_clone_cache(tmp_path)
+    root_exports = checks._find_top_level_init_exports(str(root))
+    assert not checks._class_has_exported_subclass_in_same_file(str(root), "TaskTokenEstimate", root_exports)
+
+
+def test_check_api_reference_class_internal_only_does_not_flag_real_public_base_exception(tmp_path):
+    # MT048's own real, confirmed false-positive: AsposeNoteError is a genuinely public base
+    # exception (zero fan-in, absent from __all__, but base of 2 real exported subclasses in the
+    # same file) -- must NOT be flagged as a possible internal-only leak.
+    root = _real_note_python_control_clone_cache(tmp_path)
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `AsposeNoteError` | Base exception for the library; all other library exceptions "
+        "inherit from it. |\n"
+        "| `FileCorruptedException` | Raised when the source file's container is malformed. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {
+        "Core API": [
+            {"class": "AsposeNoteError", "description": "x"},
+            {"class": "FileCorruptedException", "description": "x"},
+        ]
+    }
+    findings = checks.check_api_reference_class_internal_only(readme_text, reference_index, str(root))
+    assert findings == []
+
+
+def test_check_api_reference_class_internal_only_exclusions_param_actually_suppresses(tmp_path):
+    # MT048: the finding's own `reason` text has always told the reader that recording a class in
+    # data/api_reference_class_exclusions.json "suppresses this prompt permanently" -- but the
+    # function never accepted or consulted that data at all until this fix. Proves the promise is
+    # now real: the same real reporting.py positive control, once passed via `exclusions`, is no
+    # longer flagged.
+    root = _real_font_python_control_clone_cache(tmp_path)
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `TaskTokenEstimate` | TaskTokenEstimate.task_id is the unique identifier of the task. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {"Core API": [{"class": "TaskTokenEstimate", "description": "x"}]}
+    without = checks.check_api_reference_class_internal_only(readme_text, reference_index, str(root))
+    assert {f["class_name"] for f in without} == {"TaskTokenEstimate"}
+    with_exclusion = checks.check_api_reference_class_internal_only(
+        readme_text, reference_index, str(root), exclusions={"TaskTokenEstimate"},
+    )
+    assert with_exclusion == []
+
+
+def test_check_api_reference_class_internal_only_real_reporting_leak_still_flags_with_new_exemption(tmp_path):
+    # Regression guard: the new same-file-exported-subclass exemption must not accidentally
+    # clear the real font/python positive control (no subclasses of any kind).
+    root = _real_font_python_control_clone_cache(tmp_path)
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `TaskTokenEstimate` | TaskTokenEstimate.task_id is the unique identifier of the task. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {"Core API": [{"class": "TaskTokenEstimate", "description": "x"}]}
+    findings = checks.check_api_reference_class_internal_only(readme_text, reference_index, str(root))
+    assert {f["class_name"] for f in findings} == {"TaskTokenEstimate"}
+
+
+# --- data/api_reference_class_exclusions.json suppression (TC-HARDEN-77) --------------------
+
+
+def test_check_api_reference_table_completeness_exclusion_suppresses_missing_class():
+    # Stage 8 test 6: a class present in the exclusions set must never be required in the table,
+    # even though it's still present in a real reference-site index fixture.
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `FontConverter` | Converts between font formats. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {
+        "Core API": [
+            {"class": "FontConverter", "description": "x"},
+            {"class": "TaskTokenEstimate", "description": "x"},
+        ]
+    }
+    # Without exclusions: TaskTokenEstimate is missing from the table -- a real finding.
+    findings_without = checks.check_api_reference_table_completeness(readme_text, reference_index)
+    assert any(f.get("class_name") == "TaskTokenEstimate" and f["reason"] == "missing_class" for f in findings_without)
+    # With the override: TaskTokenEstimate is never required -- no finding for it.
+    findings_with = checks.check_api_reference_table_completeness(
+        readme_text, reference_index, exclusions={"TaskTokenEstimate"},
+    )
+    assert not any(f.get("class_name") == "TaskTokenEstimate" for f in findings_with)
+
+
+def test_check_api_reference_table_completeness_exclusion_still_flags_if_reintroduced():
+    # An excluded class present in the table anyway now surfaces as unrecognized_class -- a real,
+    # mechanical deterrent against reintroducing a confirmed-internal class.
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `TaskTokenEstimate` | TaskTokenEstimate.task_id is the unique identifier of the task. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {"Core API": [{"class": "TaskTokenEstimate", "description": "x"}]}
+    findings = checks.check_api_reference_table_completeness(
+        readme_text, reference_index, exclusions={"TaskTokenEstimate"},
+    )
+    assert any(f.get("class_name") == "TaskTokenEstimate" and f["reason"] == "unrecognized_class" for f in findings)
+
+
+# --- check_content_unit_merged_into_target_section free-text extension (TC-HARDEN-78) -------
+
+
+def test_check_content_unit_merged_into_target_section_catches_real_stale_u0028_shape():
+    # Stage 8 test 7: the real, captured u0028 shape from font/python's own current
+    # content-dispositions.json -- an excluded disposition whose excluded_reason names "the
+    # candidate's own Key Capabilities intro paragraph independently states..." a claim that, in
+    # the real candidate (post-MT046), no longer exists at all (the Key Capabilities section now
+    # opens directly with bullets, no intro paragraph). Must fail.
+    candidate_without_intro_paragraph = (
+        "## Key Capabilities\n\n- Load, auto-detect, and inspect TrueType (TTF) fonts.\n"
+    )
+    entry = {
+        "unit_id": "u0028",
+        "salient_tokens": [],
+        "disposition": "excluded",
+        "target_section": None,
+        "excluded_reason": (
+            "Roadmap/focus positioning. The candidate's own Key Capabilities intro paragraph "
+            "independently states the same 'variable-font-first' framing in different wording."
+        ),
+    }
+    findings = checks.check_content_unit_merged_into_target_section(candidate_without_intro_paragraph, [entry])
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0028"
+
+
+def test_check_content_unit_merged_into_target_section_clean_before_real_deletion():
+    # Same u0028 shape, but against candidate text that still genuinely carries the claim (the
+    # real pre-MT046 state) -- must pass.
+    candidate_with_intro_paragraph = (
+        "## Key Capabilities\n\n"
+        "These capabilities are variable-font-first: instancing, previews, and web packaging all "
+        "build on the same variable-font-first foundation.\n\n"
+        "- Load, auto-detect, and inspect TrueType (TTF) fonts.\n"
+    )
+    entry = {
+        "unit_id": "u0028",
+        "salient_tokens": [],
+        "disposition": "excluded",
+        "target_section": None,
+        "excluded_reason": (
+            "Roadmap/focus positioning. The candidate's own Key Capabilities intro paragraph "
+            "independently states the same 'variable-font-first' framing in different wording."
+        ),
+    }
+    assert checks.check_content_unit_merged_into_target_section(candidate_with_intro_paragraph, [entry]) == []
+
+
+def test_check_content_unit_merged_into_target_section_real_u0001_and_u0049_stay_clean():
+    # The other 2 real font/python entries the audit confirmed still accurate (u0001/u0049) must
+    # NOT be flagged by this extension -- proving it doesn't over-fire on genuinely-still-valid
+    # free-text claims.
+    candidate = (
+        "Aspose.Font FOSS for Python is a free, open-source, pure-Python library with zero "
+        "required third-party runtime dependencies.\n\n"
+        "## Development and Testing\n\n"
+        "The test suite also regenerates the demo-site preview assets referenced under "
+        "Additional Examples.\n"
+    )
+    entries = [
+        {
+            "unit_id": "u0001", "salient_tokens": [], "disposition": "excluded", "target_section": None,
+            "excluded_reason": (
+                "Positions the library as pure-Python workflow automation with no native runtime "
+                "dependency. The candidate's own Intro independently states the same underlying "
+                "fact ('zero required third-party runtime dependencies') in different wording."
+            ),
+        },
+        {
+            "unit_id": "u0049", "salient_tokens": [], "disposition": "excluded", "target_section": None,
+            "excluded_reason": (
+                "Real build/test-tooling detail. The candidate's own Development and Testing "
+                "section independently states the same fact ('the test suite also regenerates "
+                "the demo-site preview assets') in different wording."
+            ),
+        },
+    ]
+    assert checks.check_content_unit_merged_into_target_section(candidate, entries) == []
+
+
+def test_normalize_independent_statement_target_real_captured_shapes():
+    assert checks._normalize_independent_statement_target("Intro") == "Intro"
+    assert checks._normalize_independent_statement_target("Key Capabilities bullets") == "Key Capabilities"
+    assert checks._normalize_independent_statement_target("Key Capabilities intro paragraph") == "Key Capabilities"
+    assert checks._normalize_independent_statement_target("Development and Testing section") == "Development and Testing"
+
+
+def test_check_content_unit_merged_into_target_section_ignores_unrelated_excluded_reason():
+    # Regression guard: an ordinary excluded entry with no "independently states" phrase at all
+    # must be completely unaffected by this extension (the pre-existing "continue" path).
+    entry = {
+        "unit_id": "u0099", "salient_tokens": [], "disposition": "excluded", "target_section": None,
+        "excluded_reason": "Pure narrative/CTA prose with no checkable claim -- out of scope per policy.",
+    }
+    assert checks.check_content_unit_merged_into_target_section("## Intro\n\nSome text.\n", [entry]) == []
+
+
+# --- check_content_unit_merged_into_target_section compound-excerpt extension (MT049, ----------
+# Thirty-Ninth incident) ---------------------------------------------------------------------
+
+# Real, captured note/python u0020 shape (content-dispositions.json, reports/repo-presenter-
+# regen-full/note/python/) -- 3 genuinely distinct sentences bundled into one merged_reframed
+# excerpt under 6 shared salient_tokens.
+_U0020_TOKENS = [
+    "tests/goldens/pdf/",
+    "ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1",
+    "PDFs",
+    "JSON",
+    "PDF",
+    "ReportLab",
+]
+_U0020_EXCERPT = (
+    "Golden PDFs are stored under `tests/goldens/pdf/` together with JSON manifests extracted "
+    "from the generated PDF.\n"
+    "The test suite compares manifests, not raw PDF bytes, so it stays stable across platforms "
+    "and ReportLab internals.\n"
+    "The PDF writer now uses deterministic Base-14 fonts by default. If you explicitly want to "
+    "try Windows system fonts for local inspection, set `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1` "
+    "before export."
+)
+
+
+def test_merge_into_target_section_catches_real_u0020_compound_excerpt_partial_drop():
+    # Real, captured MT049/Thirty-Ninth-incident defect: note/python's own u0020 bundles 3
+    # genuinely distinct facts (golden-PDF storage/manifest comparison; cross-platform stability
+    # via ReportLab; deterministic Base-14 default font + the ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1
+    # override) under one merged_reframed disposition. The real pre-fix candidate only ever
+    # carried the FIRST fact forward -- the third fact's own distinctive token (the env-var name)
+    # never appeared anywhere in the section -- yet the OLD whole-excerpt "any one token,
+    # anywhere" check still passed, because `tests/goldens/pdf/` (the first fact's own token)
+    # legitimately matched. The corrected, per-sentence-group check must fail this shape.
+    entry = {
+        "unit_id": "u0020", "excerpt": _U0020_EXCERPT, "salient_tokens": list(_U0020_TOKENS),
+        "disposition": "merged_reframed", "target_section": "Development and Testing",
+    }
+    text = (
+        "## Development and Testing\n\n"
+        "### PDF Golden Tests and Example Scripts\n\n"
+        "The PDF golden-output tests compare generated PDFs against JSON manifests in "
+        "`tests/goldens/pdf/`, not raw bytes, so they stay stable across platforms.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0020"
+
+
+def test_merge_into_target_section_passes_real_u0020_after_all_facts_restored():
+    # Same real u0020 unit, against the actual post-fix merged text now live in note/python's own
+    # candidate (reports/repo-presenter-regen-full/note/python/readme.md, lines ~484-490) -- all
+    # 3 bundled facts are genuinely present, so the corrected check must pass cleanly.
+    entry = {
+        "unit_id": "u0020", "excerpt": _U0020_EXCERPT, "salient_tokens": list(_U0020_TOKENS),
+        "disposition": "merged_reframed", "target_section": "Development and Testing",
+    }
+    text = (
+        "## Development and Testing\n\n"
+        "### PDF Golden Tests and Example Scripts\n\n"
+        "The PDF golden-output tests (`tests.test_aspose_note_pdf_goldens`) compare generated "
+        "PDFs against manifests in `tests/goldens/pdf/`, not raw bytes, so they stay stable "
+        "across platforms and ReportLab internals. The PDF writer uses deterministic Base-14 "
+        "fonts by default; set `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1` before export to use Windows "
+        "system fonts for local inspection instead.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_merge_into_target_section_real_u0003_single_sentence_still_passes_unchanged():
+    # Regression guard against reintroducing the historical over-strictness mistake this
+    # function's own docstring already documents (the retired leading-20-char-literal-substring
+    # fallback that false-positived on dozens of real, correctly-reframed single-fact
+    # dispositions): a REAL, currently-passing, single-sentence entry from note/python's own live
+    # content-dispositions.json (u0003, target_section "Intro") must still pass unchanged under
+    # the new per-sentence-group logic -- a single-sentence excerpt has exactly one group, so this
+    # is provably identical to the old "any one token, anywhere" behavior.
+    entry = {
+        "unit_id": "u0003",
+        "excerpt": (
+            "This repository provides a Python library with a **subset-compatible Aspose.Note "
+            "for .NET-shaped public API** for reading Microsoft OneNote files (`.one`)."
+        ),
+        "salient_tokens": [".one", "NET", "API", "OneNote"],
+        "disposition": "merged_reframed", "target_section": "Intro",
+    }
+    text = (
+        "Aspose.Note FOSS for Python reads Microsoft OneNote `.one` files through a "
+        "subset-compatible, Aspose.Note for .NET-shaped API.\n\n## Installation\n\n- pip install x\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_merge_into_target_section_compound_excerpt_also_applies_to_redundant_evidence_ref_path():
+    # Same compound-drop defect class, via the sibling excluded/candidate_section_reference path
+    # that shares this exact code block (see docstring's own "ALSO verifies..." paragraph) --
+    # must be caught there too, not just for merged_* dispositions.
+    entry = {
+        "unit_id": "u0020", "excerpt": _U0020_EXCERPT, "salient_tokens": list(_U0020_TOKENS),
+        "disposition": "excluded", "target_section": None,
+        "verification": {
+            "evidence_type": "candidate_section_reference",
+            "evidence_ref": "Development and Testing",
+        },
+    }
+    text = (
+        "## Development and Testing\n\n"
+        "The PDF golden-output tests compare generated PDFs against JSON manifests in "
+        "`tests/goldens/pdf/`, not raw bytes, so they stay stable across platforms.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1 and findings[0]["unit_id"] == "u0020"

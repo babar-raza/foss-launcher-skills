@@ -4951,6 +4951,23 @@ scripts:
     change_impact: "21 deterministic hard-gate/heuristic checks readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
     notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
 
+  - path: scripts/pipeline/commands/foss/dependency_extract.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: null
+    owner_domain: foss-repo-presentation
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_dependency_extract.py
+    deprecated_since: null
+    change_impact: "Real-manifest dependency extraction for /readme-refresh (MT041, 2026-08-14): 7 stdlib-only per-ecosystem parsers (cargo/pypi/npm/nuget/maven/go_modules) producing a DependencySnapshot, plus cross_reference_dependency_claims() to corroborate against knowledge/{family}/{platform}/merged/claims.json 'dependency' claims. Deliberately separate from scripts/pipeline/extraction/package_manifest.py (different revision-pinning semantics, thinner contract)."
+    notes: "Sibling module to readme_refresh_run.py/readme_refresh_checks.py; imported directly (`import dependency_extract`), no CLI of its own. Built to fix a same-document contradiction in the generated cells/rust README (claimed no external runtime deps while Cargo.toml declared 7)."
+
   - path: scripts/pipeline/commands/diagnostics/blind_spot_audit_run.py
     kind: entrypoint
     lifecycle: active

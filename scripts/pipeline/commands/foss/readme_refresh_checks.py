@@ -570,6 +570,65 @@ def check_diagram_column_balance(markdown_text: str) -> list[dict]:
     return []
 
 
+_DIAGRAM_LABEL_MAX_TOKEN_CHARS = 28
+
+
+def check_diagram_label_token_length(
+    markdown_text: str, max_token_chars: int = _DIAGRAM_LABEL_MAX_TOKEN_CHARS
+) -> list[dict]:
+    """Heuristic (2026-08-14, MT040/Thirtieth incident). Flags any single space-delimited
+    token inside a diagram node label or container title longer than `max_token_chars`.
+
+    Real, upstream `mermaid.js` node labels wrap via a `foreignObject`/`white-space:
+    break-spaces` div at a roughly-200px-wide budget -- `break-spaces` only breaks at literal
+    whitespace, never mid-word (confirmed via a real, open, unfixed upstream defect,
+    mermaid-js/mermaid#6424 "Long Words are Cut Off"), so a single unbroken token wide enough
+    can overflow its node's rectangle regardless of the rest of the label wrapping normally.
+
+    Not the root cause of the two real, live clipping defects this incident actually found and
+    fixed (both traced to the retired per-node-wired diagram topology, not label length -- see
+    the Thirtieth incident write-up) -- this check exists purely to guard against a second,
+    independent, currently-latent failure class for FUTURE diagram content. The default ceiling
+    (28) is deliberately set with headroom above the two longest real tokens already confirmed,
+    by direct rendering, to be safe in this exact corpus and font (`DefinedNameCollection`, 21
+    chars; `TextFragmentAbsorber`, 20 chars) -- a considered approximation, not a value derived
+    from real font-metric measurement, which this module has no reliable way to perform.
+
+    Heuristic, not a hard gate: the real safe ceiling depends on font metrics and the specific
+    word's own glyph widths (a long word full of narrow characters like "iiiiiiiiiiiiiiiiiiii"
+    fits where an equally-long word full of wide characters might not) -- a token-length count
+    is a real, useful risk signal, never a certain verdict either way.
+    """
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+    findings: list[dict] = []
+
+    labels: list[tuple[str, str]] = [
+        (node_id, label) for node_id, label in graph.node_label.items()
+    ]
+    for line in mermaid_text.splitlines():
+        title_match = _SUBGRAPH_START_RE.match(line.strip())
+        if title_match and title_match.group(2):
+            labels.append((title_match.group(1), title_match.group(2)))
+
+    for label_id, label in labels:
+        for token in label.split():
+            stripped = token.strip(".,;:()[]{}\"'")
+            if len(stripped) > max_token_chars:
+                findings.append({
+                    "node_id": label_id,
+                    "label": label,
+                    "token": stripped,
+                    "token_length": len(stripped),
+                    "reason": f"token {stripped!r} ({len(stripped)} chars) exceeds the "
+                              f"{max_token_chars}-char safe-wrap ceiling and risks overflowing "
+                              "its node on renderers that cannot break mid-word",
+                })
+    return findings
+
+
 def check_diagram_known_subgraph_ids(markdown_text: str) -> list[str]:
     """Return any TOP-LEVEL `## At a glance` subgraph ID outside the canonical set
     {StartingPoints, Capabilities, Outputs}. A non-blocking tripwire. Nested column
@@ -1142,6 +1201,7 @@ _REQUIRED_SECTIONS = [
     "At a Glance",
     "Key Capabilities",
     "Installation",
+    "Dependencies",
     "Quick Start",
     "API Reference",
     "Documentation & Resources",
@@ -1310,6 +1370,162 @@ def check_enterprise_edition_link_resolves(
                 "detail": f"this href does not match the one verified, live-resolving "
                           f"Enterprise target {verified_url!r} for this product",
                 "verified_url": verified_url,
+            })
+    return findings
+
+
+# MT043 (TC-HARDEN-62, Thirty-Third incident, 2026-08-14): a small, explicit, disclosed-
+# incomplete slug -> real display-name lookup, used to detect whether the anchor TEXT names a
+# platform at all (family case) or names the CORRECT one (platform case). This is the table
+# `readme_refresh_run.py`'s own `_classify_enterprise_relationship` imports (as `checks.
+# _PLATFORM_DISPLAY_NAMES`) to compute the resolved link's own `public_platform` field -- one
+# real table, two consumers, not two independent tables with an "accepted overlap cost" the way
+# the pre-MT044 design had it (that duplication is gone now that `bridge_language` no longer
+# exists as a concept at all -- see the Thirty-Fourth incident for the full correction).
+_PLATFORM_DISPLAY_NAMES: dict[str, str] = {
+    "net": ".NET", "java": "Java", "cpp": "C++", "python": "Python", "nodejs": "Node.js",
+    "typescript": "TypeScript", "go": "Go", "rust": "Rust", "php": "PHP", "ruby": "Ruby",
+    "android": "Android",
+}
+_PLATFORM_DISPLAY_NAME_RE = re.compile(
+    r"\.NET\b|\bJava\b|C\+\+|\bPython\b|Node\.js|\bTypeScript\b|\bGo\b|\bRust\b|\bPHP\b|\bRuby\b|\bAndroid\b"
+)
+# MT044 (Thirty-Fourth incident, 2026-08-14): CORRECTED -- under MT043's original, now-reversed
+# design, this pattern was REQUIRED to appear near a bridge link (a "prove you disclosed the
+# implementation bridge" gate). That was the exact policy defect the mission exists to fix: the
+# public anchor and surrounding prose must NEVER expose implementation-bridge reasoning, so this
+# pattern is now used by `check_no_implementation_bridge_disclosure` to FORBID exactly this kind
+# of sentence anywhere in the document, not to mandate it near one link. Kept as its own named
+# constant (not folded into `_PROCESS_NARRATION_PATTERNS`) since its job -- implementation-bridge
+# exposure -- is a distinct concern from process/audit-trail narration, even though both are
+# "internal reasoning that must never reach a public README."
+# Note: `(?!\w)` is used instead of a trailing `\b` after any alternative ending in `+` (C\+\+) --
+# `\b` never matches between two non-word characters (a literal "+" and the space/punctuation that
+# follows it), so a plain `\b` there would silently never fire for the C++ case. `(?!\w)` correctly
+# requires "not immediately followed by a word character" regardless of what kind of character
+# precedes it.
+_IMPLEMENTATION_BRIDGE_DISCLOSURE_PATTERNS: tuple[re.Pattern, ...] = (
+    re.compile(r"\bvia\s+(?:\.NET|Java|C\+\+|Node\.js|Python|Go|Rust)(?!\w)", re.IGNORECASE),
+    re.compile(r"\bimplemented\s+(?:through|via)\b", re.IGNORECASE),
+    re.compile(r"\bbacked\s+by\s+(?:\.NET|Java|C\+\+)(?!\w)", re.IGNORECASE),
+    re.compile(r"\ba\s+wrapper\s+around\b", re.IGNORECASE),
+    re.compile(r"\ba\s+binding\s+to\b", re.IGNORECASE),
+    re.compile(r"\brather\s+than\s+as\s+an?\s+native\b", re.IGNORECASE),
+)
+
+
+def check_enterprise_edition_anchor_matches_relationship(
+    readme_text: str, enterprise_link: "dict | None"
+) -> list[dict]:
+    """Hard gate (TC-HARDEN-62, MT043, Thirty-Third incident, 2026-08-14) -- CORRECTED 2026-08-14
+    (MT044, Thirty-Fourth incident). `check_enterprise_edition_naming` (above) verifies the anchor
+    says "Enterprise Edition" plus explains broader functionality; `check_enterprise_edition_
+    link_resolves` (above) verifies the href matches the one real, verified target. NEITHER ever
+    verified that the anchor's own PLATFORM CLAIM matches what the resolved destination actually
+    represents -- confirmed live: `cells/typescript`'s candidate said "Aspose.Cells for .NET"
+    while linking to the family-level `cells/` page, and both existing checks passed cleanly.
+
+    `enterprise_link` is the factpack's own `{"url", "relationship", "public_platform", ...}`
+    (`_detect_enterprise_link` + `_classify_enterprise_relationship`, `readme_refresh_run.py`) --
+    this function compares the CANDIDATE's real anchor text against that real, computed
+    relationship, per the plan's own CORRECTED Stage 3/4 anchor-text contract (MT044):
+
+    - `"family"`: the anchor text itself must name NO platform at all -- scanned narrowly, just
+      the bracketed anchor phrase, never the surrounding prose (deliberately avoids the `\\bGo\\b`-
+      in-ordinary-English false-positive risk a paragraph-wide scan would carry).
+    - `"platform"` (unified 2026-08-14, MT044 -- collapses the old, now-reversed `"exact"`/
+      `"bridge"` split): the anchor must name the one real, normalized `public_platform`, and no
+      other platform -- and MUST NOT carry any implementation-bridge qualifier (that prohibition
+      is enforced portfolio-wide by the separate `check_no_implementation_bridge_disclosure` hard
+      gate below, not duplicated here). Whether the underlying URL segment was a bare slug or a
+      compound bridge slug is never distinguished at this layer -- the anchor is identical either
+      way, by design.
+    - `"unresolved"` or `None` (no relationship could be classified, or no verified target exists
+      at all): no `products.aspose.com` link should appear in the candidate -- omit rather than
+      guess, matching this skill's own "never invent a link not backed by verified data" rule.
+
+    Findings carry a `reason` distinguishing each failure shape, never a bare "this failed".
+    """
+    findings: list[dict] = []
+    relationship = (enterprise_link or {}).get("relationship")
+    for match in _MD_LINK_RE.finditer(readme_text):
+        anchor_text, href = match.group(1), match.group(2)
+        if not _ENTERPRISE_LINK_HOST_RE.search(href):
+            continue
+
+        if relationship in (None, "unresolved"):
+            findings.append({
+                "anchor_text": anchor_text, "href": href, "reason": "no_classifiable_relationship",
+                "detail": "no verified relationship (family/platform) could be established "
+                          "between this product and the linked page -- the link should be "
+                          "omitted rather than guessed",
+            })
+            continue
+
+        if relationship == "family":
+            if _PLATFORM_DISPLAY_NAME_RE.search(anchor_text):
+                findings.append({
+                    "anchor_text": anchor_text, "href": href, "reason": "platform_claim_on_family_link",
+                    "detail": "the resolved destination is a family-level page (no single "
+                              "platform), but the anchor text names a specific platform",
+                })
+            continue
+
+        if relationship == "platform":
+            expected_name = (enterprise_link or {}).get("public_platform") or ""
+            names_found = set(_PLATFORM_DISPLAY_NAME_RE.findall(anchor_text))
+            if expected_name and expected_name not in anchor_text:
+                findings.append({
+                    "anchor_text": anchor_text, "href": href, "reason": "missing_platform_name",
+                    "detail": f"the resolved destination is the real {expected_name} edition, "
+                              f"but the anchor text does not name it",
+                })
+            wrong_names = names_found - ({expected_name} if expected_name else set())
+            if wrong_names:
+                findings.append({
+                    "anchor_text": anchor_text, "href": href, "reason": "wrong_platform_name",
+                    "detail": f"anchor names {sorted(wrong_names)}, but the real destination is "
+                              f"{expected_name!r}",
+                })
+            continue
+
+    return findings
+
+
+def check_no_implementation_bridge_disclosure(readme_text: str) -> list[dict]:
+    """Hard gate (TC-HARDEN-62 REPLACEMENT, MT044, Thirty-Fourth incident, 2026-08-14). MT043's
+    own bridge-relationship anchor contract MANDATED sentences of exactly this shape ("...via
+    Java", "...implemented through .NET") near a bridge Enterprise link -- the precise policy
+    defect this mission reverses. This is the portfolio-wide, document-wide replacement: no
+    generated README may EVER expose how one platform is implemented through another, anywhere
+    in the document (anchors, prose, tables, notes, comparison sections, badges, installation
+    text, architecture descriptions, related-product descriptions, footnotes, generated
+    metadata) -- not merely near an Enterprise Edition link, per the mission's own explicit
+    "applies everywhere" requirement.
+
+    Fenced code blocks are stripped first (matching this module's own established `check_
+    process_narration_smells`/leak-scan convention) so a real code identifier -- e.g. a class
+    literally named `JavaBridge` -- can never false-positive.
+
+    Disclosed limitation, stated the same way every other fixed-phrase-list check in this module
+    discloses it: a differently-worded implementation disclosure not matching one of these named
+    patterns would still pass. The primary defense is the corrected composition contract (the
+    anchor rule above, and the skill doc's own composition guidance) never producing this text in
+    the first place -- this hard gate is the mechanical backstop, not the sole line of defense.
+    """
+    findings: list[dict] = []
+    stripped = _ANY_FENCED_CODE_RE.sub("", readme_text)
+    for pattern in _IMPLEMENTATION_BRIDGE_DISCLOSURE_PATTERNS:
+        for match in pattern.finditer(stripped):
+            start = max(0, match.start() - 60)
+            end = min(len(stripped), match.end() + 60)
+            findings.append({
+                "matched_text": match.group(0),
+                "context": stripped[start:end].replace("\n", " "),
+                "reason": "implementation_bridge_disclosure",
+                "detail": "generated READMEs must never expose how one platform is implemented "
+                          "through another -- this phrase discloses an internal implementation-"
+                          "bridge detail that must stay internal-only",
             })
     return findings
 
@@ -1604,7 +1820,10 @@ _PROCESS_NARRATION_PATTERNS = [
     r"\bthis reproduces with\b",
     r"\bfails identically\b",
     r"\breproduced from its own\b",
-    r"\bthe upstream repository'?s own\b",
+    # 2026-08-14 (MT039, Twenty-Ninth incident): widened from "repository" alone after a
+    # confirmed synonym-evasion instance (slides/net: "the upstream project's own usage
+    # examples") used the identical narration shape with a different noun.
+    r"\bthe upstream (?:repository|project|readme)'?s own\b",
     r"\bthe source repository\b",
     r"\(per the\b",
     r"\bwithout obscuring the primary\b",
@@ -1634,6 +1853,21 @@ _PROCESS_NARRATION_PATTERNS = [
     # `_INTERNAL_LABEL_PATTERNS` filename block: excluding the filename while keeping the
     # finding is still a leak (per this incident's own governing policy).
     r"\bdoes not match a plain clone\b",
+    # 2026-08-14 (MT039, Twenty-Ninth incident): a fifth, previously unnamed narration
+    # category -- GENERATION-MECHANISM narration (describing HOW/WHY this document's own
+    # section was composed, vs. WHAT the product does). Confirmed live across 9 products, all
+    # variants of "[the table(s)/index/section below/above] mirrors/is organized as
+    # [reference.aspose.org's own | its own | the same] [structure]" -- 4 of 10 confirmed
+    # instances never name reference.aspose.org literally (paraphrased as "the library's
+    # reference index", "the full, module-grouped reference", "the same data"), so this
+    # targets the STRUCTURAL SHAPE, not a domain-name match. Individually verified against
+    # every real, legitimate "mirror(s)/mirroring" use already in the portfolio
+    # (MirroredProfile, "mirroring the WHATWG window.customElements API", "mirrors
+    # OperatorCollection", "mirroring PDF 32000 names", "the API shape mirrors Aspose.PDF for
+    # .NET", a CI-mirroring build instruction) -- zero of those share this pattern's subject
+    # shape (a table/index/section noun as the thing doing the mirroring).
+    r"\b(?:table|tables|index|section)\b[^.]{0,30}\b(?:below|above)\b[^.]{0,60}\bmirror(?:s|ing)?\b",
+    r"\bgrouped\s+exactly\s+as\b",
 ]
 _PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
 
@@ -1756,50 +1990,78 @@ def check_installation_matches_package_registry(readme_text: str, install_info: 
     (`check_required_sections` already owns that), no real registry data at all for this
     product, or incomplete `candidate` data (nothing to compare against) all return no findings.
 
+    MT042 (TC-HARDEN-59, Thirty-Second incident, 2026-08-14): also scans the CANDIDATE's badge
+    row (independent of the `## Installation` section, and of whether that section exists at
+    all) for a `package_version`-category badge, and verifies its claimed identity against the
+    exact same `install_info["candidate"]` data -- extending this already-hardened check to a
+    second real consumer rather than building a parallel mechanism from scratch, per this
+    module's own established discipline ("does this improve results without weakening what
+    already works"). Same case-insensitive comparison, same disclosed `data/package_registry.
+    json`-reliability caveat above, so this stays folded into the same heuristic, not a new
+    hard gate.
+
     Returns `{"reason", "expected"?}` findings -- a prompt for human/agent judgment (matching
     this module's other data-source-dependent heuristics, e.g. `check_diagram_format_
     completeness_hint`), never an automatic fail.
     """
+    findings: list[dict] = []
+
     sections = _split_into_sections(readme_text)
     section_text = sections.get("Installation", "")
-    if not section_text:
-        return []
-
     fallback_required = install_info.get("fallback_text_required")
-    if fallback_required is None:
-        return []
 
-    if fallback_required:
-        if not _UNPUBLISHED_PACKAGE_SIGNAL_RE.search(section_text):
-            return [{
-                "reason": "Installation section does not disclose that no confirmed published "
-                          "package exists yet for this product (data/package_registry.json "
-                          "shows fallback_text_required=True) -- confirm whether this is a real "
-                          "gap or the registry data itself is stale before treating this as a "
-                          "content defect",
-            }]
-        return []
+    if section_text and fallback_required is not None:
+        if fallback_required:
+            if not _UNPUBLISHED_PACKAGE_SIGNAL_RE.search(section_text):
+                findings.append({
+                    "reason": "Installation section does not disclose that no confirmed "
+                              "published package exists yet for this product (data/"
+                              "package_registry.json shows fallback_text_required=True) -- "
+                              "confirm whether this is a real gap or the registry data itself "
+                              "is stale before treating this as a content defect",
+                })
+        else:
+            expected = _expected_package_identity(install_info)
+            if expected and expected.lower() not in section_text.lower():
+                findings.append({
+                    "reason": f"Installation section does not name the real, confirmed "
+                              f"published package identity '{expected}' (data/package_registry."
+                              f"json, registry_type={install_info.get('registry_type')!r}) -- "
+                              f"confirm whether this is a real gap or the registry data itself "
+                              f"is stale before treating this as a content defect",
+                    "expected": expected,
+                })
 
+    if fallback_required is False:
+        expected = _expected_package_identity(install_info)
+        if expected:
+            for badge in extract_badges(readme_text):
+                if classify_badge(badge)["category"] != "package_version":
+                    continue
+                haystack = f"{badge.get('alt_text', '')} {badge.get('image_url', '')} {badge.get('link_url', '')}"
+                if expected.lower() not in haystack.lower():
+                    findings.append({
+                        "reason": f"a badge classified 'package_version' does not name the "
+                                  f"real, confirmed published package identity '{expected}' "
+                                  f"(data/package_registry.json, registry_type="
+                                  f"{install_info.get('registry_type')!r}) -- confirm whether "
+                                  f"this is a real gap or the registry data itself is stale "
+                                  f"before treating this as a content defect",
+                        "expected": expected, "unit_id": badge.get("unit_id"),
+                    })
+    return findings
+
+
+def _expected_package_identity(install_info: dict) -> "str | None":
+    """Shared by `check_installation_matches_package_registry`'s Installation-section scan and
+    its badge-row scan (MT042) -- the one real package-identity-resolution rule, computed once."""
     candidate = install_info.get("candidate") or {}
     registry_type = install_info.get("registry_type")
     if registry_type == "maven":
-        expected = candidate.get("artifact_id")
-    elif registry_type == "go_modules":
-        expected = candidate.get("module_path")
-    else:
-        expected = candidate.get("name")
-    if not expected:
-        return []
-    if expected.lower() not in section_text.lower():
-        return [{
-            "reason": f"Installation section does not name the real, confirmed published "
-                      f"package identity '{expected}' (data/package_registry.json, "
-                      f"registry_type={registry_type!r}) -- confirm whether this is a real gap "
-                      f"or the registry data itself is stale before treating this as a content "
-                      f"defect",
-            "expected": expected,
-        }]
-    return []
+        return candidate.get("artifact_id")
+    if registry_type == "go_modules":
+        return candidate.get("module_path")
+    return candidate.get("name")
 
 
 _HEADING_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
@@ -2201,8 +2463,22 @@ def check_code_example_imports_match_source(readme_text: str, clone_cache_root: 
 # and was elevated from heuristic to hard gate now that class-name verification makes the
 # underlying question mechanically decidable. See that function's docstring for the full
 # rationale. _API_REF_SECTION_RE (the intro-only section extractor) is kept -- still used there.
+# Re-bound 2026-08-15 (MT045, Thirty-Fifth incident, TC-HARDEN-67): was `(?=<details>|\Z)`,
+# which silently over-captures the ENTIRE remainder of the document as "the intro sentence
+# region" whenever no `<details>` tag exists in the file at all -- confirmed live against
+# barcode/python's real defective (uncollapsed) text, which captured all 5115 remaining
+# characters. Re-bound to ALSO stop at the next `##` heading (whichever of `<details>`/next
+# heading/EOF comes first) -- a strict superset of the old boundary, so a candidate that
+# still has its `<details>` tag (the common, already-correct case) is completely unaffected
+# (confirmed by the existing `test_check_api_reference_classes_flags_bare_wildcard` fixture,
+# which has no other `##` heading and depends on the intro region stopping exactly at
+# `<details>`, not at EOF); only the previously-unbounded no-`<details>`-anywhere case is
+# newly, correctly bounded. Defensive: becomes structurally unreachable for a candidate that
+# also passes `check_api_reference_detail_collapsed` (which requires a real `<details>` tag
+# to exist), but guards a still-failing candidate mid-iteration.
 _API_REF_SECTION_RE = re.compile(
-    r"^##\s+API reference\s*$(.*?)(?=<details>|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+    r"^##\s+API reference\s*$(.*?)(?=<details>|^##\s+|\Z)",
+    re.MULTILINE | re.DOTALL | re.IGNORECASE,
 )
 
 
@@ -2508,6 +2784,261 @@ def check_api_reference_classes_exist_in_reference_site(
     return findings
 
 
+# ============================================================================================
+# Thirty-Seventh incident / MT047 (2026-08-15): independent verification of the `font/python`
+# preservation audit's Finding 1 (3 internal-tooling classes -- `TaskTokenEstimate`,
+# `TaskCompletionReceipt`, `CompletedTaskRecord` -- leaked into the public API Reference table).
+# `check_api_reference_classes_exist_in_reference_site` (above) and `check_api_reference_table_
+# completeness` (below) both verify a cited class is REAL -- neither has any concept of whether
+# a real class is genuinely PUBLIC. Confirmed live: `reporting.py`'s 3 classes are real (defined,
+# not forward-declared), never imported by any other file under `src/aspose_font/`, and back
+# their own separate `[project.scripts]` console entry (`aspose-font-reporting`) distinct from
+# the product's real `aspose-font` entry -- an internal-tooling module, not part of the library's
+# own public surface, that both existing checks correctly (and blindly) confirmed as "real."
+#
+# The precise, validated signal (Stage 1's own 5-control-pair test): internal FAN-IN, not
+# `__init__.py` absence alone. A naive "not in __init__.py's __all__" scan was tried first and
+# rejected -- it produced 0 to 237 "not exported" classes across every real Python product in
+# the portfolio, an unusable false-positive rate, since most legitimate deep API surface is
+# reachable only via submodule import, never top-level re-export (the real `FontConverter`
+# control case: absent from `__all__`, genuinely real, 6 real internal importers). Python-first
+# for this pass (TC-HARDEN-01's own established "prove one language first, disclose the rest as
+# deferred" precedent) -- heuristic tier, not a hard gate, validated against exactly one
+# product's 5 real control pairs so far (Stage 12's portfolio dry run is real, deterministic
+# machinery verification, not a second-language precision proof).
+# ============================================================================================
+
+_INIT_ALL_RE = re.compile(r"__all__\s*=\s*\[(.*?)\]", re.DOTALL)
+_INIT_QUOTED_NAME_RE = re.compile(r"[\"']([A-Za-z_][A-Za-z0-9_]*)[\"']")
+_INIT_IMPORT_LINE_RE = re.compile(r"^\s*from\s+\S+\s+import\s+(.+)$", re.MULTILINE)
+_INIT_CLASS_DEF_RE = re.compile(r"^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
+
+
+def _module_internal_fan_in(clone_cache_root: str, class_name: str) -> "int | None":
+    """Counts distinct source files under `clone_cache_root` (Python-first: `*.py` only, a
+    disclosed, deliberate scope narrowing -- see this section's own header comment) that
+    reference `class_name` as plain text, EXCLUDING the file(s) that actually define it
+    (`_find_class_source_files`, the same lookup `check_named_member_accuracy`/`check_api_
+    reference_classes_exist_in_reference_site` already use -- no new class-location logic).
+    `None` when unusable (no clone cache directory, or the class can't be located at all) --
+    never a false negative masquerading as a real zero.
+
+    A cheap whole-word text search, not a real import-graph parse (same "presence not proof"
+    honesty this module already discloses for `check_named_member_accuracy`) -- a class name
+    that happens to collide with an unrelated identifier in a docstring/comment elsewhere would
+    inflate this count, which only makes the check that consumes this value MORE conservative
+    (fewer false "internal-only" flags), never less.
+    """
+    root = Path(clone_cache_root)
+    if not root.is_dir():
+        return None
+    defining_files = _find_class_source_files(root, class_name)
+    if not defining_files:
+        return None
+    defining = {p.resolve() for p in defining_files}
+    reference_re = re.compile(rf"\b{re.escape(class_name)}\b")
+    skip_dirs = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
+    fan_in = 0
+    for path in root.rglob("*.py"):
+        if not path.is_file() or skip_dirs & set(path.parts):
+            continue
+        if path.resolve() in defining:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if reference_re.search(text):
+            fan_in += 1
+    return fan_in
+
+
+def _class_has_exported_subclass_in_same_file(
+    clone_cache_root: str, class_name: str, root_exports: "set[str] | None"
+) -> bool:
+    """MT048 (note/python pilot, 2026-08-15): a class can be genuinely PUBLIC by inheritance
+    visibility even with zero cross-file fan-in and zero direct top-level export -- the common
+    Python idiom of a base exception (or base class generally) that callers reach almost
+    exclusively via its EXPORTED subclasses (`except BaseError:` catches every subclass without
+    ever naming the base directly in most call sites), not via direct reference elsewhere in the
+    source tree. Confirmed live and real: `note/python`'s `AsposeNoteError` (base of 5 real,
+    all-exported exception subclasses defined in the same `exceptions.py`) has `_module_internal_
+    fan_in == 0` and is absent from `_find_top_level_init_exports`' result -- the exact shape
+    `check_api_reference_class_internal_only` (MT047/TC-HARDEN-76) was built to flag as a
+    possible internal-tooling leak, but this is the OPPOSITE case: a real, upstream-confirmed
+    (not fixable here) under-export of a genuinely public base class, already correctly disclosed
+    in this candidate's own API Reference row and `upstream-issues.md`, not an internal-tooling
+    class like `font/python`'s real `reporting.py` leak (which has no exported subclasses at all
+    -- this distinguishing signal doesn't accidentally clear that real positive control).
+
+    Cheap, disclosed heuristic (same "presence not proof" honesty as `_module_internal_fan_in`):
+    scans the class's own defining file(s) for `class Sub(...ClassName...):` lines and returns
+    True the moment any such subclass name is itself in `root_exports`. `False` -- never raises --
+    when `root_exports` is falsy/None (nothing to confirm a subclass against) or the class has no
+    locatable defining file.
+    """
+    if not root_exports:
+        return False
+    root = Path(clone_cache_root)
+    defining_files = _find_class_source_files(root, class_name)
+    if not defining_files:
+        return False
+    subclass_re = re.compile(
+        rf"^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)\s*\([^)]*\b{re.escape(class_name)}\b[^)]*\)",
+        re.MULTILINE,
+    )
+    for path in defining_files:
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for match in subclass_re.finditer(text):
+            if match.group(1) in root_exports:
+                return True
+    return False
+
+
+def _find_top_level_init_exports(clone_cache_root: str) -> "set[str] | None":
+    """Best-effort, disclosed-incomplete scan of a Python product's top-level `__init__.py`
+    (`src/*/__init__.py`, PLUS `src/*/*/__init__.py`, falling back to `*/__init__.py` for a
+    non-`src`-layout checkout) for names it makes available at the package's own top level: a
+    literal `__all__` list, every name in a `from .module import X, Y as Z` statement, and every
+    top-level `class X` defined directly inside `__init__.py` itself. `None` -- never an empty
+    set -- when no `__init__.py` is discoverable at all (Stage 3's own confirmed real gap:
+    `3d/python`, `cells/python`, `email/python`, `slides/python`, `words/python` have no
+    discoverable top-level `__init__.py` under this convention) -- an empty set would be silently
+    indistinguishable from "genuinely exports nothing," which is never true for a real, shipping
+    product.
+
+    MT048 (note/python pilot, 2026-08-15): a real, confirmed bug found live in this function's
+    own first use against a second product. `note/python` ships a real, PEP 420-style two-level
+    namespace layout -- `src/aspose/__init__.py` (a thin namespace stub, `__all__ = ["note"]`)
+    plus the REAL package init one level deeper, `src/aspose/note/__init__.py` (the genuine
+    33-class export list). The original one-level-only glob matched the stub and never even
+    looked at the real file, so every class this function should have confirmed as exported came
+    back as a false "internal-only" candidate -- confirmed directly: `_class_has_exported_
+    subclass_in_same_file`'s own fix (above) was silently defeated by this bug in its first real
+    test against `note/python`'s real clone cache, not a synthetic fixture. `src/*/*/__init__.py`
+    is added as an ADDITIONAL source (unioned with the one-level glob, not a fallback) --
+    deliberately not the ONLY pattern, since a genuinely flat `src/{package}/__init__.py` layout
+    (e.g. `font/python`'s real `src/aspose_font/__init__.py`) needs the one-level match to keep
+    working exactly as before. A two-level submodule init that isn't really a namespace-package
+    root (e.g. a hypothetical `src/mypackage/utils/__init__.py`) can also match this new pattern
+    and get its own local names folded into the same export set -- an accepted, disclosed
+    imprecision: per this module's own established principle for `_module_internal_fan_in`, a
+    stray extra name in `root_exports` only makes the heuristic that consumes this value MORE
+    conservative (fewer false internal-only flags), never less.
+    """
+    root = Path(clone_cache_root)
+    candidates = list(root.glob("src/*/__init__.py")) + list(root.glob("src/*/*/__init__.py"))
+    if not candidates:
+        candidates = list(root.glob("*/__init__.py"))
+    if not candidates:
+        return None
+    exports: set[str] = set()
+    for path in candidates:
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        all_match = _INIT_ALL_RE.search(text)
+        if all_match:
+            exports.update(_INIT_QUOTED_NAME_RE.findall(all_match.group(1)))
+        for import_line in _INIT_IMPORT_LINE_RE.findall(text):
+            for name in import_line.split(","):
+                name = name.strip().split(" as ")[-1].strip()
+                if name:
+                    exports.add(name)
+        exports.update(_INIT_CLASS_DEF_RE.findall(text))
+    return exports
+
+
+def check_api_reference_class_internal_only(
+    readme_text: str,
+    reference_index: "dict[str, list[dict]] | None",
+    clone_cache_root: "str | None",
+    exclusions: "set[str] | None" = None,
+) -> list[dict]:
+    """Heuristic, non-blocking (TC-HARDEN-76, MT047/Thirty-Seventh incident, 2026-08-15). For
+    every class cited in the API Reference **table** (`_parse_readme_api_tables` -- the exact
+    gap neither `check_api_reference_table_completeness` (mirror-fidelity only) nor `check_api_
+    reference_classes_exist_in_reference_site` (the curated-bullet convention only, never the
+    module table) covers), flags a class whose `_module_internal_fan_in` is exactly `0` AND
+    which is absent from `_find_top_level_init_exports`' result, as a "possible internal-only
+    class -- verify before shipping" prompt.
+
+    Scope is deliberately narrowed to classes `reference_index` (`parse_reference_api_index`'s
+    own output) already independently confirms as real -- fabricated-name detection is `check_
+    api_reference_classes_exist_in_reference_site`'s job, not this one's; conflating the two
+    would re-flag an already-caught fabrication under a confusing, unrelated reason string.
+    Silently returns `[]` (never a false positive) when `clone_cache_root` is absent/unusable,
+    when the API Reference section/table is empty, or when `reference_index` has nothing to
+    confirm any cited class against.
+
+    Heuristic tier, not a hard gate -- validated against exactly one product's 5 real control
+    pairs at introduction (`reporting.py`'s 3 real leaked classes vs. `converter.py`/
+    `FontConverter`, `_io.py`/`BinaryReader`, `eot/font.py`/`EotFont`, `web.py`/`WebFontAsset`).
+    MT048 (note/python pilot, 2026-08-15) is this heuristic's first real run against a SECOND
+    product's real content, per this incident's own explicit "not yet exercised against real
+    content from any other product" disclosure -- and found a real, confirmed false-positive
+    class: `note/python`'s `AsposeNoteError` (a genuinely public base exception, zero cross-file
+    fan-in, absent from `__all__`, but the base of 5 real, all-exported subclasses defined in the
+    same file) trips the original fan-in-only signal exactly like a real internal-tooling leak
+    would. `_class_has_exported_subclass_in_same_file` (below) closes this specific, real,
+    evidence-backed false-positive shape without weakening the original `reporting.py`-style
+    positive control (which has no exported subclasses at all, so the new exemption never fires
+    for it) -- portfolio-wide precision otherwise remains genuinely unproven beyond these two real
+    products, per this plan's own "prove precision at scale before hardening" discipline (the
+    TC-HARDEN-32 precedent).
+
+    `exclusions` (added MT048): a second, real, confirmed defect found this same incident -- the
+    finding's own `reason` text has ALWAYS told the reader to "record a confirmed internal class
+    in data/api_reference_class_exclusions.json to suppress this prompt permanently," but this
+    function never actually accepted or consulted that file (only `check_api_reference_table_
+    completeness`'s unrelated `missing_class` requirement did) -- a real, live-confirmed case of a
+    finding message promising a mechanism that did not exist. `exclusions` (a `set[str]` of class
+    names, same shape `check_api_reference_table_completeness` already uses) now makes that
+    promise true: a cited class present in `exclusions` is skipped before any fan-in/export check
+    runs, exactly like the analogous mirror-fidelity gate already does.
+    """
+    if not clone_cache_root or not Path(clone_cache_root).is_dir():
+        return []
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    tables = _parse_readme_api_tables(section_match.group(1))
+    cited_classes = {cls for classes in tables.values() for cls in classes}
+    if not cited_classes:
+        return []
+    real_classes = {row["class"] for rows in (reference_index or {}).values() for row in rows}
+    if not real_classes:
+        return []
+    root_exports = _find_top_level_init_exports(clone_cache_root)
+    exclusions = exclusions or set()
+    findings: list[dict] = []
+    for cls in sorted(cited_classes):
+        if cls not in real_classes:
+            continue
+        if cls in exclusions:
+            continue
+        fan_in = _module_internal_fan_in(clone_cache_root, cls)
+        if fan_in != 0:
+            continue
+        if root_exports and cls in root_exports:
+            continue
+        if _class_has_exported_subclass_in_same_file(clone_cache_root, cls, root_exports):
+            continue
+        findings.append({
+            "class_name": cls,
+            "reason": f"'{cls}' has zero internal fan-in (no other real source file references "
+                      "it) and is absent from the top-level package __init__.py exports -- "
+                      "possible internal-only class; verify before shipping (record a confirmed "
+                      "internal class in data/api_reference_class_exclusions.json to suppress "
+                      "this prompt permanently, once genuinely confirmed)",
+        })
+    return findings
+
+
 _README_API_MODULE_HEADER_RE = re.compile(r"^###\s+(.+?)\s*$")
 _README_API_SUBHEADER_RE = re.compile(r"^####\s+(.+?)\s*$")
 _DETAILED_MEMBER_REFERENCE_RE = re.compile(r"^####\s+Detailed Member Reference\s*$", re.IGNORECASE)
@@ -2548,6 +3079,7 @@ def _parse_readme_api_tables(section_text: str) -> dict[str, list[str]]:
 
 def check_api_reference_table_completeness(
     readme_text: str, reference_index: dict[str, list[dict]] | None,
+    exclusions: "set[str] | None" = None,
 ) -> list[dict]:
     """Hard gate (2026-08-09, Thirteenth incident / MT028). MT027 grounded API Reference
     *verification* in reference.aspose.org's own graded `_index.md` content but never adapted
@@ -2568,6 +3100,17 @@ def check_api_reference_table_completeness(
     No-op (empty findings) when `reference_index` is empty/falsy -- a product with no real
     `_index.md` yet keeps today's intro+curated-bullets-only shape unchanged; nothing is
     required of it by this check.
+
+    `exclusions` (TC-HARDEN-77, MT047/Thirty-Seventh incident, 2026-08-15): an optional set of
+    class names -- sourced from `data/api_reference_class_exclusions.json`, this product's own
+    real, evidence-required entries -- removed from `reference_index`'s real classes BEFORE the
+    mirror comparison runs. An excluded class is never required in the table (no `missing_class`
+    for it, regardless of whether reference.aspose.org's own index still lists it) -- and if it
+    is present in the table anyway, it now correctly surfaces as `unrecognized_class` (filtered
+    out of the "real" side of the comparison), a real, mechanical deterrent against reintroducing
+    a confirmed-internal class the table-composition step was told to leave out. `None`/empty
+    (the default) preserves this function's exact prior behavior -- purely additive, no existing
+    caller's result changes without opting in.
     """
     if not reference_index:
         return []
@@ -2585,8 +3128,9 @@ def check_api_reference_table_completeness(
     # own documented behavior of returning `[]` for such headers) is not a class-table module at
     # all and has nothing to mirror. Found live during this check's own Phase 1 pilot sanity pass
     # against tex/python's real content (2026-08-09) -- excluded here rather than assumed away.
+    exclusions = exclusions or set()
     real_modules = {
-        module: {row["class"] for row in rows}
+        module: {row["class"] for row in rows if row["class"] not in exclusions}
         for module, rows in reference_index.items() if rows
     }
     table_modules = {module: set(classes) for module, classes in readme_tables.items()}
@@ -3246,6 +3790,59 @@ def check_examples_table_collapsed(readme_text: str) -> list[dict]:
     }]
 
 
+def check_api_reference_detail_collapsed(readme_text: str) -> list[dict]:
+    """Hard gate (2026-08-15, MT045 / Thirty-Fifth incident, TC-HARDEN-67). Mirrors
+    `check_examples_table_collapsed`'s design exactly, one section over: the
+    `## API Reference` section's detail content -- every real `| Class | Description |`
+    table row (the module-grouped table MT028 introduced) and every curated
+    `` - `ClassName` `` member-detail bullet (the convention some products still carry) --
+    must live INSIDE a `<details><summary>...</summary>...</details>` block, never fully
+    expanded above the fold.
+
+    The collapse decision is deterministic and size-independent -- confirmed via
+    `tex/python`'s own 11-class table (the smallest real API surface in the 30-product
+    portfolio), which still collapses; this is never a row-count threshold.
+
+    Root cause this closes: unlike its sibling `check_examples_table_collapsed` (built one
+    day after the `<details>` convention it enforces), no equivalent check ever existed for
+    `## API Reference` -- the convention survived purely through composing-agent imitation
+    of prior sibling candidates, which breaks the moment a clean-room/isolated composition
+    pass runs with nothing to imitate from (confirmed live: `barcode/python`, `3d/net`, and
+    `3d/typescript` all independently produced fully-expanded API Reference content across 2
+    separate regeneration batches).
+
+    Returns a list of {"reason": ...} findings; empty if the section has no detail content
+    at all (an intro-sentence-only section is vacuously fine, same as `## Additional
+    examples` when it has too few real snippets to justify collapsing), or every table row
+    / member bullet found is genuinely inside a `<details>` block.
+    """
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    section_text = section_match.group(1)
+
+    detail_matches = list(_EXAMPLES_TABLE_RE.finditer(section_text)) + list(
+        _CLASS_BULLET_RE.finditer(section_text)
+    )
+    if not detail_matches:
+        return []
+
+    details_blocks = list(_DETAILS_BLOCK_RE.finditer(section_text))
+
+    def _inside_any_details_block(pos: int) -> bool:
+        return any(block.start() <= pos < block.end() for block in details_blocks)
+
+    for match in detail_matches:
+        if not _inside_any_details_block(match.start()):
+            return [{
+                "reason": "the API Reference section's detail content (a table row and/or a "
+                          "curated member bullet) is not inside a <details> block -- it must "
+                          "be collapsed, never fully expanded above the fold, regardless of "
+                          "row/class count",
+            }]
+    return []
+
+
 _TITLE_CASE_MINOR_WORDS = {
     "a", "an", "the", "and", "or", "but", "nor", "for", "so", "yet",
     "at", "by", "in", "of", "on", "to", "up", "as", "vs", "vs.", "via",
@@ -3386,6 +3983,21 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
     library signals "not implemented" -- it recurs legitimately across unrelated stub methods
     throughout a single product's own accurate Scope and Limitations, so it is not, on its own,
     a distinctive signal of forensic duplication.
+
+    Strips any ``` fenced code block out of the entry body BEFORE extracting single-backtick
+    tokens (2026-08-16, Thirty-Seventh incident, found live while validating the new
+    Installation/Quick-Start-scoped companion check against html/python's own real
+    upstream-issues.md -- the exact motivating entry for this whole incident). A real Evidence
+    bullet quoting a fenced ```toml snippet (three consecutive backticks) desyncs the naive
+    single-backtick-pair regex: `[^`]+` cannot match across the triple-backtick boundary (each
+    backtick in the fence is itself a zero-width gap to its neighbor), so the regex instead
+    pairs backticks *around* the fence, capturing huge multi-line spans of surrounding prose as
+    "tokens" while the real short tokens the fence's own prose refers to
+    (`setuptools.backends`, `ModuleNotFoundError: No module named 'setuptools.backends'`, etc.)
+    never get individually extracted at all. `_ANY_FENCED_CODE_RE` already exists for exactly
+    this class of problem on the README side (`check_no_upstream_issue_leaked_into_readme`
+    strips fenced code from the README before scanning it) -- this was simply never applied to
+    the upstream-issues.md side of the same fingerprint pipeline.
     """
     fingerprints: list[set[str]] = []
     for match in re.finditer(
@@ -3405,8 +4017,9 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
         severity_match = re.search(r"\*\*Severity\*\*:\s*(\S+)", body)
         if severity_match and severity_match.group(1).upper() not in ("BLOCKING", "FUNCTIONAL-DEFECT"):
             continue
-        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body)) - _GENERIC_BACKTICK_EXCLUSIONS
-        tokens |= {m.group(0) for m in _COUNT_PHRASE_RE.finditer(body)}
+        body_no_fences = _ANY_FENCED_CODE_RE.sub("", body)
+        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body_no_fences)) - _GENERIC_BACKTICK_EXCLUSIONS
+        tokens |= {m.group(0) for m in _COUNT_PHRASE_RE.finditer(body_no_fences)}
         if tokens:
             fingerprints.append(tokens)
     return fingerprints
@@ -3542,6 +4155,123 @@ def _iter_leak_scan_units(prose_text: str) -> list[str]:
     return units
 
 
+# --- Thirty-Seventh incident (2026-08-16): Installation/Quick Start leak blind spot ---
+#
+# check_no_upstream_issue_leaked_into_readme (above) deliberately excludes `## Installation`
+# and `## Quick Start` from its scan -- a real, defensible design choice documented in that
+# check's own docstring: those two sections exist specifically to give real, accurate
+# instructions using real package/file/command names, so ordinary overlap with an
+# upstream-issues.md entry's own evidence (which cites those same real names) is structurally
+# expected there, not suspicious. But that exclusion means the two sections carry ZERO hard-
+# gate leak protection -- confirmed live, `html/python`'s real `## Installation` section
+# regressed into forensic, investigation-log narration (the exact broken build-backend string,
+# the exact correct value, the exact `ModuleNotFoundError` message, an audit-style "every
+# variant fails identically regardless of source" claim) duplicating a finding already
+# correctly recorded in the sibling upstream-issues.md, and nothing caught it structurally --
+# only a human reading the file by hand found it. `check_process_narration_smells` does scan
+# these sections (it has no section exclusion), but it is `hard_gate: False` in
+# readme_refresh_run.py -- advisory only, not something that can block a bad candidate from
+# shipping -- so it never functioned as real protection here either.
+#
+# This check closes that specific blind spot WITHOUT reopening the reason the exclusion
+# exists: unlike the broad `_PROCESS_NARRATION_PATTERNS` phrase list (built for prose sections
+# where almost any internal-process phrasing is suspect), a phrase list that broad would
+# false-positive constantly in Installation/Quick Start, where real commands legitimately look
+# specific. Instead this reuses `_extract_upstream_issue_fingerprints`'s existing, already-
+# validated structural signal (2+ concurring fingerprint tokens from the SAME upstream-issues.md
+# entry) and adds a SECOND, independent, narrow requirement: at least one high-precision
+# diagnostic-NARRATION signal, not just naming real things. A paragraph must satisfy BOTH before
+# it is flagged -- fingerprints alone are expected and common in these two sections (a real
+# command legitimately shares real names with upstream-issues.md's own evidence for it), so
+# fingerprints alone are deliberately not sufficient here, unlike in the main check.
+_INSTALL_QUICKSTART_NARRATION_PATTERNS = [
+    # Comparative-correction framing: "the real/correct/actual X is Y, not Z" -- narrating
+    # what a value SHOULD have been instead of just stating the real one.
+    r"\bthe (?:real|correct|actual)\b[^.]{0,80}\bis\b[^.]{0,60},?\s+not\b",
+    # Negative-existence claims about a named entity -- "is not a real module", "does not
+    # exist in any real X release/version". A plain instruction never needs to assert what
+    # something ISN'T; only a diagnostic narrative does.
+    r"\b(?:is|are)\s+not\s+a\s+(?:real|separate)\b",
+    r"\bdoes not exist in any\b",
+    # Exhaustive-reproduction / scope-of-testing claims -- deliberately narrower than "at any
+    # source" (a real, legitimate scope statement -- html/python's own fixed wording says
+    # "fails for this repository at any source" and must never fire on that). Only the
+    # stronger "regardless of X" / "every variant ... identically" framing, which narrates
+    # exhaustive re-testing rather than just stating where a command works, counts.
+    r"\bregardless of (?:source|install|the install)\b",
+    r"\bevery\s+(?:variant|combination|install(?:ation)?\s*path)\b[^.]{0,60}\b(?:fails?|identically)\b",
+    r"\bfails?\s+identically\b",
+    # Root-cause-narration of WHY a failure happens, phrased as an investigation finding
+    # rather than a plain instruction.
+    r"\bbefore any of (?:this|the) (?:package|library|module)'?s own code\b",
+]
+_INSTALL_QUICKSTART_NARRATION_RE = re.compile(
+    "|".join(_INSTALL_QUICKSTART_NARRATION_PATTERNS), re.IGNORECASE
+)
+
+
+def check_no_upstream_issue_leaked_into_install_or_quickstart(
+    readme_text: str, upstream_issues_text: str
+) -> list[dict]:
+    """Hard gate (2026-08-16, Thirty-Seventh incident). Narrow companion to
+    `check_no_upstream_issue_leaked_into_readme`, scoped ONLY to `## Installation` and
+    `## Quick Start` -- the two sections that check deliberately excludes (see its own
+    docstring, and the module-level comment directly above this function for the full
+    incident trace).
+
+    Reuses `_extract_upstream_issue_fingerprints` and `_iter_leak_scan_units` unchanged --
+    same fingerprint-token extraction and same per-bullet/per-paragraph unit splitting as the
+    main check. The difference is entirely in the flagging condition: a unit here is flagged
+    only when it has BOTH (a) 2+ concurring fingerprint tokens from the same upstream-issues.md
+    entry, the main check's existing signal, AND (b) at least one match against
+    `_INSTALL_QUICKSTART_NARRATION_RE`, a small, high-precision phrase list scoped specifically
+    to comparative-correction / negative-existence / exhaustive-reproduction framing -- not the
+    broad, reactive `_PROCESS_NARRATION_PATTERNS` list `check_process_narration_smells` already
+    uses (that list is deliberately not reused here: several of its own entries, e.g. `fails
+    identically` used loosely, are tuned for prose sections and would risk over-firing against
+    ordinary Installation-section specificity). Condition (b) is what keeps this check from
+    reopening the false-positive risk the original exclusion exists to avoid: a real, specific
+    command or package name alone (fingerprint overlap with no diagnostic narration) is exactly
+    the "structurally expected, not suspicious" case the exclusion protects, so it must never
+    fire on its own.
+
+    No-op under the same conditions as the main check: empty/absent `upstream_issues_text`, or
+    no extractable fingerprints.
+    """
+    if not upstream_issues_text:
+        return []
+    fingerprints = _extract_upstream_issue_fingerprints(upstream_issues_text)
+    if not fingerprints:
+        return []
+
+    sections = _split_into_sections(readme_text)
+    findings = []
+    for heading in ("Installation", "Quick Start"):
+        section_text = sections.get(heading)
+        if not section_text:
+            continue
+        prose = _ANY_FENCED_CODE_RE.sub("", section_text)
+        for unit in _iter_leak_scan_units(prose):
+            if not _INSTALL_QUICKSTART_NARRATION_RE.search(unit):
+                continue
+            for fp_set in fingerprints:
+                hits = {tok for tok in fp_set if tok in unit}
+                if len(hits) >= 2:
+                    findings.append({
+                        "heading": heading,
+                        "matched_tokens": sorted(hits),
+                        "narration_phrase": _INSTALL_QUICKSTART_NARRATION_RE.search(unit).group(0),
+                        "paragraph": unit.strip()[:200],
+                        "reason": "this Installation/Quick Start paragraph both restates "
+                                  "specific facts from a matching upstream-issues.md entry AND "
+                                  "narrates the diagnostic story (comparative correction, "
+                                  "negative-existence claim, or exhaustive-reproduction claim) "
+                                  "instead of just giving the real working command -- forensic "
+                                  "narration must live only in upstream-issues.md",
+                    })
+    return findings
+
+
 _KEY_CAPABILITIES_SECTION_RE = re.compile(
     r"^##\s+Key Capabilities\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
@@ -3589,6 +4319,284 @@ def check_key_capabilities_quality(readme_text: str) -> list[dict]:
         if len(bullet) < 40 and "`" not in bullet:
             findings.append({"reason": "thin bullet (<40 chars, no backtick-quoted keyword)", "bullet": bullet})
     return findings
+
+
+def _extract_full_key_capabilities_bullets(readme_text: str) -> list[str]:
+    """TC-HARDEN-40/41 (MT037, Twenty-Seventh incident, 2026-08-13). `check_key_capabilities_
+    quality`'s own `re.findall(r"^-\\s+(.+)$", ..., re.MULTILINE)` only ever captures a
+    bullet's FIRST physical line -- fine for bullet count/first-word/thinness, but the real
+    portfolio convention wraps most Key Capabilities bullets longer than ~80 characters across
+    2-4 physical lines (confirmed directly against `cells/java`'s own real, current section),
+    so a check that needs the bullet's real ENDING (terminal punctuation) needs the full,
+    joined text, not just its opening line. Groups each `- `-prefixed line with any following
+    non-`- `-prefixed, non-blank continuation lines into one joined bullet string -- the same
+    line-joining idiom already proven for `_iter_leak_scan_units` (TC-HARDEN-38), applied here
+    to a section body that has no blank lines between bullets to begin with, so no block-level
+    splitting is needed.
+    """
+    section_match = _KEY_CAPABILITIES_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    bullets: list[str] = []
+    current: "list[str] | None" = None
+    for line in section_match.group(1).splitlines():
+        if line.lstrip().startswith("- "):
+            if current is not None:
+                bullets.append(" ".join(current))
+            current = [line.lstrip()[2:].strip()]
+        elif line.strip() and current is not None:
+            current.append(line.strip())
+    if current is not None:
+        bullets.append(" ".join(current))
+    return bullets
+
+
+def check_key_capabilities_structural_variety(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-13, MT037 Item 4, Twenty-Seventh incident).
+    `check_key_capabilities_quality` (above) already catches 3+ bullets sharing the identical
+    literal first WORD -- it cannot see the broader "dry" pattern where every bullet opens
+    with a *different* backtick-quoted identifier as its grammatical subject (e.g.
+    `` `Style` carries...``, `` `Row` and `Column` support...``, `` `ValidationCollection`
+    applies...`` -- distinct openings, identical monotonous shape). Confirmed live in
+    `cells/java`'s real, pre-fix Key Capabilities section: 8 of 10 bullets opened this way.
+    Flags when >=70% of bullets share this identifier-first shape -- a prompt to vary opening
+    structure (identifier-first / action-first / benefit-first / task-first), never an
+    automatic fail, since sentence-level prose style stays a human/agent judgment call,
+    matching this module's established two-tier posture. The 70% threshold is a considered,
+    not proven-optimal, first-iteration choice -- same disclosed posture as every other
+    numeric threshold introduced in this module.
+    """
+    bullets = _extract_full_key_capabilities_bullets(readme_text)
+    if not bullets:
+        return []
+    identifier_first = [b for b in bullets if re.match(r"^`[^`]+`", b)]
+    ratio = len(identifier_first) / len(bullets)
+    if ratio >= 0.7:
+        return [{
+            "reason": f"{len(identifier_first)} of {len(bullets)} bullets ({ratio:.0%}) open "
+                      "with a backtick-quoted identifier as their grammatical subject -- "
+                      "monotonous, API-reference-style structure; vary opening shape across "
+                      "bullets (action-first, benefit-first, task-first, not just "
+                      "identifier-first)",
+            "identifier_first_bullets": identifier_first,
+        }]
+    return []
+
+
+def check_key_capabilities_formatting(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-13, MT037 Item 5, Twenty-Seventh incident). "Properly
+    formatted," made mechanical and cheap. Reuses the proven backtick-parity-count idiom
+    already established for `_has_stripped_example` (an odd count of backtick characters in
+    one bullet means an unpaired backtick -- a real, common typo class, not a stylistic
+    nitpick). Also flags a bullet not ending in terminal punctuation and a bullet whose first
+    character is a lowercase letter that is not itself the start of a backtick-quoted
+    identifier. Operates on the FULL, line-joined bullet text (`_extract_full_key_
+    capabilities_bullets`), not just each bullet's first physical line -- a naive first-line-
+    only check would false-positive on the terminal-punctuation rule for every bullet that
+    wraps its closing sentence onto a later line, which is the near-universal real shape in
+    this portfolio.
+    """
+    bullets = _extract_full_key_capabilities_bullets(readme_text)
+    findings: list[dict] = []
+    for bullet in bullets:
+        if bullet.count("`") % 2 == 1:
+            findings.append({"reason": "unmatched backtick in bullet", "bullet": bullet})
+        if bullet and not bullet.rstrip().endswith((".", "!", "?", ":")):
+            findings.append({
+                "reason": "bullet does not end with terminal punctuation", "bullet": bullet,
+            })
+        first_char = bullet[0] if bullet else ""
+        if first_char.isalpha() and first_char.islower():
+            findings.append({
+                "reason": "bullet starts with a lowercase letter (not a backtick-quoted "
+                          "identifier)",
+                "bullet": bullet,
+            })
+    return findings
+
+
+def _extract_section_intro_prose(section_body: str) -> str:
+    """New (2026-08-15, MT046, Thirty-Sixth incident / TC-HARDEN-71). Given a section's own
+    captured body (everything after its `##` heading up to the next `##`, i.e. a
+    `_KEY_CAPABILITIES_SECTION_RE`/`_EXAMPLES_SECTION_RE` `group(1)`), returns the leading
+    prose -- the text before the first `- `-prefixed bullet line, the first fenced code
+    block, or the first `###` sub-heading, whichever comes first. Empty string when real
+    content starts immediately, the common, already-correct case for many products with no
+    framing sentence at all (e.g. `barcode/python`, `cells/python`'s Key Capabilities). A
+    small, reusable, single-purpose extractor, not a new parser -- mirrors the same "group
+    until the first structural marker" idiom already used by
+    `_extract_full_key_capabilities_bullets` and `_iter_leak_scan_units`.
+    """
+    lines: list[str] = []
+    for line in section_body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- ") or stripped.startswith("```") or stripped.startswith("###"):
+            break
+        lines.append(line)
+    return "\n".join(lines).strip()
+
+
+# 2026-08-15 (MT046, Thirty-Sixth incident): a new, previously-unnamed-outside-API-Reference
+# variant of MT039's "generation-mechanism/design-rationale narration" category -- a section's
+# own intro sentence describing THIS DOCUMENT's own editorial/organizational choices or leaking
+# an internal source-code structural fact, instead of stating a real product fact. Confirmed
+# live in `font/python`'s real, captured Key Capabilities intro: "...grouped by real module
+# rather than by workflow label. ...both covered inline via backtick-quoted class/command names
+# below... (`instancing.py` alone is the largest module in the library)." Deliberately narrow
+# (precision over recall, same posture as every other narration-pattern list in this module):
+# a bare "grouped by X" is never flagged on its own -- the real, legitimate portfolio convention
+# (`email/cpp`: "Features are grouped below by processing layer, from low-level CFB container
+# access up through the high-level `mapi_message` API.") uses exactly that phrasing for a real
+# product-architecture fact, and must never trip this check. Each pattern below was individually
+# verified this incident against that real sentence (silent) and its siblings (`email/python`,
+# `slides/*`, `pdf/cpp`) before being trusted.
+_SECTION_INTRO_META_NARRATION_PATTERNS = [
+    r"\brather than by\b",
+    r"\bworkflow label\b",
+    r"\bcovered inline\b",
+    r"\b(?:highlights|snapshot)\b[^.]{0,60}\b(?:below|above)\b",
+    r"`[\w./-]+\.(?:py|c|cc|cpp|cs|java|go|rs|ts|tsx|h|hpp)`\s*(?:alone\s+)?"
+    r"is the (?:largest|biggest|smallest)\b",
+    r"\bthe (?:largest|biggest) module\b",
+]
+_SECTION_INTRO_META_NARRATION_RE = re.compile(
+    "|".join(_SECTION_INTRO_META_NARRATION_PATTERNS), re.IGNORECASE
+)
+
+
+def check_section_intro_no_meta_narration(readme_text: str) -> list[dict]:
+    """Hard gate (2026-08-15, MT046, Thirty-Sixth incident / TC-HARDEN-71). Scans the leading
+    intro prose (per `_extract_section_intro_prose`) of `## Key Capabilities` and `##
+    Additional Examples` -- the two sections confirmed to share this section-intro-sentence
+    shape and confirmed (Stage 4's own portfolio scan) to have zero dedicated intro-sentence
+    coverage of any kind. `## API Reference`'s own intro sentence is deliberately excluded --
+    it already has its own, separate, adequate coverage
+    (`check_api_reference_classes_exist_in_reference_site`'s bad-pattern half plus MT039's
+    `_PROCESS_NARRATION_PATTERNS` additions), and duplicating that here would risk two
+    diverging rule sets for the same section.
+
+    Neither `check_key_capabilities_quality`/`_structural_variety`/`_formatting` nor
+    `check_process_narration_smells` ever inspected this text before this incident --
+    confirmed by direct code read: every Key-Capabilities check extracts ONLY `^-\\s+` bullet
+    lines, and the fixed-phrase-list narration checker never saw the real, captured `font/
+    python` sentence's actual wording (a lexically disjoint phrasing of the same underlying
+    idea `check_process_narration_smells`'s own MT039 addition already targets for a different
+    section). This is not a phrase-list gap alone -- it is a genuine structural blind spot,
+    closed here directly rather than by further widening an unrelated function's own pattern
+    list.
+
+    Deliberately precision-first, not exhaustive -- cannot prove no instance of this defect
+    class exists anywhere in the portfolio, only that these three specific, evidence-backed
+    patterns don't match. A differently-worded document-structure-narration sentence would
+    still evade it, the same honest limit already disclosed for every other fixed-pattern
+    narration check in this module.
+    """
+    findings: list[dict] = []
+    for section_name, section_re in (
+        ("Key Capabilities", _KEY_CAPABILITIES_SECTION_RE),
+        ("Additional Examples", _EXAMPLES_SECTION_RE),
+    ):
+        section_match = section_re.search(readme_text)
+        if not section_match:
+            continue
+        intro = _extract_section_intro_prose(section_match.group(1))
+        if not intro:
+            continue
+        match = _SECTION_INTRO_META_NARRATION_RE.search(intro)
+        if match:
+            findings.append({
+                "section": section_name,
+                "reason": "section intro sentence narrates this document's own editorial/"
+                          "organizational choices or leaks an internal source-file fact "
+                          "instead of stating a real product fact (Thirty-Sixth incident, "
+                          "MT046) -- see skills/readme-refresh.md's composition guidance "
+                          "for the BAD/GOOD worked pair",
+                "matched_phrase": match.group(0),
+                "intro": intro,
+            })
+    return findings
+
+
+_SEO_KEYWORD_PLATFORM_TOKENS = {
+    # TC-HARDEN-39 (MT037, Twenty-Seventh incident, 2026-08-13): a small, explicit platform/
+    # language token map defending against a real, confirmed cross-platform contamination
+    # defect in keywords/{family}.json -- every non-.NET platform entry checked for the
+    # `cells` family (java/python/rust, across products/docs/kb.aspose.org's own per-page
+    # entries) carries keyword phrases naming .NET/C# instead of its own real platform (e.g.
+    # `cells/java`'s own products.aspose.org entry: 10 of 10 keyword phrases mention .NET/C#,
+    # zero mention Java). First-iteration, disclosed as incomplete -- confirmed only against
+    # the `cells` family; other families not exhaustively checked.
+    "net": (".net", "c#", "csharp", "dotnet"),
+    "java": ("java",),
+    "python": ("python",),
+    "rust": ("rust",),
+    "go": ("golang", " go ", " go,", " go."),
+    "cpp": ("c++", "cpp"),
+    "typescript": ("typescript",),
+}
+
+
+def _seo_keyword_wrong_platform(keyword: str, platform: str) -> bool:
+    """True if `keyword` names a real platform/language token OTHER than `platform`'s own --
+    the mechanical defense against the confirmed `keywords/{family}.json` contamination
+    documented on `_SEO_KEYWORD_PLATFORM_TOKENS` above.
+
+    Real bug found live on `cells/typescript` (the first genuinely new product this filter
+    ever ran against): the original condition required the OTHER platform's token to be
+    present AND this platform's own token to be ABSENT -- so a mixed phrase naming both
+    (`"Aspose.Cells for .NET TypeScript library"`, real, live keywords/cells.json content)
+    was never flagged, since "typescript" being present satisfied the "own token present"
+    escape clause regardless of the ".NET" contamination sitting right next to it. The
+    correct rule is unconditional: ANY other-platform token anywhere in the phrase disqualifies
+    it, independent of whether the correct platform is also named.
+    """
+    lowered = f" {keyword.lower()} "
+    for other_platform, tokens in _SEO_KEYWORD_PLATFORM_TOKENS.items():
+        if other_platform == platform:
+            continue
+        if any(tok in lowered for tok in tokens):
+            return True
+    return False
+
+
+_SEO_KEYWORD_RELEVANCE_TERMS = (
+    "open source", "free", "alternative", "library", "api", "read", "write", "convert",
+    "create", "edit", "generate", "parse", "process", "manipulate", "export", "import",
+)
+
+
+def filter_relevant_seo_keywords(
+    keywords: list[str], family: str, platform: str, known_format_names: "set[str] | None" = None,
+) -> list[str]:
+    """TC-HARDEN-39 (MT037, Twenty-Seventh incident, 2026-08-13). Mechanical relevance filter
+    over a product's real `keywords/{family}.json` keyword list -- implements "do not over
+    stuff, only use related keywords" as real code rather than a hope: (1) drops any phrase
+    naming a real platform/language OTHER than this product's own (`_seo_keyword_wrong_
+    platform` -- the confirmed contamination defense); (2) keeps only phrases that also
+    contain the family name, a known real format name, or one of this portfolio's own
+    established capability-verb/framing terms (`_SEO_KEYWORD_RELEVANCE_TERMS`) -- never
+    surfaces a phrase whose relevance can't be grounded in something already real and
+    verified, the same "verify before including" discipline this module applies everywhere
+    else, now applied to keyword phrases; (3) caps the result to 6 phrases, a structural
+    stuffing guard applied before any prose is drafted, not left to composition-time restraint
+    alone.
+    """
+    known_format_names = known_format_names or set()
+    kept: list[str] = []
+    for keyword in keywords:
+        if _seo_keyword_wrong_platform(keyword, platform):
+            continue
+        lowered = keyword.lower()
+        grounded = (
+            family.lower() in lowered
+            or any(term in lowered for term in _SEO_KEYWORD_RELEVANCE_TERMS)
+            or any(fmt.lower() in lowered for fmt in known_format_names)
+        )
+        if grounded:
+            kept.append(keyword)
+        if len(kept) >= 6:
+            break
+    return kept
 
 
 _SCOPE_LIMITATIONS_SECTION_RE = re.compile(
@@ -3701,13 +4709,30 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
     limitation exists for this product" -- omitting the bulleted list is correct there, not a
     format violation, and must never be confused with the old prose-paragraph-limitations shape
     this check exists to reject.
+
+    Bug fix (2026-08-15, MT045 / Thirty-Fifth incident, TC-HARDEN-68): bullet/non-bullet
+    classification now goes through `_iter_leak_scan_units` (the same, already-hardened
+    bullet-with-its-own-continuation-lines grouping this module already built for
+    `check_no_upstream_issue_leaked_into_readme`, TC-HARDEN-38) instead of raw, un-grouped
+    physical lines. The prior implementation stripped blank lines and classified each
+    PHYSICAL line independently -- so a bullet's own wrapped continuation line (no `- `
+    prefix of its own) landed in `non_bullet_lines` even when it was really the tail of a
+    bulleted Limitations item, letting an Enterprise-link sentence appended directly to a
+    bullet (no blank line first) silently read as `enterprise_in_prose=True`/
+    `enterprise_in_bullet=False` -- the exact combination this check exists to catch, and
+    confirmed live to have missed `barcode/python`'s real, exact defect (the Enterprise
+    sentence embedded as a continuation of the "PDF rendering is not implemented" bullet).
+    A naive "just group continuation lines" fix alone (without `_iter_leak_scan_units`'s own
+    blank-line-first paragraph split) was directly simulated and shown to false-positive on
+    `email/python`'s and `pdf/cpp`'s own already-correct, genuinely blank-line-separated
+    Enterprise paragraphs -- reusing the whole function, not reimplementing half of it, is
+    what keeps both directions correct.
     """
     section_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
     if not section_match:
         return []
     section_text = section_match.group(1)
-    lines = [line for line in section_text.splitlines() if line.strip()]
-    if not lines:
+    if not section_text.strip():
         return [{"reason": "empty_section", "detail": "Scope and Limitations section is empty"}]
 
     findings: list[dict] = []
@@ -3719,10 +4744,11 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
                       "entirely rather than stating its absence",
         })
 
-    bullet_lines = [line for line in lines if line.lstrip().startswith("- ")]
-    non_bullet_lines = [line for line in lines if not line.lstrip().startswith("- ")]
+    units = _iter_leak_scan_units(section_text)
+    bullet_units = [unit for unit in units if unit.lstrip().startswith("- ")]
+    non_bullet_units = [unit for unit in units if not unit.lstrip().startswith("- ")]
 
-    if not bullet_lines:
+    if not bullet_units:
         # Sentence-level, not line-level: a single physical line can legitimately mix a real
         # limitation claim with the Enterprise mention in one sentence-run (the exact shape
         # `test_scope_limitations_format_flags_prose_paragraph_shape` guards against -- "This
@@ -3730,7 +4756,7 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
         # Edition](...)." is one non-bullet line, but only its SECOND sentence references the
         # Enterprise host). Any sentence that doesn't reference the Enterprise host is a
         # candidate prose-form limitation claim.
-        non_bullet_text = " ".join(non_bullet_lines)
+        non_bullet_text = " ".join(unit.replace("\n", " ") for unit in non_bullet_units)
         sentences = re.split(r"(?<=[.!?])\s+", non_bullet_text)
         non_enterprise_sentences = [
             s for s in sentences if s.strip() and not _ENTERPRISE_LINK_HOST_RE.search(s)
@@ -3747,8 +4773,8 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
         # enterprise-paragraph placement checks below (still real checks: the paragraph must
         # exist, in prose, with a real link) rather than returning here.
 
-    enterprise_in_bullet = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in bullet_lines)
-    enterprise_in_prose = any(_ENTERPRISE_LINK_HOST_RE.search(line) for line in non_bullet_lines)
+    enterprise_in_bullet = any(_ENTERPRISE_LINK_HOST_RE.search(unit) for unit in bullet_units)
+    enterprise_in_prose = any(_ENTERPRISE_LINK_HOST_RE.search(unit) for unit in non_bullet_units)
 
     if enterprise_in_bullet:
         findings.append({
@@ -4027,11 +5053,24 @@ def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
 _CONTENT_UNIT_CLASSIFICATIONS = frozenset({
     "1_narrative_cta", "2_mechanism_explanation", "3_branding_positioning", "redundant_with_existing",
     "4_verifiable_history",
+    "5_dependency_claim",  # Thirty-First incident / MT041 (2026-08-14) -- a real old-README
+    # dependency-shaped claim (extended, not a new sibling file, per this incident's own
+    # investigation: unlike structure-dispositions.json/badge-dispositions.json, dependency
+    # prose has no structural blindness in extract_old_readme_content_units -- it's ordinary
+    # sentence content already reached by the existing extraction).
 })
-_CONTENT_UNIT_DISPOSITIONS = frozenset({"merged_verbatim", "merged_reframed", "excluded"})
+_CONTENT_UNIT_DISPOSITIONS = frozenset({
+    "merged_verbatim", "merged_reframed", "excluded",
+    "corrected",  # MT041: distinct from merged_reframed (restated for fit) -- "this old claim
+    # was factually wrong and got corrected against real manifest data."
+})
 _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
     "verified_against_source", "verified_redundant", "not_applicable_category_1",
     "verified_by_corroboration",
+    "verified_against_manifest",  # MT041: a categorically STRONGER standard than verified_
+    # against_source -- a structured, mechanically-diffable DependencySnapshot match, not
+    # prose-eyeballing. Symmetric with how 4_verifiable_history earned its own categorically
+    # WEAKER verified_by_corroboration status rather than reusing an ill-fitting existing one.
 })
 # "Project History" (2026-08-10, MT031/Sixteenth incident): a new, permanently OPTIONAL H3
 # section for genuine, checkable project/format history that doesn't belong in Scope and
@@ -4166,6 +5205,58 @@ def check_content_unit_disposition_coverage(
     return findings
 
 
+def check_content_unit_excerpt_matches_extraction(
+    content_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate (MT048, note/python pilot, 2026-08-15). `extract_old_readme_content_units`'s own
+    docstring discloses that `unit_id` is "a stable, order-based id... not a content hash" --
+    MT030 Phase 2 (2026-08-10) already found this a real, recurring, previously ONLY-manually-
+    caught defect class: recovering (or removing) a unit anywhere but the very end of the old
+    README shifts every LATER unit's `unit_id` by one, and `check_content_unit_disposition_
+    coverage`'s own unit_id-presence check cannot detect this -- a shifted id that happens to
+    still exist in the current extraction passes that check cleanly even though it now points at
+    completely different content than whatever a human/agent actually reviewed and disposed.
+    Every prior instance of this drift (MT030 Phase 2's own 4-of-5 follow-up batches) was caught
+    only via ad hoc, by-hand excerpt diffing against the live extractor -- a real, disclosed,
+    NOT-yet-durably-fixed recurring hazard this plan's own history names directly.
+
+    This closes it mechanically and permanently, reusing the excerpt text every disposition
+    entry already stores as its own de facto content fingerprint -- no new schema field, no hash
+    column, nothing to backfill across the portfolio: for every disposition whose `unit_id` still
+    resolves in the current `content_units` extraction, compares the entry's OWN stored `excerpt`
+    against the live extractor's excerpt for that same id (normalized via `_normalize_for_drop_
+    match` -- emoji-stripped, casefolded, whitespace-collapsed, the same comparison `check_
+    dropped_content`'s heading-rename tolerance already uses) and flags a mismatch as a real,
+    current drift. A dangling/missing `unit_id` is `check_content_unit_disposition_coverage`'s
+    own job, not repeated here -- this function is silent (not a duplicate finding) for any id
+    absent from the live extraction.
+    """
+    findings: list[dict] = []
+    units_by_id = {u["unit_id"]: u for u in content_units}
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        live = units_by_id.get(uid)
+        if live is None:
+            continue
+        stored_excerpt = (entry.get("excerpt") or "").strip()
+        if not stored_excerpt:
+            continue
+        live_excerpt = (live.get("excerpt") or "").strip()
+        if _normalize_for_drop_match(stored_excerpt) != _normalize_for_drop_match(live_excerpt):
+            findings.append({
+                "unit_id": uid,
+                "stored_excerpt": stored_excerpt[:160],
+                "live_excerpt": live_excerpt[:160],
+                "reason": "disposition's own stored excerpt no longer matches the live "
+                          "extractor's excerpt for this unit_id -- likely position-based "
+                          "unit_id drift (an upstream README edit or an extractor fix shifted "
+                          "later ids), or the old README genuinely changed under this id; "
+                          "re-verify this disposition against the CURRENT excerpt before "
+                          "trusting its classification/verification",
+            })
+    return findings
+
+
 def check_content_unit_evidence_resolves(
     dispositions: list[dict],
     clone_cache_root: str,
@@ -4232,6 +5323,141 @@ def check_content_unit_evidence_resolves(
     return findings
 
 
+# TC-HARDEN-78 (MT047/Thirty-Seventh incident, 2026-08-15) -- see check_content_unit_merged_
+# into_target_section's own docstring below for the full defect this closes.
+_CANDIDATE_INDEPENDENT_STATEMENT_RE = re.compile(
+    r"candidate'?s?\s+own\s+(?P<section>.+?)\s+independently\s+(?:states?|names?|covers?)",
+    re.IGNORECASE,
+)
+_INDEPENDENT_STATEMENT_TRAILING_WORDS = frozenset({"section", "paragraph", "bullets", "bullet", "intro"})
+_QUOTED_SINGLE_RE = re.compile(r"(?<=[\s(])'([^']{4,150})'(?=[\s).,;:]|$)")
+_QUOTED_DOUBLE_RE = re.compile(r'"([^"]{4,150})"')
+_NORMALIZE_FOR_CONTIGUOUS_MATCH_RE = re.compile(r"[\s\-]+")
+
+
+def _extract_quoted_phrases(text: str) -> list[str]:
+    """Every single- or double-quoted span in `text` (min 6 chars, to skip a bare quoted single
+    word), in document order -- the real, established authoring convention for this free-text
+    shape's own restated-claim phrase (e.g. `u0001`'s `('zero required third-party runtime
+    dependencies')`)."""
+    matches = [(m.start(), m.group(1)) for m in _QUOTED_SINGLE_RE.finditer(text)]
+    matches += [(m.start(), m.group(1)) for m in _QUOTED_DOUBLE_RE.finditer(text)]
+    matches.sort(key=lambda pair: pair[0])
+    return [phrase for _pos, phrase in matches]
+
+
+def _normalize_for_contiguous_match(text: str) -> str:
+    """Lowercases and collapses both whitespace AND hyphens to a single space -- the real,
+    confirmed-necessary normalization for `font/python`'s own quoted claims: `u0001`'s quoted
+    `'zero required third-party runtime dependencies'` and the real Intro's own hyphenated
+    `third-party` need hyphen/space equivalence to match as the same contiguous phrase."""
+    return _NORMALIZE_FOR_CONTIGUOUS_MATCH_RE.sub(" ", text.strip().lower()).strip()
+
+
+def _normalize_independent_statement_target(raw_section: str) -> str:
+    """Strips a trailing descriptive word the free-text "candidate's own X independently
+    states..." phrase commonly appends after the real heading name -- e.g. "Key Capabilities
+    bullets" -> "Key Capabilities", "Development and Testing section" -> "Development and
+    Testing", "Key Capabilities intro paragraph" -> "Key Capabilities" (two strips). These are
+    the exact 3 distinct trailing shapes found live in `font/python`'s own real, current
+    `content-dispositions.json` (`u0001`'s bare "Intro" needs no stripping at all). Deliberately
+    simple, not a real heading-fuzzy-matcher -- same "presence not proof" posture as this
+    module's other phrase-list extensions; an unresolvable phrase still produces a real,
+    correctly negative downstream finding rather than a silent skip.
+    """
+    words = raw_section.strip().split()
+    while words and words[-1].lower() in _INDEPENDENT_STATEMENT_TRAILING_WORDS:
+        words.pop()
+    normalized = " ".join(words).strip()
+    return normalized or raw_section.strip()
+
+
+# MT049 (Thirty-Ninth incident, 2026-08-15) -- see check_content_unit_merged_into_target_section's
+# own docstring below for the full defect this closes: a compound, multi-sentence excerpt could
+# pass on the strength of ONE bundled fact's token surviving into the target section while a
+# DIFFERENT bundled fact was silently dropped from the merge.
+_SENTENCE_GROUP_SPLIT_RE = re.compile(
+    r"(?<![Ee]\.[Gg]\.)(?<![Ii]\.[Ee]\.)(?<![Ee]tc\.)(?<=[.!?])\s+(?=[A-Z0-9`\"'])"
+)
+
+
+def _split_excerpt_into_sentence_groups(excerpt: str) -> list[str]:
+    r"""Splits a unit's excerpt into sentence-level groups on a `.`/`!`/`?` followed by whitespace
+    (a plain space OR an embedded `\n` -- deliberately the SAME rule for both, see below) and then
+    a capital letter, digit, backtick, or quote. Deliberately does NOT split on a bare `. `
+    followed by a lowercase letter, to avoid cutting mid-sentence on an abbreviation or an inline
+    code fragment -- and, for the same reason, does NOT split right after `e.g.`/`i.e.`/`etc.`
+    even when what follows is capitalized/backtick/quoted (real, confirmed live: `cells/go`'s own
+    `u0014`, "...(e.g. `\"A1\"`, `\"B2\"`) ... (e.g. `[0, 0]`) are not supported", would otherwise
+    wrongly split after each `e.g.` purely because a backtick immediately follows -- one bullet
+    describing one limitation, not 2 bundled facts). A single-sentence excerpt (the large majority
+    of real dispositions) still produces exactly one group, so the caller's per-group check
+    degenerates to the pre-existing "any one token, anywhere in the excerpt" behavior, unchanged.
+
+    Requiring sentence-terminal punctuation immediately before the split point -- rather than
+    treating every embedded `\n` as an unconditional boundary -- was NOT the first design tried,
+    and the first design's failure is worth recording: a bare `\n+` split (this incident's
+    original portfolio-sweep pass, MT049/Thirty-Ninth incident) correctly separates `note/
+    python`'s own captured `u0020` (each of its 2 embedded `\n`s genuinely IS a distinct-fact
+    boundary, confirmed by direct reading) -- but a live portfolio sweep against real disposition
+    data immediately surfaced `\n` being used for other, non-fact-boundary purposes that an
+    unconditional split wrongly treated as compound: `barcode/python`'s own `u0005` wraps a SINGLE
+    sentence mid-clause ("...run from\nthe repository root..." -- lowercase word right after the
+    `\n`); `3d/java`'s own `u0010` separates a bold heading fragment ("**Excluded APIs:**") from
+    markdown bullet items with `\n-`; `words/python`'s own `u0015` is a markdown table with one
+    `\n`-delimited row per line. None of these are a compound bundle of separate facts -- they are
+    ordinary source-text line-wrapping/list/table structure -- and the unconditional split wrongly
+    fragmented each into multiple sentence-groups, producing real false positives (confirmed by
+    direct manual re-reading of all 3 against their real target sections before this fix, not
+    assumed). The single unified rule here -- ANY whitespace, `\n` included, only counts as a
+    split point when the text immediately before it ends with `.`/`!`/`?` -- fixes this: a
+    mid-clause line-wrap, a heading-to-bullet `\n`, and a table-row `\n` never sit after
+    terminal punctuation, so none of them split; `u0020`'s own 2 embedded `\n`s each DO sit right
+    after a real terminal `.`, so both still correctly split, preserving detection of the real
+    captured defect this incident closes.
+    """
+    groups = [g.strip() for g in _SENTENCE_GROUP_SPLIT_RE.split(excerpt or "") if g.strip()]
+    if groups:
+        return groups
+    stripped = (excerpt or "").strip()
+    return [stripped] if stripped else []
+
+
+def _token_occurs_standalone(token: str, text: str) -> bool:
+    r"""True if `token` occurs in `text` (case-insensitive) at a position not embedded inside a
+    longer contiguous run of word characters (letters/digits/underscore) on either side --
+    generalizes a regex `\b` word-boundary check to punctuation-bearing tokens (paths, env-var
+    names) where plain `\b` is unreliable (`_` counts as a word character, so `\b` alone already
+    fails to bound `PDF` out of `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1`).
+
+    Used ONLY to decide which sentence GROUP a token structurally belongs to, on the excerpt side
+    -- the actual target-section-body match below keeps the pre-existing, deliberately lenient
+    plain-substring test unchanged, so this does not tighten any already-tuned behavior. Real
+    motivating case: `u0020`'s own generic `PDF` token is a literal substring of its own sibling
+    token `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1` -- without this standalone check, `PDF` would be
+    (wrongly) considered part of every sentence group, including the one whose only real,
+    distinctive fact is the env-var override, defeating the per-group split entirely.
+    """
+    token_l = token.lower()
+    text_l = text.lower()
+    if not token_l:
+        return False
+
+    def _is_word_char(char: str) -> bool:
+        return char.isalnum() or char == "_"
+
+    start = 0
+    while True:
+        idx = text_l.find(token_l, start)
+        if idx == -1:
+            return False
+        before = text_l[idx - 1] if idx > 0 else ""
+        after = text_l[idx + len(token_l)] if idx + len(token_l) < len(text_l) else ""
+        if not _is_word_char(before) and not _is_word_char(after):
+            return True
+        start = idx + 1
+
+
 def check_content_unit_merged_into_target_section(
     readme_text: str, dispositions: list[dict]
 ) -> list[dict]:
@@ -4268,29 +5494,182 @@ def check_content_unit_merged_into_target_section(
     only ever looked at `merged_*` dispositions, so a `redundant_with_existing` claim's cited
     section was never actually checked by either function. A lazy or wrong "already covered in
     section X" claim on an excluded entry would previously pass every hard gate undetected.
+
+    ALSO (TC-HARDEN-78, MT047/Thirty-Seventh incident, 2026-08-15) catches the free-text SIBLING
+    of that same shape: an `excluded` entry whose `excluded_reason`/`classification_basis` names
+    a target the structured way -- "the candidate['s own] <section name> ... independently
+    states/names/covers ..." -- WITHOUT using `verification.evidence_type ==
+    "candidate_section_reference"` at all (`evidence_type` is `"clone_cache_path"` instead,
+    since the entry's real verification is against the SOURCE, not the candidate). Real,
+    confirmed gap: `font/python`'s own current `content-dispositions.json` has exactly 4 entries
+    in this shape (`u0001`, `u0006`, `u0028`, `u0049`), each self-disclosing in its own
+    `classification_basis` that this claim is "not tracked as a formal verbatim/reframed merge
+    to avoid over-claiming exact wording traceability" -- which also means it was never
+    mechanically re-validated. `u0028`'s cited claim ("the candidate's own Key Capabilities intro
+    paragraph independently states the same 'variable-font-first' framing") went stale after an
+    unrelated MT046 edit deleted that intro paragraph entirely, with zero detection until this
+    extension closed the gap. `_normalize_independent_statement_target` strips the free text's
+    own trailing descriptive word ("section"/"paragraph"/"bullets"/"intro") to recover the real
+    heading name.
+
+    Resolution for this new free-text shape deliberately does NOT reuse the excerpt-word-overlap
+    fallback below -- found live this incident, against font/python's own real, current
+    candidate: a 50%-of-excerpt-words bar (calibrated for a MERGED unit, where the target section
+    is expected to closely restate the excerpt) badly over-fires here, since an "independently
+    states" claim's own excerpt is routinely a much longer, differently-structured original
+    sentence than the compressed phrase actually echoed in the candidate -- it flagged all 4 real
+    entries, including `u0001`/`u0049`, which this incident's own Stage 1 re-verification directly
+    confirmed are still genuinely accurate. Instead: extract the free text's own quoted phrase
+    (the parenthetical `'...'`/`"..."` span the real authoring convention already uses to name the
+    exact restated fact, e.g. `u0001`'s `('zero required third-party runtime dependencies')`) and
+    require it, hyphen/whitespace-normalized, to appear as a contiguous substring of the target
+    section body -- a stricter, more precise test than word-overlap, matching the real, tighter
+    resemblance a genuinely-accurate quoted restatement has to its own claim. Confirmed against
+    all 3 of font/python's own real, distinctly-shaped quoted claims: `u0001`'s and `u0049`'s both
+    resolve (still present, contiguous, verbatim modulo the hyphen/space difference the original
+    source's own compound-word styling introduces); `u0028`'s does not (the phrase is genuinely
+    gone). A free-text claim with no quoted phrase at all (e.g. a bare parenthetical list with no
+    quote marks) falls back to the same excerpt-word-overlap logic the merge/candidate_section_
+    reference paths already use below -- a real, disclosed weaker guarantee for that narrower
+    shape, not a silent skip.
+
+    ALSO (MT049, Thirty-Ninth incident, 2026-08-15) closes a real, captured gap in the salient-
+    tokens path itself, above and independent of the free-text extension: this check's "at least
+    one of the unit's salient_tokens appears in the target section" test was originally evaluated
+    against the excerpt as a whole. For a COMPOUND excerpt -- several genuinely distinct sentences/
+    facts bundled into one `content_unit`, joined by real sentence breaks (a `.`/`!`/`?` followed
+    by whitespace -- a plain space or an embedded `\n`, same rule either way -- and then a capital
+    letter; see `_split_excerpt_into_sentence_groups`'s own docstring for why a bare `\n` alone is
+    NOT used as the split signal) -- that whole-excerpt test could pass on the strength of ONE
+    bundled fact's token surviving into
+    the merge while a DIFFERENT bundled fact was silently dropped, with zero detection. Real,
+    captured case: `note/python`'s own `u0020` (fixed directly in the candidate as part of this same
+    incident, not reproduced here) bundles 3 sentences -- golden-PDF storage/manifest comparison,
+    cross-platform stability via ReportLab, and the PDF writer's deterministic-Base-14-fonts-by-
+    default behavior with its `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1` override -- under 6 shared
+    `salient_tokens`. The prior candidate state carried forward only the first fact; this check
+    still passed, because the token `"tests/goldens/pdf/"` (that first fact's own token) legitimately
+    matched -- with no way to notice the third fact's own distinctive token
+    (`ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1`) was never written anywhere in the candidate.
+
+    Fix: `_split_excerpt_into_sentence_groups` splits the excerpt into per-sentence groups (a
+    single-sentence excerpt -- the large majority of real dispositions -- still produces exactly
+    one group). Each of the unit's `salient_tokens` is assigned to every group it structurally
+    occurs in, via `_token_occurs_standalone` (not a plain substring test -- see that helper's own
+    docstring for why a generic token like `PDF` must not be credited to a sentence purely because
+    it is embedded inside a DIFFERENT, longer sibling token's text there). Any token that occurs in
+    none of the groups (e.g. sourced from outside the excerpt's own literal text) is treated as one
+    more, whole-excerpt-scoped group, preserving today's behavior for that edge case. The check then
+    requires EVERY group that has at least one of its own tokens to have at least one of THOSE
+    tokens match somewhere in the target section body -- not just any token from anywhere in the
+    excerpt. A single-sentence excerpt collapses to exactly one group, so this is provably identical
+    to the pre-existing "any one token, anywhere" behavior for that common case -- the actual body-
+    side match test itself (`tok.lower() in body.lower()`) is completely unchanged, so no already-
+    tuned single-fact disposition's tolerance for legitimate partial-token-survival paraphrasing is
+    affected.
+
+    Deliberately NOT a naive uniform stricter threshold (e.g. "require 50% of tokens to match" for
+    every entry): this function's own history above (the leading-20-char-literal-substring fallback
+    that had to be loosened after false-positiving on dozens of real, correctly-reframed single-fact
+    dispositions) is exactly the failure mode a uniform tightening would risk reintroducing for the
+    large majority of simple, single-sentence entries. The per-sentence-group split targets ONLY the
+    specific, evidenced defect shape (a compound excerpt silently losing one of its bundled facts)
+    without changing behavior for anything else. The `excerpt_words`/`body_words` 50%-overlap
+    fallback below (for units with no `salient_tokens` at all) is deliberately left untouched by this
+    extension -- it already has its own separately-tuned, looser tolerance for paraphrasing, and no
+    live compound-excerpt-with-zero-tokens case has been found to justify the added complexity.
     """
     sections = _split_into_sections(readme_text)
     findings: list[dict] = []
     for entry in dispositions:
         disposition = entry.get("disposition")
         verification = entry.get("verification") or {}
+        independent_statement_match = None
+        independent_statement_source = None
         if disposition in ("merged_verbatim", "merged_reframed"):
             target = entry.get("target_section")
         elif disposition == "excluded" and verification.get("evidence_type") == "candidate_section_reference":
             target = verification.get("evidence_ref")
+        elif disposition == "excluded":
+            # Searched per-field, not on a concatenated blob: excluded_reason and classification_
+            # basis are commonly identical duplicated text in real dispositions (font/python's own
+            # real shape) -- concatenating them first and slicing from one match's end would still
+            # leave the OTHER field's own leading text (including its own quoted phrase) in the
+            # remainder, corrupting the "quotes after the verb" scoping below.
+            for candidate_field in (entry.get("excluded_reason") or "", entry.get("classification_basis") or ""):
+                independent_statement_match = _CANDIDATE_INDEPENDENT_STATEMENT_RE.search(candidate_field)
+                if independent_statement_match:
+                    independent_statement_source = candidate_field
+                    break
+            if not independent_statement_match:
+                continue
+            target = _normalize_independent_statement_target(independent_statement_match.group("section"))
         else:
             continue
         section_key = "__preamble__" if target in ("Intro", "Project History") else target
         body = sections.get(section_key, "")
+        if independent_statement_match is not None:
+            # Quoted phrases are only meaningful AFTER the "independently states/names/covers"
+            # verb -- a quote earlier in the same sentence (e.g. a quoted label naming the
+            # OLD/original claim itself, confirmed live in font/python's own real u0006 entry:
+            # `'Business artifacts first' positioning. The candidate's own...`) is not the
+            # candidate-restated phrase this check needs to verify.
+            quoted = _extract_quoted_phrases(independent_statement_source[independent_statement_match.end():])
+            if quoted:
+                claim = _normalize_for_contiguous_match(quoted[-1])
+                if claim and claim not in _normalize_for_contiguous_match(body):
+                    findings.append({
+                        "unit_id": entry.get("unit_id"),
+                        "target_section": target,
+                        "reason": "the quoted phrase this excluded entry claims the candidate's "
+                                  f"own '{target}' section independently states no longer "
+                                  "appears there (contiguous, hyphen/whitespace-normalized "
+                                  "match) -- this free-text claim has gone stale",
+                    })
+                continue
+            # No quoted phrase to anchor on -- fall through to the same excerpt-word-overlap
+            # fallback the merge/candidate_section_reference paths use below.
         tokens = entry.get("salient_tokens") or []
         if tokens:
-            if not any(tok.lower() in body.lower() for tok in tokens):
+            body_lower = body.lower()
+            # MT049/Thirty-Ninth incident: group tokens by which sentence of the excerpt they
+            # structurally belong to, then require EACH group's own tokens to have at least one
+            # match in the body -- rather than any token from anywhere in the whole excerpt. A
+            # single-sentence excerpt collapses to one group, so this is identical to the old
+            # "any token, anywhere" behavior for the common case; see the docstring above for the
+            # full defect this closes and why a uniform stricter threshold was rejected instead.
+            groups = _split_excerpt_into_sentence_groups(entry.get("excerpt") or "")
+            group_tokens: list[list[str]] = []
+            grouped: set[str] = set()
+            for group in groups:
+                local = [tok for tok in tokens if _token_occurs_standalone(tok, group)]
+                if local:
+                    group_tokens.append(local)
+                    grouped.update(local)
+            ungrouped = [tok for tok in tokens if tok not in grouped]
+            if ungrouped:
+                group_tokens.append(ungrouped)
+            if not group_tokens:
+                group_tokens = [list(tokens)]
+            missing_groups = [g for g in group_tokens if not any(tok.lower() in body_lower for tok in g)]
+            if missing_groups:
+                if len(group_tokens) == 1:
+                    reason = ("none of this unit's salient tokens were found in the "
+                              f"'{target}' section -- the merge/redundancy claim is not "
+                              "traceable to real text")
+                else:
+                    missing_tokens = sorted({tok for g in missing_groups for tok in g})
+                    reason = (
+                        "this unit's excerpt bundles multiple distinct sentences, and at least "
+                        f"one of them (tokens: {', '.join(missing_tokens)}) has no match anywhere "
+                        f"in the '{target}' section, even though a DIFFERENT sentence's own "
+                        "token(s) did match -- a compound excerpt can partially survive a merge "
+                        "while silently dropping one of its bundled facts"
+                    )
                 findings.append({
                     "unit_id": entry.get("unit_id"),
                     "target_section": target,
-                    "reason": "none of this unit's salient tokens were found in the "
-                              f"'{target}' section -- the merge/redundancy claim is not "
-                              "traceable to real text",
+                    "reason": reason,
                 })
         else:
             excerpt_words = {w.lower() for w in re.findall(r"[A-Za-z]{4,}", entry.get("excerpt") or "")}
@@ -4806,6 +6185,405 @@ def check_project_structure_canonical_tree_format(markdown_text: str) -> list[di
     return []
 
 
+# ============================================================================================
+# Thirty-Seventh incident / MT047 (2026-08-15): the code-example inventory blind spot.
+# `extract_old_readme_content_units` strips ALL fenced code before segmenting (by design -- it
+# extracts sentence-level prose facts). `extract_old_readme_structural_units` (above) can see
+# code, but ONLY when the prose extractor finds NOTHING real in the same section -- its own gate
+# is `if extract_old_readme_content_units(stripped): continue` (line ~5245 above), a genuine bug
+# found this incident: a section combining a large code block with even one surviving trailing
+# prose sentence (`font/python`'s real `## Python API Highlights` -- ~120 lines of code, plus one
+# real trailing sentence about the grid-family package) is invisible to BOTH extractors
+# simultaneously, by construction, on every product with this shape. `extract_old_readme_code_
+# units` below is the fix: UNCONDITIONAL, runs independently of both existing extractors,
+# specifically never gated behind whether the prose extractor also has something to say.
+# ============================================================================================
+
+_FENCED_CODE_WITH_LANG_RE = re.compile(r"```([\w+-]*)\n?(.*?)```", re.DOTALL)
+_CODE_UNIT_SPLIT_THRESHOLD = 15  # non-blank lines; first-iteration threshold, disclosed as a
+# considered-not-proven-optimal guess, same posture as every other first-instance numeric
+# threshold this module has ever introduced (e.g. extract_old_readme_structural_units's own
+# min_fenced_dominance).
+_CODE_UNIT_CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){0,4})\s*\(")
+_CODE_UNIT_CALL_STOPWORDS = frozenset({
+    "if", "for", "while", "print", "with", "def", "class", "return", "elif", "except", "assert",
+    "len", "str", "int", "float", "bool", "list", "dict", "set", "tuple", "open", "range", "type",
+    "sorted", "enumerate", "isinstance",
+})
+_CODE_UNIT_BASH_INVOCATION_RE = re.compile(r"^([a-zA-Z][\w-]*)\s+([a-z][\w-]*)")
+_CODE_UNIT_BASH_LANGUAGES = frozenset({"bash", "sh", "shell", "console", "zsh"})
+
+
+def _code_unit_api_call_fingerprint(code_text: str, language: str) -> list[str]:
+    """Cheap, deliberately disclosed-incomplete regex scan for `Identifier.method(`/`ClassName(`
+    (Python/most languages) or leading CLI-subcommand tokens (bash/shell) -- never a real parser,
+    same "presence not proof" honesty `check_named_member_accuracy` already discloses about
+    itself. Order-preserving, de-duplicated. For bash: each non-comment, non-blank line's own
+    first two whitespace-separated tokens (program + subcommand, e.g. `"aspose-font
+    var-instance"`) -- the real, already-established shape of every CLI invocation line in this
+    portfolio's old READMEs. For everything else: every `dotted.identifier(` call site, skipping
+    a small set of control-flow/builtin keywords that would otherwise pollute the fingerprint
+    with noise unrelated to any real API surface.
+    """
+    fingerprint: list[str] = []
+    seen: set[str] = set()
+    lang = (language or "").strip().lower()
+    if lang in _CODE_UNIT_BASH_LANGUAGES:
+        for line in code_text.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            match = _CODE_UNIT_BASH_INVOCATION_RE.match(stripped)
+            if match:
+                token = f"{match.group(1)} {match.group(2)}"
+                if token not in seen:
+                    seen.add(token)
+                    fingerprint.append(token)
+        return fingerprint
+    for match in _CODE_UNIT_CALL_RE.finditer(code_text):
+        token = match.group(1)
+        if token in _CODE_UNIT_CALL_STOPWORDS or token in seen:
+            continue
+        seen.add(token)
+        fingerprint.append(token)
+    return fingerprint
+
+
+def _code_unit_preceding_prose(old_readme_text: str, block_start: int) -> str:
+    """The immediate lead-in line(s) before a fenced code block -- text collected backward from
+    `block_start` until a blank line or a heading line, reusing the same "text up to a blank
+    line/heading" idiom already proven for `_extract_section_intro_prose` (applied here in the
+    opposite direction: backward from the block, not forward from a section start).
+    """
+    prefix = old_readme_text[:block_start]
+    lines = prefix.splitlines()
+    collected: list[str] = []
+    for line in reversed(lines):
+        if not line.strip() or _HEADING_RE.match(line):
+            break
+        collected.append(line)
+    collected.reverse()
+    return "\n".join(collected).strip()
+
+
+def _split_code_block_into_groups(code_text: str) -> list[str]:
+    """A fenced code block exceeding `_CODE_UNIT_SPLIT_THRESHOLD` non-blank lines with multiple
+    blank-line-separated statement groups is split at those blank-line boundaries -- real,
+    visible structural markers already present in the original source's own code (confirmed
+    live: `font/python`'s real `## Python API Highlights` block has exactly one blank line per
+    distinct demo; its real `## CLI Highlights` block has one blank line per capability
+    category), not an invented heuristic. A block at or under the threshold, or one with no
+    internal blank-line boundaries at all, stays a single unit.
+    """
+    non_blank = [line for line in code_text.splitlines() if line.strip()]
+    if len(non_blank) <= _CODE_UNIT_SPLIT_THRESHOLD:
+        return [code_text]
+    groups: list[str] = []
+    current: list[str] = []
+    for line in code_text.splitlines():
+        if not line.strip():
+            if current:
+                groups.append("\n".join(current))
+                current = []
+            continue
+        current.append(line)
+    if current:
+        groups.append("\n".join(current))
+    return groups if len(groups) > 1 else [code_text]
+
+
+def extract_old_readme_code_units(old_readme_text: str) -> list[dict]:
+    """Mechanical segmentation of the old upstream README's fenced CODE into checkable "code
+    units" -- the code counterpart to `extract_old_readme_content_units` (prose) and `extract_
+    old_readme_structural_units` (non-prose structural blocks, e.g. directory trees). TC-HARDEN-
+    74 (MT047/Thirty-Seventh incident, 2026-08-15).
+
+    **Unconditional -- runs independently of both existing extractors, deliberately NOT gated
+    behind "does the prose extractor already have something to say about this section."** That
+    exact gate is `extract_old_readme_structural_units`'s own `if extract_old_readme_content_
+    units(stripped): continue` -- the precise, confirmed-live bug that let `font/python`'s real
+    `## Python API Highlights` section (a ~120-line code block covering ~15 distinct capability
+    demonstrations, plus one real trailing prose sentence about the grid-family package) fall
+    through BOTH extractors simultaneously: too code-heavy for the prose extractor to describe,
+    and disqualified from the structural extractor specifically because a small amount of real
+    prose survives in the same section. A section with genuinely zero surviving prose (`##
+    CLI Highlights`, correctly captured by the structural extractor as a `directory_tree`-
+    adjacent `generic_structural_block`) is a narrower, already-handled case; this extractor
+    covers the more general, previously entirely uncovered shape.
+
+    For every fenced code block in the whole document (`unit_id` in a new `c%04d` namespace,
+    never mixed with `u%04d`/`s%04d`/`b%04d`): `heading_context` (nearest preceding H2/H3 via
+    `_HEADING_RE`, `"__preamble__"` if the block precedes any heading), `language` (the fence's
+    own language tag, lowercased, `""` if untagged), `code_text`, `preceding_prose` (via
+    `_code_unit_preceding_prose`), and `api_call_fingerprint` (via `_code_unit_api_call_
+    fingerprint`). A block exceeding `_CODE_UNIT_SPLIT_THRESHOLD` non-blank lines with real
+    internal blank-line boundaries is split into sub-units (`c0001a`, `c0001b`, ...) at those
+    boundaries via `_split_code_block_into_groups`; a single-group block keeps the bare `c0001`
+    id with no letter suffix. Deterministic and order-based (same "survives whitespace-only
+    reruns" property `u%04d`/`s%04d` already have) -- running this function twice against
+    identical input text produces byte-identical structured output (the machinery-layer
+    idempotency proof Stage 8 test 9 / TC-HARDEN-80 depends on).
+    """
+    headings = list(_HEADING_RE.finditer(old_readme_text))
+
+    def _heading_context(pos: int) -> str:
+        context = "__preamble__"
+        for heading_match in headings:
+            if heading_match.start() <= pos:
+                context = heading_match.group(2).strip()
+            else:
+                break
+        return context
+
+    units: list[dict] = []
+    block_number = 0
+    for block_match in _FENCED_CODE_WITH_LANG_RE.finditer(old_readme_text):
+        language = block_match.group(1).strip().lower()
+        code_text = block_match.group(2)
+        if not code_text.strip():
+            continue
+        block_number += 1
+        heading_context = _heading_context(block_match.start())
+        preceding_prose = _code_unit_preceding_prose(old_readme_text, block_match.start())
+        groups = [g for g in _split_code_block_into_groups(code_text) if g.strip()]
+        multi = len(groups) > 1
+        for idx, group_text in enumerate(groups):
+            unit_id = f"c{block_number:04d}" + (chr(ord("a") + idx) if multi else "")
+            units.append({
+                "unit_id": unit_id,
+                "heading_context": heading_context,
+                "language": language,
+                "code_text": group_text,
+                "preceding_prose": preceding_prose if idx == 0 else "",
+                "api_call_fingerprint": _code_unit_api_call_fingerprint(group_text, language),
+            })
+    return units
+
+
+_CODE_UNIT_DISPOSITIONS = frozenset({
+    "merged_verbatim", "merged_reframed", "relocated", "excluded", "corrected",
+})
+_CODE_UNIT_MERGE_DISPOSITIONS = frozenset({
+    "merged_verbatim", "merged_reframed", "relocated", "corrected",
+})
+_CODE_UNIT_VERIFICATION_STATUSES = frozenset({"verified_against_source", "verified_redundant"})
+
+
+def check_code_example_disposition_coverage(
+    code_units: list[dict], dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate (TC-HARDEN-74, MT047/Thirty-Seventh incident, 2026-08-15). Direct structural
+    mirror of `check_structural_unit_disposition_coverage`/`check_content_unit_disposition_
+    coverage`, adapted to `code-example-dispositions.json`'s own schema (`unit_id`,
+    `heading_context`, `language`, `api_call_fingerprint`, `verification`, `disposition`,
+    `target_section`, `excluded_reason` -- Stage 6 item 2's design, no `excerpt`/`salient_tokens`
+    fields, since a code unit's checkable identity is its `api_call_fingerprint`, not prose
+    tokens). Every `unit_id` `extract_old_readme_code_units` finds needs exactly one well-formed
+    disposition entry (no missing/dupe/dangling references); `disposition` is a valid enum value
+    (`merged_verbatim`/`merged_reframed`/`relocated`/`corrected`/`excluded`); a merge-shaped
+    disposition needs a real `target_section` (the same closed template list `content-
+    dispositions.json` already uses -- code examples merge into the same real sections prose
+    does, most commonly `Additional Examples`); `excluded` needs a real `excluded_reason` (>=15
+    chars); `verification.status` must be one of `_CODE_UNIT_VERIFICATION_STATUSES` with a
+    non-empty `evidence_ref`. Vacuous pass when `code_units` is empty -- correctly, since an old
+    README with no fenced code at all genuinely has nothing to account for.
+    """
+    findings: list[dict] = []
+    unit_ids = {unit["unit_id"] for unit in code_units}
+    seen_ids: set[str] = set()
+    by_id: dict[str, dict] = {}
+    for entry in dispositions:
+        uid = entry.get("unit_id")
+        if uid in seen_ids:
+            findings.append({"unit_id": uid, "reason": "duplicate disposition entry for the same unit_id"})
+            continue
+        seen_ids.add(uid)
+        by_id[uid] = entry
+        if uid not in unit_ids:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition references a unit_id not present in the current old-README code-unit extraction",
+            })
+
+    for uid in unit_ids:
+        entry = by_id.get(uid)
+        if entry is None:
+            findings.append({"unit_id": uid, "reason": "no disposition entry -- every extracted code unit needs one"})
+            continue
+        disposition = entry.get("disposition")
+        if disposition not in _CODE_UNIT_DISPOSITIONS:
+            findings.append({"unit_id": uid, "reason": f"invalid disposition {disposition!r}"})
+            continue
+        if disposition in _CODE_UNIT_MERGE_DISPOSITIONS:
+            target = entry.get("target_section")
+            if target not in _CONTENT_UNIT_TARGET_SECTIONS:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": f"merged/relocated/corrected disposition needs a real target_section, got {target!r}",
+                })
+        else:  # excluded
+            reason_text = (entry.get("excluded_reason") or "").strip()
+            if len(reason_text) < 15:
+                findings.append({
+                    "unit_id": uid,
+                    "reason": "excluded disposition needs a real excluded_reason (>=15 chars)",
+                })
+        verification = entry.get("verification") or {}
+        status = verification.get("status")
+        if status not in _CODE_UNIT_VERIFICATION_STATUSES:
+            findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
+        elif not verification.get("evidence_ref"):
+            findings.append({"unit_id": uid, "reason": "verification needs a non-empty evidence_ref"})
+    return findings
+
+
+def check_code_example_no_exact_duplicate_merge(dispositions: list[dict]) -> list[dict]:
+    """Hard gate (TC-HARDEN-74). Mirrors `check_content_unit_no_exact_duplicate_merge`/`check_
+    structural_unit_no_exact_duplicate_merge`, adapted to `code-example-dispositions.json`'s own
+    schema -- which has no `excerpt` field (Stage 6 item 2's disclosed shape), so duplication is
+    decided on the normalized `api_call_fingerprint` tuple instead of excerpt text. Two merged/
+    relocated/corrected entries claiming the identical fingerprint into the identical
+    `target_section` is unambiguous, mechanically decidable duplication; an entry with an empty
+    fingerprint is never flagged here (nothing checkable to compare).
+    """
+    seen: dict[tuple, list] = {}
+    for entry in dispositions:
+        if entry.get("disposition") not in _CODE_UNIT_MERGE_DISPOSITIONS:
+            continue
+        fingerprint = tuple(entry.get("api_call_fingerprint") or [])
+        if not fingerprint:
+            continue
+        key = (fingerprint, entry.get("target_section"))
+        seen.setdefault(key, []).append(entry.get("unit_id"))
+    findings: list[dict] = []
+    for (fingerprint, target), unit_ids in seen.items():
+        if len(unit_ids) > 1:
+            findings.append({
+                "unit_ids": unit_ids,
+                "target_section": target,
+                "fingerprint": list(fingerprint),
+                "reason": "identical api_call_fingerprint merged into the same section under "
+                          "multiple unit_ids -- exact duplicate",
+            })
+    return findings
+
+
+def _candidate_code_fingerprint(readme_text: str) -> set[str]:
+    """The candidate's own whole-document API-call fingerprint -- every fenced code block's
+    fingerprint, unioned. Whole-document scope is a deliberate, disclosed choice (not scoped to
+    one target section): a capability's surviving demonstration can legitimately land in a
+    different, still-genuine section than the disposition's own `target_section` guess (e.g. a
+    Quick Start snippet also satisfying an Additional-Examples-targeted claim), and this
+    check's job is "did the real capability survive somewhere," not "did it survive in exactly
+    the predicted spot."
+    """
+    fingerprint: set[str] = set()
+    for block_match in _FENCED_CODE_WITH_LANG_RE.finditer(readme_text):
+        fingerprint.update(_code_unit_api_call_fingerprint(block_match.group(2), block_match.group(1)))
+    return fingerprint
+
+
+def check_code_example_api_coverage_survives(readme_text: str, dispositions: list[dict]) -> list[dict]:
+    """Hard gate (TC-HARDEN-75, MT047/Thirty-Seventh incident, 2026-08-15). The direct,
+    mechanical fix for the `FontSubsetter`-class of defect this incident's own audit found:
+    `font/python`'s real old README demonstrated `FontSubsetter.subset_for_web_with_coverage`,
+    `font.preview_naming_policy(...)`, `variable_mode="live"`/`"static"` export, and
+    `legacy_family_name`/`typographic_family_name` naming overrides -- none of which had any
+    working code anywhere in the candidate, while the section that once demonstrated them was
+    disposed `excluded` on a bare "covered elsewhere" theory nothing ever mechanically confirmed.
+
+    For every code unit disposed `merged_verbatim`/`merged_reframed`/`relocated`/`corrected`
+    (claiming its real capability survives somewhere in the candidate) with a non-empty
+    `api_call_fingerprint`, requires at least half (the same word-overlap threshold idiom
+    `check_content_unit_merged_into_target_section` already established) of the unit's own
+    fingerprinted calls to appear somewhere in the candidate's real code (`_candidate_code_
+    fingerprint`, whole-document scope). A unit whose claimed survival doesn't actually resolve
+    is a hard-gate failure -- this is what would have caught the `FontSubsetter` gap
+    mechanically, before any human audit was needed. An `excluded` entry is never checked here
+    (it claims nothing survives); an entry with an empty fingerprint (e.g. a pure setup/import
+    line with no real API call of its own) is skipped -- nothing checkable to verify.
+    """
+    candidate_fingerprint = _candidate_code_fingerprint(readme_text)
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") not in _CODE_UNIT_MERGE_DISPOSITIONS:
+            continue
+        fingerprint = entry.get("api_call_fingerprint") or []
+        if not fingerprint:
+            continue
+        survived = [call for call in fingerprint if call in candidate_fingerprint]
+        if len(survived) / len(fingerprint) < 0.5:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "target_section": entry.get("target_section"),
+                "fingerprint": fingerprint,
+                "survived": survived,
+                "reason": "fewer than half of this code unit's fingerprinted API calls appear "
+                          "anywhere in the candidate's own code blocks -- the claimed survival "
+                          "does not actually resolve",
+            })
+    return findings
+
+
+_CLI_CATEGORY_COMMENT_RE = re.compile(r"^\s*#\s*(.+?)\s*$")
+
+
+def _cli_unit_category(code_text: str) -> "str | None":
+    """The CLI-category label for a bash code unit -- the leading `# Comment` line's own text,
+    if the unit's first line is a comment (the real, established shape of `font/python`'s old
+    `## CLI Highlights` block: `# General inspection and conversion`, `# QA tooling`, `# Web
+    packaging`, each starting its own blank-line-delimited group, which `_split_code_block_
+    into_groups`'s own blank-line splitting already isolates into separate code units). `None`
+    when the unit has no such leading comment -- not every bash unit is part of a labeled
+    category.
+    """
+    lines = code_text.splitlines()
+    if lines:
+        match = _CLI_CATEGORY_COMMENT_RE.match(lines[0])
+        if match:
+            return match.group(1)
+    return None
+
+
+def check_cli_category_representation(readme_text: str, code_units: list[dict]) -> list[dict]:
+    """Heuristic, non-blocking (TC-HARDEN-75, MT047/Thirty-Seventh incident, 2026-08-15). A
+    category-level backstop specifically for the CLI-thinness shape `check_code_example_api_
+    coverage_survives`'s half-of-fingerprint threshold could in principle miss: a disposition
+    could satisfy that 50% bar while an entire real CATEGORY of CLI usage (e.g. `font/python`'s
+    real "QA tooling" group) still has zero representation anywhere in the candidate, simply
+    because enough OTHER categories' calls happened to survive.
+
+    Groups bash-language code units (`_cli_unit_category`) by their own leading `# Comment`
+    label, and flags any category whose combined `api_call_fingerprint` has zero overlap with
+    the candidate's own whole-document code fingerprint (`_candidate_code_fingerprint`).
+    Vacuous pass when there are no labeled CLI categories in the old README at all.
+    """
+    categories: dict[str, list[dict]] = {}
+    for unit in code_units:
+        if (unit.get("language") or "").lower() not in _CODE_UNIT_BASH_LANGUAGES:
+            continue
+        category = _cli_unit_category(unit.get("code_text") or "")
+        if not category:
+            continue
+        categories.setdefault(category, []).append(unit)
+    if not categories:
+        return []
+    candidate_fingerprint = _candidate_code_fingerprint(readme_text)
+    findings: list[dict] = []
+    for category, units in categories.items():
+        category_fingerprint: set[str] = set()
+        for unit in units:
+            category_fingerprint.update(unit.get("api_call_fingerprint") or [])
+        if category_fingerprint and not (category_fingerprint & candidate_fingerprint):
+            findings.append({
+                "category": category,
+                "unit_ids": [unit["unit_id"] for unit in units],
+                "reason": f"CLI category '{category}' from the old README has zero surviving "
+                          "invocation anywhere in the candidate's own code blocks",
+            })
+    return findings
+
+
 # --- Badge semantic reconciliation -----------------------------------------------------------
 
 _BADGE_INNER_IMAGE_RE = re.compile(r"^!\[([^\]]*)\]\(([^)\s]+)\)$")
@@ -4859,8 +6637,23 @@ _BADGE_CATEGORY_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("coverage", (r"\bcoverage\b", r"codecov|coveralls")),
     ("contributor_count", (r"\bcontributors?\b", r"/contributors")),
     ("download_stats", (r"\bdownloads?\b",)),
-    ("language_version", (r"\b(?:go|python|java|rust|node|php|ruby)\s*version\b",
-                           r"/badge/(?:go|python|java|rust)-")),
+    # 2026-08-14: widened after a real, portfolio-wide false positive -- this portfolio's own
+    # standard Python-compat badge (shields.io's `/pypi/pyversions/{pkg}.svg`) uses alt text
+    # "Python" or "Python versions" (plural), neither of which matched the original
+    # singular-"version"-only text pattern; falling through all the way to link_url then
+    # matched `package_version`'s bare `pypi\.org` catch-all, making `check_no_duplicate_
+    # badges_in_candidate` misfire on every Python product pairing this badge with a real,
+    # distinct PyPI-version badge (confirmed live: cells/python, email/python, words/python,
+    # slides/python all share this exact shape). The `/pypi/pyversions/` image-URL segment is
+    # a mechanically real, shields.io-specific signal for this exact badge type, checked before
+    # `image_url`/`link_url` ever reach `package_version`'s broader `pypi\.org` match.
+    # "c%2b%2b" (2026-08-14, MT042/TC-HARDEN-58): found live -- 2 real, currently-shipped C++
+    # products (email/cpp, slides/cpp) have a real static "C++ 17"/"C++20" language-version
+    # badge (`/badge/C%2B%2B-{version}-...`) that fell through this list entirely and classified
+    # "unknown", the moment check_badge_row_meets_verified_floor was first run against real
+    # content -- confirmed the classifier gap, not a genuine content gap in either product.
+    ("language_version", (r"\b(?:go|python|java|rust|node|php|ruby)\s*versions?\b",
+                           r"/badge/(?:go|python|java|rust|c%2b%2b)-", r"/pypi/pyversions/")),
     ("language_package_reference", (r"\breference\b", r"pkg\.go\.dev", r"godoc\.org", r"docs\.rs")),
     ("docs_link", (r"\bdocs?\b|\bdocumentation\b",)),
     ("package_version", (r"\bpackage\s*version\b", r"nuget\.org|pypi\.org|maven-central|crates\.io", r"\bversion\b")),
@@ -5162,6 +6955,664 @@ def check_no_duplicate_badges_in_candidate(readme_text: str) -> list[dict]:
                               "world target -- the same fact is displayed twice",
                 })
     return findings
+
+
+# ==================================================================================================
+# Thirty-Second incident / MT042 (2026-08-14): badge composition has no floor. Trigger: a
+# clean-room `cells/typescript` candidate shipped with a single License badge while every other
+# real, currently-shipped candidate in the portfolio has 2-5 (a full 30-product survey found
+# zero exceptions). The badge mechanism above (extract_badges/classify_badge/reconcile_badges/
+# badge-dispositions.json) is entirely RECONCILIATION-scoped -- it exists only to stop a real
+# OLD badge from being silently lost or duplicated -- and vacuously passes when the old README
+# has zero badges, exactly the state that let this ship undetected. These two functions close
+# the COMPOSITION-time question that mechanism was never designed to answer: does this
+# candidate's badge row meet the real, verified floor every other product in the portfolio
+# already meets. `_detect_available_badges` (readme_refresh_run.py) computes the real,
+# per-category availability from data this pipeline already has -- these functions only compare
+# the CANDIDATE's own extracted badge categories against it.
+# ==================================================================================================
+
+_BADGE_FLOOR_CATEGORIES = frozenset({
+    "package_version", "language_version", "ci_build_status", "contributor_count",
+})
+
+
+def check_badge_row_meets_verified_floor(readme_text: str, available_badges: dict) -> list[dict]:
+    """Hard gate (TC-HARDEN-58). The real, empirical floor found across all 30 currently-shipped
+    candidates, zero exceptions: a License badge whenever a real MIT license file exists, plus
+    at least one more badge from ANY of `_BADGE_FLOOR_CATEGORIES` whenever at least one of those
+    is genuinely available. Deliberately does NOT mandate a SPECIFIC second category -- 6 of the
+    30 real portfolio products show a CI/build badge in that slot instead of Contributors, a
+    legitimate, already-precedented editorial choice; this only requires the candidate's badge
+    row to contain at least one real badge from the available set, never a particular one.
+
+    Safe as a hard gate (unlike `check_installation_matches_package_registry`'s own heuristic
+    downgrade over `data/package_registry.json`'s disclosed unreliability): `contributor_count`
+    depends on nothing but a resolvable `repo_full_name` -- no dependence on any data source this
+    plan has found independently wrong -- so the floor can always be satisfied by License +
+    Contributors alone even when every other category is genuinely unavailable or wrong.
+
+    When even the License+floor combination is unavailable (both categories genuinely
+    unavailable per `available_badges`), reports nothing -- there is no real, verified badge to
+    require, and this function never fabricates one to force a pass either way.
+    """
+    findings: list[dict] = []
+    categories_present = {classify_badge(b)["category"] for b in extract_badges(readme_text)}
+
+    license_info = available_badges.get("license", {})
+    if license_info.get("available") and "license" not in categories_present:
+        findings.append({
+            "category": "license",
+            "reason": "a real, verified MIT license file exists for this product, but the "
+                      "candidate's badge row has no badge classified 'license'",
+        })
+
+    floor_available = any(
+        available_badges.get(cat, {}).get("available") for cat in _BADGE_FLOOR_CATEGORIES
+    )
+    if floor_available and not (categories_present & _BADGE_FLOOR_CATEGORIES):
+        available_here = sorted(
+            cat for cat in _BADGE_FLOOR_CATEGORIES if available_badges.get(cat, {}).get("available")
+        )
+        findings.append({
+            "category": None,
+            "reason": f"at least one real, verified badge fact is available "
+                      f"({', '.join(available_here)}), but the candidate's badge row contains "
+                      f"none of {sorted(_BADGE_FLOOR_CATEGORIES)} -- every currently-shipped "
+                      f"portfolio candidate has License plus at least one more badge",
+        })
+    return findings
+
+
+def check_badge_available_fact_not_shown(readme_text: str, available_badges: dict) -> list[dict]:
+    """Heuristic, non-blocking (TC-HARDEN-59). Flags a genuinely available, verified badge
+    category the candidate's badge row does NOT reflect -- a prompt, never a mandate, since
+    omitting an available category beyond the mandatory floor (above) is a legitimate,
+    already-precedented editorial choice across the real portfolio (6 of 30 products show CI/
+    build instead of Contributors; several show only 2 of 5 possible categories).
+    """
+    categories_present = {classify_badge(b)["category"] for b in extract_badges(readme_text)}
+    findings: list[dict] = []
+    for category, info in available_badges.items():
+        if info.get("available") and category not in categories_present:
+            findings.append({
+                "category": category,
+                "reason": f"a real, verified {category!r} fact is available for this product but "
+                          f"no badge in this category appears in the candidate's badge row -- "
+                          f"consider adding one (not required beyond the mandatory floor)",
+                "suggested_alt_text": info.get("alt_text"),
+                "suggested_image_url": info.get("image_url"),
+            })
+    return findings
+
+
+# ==================================================================================================
+# Thirty-First incident / MT041 (2026-08-14): dependency accuracy. Trigger: the generated
+# cells/rust README stated "no external runtime or Microsoft Office installation is needed"
+# while the product's own Cargo.toml declares 7 real runtime crates -- a same-document
+# contradiction against that file's own, correct Intro paragraph. Real dependency data (a
+# DependencySnapshot from dependency_extract.py, real manifest parsing) is added to the
+# factpack; these functions verify a composed README's own "## Dependencies" section (a new
+# _REQUIRED_SECTIONS entry, placed after Installation) and every other dependency-shaped claim
+# in the file against that real, structured data.
+# ==================================================================================================
+
+_DEPENDENCY_H3_SUBSECTIONS = (
+    "Required Package Dependencies", "Optional Dependencies",
+    "Native and System Requirements", "Development Dependencies",
+)  # title-case, matching check_heading_title_case (Rule 6) -- "and" stays lowercase, same
+# convention as the portfolio's existing "Scope and Limitations"/"Documentation & Resources".
+_NO_REQUIRED_DEPS_SENTENCE = "No required third-party package dependencies."
+
+
+def _extract_h3_subsection(section_text: str, heading: str) -> str:
+    match = re.search(
+        rf"^###\s+{re.escape(heading)}\s*$(.*?)(?=^###\s|\Z)",
+        section_text, re.MULTILINE | re.DOTALL | re.IGNORECASE,
+    )
+    return match.group(1) if match else ""
+
+
+def _bulleted_dependency_names(subsection_text: str) -> list[str]:
+    """Extracts every backtick-quoted token from every top-level bullet -- the established
+    `` - `name` ... `` convention already used for every Dependencies-section entry composed
+    per this incident's template. A real bug found running this against the real, corrected
+    cells/rust candidate: a single, natural bullet can legitimately name several related crates
+    together (`` - `sha2` 0.10, `base64` 0.22, `getrandom` 0.3 -- hashing and encoding... ``,
+    matching this exact portfolio's own already-established Intro-paragraph prose style for
+    grouping related dependencies) -- extracting only the FIRST token per bullet silently
+    dropped 2 of 3 real names, producing false "not mentioned" findings. Every backtick token
+    in a bullet is now treated as a real, named dependency.
+
+    A second real bug, found the same way against real content (2026-08-14, cells/typescript):
+    splitting on a literal `.` truncated any dotted dependency name -- an npm-scoped package
+    like `@zip.js/zip.js` (a real, current `cells/typescript` dependency) was cut to `@zip` at
+    the first dot, silently producing a false `check_dependency_direct_transitive_confusion`
+    finding against the real manifest entry. Dots are real, legitimate characters inside a
+    dependency name for multiple ecosystems (npm scopes, Go module paths like
+    `golang.org/x/crypto`) -- the token is already isolated to backtick content by
+    `_ANY_BACKTICK_TOKEN_RE`, so there is no remaining reason to split on `.` at all. Only
+    whitespace/`(` (a trailing parenthetical accidentally captured inside the backticks) are
+    real truncation signals."""
+    names = []
+    for bullet in re.findall(r"^-\s+(.+)$", subsection_text, re.MULTILINE):
+        for token in _ANY_BACKTICK_TOKEN_RE.findall(bullet):
+            names.append(re.split(r"[(\s]", token)[0])
+    return names
+
+
+def check_dependency_snapshot_completeness(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate. If `dependency_snapshot` is missing entirely, or reaches this check with an
+    internal-invariant violation (`applicable=False` with no real `not_applicable_reason`, or
+    a non-empty `parse_errors` -- both should be structurally impossible per dependency_
+    extract.py's own raise-or-empty invariant, checked anyway rather than just trusted), this
+    is a hard failure. The composing agent must never fall back to writing an unqualified
+    dependency-free claim (or any dependency prose) when the underlying extraction is missing
+    or unreliable -- mirrors check_content_unit_disposition_coverage's "absence is never trust
+    it" posture, applied to DependencySnapshot instead of content-dispositions.json."""
+    if dependency_snapshot is None:
+        return [{
+            "reason": "no DependencySnapshot data available for this product -- composing the "
+                      "Dependencies section (or any dependency claim elsewhere in the README) "
+                      "without it is not permitted; fix extraction, never write from memory",
+        }]
+    if not dependency_snapshot.get("applicable", True) and not dependency_snapshot.get("not_applicable_reason"):
+        return [{"reason": "dependency_snapshot has applicable=False but no not_applicable_reason"}]
+    if dependency_snapshot.get("parse_errors"):
+        return [{
+            "reason": f"dependency_snapshot carries non-empty parse_errors: "
+                      f"{dependency_snapshot['parse_errors']!r} -- extraction should have "
+                      f"raised instead of returning a partially-failed snapshot",
+        }]
+    return []
+
+
+# Mission Claims Policy: bans unqualified absolute no-dependency phrasing -- "no external
+# dependencies", "dependency-free", etc. -- UNLESS the claim names the exact dependency class
+# it excludes in the same clause AND that is actually proven. Deliberately, bare "runtime"
+# alone is never an accepted scope qualifier -- this is what makes the mechanism catch the
+# real cells/rust sentence ("no external runtime or Microsoft Office installation is needed"):
+# it contains "Microsoft Office" (accepted) and "runtime" (bare, rejected), and "external
+# runtime" alone doesn't distinguish "no proprietary Aspose runtime" (true, provable) from "no
+# dependencies of any kind" (false -- 7 crates exist).
+_UNQUALIFIED_DEPENDENCY_CLAIM_PATTERNS = [
+    r"\bno external dependenc(?:y|ies)\b",
+    r"\bdependency[- ]free\b",
+    r"\bno dependenc(?:y|ies) required\b",
+    r"\bcompletely standalone\b",
+    r"\bzero dependenc(?:y|ies)\b",
+    r"\bno dependenc(?:y|ies) (?:of any kind|at all|whatsoever)\b",
+    # Real bug found running this against the real, captured cells/rust sentence: "Requires a
+    # recent stable Rust toolchain (2021 edition) -- no external runtime or Microsoft Office
+    # installation is needed" was never matched, because the original pattern anchored
+    # "requires?" directly onto "no" (`requires? no ...`) -- but "Requires" and "no" are nowhere
+    # near adjacent in the real sentence (a whole clause about the Rust toolchain sits between
+    # them). The real, load-bearing phrase is "no external runtime"/"no external installation"/
+    # "no external software" as its own standalone claim, regardless of what verb precedes it.
+    r"\bno external (?:runtime|installation|software)\b",
+    r"\bself[- ]contained\b(?!\s+(?:example|snippet|sample|version))",
+    r"\bno third[- ]party (?:code|software)\b(?!\s+(?:crate|package|library|dependenc))",
+]
+_UNQUALIFIED_DEPENDENCY_CLAIM_RE = re.compile(
+    "|".join(_UNQUALIFIED_DEPENDENCY_CLAIM_PATTERNS), re.IGNORECASE
+)
+_DEPENDENCY_SCOPE_QUALIFIER_RE = re.compile(
+    # Real bug found running this against real content: every generic noun below (crate/
+    # package/library) originally had an OPTIONAL qualifying prefix, so the bare word alone
+    # -- "This LIBRARY has no external dependencies", "a fully dependency-free CRATE" -- was
+    # incorrectly accepted as if it scoped the claim, purely because "library"/"crate" are also
+    # the ordinary generic nouns a README uses to refer to the product itself. Every branch
+    # below now REQUIRES a real qualifying adjective (third-party/runtime/native/system) --
+    # never a bare crate/package/library on its own.
+    r"\bthird[- ]party\s+(?:runtime\s+)?crate(?:s)?\b"
+    r"|\bruntime\s+crate(?:s)?\b"
+    r"|\bthird[- ]party\s+package(?:s)?\b"
+    r"|\bthird[- ]party\s+librar(?:y|ies)\b"
+    r"|\bnative(?:\s+system)?\s+librar(?:y|ies)\b"
+    r"|\bnative\s+binar(?:y|ies)\b"
+    r"|\bsystem\s+librar(?:y|ies)\b"
+    r"|\bproprietary\s+(?:aspose\s+)?(?:runtime|sdk|dll|engine)\b"
+    r"|\bmicrosoft office\b"
+    r"|\bcommercial\s+(?:runtime|license|sdk)\b",
+    re.IGNORECASE,
+)
+
+
+_DEPENDENCY_CLAUSE_BOUNDARY_RE = re.compile(r"\s+(?:or|and)\s+|[,;]\s*")
+
+
+def _unqualified_dependency_claim_findings(text: str) -> list[dict]:
+    """Two real bugs found running this against the real, captured cells/rust text before
+    trusting it, both fixed in place, not worked around:
+
+    1. A blind +/-120-char window could reach across a sentence/section boundary entirely --
+       the Intro paragraph's own separate, correct "no proprietary runtime" sentence was
+       incorrectly treated as scoping a completely different, later, unscoped claim in
+       Installation just because the two sentences happened to sit close together once other
+       sections were stripped out of a test fixture. Fixed: the window is now bounded to the
+       CURRENT SENTENCE only (nearest ". "/newline before, nearest "."/newline after).
+
+    2. Even within one sentence, a compound claim joined by "or"/"and" can legitimately scope
+       ONE of its coordinated clauses while leaving the other unscoped -- the exact real shape
+       of "no external runtime or Microsoft Office installation is needed": "Microsoft Office"
+       is a real, accepted qualifier, but it scopes only the SECOND clause ("...installation");
+       it must never rescue the FIRST, unrelated, unscoped "no external runtime" claim just
+       because both live in one sentence. Fixed: within the sentence, the qualifier search is
+       further narrowed to the specific clause (split on "or"/"and"/","/";") containing the
+       matched claim itself, never the whole sentence.
+    """
+    findings = []
+    for match in _UNQUALIFIED_DEPENDENCY_CLAIM_RE.finditer(text):
+        sentence_start = max(text.rfind(". ", 0, match.start()), text.rfind("\n", 0, match.start()))
+        win_start = sentence_start + 1 if sentence_start != -1 else 0
+        end_candidates = [p for p in (text.find(c, match.end()) for c in ".\n") if p != -1]
+        win_end = min(end_candidates) + 1 if end_candidates else len(text)
+        sentence = text[win_start:win_end]
+
+        rel_start, rel_end = match.start() - win_start, match.end() - win_start
+        cuts = {0, len(sentence)}
+        for boundary in _DEPENDENCY_CLAUSE_BOUNDARY_RE.finditer(sentence):
+            cuts.add(boundary.start())
+            cuts.add(boundary.end())
+        cuts = sorted(cuts)
+        clause_start = max((c for c in cuts if c <= rel_start), default=0)
+        clause_end = min((c for c in cuts if c >= rel_end), default=len(sentence))
+        clause = sentence[clause_start:clause_end]
+
+        if _DEPENDENCY_SCOPE_QUALIFIER_RE.search(clause):
+            continue
+        findings.append({
+            "phrase": match.group(0),
+            "context": clause.replace("\n", " ").strip(),
+            "reason": "unqualified absolute dependency-absence claim -- scope it to a named "
+                      "dependency class (e.g. 'no third-party runtime crate dependencies', "
+                      "'no native system libraries', 'no proprietary Aspose runtime') and only "
+                      "if that scoped claim is actually proven by the DependencySnapshot data, "
+                      "or remove the claim",
+        })
+    return findings
+
+
+def check_unqualified_dependency_claims(readme_text: str) -> list[dict]:
+    """Hard gate (Claims Policy). Real, live, captured-verbatim motivating case: cells/rust's
+    Installation sentence "Requires a recent stable Rust toolchain (2021 edition) -- no
+    external runtime or Microsoft Office installation is needed" directly contradicts that
+    same file's own Intro paragraph, which correctly names 7 real crate dependencies. See
+    _DEPENDENCY_SCOPE_QUALIFIER_RE's own comment for exactly why "runtime" alone never
+    qualifies as an accepted scope word."""
+    return _unqualified_dependency_claim_findings(readme_text)
+
+
+def check_dependency_section_manifest_corroboration(
+    readme_text: str, dependency_snapshot: "dict | None", corroboration: "dict | None"
+) -> list[dict]:
+    """Heuristic. Every "### Required package dependencies" bullet's package name should
+    appear in the real, freshly-parsed manifest (dependency_snapshot) directly; `claims.json`
+    corroboration (via `corroboration["manifest_only"/"claims_only"]`) is a real but
+    CONFIRMED-NOT-INDEPENDENT secondary signal (dependency_extract.cross_reference_dependency_
+    claims: claims.json's dependency claims are a lossy, name-only re-parse of the SAME
+    manifest, at a possibly different revision) -- never authoritative on its own, so this
+    stays heuristic, mirroring check_diagram_verified_format_claims'/check_installation_
+    matches_package_registry's own established "don't hard-gate on a plausibly-unreliable
+    secondary source" lesson.
+
+    Flags: (a) a README bullet whose name has zero corresponding entry anywhere in the
+    snapshot's required/optional lists (the name isn't real per the manifest at all); (b) a
+    real manifest_only name (a real required dependency the manifest has that the README's
+    Required subsection never mentions -- a coverage gap, not a fabrication)."""
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_text = _extract_h3_subsection(dep_section, "Required package dependencies")
+    readme_names = set(_bulleted_dependency_names(required_text))
+    manifest_names = {e["name"] for e in dependency_snapshot.get("required", [])}
+    findings = []
+    for name in sorted(readme_names - manifest_names):
+        findings.append({
+            "name": name,
+            "reason": "listed under Required package dependencies but not found in the real, "
+                      "freshly-parsed manifest's required entries",
+        })
+    for name in sorted(manifest_names - readme_names):
+        findings.append({
+            "name": name,
+            "reason": "a real, required manifest dependency is not mentioned in the README's "
+                      "Required package dependencies subsection",
+        })
+    if corroboration:
+        for name in corroboration.get("claims_only", []):
+            if corroboration.get("same_revision") and name in manifest_names:
+                continue  # already covered by the manifest-level checks above
+    return findings
+
+
+def check_dependency_direct_transitive_confusion(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate. dependency_extract.py's own extractors NEVER read a lockfile -- every entry
+    in a DependencySnapshot is, by construction, a direct dependency (`is_direct: True`
+    invariant). So "direct/transitive confusion" reduces to a mechanical, unambiguous check: a
+    Required-section bullet naming a package absent from the snapshot's real `required` list
+    entirely is either a fabrication or (the mission's own named risk) a transitive dependency
+    someone mistakenly promoted to Required -- either way, this is a hard, name-level mismatch
+    against deterministic manifest-parse data, not a judgment call."""
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_text = _extract_h3_subsection(dep_section, "Required package dependencies")
+    readme_names = set(_bulleted_dependency_names(required_text))
+    manifest_required = {e["name"] for e in dependency_snapshot.get("required", [])}
+    return [
+        {"name": name, "reason": "not a real, direct required dependency per the manifest -- "
+                                  "possibly a transitive dependency incorrectly listed as direct"}
+        for name in sorted(readme_names - manifest_required)
+    ]
+
+
+def check_dependency_optional_presented_as_required(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate: a snapshot entry with category="optional" listed under Required package
+    dependencies, or a category="required" entry listed under Optional dependencies -- a pure
+    field-vs-section-placement mismatch, mirroring check_content_unit_merged_into_target_
+    section's "claim lands where its own data says" shape."""
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_names = set(_bulleted_dependency_names(
+        _extract_h3_subsection(dep_section, "Required package dependencies")
+    ))
+    optional_names = set(_bulleted_dependency_names(
+        _extract_h3_subsection(dep_section, "Optional dependencies")
+    ))
+    findings = []
+    for e in dependency_snapshot.get("optional", []):
+        if e["name"] in required_names:
+            findings.append({"name": e["name"], "reason": "optional per the manifest, but listed under Required"})
+    for e in dependency_snapshot.get("required", []):
+        if e["name"] in optional_names:
+            findings.append({"name": e["name"], "reason": "required per the manifest, but listed under Optional"})
+    return findings
+
+
+def check_dependency_dev_only_presented_as_runtime(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate: a dev_only=True snapshot entry listed under Required package dependencies
+    instead of Development dependencies -- the mission's own named "dev-only dependency
+    presented as runtime" risk, made mechanical."""
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_names = set(_bulleted_dependency_names(
+        _extract_h3_subsection(dep_section, "Required package dependencies")
+    ))
+    return [
+        {"name": e["name"], "reason": "a development-only dependency per the manifest, but "
+                                       "listed under Required package dependencies"}
+        for e in dependency_snapshot.get("development", []) if e["name"] in required_names
+    ]
+
+
+def check_dependency_scope_claim_matches_evidence(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Heuristic (downgraded from an originally-planned hard gate the moment this ran against
+    real content -- see readme_refresh_run.py's own wiring comment for the full account).
+    Mechanizes the mission's own core "package independence vs. proprietary-runtime
+    independence" distinction: a *scoped* claim (one that passed check_unqualified_dependency_
+    claims because it named a real dependency class) whose named category has ZERO
+    corresponding snapshot entries at all is absence of evidence, not evidence of absence --
+    e.g. "no proprietary Aspose runtime" is only a fully verified claim if the snapshot's own
+    proprietary_runtime category was actually checked and found empty, not merely never
+    populated. Stays heuristic because NO extractor today populates that category at all (no
+    per-ecosystem signal exists for "does this crate declare a commercial runtime dependency"),
+    so every occurrence of this real, sanctioned phrasing will always be flagged -- a real,
+    honest disclosure that the category is unverified, not proof the claim is false."""
+    if dependency_snapshot is None:
+        return []
+    findings = []
+    for match in re.finditer(
+        r"\bno\s+proprietary\s+(?:aspose\s+)?(?:runtime|sdk|dll|engine)\b", readme_text, re.IGNORECASE,
+    ):
+        if not dependency_snapshot.get("proprietary_runtime"):
+            # An empty list here is honest ("checked, found none") only when the extractor
+            # actually inspects for this category -- today's extractors never populate it
+            # (no per-ecosystem "does this crate/package embed a commercial runtime" signal
+            # exists), so a claim of this shape is always flagged for a human to verify by
+            # hand until such a signal is built.
+            findings.append({
+                "phrase": match.group(0),
+                "reason": "claims no proprietary runtime, but no extractor currently verifies "
+                          "this category -- confirm by hand before trusting this claim",
+            })
+    return findings
+
+
+def check_dependencies_scope_limitations_contradiction(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking. Cross-section correlation between "## Dependencies" and "##
+    Scope and Limitations", mirroring check_capability_scope_contradiction's own coarse
+    substring-match technique (extended here to the Dependencies/Scope pairing instead of Key
+    Capabilities/Scope). Free-prose cross-section correlation, same judgment ceiling as its
+    sibling -- a prompt, never an automatic fail."""
+    sections = _split_into_sections(readme_text)
+    dep_text = sections.get("Dependencies", "")
+    scope_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
+    if not dep_text or not scope_match:
+        return []
+    dep_bullets = re.findall(r"^-\s+(.+)$", dep_text, re.MULTILINE)
+    scope_bullets = re.findall(r"^-\s+(.+)$", scope_match.group(1), re.MULTILINE)
+    stub_bullets = [b for b in scope_bullets if _STUB_INDICATOR_RE.search(b)]
+    findings = []
+    for bullet in dep_bullets:
+        tokens = _ANY_BACKTICK_TOKEN_RE.findall(bullet)
+        if not tokens:
+            continue
+        keyword = re.split(r"[.(]", tokens[0])[0]
+        if len(keyword) < 4:
+            continue
+        keyword_re = re.compile(re.escape(keyword), re.IGNORECASE)
+        for stub_bullet in stub_bullets:
+            if keyword_re.search(stub_bullet):
+                findings.append({
+                    "dependency_bullet": bullet, "matched_keyword": keyword,
+                    "scope_bullet": stub_bullet,
+                    "reason": f"'{keyword}' is named in Dependencies, but a Scope and "
+                              f"Limitations bullet documents related functionality as "
+                              f"not-implemented/stub -- verify these aren't contradictory",
+                })
+                break
+    return findings
+
+
+def check_dependencies_intro_contradiction(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate. The exact real cells/rust defect shape: the unheaded Intro paragraph
+    correctly, scopedly names real dependencies, while a LATER section (Installation or
+    Dependencies) states an unqualified absolute claim that contradicts it -- both sides are
+    now mechanically extractable (Intro prose vs. the real DependencySnapshot), unlike check_
+    dependencies_scope_limitations_contradiction's two free-prose sections, so this can be a
+    hard gate. Fires when the preamble names at least one real snapshot dependency AND any
+    section other than the preamble contains an unqualified dependency claim."""
+    if not dependency_snapshot or not dependency_snapshot.get("required"):
+        return []
+    sections = _split_into_sections(readme_text)
+    preamble = sections.get("__preamble__", "")
+    required_names = {e["name"] for e in dependency_snapshot["required"]}
+    preamble_names_mentioned = {
+        name for name in required_names
+        if re.search(rf"\b{re.escape(name)}\b", preamble, re.IGNORECASE)
+    }
+    if not preamble_names_mentioned:
+        return []
+    rest_of_document = readme_text[len(preamble):]
+    unqualified_elsewhere = _unqualified_dependency_claim_findings(rest_of_document)
+    if not unqualified_elsewhere:
+        return []
+    return [{
+        "preamble_dependencies_named": sorted(preamble_names_mentioned),
+        "contradicting_claim": f["phrase"],
+        "context": f["context"],
+        "reason": "the Intro paragraph correctly names real dependencies, but a later section "
+                  "states an unqualified absolute dependency-absence claim -- a same-document "
+                  "contradiction",
+    } for f in unqualified_elsewhere]
+
+
+_DEPENDENCY_NAME_AND_VERSION_RE = re.compile(r"`([\w.-]+)`\s*([\^~]?\d+(?:\.\d+){0,2})?")
+
+
+def check_dependency_version_pin_freshness(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Heuristic, non-blocking: a version number cited in Dependencies-section prose that
+    doesn't match the manifest's real current constraint. Manifest ranges (e.g. "^0.4") vs.
+    prose-stated versions are routinely, legitimately non-identical (a range vs. a specific
+    pinned point), so this stays a prompt, never a block -- mirrors check_installation_
+    matches_package_registry's own version-caution lesson.
+
+    A real bug found running this against the real, corrected cells/rust candidate: the
+    original version-search scanned the WHOLE bullet for the first digit-looking token, which
+    can match a digit embedded in the crate's OWN NAME (e.g. `sha2` contains "2") before ever
+    reaching the real version number that follows it -- and a multi-crate bullet (`` `sha2`
+    0.10, `base64` 0.22, `getrandom` 0.3 ``) needs each name paired with the version
+    IMMEDIATELY following its own backtick token, not a single version borrowed for the whole
+    bullet. Fixed via _DEPENDENCY_NAME_AND_VERSION_RE, matching each backtick-quoted name
+    together with whatever version-shaped token directly follows it.
+    """
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_text = _extract_h3_subsection(dep_section, "Required package dependencies")
+    by_name = {e["name"]: e for e in dependency_snapshot.get("required", [])}
+    findings = []
+    for bullet in re.findall(r"^-\s+(.+)$", required_text, re.MULTILINE):
+        for raw_name, version in _DEPENDENCY_NAME_AND_VERSION_RE.findall(bullet):
+            name = re.split(r"[.(\s]", raw_name)[0]
+            entry = by_name.get(name)
+            if not entry or not entry.get("version_constraint") or not version:
+                continue
+            if version not in (entry["version_constraint"] or ""):
+                findings.append({
+                    "name": name, "readme_version": version,
+                    "manifest_version": entry["version_constraint"],
+                    "reason": "the version cited in prose doesn't match the manifest's real "
+                              "current constraint -- may be stale, or a legitimate range vs. "
+                              "specific-point difference; verify before trusting either",
+                })
+    return findings
+
+
+def check_dependency_native_system_scope_limitations_placement(readme_text: str) -> list[dict]:
+    """Hard gate: reuses check_scope_limitations_format's already-hard-gated structural
+    contract, adding only the cross-section duplication rule (a Native and System Requirements
+    bullet duplicated verbatim in Scope and Limitations too) -- mechanical, not a judgment
+    call."""
+    sections = _split_into_sections(readme_text)
+    dep_text = sections.get("Dependencies", "")
+    native_text = _extract_h3_subsection(dep_text, "Native and system requirements")
+    native_bullets = {
+        b.strip() for b in re.findall(r"^-\s+(.+)$", native_text, re.MULTILINE) if len(b.strip()) > 15
+    }
+    if not native_bullets:
+        return []
+    scope_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
+    if not scope_match:
+        return []
+    scope_bullets = {b.strip() for b in re.findall(r"^-\s+(.+)$", scope_match.group(1), re.MULTILINE)}
+    duplicates = native_bullets & scope_bullets
+    return [
+        {"bullet": b, "reason": "duplicated verbatim in both Dependencies (Native and System "
+                                 "Requirements) and Scope and Limitations"}
+        for b in sorted(duplicates)
+    ]
+
+
+def check_dependency_disposition_reconciliation(
+    content_units: list, dispositions: list, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate. Extends check_content_unit_disposition_coverage/check_content_unit_evidence_
+    resolves: narrows an already-required evidence-presence rule to the dependency-shaped
+    subset specifically. Every disposition entry classified "5_dependency_claim" must cite
+    real evidence (its evidence_ref must name either the real source_manifest_path or a real
+    dependency name from the snapshot) -- never narrative-only evidence for a claim about what
+    a manifest says."""
+    if not dependency_snapshot:
+        return []
+    real_names = {
+        e["name"]
+        for bucket in ("required", "optional", "native_system", "proprietary_runtime", "development")
+        for e in dependency_snapshot.get(bucket, [])
+    }
+    manifest_path = dependency_snapshot.get("source_manifest_path") or ""
+    findings = []
+    for entry in dispositions:
+        if entry.get("classification") != "5_dependency_claim":
+            continue
+        evidence_ref = (entry.get("verification", {}) or {}).get("evidence_ref") or ""
+        cites_manifest = bool(manifest_path) and manifest_path in evidence_ref
+        cites_real_name = any(name and name in evidence_ref for name in real_names)
+        if not cites_manifest and not cites_real_name:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "reason": "a 5_dependency_claim disposition's evidence_ref must cite the real "
+                          "source manifest path or a real dependency name from the snapshot, "
+                          "not narrative-only evidence",
+            })
+    return findings
+
+
+def build_dependency_verification_matrix(
+    dependency_snapshot: "dict | None", readme_text: str, claims: "list | None" = None,
+) -> dict:
+    """Reviewer-facing, read-only artifact (never gates anything itself -- gating already
+    happens via the checks above). One row per DependencySnapshot entry, showing exactly which
+    independent signals corroborate it, so a human can see at a glance which crate landed in
+    the README on how many signals."""
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    required_text = _extract_h3_subsection(dep_section, "Required package dependencies")
+    in_section = set(_bulleted_dependency_names(required_text))
+    prose_rest = readme_text.replace(dep_section, "", 1)
+    claim_names = set()
+    for c in (claims or []):
+        text = c.get("text", "")
+        if text.startswith("Depends on "):
+            claim_names.add(text[len("Depends on "):].strip())
+
+    rows = []
+    if dependency_snapshot:
+        for bucket in ("required", "optional", "native_system", "proprietary_runtime", "development"):
+            for e in dependency_snapshot.get(bucket, []):
+                name = e["name"]
+                in_prose = bool(re.search(rf"\b{re.escape(name)}\b", prose_rest, re.IGNORECASE))
+                in_claims = name in claim_names
+                score = sum([name in in_section, in_prose, in_claims])
+                rows.append({
+                    "name": name, "ecosystem": e["ecosystem"], "version": e["version_constraint"],
+                    "category": e["category"], "dev_only": e["dev_only"], "role": e["role"],
+                    "bucket": bucket,
+                    "in_dependency_snapshot": True,
+                    "in_readme_dependencies_section": name in in_section,
+                    "in_readme_prose_elsewhere": in_prose,
+                    "in_claims_json": in_claims,
+                    "corroboration_score": score,
+                    "status": "VERIFIED" if score >= 2 else "NEEDS_REVIEW",
+                })
+    scoped_claims = []
+    for match in _UNQUALIFIED_DEPENDENCY_CLAIM_RE.finditer(readme_text):
+        start = max(0, match.start() - 120)
+        end = min(len(readme_text), match.end() + 120)
+        clause = readme_text[start:end]
+        qualifier = _DEPENDENCY_SCOPE_QUALIFIER_RE.search(clause)
+        if qualifier:
+            scoped_claims.append({
+                "text": match.group(0), "category_claimed": qualifier.group(0).strip(),
+                "context": clause.replace("\n", " ").strip(),
+            })
+    return {"rows": rows, "scoped_claims": scoped_claims}
 
 
 def main(argv: list[str] | None = None) -> int:

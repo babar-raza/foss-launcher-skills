@@ -73,6 +73,7 @@ from core.fs import atomic_write  # noqa: E402
 import backlink_targets  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
+import dependency_extract  # noqa: E402
 
 SCHEMA_VERSION = 1
 TERMINAL_STATES = frozenset({"PUSHED", "ABANDONED"})
@@ -205,6 +206,15 @@ def _badge_dispositions_path(family: str, platform: str) -> Path:
     see `reconcile_badges`'s own docstring for the recommendation this file must confirm or
     override, never silently accept unexamined."""
     return _reports_root / "repo-presenter" / family / platform / "badge-dispositions.json"
+
+
+def _code_example_dispositions_path(family: str, platform: str) -> Path:
+    """TC-HARDEN-74 (MT047/Thirty-Seventh incident, 2026-08-15): sibling to content-
+    dispositions.json/structure-dispositions.json/badge-dispositions.json, same directory, same
+    agent-authored tier. Records the merge/relocate/exclude/correct disposition for every code
+    unit `extract_old_readme_code_units` finds in the OLD upstream README -- see that function's
+    own docstring for the code-example-inventory blind spot this file exists to close."""
+    return _reports_root / "repo-presenter" / family / platform / "code-example-dispositions.json"
 
 
 def _product_clone_cache(family: str, platform: str) -> Path:
@@ -381,6 +391,29 @@ def _load_json_registry(path: Path) -> "list | dict":
 
 def _load_products() -> list[dict]:
     return _load_json_registry(_repo_root / "data" / "products.json")
+
+
+def _load_api_reference_class_exclusions() -> list[dict]:
+    """TC-HARDEN-77 (MT047/Thirty-Seventh incident, 2026-08-15). Same governance shape as
+    `_load_registry_exclusions`/`data/diagram_archetypes.json`'s own loaders: a small,
+    evidence-required override file, absent-tolerant (an empty list, never a hard failure, when
+    the file doesn't exist yet -- the common state for every product until its first real,
+    confirmed internal-only-class finding)."""
+    path = _repo_root / "data" / "api_reference_class_exclusions.json"
+    if not path.is_file():
+        return []
+    return _load_json_registry(path)
+
+
+def _product_api_reference_class_exclusions(family: str, platform: str) -> set[str]:
+    """Flattens `_load_api_reference_class_exclusions`'s full, cross-portfolio list down to just
+    this product's own confirmed `class_name` entries -- the set `check_api_reference_table_
+    completeness`'s new `exclusions` parameter consumes."""
+    return {
+        entry["class_name"]
+        for entry in _load_api_reference_class_exclusions()
+        if entry.get("family") == family and entry.get("platform") == platform and entry.get("class_name")
+    }
 
 
 def _load_registry_exclusions() -> list[dict]:
@@ -651,6 +684,89 @@ def _detect_capability_dependencies(family: str, platform: str) -> "list | None"
     return None  # never traced -- distinct from "confirmed independent" (see the store's own docs)
 
 
+def _load_canonical_overrides() -> "dict | None":
+    """MT043 (TC-HARDEN-61, Thirty-Third incident, 2026-08-14): `_detect_enterprise_link` never
+    loaded this file -- confirmed by direct code read, no `canonical_overrides=` keyword
+    anywhere in its old call to `resolve_backlink`. `data/backlinks/platform_canonical_
+    overrides.yaml` is a real, human-curated, HTTP-verified override file every OTHER
+    `backlink_targets.py` consumer (docs/kb/reference/products page generation, e.g.
+    `backlink_audit.py`) already loads -- this reuses that exact same path/loader pattern
+    (`repo_root/data/backlinks/platform_canonical_overrides.yaml`, `yaml.safe_load`, graceful
+    degradation to `None` on any error) so `/readme-refresh` finally benefits from the same
+    curated policy every other consumer already does. Confirmed real, live impact: the override
+    file's own dated policy states `cells/python -> python-net` (verified 2026-07-03, HTTP 200),
+    but the raw cached target map instead held a later, less-explained `python-java` correction
+    -- without this fix, `/readme-refresh` silently used the less-authoritative value."""
+    path = _repo_root / "data" / "backlinks" / "platform_canonical_overrides.yaml"
+    if not path.is_file():
+        return None
+    try:
+        import yaml
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _classify_enterprise_relationship(source_platform: str, url: "str | None") -> dict:
+    """MT043 (TC-HARDEN-61, Thirty-Third incident, 2026-08-14) -- CORRECTED 2026-08-14 (MT044,
+    Thirty-Fourth incident). The mechanical (never hand-curated) relationship classification
+    behind the Stage 3 anchor-text contract -- see the plan's own Thirty-Fourth incident section
+    for the full, real-evidence-backed derivation of this correction.
+
+    MT043's original design collapsed a hyphenated URL segment (e.g. "python-java") into a
+    `"bridge"` relationship whose anchor was REQUIRED to name the bridge language ("via Java")
+    plus a disclosure sentence -- the exact policy defect MT044 exists to reverse: the public
+    anchor must NEVER expose how one platform is implemented through another. This corrected
+    version collapses what used to be `"exact"` and `"bridge"` into a single `"platform"`
+    outcome. For a hyphenated (compound/bridge-shaped) segment, the FULL segment is looked up
+    directly in `backlink_targets.PLATFORM_ALIASES` -- that table already maps every real,
+    reviewed compound key straight to its normalized public platform (e.g. `"python-java"` ->
+    `"python"`, `"go-cpp"` -> `"go"`); it is reused verbatim, never re-derived by partitioning on
+    the hyphen. The bridge/suffix information itself is discarded entirely and never surfaced to
+    any caller -- that is MT044's own permanent rule, not an implementation detail.
+
+    Derives everything from data already computed (the resolved `url`) plus the small, already-
+    real `backlink_targets.PLATFORM_ALIASES` table and the checks module's own already-reviewed
+    `_PLATFORM_DISPLAY_NAMES` table (imported, not duplicated -- safe direction since
+    `readme_refresh_checks.py` never imports this module) -- no new hand-curated data file, per
+    the plan's own explicit "must not fall back silently, missing mappings must fail safely"
+    design requirement.
+
+    Returns `{"relationship": "platform"|"family"|"unresolved"|None, "public_platform": str|None}`.
+    `relationship` is `None` only when `url` itself is `None` (no verified target at all --
+    `_detect_enterprise_link`'s own existing BLOCKED_TARGET case). `"unresolved"` is real and
+    distinct from `None`: a url DOES exist, but this function cannot confidently resolve it to a
+    known public platform relative to the source product -- never silently guessed. For a
+    NON-hyphenated segment, classification succeeds (as `"platform"`) whenever the segment,
+    alias-normalized, equals the source platform's own alias-normalized name -- even when no
+    curated display name exists for it yet (`public_platform` is then `None`, and the anchor-text
+    NAME check downstream is correctly skipped rather than blocked, matching this design's
+    pre-MT044 leniency for a genuine but not-yet-catalogued platform). A non-hyphenated segment
+    that does NOT match the source platform is always `"unresolved"`, per the plan's own explicit
+    "never silently defaulted to exact/platform" rule.
+    """
+    if not url:
+        return {"relationship": None, "public_platform": None}
+    path = url.split("products.aspose.com/", 1)[-1].strip("/")
+    parts = path.split("/", 1)
+    if len(parts) < 2 or not parts[1]:
+        return {"relationship": "family", "public_platform": None}
+    segment = parts[1].split("/", 1)[0]
+
+    if "-" in segment:
+        normalized = backlink_targets.PLATFORM_ALIASES.get(segment)
+        public_platform = checks._PLATFORM_DISPLAY_NAMES.get(normalized) if normalized else None
+        if not public_platform:
+            return {"relationship": "unresolved", "public_platform": None}
+        return {"relationship": "platform", "public_platform": public_platform}
+
+    normalized_dest = backlink_targets.PLATFORM_ALIASES.get(segment, segment)
+    normalized_source = backlink_targets.PLATFORM_ALIASES.get(source_platform, source_platform)
+    if normalized_dest != normalized_source:
+        return {"relationship": "unresolved", "public_platform": None}
+    return {"relationship": "platform", "public_platform": checks._PLATFORM_DISPLAY_NAMES.get(normalized_dest)}
+
+
 def _detect_enterprise_link(family: str, platform: str) -> dict:
     """TC-HARDEN-19 (MT034, Twentieth incident, 2026-08-12): real, live-verified Enterprise
     Edition link resolution -- the composing agent has never before had a verified target and
@@ -676,13 +792,19 @@ def _detect_enterprise_link(family: str, platform: str) -> dict:
     Edition" portfolio-wide). Only the URL/target-resolution half of `backlink_targets.py` is
     reused here.
 
-    Returns `{"url", "type", "fallback_reason", "target_map_age_days", "target_map_stale"}`.
-    `url` is `None` on a genuine BLOCKED_TARGET (no verified target anywhere in the cache) --
-    the composing agent must omit the Enterprise Edition link entirely in that case rather than
-    invent one, matching this module's own "never invent a specific version/command not backed
-    by verified data" rule, extended here to links. `target_map_stale` (Evidence Contract rule
-    7) surfaces when the cached target map itself is aging past `STALE_WARN_DAYS` -- a stale
-    map is reduced-confidence evidence, never silently equivalent to a fresh one.
+    Returns `{"url", "type", "fallback_reason", "target_map_age_days", "target_map_stale",
+    "relationship", "public_platform"}`. `url` is `None` on a genuine BLOCKED_TARGET (no verified
+    target anywhere in the cache) -- the composing agent must omit the Enterprise Edition link
+    entirely in that case rather than invent one, matching this module's own "never invent a
+    specific version/command not backed by verified data" rule, extended here to links.
+    `target_map_stale` (Evidence Contract rule 7) surfaces when the cached target map itself is
+    aging past `STALE_WARN_DAYS` -- a stale map is reduced-confidence evidence, never silently
+    equivalent to a fresh one. The 2 relationship fields (MT043 TC-HARDEN-61, CORRECTED 2026-08-14
+    MT044) are `_classify_enterprise_relationship`'s own output, folded in here so the composing
+    agent and every check reads one coherent object -- see that function's own docstring for the
+    classification rule itself. `public_platform` is always the normalized, implementation-
+    neutral platform name (e.g. "Python", never "Python via Java") -- no field on this object ever
+    carries implementation-bridge information (MT044's own permanent, non-negotiable rule).
     """
     try:
         target_map = backlink_targets.load_target_map(_repo_root)
@@ -690,17 +812,22 @@ def _detect_enterprise_link(family: str, platform: str) -> dict:
         return {
             "url": None, "type": None, "fallback_reason": f"target_map_unavailable: {exc}",
             "target_map_age_days": None, "target_map_stale": None,
+            "relationship": None, "public_platform": None,
         }
+    canonical_overrides = _load_canonical_overrides()
     url, target_type, _subdomain, fallback_reason = backlink_targets.resolve_backlink(
         family, platform, source_subdomain="readme-refresh", target_map=target_map,
+        canonical_overrides=canonical_overrides,
     )
     age_days = backlink_targets.target_map_age_days(target_map)
+    relationship = _classify_enterprise_relationship(platform, url)
     return {
         "url": url,
         "type": target_type,
         "fallback_reason": fallback_reason,
         "target_map_age_days": age_days,
         "target_map_stale": bool(age_days is not None and age_days > backlink_targets.STALE_WARN_DAYS),
+        **relationship,
     }
 
 
@@ -729,6 +856,251 @@ def _detect_homepage_link(family: str, platform: str) -> dict:
     url = f"https://products.aspose.org/{family}/{platform}/"
     index_path = _repo_root / "content" / "products.aspose.org" / "en" / family / platform / "_index.md"
     return {"url": url, "verified": index_path.is_file()}
+
+
+def _detect_seo_keywords(family: str, platform: str) -> dict:
+    """TC-HARDEN-39 (MT037, Twenty-Seventh incident, 2026-08-13): a real, per-page SEO keyword
+    source, `keywords/{family}.json`, has sat completely unused by this skill until now
+    (confirmed by exhaustive grep before this was built). Reads the real, structured,
+    `sourcePath`-keyed array and selects the entry matching this product's own real
+    `content/products.aspose.org/en/{family}/{platform}/_index.md` page -- mirroring
+    `_detect_homepage_link`'s/`_detect_enterprise_link`'s own established platform-then-family
+    fallback shape (falls back to the family-root entry, `.../en/{family}/_index.md`, when no
+    per-platform entry exists).
+
+    Returns the RAW keyword list only -- filtering (`checks.filter_relevant_seo_keywords`) is
+    a separate, pure step the caller applies, so `plan_run`'s factpack can record both what was
+    available and what actually passed the relevance filter (real transparency for review,
+    matching this module's own "record what was dropped and why" discipline elsewhere).
+
+    Absence (no `keywords/{family}.json` at all, malformed JSON, or no matching entry)
+    degrades gracefully to an empty, `entry_found: False` result -- never fatal, matching this
+    module's established posture for every optional data source.
+    """
+    path = _repo_root / "keywords" / f"{family}.json"
+    if not path.is_file():
+        return {"keywords": [], "source_path": None, "entry_found": False}
+    try:
+        entries = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"keywords": [], "source_path": None, "entry_found": False}
+    platform_source = f"content/products.aspose.org/en/{family}/{platform}/_index.md"
+    family_source = f"content/products.aspose.org/en/{family}/_index.md"
+    platform_entry = None
+    family_entry = None
+    for entry in entries:
+        source_path = entry.get("sourcePath")
+        if source_path == platform_source:
+            platform_entry = entry
+        elif source_path == family_source:
+            family_entry = entry
+    chosen = platform_entry or family_entry
+    if chosen is None:
+        return {"keywords": [], "source_path": None, "entry_found": False}
+    return {
+        "keywords": chosen.get("keywords", []),
+        "source_path": chosen.get("sourcePath"),
+        "entry_found": True,
+    }
+
+
+def _repo_full_name(family: str, platform: str) -> "str | None":
+    """MT042 (TC-HARDEN-57, Thirty-Second incident, 2026-08-14): a small, standalone lookup
+    mirroring `_detect_homepage_link`'s own "look up its own identity fresh" convention -- reads
+    `data/products.json` directly rather than depending on `_resolve_product`'s side effects
+    (the active/exclusion/required-field checks), since a badge-availability query has no need
+    for them and must never raise. Returns `None` (never fabricates, never raises) when
+    `data/products.json` is absent/malformed, no matching entry exists, or no real
+    `github.com` repo_url exists -- unlike `_load_products()`'s own callers elsewhere (which
+    correctly treat a missing/malformed products.json as a real, blocking error), a badge-
+    availability query is a best-effort enrichment, not a load-bearing input, and must degrade
+    the same way every other `_detect_*` helper does rather than propagate."""
+    try:
+        products = _load_products()
+    except ReadmeRefreshRunError:
+        return None
+    for entry in products:
+        if entry.get("family") == family and entry.get("platform") == platform:
+            repo_url = entry.get("repo_url") or ""
+            if "github.com/" in repo_url:
+                return repo_url.split("github.com/", 1)[-1].rstrip("/")
+            return None
+    return None
+
+
+# MT042 (TC-HARDEN-57): a small, explicit, disclosed-incomplete per-language shields.io static-
+# badge template table -- same seed-list posture as readme_refresh_checks.py's own
+# _CONTAINER_CONNECTOR_ALLOWLIST/_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES and TC-HARDEN-34's own
+# precedent (expected to need real additions as new languages are onboarded, never claimed
+# complete). Keyed by the real `platform` value used in data/products.json. Values verified
+# directly against real, already-shipped badge rows where a real instance exists (go, java, cpp
+# below); the remaining entries are a reasonable, disclosed-unverified extrapolation for
+# languages this detector cannot currently reach anyway (see _detect_available_badges's own
+# docstring for exactly why only Go is reachable via dependency_snapshot today).
+_BADGE_LANGUAGE_VERSION_TEMPLATES: dict[str, dict] = {
+    "go": {"label": "go", "color": "00ADD8", "logo": "go", "plus": True},
+    "java": {"label": "Java", "color": "blue", "logo": None, "plus": True},
+    "cpp": {"label": "C%2B%2B", "color": "blue", "logo": None, "plus": False},
+    "python": {"label": "Python", "color": "blue", "logo": None, "plus": True},
+    "net": {"label": ".NET", "color": "blue", "logo": None, "plus": True},
+    "typescript": {"label": "TypeScript", "color": "blue", "logo": None, "plus": True},
+    "rust": {"label": "Rust", "color": "blue", "logo": None, "plus": True},
+}
+
+
+def _detect_available_badges(
+    family: str, platform: str, *, repo_full_name: "str | None", license_file: "dict | None",
+    install_info: dict, dependency_snapshot: "dict | None", dev_test_artifacts: list[dict],
+) -> dict:
+    """MT042 (TC-HARDEN-57, Thirty-Second incident, 2026-08-14): a real, full 30-product
+    portfolio survey found License present in 30/30 candidates (100%) and a SECOND real badge
+    present in every one of the remaining 30 (2-5 total, zero exceptions), yet nothing in this
+    pipeline had ever computed that floor before now -- the badge reconciliation mechanism
+    (extract_badges/classify_badge/reconcile_badges/badge-dispositions.json) is entirely
+    reconciliation-scoped (stop a real OLD badge from being silently lost), and vacuously passes
+    when the old README has zero badges, exactly the case that let `cells/typescript`'s
+    candidate ship with a single License badge undetected. Every category below is derived
+    purely from data this pipeline already computes elsewhere (`_detect_license_file`,
+    `_detect_install_info`, `dependency_extract`'s own `DependencySnapshot`,
+    `_detect_dev_test_artifacts`) -- zero new source extraction, per the incident's own
+    root-cause finding that every one of these facts already exists somewhere in the pipeline,
+    just never wired to a badge-availability answer.
+
+    Returns `{"license", "package_version", "language_version", "ci_build_status",
+    "contributor_count"}`, each `{"available": bool, "alt_text"?, "image_url"?, "link_url"?,
+    "reason"?}` -- `reason` only when unavailable, never a fabricated badge when the underlying
+    fact is unverified.
+
+    Two real, disclosed narrowings of the original design against real code/data, found while
+    implementing this (not assumed from prior prose):
+
+    1. **`language_version`** is sourced from `dependency_snapshot["native_system"]` -- but
+       direct code read confirms only the Go extractor (`dependency_extract.py`) currently ever
+       places a real toolchain-version-floor entry there; Java/C++/.NET/Rust/TypeScript
+       extractors never populate this bucket, even though real, already-shipped Java/C++ badges
+       exist (`cells/java`'s real "Java 17+", `cells/cpp`'s real "C++ 17") sourced from data this
+       detector has no structured access to. Rather than fabricate an unverified floor,
+       `language_version` is honestly reported unavailable for those languages -- this does not
+       weaken the mandatory floor (below), since `contributor_count` is always available as its
+       safety net. Python is a documented exception: its real `language_version` fact (a
+       PyPI-versions-support badge) is the dynamic `pypi/pyversions/{name}` shields.io endpoint,
+       tied 1:1 to the SAME publish state `package_version` already verifies -- no separate
+       extraction needed.
+    2. **`package_version`** for `go_modules` is reported unavailable, a real, disclosed
+       correction against the original design table: Go modules are decentralized (this plan's
+       own established finding) -- there is no real "package version registry" for a
+       `nuget/v/{name}`-shaped badge to point at. The real, already-shipped second badge for Go
+       products is `pkg.go.dev/badge/{module}` ("Go Reference"), which `classify_badge` already
+       tags `language_package_reference` -- a distinct category from `package_version` this
+       detector does not compute (out of scope; Go's real floor is already met via
+       `language_version` + `contributor_count`/`license` regardless).
+    """
+    result: dict[str, dict] = {}
+
+    if license_file:
+        result["license"] = {
+            "available": True, "alt_text": "License: MIT",
+            "image_url": "https://img.shields.io/badge/License-MIT-blue.svg",
+            "link_url": license_file["relative_path"],
+        }
+    else:
+        result["license"] = {
+            "available": False,
+            "reason": "no real MIT license file detected in the clone cache",
+        }
+
+    published = bool(install_info.get("published"))
+    registry_type = install_info.get("registry_type")
+    candidate = install_info.get("candidate") or {}
+    package_version = {
+        "available": False,
+        "reason": "no confirmed-published package identity in data/package_registry.json",
+    }
+    if published and registry_type in ("nuget", "pypi", "npm", "cargo") and candidate.get("name"):
+        name = candidate["name"]
+        image_urls = {
+            "nuget": f"https://img.shields.io/nuget/v/{name}.svg",
+            "pypi": f"https://img.shields.io/pypi/v/{name}.svg",
+            "npm": f"https://img.shields.io/npm/v/{name}.svg",
+            "cargo": f"https://img.shields.io/crates/v/{name}.svg",
+        }
+        link_urls = {
+            "nuget": f"https://www.nuget.org/packages/{name}/",
+            "pypi": f"https://pypi.org/project/{name}/",
+            "npm": f"https://www.npmjs.com/package/{name}",
+            "cargo": f"https://crates.io/crates/{name}",
+        }
+        package_version = {
+            "available": True,
+            "alt_text": "npm version" if registry_type == "npm" else "Package Version",
+            "image_url": image_urls[registry_type], "link_url": link_urls[registry_type],
+        }
+    elif published and registry_type == "maven" and candidate.get("group_id") and candidate.get("artifact_id"):
+        group_id, artifact_id = candidate["group_id"], candidate["artifact_id"]
+        package_version = {
+            "available": True, "alt_text": "Maven Central",
+            "image_url": f"https://img.shields.io/maven-central/v/{group_id}/{artifact_id}.svg",
+            "link_url": f"https://central.sonatype.com/artifact/{group_id}/{artifact_id}",
+        }
+    elif registry_type == "go_modules":
+        package_version = {
+            "available": False,
+            "reason": "Go modules are decentralized -- no real package-version-registry badge "
+                      "exists to point at (see the real, already-shipped 'Go Reference' badge, "
+                      "a distinct language_package_reference-category fact, instead)",
+        }
+    result["package_version"] = package_version
+
+    language_version = {
+        "available": False,
+        "reason": "no real, structured toolchain-version-floor source for this language",
+    }
+    native_entries = (dependency_snapshot or {}).get("native_system", []) if dependency_snapshot else []
+    lang_entry = next((e for e in native_entries if e.get("version_constraint")), None)
+    if lang_entry and platform in _BADGE_LANGUAGE_VERSION_TEMPLATES:
+        tmpl = _BADGE_LANGUAGE_VERSION_TEMPLATES[platform]
+        version = str(lang_entry["version_constraint"]).lstrip("v").replace("+", "")
+        version_enc = f"{version}%2B" if tmpl.get("plus", True) else version
+        logo_suffix = f"?logo={tmpl['logo']}" if tmpl.get("logo") else ""
+        language_version = {
+            "available": True, "alt_text": f"{tmpl['label'].replace('%2B', '+')} Version",
+            "image_url": f"https://img.shields.io/badge/{tmpl['label']}-{version_enc}-{tmpl['color']}.svg{logo_suffix}",
+            "link_url": None,
+        }
+    elif published and registry_type == "pypi" and candidate.get("name"):
+        language_version = {
+            "available": True, "alt_text": "Python Versions",
+            "image_url": f"https://img.shields.io/pypi/pyversions/{candidate['name']}.svg",
+            "link_url": f"https://pypi.org/project/{candidate['name']}/",
+        }
+    result["language_version"] = language_version
+
+    ci_workflows = [a for a in dev_test_artifacts if a.get("kind") == "ci_workflow"]
+    if ci_workflows and repo_full_name:
+        workflow_file = Path(ci_workflows[0]["relative_path"]).name
+        result["ci_build_status"] = {
+            "available": True, "alt_text": "Build",
+            "image_url": f"https://github.com/{repo_full_name}/actions/workflows/{workflow_file}/badge.svg",
+            "link_url": f"https://github.com/{repo_full_name}/actions/workflows/{workflow_file}",
+        }
+    else:
+        result["ci_build_status"] = {
+            "available": False,
+            "reason": "no real .github/workflows/*.yml file found in the clone cache",
+        }
+
+    if repo_full_name:
+        result["contributor_count"] = {
+            "available": True, "alt_text": "Contributors",
+            "image_url": f"https://img.shields.io/github/contributors/{repo_full_name}.svg",
+            "link_url": f"https://github.com/{repo_full_name}/graphs/contributors",
+        }
+    else:
+        result["contributor_count"] = {
+            "available": False, "reason": "no resolvable repo_full_name for this product",
+        }
+
+    return result
 
 
 def _detect_install_info(family: str, platform: str) -> dict:
@@ -772,6 +1144,40 @@ def _detect_license_file(clone_cache: Path) -> "dict | None":
             if "mit license" in head.lower():
                 return {"relative_path": str(candidate.relative_to(clone_cache)).replace("\\", "/")}
     return None
+
+
+_MODEL_YAML_REPO_SHA_RE = re.compile(r"^repo_sha:\s*(\S+)\s*$", re.MULTILINE)
+
+
+def _detect_dependency_claims(family: str, platform: str) -> dict:
+    """Thirty-First incident / MT041, item 4: reads knowledge/{family}/{platform}/merged/
+    claims.json's real, scout-verified "kind": "dependency" claims plus the same product's
+    model.yaml `repo_sha`, for corroboration against the freshly-parsed DependencySnapshot
+    (dependency_extract.cross_reference_dependency_claims). Confirmed by direct trace (scout.py
+    -> package_manifest.py -> claims.py) that these claims are a lossy, name-only re-parse of
+    the SAME manifest this run's own extractor also reads -- not independent data -- captured
+    at claims.json's own extraction time, which may differ from this run's pinned revision.
+    Never fatal: an absent claims.json/model.yaml degrades to `{"claims": [], "repo_sha": None}`,
+    matching every other `_detect_*` helper's graceful-degradation posture."""
+    merged_dir = _repo_root / "knowledge" / family / platform / "merged"
+    claims: list = []
+    claims_path = merged_dir / "claims.json"
+    if claims_path.is_file():
+        try:
+            raw = json.loads(claims_path.read_text(encoding="utf-8"))
+            all_claims = raw if isinstance(raw, list) else raw.get("claims", [])
+            claims = [c for c in all_claims if c.get("kind") == "dependency"]
+        except (json.JSONDecodeError, OSError):
+            claims = []
+    repo_sha = None
+    model_path = merged_dir / "model.yaml"
+    if model_path.is_file():
+        try:
+            match = _MODEL_YAML_REPO_SHA_RE.search(model_path.read_text(encoding="utf-8"))
+            repo_sha = match.group(1) if match else None
+        except OSError:
+            repo_sha = None
+    return {"claims": claims, "repo_sha": repo_sha}
 
 
 def _detect_dev_test_artifacts(clone_cache: Path) -> list[dict]:
@@ -958,7 +1364,50 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
 
         clone_cache = _product_clone_cache(family, platform)
+        pinned_revision = manifest.get("pinned_inputs", {}).get("clone_cache_head")
+        # Thirty-First incident / MT041 (2026-08-14): real dependency extraction, fail-closed.
+        # Reuses the exact try/except -> _block(manifest, ...) -> raise ReadmeRefreshRunError(...)
+        # shape already proven at push()'s own only existing _block() call site -- no new
+        # BLOCKED sub-mechanism. A per-product extraction failure (malformed/absent manifest,
+        # or an unregistered ecosystem) must never silently produce an empty snapshot or let
+        # the composing agent fall back to an unqualified dependency-free claim.
+        try:
+            dependency_snapshot = dependency_extract.extract_dependencies(
+                family, platform, clone_cache, source_revision=pinned_revision,
+                pipeline_repo_root=_repo_root,
+            )
+        except dependency_extract.DependencyExtractionError as exc:
+            _block(manifest, f"dependency extraction failed: {exc}")
+            raise ReadmeRefreshRunError(
+                f"plan failed: dependency extraction BLOCKED for {family}/{platform} -- {exc} "
+                f"Run {run_id} is now BLOCKED (resume_state={manifest['resume_state']!r}). Fix "
+                f"the underlying manifest at the path named above (or add a verified entry to "
+                f"data/dependency_overrides.json), then call `recover` to retry `plan`. "
+                f"Generation must never substitute a dependency-free claim for missing/"
+                f"unparseable dependency data."
+            ) from exc
+        dependency_claims_raw = _detect_dependency_claims(family, platform)
+        dependency_claims_corroboration = dependency_extract.cross_reference_dependency_claims(
+            dependency_snapshot, dependency_claims_raw["claims"],
+            knowledge_repo_sha=dependency_claims_raw["repo_sha"],
+        )
         archetype = _detect_archetype(family, platform)
+        candidate_format_evidence = _compute_candidate_format_evidence(family, platform)
+        # TC-HARDEN-39 (MT037, Twenty-Seventh incident, 2026-08-13): the relevance filter is run
+        # HERE, at factpack-build time, not left to the composing agent to apply on its own --
+        # a structural stuffing/contamination guard, not a suggestion. Grounds the filter's
+        # "does this keyword phrase mention a real product fact" test against the same real,
+        # per-product format names `candidate_format_evidence` already computed above, not a
+        # global cross-portfolio format list.
+        raw_seo_keywords = _detect_seo_keywords(family, platform)
+        known_format_names_for_seo = {
+            row["format"]
+            for direction in ("import", "export")
+            for row in candidate_format_evidence.get(direction, [])
+        }
+        install_info = _detect_install_info(family, platform)
+        license_file = _detect_license_file(clone_cache)
+        dev_test_artifacts = _detect_dev_test_artifacts(clone_cache)
         factpack = {
             "family": family,
             "platform": platform,
@@ -966,13 +1415,26 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "archetype": archetype["archetype"],
             "archetype_basis": archetype["archetype_basis"],
             "capability_dependency_pipeline_edges": _detect_capability_dependencies(family, platform),
-            "candidate_format_evidence": _compute_candidate_format_evidence(family, platform),
-            "install": _detect_install_info(family, platform),
-            "license_file": _detect_license_file(clone_cache),
+            "candidate_format_evidence": candidate_format_evidence,
+            "install": install_info,
+            "dependencies": dependency_snapshot,
+            "dependency_claims_corroboration": dependency_claims_corroboration,
+            "license_file": license_file,
             "enterprise_link": _detect_enterprise_link(family, platform),
+            "seo_keywords": raw_seo_keywords,
+            "seo_keywords_filtered": checks.filter_relevant_seo_keywords(
+                raw_seo_keywords["keywords"], family, platform, known_format_names_for_seo,
+            ),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
             "homepage": _detect_homepage_link(family, platform),
             "banner_url": f"https://products.aspose.org/media/{family}/{platform}/banner-readme.png",
+            # MT042 (TC-HARDEN-57, Thirty-Second incident, 2026-08-14): the verified badge floor
+            # -- see _detect_available_badges's own docstring for the full root-cause account.
+            "available_badges": _detect_available_badges(
+                family, platform, repo_full_name=_repo_full_name(family, platform),
+                license_file=license_file, install_info=install_info,
+                dependency_snapshot=dependency_snapshot, dev_test_artifacts=dev_test_artifacts,
+            ),
             "reference_api_index": checks.parse_reference_api_index(
                 _product_reference_index_md(family, platform)
             ),
@@ -1037,6 +1499,23 @@ def ingest_candidate(
 def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache: Path) -> dict:
     result: dict[str, dict] = {}
 
+    # Thirty-First incident / MT041 (2026-08-14): computed fresh, matching this function's own
+    # established "never read back from persisted factpack.json" pattern for every other
+    # _detect_* value. Unlike every other _detect_* call here, extraction can raise -- caught
+    # and treated as `None`, which check_dependency_snapshot_completeness (below) correctly
+    # reports as a real, named hard-gate finding rather than crashing this function.
+    try:
+        dependency_snapshot = dependency_extract.extract_dependencies(
+            family, platform, clone_cache, pipeline_repo_root=_repo_root,
+        )
+    except dependency_extract.DependencyExtractionError:
+        dependency_snapshot = None
+    dependency_claims_raw = _detect_dependency_claims(family, platform)
+    dependency_claims_corroboration = dependency_extract.cross_reference_dependency_claims(
+        dependency_snapshot, dependency_claims_raw["claims"],
+        knowledge_repo_sha=dependency_claims_raw["repo_sha"],
+    ) if dependency_snapshot else None
+
     result["required_sections"] = {
         "hard_gate": True, "findings": checks.check_required_sections(text),
     }
@@ -1073,11 +1552,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # TARGET (Gate Contract rule 6) -- a real clean-room pilot found a confirmed-live-404
     # regression this closes. Computed fresh, matching how _detect_archetype/_product_formats_md
     # are already computed fresh here rather than read back from the persisted factpack.json.
+    enterprise_link = _detect_enterprise_link(family, platform)
     result["enterprise_edition_link_resolves"] = {
         "hard_gate": True,
-        "findings": checks.check_enterprise_edition_link_resolves(
-            text, _detect_enterprise_link(family, platform)
-        ),
+        "findings": checks.check_enterprise_edition_link_resolves(text, enterprise_link),
+    }
+    # MT043 (TC-HARDEN-62, Thirty-Third incident, 2026-08-14): the above verifies the href alone
+    # -- confirmed live that a candidate can pass both this and check_enterprise_edition_naming
+    # (below) while its anchor's own platform CLAIM contradicts what the resolved destination
+    # actually is (cells/typescript: "for .NET" anchor on a family-level link). Reuses the same
+    # `enterprise_link` object computed just above -- no second _detect_enterprise_link() call.
+    result["enterprise_edition_anchor_matches_relationship"] = {
+        "hard_gate": True,
+        "findings": checks.check_enterprise_edition_anchor_matches_relationship(text, enterprise_link),
+    }
+    # MT044 (TC-HARDEN-62 replacement, Thirty-Fourth incident, 2026-08-14): portfolio-wide,
+    # document-wide -- not scoped to the Enterprise-link paragraph -- hard gate forbidding any
+    # implementation-bridge disclosure anywhere in the candidate. Replaces MT043's own reversed
+    # "missing_bridge_disclosure" requirement inside the anchor check above.
+    result["no_implementation_bridge_disclosure"] = {
+        "hard_gate": True,
+        "findings": checks.check_no_implementation_bridge_disclosure(text),
     }
     # 2026-08-08 simplified diagram model (Tenth incident, MT024): check_diagram_connectivity
     # (orphan-reachability) is retired -- replaced by check_diagram_shape (fixed Product ->
@@ -1088,6 +1583,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     }
     result["diagram_column_balance"] = {
         "hard_gate": True, "findings": checks.check_diagram_column_balance(text),
+    }
+    # MT040 (Thirtieth incident, 2026-08-14): heuristic guard against a real, open, unfixed
+    # upstream mermaid-js defect (long unbroken label tokens overflowing their node) -- not
+    # the root cause of that incident's own two live defects (both traced to the retired
+    # per-node-wired topology, already hard-blocked by check_diagram_shape above), but a
+    # genuine, currently-latent risk for future content this check exists to catch early.
+    result["diagram_label_token_length"] = {
+        "hard_gate": False, "findings": checks.check_diagram_label_token_length(text),
     }
     # Eleventh incident / MT025 (2026-08-08): the simplified diagram model shipped with no
     # mechanism requiring a Starting Points container for transform/compile-archetype products
@@ -1159,6 +1662,9 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["examples_table_collapsed"] = {
         "hard_gate": True, "findings": checks.check_examples_table_collapsed(text),
     }
+    result["api_reference_detail_collapsed"] = {
+        "hard_gate": True, "findings": checks.check_api_reference_detail_collapsed(text),
+    }
     result["heading_title_case"] = {
         "hard_gate": True, "findings": checks.check_heading_title_case(text),
     }
@@ -1189,8 +1695,42 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_no_upstream_issue_leaked_into_readme(text, upstream_text),
     }
+    # Thirty-Seventh incident (2026-08-16): check_no_upstream_issue_leaked_into_readme above
+    # deliberately excludes Installation/Quick Start (real, defensible -- see its own
+    # docstring), which left those two sections with zero hard-gate leak protection --
+    # confirmed live on html/python's real regressed Installation section. This narrow
+    # companion re-covers just those two sections with a tighter, two-signal condition (see
+    # check_no_upstream_issue_leaked_into_install_or_quickstart's own docstring).
+    result["no_upstream_issue_leaked_install_quickstart"] = {
+        "hard_gate": True,
+        "findings": checks.check_no_upstream_issue_leaked_into_install_or_quickstart(
+            text, upstream_text
+        ),
+    }
     result["key_capabilities_quality"] = {
         "hard_gate": False, "findings": checks.check_key_capabilities_quality(text),
+    }
+    # TC-HARDEN-40/41 (MT037, Twenty-Seventh incident, 2026-08-13): check_key_capabilities_
+    # quality (above) catches bullet count/literal-first-word-repetition/thinness -- it has no
+    # signal for the broader "dry" structural-monotony shape (every bullet opens with a
+    # *different* backtick identifier, still monotonous) or for cheap, mechanical formatting
+    # defects (unmatched backticks, missing terminal punctuation, lowercase bullet starts).
+    # Both non-blocking, same two-tier posture as every other prose-quality check here.
+    result["key_capabilities_structural_variety"] = {
+        "hard_gate": False, "findings": checks.check_key_capabilities_structural_variety(text),
+    }
+    result["key_capabilities_formatting"] = {
+        "hard_gate": False, "findings": checks.check_key_capabilities_formatting(text),
+    }
+    # MT046 (Thirty-Sixth incident, 2026-08-15 / TC-HARDEN-71): a new, previously-unnamed
+    # variant of MT039's generation-mechanism narration category -- a section's own intro
+    # sentence (Key Capabilities or Additional Examples) narrating this document's own
+    # editorial/organizational choices, or leaking an internal source-file fact, instead of
+    # stating a real product fact. Confirmed live in font/python's real candidate; none of the
+    # existing Key-Capabilities checks ever inspect this text (bullet-only extraction), and
+    # check_process_narration_smells's fixed phrase list never matched this real wording.
+    result["section_intro_no_meta_narration"] = {
+        "hard_gate": True, "findings": checks.check_section_intro_no_meta_narration(text),
     }
     result["capability_scope_contradiction"] = {
         "hard_gate": False, "findings": checks.check_capability_scope_contradiction(text),
@@ -1279,6 +1819,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_content_unit_disposition_coverage(content_units, dispositions),
     }
+    # MT048 (note/python pilot, 2026-08-15): unit_id-presence alone (above) cannot detect
+    # position-based drift -- a shifted id that still happens to exist in the current extraction
+    # passes that check while pointing at different content. Cross-checks every disposition's own
+    # stored excerpt against the live extractor's excerpt for the same unit_id; see check_content_
+    # unit_excerpt_matches_extraction's own docstring for the real, previously only-manually-
+    # caught MT030 Phase 2 incident this closes.
+    result["content_unit_excerpt_matches_extraction"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_excerpt_matches_extraction(content_units, dispositions),
+    }
     result["content_unit_evidence_resolves"] = {
         "hard_gate": True,
         "findings": checks.check_content_unit_evidence_resolves(
@@ -1355,6 +1905,43 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "findings": checks.check_project_structure_canonical_tree_format(text),
     }
 
+    # Thirty-Seventh incident / MT047 (2026-08-15): code-example (fenced-code) preservation --
+    # extract_old_readme_content_units strips ALL fenced code before segmenting by design, and
+    # extract_old_readme_structural_units (above) only ever captures it when the prose extractor
+    # finds NOTHING real in the same section -- a section combining a large code block with even
+    # one surviving prose sentence was invisible to both, by construction, until this incident.
+    # code-example-dispositions.json is a third sibling, same tier, same directory as content-/
+    # structure-/badge-dispositions.json.
+    code_units = checks.extract_old_readme_code_units(old_readme_text)
+    code_example_dispositions_path = _code_example_dispositions_path(family, platform)
+    code_example_dispositions = (
+        json.loads(code_example_dispositions_path.read_text(encoding="utf-8"))
+        if code_example_dispositions_path.is_file() else []
+    )
+    result["code_example_disposition_coverage"] = {
+        "hard_gate": True,
+        "findings": checks.check_code_example_disposition_coverage(code_units, code_example_dispositions),
+    }
+    result["code_example_evidence_resolves"] = {
+        "hard_gate": True,
+        "findings": checks.check_content_unit_evidence_resolves(
+            code_example_dispositions, str(clone_cache), _load_package_registry(),
+            _load_content_docs_texts(family, platform),
+        ),
+    }
+    result["code_example_no_exact_duplicate_merge"] = {
+        "hard_gate": True,
+        "findings": checks.check_code_example_no_exact_duplicate_merge(code_example_dispositions),
+    }
+    result["code_example_api_coverage_survives"] = {
+        "hard_gate": True,
+        "findings": checks.check_code_example_api_coverage_survives(text, code_example_dispositions),
+    }
+    result["cli_category_representation"] = {
+        "hard_gate": False,
+        "findings": checks.check_cli_category_representation(text, code_units),
+    }
+
     # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation -- previously
     # nonexistent (no parsing/classification/dedup mechanism anywhere in this module). badge-
     # dispositions.json is a second sibling, same tier, same directory.
@@ -1391,6 +1978,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["no_duplicate_badges_in_candidate"] = {
         "hard_gate": True,
         "findings": checks.check_no_duplicate_badges_in_candidate(text),
+    }
+
+    # MT042 (TC-HARDEN-58/59, Thirty-Second incident, 2026-08-14): the badge mechanism above is
+    # entirely reconciliation-scoped (preserve/dedup an OLD badge) and vacuously passes when the
+    # old README has zero badges -- exactly the gap that let `cells/typescript`'s candidate ship
+    # with a single License badge, undetected by anything. These two close the composition-time
+    # question (a real, portfolio-wide floor) the reconciliation mechanism was never designed to
+    # answer. Computed fresh, matching this function's own established "never read back from the
+    # persisted factpack.json" pattern for every other _detect_* value.
+    available_badges = _detect_available_badges(
+        family, platform, repo_full_name=_repo_full_name(family, platform),
+        license_file=_detect_license_file(clone_cache), install_info=_detect_install_info(family, platform),
+        dependency_snapshot=dependency_snapshot, dev_test_artifacts=dev_test_artifacts,
+    )
+    result["badge_row_meets_verified_floor"] = {
+        "hard_gate": True,
+        "findings": checks.check_badge_row_meets_verified_floor(text, available_badges),
+    }
+    result["badge_available_fact_not_shown"] = {
+        "hard_gate": False,
+        "findings": checks.check_badge_available_fact_not_shown(text, available_badges),
     }
 
     # Heuristic / two-tier -- surfaced for the mandatory human/agent judgment pass, never
@@ -1430,6 +2038,21 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             text, reference_class_names, str(clone_cache)
         ),
     }
+    # TC-HARDEN-76 (MT047/Thirty-Seventh incident, 2026-08-15): "is this cited class real"
+    # (above) is a categorically different question from "is this real class genuinely PUBLIC" --
+    # the exact gap that let font/python's real internal-tooling classes (reporting.py's
+    # TaskTokenEstimate/TaskCompletionReceipt/CompletedTaskRecord) leak into the API Reference
+    # table. Heuristic tier -- surfaced for judgment, never a hard_gate failure.
+    # MT048 (2026-08-15): now passes the same real exclusions set the finding's own message has
+    # always claimed it would consult -- see check_api_reference_class_internal_only's own
+    # docstring for the confirmed gap this closes.
+    result["api_reference_class_internal_only"] = {
+        "hard_gate": False,
+        "findings": checks.check_api_reference_class_internal_only(
+            text, reference_index, str(clone_cache),
+            exclusions=_product_api_reference_class_exclusions(family, platform),
+        ),
+    }
     result["no_leaked_docstring_artifacts"] = {
         "hard_gate": False, "findings": checks.check_no_leaked_docstring_artifacts(text),
     }
@@ -1452,9 +2075,15 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # aspose.org's own content but never adapted the section's PRESENTATION to match it -- these
     # two checks enforce the fix (a module-grouped table mirroring _index.md's own organization,
     # inserted above the untouched curated bullets; user's own chosen design, via AskUserQuestion).
+    # TC-HARDEN-77 (MT047/Thirty-Seventh incident, 2026-08-15): a class in data/api_reference_
+    # class_exclusions.json (this product's own real, evidence-required entries) is never
+    # required in the mirror -- see check_api_reference_table_completeness's own extended
+    # docstring for the full "never surfaced regardless of reference-site presence" contract.
     result["api_reference_table_completeness"] = {
         "hard_gate": True,
-        "findings": checks.check_api_reference_table_completeness(text, reference_index),
+        "findings": checks.check_api_reference_table_completeness(
+            text, reference_index, exclusions=_product_api_reference_class_exclusions(family, platform),
+        ),
     }
     # TC-HARDEN-37 (MT035, 2026-08-12): the exact "497 findings" false-alarm shape this
     # incident found (pdf/java/3d/net's reference-index source carrying real, substantial,
@@ -1492,6 +2121,73 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["api_reference_stripped_example"] = {
         "hard_gate": False,
         "findings": checks.check_no_stripped_example_in_description(text),
+    }
+
+    # Thirty-First incident / MT041 (2026-08-14): dependency accuracy. cells/rust's Installation
+    # section stated "no external runtime or Microsoft Office installation is needed" while its
+    # own Cargo.toml declares 7 real crates -- a same-document contradiction against that file's
+    # own, correct Intro paragraph. dependency_snapshot/dependency_claims_corroboration computed
+    # fresh at the top of this function.
+    result["dependency_snapshot_completeness"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_snapshot_completeness(text, dependency_snapshot),
+    }
+    result["unqualified_dependency_claims"] = {
+        "hard_gate": True,
+        "findings": checks.check_unqualified_dependency_claims(text),
+    }
+    result["dependency_section_manifest_corroboration"] = {
+        "hard_gate": False,
+        "findings": checks.check_dependency_section_manifest_corroboration(
+            text, dependency_snapshot, dependency_claims_corroboration,
+        ),
+    }
+    result["dependency_direct_transitive_confusion"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_direct_transitive_confusion(text, dependency_snapshot),
+    }
+    result["dependency_optional_presented_as_required"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_optional_presented_as_required(text, dependency_snapshot),
+    }
+    result["dependency_dev_only_presented_as_runtime"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_dev_only_presented_as_runtime(text, dependency_snapshot),
+    }
+    # Downgraded from hard gate to heuristic (found live, real-content proof against cells/
+    # rust's own corrected candidate): NO extractor currently verifies the proprietary_runtime
+    # category (no per-ecosystem "does this crate declare a commercial runtime dependency"
+    # signal exists), so this check's only possible outcome today is "always flag" -- including
+    # against this skill's own sanctioned GOOD-example phrasing ("no proprietary Aspose runtime
+    # and no Microsoft Office installation is required"). A hard gate that can never be
+    # legitimately satisfied is not a real gate. Mirrors check_installation_matches_package_
+    # registry's own established downgrade precedent exactly (TC-HARDEN-32): don't hard-gate on
+    # a claim category with no real verifier behind it yet.
+    result["dependency_scope_claim_matches_evidence"] = {
+        "hard_gate": False,
+        "findings": checks.check_dependency_scope_claim_matches_evidence(text, dependency_snapshot),
+    }
+    result["dependencies_scope_limitations_contradiction"] = {
+        "hard_gate": False,
+        "findings": checks.check_dependencies_scope_limitations_contradiction(text),
+    }
+    result["dependencies_intro_contradiction"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependencies_intro_contradiction(text, dependency_snapshot),
+    }
+    result["dependency_version_pin_freshness"] = {
+        "hard_gate": False,
+        "findings": checks.check_dependency_version_pin_freshness(text, dependency_snapshot),
+    }
+    result["dependency_native_system_scope_limitations_placement"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_native_system_scope_limitations_placement(text),
+    }
+    result["dependency_disposition_reconciliation"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_disposition_reconciliation(
+            content_units, dispositions, dependency_snapshot,
+        ),
     }
     return result
 

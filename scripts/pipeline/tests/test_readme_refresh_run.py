@@ -45,7 +45,7 @@ pip install -e .
 
 _GOOD_CANDIDATE = """# Test Product
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/test-org/test-repo.svg)](https://github.com/test-org/test-repo/graphs/contributors)
 
 ![Test Product](https://products.aspose.org/media/testfam/testplat/banner-readme.png)
 
@@ -81,6 +81,16 @@ A PyPI package has not been published yet. Install from source:
 ```bash
 pip install -e ".[dev]"
 ```
+
+## Dependencies
+
+### Required Package Dependencies
+
+- `requests` >=2.0 -- HTTP client used for remote format validation.
+
+### Native and System Requirements
+
+- Requires Python 3.9 or later.
 
 ## Quick Start
 
@@ -124,8 +134,11 @@ _BAD_CANDIDATE = _GOOD_CANDIDATE.replace(
     "See [AGENTS.md](AGENTS.md) for contributor guidance.\n\n- Found a bug?",
     "- Found a bug?",
 ).replace(
-    'pip install -e ".[dev]"\n```\n\n## Quick Start',
-    'pip install -e .\n```\n\nThis was verified against the published package.\n\n## Quick Start',
+    'pip install -e ".[dev]"\n```\n\n## Dependencies',
+    'pip install -e .\n```\n\n## Dependencies',
+).replace(
+    "## Quick Start",
+    "This was verified against the published package.\n\n## Quick Start",
 )
 assert _BAD_CANDIDATE != _GOOD_CANDIDATE, "fixture construction must actually apply both replacements"
 
@@ -162,6 +175,20 @@ def _make_scratch_repo(tmp_path):
     (data_dir / "package_registry.json").write_text("{}", encoding="utf-8")
     (data_dir / "diagram_archetypes.json").write_text("[]", encoding="utf-8")
     (data_dir / "diagram_capability_dependencies.json").write_text("[]", encoding="utf-8")
+    # Thirty-First incident / MT041 (2026-08-14): "testplat" is a synthetic platform with no
+    # real ecosystem in dependency_extract._PLATFORM_ECOSYSTEM -- a real, provenance-carrying
+    # override (matching the shared _GOOD_CANDIDATE fixture's own real "requests" dependency
+    # bullet) is the correct, non-hacky way to make this fixture pass through real dependency-
+    # extraction machinery, exactly the sanctioned escape hatch a genuinely new/unrecognized
+    # platform is designed to use.
+    (data_dir / "dependency_overrides.json").write_text(json.dumps({
+        "testfam/testplat": {
+            "ecosystem": "pypi", "source_manifest_path": "pyproject.toml",
+            "verified_by": "test-fixture", "verified_at": "2026-08-14",
+            "evidence_note": "synthetic test fixture -- testplat has no real ecosystem",
+            "required": [{"name": "requests", "version_constraint": ">=2.0"}],
+        },
+    }), encoding="utf-8")
     # MT025 (Eleventh incident): a real format vocabulary is needed for the fixture's Starting
     # Points/Outputs nodes to pass check_diagram_format_support_claims and the new
     # check_diagram_container_format_purity hard gates.
@@ -298,11 +325,37 @@ _STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE = [
 ]
 
 
+# Thirty-Seventh incident / MT047 (2026-08-15): _OLD_UPSTREAM_README's own "## Installation"
+# section is entirely a fenced `pip install -e .` bash block (the same one already accounted for
+# as structural unit s0001 above) -- confirmed via a direct extract_old_readme_code_units() run,
+# not guessed: exactly one real code unit, c0001, fingerprint ["pip install"]. Disposed merged
+# into the candidate's own "## Installation" section, which contains its own real
+# `pip install -e ".[dev]"` bash block -- same fingerprint token ("pip install"), so check_code_
+# example_api_coverage_survives resolves cleanly.
+_CODE_EXAMPLE_DISPOSITIONS_FOR_SHARED_FIXTURE = [
+    {
+        "unit_id": "c0001",
+        "heading_context": "Installation",
+        "language": "bash",
+        "api_call_fingerprint": ["pip install"],
+        "disposition": "merged_reframed",
+        "target_section": "Installation",
+        "excluded_reason": None,
+        "verification": {
+            "status": "verified_against_source",
+            "evidence_type": "clone_cache_path",
+            "evidence_ref": "README.md",
+        },
+    },
+]
+
+
 def _write_candidate(
     repo_root, text, upstream_issues=_UPSTREAM_ISSUES_BLOCKING,
     dispositions=_CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE,
     structure_dispositions=_STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE,
     badge_dispositions=None,
+    code_example_dispositions=_CODE_EXAMPLE_DISPOSITIONS_FOR_SHARED_FIXTURE,
 ):
     candidate_dir = repo_root / "reports" / "repo-presenter" / "testfam" / "testplat"
     candidate_dir.mkdir(parents=True, exist_ok=True)
@@ -323,6 +376,10 @@ def _write_candidate(
     if badge_dispositions is not None:
         (candidate_dir / "badge-dispositions.json").write_text(
             json.dumps(badge_dispositions), encoding="utf-8"
+        )
+    if code_example_dispositions is not None:
+        (candidate_dir / "code-example-dispositions.json").write_text(
+            json.dumps(code_example_dispositions), encoding="utf-8"
         )
 
 
@@ -451,6 +508,191 @@ def test_detect_homepage_link_never_confused_by_a_different_platforms_page(tmp_p
     assert result["verified"] is False
 
 
+# --- _repo_full_name / _detect_available_badges (TC-HARDEN-57, MT042) ---------------------------
+
+
+def _write_products_json(repo_root, entries):
+    data_dir = repo_root / "data"
+    data_dir.mkdir(exist_ok=True)
+    (data_dir / "products.json").write_text(json.dumps(entries), encoding="utf-8")
+
+
+def test_repo_full_name_resolves_real_entry(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_products_json(repo_root, [
+        {"family": "cells", "platform": "cpp", "repo_url": "https://github.com/org/repo/"},
+    ])
+    rr.configure(repo_root=repo_root)
+    assert rr._repo_full_name("cells", "cpp") == "org/repo"
+
+
+def test_repo_full_name_none_when_no_matching_entry(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_products_json(repo_root, [])
+    rr.configure(repo_root=repo_root)
+    assert rr._repo_full_name("cells", "cpp") is None
+
+
+def test_repo_full_name_none_when_products_json_absent(tmp_path):
+    # Must never raise -- a badge-availability query is a best-effort enrichment, not a
+    # load-bearing input, unlike _load_products()'s other callers.
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    rr.configure(repo_root=repo_root)
+    assert rr._repo_full_name("cells", "cpp") is None
+
+
+def test_repo_full_name_none_when_repo_url_not_github(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_products_json(repo_root, [
+        {"family": "cells", "platform": "cpp", "repo_url": "https://gitlab.com/org/repo"},
+    ])
+    rr.configure(repo_root=repo_root)
+    assert rr._repo_full_name("cells", "cpp") is None
+
+
+def test_detect_available_badges_license_available_when_real_license_file():
+    result = rr._detect_available_badges(
+        "cells", "cpp", repo_full_name=None, license_file={"relative_path": "LICENSE"},
+        install_info={}, dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["license"]["available"] is True
+    assert result["license"]["link_url"] == "LICENSE"
+
+
+def test_detect_available_badges_license_unavailable_when_no_license_file():
+    result = rr._detect_available_badges(
+        "cells", "cpp", repo_full_name=None, license_file=None,
+        install_info={}, dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["license"]["available"] is False
+
+
+def test_detect_available_badges_package_version_pypi_published():
+    result = rr._detect_available_badges(
+        "cells", "python", repo_full_name=None, license_file=None,
+        install_info={
+            "published": True, "registry_type": "pypi",
+            "candidate": {"name": "aspose-cells-foss"},
+        },
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["package_version"]["available"] is True
+    assert result["package_version"]["image_url"] == "https://img.shields.io/pypi/v/aspose-cells-foss.svg"
+
+
+def test_detect_available_badges_package_version_maven_uses_group_and_artifact():
+    result = rr._detect_available_badges(
+        "cells", "java", repo_full_name=None, license_file=None,
+        install_info={
+            "published": True, "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+        },
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["package_version"]["available"] is True
+    assert "org.aspose/aspose-cells-foss" in result["package_version"]["image_url"]
+
+
+def test_detect_available_badges_package_version_unpublished_is_unavailable():
+    result = rr._detect_available_badges(
+        "cells", "typescript", repo_full_name=None, license_file=None,
+        install_info={
+            "published": False, "registry_type": "npm", "candidate": {"name": "excel-cells"},
+        },
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["package_version"]["available"] is False
+
+
+def test_detect_available_badges_package_version_go_modules_unavailable():
+    # Real, disclosed correction against the original design table: Go modules are decentralized
+    # -- no real package-version-registry badge exists (see the module docstring).
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name=None, license_file=None,
+        install_info={
+            "published": True, "registry_type": "go_modules",
+            "candidate": {"module_path": "github.com/org/repo/v26"},
+        },
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["package_version"]["available"] is False
+
+
+def test_detect_available_badges_language_version_from_native_system():
+    # Real, verified: only the Go extractor currently populates native_system with a version
+    # floor (dependency_extract.py, confirmed by direct code read).
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name=None, license_file=None, install_info={},
+        dependency_snapshot={"native_system": [{"name": "go", "version_constraint": "1.24.5"}]},
+        dev_test_artifacts=[],
+    )
+    assert result["language_version"]["available"] is True
+    assert "1.24.5%2B" in result["language_version"]["image_url"]
+    assert "00ADD8" in result["language_version"]["image_url"]
+
+
+def test_detect_available_badges_language_version_python_pypi_pyversions():
+    result = rr._detect_available_badges(
+        "cells", "python", repo_full_name=None, license_file=None,
+        install_info={
+            "published": True, "registry_type": "pypi",
+            "candidate": {"name": "aspose-cells-foss"},
+        },
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["language_version"]["available"] is True
+    assert result["language_version"]["image_url"] == "https://img.shields.io/pypi/pyversions/aspose-cells-foss.svg"
+
+
+def test_detect_available_badges_language_version_unavailable_for_java_with_no_native_system():
+    # Real, disclosed narrowing: Java's real toolchain floor exists in shipped content, but
+    # dependency_extract's Maven extractor never populates native_system -- honestly unavailable.
+    result = rr._detect_available_badges(
+        "cells", "java", repo_full_name=None, license_file=None, install_info={},
+        dependency_snapshot={"native_system": []}, dev_test_artifacts=[],
+    )
+    assert result["language_version"]["available"] is False
+
+
+def test_detect_available_badges_ci_build_status_from_real_workflow():
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name="org/repo", license_file=None, install_info={},
+        dependency_snapshot=None,
+        dev_test_artifacts=[{"relative_path": ".github/workflows/ci.yml", "kind": "ci_workflow", "section": "x"}],
+    )
+    assert result["ci_build_status"]["available"] is True
+    assert result["ci_build_status"]["image_url"] == "https://github.com/org/repo/actions/workflows/ci.yml/badge.svg"
+
+
+def test_detect_available_badges_ci_build_status_unavailable_with_no_workflow():
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name="org/repo", license_file=None, install_info={},
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["ci_build_status"]["available"] is False
+
+
+def test_detect_available_badges_contributor_count_from_repo_full_name():
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name="org/repo", license_file=None, install_info={},
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["contributor_count"]["available"] is True
+    assert result["contributor_count"]["image_url"] == "https://img.shields.io/github/contributors/org/repo.svg"
+
+
+def test_detect_available_badges_contributor_count_unavailable_with_no_repo_full_name():
+    result = rr._detect_available_badges(
+        "cells", "go", repo_full_name=None, license_file=None, install_info={},
+        dependency_snapshot=None, dev_test_artifacts=[],
+    )
+    assert result["contributor_count"]["available"] is False
+
+
 # --- _detect_enterprise_link (TC-HARDEN-19, MT034) ----------------------------------------------
 
 
@@ -536,6 +778,239 @@ def test_detect_enterprise_link_surfaces_target_map_staleness(tmp_path):
     assert result["url"] == "https://products.aspose.com/foo/net/"  # stale != wrong -- still used
     assert result["target_map_stale"] is True
     assert result["target_map_age_days"] > 14
+
+
+# --- _classify_enterprise_relationship / _load_canonical_overrides (TC-HARDEN-61, MT043,
+# Thirty-Third incident; CORRECTED 2026-08-14, MT044, Thirty-Fourth incident) ---------------------
+# Trigger: cells/typescript's README linked "Aspose.Cells for .NET -- Enterprise Edition" to a
+# family-level URL that has nothing specifically to do with .NET. _detect_enterprise_link has
+# always correctly resolved WHICH url to use; nothing ever classified WHAT that url represents
+# relative to the source product, so the composing agent was free to write any platform name.
+# MT044 correction: the original "exact"/"bridge" split (and its required "via {language}"
+# disclosure wording) is reversed -- both collapse into one "platform" relationship carrying only
+# a normalized, implementation-neutral `public_platform` name. No field here may ever again carry
+# implementation-bridge information (`destination_platform`/`bridge_language` are gone).
+
+
+def test_classify_enterprise_relationship_family_when_no_trailing_segment():
+    result = rr._classify_enterprise_relationship("typescript", "https://products.aspose.com/cells/")
+    assert result == {"relationship": "family", "public_platform": None}
+
+
+def test_classify_enterprise_relationship_platform_for_exact_segment():
+    # Real, captured shape: cells/java resolves to .../cells/java/ -- exact platform counterpart.
+    result = rr._classify_enterprise_relationship("java", "https://products.aspose.com/cells/java/")
+    assert result == {"relationship": "platform", "public_platform": "Java"}
+
+
+def test_classify_enterprise_relationship_platform_for_compound_slug_names_leading_platform_only():
+    # Real, captured shape: cells/go resolves to .../cells/go-cpp/ -- a real, verified page. The
+    # anchor must name only "Go" (the leading/public component) -- never expose "C++" anywhere.
+    result = rr._classify_enterprise_relationship("go", "https://products.aspose.com/cells/go-cpp/")
+    assert result == {"relationship": "platform", "public_platform": "Go"}
+
+
+def test_classify_enterprise_relationship_platform_recognizes_compound_slugs_python_and_nodejs():
+    cases = [
+        ("https://products.aspose.com/cells/python-net/", "Python"),
+        ("https://products.aspose.com/cells/python-java/", "Python"),
+        ("https://products.aspose.com/barcode/nodejs-cpp/", "Node.js"),
+    ]
+    for url, expected_public_platform in cases:
+        result = rr._classify_enterprise_relationship("python", url)
+        assert result["relationship"] == "platform", url
+        assert result["public_platform"] == expected_public_platform, url
+
+
+def test_classify_enterprise_relationship_unresolved_for_unrecognized_compound_leading_segment():
+    result = rr._classify_enterprise_relationship("python", "https://products.aspose.com/cells/xyz-rust/")
+    assert result["relationship"] == "unresolved"
+    assert result["public_platform"] is None
+
+
+def test_classify_enterprise_relationship_unresolved_when_non_hyphen_segment_is_a_different_platform():
+    # A genuinely different, non-compound platform slug that does NOT match the source product's
+    # own platform -- per the plan's own explicit rule, never silently defaulted to "platform"
+    # using the destination's own name; this shape should not occur in practice (resolve_backlink
+    # only ever resolves per-source-platform targets) but must fail safe, not guess, if it does.
+    result = rr._classify_enterprise_relationship("typescript", "https://products.aspose.com/cells/java/")
+    assert result == {"relationship": "unresolved", "public_platform": None}
+
+
+def test_classify_enterprise_relationship_none_when_url_is_none():
+    result = rr._classify_enterprise_relationship("typescript", None)
+    assert result == {"relationship": None, "public_platform": None}
+
+
+def test_classify_enterprise_relationship_idempotent():
+    a = rr._classify_enterprise_relationship("go", "https://products.aspose.com/cells/go-cpp/")
+    b = rr._classify_enterprise_relationship("go", "https://products.aspose.com/cells/go-cpp/")
+    assert a == b
+
+
+def test_detect_enterprise_link_folds_relationship_fields_for_real_cells_typescript_shape(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_target_map(repo_root, {
+        "products.aspose.com": {
+            "platforms": {},
+            "families": {"cells": {"url": "https://products.aspose.com/cells/", "http_status": 200}},
+        },
+    })
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("cells", "typescript")
+    assert result["relationship"] == "family"
+    assert result["public_platform"] is None
+    assert "destination_platform" not in result
+    assert "bridge_language" not in result
+
+
+def test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache(tmp_path):
+    # Reproduces the real, confirmed cells/python fix: the override file's own dated policy says
+    # python-net; the raw cached target map (a later, less-explained "manual correction") instead
+    # held python-java. Without loading the override, /readme-refresh silently used the less-
+    # authoritative value -- this proves the fix, not just that the override file parses. The
+    # anchor consequence (MT044) is identical either way -- "Python" -- but the real URL must be
+    # the authoritative one, not the stale cache.
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_target_map(repo_root, {
+        "products.aspose.com": {
+            "platforms": {
+                "cells/python-net": {"url": "https://products.aspose.com/cells/python-net/", "http_status": 200},
+                "cells/python-java": {"url": "https://products.aspose.com/cells/python-java/", "http_status": 200},
+            },
+            "families": {},
+        },
+    })
+    overrides_dir = repo_root / "data" / "backlinks"
+    overrides_dir.mkdir(parents=True)
+    (overrides_dir / "platform_canonical_overrides.yaml").write_text(
+        "overrides:\n"
+        "  cells/python:\n"
+        "    target_platform: \"python-net\"\n"
+        "    http_verified: true\n",
+        encoding="utf-8",
+    )
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_enterprise_link("cells", "python")
+    assert result["url"] == "https://products.aspose.com/cells/python-net/"
+    assert result["relationship"] == "platform"
+    assert result["public_platform"] == "Python"
+
+
+def test_load_canonical_overrides_none_when_file_absent(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    rr.configure(repo_root=repo_root)
+    assert rr._load_canonical_overrides() is None
+
+
+def test_load_canonical_overrides_none_when_malformed(tmp_path):
+    repo_root = tmp_path / "repo"
+    overrides_dir = repo_root / "data" / "backlinks"
+    overrides_dir.mkdir(parents=True)
+    (overrides_dir / "platform_canonical_overrides.yaml").write_text("not: [valid: yaml: at: all", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    assert rr._load_canonical_overrides() is None
+
+
+# --- _detect_seo_keywords (TC-HARDEN-39, MT037, Twenty-Seventh incident) ------------------------
+
+
+def _write_keywords_file(repo_root, family, entries):
+    keywords_dir = repo_root / "keywords"
+    keywords_dir.mkdir(exist_ok=True)
+    (keywords_dir / f"{family}.json").write_text(json.dumps(entries), encoding="utf-8")
+
+
+def test_detect_seo_keywords_selects_real_platform_entry(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_keywords_file(repo_root, "cells", [
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/_index.md",
+            "keywords": ["family-level phrase"],
+        },
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/java/_index.md",
+            "keywords": ["platform-level phrase"],
+        },
+    ])
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result == {
+        "keywords": ["platform-level phrase"],
+        "source_path": "content/products.aspose.org/en/cells/java/_index.md",
+        "entry_found": True,
+    }
+
+
+def test_detect_seo_keywords_falls_back_to_family_entry(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_keywords_file(repo_root, "cells", [
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/_index.md",
+            "keywords": ["family-level phrase"],
+        },
+    ])
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result["entry_found"] is True
+    assert result["keywords"] == ["family-level phrase"]
+    assert result["source_path"] == "content/products.aspose.org/en/cells/_index.md"
+
+
+def test_detect_seo_keywords_absent_file_degrades_gracefully(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result == {"keywords": [], "source_path": None, "entry_found": False}
+
+
+def test_detect_seo_keywords_malformed_json_degrades_gracefully(tmp_path):
+    repo_root = tmp_path / "repo"
+    keywords_dir = repo_root / "keywords"
+    keywords_dir.mkdir(parents=True)
+    (keywords_dir / "cells.json").write_text("{not valid json", encoding="utf-8")
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result == {"keywords": [], "source_path": None, "entry_found": False}
+
+
+def test_detect_seo_keywords_no_matching_entry_degrades_gracefully(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_keywords_file(repo_root, "cells", [
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/net/_index.md",
+            "keywords": ["net phrase"],
+        },
+    ])
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result == {"keywords": [], "source_path": None, "entry_found": False}
+
+
+def test_detect_seo_keywords_never_confused_by_a_different_platforms_entry(tmp_path):
+    # Cross-product-contamination guard, mirroring _detect_homepage_link's own analogous test.
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_keywords_file(repo_root, "cells", [
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/net/_index.md",
+            "keywords": ["net-only phrase"],
+        },
+        {
+            "sourcePath": "content/products.aspose.org/en/cells/java/_index.md",
+            "keywords": ["java phrase"],
+        },
+    ])
+    rr.configure(repo_root=repo_root)
+    result = rr._detect_seo_keywords("cells", "java")
+    assert result["keywords"] == ["java phrase"]
 
 
 # --- TC-HARDEN-30 (MT035): CLI crash-safety -- malformed registries / incomplete rows must ------
@@ -905,6 +1380,44 @@ def test_ingest_candidate_blocks_on_stale_java_package_import(tmp_path, monkeypa
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 
 
+def test_ingest_candidate_blocks_on_section_intro_meta_narration(tmp_path, monkeypatch):
+    # MT046 (Thirty-Sixth incident, 2026-08-15 / TC-HARDEN-71): reproduces the real, live
+    # font/python incident -- a Key Capabilities intro sentence narrating the document's own
+    # editorial organization and leaking an internal source-file fact. Real gate-firing proof
+    # through the actual CLI transition, not just the bare check function.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-046")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    narration_candidate = _GOOD_CANDIDATE.replace(
+        "## Key Capabilities\n\n- Reads and writes TXT files.",
+        "## Key Capabilities\n\n"
+        "Here's what you get — a Capability Snapshot of why teams use it, grouped by real "
+        "module rather than by workflow label. Highlights are both covered inline via "
+        "backtick-quoted names below.\n\n"
+        "- Reads and writes TXT files.",
+    )
+    assert narration_candidate != _GOOD_CANDIDATE
+    _write_candidate(repo_root, narration_candidate)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["section_intro_no_meta_narration"]["hard_gate"] is True
+    findings = result["section_intro_no_meta_narration"]["findings"]
+    assert findings and findings[0]["section"] == "Key Capabilities"
+
+    # Fix it -- must then reach VERIFYING_EXAMPLES cleanly.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
 def test_ingest_candidate_blocks_on_unlinked_banner_when_homepage_verified(tmp_path, monkeypatch):
     # TC-HARDEN-27 (MT034, Twenty-First incident): once a real, verified homepage page exists,
     # the banner must be linked to it -- proves the gate actually fires through the real CLI
@@ -1048,8 +1561,8 @@ def test_recheck_sections_fires_on_undeclared_section_change(tmp_path, monkeypat
     contaminated = _GOOD_CANDIDATE.replace(
         "- Reads and writes TXT files.", "- Reads and writes TXT and CSV files.",
     ).replace(
-        'pip install -e ".[dev]"\n```\n\n## Quick Start',
-        'pip install -e ".[dev,extra]"\n```\n\n## Quick Start',
+        'pip install -e ".[dev]"\n```\n\n## Dependencies',
+        'pip install -e ".[dev,extra]"\n```\n\n## Dependencies',
     )
     assert contaminated != _GOOD_CANDIDATE
     _write_candidate(repo_root, contaminated)
@@ -1456,6 +1969,51 @@ def test_preflight_refuses_without_push_access(tmp_path, monkeypatch):
 
     with pytest.raises(rr.ReadmeRefreshRunError, match="No push/admin access"):
         rr.start_run("testfam", "testplat")
+
+
+# --- Thirty-First incident / MT041 (2026-08-14): dependency extraction BLOCKED -> recover ----
+
+
+def test_plan_run_blocks_on_dependency_extraction_failure_and_recovers(tmp_path, monkeypatch):
+    """Real, scratch-clone proof (mission regression test #10): a product with no registered
+    ecosystem and no override entry makes plan_run raise ReadmeRefreshRunError, reusing the
+    exact _block()/resume_state mechanism already proven at push()'s own call site -- no new
+    BLOCKED sub-mechanism. Fixing the override and calling plan_run again (after recover)
+    succeeds normally."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-mt041-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    # Remove the override this scratch repo normally carries for testfam/testplat, so real
+    # extraction genuinely has nothing to fall back on.
+    (repo_root / "data" / "dependency_overrides.json").write_text("{}", encoding="utf-8")
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    try:
+        rr.plan_run("testfam", "testplat", run_id)
+        assert False, "expected ReadmeRefreshRunError"
+    except rr.ReadmeRefreshRunError as exc:
+        assert "dependency extraction BLOCKED" in str(exc)
+
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "BLOCKED"
+    assert manifest["resume_state"] == "INPUTS_PINNED"
+
+    # Fix it: restore a real override, recover, and confirm plan_run now succeeds.
+    (repo_root / "data" / "dependency_overrides.json").write_text(json.dumps({
+        "testfam/testplat": {
+            "ecosystem": "pypi", "source_manifest_path": "pyproject.toml",
+            "required": [{"name": "requests", "version_constraint": ">=2.0"}],
+        },
+    }), encoding="utf-8")
+    manifest = rr.recover_run("testfam", "testplat", run_id, reason="dependency override restored")
+    assert manifest["state"] == "INPUTS_PINNED"
+    manifest = rr.plan_run("testfam", "testplat", run_id)
+    assert manifest["state"] == "PLANNED"
+
+    factpack_path = rr._run_root("testfam", "testplat", run_id) / "facts" / "factpack.json"
+    factpack = json.loads(factpack_path.read_text(encoding="utf-8"))
+    assert {e["name"] for e in factpack["dependencies"]["required"]} == {"requests"}
 
 
 # --- BLOCKED -> recover ----------------------------------------------------------------------
