@@ -1,0 +1,283 @@
+{
+  "products": [
+    {
+      "family": "3d",
+      "platform": "java",
+      "display_name": "Aspose.3D for Java",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 266,
+      "claim_count": 4147
+    },
+    {
+      "family": "3d",
+      "platform": "net",
+      "display_name": "Aspose.3D for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 292,
+      "claim_count": 3368
+    },
+    {
+      "family": "3d",
+      "platform": "python",
+      "display_name": "Aspose.3D for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 327,
+      "claim_count": 3452
+    },
+    {
+      "family": "3d",
+      "platform": "typescript",
+      "display_name": "Aspose.3D for Typescript",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 140,
+      "claim_count": 2276
+    },
+    {
+      "family": "barcode",
+      "platform": "python",
+      "display_name": "Aspose.Barcode for Python",
+      "api_confidence": "medium",
+      "stale": false,
+      "class_count": 26,
+      "claim_count": 375
+    },
+    {
+      "family": "cells",
+      "platform": "cpp",
+      "display_name": "Aspose.Cells for Cpp",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 199,
+      "claim_count": 2611
+    },
+    {
+      "family": "cells",
+      "platform": "go",
+      "display_name": "Aspose.Cells for Go",
+      "api_confidence": "medium",
+      "stale": false,
+      "class_count": 14,
+      "claim_count": 113
+    },
+    {
+      "family": "cells",
+      "platform": "java",
+      "display_name": "Aspose.Cells for Java",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 182,
+      "claim_count": 4876
+    },
+    {
+      "family": "cells",
+      "platform": "net",
+      "display_name": "Aspose.Cells for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 96,
+      "claim_count": 665
+    },
+    {
+      "family": "cells",
+      "platform": "python",
+      "display_name": "Aspose.Cells for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 128,
+      "claim_count": 2381
+    },
+    {
+      "family": "cells",
+      "platform": "rust",
+      "display_name": "Aspose.Cells for Rust",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 213,
+      "claim_count": 1926
+    },
+    {
+      "family": "cells",
+      "platform": "typescript",
+      "display_name": "Aspose.Cells for Typescript",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 101,
+      "claim_count": 740
+    },
+    {
+      "family": "email",
+      "platform": "cpp",
+      "display_name": "Aspose.Email for Cpp",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 26,
+      "claim_count": 237
+    },
+    {
+      "family": "email",
+      "platform": "net",
+      "display_name": "Aspose.Email for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 29,
+      "claim_count": 221
+    },
+    {
+      "family": "email",
+      "platform": "python",
+      "display_name": "Aspose.Email for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 30,
+      "claim_count": 303
+    },
+    {
+      "family": "font",
+      "platform": "python",
+      "display_name": "Aspose.Font for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 267,
+      "claim_count": 4826
+    },
+    {
+      "family": "html",
+      "platform": "python",
+      "display_name": "Aspose.Html for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 244,
+      "claim_count": 2144
+    },
+    {
+      "family": "note",
+      "platform": "python",
+      "display_name": "Aspose.Note for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 39,
+      "claim_count": 333
+    },
+    {
+      "family": "page",
+      "platform": "python",
+      "display_name": "Aspose.Page for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 139,
+      "claim_count": 1200
+    },
+    {
+      "family": "pdf",
+      "platform": "cpp",
+      "display_name": "Aspose.Pdf for Cpp",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 316,
+      "claim_count": 3049
+    },
+    {
+      "family": "pdf",
+      "platform": "go",
+      "display_name": "Aspose.Pdf for Go",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 215,
+      "claim_count": 4356
+    },
+    {
+      "family": "pdf",
+      "platform": "java",
+      "display_name": "Aspose.Pdf for Java",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 994,
+      "claim_count": 13895
+    },
+    {
+      "family": "pdf",
+      "platform": "net",
+      "display_name": "Aspose.Pdf for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 836,
+      "claim_count": 8664
+    },
+    {
+      "family": "pdf",
+      "platform": "python",
+      "display_name": "Aspose.Pdf for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 227,
+      "claim_count": 2249
+    },
+    {
+      "family": "slides",
+      "platform": "cpp",
+      "display_name": "Aspose.Slides for Cpp",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 234,
+      "claim_count": 3646
+    },
+    {
+      "family": "slides",
+      "platform": "java",
+      "display_name": "Aspose.Slides for Java",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 238,
+      "claim_count": 6304
+    },
+    {
+      "family": "slides",
+      "platform": "net",
+      "display_name": "Aspose.Slides for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 264,
+      "claim_count": 4176
+    },
+    {
+      "family": "slides",
+      "platform": "python",
+      "display_name": "Aspose.Slides for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 515,
+      "claim_count": 7081
+    },
+    {
+      "family": "tex",
+      "platform": "python",
+      "display_name": "Aspose.Tex for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 83,
+      "claim_count": 613
+    },
+    {
+      "family": "words",
+      "platform": "net",
+      "display_name": "Aspose.Words for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 617,
+      "claim_count": 5028
+    },
+    {
+      "family": "words",
+      "platform": "python",
+      "display_name": "Aspose.Words for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 188,
+      "claim_count": 2048
+    }
+  ]
+}
