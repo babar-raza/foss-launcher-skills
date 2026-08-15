@@ -340,6 +340,23 @@ def collect_workflow_files() -> list[Path]:
 _BASH_ENTRY_RE = re.compile(r"^Bash\((.+)\)$")
 
 
+def _inside_quotes(line: str, pos: int) -> bool:
+    """Return True if ``pos`` falls inside a double-quoted string literal.
+
+    Counts unescaped ``"`` characters before ``pos``; an odd count means the
+    position is inside an open quote. Used to exempt descriptive text (e.g. a
+    step-name label like ``_pc_step_start "python version pin"``) from the
+    bare-invocation RULES, which only care about actual command tokens.
+    """
+    count = 0
+    i = 0
+    while i < pos:
+        if line[i] == '"' and (i == 0 or line[i - 1] != "\\"):
+            count += 1
+        i += 1
+    return count % 2 == 1
+
+
 def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
     """Scan a shell script for bare python/pip invocations.
 
@@ -352,6 +369,8 @@ def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
     - Lines where the invocation is via ``"$PYTHON"`` or ``$PYTHON`` (already
       resolved to the venv path by the script's own variable setup)
     - Comment lines (starting with #, after stripping whitespace)
+    - Occurrences inside a double-quoted string literal (descriptive text,
+      not a command invocation)
     """
     text = path.read_text(encoding="utf-8")
     violations: list[str] = []
@@ -374,9 +393,12 @@ def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
         if WORKFLOW_EXEMPT_RE.search(line):
             continue
 
-        # Check bare python/pip rules
+        # Check bare python/pip rules — skip matches inside a quoted string
+        # literal (e.g. a step-name label like _pc_step_start "python version
+        # pin"), which are descriptive text, not command invocations.
         for pattern, _replacement in RULES:
-            if pattern.search(line):
+            match = pattern.search(line)
+            if match and not _inside_quotes(line, match.start()):
                 violations.append(f"line {lineno}: {line}")
                 break
 

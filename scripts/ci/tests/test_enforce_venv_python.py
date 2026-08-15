@@ -689,3 +689,39 @@ def test_workflow_files_are_clean():
         all_deny.extend(f"{yml.name}: {x}" for x in d)
     assert not all_viols, "Bare python/pip violations in workflow files:\n" + "\n".join(all_viols)
     assert not all_deny, "DENY violations in workflow files:\n" + "\n".join(all_deny)
+
+
+# ---------------------------------------------------------------------------
+# Shell-file scanning — quoted-string false positives (TC-VE-07)
+# ---------------------------------------------------------------------------
+
+def test_python_word_in_quoted_step_label_is_not_flagged(tmp_path):
+    """A step-name label containing the word "python" is descriptive text,
+    not a command invocation — e.g. _pc_step_start "python version pin".
+
+    Regression guard for the false positive found live 2026-08-15 blocking
+    unrelated commits: scripts/pre-commit-audit.sh line 87 was flagged by
+    scan_shell_file even though it never invokes python at all.
+    """
+    p = tmp_path / "hook.sh"
+    p.write_text('_pc_step_start "python version pin"\n', encoding="utf-8")
+    violations, deny = enforce_venv_python.scan_shell_file(p)
+    assert not violations, violations
+    assert not deny, deny
+
+
+def test_bare_python_invocation_in_shell_is_still_flagged(tmp_path):
+    """An actual bare invocation (unquoted) must still be caught."""
+    p = tmp_path / "hook.sh"
+    p.write_text("python scripts/ci/checks/foo.py\n", encoding="utf-8")
+    violations, deny = enforce_venv_python.scan_shell_file(p)
+    assert violations, "bare python invocation should still be flagged"
+
+
+def test_inside_quotes_helper():
+    line = '_pc_step_start "python version pin"'
+    pos = line.index("python")
+    assert enforce_venv_python._inside_quotes(line, pos) is True
+
+    unquoted = 'python scripts/foo.py'
+    assert enforce_venv_python._inside_quotes(unquoted, 0) is False

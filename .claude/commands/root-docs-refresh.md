@@ -6,6 +6,8 @@ description: >
 args: "none — always operates on the fixed seven-file set."
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 <!-- CONTRACT: registered-cli-wrapper
      purpose: operate one run-bound refresh of this repo's seven root operator/governance docs
      preconditions: none external — this repo is always the target, no per-product resolution
