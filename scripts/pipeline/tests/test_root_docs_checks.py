@@ -160,6 +160,28 @@ def test_grade_contract_sync_flags_missing_category_row():
     assert category_findings[0]["missing_category"] == "EG"
 
 
+def test_grade_contract_sync_ignores_stale_historical_mentions():
+    # Regression test for a real bug found live 2026-08-07 while writing GRADE_CONTRACT.md's
+    # own v1.2 changelog entry: the doc's changelog is reverse-chronological (newest first),
+    # and every past ELV-bump entry ALSO mentions "EVALUATOR_FREEZE_VERSION = N" as historical
+    # record. A loose "last EVALUATOR_FREEZE_VERSION = N mention in the document" extraction
+    # resolves to a stale historical value, not the current one. Only the phrase "Current
+    # frozen baseline: EVALUATOR_FREEZE_VERSION = N" is the document's deliberate, singular
+    # "this is current" marker.
+    grade_contract_text = (
+        "### v1.2 (2026-08-07)\n"
+        "- Current frozen baseline: EVALUATOR_FREEZE_VERSION = 18.\n\n"
+        "### v1.1 (2026-04-24)\n"
+        "- Hard-freeze governance declared. `EVALUATOR_FREEZE_VERSION = \"16\"` activated.\n\n"
+        "### v1.1 amendment (2026-04-24)\n"
+        "- EVALUATOR_FREEZE_VERSION updated to \"17\" (superseded, historical record only).\n"
+    )
+    init_text = 'EVALUATOR_FREEZE_VERSION = "18"\n'
+    findings = rdc.check_grade_contract_sync(grade_contract_text, init_text, "")
+    version_findings = [f for f in findings if f["field"] == "EVALUATOR_FREEZE_VERSION"]
+    assert version_findings == [], f"expected no mismatch (doc correctly states 18); got: {version_findings}"
+
+
 def test_grade_contract_sync_is_idempotent():
     grade_contract_text = "Current frozen baseline: EVALUATOR_FREEZE_VERSION = 17.\n"
     init_text = 'EVALUATOR_FREEZE_VERSION = "18"\n'

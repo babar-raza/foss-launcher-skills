@@ -86,7 +86,17 @@ _SKILL_ID_PAIR_RE = re.compile(r"^#{1,6}\s+([a-z][a-z0-9-]{2,40})\s*\(S-(\d+)\)\
 # Registry row: "| skill-name | S-NN | purpose... |"
 _REGISTRY_ROW_RE = re.compile(r"^\|\s*([a-z][a-z0-9-]*)\s*\|\s*S-(\d+)\s*\|", re.MULTILINE)
 
-_FREEZE_BASELINE_RE = re.compile(r"EVALUATOR_FREEZE_VERSION\s*=\s*\"?(\d+)\"?")
+# Anchored to the specific "Current frozen baseline:" declaration phrase, NOT any bare
+# "EVALUATOR_FREEZE_VERSION = N" mention. GRADE_CONTRACT.md's changelog is reverse-
+# chronological (newest entry first) and every past ELV-bump entry also mentions
+# EVALUATOR_FREEZE_VERSION with an "=" sign as historical record -- taking "the last match
+# in document order" (or even "the first") over a loose pattern picks up a stale historical
+# value, not the actually-current one. Found live 2026-08-07 while adding the v1.2 entry:
+# a loose match kept resolving to old v1.1 values instead of the new v1.2 declaration.
+# This phrase is the document's own deliberate, singular "this is current" marker -- every
+# superseded entry must be worded to avoid repeating it (see the v1.2 changelog entry for
+# the pattern: reword old entries to drop "Current frozen baseline:" once superseded).
+_FREEZE_BASELINE_RE = re.compile(r"Current frozen baseline:\s*EVALUATOR_FREEZE_VERSION\s*=\s*\"?(\d+)\"?")
 _INIT_FREEZE_RE = re.compile(r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*"?(\d+)"?', re.MULTILINE)
 _CATEGORY_ROW_RE = re.compile(r"^\|\s*([A-Z]{2,3})\s*\|", re.MULTILINE)
 _GRADE_CONFIG_CATEGORY_RE = re.compile(r"^\s*([A-Z]{2,3})_?[A-Z]*\s*:", re.MULTILINE)
@@ -201,7 +211,10 @@ def check_grade_contract_sync(
     doc_matches = _FREEZE_BASELINE_RE.findall(grade_contract_text)
     init_match = _INIT_FREEZE_RE.search(content_eval_init_text)
     if doc_matches and init_match:
-        doc_freeze = doc_matches[-1]  # most recent stated baseline, e.g. changelog tail
+        # Only one entry should ever carry the "Current frozen baseline:" phrase at a time
+        # (superseded changelog entries must be reworded to drop it — see the regex's own
+        # docstring); take the first match as the authoritative one regardless.
+        doc_freeze = doc_matches[0]
         code_freeze = init_match.group(1)
         if doc_freeze != code_freeze:
             findings.append({
