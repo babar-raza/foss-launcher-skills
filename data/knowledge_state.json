@@ -1,40 +1,157 @@
 {
   "3d/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-28T13:24:13.820722Z",
-      "repo_sha": "71c9cc8a581786bfd0af7b4aa553407eba3ddea3",
-      "run_id": "promote-20260728T132413Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T11:40:06.330285+00:00",
+      "repo_sha": "e308de58888635956cd66e5b0e2994dd42cd4356",
+      "run_id": "promote-20260814T114006Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\3d\\java\\3d-key-features\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:16.967921Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\3d\\java\\developer-guide\\features.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T11:40:16.247472Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\EntityRendererFeatures.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:09.748931Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\FbxExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:09.857656Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\FbxImporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:09.862074Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\GltfExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:10.266682Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\GltfImporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:10.270312Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\IExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:10.512016Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\IImporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:10.515967Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\IOService.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:10.685571Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\ObjExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:11.595771Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\ObjImporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:11.602536Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\StlExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:13.784552Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\StlImporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:40:13.792531Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\java\\load-save-options\\_index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T11:40:10.989298Z"
+      }
     },
     "family": "3d",
-    "platform": "java"
+    "platform": "java",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-14T17:57:51.546868Z",
+      "report_path": "reports\\audit\\3d-java-truth-20260814.md",
+      "verdict": "PASS",
+      "warn_count": 171
+    }
   },
   "3d/net": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-28T13:56:27.026159Z",
-      "repo_sha": "6a209e8fc3dfc305df39a417037e32a4d4c7b2be",
-      "run_id": "promote-20260728T135627Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T11:44:03.462614+00:00",
+      "repo_sha": "70933ab13eb0e313d9b160c55845011d366b1599",
+      "run_id": "promote-20260814T114403Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\3d\\net\\3d-key-features-dotnet\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:12.951714Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\ArrayList.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:05.479497Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\BasicLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:05.592943Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\ColladaLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:06.025543Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\FileSystemFactory.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:06.955648Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\IOService.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:07.751233Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\TmfLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:10.958997Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\TmfSaveOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:10.963308Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\VertexElementVector.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:44:11.815758Z"
+      }
     },
     "family": "3d",
     "platform": "net"
   },
   "3d/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-31T19:32:32.271983Z",
-      "repo_sha": "ab1a2267a0ba6302311d0c7c4ad01494974c7d76",
-      "run_id": "promote-20260731T193232Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T11:52:56.169369+00:00",
+      "repo_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
+      "run_id": "promote-20260814T115256Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\Token.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:52:59.714404Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\TokenType.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:52:59.718654Z"
+      }
     },
     "family": "3d",
     "platform": "python"
   },
   "3d/typescript": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "227894a1120c22b9b6522564e23dc1d14c8fc39a",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:46:17.512470+00:00",
+      "repo_sha": "7b959706f2ad976db929f26ec079f43a07d578e1",
+      "run_id": "promote-20260814T114617Z",
+      "sha_source": "model.yaml"
     },
     "family": "3d",
     "platform": "typescript"
@@ -51,10 +168,10 @@
   },
   "cells/cpp": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "3e1edeacd4c1600507009c3fd3bf122d54f5d3a9",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:46:58.383753+00:00",
+      "repo_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "run_id": "promote-20260814T114658Z",
+      "sha_source": "model.yaml"
     },
     "family": "cells",
     "platform": "cpp"
@@ -71,10 +188,10 @@
   },
   "cells/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "9274b621ebd30f2aca692851bea29ff343a019d8",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:48:32.160390+00:00",
+      "repo_sha": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "run_id": "promote-20260814T114832Z",
+      "sha_source": "model.yaml"
     },
     "family": "cells",
     "platform": "java"
@@ -409,10 +526,16 @@
   },
   "cells/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "5b5b28eb372c28f4529928ea81696a0031b68d60",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:45:53.591144+00:00",
+      "repo_sha": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
+      "run_id": "promote-20260814T114553Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\cells\\python\\cells-key-features\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:45:57.667882Z"
+      }
     },
     "family": "cells",
     "platform": "python"
@@ -505,10 +628,10 @@
   },
   "page/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "53e8c5d47b1d7c7c494cca57d1b2de3a1d1ada83",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:49:43.474723+00:00",
+      "repo_sha": "dac5d70e0f91949a780f2e98dfbb12314a5fbc70",
+      "run_id": "promote-20260814T114943Z",
+      "sha_source": "model.yaml"
     },
     "family": "page",
     "platform": "python"
@@ -525,20 +648,156 @@
   },
   "pdf/go": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-30T22:33:17.679165Z",
-      "repo_sha": "0fd5a52fc89b8fc745b98c9adc2547bfaed16314",
-      "run_id": "promote-20260730T223317Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T11:53:51.848397+00:00",
+      "repo_sha": "4a8d9cd1df39dce3f05d6ede8fb06c4ce39f2096",
+      "run_id": "promote-20260814T115351Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\pdf\\go\\blog-pdf-go-overview\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:53:57.250196Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\go\\docs-pdf-go-overview.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:53:57.166456Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\pdf\\go\\kb-pdf-go-overview.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:53:57.627012Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\go\\Metadata.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:53:55.458538Z"
+      }
     },
     "family": "pdf",
     "platform": "go"
   },
   "pdf/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-29T16:41:23.918564Z",
-      "repo_sha": "be089a7e5179b3e74776593c929b44f34cd35708",
-      "run_id": "promote-20260729T164123Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T11:49:51.067542+00:00",
+      "repo_sha": "12ae9e183a093d40afd3b502a368963f19ed83a3",
+      "run_id": "promote-20260814T114951Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSArray.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.951300Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBase.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.957592Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBoolean.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.963621Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSCloner.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.969763Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSDictionary.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.976574Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFilter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.982933Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFloat.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.988950Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSInteger.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:55.994589Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSName.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.000352Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSNull.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.005862Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectKey.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.011720Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectReference.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.017527Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSStream.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.023681Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSString.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:56.029031Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\ICOSVisitor.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:49:59.059384Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetGray.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.010185Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetGrayStroke.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.019661Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetHorizontalTextScaling.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.024509Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineCap.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.031939Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineJoin.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.040760Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineWidth.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.047439Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetMiterLimit.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.054891Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetRGBColor.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.081859Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetRGBColorStroke.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.087166Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetSpacingMoveToNextLineShowText.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.092113Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextLeading.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.097289Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextMatrix.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.102563Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextRenderingMode.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.107418Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextRise.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:50:04.112072Z"
+      }
     },
     "family": "pdf",
     "platform": "java",
@@ -562,10 +821,28 @@
   },
   "pdf/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-28T21:17:11.304000Z",
-      "repo_sha": "4f2bbffd215c78454b8ba4ecae69bd2bd2fc8586",
-      "run_id": "promote-20260728T211711Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T12:00:35.333954+00:00",
+      "repo_sha": "537b8273b185e4f7440b201cacad56567e55b2f0",
+      "run_id": "promote-20260814T120035Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\pdf\\python\\pdf-generated-in-python\\index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:41.218496Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\python\\developer-guide\\data.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:40.099627Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\python\\developer-guide\\generated.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:40.554174Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\pdf\\python\\how-to-create-generated-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:41.447745Z"
+      }
     },
     "family": "pdf",
     "platform": "python"
@@ -582,10 +859,108 @@
   },
   "slides/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "44597f1a09feb16ed1b6f29a1c6b939df4415863",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:55:16.439597+00:00",
+      "repo_sha": "9968c5b42525919f50bca3cdbcedd3ae1dc382c4",
+      "run_id": "promote-20260814T115516Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\slides\\java\\slides-key-features-java\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:24.702411Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\AppPropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.288109Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\Attributes.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.292974Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\AuthorData.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.297379Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\BulkTextFormat.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.500985Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\CommentAuthorsPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.886243Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\CommentData.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.916598Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\CommentsPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.921459Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\CorePropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:18.999993Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\CustomPropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:19.005080Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\Elements.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:19.078287Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\ExporterBase.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:19.082976Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\ExporterRegistry.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:19.087466Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\ImageUtils.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:20.753662Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\LayoutSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:21.876251Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\MasterReference.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.113143Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\MasterSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.162733Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\NotesSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.259404Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\Ns.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.264519Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\PptxConstants.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.819078Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\PptxExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.830140Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\PptxExporterFactory.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.837448Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\PresentationPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:22.869194Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\java\\SlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T11:55:23.474269Z"
+      }
     },
     "family": "slides",
     "platform": "java"
@@ -602,10 +977,156 @@
   },
   "slides/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "6ca17fd6593e0f31ed5e6fb53eb4c5896b7a6525",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T12:07:30.265396+00:00",
+      "repo_sha": "ffaf6355fdc7f0b7a66680d742051e809a9d8c5f",
+      "run_id": "promote-20260814T120730Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\slides\\python\\slides-key-features-python\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:47.798682Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\AppPropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:32.548930Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\Attributes.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:32.553431Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\AuthorData.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:32.557308Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\BaseCollection.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:32.773144Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\ColumnFormat.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.168981Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\CommentAuthorsPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.324218Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\CommentData.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.356651Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\CommentsPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.365153Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\ContentTypesManager.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.420480Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\CorePropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.425115Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\CustomPropertiesPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.465449Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\Elements.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:35.062003Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\ExporterBase.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:35.240915Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\ExporterRegistry.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:35.248453Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\HeadingPairData.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:36.527472Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\IThemeable.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:40.337497Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\LayoutSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:41.125769Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\MasterReference.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:41.914386Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\MasterSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:42.012783Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\NS.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:42.510958Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\NotesSlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:42.503229Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\OpcPackage.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:42.607047Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\Placeholder.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.161227Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\PptxExporter.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.483867Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\PptxExporterFactory.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.491613Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\PresentationPart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.555222Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\Relationship.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.922546Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\RelationshipsManager.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:43.929565Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\RowFormat.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:44.098156Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\SlidePart.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:44.910148Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\SlideReference.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:44.918146Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\comments.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.361164Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\effects.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:34.912633Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\gradient-pattern.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:36.035502Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\slides\\python\\layout-master.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-14T12:07:41.024306Z"
+      }
     },
     "family": "slides",
     "platform": "python"
@@ -622,20 +1143,86 @@
   },
   "words/net": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-22T17:19:23.203712Z",
-      "repo_sha": "e38a872082c39c58ff819487a0d9ebec28f25e22",
-      "run_id": "promote-20260722T171923Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-14T12:09:20.226802+00:00",
+      "repo_sha": "572fc748b45fe5efce5d93d0684c5ac78fc8affe",
+      "run_id": "promote-20260814T120920Z",
+      "sha_source": "model.yaml"
     },
     "family": "words",
     "platform": "net"
   },
   "words/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "d051a96a7417149e816a8f862d45a5b769bc5fad",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-14T11:59:57.279251+00:00",
+      "repo_sha": "4473f8cbeef1a65961adc7de304d982ada53a1dd",
+      "run_id": "promote-20260814T115957Z",
+      "sha_source": "model.yaml"
+    },
+    "evidence_skips": {
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\introducing-words-foss-python\\index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.133984Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\python-docx-word-converter\\index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.144374Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\words-core-management-python\\index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.158203Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\core-management.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:00.842055Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\docx-reader.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:00.888930Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\pdf-writer.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.084407Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\getting-started\\installation.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.099440Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\faq.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.175605Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-convert-converters-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.219828Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-export-pdf-writer-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.228101Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-and-export-word-documents-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.261174Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-doc-reader-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.267664Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-docx-reader-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.275253Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-work-with-document-management-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.283800Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\use-cases.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T12:00:01.317334Z"
+      },
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\products.aspose.org\\en\\words\\python\\_index.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-14T11:59:58.810680Z"
+      }
     },
     "family": "words",
     "platform": "python"

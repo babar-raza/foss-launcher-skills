@@ -1,0 +1,26 @@
+[
+  {
+    "family": "font",
+    "platform": "python",
+    "class_name": "TaskTokenEstimate",
+    "verified_by": "MT047 (Thirty-Seventh incident, 2026-08-15)",
+    "verified_at": "2026-08-15",
+    "evidence_note": "Defined in src/aspose_font/reporting.py:32 (a @dataclass). Zero internal fan-in confirmed via grep -rl across every other file under src/aspose_font/ -- referenced nowhere outside reporting.py itself. Never imported by src/aspose_font/__init__.py (absent from its import block and __all__). reporting.py backs its own separate pyproject.toml [project.scripts] console entry (aspose-font-reporting), distinct from the product's real aspose-font entry -- confirmed internal task-reporting tooling, not part of the library's public font-processing API surface."
+  },
+  {
+    "family": "font",
+    "platform": "python",
+    "class_name": "TaskCompletionReceipt",
+    "verified_by": "MT047 (Thirty-Seventh incident, 2026-08-15)",
+    "verified_at": "2026-08-15",
+    "evidence_note": "Defined in src/aspose_font/reporting.py:43 (a @dataclass). Zero internal fan-in confirmed via grep -rl across every other file under src/aspose_font/ -- referenced nowhere outside reporting.py itself. Never imported by src/aspose_font/__init__.py (absent from its import block and __all__). Same internal-tooling module as TaskTokenEstimate/CompletedTaskRecord -- see that evidence_note for the shared reporting.py/aspose-font-reporting console-script context."
+  },
+  {
+    "family": "font",
+    "platform": "python",
+    "class_name": "CompletedTaskRecord",
+    "verified_by": "MT047 (Thirty-Seventh incident, 2026-08-15)",
+    "verified_at": "2026-08-15",
+    "evidence_note": "Defined in src/aspose_font/reporting.py:60 (a @dataclass). Zero internal fan-in confirmed via grep -rl across every other file under src/aspose_font/ -- referenced nowhere outside reporting.py itself. Never imported by src/aspose_font/__init__.py (absent from its import block and __all__). Same internal-tooling module as TaskTokenEstimate/TaskCompletionReceipt -- see that evidence_note for the shared reporting.py/aspose-font-reporting console-script context."
+  }
+]
