@@ -53,6 +53,14 @@ Usage::
       --message-file /path/to/msg.txt \\
       --skills S-76 --plan "fix(pipeline): durable foo.py bug" \\
       --branch main --remote origin
+
+For batches large enough to risk OS argument-list-too-long limits, prefer
+--files-from over --files::
+
+    python scripts/pipeline/commands/ops/git_plumb_commit.py \\
+      --files-from /path/to/files.txt \\
+      --message-file /path/to/msg.txt \\
+      --skills S-76 --plan "content(family/platform): large batch update"
 """
 from __future__ import annotations
 
@@ -199,19 +207,25 @@ def _gitignored_files(files: list[str], *, repo_root: Path) -> list[str]:
     before staging. `git check-ignore` exits 1 (not an error) when none of
     the given paths are ignored -- checked via returncode, not raised.
 
-    Paths are passed as ARGUMENTS, not via --stdin: on Windows,
-    subprocess text-mode stdin translates a "\\n"-joined input to "\\r\\n"
-    before git ever sees it, embedding a literal "\\r" into each path git
-    reads -- which git then C-quotes in its output as an "unusual"
-    filename character (e.g. `"ignored/secret.txt\\r"`), breaking exact-
-    match comparison against ack_gitignored. Found live via this change's
-    own tests. Passing paths as argv sidesteps the whole translation path.
+    Paths are passed via `--stdin -z` (NUL-delimited) as raw bytes on a
+    binary-mode (text=False) subprocess call, not as argv and not as
+    newline-delimited text-mode stdin. This dodges two separate problems
+    at once: the OS argument-list-too-long limit argv is subject to for
+    large file lists (found live: this repo's pre-commit grade-downgrade
+    gate hit this same class of failure above ~450-500 files), and the
+    Windows text-mode-stdin bug this function used to avoid by using argv
+    in the first place -- subprocess text-mode stdin translates a
+    "\\n"-joined input to "\\r\\n" before git ever sees it, embedding a
+    literal "\\r" into each path git reads. NUL-delimited binary input
+    never goes through newline translation at all, so it sidesteps that
+    bug without needing argv.
     """
     if not files:
         return []
+    stdin_bytes = b"\x00".join(f.encode("utf-8") for f in files) + b"\x00"
     result = _COMMAND_RUNNER(
-        ["git", "check-ignore", *files], cwd=str(repo_root),
-        capture_output=True, text=True,
+        ["git", "check-ignore", "--stdin", "-z"], cwd=str(repo_root),
+        input=stdin_bytes, capture_output=True, text=False,
     )
     if result.returncode not in (0, 1):
         # check-ignore itself failed (e.g. not a git repo) -- fail open,
@@ -219,7 +233,7 @@ def _gitignored_files(files: list[str], *, repo_root: Path) -> list[str]:
         # resolution failure: this tool's own infrastructure being
         # unavailable must never block an unrelated commit.
         return []
-    return [line for line in result.stdout.splitlines() if line]
+    return [p.decode("utf-8") for p in result.stdout.split(b"\x00") if p]
 
 
 def _check_for_regressions(
@@ -475,7 +489,17 @@ def plumb_commit(
             return result
 
         _git_indexed(["read-tree", head_sha])
-        _git_indexed(["add", "-f", *files])
+        # --pathspec-from-file avoids the OS argument-list-too-long limit
+        # `git add -f <paths...>` is subject to for large file lists (same
+        # class of failure found live in this repo's pre-commit
+        # grade-downgrade gate above ~450-500 files).
+        _pathspec_fd, _pathspec_path = tempfile.mkstemp(prefix="git_plumb_pathspec_")
+        try:
+            with os.fdopen(_pathspec_fd, "w", encoding="utf-8") as f:
+                f.write("".join(f"{path}\n" for path in files))
+            _git_indexed(["add", "-f", "--pathspec-from-file", _pathspec_path])
+        finally:
+            os.unlink(_pathspec_path)
 
         if not skip_tier1_checks:
             tier1_result = _run_tier1_checks(tmp_index_path, message, repo_root=root)
@@ -563,7 +587,11 @@ def _file_skill_run_record(
 
 def main(argv: "list[str] | None" = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--files", nargs="+", required=True)
+    parser.add_argument("--files", nargs="*", default=None)
+    parser.add_argument("--files-from", dest="files_from", metavar="FILE",
+                        help="Read file paths (one per line) from FILE. Merged with "
+                             "--files. Avoids OS argument-list-too-long errors on "
+                             "large commits.")
     parser.add_argument("--message", default=None)
     parser.add_argument("--message-file", default=None)
     parser.add_argument("--skills", nargs="+", required=True)
@@ -586,6 +614,20 @@ def main(argv: "list[str] | None" = None) -> int:
                              "(e.g. a legitimate override precedent) -- silences the "
                              "warning for exactly these paths, not the whole run.")
     args = parser.parse_args(argv)
+
+    files = list(args.files) if args.files else []
+    if args.files_from:
+        try:
+            extra = Path(args.files_from).read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            print(f"ERROR: cannot read --files-from '{args.files_from}': {exc}", file=sys.stderr)
+            return 2
+        files.extend(p for p in extra if p.strip())
+    if not files:
+        print("ERROR: pass --files, --files-from, or both (at least one file required)",
+              file=sys.stderr)
+        return 2
+    args.files = files
 
     if args.message and args.message_file:
         print("ERROR: pass exactly one of --message or --message-file", file=sys.stderr)

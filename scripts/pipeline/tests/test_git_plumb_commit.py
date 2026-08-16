@@ -731,3 +731,120 @@ class TestTier1Checks:
             "--skip-stale-check", "--skip-tier1-checks", "--no-push",
         ])
         assert rc_bypassed == 0
+
+
+# ---------------------------------------------------------------------------
+# argv-length ceiling fix (--files-from CLI merge, --pathspec-from-file for
+# `git add -f`, --stdin -z for `git check-ignore`)
+# ---------------------------------------------------------------------------
+
+def test_cli_files_from_merges_with_files(tmp_path, monkeypatch):
+    """--files-from and --files are additive, not either/or."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "a.txt").write_text("a", encoding="utf-8")
+    (work / "b.txt").write_text("b", encoding="utf-8")
+    files_from = tmp_path / "files.txt"
+    files_from.write_text("b.txt\n", encoding="utf-8")
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text("chore: files-from merge test", encoding="utf-8")
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--files", "a.txt", "--files-from", str(files_from),
+        "--message-file", str(msg_file),
+        "--skills", "S-99", "--plan", "files-from merge test",
+        "--branch", "main", "--remote", str(bare),
+        "--skip-stale-check",
+    ])
+    assert rc == 0
+
+    commit_sha = _git(work, "rev-parse", "refs/heads/main").stdout.strip()
+    tree = _git(bare, "ls-tree", "-r", "--name-only", commit_sha).stdout
+    assert "a.txt" in tree
+    assert "b.txt" in tree
+
+
+def test_cli_files_from_alone_is_sufficient(tmp_path, monkeypatch):
+    """--files is no longer required when --files-from provides the list."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "only.txt").write_text("v", encoding="utf-8")
+    files_from = tmp_path / "files.txt"
+    files_from.write_text("only.txt\n", encoding="utf-8")
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text("chore: files-from alone", encoding="utf-8")
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--files-from", str(files_from),
+        "--message-file", str(msg_file),
+        "--skills", "S-99", "--plan", "files-from alone test",
+        "--branch", "main", "--remote", str(bare),
+        "--skip-stale-check",
+    ])
+    assert rc == 0
+
+
+def test_cli_neither_files_nor_files_from_errors(tmp_path, monkeypatch):
+    work, bare = _init_repo_with_remote(tmp_path)
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text("chore: should not run", encoding="utf-8")
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--message-file", str(msg_file),
+        "--skills", "S-99", "--plan", "no files test",
+        "--branch", "main", "--remote", str(bare),
+    ])
+    assert rc == 2
+
+
+def test_add_pathspec_from_file_adds_many_files_correctly(tmp_path):
+    """`git add -f --pathspec-from-file` (replacing literal argv paths) must
+    stage exactly the right set of files -- proof by real tree inspection,
+    not just a non-crashing exit. 40 files is enough to catch an off-by-one
+    in how the pathspec tempfile is written/joined without making the test
+    slow."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    names = [f"batch/file_{i:03d}.txt" for i in range(40)]
+    (work / "batch").mkdir()
+    for name in names:
+        (work / name).write_text(name, encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        names, "add a 40-file batch", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True,
+    )
+    assert result["pushed"] is True
+
+    tree = _git(bare, "ls-tree", "-r", "--name-only", result["commit_sha"]).stdout
+    tree_files = set(tree.splitlines())
+    assert tree_files.issuperset(set(names))
+    # Each file's content round-tripped correctly (proves the right path was
+    # matched to the right blob, not just that *a* set of 40 paths landed).
+    sample = _git(bare, "show", f"{result['commit_sha']}:batch/file_017.txt")
+    assert sample.stdout == "batch/file_017.txt"
+
+
+def test_multiple_gitignored_files_all_detected(tmp_path):
+    """`git check-ignore --stdin -z` (replacing argv + text-mode stdin) must
+    round-trip MULTIPLE NUL-delimited entries correctly -- the real
+    regression risk of the rewrite is an off-by-one in the split(b'\\x00')
+    parsing that silently drops or merges entries."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / ".gitignore").write_text("ignored/\n", encoding="utf-8")
+    _git(work, "add", ".gitignore")
+    _git(work, "commit", "-q", "-m", "add gitignore")
+    (work / "ignored").mkdir()
+    (work / "ignored" / "one.txt").write_text("1", encoding="utf-8")
+    (work / "ignored" / "two.txt").write_text("2", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["ignored/one.txt", "ignored/two.txt"], "force-track two gitignored files",
+        repo_root=work, branch="main", remote=str(bare), skip_stale_check=True,
+    )
+
+    assert sorted(result["gitignore_warnings"]) == ["ignored/one.txt", "ignored/two.txt"]
+    assert result["pushed"] is True

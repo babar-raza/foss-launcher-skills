@@ -1097,10 +1097,16 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/governance/check_gr
     mapfile -t _gd_files < <(git diff --cached --name-only --diff-filter=M -- 'content/*.md' 2>/dev/null)
     if [ ${#_gd_files[@]} -gt 0 ]; then
         _gd_blocked_list=$(mktemp)
+        # Use --files-from to avoid OS argument-list-too-long errors on large commits
+        # (mirrors Step 2's audit.py invocation pattern above).
+        _gd_tmpfile=$(mktemp /tmp/grade-downgrade-files-XXXXXX.txt 2>/dev/null || mktemp)
+        printf '%s\n' "${_gd_files[@]}" > "$_gd_tmpfile"
         _gd_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
             scripts/pipeline/commands/governance/check_grade_downgrade.py \
-            --blocked-files-out "$_gd_blocked_list" "${_gd_files[@]}" 2>&1)
+            --files-from "$_gd_tmpfile" \
+            --blocked-files-out "$_gd_blocked_list" 2>&1)
         _gd_exit=$?
+        rm -f "$_gd_tmpfile"
         if [ -n "$_gd_out" ]; then
             echo "$_gd_out" | sed 's/^/[Step 21] /'
         fi

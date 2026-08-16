@@ -59,6 +59,10 @@ commit, and creates+finalizes the retroactive skill-run record against the real
 resulting SHA automatically. Pass `--no-push` to commit locally without pushing, or
 `--base-sha`/`--session-id` to control what the stale-file check compares against.
 
+For batches large enough to risk OS argument-list-too-long errors (roughly 450-500+
+files on this repo's Windows/MSYS setup), pass `--files-from <listfile>` (one path
+per line) instead of expanding paths into `--files` directly.
+
 If you must fall back to the raw manual sequence (e.g. the tool itself is broken),
 both paired steps below are still mandatory — the tool exists to make them
 impossible to forget, not to make them optional:

@@ -10,6 +10,7 @@ current operational grade than stale frontmatter (due to WP-01 write policy).
 Usage:
     python scripts/pipeline/commands/governance/check_grade_downgrade.py file1.md file2.md
     python scripts/pipeline/commands/governance/check_grade_downgrade.py --strict file1.md
+    python scripts/pipeline/commands/governance/check_grade_downgrade.py --files-from list.txt
 """
 import argparse
 import json
@@ -98,7 +99,11 @@ def main(argv: list[str] | None = None) -> int:
         prog="check_grade_downgrade",
         description="Detect grade downgrades in modified content files.",
     )
-    parser.add_argument("files", nargs="+", help="Modified .md files to check")
+    parser.add_argument("files", nargs="*", help="Modified .md files to check")
+    parser.add_argument("--files-from", dest="files_from", metavar="FILE",
+                        help="Read paths to check (one per line) from FILE. "
+                             "Merged with any positional paths. Empty lines are ignored. "
+                             "Avoids OS argument-list-too-long errors on large commits.")
     parser.add_argument("--strict", action="store_true",
                         help="WARNs also fail CI (not just BLOCKs)")
     parser.add_argument("--allow-regrade", action="store_true",
@@ -108,6 +113,16 @@ def main(argv: list[str] | None = None) -> int:
                              "so the pre-commit hook can check override-token coverage "
                              "for exactly the blocked files, not every staged file")
     args = parser.parse_args(argv)
+
+    files = list(args.files)
+    if args.files_from:
+        try:
+            extra = Path(args.files_from).read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            print(f"ERROR: cannot read --files-from '{args.files_from}': {exc}", file=sys.stderr)
+            return 1
+        files.extend(p for p in extra if p.strip())
+    args.files = files
 
     # --allow-regrade: skip all downgrade checks (used for rubric/evaluator changes)
     if args.allow_regrade:
