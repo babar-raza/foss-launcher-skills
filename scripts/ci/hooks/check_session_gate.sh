@@ -43,8 +43,16 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 GATE_FILE="${SESSION_GATE_OVERRIDE:-$REPO_ROOT/.claude/.agents_read}"
 
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
-# If venv absent/broken: PYTHON="" — session gate falls through to gate-file check
+# If venv absent/broken: PYTHON="" — session gate falls through to the bash-native
+# degraded-venv fallback below (never the python-dependent parsing path).
 source "$(dirname "${BASH_SOURCE[0]}")/find_python.sh" || true
+
+# Test-only override: force the degraded-venv path without touching the real
+# .venv (used by scripts/ci/tests/test_check_session_gate.py). Never set in
+# production — there is no code path that sets this outside the test harness.
+if [ "${SESSION_GATE_TEST_FORCE_NO_PYTHON:-0}" = "1" ]; then
+    PYTHON=""
+fi
 
 # Shared governance block helper (TC-DS-03)
 source "$(dirname "${BASH_SOURCE[0]}")/_gov_block.sh"
@@ -62,6 +70,46 @@ fi
 # Malformed non-empty JSON is a different signal and is handled below (fail-closed).
 if [ -z "$TOOL_INPUT" ]; then
     exit 0
+fi
+
+# --- Degraded-venv fallback (fixes a real deadlock, found live 2026-08-16) ---
+# When $PYTHON is empty (venv missing/broken), the JSON parsing below — and the
+# bootstrap-command regex match further down — both shell out to "$PYTHON" and
+# silently fail (empty command), which fell through to the "python execution
+# failure" branch that follows the parse step. That branch only ever checked
+# the gate file — it never re-applied the hardcoded Read/Grep/Glob exemptions
+# or the bootstrap-command exemption, because those checks compare against
+# $TOOL_NAME, which was never extracted. Net effect: a broken venv in a fresh
+# worktree blocked every tool call with no recovery path, including Read and
+# the exact bootstrap command — defeating the "narrow fail-open" this file
+# already claims to guarantee for the bootstrap-deadlock case (see comment
+# above). This block restores that guarantee using bash-only parsing (no
+# python required) for the essential recovery exemptions.
+if [ -z "$PYTHON" ]; then
+    TOOL_NAME_FALLBACK=$(printf '%s' "$TOOL_INPUT" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*:[[:space:]]*"([^"]*)"$/\1/')
+
+    if [ "$TOOL_NAME_FALLBACK" = "Read" ] || [ "$TOOL_NAME_FALLBACK" = "Grep" ] || [ "$TOOL_NAME_FALLBACK" = "Glob" ]; then
+        exit 0
+    fi
+
+    if [ "$TOOL_NAME_FALLBACK" = "Bash" ]; then
+        COMMAND_FALLBACK=$(printf '%s' "$TOOL_INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*:[[:space:]]*"([^"]*)"$/\1/')
+        if [[ "$COMMAND_FALLBACK" =~ ^bash[[:space:]]+\.{0,2}/?scripts/ci/(hooks/)?bootstrap_session_gate\.sh[[:space:]]*$ ]]; then
+            exit 0
+        fi
+    fi
+
+    # Everything else (including Bash commands we can't classify as read-only
+    # without python) still requires the bootstrap gate file — deliberately
+    # fail-closed; only the recovery paths above are exempt.
+    if [ -f "$GATE_FILE" ]; then
+        exit 0
+    fi
+    _gov_block "Tool call denied — session not bootstrapped, and .venv is also broken." \
+        "Python venv is unavailable, so read-only-Bash classification cannot run; .claude/.agents_read gate file is missing." \
+        "Run: bash scripts/ci/hooks/bootstrap_session_gate.sh (exempted above via bash-native match), then bash scripts/ci/hooks/repair_venv.sh" \
+        "SKIP_SESSION_GATE_CHECK=1" \
+        "AGENTS.md §3 (Session Start)"
 fi
 
 # Parse tool name and command from JSON.

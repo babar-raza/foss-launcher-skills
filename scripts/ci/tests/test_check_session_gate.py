@@ -84,6 +84,7 @@ def _run(
     gate_present: bool,
     raw_payload: str | None = None,
     skip_flag: bool = False,
+    force_no_python: bool = False,
 ) -> int:
     """Invoke the hook and return exit code."""
     if raw_payload is not None:
@@ -103,6 +104,10 @@ def _run(
         env["SKIP_SESSION_GATE_CHECK"] = "1"
     else:
         env.pop("SKIP_SESSION_GATE_CHECK", None)
+    if force_no_python:
+        env["SESSION_GATE_TEST_FORCE_NO_PYTHON"] = "1"
+    else:
+        env.pop("SESSION_GATE_TEST_FORCE_NO_PYTHON", None)
 
     with _gate_state(gate_present):
         result = subprocess.run(
@@ -246,3 +251,47 @@ def test_tc_sg_17_malformed_json_gate_present_blocked():
 def test_tc_sg_18_skip_flag_bypasses_all():
     """TC-SG-18: SKIP_SESSION_GATE_CHECK=1 exits 0 regardless of gate state or tool."""
     assert _run("Edit", {"file_path": "content/foo.md"}, gate_present=False, skip_flag=True) == 0
+
+
+# ---------------------------------------------------------------------------
+# TC-SG-19 through TC-SG-24: degraded venv ($PYTHON empty) — regression tests
+# for the 2026-08-16 bootstrap-deadlock fix. Without the fix, ALL of these
+# blocked (exit 2) even with gate_present=False, because tool_name/command
+# parsing itself depends on $PYTHON and silently failed closed.
+# ---------------------------------------------------------------------------
+
+def test_tc_sg_19_read_exempt_when_python_broken_and_gate_absent():
+    """TC-SG-19: Read stays exempt even with a broken venv and no gate file."""
+    assert _run("Read", {"file_path": "AGENTS.md"}, gate_present=False, force_no_python=True) == 0
+
+
+def test_tc_sg_20_grep_exempt_when_python_broken_and_gate_absent():
+    """TC-SG-20: Grep stays exempt even with a broken venv and no gate file."""
+    assert _run("Grep", {"pattern": "foo"}, gate_present=False, force_no_python=True) == 0
+
+
+def test_tc_sg_21_glob_exempt_when_python_broken_and_gate_absent():
+    """TC-SG-21: Glob stays exempt even with a broken venv and no gate file."""
+    assert _run("Glob", {"pattern": "**/*.md"}, gate_present=False, force_no_python=True) == 0
+
+
+def test_tc_sg_22_bootstrap_bash_exempt_when_python_broken_and_gate_absent():
+    """TC-SG-22: The exact bootstrap command stays exempt with a broken venv — this
+    is the actual recovery path, and it was silently defeated before the fix."""
+    assert _run(
+        "Bash",
+        {"command": "bash scripts/ci/bootstrap_session_gate.sh"},
+        gate_present=False,
+        force_no_python=True,
+    ) == 0
+
+
+def test_tc_sg_23_other_bash_blocked_when_python_broken_and_gate_absent():
+    """TC-SG-23: Non-bootstrap Bash still blocked with a broken venv and no gate."""
+    assert _run("Bash", {"command": "cat AGENTS.md"}, gate_present=False, force_no_python=True) == 2
+
+
+def test_tc_sg_24_edit_allowed_when_python_broken_and_gate_present():
+    """TC-SG-24: A broken venv alone does not block once the gate file exists —
+    only the parsing-degradation path is bypassed, not the real gate check."""
+    assert _run("Edit", {"file_path": "content/foo.md"}, gate_present=True, force_no_python=True) == 0
