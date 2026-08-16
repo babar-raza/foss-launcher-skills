@@ -163,7 +163,10 @@ def cmd_create(args: argparse.Namespace) -> int:
     print(f"Created override token: {token_id}")
     print(f"  File: {out_path.relative_to(_REPO_ROOT)}")
     print(f"  Paths: {', '.join(token['paths'])}")
-    print(f"  Commit this file before or with the forbidden-path edit.")
+    print(f"  Do NOT stage or commit this file -- reports/ is gitignored by design.")
+    print(f"  pre-commit-audit.sh reads it directly off local disk to authorize the")
+    print(f"  forbidden-path edit; consume it with 'consume --token-id {token_id} \\")
+    print(f"  --commit-sha <sha>' after the commit.")
     return 0
 
 

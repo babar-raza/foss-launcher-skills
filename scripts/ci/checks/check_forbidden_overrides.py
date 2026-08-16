@@ -1,8 +1,10 @@
 """check_forbidden_overrides.py — CI gate: verify forbidden-path changes have override tokens.
 
-For every file in the given list that path_guard.py would DENY, check that a committed
-override token exists in reports/overrides/ (pending or archived). If any forbidden-path
-file lacks a token, exit 1.
+For every file in the given list that path_guard.py would DENY, check that a valid
+override token exists on local disk in reports/overrides/ (pending or archived). Note
+reports/ is gitignored by design (see override_manager.py's own docstring) -- tokens
+are read directly off disk, never staged or committed. If any forbidden-path file lacks
+a token, exit 1.
 
 Usage:
     python scripts/ci/checks/check_forbidden_overrides.py file1 file2 ...
@@ -131,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
         print("To create an override token:")
         print("  python scripts/pipeline/commands/governance/override_manager.py create \\")
         print("    --paths <path> --reason '...' --plan '...'")
-        print("Then commit the token file before or with the forbidden-path edit.")
+        print("Do NOT commit the token file -- reports/ is gitignored; it's read off local disk.")
         return 1
 
     if covered:
