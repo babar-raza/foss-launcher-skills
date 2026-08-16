@@ -296,16 +296,17 @@ class TestHookInstallMechanism:
         return result.stdout.strip()
 
     def test_core_hooks_path_configured(self):
-        # TC-CIR-09 (2026-08-14): skip in CI. CI never runs install-hooks.sh
-        # (actions/checkout@v4 gives a fresh, hooks-unconfigured clone every
-        # run) and has no git-hooks concept in the sense this test checks —
-        # asserting this in CI would be a guaranteed, meaningless failure on
-        # every run, not a real signal. This fact is inherently per-checkout
-        # and belongs at session-start (see skills/session-start.md's
-        # hook-install check), not CI. The rest of this class (wrapper
-        # content/executability) IS meaningful in CI and stays unconditional.
-        if os.environ.get("CI", "").lower() == "true" or os.environ.get("GITHUB_ACTIONS", "").lower() == "true":
-            pytest.skip("core.hooksPath is a per-checkout local fact, not meaningful in CI")
+        # TC-CIR-09 (2026-08-14): originally skipped in CI here, because CI never
+        # ran install-hooks.sh (a fresh actions/checkout@v4 clone has
+        # core.hooksPath unset). CORRECTED (2026-08-16, found live: this exact
+        # skip pattern combined with test_wrappers_are_executable's -- which had
+        # NO skip -- broke skill-governance.yml on every single push for 2 days
+        # before being noticed, since core.fileMode=false also means the
+        # executable bit isn't preserved by checkout either). Real fix:
+        # skill-governance.yml now runs `bash scripts/install-hooks.sh` before
+        # this suite, so this assertion is genuinely meaningful in CI too --
+        # no skip needed, this now verifies the installer itself still works on
+        # a fresh checkout, not just a locally-installed developer machine.
         configured = self._configured_hooks_path()
         assert configured == "scripts/githooks", (
             f"core.hooksPath is '{configured}', expected 'scripts/githooks' — "
