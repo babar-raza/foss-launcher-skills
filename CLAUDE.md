@@ -3,7 +3,10 @@
 This file contains **no operational rules**. All governance, skill chains,
 write-path enforcement, evidence requirements, and task protocols live
 exclusively in `AGENTS.md` (constitutional root) and its child documents:
-- `docs/governance/` — write boundaries, evidence, provenance, DAR, launch gates
+- `docs/governance/` — backlink policy, DAR table, forensic-heal history, planning
+  methodology (write boundaries, evidence, provenance, and launch gates specifically
+  live under `docs/_archive/pre-refactor/governance/` per AGENTS.md §7a/§10 — see
+  AGENTS.md for the exact current location of each, since this has moved before)
 - `docs/workflows/` — skill chains, maintenance, evaluator changes, gap escalation
 - `docs/registries/` — file map, skills registry (Phase 4)
 
@@ -157,7 +160,7 @@ Skills are invoked as slash commands:
 | Generation | `/page-plan`, `/page-draft`, `/faq-generate`, `/new-docs-page`, `/launch-product`, `/batch-reference` |
 | Repair | `/page-update`, `/page-enhance`, `/heal-page`, `/batch-remediate`, `/gap-apply`, `/evidence-repair` |
 | Validation | `/content-check`, `/eval-page`, `/content-eval`, `/gap-eval`, `/content-audit`, `/link-validate` |
-| Operations | `/update-registry`, `/family-sync`, `/translate`, `/getting-started`, `/session-start`, `/commit`, `/backlog`, `/post-sprint-loop` |
+| Operations | `/update-registry`, `/family-sync`, `/ht-translate`, `/getting-started`, `/session-start`, `/commit`, `/backlog`, `/post-sprint-loop` |
 
 Full list and argument syntax: `.claude/commands/README.md`
 Authoritative registry: `AGENTS.md §12` (full detail: [docs/registries/skills.md](docs/registries/skills.md))

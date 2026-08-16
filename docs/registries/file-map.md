@@ -2,7 +2,6 @@
 
 > Source: AGENTS.md §12
 > Status: Current (restored from archive 2026-06-24)
-> Override token: 20260624-113217-docs-workflows-mental-model-refresh-md
 
 ## Content Paths
 

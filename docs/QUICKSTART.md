@@ -20,7 +20,6 @@ source .venv/Scripts/activate   # Windows Git Bash
 
 # Install dependencies
 pip install -r scripts/pipeline/requirements.txt
-pip install -r scripts/translator/requirements.txt
 
 # Install governance hooks
 bash scripts/install-hooks.sh
@@ -117,11 +116,18 @@ See [content audit guide](guides/content-audit-and-evaluation.md).
 
 ### Workflow 4: Translate to New Locales
 
+`/translate` is permanently retired. Use `/ht-translate` (single page) or
+`/ht-translate-batch` (multiple pages):
+
 ```
-/translate {family} {platform} --locales es,fr,de
+/ht-translate {src_path} {site} {locales}
 ```
 
-See [translator CLI reference](reference/cli.md).
+**Note**: `/ht-translate` currently depends on a separate `hugo-translator` tool
+cloned as a sibling repo, with a hardcoded local path in its skill definition
+(`.claude/commands/ht-translate.md`) — it will not work out of the box on a
+fresh clone or a different contributor's machine. See the Troubleshooting
+table below.
 
 ### Workflow 5: Heal Quality Failures
 
@@ -152,6 +158,9 @@ See [heal content guide](guides/heal-content.md).
 | Commit blocked by missing skill run record | Run `skill_run_manager.py create --skills S-73 --run-type targeted` |
 | `stale_since` is set in model.yaml | Run `/knowledge-diff` then `/knowledge-update` before content tasks |
 | `git rm` deletion commits without DGR check | Pre-commit hook is stale — re-run `bash scripts/install-hooks.sh` then verify with `diff .git/hooks/pre-commit scripts/pre-commit-audit.sh` |
+| `/ht-translate` fails to find a site profile / venv | It depends on a separate `hugo-translator` repo cloned as a sibling directory with its own `.venv`, currently hardcoded to one contributor's machine path in `.claude/commands/ht-translate.md`. Clone `hugo-translator` yourself and update that path, or ask the maintainer for the current install location — this is a known portability gap, not a local misconfiguration. |
+| Confused about which CI workflow actually gates a push | `content-audit.yml` is permanently retained but inert (PR-only trigger, this repo never uses PRs). `content-governance-checks.yml` is the live push-triggered gate — see [governance gates](reference/governance-gates.md). |
+| `MISSION_AUTHORITY.yaml` looks stale or contradicts what you know is in flight | Its `governing_plan_path` is validated for presence only — nothing in this repo ever reads or resolves that path's contents, so it can silently point at a dead/local file. Treat it as informational only; check `plans/master-plan.md` and `reports/plan_state/{mission_id}/` locally (both gitignored, so only visible on a machine that ran that work) for real state. If neither exists locally, nothing from a prior session is in flight on this clone. |
 
 For hook installation issues, see [hook-installation guide](operations/hook-installation.md).
 For venv enforcement policy, see [docs/STATUS-venv-closure.md](STATUS-venv-closure.md).

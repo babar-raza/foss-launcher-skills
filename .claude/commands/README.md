@@ -51,15 +51,19 @@ them as automatic behavior, not user-visible commands.
 | `gap-plan` | S-44 | Planning sub-tool for remediation pipeline |
 | `project-phase-store` | S-10 | Checkpoint infrastructure |
 
-### 2. Claude-only extras (2 files)
+### 2. Claude-only extras (1 file)
 
-These files exist only in this tree. They are not registered in AGENTS.md §12 and have no
+This file exists only in this tree. It is not registered in AGENTS.md §12 and has no
 counterpart in `skills/`, `.agents/skills/`, or `.kilocode/skills/`.
 
 | File | Role |
 |------|------|
 | `translate.md` | RETIRED TOMBSTONE: permanently retired; instructs callers to use hugo-translator with explicit --site profile. |
-| `seo-review.md` | Interactive human review gate for SEO recommendations. Claude Code-only utility; not yet a first-class registered skill. |
+
+`seo-review.md` is a first-class registered skill (**S-116**, see
+[docs/registries/skills.md](../../docs/registries/skills.md)) — it was previously listed
+here as an unregistered Claude-only extra; that was stale (confirmed via repo
+usability/operability audit, 2026-08-16).
 
 Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`.
 

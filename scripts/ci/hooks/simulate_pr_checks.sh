@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
-# simulate_pr_checks.sh — Local simulation of content-audit.yml CI checks.
+# simulate_pr_checks.sh — Local simulation of content-governance-checks.yml CI checks.
 #
-# SYNC: This script mirrors .github/workflows/content-audit.yml step-for-step,
-# including conditional logic. Last synchronized: 2026-04-25 (TC-03, TC-04, TC-05).
-# When content-audit.yml changes, update this file to match.
+# SYNC: This script mirrors .github/workflows/content-governance-checks.yml
+# step-for-step, including advisory (continue-on-error) vs. blocking framing.
+# Re-synchronized 2026-08-16 (repo usability/operability hardening pass) — the
+# previous version mirrored .github/workflows/content-audit.yml, which is
+# pull_request-triggered only and structurally never fires against this repo's
+# real push-to-main workflow (confirmed via that workflow's own header comment,
+# dated 2026-08-14, TC-CIA-06/TC-CIR-02). content-governance-checks.yml is the
+# live push-triggered gate; several content-audit.yml-era steps below were
+# deliberately dropped because they either have another live local/push
+# enforcement point already (filename conventions, reports/ boundary, skill
+# run records via commit-msg-skills.sh, forbidden-path override tokens via
+# pre-commit-audit.sh Step 21) or were advisory-only and not migrated
+# upstream either (translation coverage, agent governance surface, compliance
+# proof bundles) — see content-governance-checks.yml's own header for the
+# full accounting. When content-governance-checks.yml changes, update this
+# file to match.
 #
 # Runs the same scripts as the GitHub Actions workflow against the current branch,
 # producing per-step pass/fail output. Results are stored in reports/proofs/
@@ -60,31 +73,8 @@ echo "" >> "${LOG_FILE}"
 
 # Get changed files as arrays — safe for filenames with spaces
 mapfile -t CHANGED_FILES < <(git diff --name-only "${BASE_BRANCH}...HEAD" -- 'content/**/*.md' 2>/dev/null || true)
-mapfile -t CHANGED_ALL_FILES < <(git diff --name-only "${BASE_BRANCH}...HEAD" 2>/dev/null || true)
-mapfile -t COMMIT_SHAS < <(git log "${BASE_BRANCH}...HEAD" --format='%H' -- 'content/**/*.md' 2>/dev/null || true)
-
-# EVAL_FILES: English-only subset of CHANGED_FILES for content_eval (TC-05).
-# Locale paths (e.g. content/docs.aspose.org/ar/..., content/kb.aspose.org/de/...) are
-# excluded because content_eval has no locale knowledge artifacts and always emits a
-# PIPELINE FAIL "Knowledge unavailable" for them, producing false blocking signals.
-# blog.aspose.org and products.aspose.org and reference.aspose.org do not use locale
-# prefixes, so they pass through unchanged.
-mapfile -t EVAL_FILES < <(
-    for f in "${CHANGED_FILES[@]}"; do
-        # Skip locale paths: content/(docs|kb).aspose.org/{2-letter-code}/...
-        # but keep content/(docs|kb).aspose.org/en/... (English)
-        if [[ "$f" =~ ^content/(docs|kb)\.aspose\.org/([a-z]{2})/ ]]; then
-            locale="${BASH_REMATCH[2]}"
-            [[ "$locale" == "en" ]] && echo "$f"
-        else
-            echo "$f"
-        fi
-    done
-)
 
 echo "Changed content files: ${#CHANGED_FILES[@]}" >> "${LOG_FILE}"
-echo "Eval-eligible content files (English-only): ${#EVAL_FILES[@]}" >> "${LOG_FILE}"
-echo "All changed files: ${#CHANGED_ALL_FILES[@]}" >> "${LOG_FILE}"
 echo "" >> "${LOG_FILE}"
 
 # --------------------------------------------------------------------------
@@ -137,110 +127,90 @@ run_step() {
 
 cd "${REPO_ROOT}"
 
-echo "=== Running content-audit.yml step simulation ==="
+echo "=== Running content-governance-checks.yml step simulation ==="
 echo ""
-
-run_step "Check reports/ not tracked (local-only boundary)" "blocking" \
-    bash -c 'count=$(git ls-files reports/ | wc -l | tr -d " \t\r\n"); if [ "$count" -gt 0 ]; then echo "ERROR: $count file(s) tracked under reports/ -- violates local-only boundary:"; git ls-files reports/; exit 1; fi; echo "OK: reports/ contains 0 tracked files"'
 
 run_step "Check blog slug hygiene" "blocking" \
     "$PYTHON" scripts/ci/checks/check-blog-slugs.py
 
-run_step "Check blog post standards" "blocking" \
-    "$PYTHON" scripts/ci/checks/check_blog_post_standards.py --scan --root content
+run_step "Check blog family route coverage" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_blog_family_routes.py
 
-run_step "Check content filename conventions" "blocking" \
-    "$PYTHON" scripts/ci/checks/check_content_filenames.py
+# advisory in CI (continue-on-error: true, landing state 2026-08-14 — 7 blog
+# platform dirs are missing _index.md; promote to blocking once fixed)
+run_step "Check blog platform indexes" "advisory" \
+    "$PYTHON" scripts/ci/checks/check_blog_platform_indexes.py
 
-run_step "Run API accuracy audit" "advisory" \
+run_step "Check family icon uniqueness (V-I-01..04)" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_family_icon_uniqueness.py
+
+# advisory in CI (continue-on-error: true)
+run_step "Run API accuracy audit (full corpus)" "advisory" \
     bash -c "\"$PYTHON\" scripts/pipeline/commands/content/audit.py all --json > /tmp/audit-results.json"
 
-# Mirror CI: always run regression check regardless of audit exit code
-run_step "Check for audit regressions" "blocking" \
+# advisory in CI (continue-on-error: true, landing state 2026-08-14 — real
+# pre-existing regressions in tex/python, words/python not yet reconciled)
+run_step "Check for audit regressions (landing state)" "advisory" \
     "$PYTHON" scripts/ci/checks/check_audit_regression.py /tmp/audit-results.json reports/audit/baseline-fail-counts.json
 
 if [ "${#CHANGED_FILES[@]}" -gt 0 ]; then
-    run_step "Check grade presence" "advisory" \
+    run_step "Check grade presence on changed files" "blocking" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_presence.py --scope modified "${CHANGED_FILES[@]}"
 
-    run_step "Check grade block integrity" "blocking" \
+    # advisory in CI (continue-on-error: true, landing state 2026-08-14)
+    run_step "Check grade block integrity (landing state)" "advisory" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_integrity.py --files "${CHANGED_FILES[@]}"
-
-    run_step "Check grade downgrade" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_downgrade.py "${CHANGED_FILES[@]}"
 
     run_step "Check manifest/frontmatter consistency (GUARD-04)" "blocking" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_manifest_consistency.py "${CHANGED_FILES[@]}"
 
-    run_step "Check grade churn (GUARD-02)" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_grade_churn.py --mode pr --base-branch "${BASE_BRANCH}"
-
-    run_step "Check evidence churn" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evidence_churn.py --mode pr --base-branch "${BASE_BRANCH}"
-
-    run_step "Check evaluator freeze (FREEZE-04)" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_freeze.py
-
-    if [ "${#EVAL_FILES[@]}" -gt 0 ]; then
-        run_step "Strict content eval on modified files (TC-05)" "blocking" \
-            env PYTHONPATH=scripts/pipeline "$PYTHON" -m content_eval evaluate --files "${EVAL_FILES[@]}" --strict
-    else
-        echo "  SKIP [TC-05]: No eval-eligible content files (all changed files are locale translations)"
-    fi
-
-    run_step "Validate frontmatter" "advisory" \
+    run_step "Validate frontmatter structure, all locales" "blocking" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/content/validate_frontmatter.py "${CHANGED_FILES[@]}"
 else
-    echo "  SKIP: No changed content files -- skipping content-only checks"
+    echo "  SKIP: No changed content files -- skipping content-diff-gated checks"
 fi
 
-run_step "Translation coverage" "advisory" \
-    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/ops/translation_coverage.py --json-out /tmp/translation_coverage.json
+# advisory in CI (continue-on-error: true, landing state 2026-08-14 — a
+# suspected EVALUATOR_FREEZE_VERSION string-handling bug, not a real freeze
+# violation; needs its own root-cause fix)
+run_step "Check evaluator freeze (FREEZE-04, landing state)" "advisory" \
+    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_freeze.py
 
-run_step "Check skill sync parity" "blocking" \
-    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/ops/sync_skills.py --check
+run_step "Check skill documentation coverage" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_skill_readme_coverage.py
 
-run_step "Check skill registry completeness" "advisory" \
+run_step "Check skill registry completeness" "blocking" \
     "$PYTHON" scripts/ci/checks/check_skill_registry.py
 
-run_step "Check agent governance surface" "advisory" \
-    "$PYTHON" scripts/ci/checks/check_agent_governance_surface.py --check-baseline
+# advisory in CI (continue-on-error: true, landing state 2026-08-14 — real
+# pre-existing DAR gaps not yet reconciled)
+run_step "Check DAR coverage alignment (landing state)" "advisory" \
+    "$PYTHON" scripts/ci/checks/check_dar_coverage.py
 
-if [ "${#COMMIT_SHAS[@]}" -gt 0 ]; then
-    # Skills invoked check -- inline (no subshell needed)
-    missing=0
-    for sha in "${COMMIT_SHAS[@]}"; do
-        msg=$(git log -1 --format='%B' "$sha")
-        if ! echo "$msg" | grep -qiE 'skills?\s*invoked'; then
-            echo "  WARN: Commit $sha lacks 'Skills invoked:' field"
-            missing=$((missing + 1))
-        fi
-    done
-    if [ "$missing" -gt 0 ]; then
-        STEP_RESULTS["Check Skills invoked declaration"]="WARN"
-        WARN=$((WARN + 1))
-        echo "  WARN [advisory]: Check Skills invoked declaration ($missing commits missing)"
-    else
-        STEP_RESULTS["Check Skills invoked declaration"]="PASS"
-        PASS=$((PASS + 1))
-        echo "  PASS [advisory]: Check Skills invoked declaration"
-    fi
-else
-    echo "  SKIP: No content commits in range"
-fi
+run_step "Check DAR-table skill-ID accuracy (RPR-G-02)" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_dar_table_accuracy.py
 
-if [ "${#CHANGED_ALL_FILES[@]}" -gt 0 ]; then
-    run_step "Check forbidden-path override tokens" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_forbidden_overrides.py "${CHANGED_ALL_FILES[@]}"
-fi
+run_step "Check pipeline path integrity" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_pipeline_path_integrity.py
 
-run_step "Check compliance proof bundles" "advisory" \
-    "$PYTHON" scripts/ci/checks/check_proof_bundles.py
+run_step "Check clone cache refs (no foss-launcher)" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_clone_cache_refs.py
 
-if [ "${#COMMIT_SHAS[@]}" -gt 0 ]; then
-    run_step "Validate skill run records" "advisory" \
-        "$PYTHON" scripts/ci/checks/check_skill_run_records.py --commits "${COMMIT_SHAS[@]}"
-fi
+# advisory in CI (continue-on-error: true, landing state 2026-08-14 — 2 real
+# pre-existing registration gaps not yet reconciled)
+run_step "Check pipeline script registration (landing state)" "advisory" \
+    "$PYTHON" scripts/ci/checks/check_pipeline_registration.py --fail-test-gaps
+
+run_step "Hugo build verification (products.aspose.org)" "blocking" \
+    bash scripts/ci/hooks/check_hugo_build.sh products.aspose.org
+
+# Forbidden-path override tokens and "Skills invoked" commit provenance are
+# NOT part of content-governance-checks.yml (its own header: already enforced
+# locally at commit time — pre-commit-audit.sh Step 21 for override tokens,
+# commit-msg-skills.sh for the Skills-invoked trailer). Not re-run here to
+# keep this script an honest mirror of the live push gate; run
+# `bash scripts/pre-commit-audit.sh` / `bash scripts/pre-push-audit.sh`
+# separately for those.
 
 # --------------------------------------------------------------------------
 # Summary
@@ -280,7 +250,7 @@ results = {
     "changed_content_files": ${#CHANGED_FILES[@]},
     "summary": {"pass": ${PASS}, "fail": ${FAIL}, "warn": ${WARN}},
     "overall_result": "FAIL" if ${FAIL} > 0 else "PASS",
-    "plan_reference": "2026-04-25-taskcard-codebase-verification-and-gap-healing.md (TC-03)"
+    "plan_reference": "reports/skill-gaps/2026-08-16-repo-usability-operability-audit.md (re-mirrored to content-governance-checks.yml)"
 }
 with open(results_file, "w") as f:
     json.dump(results, f, indent=2)
