@@ -143,3 +143,9 @@ scripts:
     purpose: "Advisory, read-only git object-store health check (fsck broken-links + loose-object count vs gc.auto threshold); run manually or at session start to catch the reflog-protected-corruption/loose-object-backlog incident class before it needs a live forensic re-investigation — see reports/skill-gaps/2026-08-09-git-object-store-maintenance.md"
     created: "2026-08-09"
     status: done
+
+  - path: scripts/maintenance/pilot_wae_collision_repro.py
+    kind: one-shot
+    purpose: "Live pilot repro/proof for MT033-WAECOLLISION-001: exercises the real batch_reference.run() production entrypoint against an isolated pilot workspace with a genuine crash + real 1.5s clock-delay + retry, no pytest involved. Writes only under a caller-supplied pilot_root (reports/pilot_runs/ by convention, gitignored). Kept for potential future re-verification if this code path regresses again."
+    created: "2026-08-17"
+    status: done
