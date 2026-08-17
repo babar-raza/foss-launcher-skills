@@ -152,6 +152,37 @@ def test_execution_authority_flag_makes_coverage_strict(tmp_path):
     ]) == 1
 
 
+# ── id-pattern inference (regression: was hardcoded to RPR-[A-Z]-NN only) ──
+
+def test_infer_pattern_matches_non_rpr_ids():
+    """TC-MEDIA-01-style ids (used by every real mission except one legacy
+    plan) previously went completely unmatched by the hardcoded _TASK_ID
+    regex -- this locks in that they're now derived correctly."""
+    pattern = parity.infer_task_id_pattern(["TC-MEDIA-01", "TC-MEDIA-02"])
+    assert pattern.findall("**TC-MEDIA-03 — new step [STATUS: DONE]**") == ["TC-MEDIA-03"]
+
+
+def test_infer_pattern_still_matches_rpr_ids():
+    pattern = parity.infer_task_id_pattern(["RPR-A-01", "RPR-B-02"])
+    assert pattern.findall("**RPR-A-05 — thing [STATUS: DONE]**") == ["RPR-A-05"]
+
+
+def test_infer_pattern_empty_store_matches_nothing():
+    pattern = parity.infer_task_id_pattern([])
+    assert pattern.findall("RPR-A-01 TC-MEDIA-01 anything") == []
+
+
+def test_end_to_end_non_rpr_ids_previously_silently_passed_now_detected(tmp_path):
+    """Before the fix: a TC-MEDIA-* plan/store pair produced 'OK: 0 tagged
+    task(s)... no contradictions' regardless of real content, because the
+    hardcoded RPR-only regex matched nothing. Same shape, but now a real
+    contradiction (plan says DONE, store says TODO) must be caught."""
+    store = _write_store(tmp_path, [_row("TC-MEDIA-01", "TODO")])
+    md = tmp_path / "plan.md"
+    md.write_text("**TC-MEDIA-01 — write gap report [STATUS: DONE]**\n", encoding="utf-8")
+    assert parity.main(["--plan-file", str(md), "--taskcards", str(store)]) == 1
+
+
 # ── real mission artifact ─────────────────────────────────────────────────
 
 def test_real_mission_store_passes_against_real_plan():

@@ -48,6 +48,16 @@ from pathlib import Path
 
 # A task card header carries the task id and an optional [STATUS: ...] tag, e.g.
 #   **RPR-A-01 — Classify ... [STATUS: PARTIAL — 12/74 ...]**
+#
+# _TASK_ID below is a FALLBACK ONLY, kept for callers that invoke
+# extract_plan_tags() without a pattern (older tests, ad hoc scripts). It used
+# to be the only matcher this tool had -- hardcoded to one legacy mission's
+# id shape -- which meant this tool silently reported "0 tagged tasks, no
+# contradictions" (a false-confidence pass, not an error) against every other
+# mission's taskcards.jsonl, since none of them use RPR-[A-Z]-NN ids
+# (TC-MEDIA-01, MT023-..., etc. all went unmatched). main() now derives the
+# real pattern from the mission's own taskcards.jsonl via
+# infer_task_id_pattern() and passes it explicitly -- see there.
 _TASK_ID = re.compile(r"\bRPR-[A-Z]-\d{2}\b")
 _STATUS_TAG = re.compile(r"\[STATUS:\s*([^\]]+)\]", re.IGNORECASE)
 _EXECUTION_AUTHORITY_MARKER = "<!-- TASKCARD_EXECUTION_AUTHORITY -->"
@@ -60,7 +70,7 @@ DONE, PARTIAL, NOT_STARTED = "DONE", "PARTIAL", "NOT_STARTED"
 # schema-5f status enum -> bucket
 _STORE_BUCKET = {
     "TODO": NOT_STARTED, "READY": NOT_STARTED,
-    "IN_PROGRESS": PARTIAL, "IMPLEMENTED": PARTIAL,
+    "IN_PROGRESS": PARTIAL, "IMPLEMENTED": PARTIAL, "PAUSED": PARTIAL,
     "FOCUSED_VERIFIED": DONE, "INTEGRATION_VERIFIED": DONE,
     "END_TO_END_VERIFIED": DONE, "PILOT_PROVEN": DONE,
     "INDEPENDENTLY_REVIEWED": DONE, "CLOSED": DONE,
@@ -68,6 +78,38 @@ _STORE_BUCKET = {
 }
 _EXCLUDED_STORE_STATUSES = {"SUPERSEDED", "OUT_OF_SCOPE", "REWORK_REQUIRED",
                             "BLOCKED_LOCAL", "BLOCKED_EXTERNAL"}
+
+
+def infer_task_id_pattern(task_ids) -> re.Pattern:
+    """Build a task-id-matching regex from a mission's own observed
+    task_id values, instead of a hardcoded prefix.
+
+    Derives each id's prefix (everything up to and including its final
+    hyphen before a trailing numeric suffix, e.g. "TC-MEDIA-01" -> "TC-MEDIA-",
+    "RPR-A-01" -> "RPR-A-") and matches any id sharing one of those prefixes
+    followed by digits -- broad enough to also catch a plan-mentioned id that
+    shares the mission's convention but has NO store row yet at all (the
+    tagged_but_missing_from_store case this tool exists to catch; restricting
+    the pattern to only ALREADY-known exact ids would silently defeat that).
+    Ids with no trailing numeric suffix are matched verbatim as a fallback.
+
+    Returns a regex matching nothing (never matches) if task_ids is empty --
+    an empty store has no convention to infer, and the caller should not fall
+    back to the RPR-only default silently.
+    """
+    prefixes: set[str] = set()
+    literals: set[str] = set()
+    for tid in task_ids:
+        m = re.match(r"^(.*-)(\d+)$", tid)
+        if m:
+            prefixes.add(m.group(1))
+        else:
+            literals.add(tid)
+    if not prefixes and not literals:
+        return re.compile(r"(?!)")  # matches nothing
+    alts = [re.escape(p) + r"\d+" for p in prefixes] + [re.escape(l) for l in literals]
+    alts.sort(key=len, reverse=True)  # longer/more-specific prefixes first
+    return re.compile(r"\b(?:" + "|".join(alts) + r")\b")
 
 # Phrases in a markdown [STATUS: ...] tag that qualify a "DONE" down to PARTIAL.
 _PARTIAL_QUALIFIERS = ("partial", "portion", "still open", "not yet", "⏳",
@@ -95,15 +137,21 @@ def store_status_bucket(status: str) -> str | None:
     return _STORE_BUCKET.get(status, NOT_STARTED)
 
 
-def extract_plan_tags(plan_text: str) -> dict[str, str]:
+def extract_plan_tags(plan_text: str, task_id_pattern: "re.Pattern | None" = None) -> dict[str, str]:
     """task_id -> raw [STATUS: ...] text, for cards that carry an explicit tag.
 
-    A card header is a single line containing an RPR id; the tag (if any) is on
+    A card header is a single line containing a task id; the tag (if any) is on
     the same line. Only the first tag per task id is taken.
+
+    task_id_pattern should normally be built by infer_task_id_pattern() from
+    the mission's own taskcards.jsonl (main() does this). Defaults to the
+    legacy RPR-only pattern only when omitted, for callers that don't have a
+    store loaded yet -- new call sites should always pass an inferred pattern.
     """
+    pattern = task_id_pattern if task_id_pattern is not None else _TASK_ID
     tags: dict[str, str] = {}
     for line in plan_text.splitlines():
-        ids = _TASK_ID.findall(line)
+        ids = pattern.findall(line)
         if not ids:
             continue
         m = _STATUS_TAG.search(line)
@@ -177,8 +225,11 @@ def main(argv=None) -> int:
         return 2
     try:
         plan_text = plan_path.read_text(encoding="utf-8")
-        plan_tags = extract_plan_tags(plan_text)
         store = load_taskcards(store_path)
+        # Derive the id-matching pattern from THIS mission's own task_ids,
+        # not a hardcoded convention -- see infer_task_id_pattern().
+        task_id_pattern = infer_task_id_pattern(store.keys())
+        plan_tags = extract_plan_tags(plan_text, task_id_pattern)
     except (json.JSONDecodeError, KeyError, OSError) as exc:
         print(f"ERROR: could not parse inputs: {exc}", file=sys.stderr)
         return 2
