@@ -346,18 +346,115 @@ def _extract_pypi_dependencies(
 # ---------------------------------------------------------------------------------------------
 
 
+# Deliberately a broad, case-insensitive SUBSTRING search, not a dot-delimited-segment match --
+# real, live-confirmed evidence forced the widening: `slides/net`'s own real
+# `tests/Aspose.Slides.Foss.IntegrationTests/Aspose.Slides.Foss.IntegrationTests.csproj` has
+# "Tests" concatenated directly onto "Integration" with no delimiter (ordinary C# PascalCase
+# naming), so a stricter `(?:\.|^)Tests?(?:\.|$)` pattern -- which correctly caught
+# `words/net`'s own `Aspose.Words.Tests`/`Aspose.JavaMs.Tests` -- silently failed to catch this
+# one, and it tied with the real main-library project at the same path depth. Checked against
+# every real main-library .csproj path already found across the current .NET portfolio (3d,
+# cells, email, pdf, slides, words) before widening: none contains "test" as a substring, so
+# this broadening carries no known false-exclusion risk in this portfolio today.
+_TEST_CSPROJ_STEM_RE = re.compile(r"test", re.IGNORECASE)
+
+
 def _select_main_csproj(repo_root: Path) -> "Path | None":
     """Reuses package_manifest.py's own proven "shortest-path csproj wins" main-library
-    heuristic, reimplemented locally (not imported -- see module docstring)."""
-    candidates = sorted(
+    heuristic, reimplemented locally (not imported -- see module docstring), extended with a
+    test-project exclusion (2026-08-17, real confirmed bug: words/net has 4 real, same-depth
+    top-level .csproj files -- Aspose.Words, Aspose.Words.Tests, Aspose.Words.TestFx,
+    Aspose.JavaMs.Tests -- and the original heuristic's shortest-path sort has no secondary
+    key, so it silently picked a test project purely because it sorted first among same-depth
+    candidates, making every downstream dependency snapshot describe the test suite's own
+    dependencies (NUnit, Microsoft.NET.Test.Sdk) instead of the real library's. Real, non-test
+    candidates are always preferred; a test-named project is only ever returned as a last-
+    resort fallback when literally no other .csproj exists, never silently treated as if no
+    manifest were found at all."""
+    all_csproj = sorted(
         repo_root.rglob("*.csproj"), key=lambda p: len(p.relative_to(repo_root).parts)
     )
+    if not all_csproj:
+        return None
+    non_test = [p for p in all_csproj if not _TEST_CSPROJ_STEM_RE.search(p.stem)]
+    return non_test[0] if non_test else all_csproj[0]
+
+
+_NUSPEC_XMLNS_RE = re.compile(r'\sxmlns="[^"]+"')
+
+
+def _find_nuspec(repo_root: Path) -> "Path | None":
+    """A `.nuspec` file, when present, is the authoritative source for a NuGet package's real,
+    published runtime dependency graph -- critical for a product that publishes a MERGED
+    (ILRepack'd) assembly, where the main `.csproj`'s own `<PackageReference>` entries describe
+    ONLY that project's own build-time inputs, which for a merge-then-strip build are routinely
+    all `PrivateAssets="all"` tooling with zero real runtime overlap, never what NuGet actually
+    requires downstream. Real, confirmed live (2026-08-17): `words/net`'s own `Package/
+    Aspose.Words.FOSS.nuspec` lists `SkiaSharp`/`BitMiracle.LibTiff.NET`/`Microsoft.Win32.
+    Registry` as real runtime dependencies; its real main csproj's own `PackageReference`s are
+    `ILRepack` (the merge tool) and a source generator, both `PrivateAssets="all"`, neither a
+    real runtime concern -- the csproj-only extraction path was structurally incapable of ever
+    finding the real dependency list for this product."""
+    candidates = sorted(
+        repo_root.rglob("*.nuspec"), key=lambda p: len(p.relative_to(repo_root).parts)
+    )
     return candidates[0] if candidates else None
+
+
+def _extract_nuspec_dependencies(
+    family: str, platform: str, nuspec_path: Path, repo_root: Path, source_revision: "str | None",
+) -> DependencySnapshot:
+    text = nuspec_path.read_text(encoding="utf-8")
+    text = _NUSPEC_XMLNS_RE.sub("", text, count=1)
+    try:
+        root = ElementTree.fromstring(text)
+    except ElementTree.ParseError as exc:
+        raise DependencyExtractionError(f"malformed nuspec at {nuspec_path}: {exc}") from exc
+
+    snapshot = _new_snapshot(
+        family, platform, "nuget",
+        source_manifest_path=str(nuspec_path.relative_to(repo_root)).replace("\\", "/"),
+        source_revision=source_revision,
+    )
+    # Union real <dependency> entries across every <group targetFramework="...">, deduping by
+    # name -- a dependency present in some but not all target-framework groups (e.g. words/net's
+    # real Microsoft.Win32.Registry, needed for net462/netstandard2.0 but not net8.0) still gets
+    # exactly one real entry, with platform_condition recording every group it actually applies
+    # to, rather than being silently dropped or duplicated once per group.
+    seen: dict[str, dict] = {}
+    for group in root.iter():
+        if group.tag.rsplit("}", 1)[-1] != "group":
+            continue
+        tfm = group.get("targetFramework")
+        for dep in group:
+            if dep.tag.rsplit("}", 1)[-1] != "dependency":
+                continue
+            name = dep.get("id")
+            if not name:
+                continue
+            version = dep.get("version")
+            if name not in seen:
+                seen[name] = {"version": version, "target_frameworks": []}
+            if tfm:
+                seen[name]["target_frameworks"].append(tfm)
+    for name, info in seen.items():
+        platform_condition = ", ".join(info["target_frameworks"]) if info["target_frameworks"] else None
+        _place(snapshot, _entry(
+            name, "nuget", version_constraint=info["version"], platform_condition=platform_condition,
+        ))
+    return snapshot
+
+
+_PRIVATE_ASSETS_ALL_RE = re.compile(r"^\s*all\s*$", re.IGNORECASE)
 
 
 def _extract_nuget_dependencies(
     family: str, platform: str, repo_root: Path, source_revision: "str | None",
 ) -> DependencySnapshot:
+    nuspec = _find_nuspec(repo_root)
+    if nuspec is not None:
+        return _extract_nuspec_dependencies(family, platform, nuspec, repo_root, source_revision)
+
     csproj = _select_main_csproj(repo_root)
     if csproj is None:
         raise DependencyExtractionError(f"no .csproj found under {repo_root}")
@@ -380,8 +477,18 @@ def _extract_nuget_dependencies(
         if not name:
             continue
         condition = elem.get("Condition")
+        # A real, standard MSBuild convention: PrivateAssets="all" means this package's assets
+        # never flow to consumers of the built package -- genuinely a build/dev-time-only tool
+        # (e.g. an ILRepack merge step, a source generator), not a runtime dependency, even
+        # though it's declared the same way as a real one. Confirmed live: words/net's own
+        # ILRepack/Aspose.EnumExtensionsGenerator PackageReferences both carry this attribute.
+        private_assets = elem.get("PrivateAssets") or (
+            elem.find("PrivateAssets").text if elem.find("PrivateAssets") is not None else None
+        )
+        is_build_tool = bool(private_assets and _PRIVATE_ASSETS_ALL_RE.match(private_assets))
         _place(snapshot, _entry(
             name, "nuget", version_constraint=version, platform_condition=condition,
+            dev_only=is_build_tool, role="build" if is_build_tool else "runtime",
         ))
     # An empty-but-parsed csproj is a genuine, trusted "zero dependencies" fact -- returning
     # here with an empty `required` list is correct, not an error.
@@ -555,6 +662,34 @@ def _extract_npm_dependencies(
 # ---------------------------------------------------------------------------------------------
 
 _CMAKE_FIND_PACKAGE_RE = re.compile(r"find_package\s*\(\s*(\S+)")
+_CMAKE_FETCHCONTENT_DECLARE_RE = re.compile(r"FetchContent_Declare\s*\(\s*(\w+)([^)]*)\)", re.DOTALL)
+_CMAKE_GIT_TAG_RE = re.compile(r"GIT_TAG\s+(\S+)")
+_CMAKE_TARGET_LINK_LIBRARIES_RE = re.compile(
+    r"target_link_libraries\s*\(\s*(\S+)([^)]*)\)", re.DOTALL
+)
+
+
+def _cmake_fetchcontent_is_runtime_linked(text: str, name: str) -> bool:
+    """Best-effort (2026-08-17, the slides/* portfolio audit): `True` when `name` (case-
+    insensitive substring, tolerating a CMake `::`-namespaced target alias like
+    `pugixml::pugixml`) appears inside a `target_link_libraries(${PROJECT_NAME} ...)` call whose
+    target does not carry a `_test(s)` suffix -- the real, verified signal that correctly
+    distinguishes `slides/cpp`'s real 2 runtime dependencies (`pugixml`, `miniz`, both linked
+    directly to `${PROJECT_NAME}`) from its real test-only dependency (GoogleTest, linked only to
+    `${PROJECT_NAME}_tests` via the `GTest::` alias, never to the main library target). A
+    disclosed heuristic, not a real CMake target-graph resolver -- a product whose main target
+    isn't literally named `${PROJECT_NAME}`, or whose test target uses a different naming
+    convention, could evade this signal; expect real tuning once this runs against more than the
+    one real product it was built and validated against.
+    """
+    name_l = name.lower()
+    for call_match in _CMAKE_TARGET_LINK_LIBRARIES_RE.finditer(text):
+        target, args = call_match.group(1), call_match.group(2)
+        if re.search(r"_tests?\b", target, re.IGNORECASE):
+            continue
+        if name_l in args.lower():
+            return True
+    return False
 
 
 def _extract_cpp_dependencies(
@@ -604,23 +739,24 @@ def _extract_cpp_dependencies(
     if cmake is not None:
         text = cmake.read_text(encoding="utf-8", errors="ignore")
         matches = _CMAKE_FIND_PACKAGE_RE.findall(text)
+        fetchcontent_matches = _CMAKE_FETCHCONTENT_DECLARE_RE.findall(text)
         # A real, live false positive found against cells/cpp's own genuine, dependency-free
         # CMakeLists.txt (34 lines -- compiler flags, a static-lib target, `add_subdirectory
         # (tests)` -- no find_package, no FetchContent, no ExternalProject_Add) ruled out a
         # bare file-length threshold as the "did the regex probably miss something" signal:
         # length alone doesn't distinguish "large and truly dependency-free" from "large and
         # the regex missed a real dependency." Instead, only raise when the file contains a
-        # DIFFERENT dependency-management construct the narrow find_package regex doesn't
-        # itself match (FetchContent/ExternalProject_Add/pkg_check_modules) -- a real signal
-        # that dependency declarations exist in some form, worth a human's attention -- and
-        # trust a genuine zero-match result otherwise, the same way an empty-but-parsed
-        # .csproj is already trusted rather than treated as a possible miss.
+        # DIFFERENT dependency-management construct neither the find_package nor (as of
+        # 2026-08-17) the FetchContent_Declare regex itself matches (ExternalProject_Add/
+        # pkg_check_modules/find_library) -- a real signal that dependency declarations exist in
+        # some form, worth a human's attention -- and trust a genuine zero-match result
+        # otherwise, the same way an empty-but-parsed .csproj is already trusted rather than
+        # treated as a possible miss.
         other_dep_constructs = re.search(
-            r"\bFetchContent_Declare\b|\bExternalProject_Add\b|\bpkg_check_modules\b|"
-            r"\bfind_library\s*\(",
+            r"\bExternalProject_Add\b|\bpkg_check_modules\b|\bfind_library\s*\(",
             text,
         )
-        if not matches and other_dep_constructs:
+        if not matches and not fetchcontent_matches and other_dep_constructs:
             raise DependencyExtractionError(
                 f"{cmake} uses a dependency-management construct "
                 f"({other_dep_constructs.group(0)}) this extractor doesn't yet parse -- add "
@@ -634,6 +770,22 @@ def _extract_cpp_dependencies(
         for name in matches:
             _place(snapshot, _entry(
                 name, "none", source_type="registry", extraction_confidence="regex_best_effort",
+            ))
+        # 2026-08-17 (slides/* portfolio audit): FetchContent_Declare is CMake's own real,
+        # increasingly common dependency-management construct -- previously only detected as
+        # "something exists here, ask a human" (the other_dep_constructs branch above), never
+        # actually parsed. Real, confirmed shape (slides/cpp's own CMakeLists.txt): pugixml/
+        # miniz/googletest all declared this way; pugixml+miniz are real runtime deps (linked
+        # directly to the main library target), googletest is real but test-only (linked only to
+        # the `_tests` executable) -- see `_cmake_fetchcontent_is_runtime_linked`'s own docstring.
+        for name, block in fetchcontent_matches:
+            tag_match = _CMAKE_GIT_TAG_RE.search(block)
+            version = tag_match.group(1) if tag_match else None
+            is_runtime = _cmake_fetchcontent_is_runtime_linked(text, name)
+            _place(snapshot, _entry(
+                name, "none", source_type="git", version_constraint=version,
+                dev_only=not is_runtime, role="runtime" if is_runtime else "build",
+                extraction_confidence="regex_best_effort",
             ))
         return snapshot
 

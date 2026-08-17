@@ -15,7 +15,7 @@ args: "{family} {platform}"
      preconditions: product active in data/products.json, not excluded, real push/admin access
      postcondition: run is AWAITING_REVIEW, APPROVED, PUSHED, BLOCKED, or ABANDONED
      idempotent: yes — immutable receipts, state checkpoints, single-owner-per-product locking
-     verified: 2026-08-15
+     verified: 2026-08-16
 -->
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -175,6 +175,26 @@ same product concurrently.
    to whichever real category the checkable fact belongs to and reframed to drop the hedge,
    never excluded wholesale; `check_content_unit_embedded_actionable_fact` (heuristic) is a
    standing, portfolio-wide tripwire for this exact pattern recurring on a future product.
+
+   **Real screenshots/visual proof-of-capability content is preservable — never excluded on the
+   stated basis that "no template section exists for this" (MT051, Forty-First incident,
+   2026-08-16).** Real, confirmed defect: `page/python`'s own `content-dispositions.json`
+   excluded 3 real, on-disk `## Example Results` screenshots with the fabricated reason "the
+   Template's fixed section list has no image-gallery section to hold embedded result
+   screenshots" — directly, empirically false, contradicted by this exact portfolio's own
+   `font/python` candidate (5 real embedded local images in the body) and by `pdf/go`'s own
+   `## Feature Showcase` section (a dedicated top-level section built specifically to hold one).
+   The established, correct target for this content is a `### {descriptive name}` subsection
+   under `## Additional Examples` (inside the `<details>` block alongside the other collapsed
+   examples, since a gallery of screenshots is supplementary proof, not the one flagship example
+   shown directly) — reuse this pattern, never invent a categorical "the template has no room
+   for this" justification without first checking `## Additional Examples`'s own already-
+   established subsection convention. `check_image_content_unit_excluded_reason_verified`
+   (heuristic) is a standing tripwire: an excluded image-markdown content unit whose
+   `candidate_section_reference` cites a PROSE section (its generic keyword overlap can
+   coincidentally match unrelated prose regardless of whether the specific image is genuinely
+   duplicated) is only trustworthy when the image's own real asset filename actually reappears
+   somewhere in the candidate — never on the strength of related-but-generic vocabulary alone.
 
    **Prose quality (TC-HARDEN-22, MT034/Twentieth incident, 2026-08-12).** Every existing
    tone-adjacent check (`check_process_narration_smells`, `check_key_capabilities_quality`,
@@ -545,8 +565,8 @@ same product concurrently.
        adds..."*
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
-   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 83 `check_*` functions as of
-   2026-08-15 (MT046) — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
+   (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 91 `check_*` functions as of
+   2026-08-16 (MT051) — re-verify against `grep -c "^def check_" readme_refresh_checks.py` before
    trusting this number again). **2026-08-08 diagram simplification (Tenth incident, MT024)**: the At-a-Glance
    diagram is now exactly `Product → Core Capabilities → Outputs` (up to 5 capabilities in one
    column, 6+ split into 2 balanced columns) — no individual per-capability edges. **Starting

@@ -5034,6 +5034,77 @@ def test_capability_scope_contradiction_noop_without_both_sections():
     assert checks.check_capability_scope_contradiction(text) == []
 
 
+# --- check_diagram_from_scratch_capability_labeled (2026-08-17, real words/net incident) --
+
+_WORDS_NET_FROM_SCRATCH_BULLET = (
+    "- Create documents from scratch with the full document object model, or through the "
+    "cursor-based `DocumentBuilder`, then load and edit existing DOCX, DOCM, DOTX, or DOTM "
+    "files with the same `Document` class."
+)
+
+
+def _words_net_diagram(capability_label: str) -> str:
+    return (
+        "flowchart TD\n"
+        "  PRODUCT[\"Aspose.Words FOSS for .NET\"]\n"
+        "  subgraph Capabilities[\"Core Capabilities\"]\n"
+        f"    C1[\"{capability_label}\"]\n"
+        "    C2[\"Field evaluation engine\"]\n"
+        "  end\n"
+    )
+
+
+def test_diagram_from_scratch_capability_labeled_flags_real_pre_fix_words_net_shape():
+    # Real, captured-verbatim shape: the diagram's own capability label never mentioned
+    # "from scratch" even though Key Capabilities' own first bullet explicitly claims it.
+    text = _wrap(
+        _words_net_diagram("Document creation and editing"),
+        extra_section=_WORDS_NET_FROM_SCRATCH_BULLET,
+    )
+    findings = checks.check_diagram_from_scratch_capability_labeled(text)
+    assert len(findings) == 1
+    assert "invisible at a glance" in findings[0]["reason"]
+
+
+def test_diagram_from_scratch_capability_labeled_clean_after_real_fix():
+    # The real fix applied to words/net's own candidate.
+    text = _wrap(
+        _words_net_diagram("Document creation from scratch and editing"),
+        extra_section=_WORDS_NET_FROM_SCRATCH_BULLET,
+    )
+    assert checks.check_diagram_from_scratch_capability_labeled(text) == []
+
+
+def test_diagram_from_scratch_capability_labeled_clean_for_hybrid_starting_points():
+    # Hybrid-archetype products (e.g. pdf/cpp) legitimately carry the phrase in their real
+    # StartingPoints container's own literal line rather than in a Capabilities node label --
+    # the same real shape as the HYBRID_PDF_CPP fixture above, minus its own default
+    # "- Does a thing." Key Capabilities text.
+    mermaid_body = (
+        "flowchart TD\n"
+        "  subgraph StartingPoints[\"Starting Points\"]\n"
+        "    I1[\"An existing PDF document\"]\n"
+        "    I2[\"Nothing -- authored from scratch\"]\n"
+        "  end\n"
+        "  PRODUCT[\"Aspose.PDF FOSS for C++\"]\n"
+        "  subgraph Capabilities[\"Core Capabilities\"]\n"
+        "    C1[\"Text extraction and page rendering\"]\n"
+        "    C2[\"Document creation and editing\"]\n"
+        "  end\n"
+    )
+    text = _wrap(mermaid_body, extra_section=_WORDS_NET_FROM_SCRATCH_BULLET)
+    assert checks.check_diagram_from_scratch_capability_labeled(text) == []
+
+
+def test_diagram_from_scratch_capability_labeled_vacuous_without_claim():
+    # No "from scratch" claim anywhere in Key Capabilities -- must never fire.
+    text = _wrap(
+        _words_net_diagram("Document creation and editing"),
+        extra_section="- `Cylinder` is a parameterized solid primitive convertible to `Mesh`.\n",
+    )
+    assert checks.check_diagram_from_scratch_capability_labeled(text) == []
+
+
 def test_capability_scope_contradiction_flags_python_not_implemented_error():
     # Regression test: found live during the Phase 2 portfolio rollout (2026-08-09,
     # words/python) -- the original _STUB_INDICATOR_RE only matched the Java/C# convention
@@ -5979,6 +6050,114 @@ def test_embedded_actionable_fact_zero_findings_across_real_pilot_negative_shape
     assert checks.check_content_unit_embedded_actionable_fact(units, dispositions) == []
 
 
+# --- check_image_content_unit_excluded_reason_verified (MT051, Forty-First incident) ------------
+# Real, captured-verbatim shapes from page/python's own two candidate trees.
+
+_PAGE_PYTHON_KEY_CAPABILITIES_TEXT = (
+    "## Key Capabilities\n\n"
+    "- Convert XPS documents to PDF, then optionally render pages to PNG/JPEG raster images.\n"
+    "- Convert PS and EPS files to PDF for downstream viewing and archival.\n"
+    "- Render PS/EPS content directly to raster image formats.\n"
+)
+
+
+def test_image_content_unit_excluded_reason_flags_real_page_python_dropped_images():
+    # The real, original defect this incident exists to catch: 3 real, on-disk screenshots were
+    # excluded via a candidate_section_reference to "Key Capabilities" whose own generic tokens
+    # (XPS/PDF/PS) trivially, coincidentally match unrelated Key Capabilities prose -- while the
+    # images themselves were never actually re-embedded anywhere in the candidate.
+    dispositions = [
+        _content_unit(
+            unit_id="u0014", excerpt="![mb03 xps2pdf result](readme.resources/mb03.png)",
+            salient_tokens=("XPS", "PDF"), classification="redundant_with_existing",
+            disposition="excluded", target_section=None,
+            evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+            evidence_ref="Key Capabilities",
+            excluded_reason="the Template's fixed section list has no image-gallery section",
+        ),
+        _content_unit(
+            unit_id="u0015", excerpt="![ps2pdf result](readme.resources/TestImages.png)",
+            salient_tokens=("PS", "PDF"), classification="redundant_with_existing",
+            disposition="excluded", target_section=None,
+            evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+            evidence_ref="Key Capabilities",
+            excluded_reason="the Template's fixed section list has no image-gallery section",
+        ),
+        _content_unit(
+            unit_id="u0016", excerpt="![PS to image sample](readme.resources/RGB10.png)",
+            salient_tokens=("PS", "RGB10"), classification="redundant_with_existing",
+            disposition="excluded", target_section=None,
+            evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+            evidence_ref="Key Capabilities",
+            excluded_reason="the Template's fixed section list has no image-gallery section",
+        ),
+    ]
+    units = [{"unit_id": d["unit_id"], "excerpt": d["excerpt"]} for d in dispositions]
+    findings = checks.check_image_content_unit_excluded_reason_verified(
+        units, dispositions, _PAGE_PYTHON_KEY_CAPABILITIES_TEXT
+    )
+    assert {f["unit_id"] for f in findings} == {"u0014", "u0015", "u0016"}
+    assert "mb03.png" in findings[0]["reason"]
+
+
+def test_image_content_unit_excluded_reason_silent_when_image_genuinely_reembedded():
+    # page/python's OWN repo-presenter tree: the identical raw units, excluded for a genuinely
+    # true reason -- the same images really are re-embedded elsewhere in that tree's candidate,
+    # under different, clearer captions. Negative control -- must stay silent.
+    dispositions = [
+        _content_unit(
+            unit_id="u0011", excerpt="![mb03 xps2pdf result](readme.resources/mb03.png)",
+            salient_tokens=("XPS", "PDF"), classification="redundant_with_existing",
+            disposition="excluded", target_section=None,
+            evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+            evidence_ref="Additional Examples",
+            excluded_reason="identical image already embedded, under a clearer caption, in the "
+                             "Additional Examples section",
+        ),
+    ]
+    units = [{"unit_id": "u0011", "excerpt": dispositions[0]["excerpt"]}]
+    readme_with_reembedded_image = (
+        "## Additional Examples\n\n### Example Results\n\n"
+        "![XPS to PDF to PNG result](readme.resources/mb03.png)\n"
+    )
+    assert checks.check_image_content_unit_excluded_reason_verified(
+        units, dispositions, readme_with_reembedded_image
+    ) == []
+
+
+def test_image_content_unit_excluded_reason_ignores_non_image_excerpts():
+    # The check must scope itself to bare image-markdown excerpts only -- an ordinary text unit
+    # excluded via candidate_section_reference is check_content_unit_merged_into_target_section's
+    # job, not this one's.
+    dispositions = [_content_unit(
+        unit_id="u0017", excerpt="MCP tools currently exposed:", salient_tokens=("MCP",),
+        classification="redundant_with_existing", disposition="excluded", target_section=None,
+        evidence_status="verified_redundant", evidence_type="candidate_section_reference",
+        evidence_ref="Key Capabilities",
+        excluded_reason="pure section-label text, already captured elsewhere",
+    )]
+    units = [{"unit_id": "u0017", "excerpt": dispositions[0]["excerpt"]}]
+    assert checks.check_image_content_unit_excluded_reason_verified(
+        units, dispositions, "## Key Capabilities\n\n- MCP tools: five exposed today.\n"
+    ) == []
+
+
+def test_image_content_unit_excluded_reason_ignores_merged_dispositions():
+    # A genuinely restored/merged image (post-fix state) must never be flagged -- only excluded
+    # units are in scope.
+    dispositions = [_content_unit(
+        unit_id="u0014", excerpt="![mb03 xps2pdf result](readme.resources/mb03.png)",
+        salient_tokens=("XPS", "PDF"), classification="redundant_with_existing",
+        disposition="merged_verbatim", target_section="Additional Examples",
+        evidence_status="verified_against_source", evidence_type="clone_cache_path",
+        evidence_ref="readme.resources/mb03.png",
+    )]
+    units = [{"unit_id": "u0014", "excerpt": dispositions[0]["excerpt"]}]
+    assert checks.check_image_content_unit_excluded_reason_verified(
+        units, dispositions, "no images embedded here at all"
+    ) == []
+
+
 # --- disposition_coverage: 4_verifiable_history / verified_by_corroboration pairing (MT031) ------
 
 
@@ -6698,6 +6877,36 @@ def test_code_example_imports_match_source_flags_class_not_found():
     assert findings[0]["class_name"] == "Nonexistent"
 
 
+def test_code_example_imports_match_source_ignores_jdk_stdlib_imports(tmp_path):
+    # 2026-08-17 (slides/* portfolio audit): real, captured-verbatim false positive against
+    # slides/java's own real candidate -- java.time/java.nio.file/java.io are never declared
+    # anywhere in a product's clone cache (they ship with the JDK itself), so all 3 previously
+    # fired as class_not_found despite being completely legitimate.
+    readme_text = (
+        "## Quick Start\n\n```java\n"
+        "import java.time.LocalDateTime;\n"
+        "import java.nio.file.Path;\n"
+        "import java.io.ByteArrayOutputStream;\n"
+        "import javax.xml.parsers.DocumentBuilder;\n"
+        "```\n"
+    )
+    assert checks.check_code_example_imports_match_source(readme_text, str(tmp_path)) == []
+
+
+def test_code_example_imports_match_source_still_flags_real_class_alongside_jdk_import(tmp_path):
+    # Regression guard: JDK-stdlib exclusion must not silently swallow a REAL, wrong import in
+    # the same code block.
+    readme_text = (
+        "## Quick Start\n\n```java\n"
+        "import java.time.LocalDateTime;\n"
+        "import org.aspose.slides_foss.Nonexistent;\n"
+        "```\n"
+    )
+    findings = checks.check_code_example_imports_match_source(readme_text, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["class_name"] == "Nonexistent"
+
+
 def test_code_example_imports_match_source_ignores_non_java_blocks(tmp_path):
     # A Python import statement inside a ```python block must never be parsed as a Java import,
     # even though "import x.y.Z" superficially resembles Java syntax.
@@ -6996,6 +7205,39 @@ def test_check_dependency_dev_only_presented_as_runtime_flags_misplacement():
     findings = checks.check_dependency_dev_only_presented_as_runtime(text, snapshot)
     assert len(findings) == 1
     assert findings[0]["name"] == "criterion"
+
+
+def test_check_dependency_development_claim_not_in_manifest_flags_real_slides_python_fabrication():
+    # 2026-08-17 (slides/* portfolio audit): real, captured-verbatim fabrication -- slides/
+    # python's own candidate claims `pytest` and `python-pptx` as development dependencies;
+    # neither is declared anywhere in the real pyproject.toml (no [project.optional-
+    # dependencies] table exists at all) nor imported anywhere in the real test suite. Every
+    # OTHER dependency check in this module passed this content cleanly.
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, development=[])
+    text = (
+        "## Dependencies\n\n### Development Dependencies\n\n"
+        "- `pytest` >= 7 -- the test runner.\n"
+        "- `python-pptx` >= 1.0 -- an independent reader used by this project's own "
+        "conformance tests.\n"
+    )
+    findings = checks.check_dependency_development_claim_not_in_manifest(text, snapshot)
+    assert {f["name"] for f in findings} == {"pytest", "python-pptx"}
+
+
+def test_check_dependency_development_claim_not_in_manifest_clean_on_real_manifest_names():
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, development=[
+        {"name": "criterion", "ecosystem": "cargo", "version_constraint": "0.5", "source_type": "registry",
+         "category": "required", "dev_only": True, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+    ])
+    text = "## Dependencies\n\n### Development Dependencies\n\n- `criterion` 0.5 -- benchmarks.\n"
+    assert checks.check_dependency_development_claim_not_in_manifest(text, snapshot) == []
+
+
+def test_check_dependency_development_claim_not_in_manifest_noop_without_snapshot():
+    text = "## Dependencies\n\n### Development Dependencies\n\n- `pytest` >= 7 -- fabricated.\n"
+    assert checks.check_dependency_development_claim_not_in_manifest(text, None) == []
 
 
 def test_check_dependency_scope_claim_matches_evidence_flags_unproven_proprietary_claim():
@@ -7652,6 +7894,33 @@ def test_check_api_reference_class_internal_only_exclusions_param_actually_suppr
     assert with_exclusion == []
 
 
+def test_check_api_reference_class_internal_only_scoped_to_python_only(tmp_path):
+    # 2026-08-17 (slides/* portfolio audit): run for real against 3 non-Python products for the
+    # first time, this heuristic flagged 161/238/260+ classes respectively (C++/Java/.NET) --
+    # effectively every class in each table, since __init__.py-export detection has no meaning
+    # outside Python. Reuses the exact real font/python positive control (which WOULD trip the
+    # fan-in-only signal) to prove: platform=None (legacy callers) still runs the real check;
+    # platform="python" still runs it; any other platform is a real no-op regardless of content.
+    root = _real_font_python_control_clone_cache(tmp_path)
+    readme_text = (
+        "## API Reference\n\n<details>\n<summary>View the Supported Public API Surface</summary>\n\n"
+        "### Core API\n\n| Class | Description |\n|---|---|\n"
+        "| `TaskTokenEstimate` | TaskTokenEstimate.task_id is the unique identifier of the task. |\n"
+        "\n</details>\n"
+    )
+    reference_index = {"Core API": [{"class": "TaskTokenEstimate", "description": "x"}]}
+    unscoped = checks.check_api_reference_class_internal_only(readme_text, reference_index, str(root))
+    assert {f["class_name"] for f in unscoped} == {"TaskTokenEstimate"}
+    python_scoped = checks.check_api_reference_class_internal_only(
+        readme_text, reference_index, str(root), platform="python",
+    )
+    assert {f["class_name"] for f in python_scoped} == {"TaskTokenEstimate"}
+    for other_platform in ("cpp", "java", "net", "go", "rust", "typescript"):
+        assert checks.check_api_reference_class_internal_only(
+            readme_text, reference_index, str(root), platform=other_platform,
+        ) == []
+
+
 def test_check_api_reference_class_internal_only_real_reporting_leak_still_flags_with_new_exemption(tmp_path):
     # Regression guard: the new same-file-exported-subclass exemption must not accidentally
     # clear the real font/python positive control (no subclasses of any kind).
@@ -7809,6 +8078,80 @@ def test_check_content_unit_merged_into_target_section_ignores_unrelated_exclude
     assert checks.check_content_unit_merged_into_target_section("## Intro\n\nSome text.\n", [entry]) == []
 
 
+# --- _extract_salient_tokens markdown-link coverage (2026-08-16) -------------------------------
+# Real, captured html/python u0032 excerpt (content-dispositions.json, reports/repo-presenter-
+# regen-full/html/python/) -- before this fix, neither `[PUBLIC_API.md](PUBLIC_API.md)` nor
+# `[examples](examples)` produced any real token (only a stray ALLCAPS "API" fragment), so
+# `check_content_unit_merged_into_target_section`'s otherwise-correct per-sentence-group logic
+# (MT049) had nothing to check the second sentence against -- a disposition claiming BOTH facts
+# landed in "Documentation & Resources" passed even though "examples" actually landed in a
+# different section (Additional Examples) in the real candidate.
+_U0032_EXCERPT = (
+    "For the stable API summary, see [PUBLIC_API.md](PUBLIC_API.md). For runnable scenarios, "
+    "see [examples](examples)."
+)
+
+
+def test_extract_salient_tokens_captures_markdown_link_text_and_target():
+    tokens = checks._extract_salient_tokens(_U0032_EXCERPT)
+    assert "PUBLIC_API.md" in tokens
+    assert "examples" in tokens
+
+
+def test_extract_salient_tokens_excludes_image_link_target():
+    # Real, captured page/python u0015 excerpt -- an image reference, not a prose link. Its
+    # filename/path must never be extracted as a "checkable identifier" the way a real link
+    # target is: an asset path never gets restated verbatim as prose elsewhere (an earlier,
+    # independent fix pass had already hand-removed this exact filename from u0015's own
+    # salient_tokens for this reason -- the new link-target pattern must not reintroduce it).
+    tokens = checks._extract_salient_tokens(
+        "![ps2pdf result](readme.resources/TestImages.png)"
+    )
+    assert "readme.resources/TestImages.png" not in tokens
+    assert "ps2pdf result" not in tokens
+
+
+def test_merged_into_target_section_catches_real_u0032_shape_once_tokens_fixed():
+    # With the fixed tokens, a target_section that only genuinely carries the FIRST sentence's
+    # fact must now be flagged for the second (real, pre-fix-disposition html/python shape).
+    entry = {
+        "unit_id": "u0032",
+        "excerpt": _U0032_EXCERPT,
+        "salient_tokens": checks._extract_salient_tokens(_U0032_EXCERPT),
+        "disposition": "merged_verbatim",
+        "target_section": "Documentation & Resources",
+    }
+    candidate = (
+        "## Documentation & Resources\n\n"
+        "- **[Public API surface](PUBLIC_API.md)** -- the stable top-level entry points this "
+        "library's compatibility guarantees cover.\n\n"
+        "## Additional Examples\n\n"
+        "Runnable scripts are available in the [`examples`](examples/) directory.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(candidate, [entry])
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0032"
+
+
+def test_merged_into_target_section_u0032_clean_once_both_facts_present_in_target():
+    # Regression guard, opposite direction: once the target section genuinely carries both
+    # facts (the corrected state), the same entry must pass clean.
+    entry = {
+        "unit_id": "u0032",
+        "excerpt": _U0032_EXCERPT,
+        "salient_tokens": checks._extract_salient_tokens(_U0032_EXCERPT),
+        "disposition": "merged_verbatim",
+        "target_section": "Documentation & Resources",
+    }
+    candidate = (
+        "## Documentation & Resources\n\n"
+        "- **[Public API surface](PUBLIC_API.md)** -- the stable top-level entry points this "
+        "library's compatibility guarantees cover.\n"
+        "- **[Runnable examples](examples/)** -- scenario-focused scripts.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(candidate, [entry]) == []
+
+
 # --- check_content_unit_merged_into_target_section compound-excerpt extension (MT049, ----------
 # Thirty-Ninth incident) ---------------------------------------------------------------------
 
@@ -7921,3 +8264,111 @@ def test_merge_into_target_section_compound_excerpt_also_applies_to_redundant_ev
     )
     findings = checks.check_content_unit_merged_into_target_section(text, [entry])
     assert len(findings) == 1 and findings[0]["unit_id"] == "u0020"
+
+
+# 2026-08-17 -- real, captured verbatim from words/python's own live content-dispositions.json
+# (reports/repo-presenter-regen-full/words/python/content-dispositions.json, unit u0020): the
+# exact `### Files` table MT049's own docstring cited as the unresolved "known tension" (a
+# genuine markdown table, deliberately NOT split into per-row facts by MT049's own terminal-
+# punctuation rule, since table rows end in `|`, not `.`/`!`/`?`).
+_WORDS_PYTHON_FILES_TABLE_EXCERPT = (
+    "| File | What it shows |\n"
+    "|------|---------------|\n"
+    "| `convert_document.py` | Every input format (DOCX, DOC, RTF, TXT, MD) to every output "
+    "format (Markdown, PDF, TXT) |\n"
+    "| `loading_document.py` | Loading documents from a file path and from a binary stream, "
+    "with `LoadOptions` |\n"
+    "| `loading_markdown.py` | Reading Markdown from in-memory content |\n"
+    "| `working_with_markdown_save_options.py` | `MarkdownSaveOptions` — "
+    "`export_underline_formatting`, `encoding`, `paragraph_break` |\n"
+    "| `working_with_ooxml_save_options.py` | `OoxmlSaveOptions` for DOCX export — "
+    "`pretty_format`, `compression_level`, `zip_64_mode` |\n"
+    "| `working_with_pdf_save_options.py` | PDF export from all input formats |\n"
+    "| `working_with_txt_save_options.py` | Plain-text export and `get_text()` |\n"
+    "| `working_with_images.py` | Image-containing documents to all output formats |"
+)
+_WORDS_PYTHON_FILES_TABLE_TOKENS = [
+    "convert_document.py", "loading_document.py", "loading_markdown.py",
+    "working_with_markdown_save_options.py", "working_with_ooxml_save_options.py",
+    "working_with_pdf_save_options.py", "working_with_txt_save_options.py", "working_with_images.py",
+]
+
+
+def test_split_excerpt_into_sentence_groups_splits_real_words_python_files_table_into_rows():
+    # Direct proof of the table-aware split itself: the real 8-row Files table produces exactly
+    # 8 groups (header + separator rows carry no distinct fact and are dropped), each containing
+    # its own row's real filename -- the precise fix MT049's own docstring deferred.
+    groups = checks._split_excerpt_into_sentence_groups(_WORDS_PYTHON_FILES_TABLE_EXCERPT)
+    assert len(groups) == 8
+    for token, group in zip(_WORDS_PYTHON_FILES_TABLE_TOKENS, groups):
+        assert token in group
+    assert "File" not in groups[0] or "What it shows" not in groups[0]  # header row excluded
+
+
+def test_merge_into_target_section_catches_real_words_python_table_row_entirely_dropped():
+    # The real, meaningful defect this fix closes: BEFORE this fix, the whole 8-filename excerpt
+    # was one ungrouped blob (table rows end in `|`, not `.`/`!`/`?`, so MT049's own terminal-
+    # punctuation rule never split it) -- so a target section naming even ONE of the 8 filenames
+    # satisfied "any token, anywhere," passing cleanly even if the other 7 rows were entirely
+    # absent. Here only 1 of 8 real filenames survives into the target section; the corrected,
+    # per-row-group check must now catch the other 7 as missing.
+    entry = {
+        "unit_id": "u0020", "excerpt": _WORDS_PYTHON_FILES_TABLE_EXCERPT,
+        "salient_tokens": list(_WORDS_PYTHON_FILES_TABLE_TOKENS),
+        "disposition": "merged_reframed", "target_section": "Additional Examples",
+    }
+    text = (
+        "## Additional Examples\n\n"
+        "Runnable scripts are collected under `ApiExamples/`, including `convert_document.py`.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0020"
+    # names the 7 genuinely-missing rows, not a bare "not traceable to real text" message
+    assert "working_with_images.py" in findings[0]["reason"]
+    assert "loading_markdown.py" in findings[0]["reason"]
+
+
+def test_merge_into_target_section_passes_real_words_python_table_when_every_row_filename_present():
+    # The disclosed, unchanged remaining limitation: this check verifies presence, not
+    # description-level faithfulness (Evidence Contract rule 4) -- when every row's own filename
+    # genuinely survives (matching the real, current regen-full candidate's own bare-list shape),
+    # the check correctly passes even though the per-row DESCRIPTIONS aren't independently
+    # checked here. That gap is closed by restoring real prose in the candidate itself, not by
+    # this mechanical check.
+    entry = {
+        "unit_id": "u0020", "excerpt": _WORDS_PYTHON_FILES_TABLE_EXCERPT,
+        "salient_tokens": list(_WORDS_PYTHON_FILES_TABLE_TOKENS),
+        "disposition": "merged_reframed", "target_section": "Additional Examples",
+    }
+    text = (
+        "## Additional Examples\n\n"
+        "Runnable scripts under `ApiExamples/` -- `convert_document.py`, `loading_document.py`, "
+        "`loading_markdown.py`, `working_with_markdown_save_options.py`, "
+        "`working_with_ooxml_save_options.py`, `working_with_pdf_save_options.py`, "
+        "`working_with_txt_save_options.py`, and `working_with_images.py`.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_split_excerpt_into_sentence_groups_unaffected_by_non_table_line_wrap():
+    # Negative control, representative of barcode/python's own documented real shape (a single
+    # sentence wrapping mid-clause across a `\n`, no separator row anywhere) -- must stay exactly
+    # one group; the table-aware split must never trigger on a bare, non-table `\n`.
+    excerpt = "The verification script must be run from\nthe repository root, not a subdirectory."
+    assert checks._split_excerpt_into_sentence_groups(excerpt) == [excerpt]
+
+
+def test_split_excerpt_into_sentence_groups_unaffected_by_heading_to_bullet_wrap():
+    # Negative control, representative of 3d/java's own documented real shape (a bold heading
+    # fragment separated from markdown bullet items by `\n-`, no separator row) -- a table-aware
+    # split must not mistake ordinary bullet-list `\n` structure for a table.
+    excerpt = "**Excluded APIs:**\n- `LegacyImporter`\n- `LegacyExporter`"
+    groups = checks._split_excerpt_into_sentence_groups(excerpt)
+    assert groups == [excerpt]
+
+
+def test_split_excerpt_into_table_aware_groups_returns_none_for_non_table_excerpt():
+    # Direct proof the helper itself is a real, conditional no-op -- confirms the caller's
+    # fall-through to the unchanged sentence-based split is reached, not silently bypassed.
+    assert checks._split_excerpt_into_table_aware_groups("Just an ordinary single sentence.") is None

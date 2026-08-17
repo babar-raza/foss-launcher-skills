@@ -1735,6 +1735,10 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["capability_scope_contradiction"] = {
         "hard_gate": False, "findings": checks.check_capability_scope_contradiction(text),
     }
+    result["diagram_from_scratch_capability_labeled"] = {
+        "hard_gate": False,
+        "findings": checks.check_diagram_from_scratch_capability_labeled(text),
+    }
     result["scope_limitations_format"] = {
         "hard_gate": True, "findings": checks.check_scope_limitations_format(text),
     }
@@ -1859,6 +1863,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["content_unit_embedded_actionable_fact"] = {
         "hard_gate": False,
         "findings": checks.check_content_unit_embedded_actionable_fact(content_units, dispositions),
+    }
+    # MT051 (Forty-First incident, 2026-08-16): a bare image-markdown unit excluded via
+    # candidate_section_reference can pass the check above on generic keyword overlap with a
+    # prose section, even when the specific image itself was never actually re-embedded anywhere
+    # -- real, confirmed against page/python's own regen-full u0014-u0016.
+    result["image_content_unit_excluded_reason_verified"] = {
+        "hard_gate": False,
+        "findings": checks.check_image_content_unit_excluded_reason_verified(
+            content_units, dispositions, text
+        ),
     }
 
     # Twenty-Fourth incident / mission (2026-08-13, cells/go's missing Project Structure section):
@@ -2051,6 +2065,7 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "findings": checks.check_api_reference_class_internal_only(
             text, reference_index, str(clone_cache),
             exclusions=_product_api_reference_class_exclusions(family, platform),
+            platform=platform,
         ),
     }
     result["no_leaked_docstring_artifacts"] = {
@@ -2153,6 +2168,10 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["dependency_dev_only_presented_as_runtime"] = {
         "hard_gate": True,
         "findings": checks.check_dependency_dev_only_presented_as_runtime(text, dependency_snapshot),
+    }
+    result["dependency_development_claim_not_in_manifest"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_development_claim_not_in_manifest(text, dependency_snapshot),
     }
     # Downgraded from hard gate to heuristic (found live, real-content proof against cells/
     # rust's own corrected candidate): NO extractor currently verifies the proprietary_runtime

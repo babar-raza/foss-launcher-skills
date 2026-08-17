@@ -225,6 +225,108 @@ def test_nuget_malformed_csproj_raises(tmp_path):
         pass
 
 
+def test_nuget_selects_real_main_csproj_over_dot_delimited_test_project(tmp_path):
+    # Real, live-confirmed shape (words/net): a real main-library csproj ties in path depth
+    # with a dot-delimited test project ("Aspose.Words.Tests") -- the real project must win.
+    (tmp_path / "Aspose.Words").mkdir()
+    (tmp_path / "Aspose.Words" / "Aspose.Words.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="RealRuntimeDep" Version="1.0.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Aspose.Words.Tests").mkdir()
+    (tmp_path / "Aspose.Words.Tests" / "Aspose.Words.Tests.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="NUnit" Version="3.14.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("words", "net", tmp_path)
+    assert snap["source_manifest_path"] == "Aspose.Words/Aspose.Words.csproj"
+    assert {e["name"] for e in snap["required"]} == {"RealRuntimeDep"}
+
+
+def test_nuget_selects_real_main_csproj_over_pascalcase_concatenated_test_project(tmp_path):
+    # Real, live-confirmed regression (slides/net): "IntegrationTests" has no dot/word
+    # boundary before "Tests" (ordinary C# PascalCase concatenation) -- a naive dot-delimited-
+    # segment pattern misses this and the wrong project wins. This is the exact case that
+    # forced widening `_TEST_CSPROJ_STEM_RE` from a segment match to a bare substring search.
+    (tmp_path / "src" / "Aspose.Slides.Foss").mkdir(parents=True)
+    (tmp_path / "src" / "Aspose.Slides.Foss" / "Aspose.Slides.Foss.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="RealRuntimeDep" Version="1.0.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "tests" / "Aspose.Slides.Foss.IntegrationTests").mkdir(parents=True)
+    (tmp_path / "tests" / "Aspose.Slides.Foss.IntegrationTests" / "Aspose.Slides.Foss.IntegrationTests.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="xunit" Version="2.9.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("slides", "net", tmp_path)
+    assert snap["source_manifest_path"] == "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    assert {e["name"] for e in snap["required"]} == {"RealRuntimeDep"}
+
+
+def test_nuget_prefers_nuspec_over_csproj_for_merged_assembly(tmp_path):
+    # Real, live-confirmed shape (words/net): the published package is a MERGED (ILRepack'd)
+    # assembly, so the main csproj's own PackageReferences (the merge tool itself, PrivateAssets
+    # ="all") have zero overlap with what NuGet actually requires downstream -- only the
+    # .nuspec's own real <dependencies> declare the true runtime dependency graph.
+    (tmp_path / "Aspose.Words").mkdir()
+    (tmp_path / "Aspose.Words" / "Aspose.Words.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="ILRepack" Version="2.0.46" PrivateAssets="all" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Package").mkdir()
+    (tmp_path / "Package" / "Aspose.Words.FOSS.nuspec").write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">\n'
+        "  <metadata>\n    <dependencies>\n"
+        '      <group targetFramework="net462" />\n'
+        '      <group targetFramework=".NETStandard2.0">\n'
+        '        <dependency id="SkiaSharp" version="3.119.0" exclude="Build,Analyzers" />\n'
+        '        <dependency id="Microsoft.Win32.Registry" version="5.0.0" exclude="Build,Analyzers" />\n'
+        "      </group>\n"
+        '      <group targetFramework="net8.0">\n'
+        '        <dependency id="SkiaSharp" version="3.119.0" exclude="Build,Analyzers" />\n'
+        "      </group>\n"
+        "    </dependencies>\n  </metadata>\n</package>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("words", "net", tmp_path)
+    assert snap["source_manifest_path"] == "Package/Aspose.Words.FOSS.nuspec"
+    names = {e["name"] for e in snap["required"]}
+    assert names == {"SkiaSharp", "Microsoft.Win32.Registry"}
+    registry_entry = next(e for e in snap["required"] if e["name"] == "Microsoft.Win32.Registry")
+    assert registry_entry["platform_condition"] == ".NETStandard2.0"
+    skia_entry = next(e for e in snap["required"] if e["name"] == "SkiaSharp")
+    assert skia_entry["platform_condition"] == ".NETStandard2.0, net8.0"
+
+
+def test_nuget_private_assets_all_classified_as_dev_only_build_tool(tmp_path):
+    # A build/dev-time-only PackageReference (PrivateAssets="all") must never land in
+    # `required` -- confirmed real via words/net's own ILRepack/EnumExtensionsGenerator
+    # references -- when there's no .nuspec to prefer instead.
+    (tmp_path / "x.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="ILRepack" Version="2.0.46" PrivateAssets="all" />\n'
+        '    <PackageReference Include="RealRuntimeDep" Version="1.0.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "net", tmp_path)
+    assert {e["name"] for e in snap["required"]} == {"RealRuntimeDep"}
+    assert {e["name"] for e in snap["development"]} == {"ILRepack"}
+    ilrepack_entry = next(e for e in snap["development"] if e["name"] == "ILRepack")
+    assert ilrepack_entry["role"] == "build"
+
+
 # ---------------------------------------------------------------------------------------------
 # Java
 # ---------------------------------------------------------------------------------------------
@@ -381,19 +483,85 @@ def test_cpp_real_cells_cpp_shape_nested_zero_dep_cmakelists(tmp_path):
     assert snap["parse_errors"] == []
 
 
-def test_cpp_cmakelists_with_fetchcontent_raises(tmp_path):
+def test_cpp_cmakelists_with_fetchcontent_only_target_is_dev_only(tmp_path):
+    # 2026-08-17 (slides/* portfolio audit): FetchContent_Declare is now parsed directly, not
+    # treated as an unparseable "ask a human" signal -- this fixture (googletest, never linked
+    # to any non-test target) must land in `development`, not raise.
     (tmp_path / "CMakeLists.txt").write_text(
         "cmake_minimum_required(VERSION 3.16)\n"
         "include(FetchContent)\n"
         "FetchContent_Declare(googletest URL https://example.com/gtest.zip)\n"
-        "FetchContent_MakeAvailable(googletest)\n",
+        "FetchContent_MakeAvailable(googletest)\n"
+        "add_executable(t_tests test.cpp)\n"
+        "target_link_libraries(t_tests PRIVATE GTest::gtest_main)\n",
         encoding="utf-8",
     )
-    try:
-        de.extract_dependencies("t", "cpp", tmp_path)
-        assert False, "expected DependencyExtractionError"
-    except de.DependencyExtractionError as exc:
-        assert "FetchContent_Declare" in str(exc)
+    snap = de.extract_dependencies("t", "cpp", tmp_path)
+    assert snap["required"] == []
+    assert [e["name"] for e in snap["development"]] == ["googletest"]
+    assert snap["development"][0]["dev_only"] is True
+    assert snap["development"][0]["role"] == "build"
+
+
+def test_cpp_cmakelists_fetchcontent_real_slides_cpp_shape(tmp_path):
+    # Real, captured-verbatim slides/cpp shape: 2 runtime deps (linked directly to the main
+    # library target) + 1 test-only dep (linked only to the `_tests` executable via GTest::).
+    (tmp_path / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.20)\n"
+        "project(aspose_slides_foss LANGUAGES CXX)\n"
+        "add_library(${PROJECT_NAME} src/x.cpp)\n"
+        "include(FetchContent)\n"
+        "FetchContent_Declare(\n"
+        "    pugixml\n"
+        "    GIT_REPOSITORY https://github.com/zeux/pugixml.git\n"
+        "    GIT_TAG v1.14\n"
+        ")\n"
+        "FetchContent_MakeAvailable(pugixml)\n"
+        "target_link_libraries(${PROJECT_NAME} PUBLIC pugixml::pugixml)\n"
+        "FetchContent_Declare(\n"
+        "    miniz\n"
+        "    GIT_REPOSITORY https://github.com/richgel999/miniz.git\n"
+        "    GIT_TAG 3.0.2\n"
+        ")\n"
+        "FetchContent_MakeAvailable(miniz)\n"
+        "target_link_libraries(${PROJECT_NAME} PUBLIC miniz)\n"
+        "FetchContent_Declare(\n"
+        "    googletest\n"
+        "    GIT_REPOSITORY https://github.com/google/googletest.git\n"
+        "    GIT_TAG v1.15.2\n"
+        ")\n"
+        "FetchContent_MakeAvailable(googletest)\n"
+        "enable_testing()\n"
+        "add_executable(${PROJECT_NAME}_tests test.cpp)\n"
+        "target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${PROJECT_NAME} GTest::gtest_main "
+        "GTest::gmock)\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("slides", "cpp", tmp_path)
+    required = {e["name"]: e["version_constraint"] for e in snap["required"]}
+    assert required == {"pugixml": "v1.14", "miniz": "3.0.2"}
+    assert all(e["source_type"] == "git" for e in snap["required"])
+    dev = {e["name"]: e["version_constraint"] for e in snap["development"]}
+    assert dev == {"googletest": "v1.15.2"}
+
+
+def test_cpp_cmakelists_fetchcontent_plus_find_package_both_extracted(tmp_path):
+    # Regression guard: a file using BOTH find_package and FetchContent_Declare must extract
+    # entries from both mechanisms, not only one.
+    (tmp_path / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.16)\n"
+        "add_library(${PROJECT_NAME} src/x.cpp)\n"
+        "find_package(ZLIB REQUIRED)\n"
+        "target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)\n"
+        "include(FetchContent)\n"
+        "FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 10.2.1)\n"
+        "FetchContent_MakeAvailable(fmt)\n"
+        "target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "cpp", tmp_path)
+    names = {e["name"] for e in snap["required"]}
+    assert names == {"ZLIB", "fmt"}
 
 
 def test_cpp_vcpkg_json(tmp_path):

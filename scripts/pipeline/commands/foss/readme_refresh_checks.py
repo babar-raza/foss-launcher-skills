@@ -2417,6 +2417,16 @@ def check_code_example_imports_match_source(readme_text: str, clone_cache_root: 
     rollout discipline (TC-HARDEN-01's own Python-first precedent for `verify_examples`).
     Extending to other languages' import/using/namespace conventions (Python, C#, Go, Rust,
     TypeScript, C++) is real, disclosed follow-up scope, never silently assumed covered here.
+
+    JDK standard-library imports (`java.*`/`javax.*`) are skipped outright (2026-08-17, the
+    slides/* portfolio audit) -- a real, confirmed false-positive class found live against
+    `slides/java`'s own real candidate, which legitimately imports `java.time.LocalDateTime`,
+    `java.nio.file.Path`, and `java.io.ByteArrayOutputStream` in its worked examples. The JDK's own
+    standard-library classes are never declared anywhere in a product's clone cache (they ship
+    with the JDK itself, not the product's own source), so this check's `class_not_found` path
+    fired on every one of them -- 3 findings against a candidate with zero real import defects.
+    Scoped narrowly to the two real JDK root package prefixes, which cannot collide with any real
+    Aspose package name.
     """
     root = Path(clone_cache_root)
     findings: list[dict] = []
@@ -2424,6 +2434,9 @@ def check_code_example_imports_match_source(readme_text: str, clone_cache_root: 
     for block_match in _JAVA_FENCED_BLOCK_RE.finditer(readme_text):
         for import_match in _JAVA_IMPORT_RE.finditer(block_match.group(1)):
             claimed_package, class_name = import_match.group(1), import_match.group(2)
+            if claimed_package == "java" or claimed_package.startswith("java.") or \
+                    claimed_package == "javax" or claimed_package.startswith("javax."):
+                continue
             key = (claimed_package, class_name)
             if key in seen:
                 continue
@@ -2958,6 +2971,7 @@ def check_api_reference_class_internal_only(
     reference_index: "dict[str, list[dict]] | None",
     clone_cache_root: "str | None",
     exclusions: "set[str] | None" = None,
+    platform: "str | None" = None,
 ) -> list[dict]:
     """Heuristic, non-blocking (TC-HARDEN-76, MT047/Thirty-Seventh incident, 2026-08-15). For
     every class cited in the API Reference **table** (`_parse_readme_api_tables` -- the exact
@@ -3000,7 +3014,30 @@ def check_api_reference_class_internal_only(
     names, same shape `check_api_reference_table_completeness` already uses) now makes that
     promise true: a cited class present in `exclusions` is skipped before any fan-in/export check
     runs, exactly like the analogous mirror-fidelity gate already does.
+
+    `platform` (added 2026-08-17, the slides/* portfolio audit): both `_module_internal_fan_in`
+    and `_find_top_level_init_exports` are Python-specific concepts (a top-level package
+    `__init__.py`'s own export list) with no equivalent detection for any other language this
+    portfolio covers. Run for real against 3 non-Python products for the first time this incident
+    (C++/`slides/cpp`, Java/`slides/java`, .NET/`slides/net`), this heuristic flagged 161, 238, and
+    260+ classes respectively -- effectively every class in each table, since a non-Python
+    product's real public API is (correctly) never present in a Python-shaped `__init__.py`
+    export list, and cross-file `import`/`using`/`#include` fan-in was never implemented as a
+    per-language check here at all. This is 100% noise, not signal, for those 3 languages -- every
+    real internal-class-leak finding in that same audit (slides/cpp's ~30 `Internal::` namespace
+    classes, slides/net's 21 `Internal/` classes) was found by direct, manual per-language
+    convention inspection, never by this function. Scoped to a real no-op (empty findings) for any
+    `platform != "python"` rather than continuing to emit unusable noise -- the same "Python-first,
+    disclosed-deferred for other languages" posture already established for this exact function's
+    own sibling helpers (TC-HARDEN-76), now made explicit and enforced here too, not merely implied
+    by the docstring's own prior "portfolio-wide precision genuinely unproven beyond Python"
+    disclosure. A real per-language extension (C++ `Internal`-namespace detection, Java
+    package-private/`internal`-package detection, C# `internal`-keyword detection) remains a real,
+    disclosed, un-built follow-on -- not attempted here, since each is a genuinely different
+    detection mechanism, not a parameter tweak on this one.
     """
+    if platform is not None and platform != "python":
+        return []
     if not clone_cache_root or not Path(clone_cache_root).is_dir():
         return []
     section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
@@ -4669,6 +4706,58 @@ def check_capability_scope_contradiction(readme_text: str) -> list[dict]:
     return findings
 
 
+_FROM_SCRATCH_CLAIM_RE = re.compile(r"\bfrom scratch\b", re.IGNORECASE)
+_FROM_SCRATCH_DIAGRAM_RE = re.compile(r"from scratch", re.IGNORECASE)
+
+
+def check_diagram_from_scratch_capability_labeled(readme_text: str) -> list[dict]:
+    """Heuristic, non-blocking (2026-08-17). Real, confirmed motivating case: `words/net`'s
+    Key Capabilities own first bullet correctly, explicitly states "Create documents from
+    scratch with the full document object model..." (verified against real source --
+    `Document()`'s parameterless constructor and `DocumentBuilder()` both genuinely build a
+    blank document with no input file) -- but the At-a-Glance diagram's corresponding
+    Capabilities node read only "Document creation and editing", giving no visible signal of
+    the from-scratch capability at a glance, even though this exact fold-in convention (fold
+    a non-hybrid product's from-scratch capability into an existing Capability node's own
+    label, per the Template section's Rule 2d) was already established and applied to this
+    same product once before (2026-08-06 fix) -- the label's own WORDING was never actually
+    checked against the convention it was supposed to satisfy.
+
+    Fires only when Key Capabilities prose makes an explicit "from scratch" claim (a real,
+    verified fact per this check's own precision-first posture -- it never asserts the claim
+    itself is true, only that the diagram fails to reflect it) and the diagram's own
+    Capabilities-subgraph node labels contain no matching phrase anywhere. A hybrid-archetype
+    product's own `StartingPoints` container is checked too (the established literal there is
+    "Nothing — authored from scratch", e.g. `pdf/cpp`'s real diagram), since that container is
+    the other place this plan's own convention allows the phrase to legitimately live. Never
+    blocks -- whether a given wording makes the capability sufficiently visible "at a glance"
+    is an editorial judgment call, the same two-tier posture as every other diagram-content-
+    quality check in this module (`check_diagram_container_duplicates_capability`, etc.).
+    """
+    caps_match = _KEY_CAPABILITIES_SECTION_RE.search(readme_text)
+    if not caps_match:
+        return []
+    bullets = _extract_full_key_capabilities_bullets(readme_text)
+    if not any(_FROM_SCRATCH_CLAIM_RE.search(bullet) for bullet in bullets):
+        return []
+
+    mermaid_text = extract_mermaid_block(readme_text)
+    if not mermaid_text:
+        return []
+    graph = parse_diagram(mermaid_text)
+    diagram_labels = [
+        label for node_id, label in graph.node_label.items()
+        if graph.node_subgraph.get(node_id) in ("capabilities", "starting_points")
+    ]
+    if any(_FROM_SCRATCH_DIAGRAM_RE.search(label) for label in diagram_labels):
+        return []
+    return [{
+        "reason": "Key Capabilities makes an explicit 'from scratch' claim, but no diagram "
+                  "Capabilities or Starting Points node label mentions it -- the capability "
+                  "is invisible at a glance",
+    }]
+
+
 _INVENTED_FILLER_RE = re.compile(
     r"\bno known limitations?\b"
     r"|\bno (?:current|currently[- ]known|disclosed) limitations?\b"
@@ -4969,18 +5058,49 @@ _SALIENT_BACKTICK_RE = re.compile(r"`([^`]+)`")
 _SALIENT_IDENTIFIER_RE = re.compile(r"\b(?:[A-Za-z]+[A-Z][A-Za-z0-9]*|[A-Z]{2,}[A-Za-z0-9]*)\b")
 _SALIENT_VERSION_RE = re.compile(r"\b\d+(?:\.\d+){1,3}\b")
 _SALIENT_QUOTED_RE = re.compile(r'"([^"]{2,40})"')
+# 2026-08-16: markdown link text/target were entirely invisible to every prior pattern above --
+# none of backtick/CamelCase-ALLCAPS/version/quoted-string shape matches `[text](target)`
+# syntax. Found live: html/python's u0032 ("For the stable API summary, see [PUBLIC_API.md]
+# (PUBLIC_API.md). For runnable scenarios, see [examples](examples).") extracted only a single,
+# generic "API" token (a stray ALLCAPS fragment of "PUBLIC_API.md", not a deliberate match) --
+# giving `check_content_unit_merged_into_target_section`'s otherwise-correct per-sentence-group
+# verification (MT049) nothing real to check the second sentence against, so a disposition
+# claiming BOTH facts landed in "Documentation & Resources" passed even though the "examples"
+# fact actually landed in a different section (Additional Examples) -- a real content-location
+# discrepancy the check should have (and, once this lands, will) catch. Two separate single-group
+# patterns, matching the module's own existing convention of one capture group per pattern rather
+# than a two-group findall (which would return tuples, breaking `_extract_salient_tokens`'s
+# `token.strip()` call).
+#
+# A leading `!` (image syntax, `![alt](path.png)`) IS excluded via the negative lookbehind --
+# found live during this same fix's own portfolio-wide sanity sweep, immediately after landing
+# the plain-link patterns above: `page/python`'s real u0014/u0015 excerpts are pure image
+# references (`![ps2pdf result](readme.resources/TestImages.png)`) whose alt text/filename were
+# never going to appear as literal prose anywhere -- an earlier, independent fix pass had already
+# hand-removed exactly this filename from u0015's own token list for this exact reason (a
+# fused-portmanteau false positive, MT049-era), and the plain-link patterns would have silently
+# reintroduced the identical false-positive class in a new guise had this exclusion not been
+# added before the fix was trusted. A real image *fact* (what it depicts) still gets its own
+# distinct content unit and dispositioning elsewhere in this pipeline -- this exclusion only
+# stops an image's raw alt text/filename from being treated as a prose-checkable identifier.
+_SALIENT_LINK_TEXT_RE = re.compile(r"(?<!!)\[([^\]]+)\]\([^)]+\)")
+_SALIENT_LINK_TARGET_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 
 def _extract_salient_tokens(excerpt: str) -> list[str]:
     """Seed extractor for a content unit's checkable identity -- backtick spans, CamelCase/
-    ALLCAPS identifier-shaped tokens, quoted names, version numbers. Explicitly disclosed as
-    incomplete, same posture as `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES`/
-    `_CONTAINER_CONNECTOR_ALLOWLIST` elsewhere in this module -- exists to give
-    `check_content_unit_merged_into_target_section` something mechanically checkable, not to
-    summarize meaning. Order-preserving, case-insensitive de-duplication.
+    ALLCAPS identifier-shaped tokens, quoted names, version numbers, and (2026-08-16) markdown
+    link text/targets. Explicitly disclosed as incomplete, same posture as
+    `_DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES`/`_CONTAINER_CONNECTOR_ALLOWLIST` elsewhere in this
+    module -- exists to give `check_content_unit_merged_into_target_section` something
+    mechanically checkable, not to summarize meaning. Order-preserving, case-insensitive
+    de-duplication.
     """
     tokens: list[str] = []
-    for pattern in (_SALIENT_BACKTICK_RE, _SALIENT_IDENTIFIER_RE, _SALIENT_VERSION_RE, _SALIENT_QUOTED_RE):
+    for pattern in (
+        _SALIENT_BACKTICK_RE, _SALIENT_IDENTIFIER_RE, _SALIENT_VERSION_RE, _SALIENT_QUOTED_RE,
+        _SALIENT_LINK_TEXT_RE, _SALIENT_LINK_TARGET_RE,
+    ):
         tokens.extend(pattern.findall(excerpt))
     seen: set[str] = set()
     ordered: list[str] = []
@@ -5380,6 +5500,61 @@ _SENTENCE_GROUP_SPLIT_RE = re.compile(
     r"(?<![Ee]\.[Gg]\.)(?<![Ii]\.[Ee]\.)(?<![Ee]tc\.)(?<=[.!?])\s+(?=[A-Z0-9`\"'])"
 )
 
+# 2026-08-17 -- the precise, deferred fix MT049's own docstring called for: "a correct fix here
+# likely needs a more precise signal (e.g., 'does each row/segment have its own distinct
+# backtick-quoted subject/token' or similar) rather than a blanket 'always split markdown tables'
+# rule." Real markdown table structure (a header row immediately followed by a genuine
+# `|---|---|`-shaped separator row) is exactly that precise signal -- it is what actually
+# distinguishes `words/python`'s own real `u0020`/`u0015` (a genuine 8-row `### Files` table,
+# each row a distinct fact) from the 3 negative-control cases `_split_excerpt_into_sentence_
+# groups`'s own docstring already documents (`barcode/python`'s mid-clause line wrap, `3d/java`'s
+# heading-to-bullet `\n`, and -- circularly -- this exact table, which is why MT049 had to leave it
+# unresolved rather than treat "contains a `\n`" as the signal). Reuses `_EXAMPLES_TABLE_RE`'s own
+# established `^\|.+\|\s*$` row-detection idiom, not a new one.
+_MARKDOWN_TABLE_ROW_RE = re.compile(r"^\s*\|.+\|\s*$")
+_MARKDOWN_TABLE_SEPARATOR_ROW_RE = re.compile(r"^\s*\|(?:\s*:?-+:?\s*\|)+\s*$")
+
+
+def _split_excerpt_into_table_aware_groups(excerpt: str) -> "list[str] | None":
+    """Detects a genuine markdown table inside `excerpt` -- a header row immediately followed by
+    a real `|---|---|`-shaped separator row -- and, if found, returns one group per real data
+    row (the header/separator rows themselves carry no distinct fact and are dropped), plus one
+    or more groups for any prose before/after the table (recursed through `_split_excerpt_into_
+    sentence_groups`, which will find no table there and fall through to its own unchanged
+    sentence-based split). Returns `None` when no real table is present, so the caller falls
+    through to the existing sentence-based split with zero behavior change for every other
+    excerpt shape -- this is strictly additive, not a replacement.
+
+    Deliberately keyed on real table structure (a row immediately followed by a separator row),
+    never on a bare `\n` or a bare `|` count alone -- `barcode/python`'s own mid-clause line wrap
+    and `3d/java`'s own heading-to-bullet `\n` (`_split_excerpt_into_sentence_groups`'s own
+    documented negative controls) contain no such separator row and are completely unaffected.
+    """
+    lines = (excerpt or "").split("\n")
+    table_start = None
+    for i in range(len(lines) - 1):
+        if _MARKDOWN_TABLE_ROW_RE.match(lines[i]) and _MARKDOWN_TABLE_SEPARATOR_ROW_RE.match(lines[i + 1]):
+            table_start = i
+            break
+    if table_start is None:
+        return None
+    table_end = table_start + 2
+    while table_end < len(lines) and _MARKDOWN_TABLE_ROW_RE.match(lines[table_end]):
+        table_end += 1
+
+    groups: list[str] = []
+    before = "\n".join(lines[:table_start]).strip()
+    if before:
+        groups.extend(_split_excerpt_into_sentence_groups(before))
+    for row_line in lines[table_start + 2 : table_end]:
+        row = row_line.strip()
+        if row:
+            groups.append(row)
+    after = "\n".join(lines[table_end:]).strip()
+    if after:
+        groups.extend(_split_excerpt_into_sentence_groups(after))
+    return groups or None
+
 
 def _split_excerpt_into_sentence_groups(excerpt: str) -> list[str]:
     r"""Splits a unit's excerpt into sentence-level groups on a `.`/`!`/`?` followed by whitespace
@@ -5415,7 +5590,17 @@ def _split_excerpt_into_sentence_groups(excerpt: str) -> list[str]:
     terminal punctuation, so none of them split; `u0020`'s own 2 embedded `\n`s each DO sit right
     after a real terminal `.`, so both still correctly split, preserving detection of the real
     captured defect this incident closes.
+
+    Resolved 2026-08-17 (the "known tension" this docstring originally left open): a markdown
+    table's own rows ARE now split into per-row groups -- see `_split_excerpt_into_table_aware_
+    groups`, checked first, below -- using the precise signal that function's own docstring
+    already flagged as the correct fix (real `|header|` + `|---|---|` separator structure), not
+    a blanket `\n`/table-shape rule. `words/python`'s own real `u0020` (the exact case this
+    tension was left unresolved for) now correctly produces one group per file row.
     """
+    table_groups = _split_excerpt_into_table_aware_groups(excerpt)
+    if table_groups is not None:
+        return table_groups
     groups = [g.strip() for g in _SENTENCE_GROUP_SPLIT_RE.split(excerpt or "") if g.strip()]
     if groups:
         return groups
@@ -5819,6 +6004,80 @@ def check_content_unit_embedded_actionable_fact(
                           "actionable-sounding phrase -- re-examine for a real, distinct "
                           "checkable fact worth reclassifying and merging",
             })
+    return findings
+
+
+_IMAGE_MARKDOWN_UNIT_RE = re.compile(r"^!\[[^\]]*\]\(([^)]+)\)\s*$")
+
+
+def check_image_content_unit_excluded_reason_verified(
+    content_units: list[dict], dispositions: list[dict], readme_text: str
+) -> list[dict]:
+    """Heuristic, non-blocking (MT051, Forty-First incident, 2026-08-16). For every content unit
+    whose excerpt is BARE image markdown (`![alt](src)`, the whole excerpt, nothing else) and
+    whose disposition is `excluded` via `verification.evidence_type == "candidate_section_
+    reference"`, requires the image's own real asset FILENAME to genuinely reappear somewhere
+    else in the candidate text before trusting the exclusion.
+
+    Real, confirmed gap this closes: `page/python`'s own `content-dispositions.json`
+    (`repo-presenter-regen-full` tree) disposed 3 real, verified-present-on-disk screenshot units
+    (`u0014`-`u0016`, the original README's `## Example Results` images) as `excluded` /
+    `candidate_section_reference` -> `"Key Capabilities"`, each carrying only generic
+    format-name tokens (`XPS`, `PDF`, `PS`, `RGB10`). `check_content_unit_merged_into_target_
+    section` genuinely ran its own `candidate_section_reference` verification against these
+    exact units and reported clean -- because "XPS"/"PDF"/"PS" are common words that
+    legitimately, coincidentally recur throughout Key Capabilities' own unrelated format-
+    conversion prose, regardless of whether the specific claimed image is actually duplicated
+    anywhere. Generic token/word overlap with a PROSE section can confirm a TEXTUAL fact is
+    redundant; it can never confirm a SPECIFIC IMAGE is genuinely duplicated elsewhere -- only
+    the image's own real asset reference reappearing (re-embedded, or credited by filename) can.
+    All 3 images were, in fact, simply dropped -- the candidate had zero image markdown anywhere
+    outside its remote CDN banner badge, and the accompanying `excluded_reason` asserted a
+    categorically false premise ("the Template's fixed section list has no image-gallery
+    section"), directly contradicted by this exact tree's own `font/python` candidate (5 real
+    embedded local images) and by `page/python`'s own sibling `repo-presenter` tree (the same 3
+    images, genuinely restored under `## Additional Examples` -> `### Example Results`).
+
+    Deliberately heuristic, not a hard gate: precision is proven against exactly one real
+    positive case (this incident's own `page/python` regen-full u0014-u0016, correctly flagged)
+    and one real negative control (`page/python`'s OTHER, `repo-presenter` tree, whose own
+    u0011-u0013 use the identical disposition shape for a GENUINELY true reason -- the same
+    images really are embedded elsewhere in that tree's own candidate, and this check correctly
+    stays silent there) -- not yet proven at full portfolio scale. Matches filename only (the
+    path component after the final `/`), never the full relative path, since a legitimately
+    re-embedded image may sit under a different relative-path prefix than its original mention
+    (e.g. `readme.resources/mb03.png` re-embedded as `./mb03.png`).
+    """
+    unit_by_id = {u["unit_id"]: u for u in content_units}
+    findings: list[dict] = []
+    readme_lower = readme_text.lower()
+    for entry in dispositions:
+        if entry.get("disposition") != "excluded":
+            continue
+        verification = entry.get("verification") or {}
+        if verification.get("evidence_type") != "candidate_section_reference":
+            continue
+        uid = entry.get("unit_id")
+        excerpt = (entry.get("excerpt") or (unit_by_id.get(uid) or {}).get("excerpt") or "").strip()
+        match = _IMAGE_MARKDOWN_UNIT_RE.match(excerpt)
+        if not match:
+            continue
+        src = match.group(1).strip()
+        filename = src.rsplit("/", 1)[-1].strip()
+        if filename and filename.lower() in readme_lower:
+            continue
+        findings.append({
+            "unit_id": uid,
+            "reason": (
+                f"this unit's excerpt is a bare image reference ({src!r}), excluded as "
+                f"{entry.get('classification')!r} via a candidate_section_reference to "
+                f"{verification.get('evidence_ref')!r} -- but the image's own filename "
+                f"({filename!r}) never actually reappears anywhere in the candidate text, so "
+                "the redundancy claim is unverified. Generic keyword overlap with a prose "
+                "section cannot confirm a specific image is genuinely duplicated elsewhere; "
+                "only the image's own real asset reference reappearing can."
+            ),
+        })
     return findings
 
 
@@ -7353,6 +7612,40 @@ def check_dependency_dev_only_presented_as_runtime(
         {"name": e["name"], "reason": "a development-only dependency per the manifest, but "
                                        "listed under Required package dependencies"}
         for e in dependency_snapshot.get("development", []) if e["name"] in required_names
+    ]
+
+
+def check_dependency_development_claim_not_in_manifest(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate (2026-08-17, the slides/* portfolio audit). Every real, existing dependency
+    check in this module corroborates the "### Required Package Dependencies" subsection against
+    the real manifest -- `check_dependency_direct_transitive_confusion` (hard gate: a Required
+    claim absent from the manifest entirely), `check_dependency_section_manifest_corroboration`
+    (heuristic: both directions), `check_dependency_optional_presented_as_required`/`check_
+    dependency_dev_only_presented_as_runtime` (hard gates: wrong-bucket placement). Not one of
+    them ever checks whether a claimed "### Development Dependencies" bullet corresponds to any
+    real entry in the manifest's own `development` bucket at all -- a real, live-confirmed gap:
+    `slides/python`'s real candidate claims `pytest>=7` and `python-pptx>=1.0` as development
+    dependencies, and NEITHER is declared anywhere in the real `pyproject.toml` (no `[project.
+    optional-dependencies]` table exists at all) nor imported anywhere in the real test suite --
+    a fully fabricated dependency claim that passed every other dependency check in this module
+    cleanly, precisely because none of them look at this specific bucket/section pairing at all.
+    Mirrors `check_dependency_direct_transitive_confusion`'s exact shape and hard-gate severity,
+    scoped to the Development side instead of Required -- a name with zero match anywhere in the
+    manifest's real `development` entries is exactly as mechanically unambiguous a fabrication as
+    the Required-side case that check already treats as a hard gate, not a judgment call."""
+    if not dependency_snapshot:
+        return []
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    development_text = _extract_h3_subsection(dep_section, "Development Dependencies")
+    readme_names = set(_bulleted_dependency_names(development_text))
+    manifest_names = {e["name"] for e in dependency_snapshot.get("development", [])}
+    return [
+        {"name": name, "reason": "listed under Development Dependencies but not found anywhere "
+                                  "in the real, freshly-parsed manifest's development entries -- "
+                                  "possibly a fabricated dependency claim"}
+        for name in sorted(readme_names - manifest_names)
     ]
 
 
