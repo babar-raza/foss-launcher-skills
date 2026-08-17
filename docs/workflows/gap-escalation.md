@@ -49,6 +49,29 @@ ENHANCEMENT PLAN
   Workaround: YES | NO
 ```
 
+## Disposition: where a NONE/BROKEN gap actually belongs
+
+Before writing `ENHANCEMENT PLAN`, classify disposition and record it in
+`reports/skill-gaps/index.yaml`. Only `recurring-candidate` may propose a new
+skill ID.
+
+| Disposition | Test | Destination |
+|---|---|---|
+| `broken-dependency` | An existing registered skill fails because *something it depends on* (a hook, a script, a gate) has a bug — the skill's own contract is fine | Fix the dependency directly; `Proposed skill ID: n/a` |
+| `constitutionally-excluded` | The target file/domain is declared human-authority-only (e.g. AGENTS.md's own routing table) or otherwise explicitly outside the skill-automation model | Direct human-authored edit; no skill/script by design |
+| `operator-infra-script` | A single-purpose, run-once-or-occasionally script would fully resolve this, and it is not meant to be invoked by a skill chain or CI step | `scripts/maintenance/registry.yaml` (see its own header comment for the one-shot/repair/migration distinction) |
+| `bounded-oneoff` | A small, first-occurrence, bounded code/config patch — no durable, repeatable artifact needed | `skill_context.py gap` |
+| `recurring-candidate` | The deliverable is repeatable/parameterizable and produces a report artifact on every future invocation, AND (complexity is MEDIUM+ OR the same domain tag has ≥2 prior `index.yaml` entries) | Propose a new skill, following the S-93 repo-patrol shape |
+
+This does not change the escalation protocol itself: every PARTIAL/NONE/BROKEN
+state still produces a written report and awaits human decision. This section
+disambiguates what that decision should be, and where it should be recorded.
+
+Background and worked examples (the 5 repo-meta gap reports read against this
+rubric, and 4 worked `index.yaml` entries): see
+`reports/skill-gaps/2026-08-17-gap-escalation-disposition-schema.md` and
+`reports/skill-gaps/index.yaml`.
+
 ## Archive
 
 Pre-refactor version:

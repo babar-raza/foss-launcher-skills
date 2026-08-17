@@ -193,6 +193,94 @@ class TestS12Completeness(unittest.TestCase):
                 )
 
 
+class TestSkillGapIndexCompleteness(unittest.TestCase):
+    """Every reports/skill-gaps/*.md file must have a matching entry in index.yaml.
+
+    Catches the class of drift where a new gap report is filed but never
+    classified/indexed, silently regressing reports/skill-gaps/ back into an
+    unindexed flat directory. Fail here = add an entry to
+    reports/skill-gaps/index.yaml (see docs/workflows/gap-escalation.md's
+    "Disposition" section for the classification rubric).
+
+    reports/ is blanket-gitignored (.gitignore:18) — a fresh checkout (CI,
+    a new clone) legitimately has no reports/skill-gaps/ directory at all.
+    Every test here skips cleanly in that case rather than failing; the gate
+    only bites in a working session where the (locally-persistent,
+    never-committed) reports/ tree actually exists.
+    """
+
+    _VALID_DISPOSITIONS = {
+        "broken-dependency",
+        "constitutionally-excluded",
+        "operator-infra-script",
+        "bounded-oneoff",
+        "recurring-candidate",
+    }
+
+    def _gaps_dir(self):
+        gaps_dir = REPO_ROOT / "reports" / "skill-gaps"
+        if not gaps_dir.exists():
+            return None
+        return gaps_dir
+
+    def _load_index(self, gaps_dir):
+        import yaml
+
+        index_path = gaps_dir / "index.yaml"
+        if not index_path.exists():
+            return None
+        with index_path.open(encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        return data.get("reports", [])
+
+    def test_index_exists(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        self.assertTrue(
+            (gaps_dir / "index.yaml").exists(),
+            "reports/skill-gaps/index.yaml must exist — see docs/workflows/"
+            "gap-escalation.md's Disposition section.",
+        )
+
+    def test_every_report_is_indexed(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        entries = self._load_index(gaps_dir)
+        if entries is None:
+            self.skipTest("reports/skill-gaps/index.yaml not found")
+        indexed_paths = {entry["report"] for entry in entries}
+        all_reports = sorted(gaps_dir.glob("*.md"))
+        missing = []
+        for report_path in all_reports:
+            rel_path = f"reports/skill-gaps/{report_path.name}"
+            if rel_path not in indexed_paths:
+                missing.append(rel_path)
+        self.assertEqual(
+            missing,
+            [],
+            "Reports missing from reports/skill-gaps/index.yaml:\n"
+            + "\n".join(missing),
+        )
+
+    def test_index_entries_have_valid_disposition(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        entries = self._load_index(gaps_dir)
+        if entries is None:
+            self.skipTest("reports/skill-gaps/index.yaml not found")
+        for entry in entries:
+            with self.subTest(report=entry.get("report")):
+                self.assertIn(
+                    entry.get("disposition"),
+                    self._VALID_DISPOSITIONS,
+                    f"{entry.get('report')} has an invalid disposition: "
+                    f"{entry.get('disposition')!r}",
+                )
+
+
 class TestSkillContractPathExistence(unittest.TestCase):
     """Phase F: every scripts/pipeline/ path referenced in skills/CI/docs must exist."""
 
