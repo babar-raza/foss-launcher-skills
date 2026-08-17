@@ -33,14 +33,20 @@ for the full incident.
 | `pre-commit` | `scripts/githooks/pre-commit` | `scripts/pre-commit-audit.sh` | Path guard, deletion gate (Step 1), API audit, and the rest of the numbered steps (Tier 1) |
 | `commit-msg` | `scripts/githooks/commit-msg` | `scripts/commit-msg-skills.sh` | Skills invoked field, DGR token validation |
 | `post-commit` | `scripts/githooks/post-commit` | `scripts/post-commit-override.sh` | Override token consumption |
-| `pre-push` | `scripts/githooks/pre-push` | `scripts/pre-push-audit.sh` | Tier 2: governance test suite, Python placement (baseline mode), actionlint on changed workflows, dependency-resolution sanity — added 2026-08-14, TC-CIR-06, CI reliability reassessment. This tier did not exist before this date. |
 | `reference-transaction` | `scripts/githooks/reference-transaction` (tracked directly, no wrapper) | — | Auto-unshallow shallow clones |
 
-`git push --no-verify` bypasses the `pre-push` hook the same way `git commit --no-verify`
-bypasses `pre-commit` — accepted, not solved. CI remains the backstop for a deliberate
-bypass at either tier (see `docs/reference/governance-gates.md` if/when it documents the
-3-tier model; source of truth for now is the CI RELIABILITY REASSESSMENT section of
-`critical-github-and-gitlab-idempotent-meadow.md`).
+**Tier 2 (pre-push) removed 2026-08-16.** `scripts/githooks/pre-push` and
+`scripts/pre-push-audit.sh` (added 2026-08-14, TC-CIR-06) ran the full governance
+test suite, a full-tree Python-placement baseline check, actionlint on changed
+workflows, and a non-blocking dependency dry-run on every push. Removed because it
+broke on GitHub Desktop (see below) and its runtime (~281s observed) badly exceeded
+its own 90s budget. Its checks are not enforced anywhere else: the governance test
+suite only reruns in `skill-governance.yml` CI when specific paths change, the
+full-tree Python-placement baseline had no other caller, and actionlint on changed
+workflows was otherwise only run manually via `/workflow-harden`. Accepted gap, not
+solved — same posture as `git push --no-verify` always was: CI remains the backstop
+for whatever a push-time gate doesn't catch. Gates today: pre-commit (Tier 1) + CI
+(what was "Tier 3"; there is no Tier 2 anymore).
 
 ## Re-syncing After Governance Updates
 
@@ -73,8 +79,7 @@ If the installer fails, wire the mechanism manually:
 
 ```bash
 chmod +x scripts/githooks/pre-commit scripts/githooks/commit-msg \
-         scripts/githooks/post-commit scripts/githooks/pre-push \
-         scripts/githooks/reference-transaction
+         scripts/githooks/post-commit scripts/githooks/reference-transaction
 git config core.hooksPath scripts/githooks
 ```
 

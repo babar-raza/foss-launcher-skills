@@ -890,11 +890,11 @@
     "family": "pdf",
     "platform": "python",
     "truth_audit": {
-      "fail_count": 14,
-      "recorded_at": "2026-08-17T14:58:00.909271Z",
+      "fail_count": 3,
+      "recorded_at": "2026-08-17T16:55:05.207850Z",
       "report_path": "reports\\audit\\pdf-python-truth-20260817.md",
       "verdict": "FAIL",
-      "warn_count": 35
+      "warn_count": 21
     }
   },
   "slides/cpp": {

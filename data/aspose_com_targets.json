@@ -557,6 +557,12 @@
           "http_status": 404,
           "redirect_chain": []
         },
+        "pdf/cpp": {
+          "url": "https://products.aspose.com/pdf/cpp/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-17-pdf-cpp-platform-page"
+        },
         "pdf/go": {
           "url": "https://products.aspose.com/pdf/go-cpp/",
           "http_status": 200,
@@ -639,6 +645,12 @@
           "url": "https://products.aspose.com/html/python-net/",
           "http_status": 200,
           "redirect_chain": []
+        },
+        "words/net": {
+          "url": "https://products.aspose.com/words/net/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-17-words-net-platform-page"
         }
       }
     },
