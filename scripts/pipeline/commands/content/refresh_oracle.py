@@ -230,6 +230,20 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         "HH", "MM", "Q", "THead", "TBody", "TFoot", "NextPage", "PrevPage",
         "X", "Y", "Z", "Sheet1",
         "Double.MAX_VALUE", "Double.MIN_VALUE",
+        # Standard PDF spec annotation Subtype string-literal values (passed
+        # as the `subtype` argument to e.g. AnnotationCollection.add(), never
+        # importable classes) -- confirmed live 2026-08-17, pdf/python: a
+        # correct prose sentence enumerating valid subtypes ("...such as
+        # `Square`, `Circle`, `Line`, `Highlight`, or `FreeText`...") was
+        # wrongly flagged as 5 INVALID_SYMBOL findings because every
+        # backtick span is treated as a claimed API-symbol reference by
+        # default. Full set per aspose_pdf/document.py's own
+        # generate_appearances() docstring plus the PDF spec's fixed
+        # Annotation Subtype enumeration; none collide with a real
+        # api_surface class name (verified against pdf/python's own
+        # api_surface.json).
+        "Square", "Circle", "Line", "Polygon", "PolyLine", "Ink",
+        "Highlight", "Underline", "StrikeOut", "Squiggly", "FreeText",
     }
     for i, line in enumerate(body.splitlines(), start=1):
         for m in _BACKTICK_API_RE.finditer(line):

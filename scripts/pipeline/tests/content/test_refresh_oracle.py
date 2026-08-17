@@ -121,6 +121,24 @@ def test_namespace_and_member_tokens_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_pdf_annotation_subtype_literals_are_allowed(tmp_path):
+    """Standard PDF-spec annotation Subtype string values (e.g. `Square`,
+    `Circle`) used correctly as example argument values must not be flagged
+    as invalid API symbols just because they're backtick-quoted (pdf/python,
+    2026-08-17: a real prose sentence listing valid subtypes produced 5
+    false INVALID_SYMBOL findings)."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Creates an annotation of a standard subtype such as `Square`, "
+        "`Circle`, `Line`, `Highlight`, or `FreeText`.\n",
+    )
+    api_surface = {"PdfDocument", "TextFragment"}  # none of the subtypes are real classes
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_load_api_surface_includes_namespaces_and_members(tmp_path):
     """api_surface loader exposes class imports, namespace prefixes, methods, and properties."""
     _setup(tmp_path)
