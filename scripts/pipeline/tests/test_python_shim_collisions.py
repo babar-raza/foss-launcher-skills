@@ -220,3 +220,147 @@ class TestNoFalsePositives:
         result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
         assert len(result) == 1
         assert result[0]["file"] == "aspose/pkg/a/Widget.py"
+
+
+class TestParenthesizedInitImport:
+    """Regex fix: __init__.py imports listed across multiple lines inside
+    parens (`from .forms import (\n    Field,\n    ...\n)`) must be
+    recognized as reachability evidence just like the single-line form
+    (pdf/python, 2026-08-17: UnsignedContentAbsorber's own __init__.py
+    export was invisible to the old single-line-only regex, causing a
+    real public class to be wrongly treated as an unreferenced dead
+    duplicate)."""
+
+    def test_multiline_paren_init_import_grants_reachability(self, tmp_path):
+        _write(
+            tmp_path, "aspose_pdf/__init__.py",
+            "from .forms import (\n"
+            "    Field,\n"
+            "    UnsignedContent,\n"
+            "    UnsignedContentAbsorber,\n"
+            ")\n",
+        )
+        classes = [
+            _cls("UnsignedContentAbsorber", bases=[], file="aspose_pdf/forms.py",
+                 namespace="aspose_pdf.forms.UnsignedContentAbsorber"),
+            _cls("UnsignedContentAbsorber", bases=[], file="aspose_pdf/generated/forms.py",
+                 namespace="aspose_pdf.generated.forms.UnsignedContentAbsorber"),
+        ]
+        source_files = [tmp_path / "aspose_pdf/__init__.py"]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert len(result) == 1
+        assert result[0]["file"] == "aspose_pdf/forms.py"
+
+
+class TestTestFileReachability:
+    """New signal: a duplicate is also treated as reachable when the
+    package's own test suite imports it directly from its defining
+    module, even when no __init__.py re-exports it (Rectangle pattern,
+    pdf/python, 2026-08-17) -- must not be lumped in with dead code just
+    because nothing curates it at the package-init level."""
+
+    def test_class_reachable_via_test_import_survives_group_drop(self, tmp_path):
+        _write(
+            tmp_path, "aspose_pdf/__init__.py",
+            "from .forms import Field\n",
+        )
+        _write(
+            tmp_path, "tests/test_images.py",
+            "from aspose_pdf.images import Rectangle\n",
+        )
+        classes = [
+            _cls("Rectangle", bases=[], file="aspose_pdf/images.py",
+                 namespace="aspose_pdf.images.Rectangle"),
+            _cls("Rectangle", bases=[], file="aspose_pdf/geometry.py",
+                 namespace="aspose_pdf.geometry.Rectangle"),
+        ]
+        source_files = [
+            tmp_path / "aspose_pdf/__init__.py",
+            tmp_path / "aspose_pdf/images.py",
+            tmp_path / "aspose_pdf/geometry.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert len(result) == 1
+        assert result[0]["file"] == "aspose_pdf/images.py"
+
+    def test_class_reachable_via_test_import_parenthesized_form(self, tmp_path):
+        _write(
+            tmp_path, "aspose_pdf/__init__.py",
+            "from .forms import Field\n",
+        )
+        _write(
+            tmp_path, "tests/test_text.py",
+            "from aspose_pdf.text import (\n"
+            "    TextFragmentCollection,\n"
+            ")\n",
+        )
+        classes = [
+            _cls("TextFragmentCollection", bases=[], file="aspose_pdf/text.py",
+                 namespace="aspose_pdf.text.TextFragmentCollection"),
+            _cls("TextFragmentCollection", bases=[], file="aspose_pdf/collection.py",
+                 namespace="aspose_pdf.collection.TextFragmentCollection"),
+        ]
+        source_files = [
+            tmp_path / "aspose_pdf/__init__.py",
+            tmp_path / "aspose_pdf/text.py",
+            tmp_path / "aspose_pdf/collection.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert len(result) == 1
+        assert result[0]["file"] == "aspose_pdf/text.py"
+
+    def test_src_layout_absolute_import_resolves_via_module_index(self, tmp_path):
+        # src/-layout package (pdf/python's real shape): the real file is
+        # "src/aspose_pdf/images.py" but tests import it as plain
+        # "aspose_pdf.images" once "src" is on sys.path -- module_path_index
+        # must resolve across that root-prefix difference.
+        _write(
+            tmp_path, "src/aspose_pdf/__init__.py",
+            "from .forms import Field\n",
+        )
+        _write(
+            tmp_path, "tests/test_images.py",
+            "from aspose_pdf.images import Rectangle\n",
+        )
+        classes = [
+            _cls("Rectangle", bases=[], file="src/aspose_pdf/images.py",
+                 namespace="aspose_pdf.images.Rectangle"),
+            _cls("Rectangle", bases=[], file="src/aspose_pdf/geometry.py",
+                 namespace="aspose_pdf.geometry.Rectangle"),
+        ]
+        source_files = [
+            tmp_path / "src/aspose_pdf/__init__.py",
+            tmp_path / "src/aspose_pdf/images.py",
+            tmp_path / "src/aspose_pdf/geometry.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert len(result) == 1
+        assert result[0]["file"] == "src/aspose_pdf/images.py"
+
+    def test_tests_dir_present_but_silent_still_drops_group(self, tmp_path):
+        # Token/TokenType precedent must survive unaffected by the new
+        # test-reachability signal: an unrelated tests/ dir that never
+        # mentions these classes must not grant them false reachability.
+        _write(
+            tmp_path, "aspose/threed/formats/fbx/__init__.py",
+            "from .FbxLoadOptions import FbxLoadOptions\n",
+        )
+        _write(
+            tmp_path, "tests/test_something_else.py",
+            "from aspose.threed import Scene\n",
+        )
+        classes = [
+            _cls("Token", bases=[],
+                 file="aspose/threed/formats/fbx/binary_tokenizer.py",
+                 namespace="threed.formats.fbx.binary_tokenizer"),
+            _cls("Token", bases=[],
+                 file="aspose/threed/formats/fbx/tokenizer.py",
+                 namespace="threed.formats.fbx.tokenizer"),
+        ]
+        source_files = [
+            tmp_path / "aspose/threed/formats/fbx/__init__.py",
+            tmp_path / "aspose/threed/formats/fbx/binary_tokenizer.py",
+            tmp_path / "aspose/threed/formats/fbx/tokenizer.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert result == []

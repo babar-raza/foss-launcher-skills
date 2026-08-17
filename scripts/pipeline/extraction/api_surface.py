@@ -2053,6 +2053,32 @@ def _mark_package_init_exports(
 _PY_RELATIVE_IMPORT_RE = re.compile(
     r"^\s*from\s+(\.+)([\w.]*)\s+import\s+([^\n(]+)$", re.MULTILINE
 )
+# Companion pattern for the parenthesized multi-line form of the same
+# statement (`from .forms import (\n    Field,\n    ...\n)`), which
+# _PY_RELATIVE_IMPORT_RE's own trailing `[^\n(]+$` deliberately excludes
+# (it stops at the first "(" or newline) and therefore never matches at
+# all. This is the standard style for a from-import listing more than a
+# handful of names, so real packages nearly always use it for exactly the
+# imports this module cares about (confirmed live 2026-08-17, pdf/python:
+# `__init__.py`'s own `from .forms import (Field, ..., UnsignedContent,
+# UnsignedContentAbsorber)` block was invisible to the single-line-only
+# regex, wrongly making UnsignedContentAbsorber read as "not re-exported
+# anywhere" and triggering _resolve_python_shim_collisions' whole-group
+# discard on a class the package's own __init__.py genuinely exports).
+_PY_RELATIVE_IMPORT_PAREN_RE = re.compile(
+    r"^\s*from\s+(\.+)([\w.]*)\s+import\s+\(([^)]*)\)", re.MULTILINE
+)
+# Absolute-form counterparts ("from aspose_pdf.images import Rectangle"),
+# used only when scanning the repo's own test files (below) for direct
+# submodule imports — the leading `\w` (not `[\w.]`) is deliberate so
+# these never also match a relative "from .forms import X" statement's
+# dot-prefixed module path.
+_PY_ABSOLUTE_IMPORT_RE = re.compile(
+    r"^\s*from\s+(\w[\w.]*)\s+import\s+([^\n(]+)$", re.MULTILINE
+)
+_PY_ABSOLUTE_IMPORT_PAREN_RE = re.compile(
+    r"^\s*from\s+(\w[\w.]*)\s+import\s+\(([^)]*)\)", re.MULTILINE
+)
 
 
 def _resolve_python_shim_collisions(
@@ -2115,20 +2141,9 @@ def _resolve_python_shim_collisions(
     # stronger evidence than a package with no __init__.py to check.
     reachable: set[tuple[str, str]] = set()
     governed_dirs: set[str] = set()
-    for src_file in source_files:
-        if src_file.name != "__init__.py":
-            continue
-        if any(p.startswith("_") and not p.startswith("__") for p in src_file.parts):
-            continue
-        try:
-            governed_dirs.add(str(src_file.parent.relative_to(repo)).replace("\\", "/"))
-        except ValueError:
-            pass
-        try:
-            content = src_file.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        for dots, modpath, names_part in _PY_RELATIVE_IMPORT_RE.findall(content):
+
+    def _record_relative_imports(src_file: Path, import_stmts) -> None:
+        for dots, modpath, names_part in import_stmts:
             if not modpath:
                 continue  # "from . import X" — not a specific module file
             base_dir = src_file.parent
@@ -2143,6 +2158,79 @@ def _resolve_python_shim_collisions(
                 imported_name = raw_name.strip().split(" as ")[0].strip()
                 if imported_name:
                     reachable.add((imported_name, target_rel))
+
+    for src_file in source_files:
+        if src_file.name != "__init__.py":
+            continue
+        if any(p.startswith("_") and not p.startswith("__") for p in src_file.parts):
+            continue
+        try:
+            governed_dirs.add(str(src_file.parent.relative_to(repo)).replace("\\", "/"))
+        except ValueError:
+            pass
+        try:
+            content = src_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        import_stmts = list(_PY_RELATIVE_IMPORT_RE.findall(content))
+        import_stmts.extend(_PY_RELATIVE_IMPORT_PAREN_RE.findall(content))
+        _record_relative_imports(src_file, import_stmts)
+
+    # Also treat a class as reachable when the repo's own test suite
+    # imports it directly from its defining module (e.g. `from
+    # aspose_pdf.images import Rectangle`) -- real, sanctioned usage a
+    # human test author relied on, as opposed to reachability only from
+    # ANOTHER internal implementation file (which just proves internal
+    # code reuse, not public status: confirmed live 2026-08-17, pdf/python
+    # vs. 3d/python's own prior Token/TokenType finding -- Token/TokenType
+    # is imported only from formats/fbx/parser.py, a sibling internal
+    # implementation file, never from any test, and correctly stays
+    # excluded; Rectangle/TextFragmentAbsorber/TextFragmentCollection are
+    # imported directly in pdf/python's real test_image_extraction.py /
+    # equivalent test files and must not be discarded as dead code).
+    tests_dir = repo / "tests"
+    if tests_dir.is_dir():
+        # Map every real source file to the dotted module path(s) it is
+        # importable as, so "from aspose_pdf.images import Rectangle" can
+        # be resolved to the file that actually defines it regardless of
+        # a src/-layout root (e.g. real file "src/aspose_pdf/images.py"
+        # is importable as both "src.aspose_pdf.images" and, once "src"
+        # is on sys.path per the package's own build config, simply
+        # "aspose_pdf.images" — index both so either form resolves).
+        module_path_index: dict[str, str] = {}
+        for sf in source_files:
+            try:
+                sf_rel = str(sf.relative_to(repo)).replace("\\", "/")
+            except ValueError:
+                continue
+            if not sf_rel.endswith(".py"):
+                continue
+            dotted = sf_rel[: -len(".py")].replace("/", ".")
+            if dotted.endswith(".__init__"):
+                dotted = dotted[: -len(".__init__")]
+            module_path_index.setdefault(dotted, sf_rel)
+            if dotted.startswith("src."):
+                module_path_index.setdefault(dotted[len("src.") :], sf_rel)
+
+        for test_file in tests_dir.rglob("*.py"):
+            try:
+                content = test_file.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            import_stmts = list(_PY_RELATIVE_IMPORT_RE.findall(content))
+            import_stmts.extend(_PY_RELATIVE_IMPORT_PAREN_RE.findall(content))
+            _record_relative_imports(test_file, import_stmts)
+
+            abs_import_stmts = list(_PY_ABSOLUTE_IMPORT_RE.findall(content))
+            abs_import_stmts.extend(_PY_ABSOLUTE_IMPORT_PAREN_RE.findall(content))
+            for modpath, names_part in abs_import_stmts:
+                target_rel = module_path_index.get(modpath)
+                if target_rel is None:
+                    continue
+                for raw_name in names_part.split(","):
+                    imported_name = raw_name.strip().split(" as ")[0].strip()
+                    if imported_name:
+                        reachable.add((imported_name, target_rel))
 
     groups: dict[str, list[int]] = defaultdict(list)
     for i, c in enumerate(classes):
@@ -2180,16 +2268,23 @@ def _resolve_python_shim_collisions(
             continue
 
         if not reachable_idx:
-            # Zero reachable is only meaningful when EVERY entry's own
-            # directory has a real, curating __init__.py that had the
-            # chance to export it and didn't — e.g. all Token/TokenType
-            # duplicates sit in formats/fbx/, which has a real __init__.py
-            # that imports other classes but never these. A package with
-            # NO __init__.py to check (namespace package, or genuinely
-            # distinct same-name classes users import directly from their
-            # own submodule — the documented pdf/python Document +
-            # generated/Document compat-shim pattern) gives no such
-            # evidence and must not be treated as dead code by default.
+            # Zero reachable (via __init__.py re-export) is only meaningful
+            # when EVERY entry's own directory has a real, curating
+            # __init__.py that had the chance to export it and didn't --
+            # e.g. all Token/TokenType duplicates sit in formats/fbx/,
+            # which has a real __init__.py that imports other classes but
+            # never these, AND (confirmed live 2026-08-17) neither Token
+            # nor TokenType is ever imported from any test file either --
+            # only from one internal implementation file (parser.py),
+            # which is not evidence of public status. A file no __init__.py
+            # imports anything from at all AND that is never imported from
+            # any test file (namespace package, or genuinely distinct
+            # same-name classes users import directly from their own
+            # submodule -- e.g. pdf/python's real, live `from
+            # aspose_pdf.images import Rectangle`, confirmed by
+            # test_reachable_from_tests below finding it in
+            # test_image_extraction.py) gives no such evidence and must
+            # not be treated as dead code by default.
             entry_dirs = {
                 str(Path(e.get("file", "")).parent).replace("\\", "/")
                 for _, e in entries
