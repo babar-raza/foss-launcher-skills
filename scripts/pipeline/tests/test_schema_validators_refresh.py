@@ -614,6 +614,24 @@ def test_taskcard_blocked_status_does_not_require_evidence():
     assert validate_taskcard_record(_valid_taskcard(status="BLOCKED_EXTERNAL", evidence_refs=[])) == []
 
 
+def test_taskcard_paused_without_reason_fails():
+    """A PAUSED card with no stated reason is indistinguishable from a
+    silently dropped one -- exactly the MT023 failure mode PAUSED exists to
+    make impossible to represent silently."""
+    errors = validate_taskcard_record(_valid_taskcard(status="PAUSED", evidence_refs=[]))
+    assert any("pause_reason" in e for e in errors)
+
+
+def test_taskcard_paused_with_reason_passes():
+    tc = _valid_taskcard(status="PAUSED", evidence_refs=[], pause_reason="higher-priority format decision")
+    assert validate_taskcard_record(tc) == []
+
+
+def test_taskcard_paused_does_not_require_evidence():
+    tc = _valid_taskcard(status="PAUSED", evidence_refs=[], pause_reason="context switch")
+    assert validate_taskcard_record(tc) == []
+
+
 def test_this_missions_taskcards_file_is_schema_valid():
     """The plan's own live taskcards.jsonl (RPR-G-04 step 2) must validate — it is
     the mission's own first test case per the plan's acceptance criteria."""

@@ -852,9 +852,16 @@ _TASKCARD_STATUSES = {
     "INTEGRATION_VERIFIED", "END_TO_END_VERIFIED", "PILOT_PROVEN",
     "INDEPENDENTLY_REVIEWED", "CLOSED", "REWORK_REQUIRED",
     "BLOCKED_LOCAL", "BLOCKED_EXTERNAL", "SUPERSEDED", "OUT_OF_SCOPE",
+    "PAUSED",
 }
 # Statuses at or before which no evidence is yet required (nothing verified).
 _TASKCARD_PRE_EVIDENCE_STATUSES = {"TODO", "READY", "IN_PROGRESS", "IMPLEMENTED"}
+# Statuses representing a deliberate non-progress state rather than a
+# verified/terminal outcome — same evidence exemption as BLOCKED_*/SUPERSEDED.
+_TASKCARD_NON_PROGRESS_STATUSES = (
+    "SUPERSEDED", "OUT_OF_SCOPE", "BLOCKED_LOCAL", "BLOCKED_EXTERNAL",
+    "REWORK_REQUIRED", "PAUSED",
+)
 
 
 def validate_taskcard_record(data: dict) -> list[str]:
@@ -866,6 +873,14 @@ def validate_taskcard_record(data: dict) -> list[str]:
     check that would have flagged dazzling-strolling-shell's TC-W11-001.C7
     sitting at 'TODO' while the plan claimed progress, and the 8 DAR-table rows
     that drifted with nothing asserting they still matched reality.
+
+    PAUSED (added for the eager context-switch-declaration mechanism, see
+    docs/governance/planning-methodology.md) records that a step was
+    deliberately set aside mid-session rather than silently dropped — it is
+    non-terminal (still visible to plan-health-watchdog's stall query) but
+    distinct from BLOCKED_*: blocked means "can't proceed", paused means
+    "chose not to proceed yet". Requires a pause_reason, the same way
+    verified statuses require evidence_refs.
     """
     errors = []
     errors.extend(_check_required(
@@ -876,12 +891,20 @@ def validate_taskcard_record(data: dict) -> list[str]:
     errors.extend(_check_type(data, "evidence_refs", list, "taskcard_record"))
     if "status" in data and data["status"] not in _TASKCARD_STATUSES:
         errors.append(f"taskcard_record: invalid status '{data['status']}'")
-    # Evidence requirement for any verified/terminal status past IMPLEMENTED.
     status = data.get("status")
+    if status == "PAUSED":
+        reason = data.get("pause_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            errors.append(
+                "taskcard_record: status=PAUSED requires a non-empty pause_reason "
+                "(a paused card with no stated reason is indistinguishable from a "
+                "silently dropped one)"
+            )
+    # Evidence requirement for any verified/terminal status past IMPLEMENTED.
     if (
         status in _TASKCARD_STATUSES
         and status not in _TASKCARD_PRE_EVIDENCE_STATUSES
-        and status not in ("SUPERSEDED", "OUT_OF_SCOPE", "BLOCKED_LOCAL", "BLOCKED_EXTERNAL", "REWORK_REQUIRED")
+        and status not in _TASKCARD_NON_PROGRESS_STATUSES
     ):
         refs = data.get("evidence_refs")
         if not isinstance(refs, list) or not refs:

@@ -309,6 +309,57 @@ def test_concurrent_cas_updates_exactly_one_winner_no_corruption(tmp_path, monke
         json.loads(line)  # raises if any line is malformed
 
 
+# ---------------------------------------------------------------------------
+# pause_taskcard — eager, cheap intent-capture for a mid-session context switch
+# ---------------------------------------------------------------------------
+
+def test_pause_taskcard_creates_row_when_missing(tmp_path):
+    """The MT023 failure mode this method exists to close: a step that was
+    never given a taskcard at all can still be durably marked paused, in one
+    call, without first performing full mission binding."""
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    record = store.pause_taskcard(
+        "TC-09", reason="higher-priority format decision came up", recorded_by="sess-a",
+    )
+    assert record["status"] == "PAUSED"
+    assert record["pause_reason"] == "higher-priority format decision came up"
+    assert store.get("TC-09")["status"] == "PAUSED"
+
+
+def test_pause_taskcard_missing_and_create_disabled_raises(tmp_path):
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    with pytest.raises(TaskcardNotFoundError):
+        store.pause_taskcard(
+            "TC-GHOST", reason="x", recorded_by="sess-a", create_if_missing=False,
+        )
+
+
+def test_pause_taskcard_advances_existing_row_from_any_status(tmp_path):
+    """Unlike update_taskcard_status, no expected_status is required -- pausing
+    must work in one call regardless of the card's current state."""
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    store.append(_base_record("TC-01", status="IN_PROGRESS", title="Do the thing"))
+    record = store.pause_taskcard("TC-01", reason="context switch", recorded_by="sess-a")
+    assert record["status"] == "PAUSED"
+    assert record["title"] == "Do the thing"  # carried forward
+    statuses = [r["status"] for r in store.read_history() if r["task_id"] == "TC-01"]
+    assert statuses == ["IN_PROGRESS", "PAUSED"]  # append-only, not rewritten
+
+
+def test_pause_taskcard_empty_reason_rejected(tmp_path):
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    with pytest.raises(ValueError, match="invalid taskcard record"):
+        store.pause_taskcard("TC-01", reason="   ", recorded_by="sess-a")
+
+
+def test_pause_taskcard_is_visible_to_read_latest(tmp_path):
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    store.pause_taskcard("TC-09", reason="deferred", recorded_by="sess-a", title="Resume audit")
+    latest = store.read_latest()
+    assert latest["TC-09"]["status"] == "PAUSED"
+    assert latest["TC-09"]["title"] == "Resume audit"
+
+
 def test_plan_state_dir_override_takes_precedence_over_repo_root(tmp_path):
     explicit_dir = tmp_path / "custom" / "location"
     store = TaskcardStore(MISSION, repo_root=tmp_path / "unused", plan_state_dir=explicit_dir)

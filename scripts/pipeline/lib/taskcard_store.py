@@ -301,3 +301,78 @@ class TaskcardStore:
             return record
         finally:
             self._release_lock()
+
+    def pause_taskcard(
+        self,
+        task_id: str,
+        *,
+        reason: str,
+        recorded_by: str,
+        title: "str | None" = None,
+        recorded_at: "str | None" = None,
+        create_if_missing: bool = True,
+    ) -> dict[str, Any]:
+        """Cheap, near-zero-friction way to durably record "this step is
+        being deliberately set aside" at the moment of a context switch --
+        the eager-capture counterpart to the CAS-guarded
+        update_taskcard_status().
+
+        Unlike update_taskcard_status(), the caller does not need to know
+        the task's current status first: any existing status may transition
+        to PAUSED in one call, since pausing is meant to be fast enough to
+        use in the same breath as deciding to defer something, not a
+        two-step read-then-write.
+
+        If task_id has no row yet and create_if_missing is True (the
+        default), creates the first row directly at PAUSED -- this is what
+        lets an agent register "I'm deferring this" for a step that was
+        never given a taskcard at all, without first performing full
+        mission binding. See docs/governance/planning-methodology.md for
+        the design rationale (separating cheap intent-capture from rich,
+        deferred mission binding).
+
+        Raises TaskcardNotFoundError if create_if_missing is False and no
+        row exists yet. Raises ValueError (ultimately from
+        validate_taskcard_record) if reason is empty.
+        """
+        self._acquire_lock()
+        try:
+            current = self.read_latest()
+            existing = current.get(task_id)
+            ts = recorded_at or _now_iso()
+            if existing is None:
+                if not create_if_missing:
+                    raise TaskcardNotFoundError(
+                        f"no existing row for task_id={task_id!r} in {self.path} "
+                        f"and create_if_missing=False"
+                    )
+                record2: dict[str, Any] = {
+                    "task_id": task_id,
+                    "mission_id": self.mission_id,
+                    "status": "PAUSED",
+                    "pause_reason": reason,
+                    "recorded_at": ts,
+                    "recorded_by": recorded_by,
+                    "evidence_refs": [],
+                }
+                if title is not None:
+                    record2["title"] = title
+            else:
+                record2 = dict(existing)
+                record2["status"] = "PAUSED"
+                record2["pause_reason"] = reason
+                record2["recorded_at"] = ts
+                record2["recorded_by"] = recorded_by
+                if title is not None:
+                    record2["title"] = title
+
+            errors = validate_taskcard_record(record2)
+            if errors:
+                raise ValueError(f"invalid taskcard record, refusing to write: {errors}")
+
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record2, ensure_ascii=False) + "\n")
+            return record2
+        finally:
+            self._release_lock()
