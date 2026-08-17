@@ -209,8 +209,9 @@ run_step "Hugo build verification (products.aspose.org)" "blocking" \
 # locally at commit time — pre-commit-audit.sh Step 21 for override tokens,
 # commit-msg-skills.sh for the Skills-invoked trailer). Not re-run here to
 # keep this script an honest mirror of the live push gate; run
-# `bash scripts/pre-commit-audit.sh` / `bash scripts/pre-push-audit.sh`
-# separately for those.
+# `bash scripts/pre-commit-audit.sh` separately for those. (The former
+# `scripts/pre-push-audit.sh` Tier 2 hook this comment used to also point to
+# was removed 2026-08-16 — see docs/operations/hook-installation.md.)
 
 # --------------------------------------------------------------------------
 # Summary

@@ -15,10 +15,13 @@
 #   pre-commit  -> scripts/pre-commit-audit.sh  (forbidden-path guard + API audit)
 #   commit-msg  -> scripts/commit-msg-skills.sh  (Skills invoked field validation)
 #   post-commit -> scripts/post-commit-override.sh (override token consumption)
-#   pre-push    -> scripts/pre-push-audit.sh (Tier 2: governance test suite, Python
-#                  placement baseline, actionlint, dependency sanity — added
-#                  2026-08-14, TC-CIR-06, CI reliability reassessment)
 #   reference-transaction -> tracked verbatim (self-contained, no exec wrapper needed)
+#
+# The former pre-push wrapper -> scripts/pre-push-audit.sh (Tier 2: governance test
+# suite, Python placement baseline, actionlint, dependency sanity — added 2026-08-14,
+# TC-CIR-06) was removed 2026-08-16: it broke on GitHub Desktop (non-executable
+# wrapper on checkout, see docs/operations/hook-installation.md) and its ~281s
+# runtime badly exceeded its own 90s budget.
 
 set -e
 
@@ -47,8 +50,7 @@ echo "Installing governance hooks (core.hooksPath -> scripts/githooks/)..."
 # so chmod +x must still run once per fresh checkout — this is the only remaining
 # per-clone step; it never needs rerunning after a hook *source* edit.
 chmod +x "$GITHOOKS_DIR/pre-commit" "$GITHOOKS_DIR/commit-msg" \
-         "$GITHOOKS_DIR/post-commit" "$GITHOOKS_DIR/pre-push" \
-         "$GITHOOKS_DIR/reference-transaction"
+         "$GITHOOKS_DIR/post-commit" "$GITHOOKS_DIR/reference-transaction"
 
 git -C "$REPO_ROOT" config core.hooksPath scripts/githooks
 echo "  core.hooksPath -> scripts/githooks"
@@ -56,7 +58,7 @@ echo "  core.hooksPath -> scripts/githooks"
 echo ""
 echo "=== Hook installation verification ==="
 ALL_OK=1
-for hook in pre-commit commit-msg post-commit pre-push reference-transaction; do
+for hook in pre-commit commit-msg post-commit reference-transaction; do
     if [ -x "$GITHOOKS_DIR/$hook" ]; then
         echo "  OK  $hook"
     else

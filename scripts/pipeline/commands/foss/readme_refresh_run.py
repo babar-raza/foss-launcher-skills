@@ -1951,6 +1951,12 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_code_example_api_coverage_survives(text, code_example_dispositions),
     }
+    result["code_example_excluded_reason_citation_too_narrow"] = {
+        "hard_gate": False,
+        "findings": checks.check_code_example_excluded_reason_citation_too_narrow(
+            code_example_dispositions, text
+        ),
+    }
     result["cli_category_representation"] = {
         "hard_gate": False,
         "findings": checks.check_cli_category_representation(text, code_units),

@@ -6386,6 +6386,85 @@ def test_extract_structural_units_is_deterministic():
     assert r1 == r2
 
 
+# Real, captured-verbatim shape from pdf/cpp's own old upstream README (found live 2026-08-17):
+# a genuine directory-tree fenced block (92.3% line dominance in the real file) followed by one
+# incidental trailing architectural sentence -- under the pre-fix gate this silently disqualified
+# the WHOLE section from structural capture, so the tree was invisible to every extractor.
+_REAL_PDF_CPP_PROJECT_STRUCTURE_README = """# Product
+
+## Project structure
+
+```
+├── include/
+│   ├── aspose/pdf/            # Public-API headers (consumer-facing)
+│   └── internal/              # Foundation primitive headers
+├── src/
+│   ├── public/                # Public-API implementation
+│   └── internal/              # Foundation primitives (codecs, renderer, crypto)
+├── tests/                     # GoogleTest unit + smoke tests
+├── examples/                  # 12 runnable demo programs
+├── pdfs/                      # Tiny sample PDFs for the examples
+└── CMakeLists.txt
+```
+
+Public-API bodies under `src/public/` call directly into foundation primitives under
+`src/internal/`. Foundation primitives never reach back into the public API.
+
+## License
+
+MIT License
+"""
+
+
+def test_extract_structural_units_dominant_tree_survives_incidental_caption():
+    # The real pdf/cpp fix: a directory tree so fenced-dominant (>= min_fenced_dominance_with_
+    # prose) that one trailing caption sentence must not disqualify structural capture.
+    units = checks.extract_old_readme_structural_units(_REAL_PDF_CPP_PROJECT_STRUCTURE_README)
+    by_heading = {u["heading"]: u for u in units}
+    assert "Project structure" in by_heading
+    assert by_heading["Project structure"]["kind"] == "directory_tree"
+    assert "include" in by_heading["Project structure"]["claimed_paths"]
+    # The caption sentence must ALSO still be visible to the prose extractor independently --
+    # the two extraction paths are not mutually exclusive.
+    prose_units = checks.extract_old_readme_content_units(_REAL_PDF_CPP_PROJECT_STRUCTURE_README)
+    assert any("foundation primitives" in u["excerpt"] for u in prose_units)
+
+
+def test_extract_structural_units_non_tree_with_prose_stays_excluded_even_if_dominant():
+    # Regression guard for the narrower, kind-scoped fix: an API-usage code snippet (NOT a
+    # directory tree) with a trailing caption must stay excluded even at high fenced dominance --
+    # this content class already has real, separate coverage via extract_old_readme_code_units
+    # (MT047), and pulling it into structure-dispositions.json too would manufacture a duplicate
+    # coverage obligation with no matching disposition mechanism. Confirmed live against pdf/cpp's
+    # own real "## Opening documents" API-reference subsection (no box-drawing characters, no
+    # structural-vocabulary heading match -- so this stays generic even were it dominant enough).
+    text = (
+        "# Product\n\n## Opening documents\n\n"
+        "```cpp\nDocument doc(\"input.pdf\");\nstd::cout << doc.Pages().Count();\n```\n\n"
+        "This reads an existing file and reports its page count.\n"
+    )
+    units = checks.extract_old_readme_structural_units(text, min_fenced_dominance_with_prose=0.5)
+    assert units == []
+
+
+def test_extract_structural_units_min_fenced_dominance_with_prose_boundary():
+    # cells/go's own real Installation dominance (0.667) and pdf/cpp's own real Project Structure
+    # dominance (0.923) bracket the default 0.85 threshold -- explicit boundary proof, not just
+    # the two real-file integration tests above.
+    tree_text = (
+        "# Product\n\n## Repository Layout\n\n"
+        "```\n├── src/\n│   └── main.go\n└── README.md\n```\n\n"
+        "A short caption sentence about the layout above.\n"
+    )
+    units_default = checks.extract_old_readme_structural_units(tree_text)
+    assert units_default == []  # dominance below 0.85 with the default caption -- excluded
+    units_lowered = checks.extract_old_readme_structural_units(
+        tree_text, min_fenced_dominance_with_prose=0.5
+    )
+    assert len(units_lowered) == 1
+    assert units_lowered[0]["kind"] == "directory_tree"
+
+
 def test_parse_directory_tree_paths_real_shape():
     fenced = (
         "```\n├── aspose/cells_foss/        # Library source code\n"
@@ -6440,6 +6519,22 @@ def test_structural_disposition_coverage_allows_merge_into_additional_examples()
     units = [_structural_unit(unit_id="s0001", heading="Use formulas", kind="generic_structural_block", claimed_paths=())]
     dispositions = [_structure_disposition(unit_id="s0001", target_section="Additional Examples")]
     assert checks.check_structural_unit_disposition_coverage(units, dispositions) == []
+
+
+def test_structural_disposition_coverage_allows_merge_into_feature_showcase():
+    # Real defect found restoring pdf/go's 3 real Example-Results-shaped images
+    # (TC-HARDEN-102): "Feature Showcase" is a real, already-shipped, portfolio-precedented
+    # optional section (pdf/go's own repo-presenter sibling tree) holding an embedded
+    # proof-of-capability screenshot -- the same content class "Additional Examples" and
+    # "Project Structure" were already added for -- but was missing from
+    # _CONTENT_UNIT_TARGET_SECTIONS, the same class of machinery gap as those two.
+    units = [{"unit_id": "u0005"}]
+    dispositions = [_content_unit(
+        unit_id="u0005",
+        excerpt="![Feature showcase preview](docs/feature_showcase-preview.png)",
+        target_section="Feature Showcase",
+    )]
+    assert checks.check_content_unit_disposition_coverage(units, dispositions) == []
 
 
 def test_structural_disposition_coverage_flags_invalid_target_section():
@@ -7238,6 +7333,68 @@ def test_check_dependency_development_claim_not_in_manifest_clean_on_real_manife
 def test_check_dependency_development_claim_not_in_manifest_noop_without_snapshot():
     text = "## Dependencies\n\n### Development Dependencies\n\n- `pytest` >= 7 -- fabricated.\n"
     assert checks.check_dependency_development_claim_not_in_manifest(text, None) == []
+
+
+def test_bulleted_dependency_names_ignores_backtick_wrapped_version_constraint():
+    # Real, live-confirmed bug (2026-08-17): font/python's real, verified bullet backtick-wraps
+    # its version constraint (the established `` - `name` `constraint` -- description `` shape),
+    # and slides/java backtick-wraps a bare version like `5.11.4` with no constraint operator at
+    # all -- both were extracted as if they were separate, unrecognized dependency NAMES,
+    # producing false "possibly a fabricated dependency claim" findings on already-shipped,
+    # already-verified content. No real package name in any ecosystem this module handles starts
+    # with a comparison operator or is purely digits and dots.
+    text = (
+        "## Dependencies\n\n### Development Dependencies\n\n"
+        '- `pytest` `>=7.4` — test suite runner (`pip install -e ".[dev]"`).\n'
+        "- [`org.junit.jupiter:junit-jupiter-api`](https://example.test) `5.11.4`\n"
+    )
+    names = checks._bulleted_dependency_names(checks._extract_h3_subsection(
+        checks._split_into_sections(text)["Dependencies"], "Development Dependencies",
+    ))
+    assert names == ["pytest", "org.junit.jupiter:junit-jupiter-api"]
+
+
+def test_bulleted_dependency_names_ignores_backtick_tokens_after_em_dash():
+    # Real, live-confirmed bug (2026-08-17, pdf/java): a real, legitimate backtick code span
+    # inside the DESCRIPTION half of a bullet ("the Maven `test` phase") was extracted as if it
+    # were a second dependency name, "test" -- a fabricated-looking finding for a real, accurate
+    # candidate. Only the name+constraint prefix before the em-dash is a dependency-name claim.
+    text = (
+        "## Dependencies\n\n### Development Dependencies\n\n"
+        "- `org.junit.jupiter:junit-jupiter` 5.10.2 — test runner used by the Maven `test` phase; "
+        "not needed to use the published library.\n"
+    )
+    names = checks._bulleted_dependency_names(checks._extract_h3_subsection(
+        checks._split_into_sections(text)["Dependencies"], "Development Dependencies",
+    ))
+    assert names == ["org.junit.jupiter:junit-jupiter"]
+
+
+def test_check_dependency_development_claim_not_in_manifest_clean_on_real_font_python_text():
+    # Full-battery regression proof for the two fixes above, using the real, captured-verbatim
+    # font/python Development Dependencies text this bug was originally found against.
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, development=[
+        {"name": "pytest", "ecosystem": "pypi", "version_constraint": ">=7.4", "source_type": "registry",
+         "category": "required", "dev_only": True, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+        {"name": "ruff", "ecosystem": "pypi", "version_constraint": ">=0.4", "source_type": "registry",
+         "category": "required", "dev_only": True, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+        {"name": "build", "ecosystem": "pypi", "version_constraint": ">=1.2", "source_type": "registry",
+         "category": "required", "dev_only": True, "activating_feature": None,
+         "platform_condition": None, "role": "runtime", "purpose": None, "is_direct": True,
+         "extraction_confidence": "structured_parse"},
+    ])
+    text = (
+        "## Dependencies\n\n### Development Dependencies\n\n"
+        '- `pytest` `>=7.4` — test suite runner (`pip install -e ".[dev]"`; `uv`\'s own\n'
+        "  `dependency-groups.dev` pins `pytest>=9.0.2` for `uv run`/`uv sync` workflows).\n"
+        "- `ruff` `>=0.4` — linter.\n"
+        "- `build` `>=1.2` — builds the wheel/sdist for release.\n"
+    )
+    assert checks.check_dependency_development_claim_not_in_manifest(text, snapshot) == []
 
 
 def test_check_dependency_scope_claim_matches_evidence_flags_unproven_proprietary_claim():

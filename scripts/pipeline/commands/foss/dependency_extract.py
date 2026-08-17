@@ -453,7 +453,9 @@ def _extract_nuget_dependencies(
 ) -> DependencySnapshot:
     nuspec = _find_nuspec(repo_root)
     if nuspec is not None:
-        return _extract_nuspec_dependencies(family, platform, nuspec, repo_root, source_revision)
+        snapshot = _extract_nuspec_dependencies(family, platform, nuspec, repo_root, source_revision)
+        _add_dotnet_test_project_dependencies(snapshot, repo_root, exclude=None)
+        return snapshot
 
     csproj = _select_main_csproj(repo_root)
     if csproj is None:
@@ -492,7 +494,55 @@ def _extract_nuget_dependencies(
         ))
     # An empty-but-parsed csproj is a genuine, trusted "zero dependencies" fact -- returning
     # here with an empty `required` list is correct, not an error.
+    _add_dotnet_test_project_dependencies(snapshot, repo_root, exclude=csproj)
     return snapshot
+
+
+def _add_dotnet_test_project_dependencies(
+    snapshot: DependencySnapshot, repo_root: Path, *, exclude: "Path | None",
+) -> None:
+    """2026-08-17: a real, confirmed extraction gap, found running check_dependency_development_
+    claim_not_in_manifest against real content -- `_select_main_csproj` deliberately EXCLUDES
+    every test-project .csproj to find the real library project, but nothing ever scanned the
+    excluded files for their own real, test-only PackageReferences, so `development` stayed
+    empty for every .NET product even when its real README correctly names real test-project
+    dependencies (email/net's own Microsoft.NET.Test.Sdk/xunit/xunit.runner.visualstudio/
+    coverlet.collector, confirmed real in tests/Aspose.Email.Foss.Tests/Aspose.Email.Foss.
+    Tests.csproj). Shared by BOTH .NET extraction paths (the plain-csproj path and the
+    nuspec-authoritative path, `_extract_nuspec_dependencies`) -- a real, live-confirmed second
+    instance, words/net, resolves via the nuspec path (it has a real .nuspec) and would
+    otherwise never reach this scan at all, despite its own real, verified README bullet naming
+    Microsoft.NET.Test.Sdk/NUnit/NUnit3TestAdapter/Newtonsoft.Json from its real
+    `Aspose.Words.Tests/Aspose.Words.Tests.csproj`. Every PackageReference in a real test-project
+    csproj is inherently dev_only -- unlike the main project's own PrivateAssets="all"
+    distinction (which separates a real runtime dependency from a build-time tool WITHIN one
+    project), a whole project that only ever builds test assemblies (IsTestProject=true by
+    convention) has no runtime-dependency concept of its own to preserve. Deduped by name
+    against whatever the caller already placed, so a package referenced by both a real
+    dependency source and a test project (rare, not seen in this portfolio, but not assumed
+    impossible) is never double-counted."""
+    seen_names = {e["name"] for e in snapshot["required"] + snapshot["optional"] + snapshot["development"]}
+    for test_csproj in repo_root.rglob("*.csproj"):
+        if test_csproj == exclude or not _TEST_CSPROJ_STEM_RE.search(test_csproj.stem):
+            continue
+        try:
+            test_tree = ElementTree.parse(test_csproj)
+        except ElementTree.ParseError:
+            continue  # a malformed TEST project doesn't invalidate the real main snapshot
+        for elem in test_tree.getroot().iter():
+            if elem.tag.rsplit("}", 1)[-1] != "PackageReference":
+                continue
+            name = elem.get("Include") or (
+                elem.find("Include").text if elem.find("Include") is not None else None
+            )
+            if not name or name in seen_names:
+                continue
+            seen_names.add(name)
+            version_elem = elem.find("Version")
+            version = elem.get("Version") or (version_elem.text if version_elem is not None else None)
+            _place(snapshot, _entry(
+                name, "nuget", version_constraint=version, dev_only=True, role="build",
+            ))
 
 
 # ---------------------------------------------------------------------------------------------

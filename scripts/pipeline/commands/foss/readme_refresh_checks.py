@@ -5220,6 +5220,7 @@ _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
 # drop. Also permanently OPTIONAL, same "vacuously satisfied" precedent.
 _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
     "Intro", "Project History", "Additional Examples", "Project Structure",
+    "Feature Showcase",
 }
 
 
@@ -6116,7 +6117,8 @@ _TREE_DRAWING_CHARS_RE = re.compile(r"[├└│─]")
 
 
 def extract_old_readme_structural_units(
-    old_readme_text: str, *, min_fenced_dominance: float = 0.6
+    old_readme_text: str, *, min_fenced_dominance: float = 0.6,
+    min_fenced_dominance_with_prose: float = 0.85,
 ) -> list[dict]:
     """Mechanical segmentation of the old upstream README's STRUCTURAL (non-prose) sections into
     checkable units -- the structural counterpart to `extract_old_readme_content_units`, which
@@ -6126,15 +6128,49 @@ def extract_old_readme_structural_units(
     mission's own explicit requirement: "Repository Layout"/"Source Layout"/"Project Structure"
     must all be recognized identically, never discarded for using a different heading than a
     template expects). For every H2/H3 heading (`_HEADING_RE`), a section becomes a structural
-    unit only when BOTH: (a) running `extract_old_readme_content_units` against that section's
-    own fenced-code-stripped body yields ZERO real prose units -- i.e. the existing prose
-    extractor genuinely has nothing to say about it -- and (b) fenced code accounts for >=
-    `min_fenced_dominance` (default 60%) of the section's real non-blank lines. Both conditions
-    matter: (a) alone would also flag a section with one throwaway short line; (b) alone would
-    incorrectly flag "## Installation" (fenced-code-heavy but with real leftover prose -- the
-    real `cells/go` case: "Requires Go 1.18+..." is exactly this discriminating survivor,
-    confirmed live not to trip this gate). `min_fenced_dominance` is validated against exactly
-    one real product so far (`cells/go`) -- flagged here, not silently trusted, as needing a
+    unit when (b) fenced code accounts for >= `min_fenced_dominance` (default 60%) of the
+    section's real non-blank lines, AND EITHER (a) running `extract_old_readme_content_units`
+    against that section's own fenced-code-stripped body yields ZERO real prose units, OR
+    (a') the fenced block classifies as `"directory_tree"` (see `_classify_structural_kind`) AND
+    dominance is still >= `min_fenced_dominance_with_prose` (default 85%) -- an overwhelmingly
+    fenced-dominant, genuine directory-tree diagram whose small residual prose is an incidental
+    caption, not an independent fact.
+
+    (a') is deliberately scoped to `directory_tree`-shaped content only, not any fenced-heavy
+    section with leftover prose -- checked live, not assumed: relaxing (a) portfolio-wide (any
+    section, any kind) against `pdf/cpp`'s own real old README pulled in 7 more sections
+    (`"## Opening documents"`, `"## Pages"`, `"## Text extraction"`, etc. -- its own API
+    Reference's per-topic code-usage subsections, each just an API snippet plus a one-sentence
+    caption) that are NOT directory trees and already have real, separate coverage via
+    `extract_old_readme_code_units` (MT047) -- pulling them into `structure-dispositions.json`
+    too would have manufactured a duplicate coverage obligation with no matching disposition
+    mechanism for it. Narrowing (a') to `kind == "directory_tree"` closes exactly the defect
+    class found without expanding scope to content classes already handled elsewhere.
+
+    (a')'s real motivating case (`pdf/cpp`, found live 2026-08-17): the old README's own
+    "## Project structure" section is a real directory-tree fenced block (92.3% line dominance)
+    followed by ONE trailing architectural sentence ("Public-API bodies under `src/public/`
+    call directly into foundation primitives..."). Under the ORIGINAL, stricter gate (any prose
+    unit at all disqualifies), that one sentence -- correctly captured by the prose extractor as
+    its own real content unit and correctly disposed elsewhere -- silently disqualified the
+    ENTIRE section from ALSO becoming a structural unit, so the directory tree itself was never
+    captured by any mechanism at all: invisible to both extractors simultaneously, the same root
+    shape MT047 already found and fixed for CODE blocks (`extract_old_readme_code_units`, built
+    unconditional for exactly this reason) but never fixed here, since a directory tree isn't
+    code and needs the structural extractor specifically. A structural unit and a content unit
+    are not mutually exclusive -- they live in separate disposition files (`structure-
+    dispositions.json` vs. `content-dispositions.json`) with separate id namespaces, so a
+    section legitimately contributing both (a dominant tree plus an incidental caption sentence)
+    should produce both, not have one silently cancel the other.
+
+    Both `cells/go`'s real "## Installation" section (66.7% dominance, one real, independent,
+    substantive prose fact -- "Requires Go 1.18+... zero third-party dependencies", NOT just an
+    incidental caption, AND not directory-tree-shaped at all -- excluded on kind alone before
+    dominance is even considered) and `pdf/cpp`'s real "## Project structure" (92.3% dominance,
+    directory-tree-shaped, one incidental caption) were used to calibrate
+    `min_fenced_dominance_with_prose`. 85% sits strictly between the two real, confirmed
+    dominance data points (66.7% / 92.3%); like `min_fenced_dominance` itself, this is validated
+    against exactly two real products so far -- flagged here, not silently trusted, as needing
     real portfolio-scale confirmation before being treated as a permanent constant, the same
     caveat this plan attaches to every first-instance threshold.
 
@@ -6163,12 +6199,17 @@ def extract_old_readme_structural_units(
         if dominance < min_fenced_dominance:
             continue
 
-        stripped = _ANY_FENCED_CODE_RE.sub("", body)
-        if extract_old_readme_content_units(stripped):
-            continue  # the existing prose extractor already has something real to say here
-
         fenced_block_text = fenced_blocks[0]
         kind = _classify_structural_kind(heading_text, fenced_block_text)
+
+        stripped = _ANY_FENCED_CODE_RE.sub("", body)
+        if extract_old_readme_content_units(stripped):
+            is_dominant_tree = kind == "directory_tree" and dominance >= min_fenced_dominance_with_prose
+            if not is_dominant_tree:
+                continue  # real, substantial prose, and either not a directory tree at all or
+                # not overwhelmingly fenced-dominant -- the prose extractor's own content unit(s)
+                # already cover this section on their own merits
+
         units.append({
             "unit_id": f"s{len(units) + 1:04d}",
             "heading": heading_text,
@@ -6784,6 +6825,79 @@ def check_code_example_api_coverage_survives(readme_text: str, dispositions: lis
     return findings
 
 
+_NARROW_METHOD_CITATION_RE = re.compile(
+    r"section'?s\s+`?([A-Za-z_][\w]*(?:\.[A-Za-z_][\w]*)?)`?\s+(?:note|method|function|constructor)\b"
+)
+
+
+def check_code_example_excluded_reason_citation_too_narrow(
+    dispositions: list[dict], readme_text: str
+) -> list[dict]:
+    """Heuristic (Forty-Second incident, 2026-08-18 -- manual `pdf/go` preservation review).
+
+    Every `excluded` code-example disposition's own reason is expected to cite either (a) a
+    broad area (a real Key Capabilities bullet or API Reference *section* name) that genuinely
+    covers the unit's whole real capability, or (b) a single specific method/identifier that
+    genuinely IS the unit's own capability. A real, confirmed defect found by manual review:
+    `pdf/go`'s real `code-example-dispositions.json` reused the identical narrow citation
+    "...API Reference detail section's `NewJavaScriptAction` note" across three sibling units
+    under `Document JavaScript & open action` whose real fingerprints are genuinely distinct
+    capabilities -- `doc.JavaScript()`'s named-script collection (`c0033b`) and
+    `doc.SetOpenAction`/`doc.OpenAction` (`c0033c`/`c0033e`) -- neither of which is
+    `NewJavaScriptAction` at all. Confirmed live: `SetOpenAction`/`OpenAction`/`RemoveOpenAction`
+    are absent from the entire candidate.
+
+    Detects the narrow-citation grammatical shape (`section's XxxYyy note/method/function/
+    constructor`) and, when found, requires every call in the unit's own fingerprint to be
+    either the cited identifier itself (substring match either direction, since a fingerprint
+    entry is often qualified, e.g. `pdf.NewJavaScriptAction` vs. a bare cited
+    `NewJavaScriptAction`) or independently present somewhere in the candidate text -- the same
+    substring-presence test `check_code_example_api_coverage_survives` already uses for merged
+    units, applied here to the one shape of excluded unit whose own justification names
+    something specific enough to be checkable.
+
+    A unit whose reason cites a broad area (no possessive-narrowing clause) is never flagged
+    here -- that is the normal, legitimate, majority shape and stays entirely out of this
+    check's scope, by design, to avoid the unusable false-positive rate a blanket "does the
+    fingerprint appear verbatim" test produces against ordinary prose-reframed capability
+    descriptions (confirmed directly against this exact product: 103 of ~130 excluded units
+    fail a blanket version of this test, the overwhelming majority legitimately -- narrowing to
+    only the possessive-citation shape is what keeps this check's precision usable). Spot-checked
+    against `slides/java`'s real code-example-dispositions.json (the only other product with the
+    file at the time this check was built) with zero matches -- a real, if narrow, negative
+    control, not just an assumption of safety.
+
+    Heuristic, not a hard gate -- the possessive-citation pattern is a first-iteration,
+    disclosed-narrow signal (one real, confirmed positive instance calibrated it), not proven at
+    portfolio scale.
+    """
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") != "excluded":
+            continue
+        reason = entry.get("excluded_reason") or ""
+        match = _NARROW_METHOD_CITATION_RE.search(reason)
+        if not match:
+            continue
+        cited = match.group(1)
+        fingerprint = entry.get("api_call_fingerprint") or []
+        uncovered = [
+            call for call in fingerprint
+            if cited not in call and call not in cited and call not in readme_text
+        ]
+        if uncovered:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "cited_identifier": cited,
+                "uncovered_calls": uncovered,
+                "reason": "the excluded_reason cites one specific identifier, but this unit's "
+                          "own fingerprint contains other calls neither matching that identifier "
+                          "nor appearing anywhere in the candidate -- the narrow citation likely "
+                          "does not cover this unit's real capability",
+            })
+    return findings
+
+
 _CLI_CATEGORY_COMMENT_RE = re.compile(r"^\s*#\s*(.+?)\s*$")
 
 
@@ -7324,6 +7438,9 @@ _DEPENDENCY_H3_SUBSECTIONS = (
 _NO_REQUIRED_DEPS_SENTENCE = "No required third-party package dependencies."
 
 
+_BARE_VERSION_CONSTRAINT_RE = re.compile(r"[<>=~^!]=?\s*\d[\d.]*|\d[\d.]*")
+
+
 def _extract_h3_subsection(section_text: str, heading: str) -> str:
     match = re.search(
         rf"^###\s+{re.escape(heading)}\s*$(.*?)(?=^###\s|\Z)",
@@ -7352,11 +7469,29 @@ def _bulleted_dependency_names(subsection_text: str) -> list[str]:
     `golang.org/x/crypto`) -- the token is already isolated to backtick content by
     `_ANY_BACKTICK_TOKEN_RE`, so there is no remaining reason to split on `.` at all. Only
     whitespace/`(` (a trailing parenthetical accidentally captured inside the backticks) are
-    real truncation signals."""
+    real truncation signals.
+
+    A third and fourth real bug, found running `check_dependency_development_claim_not_in_
+    manifest` against real, already-shipped content across the portfolio (2026-08-17): (3) the
+    established bullet template is `` - `name` [`constraint`] -- description `` (a real,
+    optional, backtick-wrapped version constraint immediately after the name, e.g. font/python's
+    `` `pytest` `>=7.4` `` or slides/java's `` `5.11.4` ``) -- every backtick span in the
+    DESCRIPTION half was also being scanned, so pdf/java's `` ... test runner used by the Maven
+    `test` phase `` produced a fabricated-looking name, "test", that was never a dependency at
+    all. Only the prefix before the first standalone em-dash (`--`, the template's own documented
+    separator) is now scanned; a bullet with no em-dash (e.g. `pdf/python`'s bare `` - `build`
+    >=1.2 ``) is scanned in full, unchanged. (4) A bare version-constraint token
+    (`>=7.4`, `^25.3.3`, or a bare semver like `5.11.4`) is never itself a real dependency name
+    -- excluded via `_BARE_VERSION_CONSTRAINT_RE` regardless of which half of the bullet it
+    appears in, since no real package name in any ecosystem this module handles starts with a
+    comparison operator or is purely digits and dots."""
     names = []
     for bullet in re.findall(r"^-\s+(.+)$", subsection_text, re.MULTILINE):
-        for token in _ANY_BACKTICK_TOKEN_RE.findall(bullet):
-            names.append(re.split(r"[(\s]", token)[0])
+        name_prefix = bullet.split("—", 1)[0]
+        for token in _ANY_BACKTICK_TOKEN_RE.findall(name_prefix):
+            candidate = re.split(r"[(\s]", token)[0]
+            if candidate and not _BARE_VERSION_CONSTRAINT_RE.fullmatch(candidate):
+                names.append(candidate)
     return names
 
 

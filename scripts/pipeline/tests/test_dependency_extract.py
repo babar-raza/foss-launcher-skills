@@ -327,6 +327,72 @@ def test_nuget_private_assets_all_classified_as_dev_only_build_tool(tmp_path):
     assert ilrepack_entry["role"] == "build"
 
 
+def test_nuget_scans_real_test_project_csproj_for_development_dependencies(tmp_path):
+    # Real, confirmed extraction gap (2026-08-17, email/net): _select_main_csproj deliberately
+    # EXCLUDES every test-project csproj to find the real library project, but nothing ever
+    # scanned the excluded file(s) for their own real, test-only PackageReferences -- so
+    # `development` stayed empty even though the real README correctly names real test-project
+    # dependencies. Real shape reproduced from email/net's own
+    # tests/Aspose.Email.Foss.Tests/Aspose.Email.Foss.Tests.csproj.
+    (tmp_path / "src" / "Aspose.X.Foss").mkdir(parents=True)
+    (tmp_path / "src" / "Aspose.X.Foss" / "Aspose.X.Foss.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="RealRuntimeDep" Version="1.0.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "tests" / "Aspose.X.Foss.Tests").mkdir(parents=True)
+    (tmp_path / "tests" / "Aspose.X.Foss.Tests" / "Aspose.X.Foss.Tests.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />\n'
+        '    <PackageReference Include="xunit" Version="2.5.3" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("x", "net", tmp_path)
+    assert {e["name"] for e in snap["required"]} == {"RealRuntimeDep"}
+    dev_names = {e["name"] for e in snap["development"]}
+    assert dev_names == {"Microsoft.NET.Test.Sdk", "xunit"}
+    assert all(e["dev_only"] for e in snap["development"])
+    sdk_entry = next(e for e in snap["development"] if e["name"] == "Microsoft.NET.Test.Sdk")
+    assert sdk_entry["version_constraint"] == "17.8.0"
+
+
+def test_nuget_scans_real_test_project_csproj_when_nuspec_path_used_too(tmp_path):
+    # The same gap, confirmed real for the SEPARATE nuspec-authoritative extraction path
+    # (words/net: has a real .nuspec, so _extract_nuget_dependencies never reaches the plain-
+    # csproj branch at all, and would otherwise never scan the test project either).
+    (tmp_path / "Aspose.Words").mkdir()
+    (tmp_path / "Aspose.Words" / "Aspose.Words.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="ILRepack" Version="2.0.46" PrivateAssets="all" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Package").mkdir()
+    (tmp_path / "Package" / "Aspose.Words.FOSS.nuspec").write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">\n'
+        "  <metadata>\n    <dependencies>\n"
+        '      <group targetFramework="net8.0">\n'
+        '        <dependency id="SkiaSharp" version="3.119.0" exclude="Build,Analyzers" />\n'
+        "      </group>\n"
+        "    </dependencies>\n  </metadata>\n</package>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Aspose.Words.Tests").mkdir()
+    (tmp_path / "Aspose.Words.Tests" / "Aspose.Words.Tests.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="NUnit" Version="4.2.2" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("words", "net", tmp_path)
+    assert snap["source_manifest_path"] == "Package/Aspose.Words.FOSS.nuspec"
+    assert {e["name"] for e in snap["required"]} == {"SkiaSharp"}
+    assert {e["name"] for e in snap["development"]} == {"NUnit"}
+
+
 # ---------------------------------------------------------------------------------------------
 # Java
 # ---------------------------------------------------------------------------------------------
