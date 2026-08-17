@@ -71,6 +71,53 @@ gap this section closes:
    multi-step work that only lives in prose. Bind new taskcards to schema 5f
    (`reports/plan_state/{mission_id}/taskcards.jsonl`) or `backlog/BACKLOG.md`, per the
    concordance table above, so `/plan-health-watchdog` and `/plan-normalize` can see it.
+4. **Plan/taskcard completeness (added 2026-08-17, MT023 silent step-drop assessment).** A plan
+   that carries an explicit `## Execution order` numbered-step section is only "ready to execute"
+   once `scripts/ci/checks/check_plan_taskcard_completeness.py --plan-file <plan.md> --taskcards
+   <mission>/taskcards.jsonl` reports full coverage (step count ≤ distinct taskcard count), or
+   each excess step carries an explicit `<!-- NOT-TRACKED: reason -->` opt-out. This closes a gap
+   `check_taskcard_plan_parity.py` deliberately does not cover: that tool treats an untagged step
+   as silence, never a contradiction (correct for *its* purpose), so a step that was never given a
+   taskcard row at all — the actual failure mode found live (a 9-step plan produced only 6
+   taskcards; the dropped step named a mission, `MT023-...`, that was never registered anywhere in
+   the repo) — was invisible to every existing detector. Agent-invoked via `/plan-health-watchdog`,
+   same as the parity check, for the same structural reason (plan files live outside the repo, so
+   this cannot be a CI gate).
+5. **Eager pause declaration for mid-session context switches.** When execution diverges from the
+   active plan/taskcard to handle unplanned, higher-priority work, call
+   `TaskcardStore.pause_taskcard(task_id, reason=..., recorded_by=...)` for the deferred item
+   *before* proceeding — it auto-creates the row (`create_if_missing=True` by default) if the
+   step never had one, so this works even for a step that was only ever plan-prose. This is
+   deliberately cheap (one call, no full `MISSION_AUTHORITY.yaml`/convergence-binding ceremony
+   required) so it doesn't get skipped under the same time pressure that caused the original
+   incident — separating fast, mandatory intent-capture from rich, deferred mission binding (do
+   that later, only once actually resuming the work). The new `PAUSED` taskcard status (schema 5f,
+   `scripts/pipeline/lib/schema_validators.py`) is non-terminal — still visible to
+   `/plan-health-watchdog`'s stall query once it crosses the normal staleness threshold — but
+   distinct from `BLOCKED_*`: blocked means "can't proceed", paused means "chose not to proceed
+   yet". Requires a non-empty `pause_reason`, the same way verified statuses require
+   `evidence_refs` — a paused card with no stated reason is indistinguishable from a silently
+   dropped one.
+
+Items 4-5 close a documented, recurring failure class, not a one-off: three independent
+same-day incidents (2026-08-06) share the same shape — planned/discovered work that was never
+written to any tracked artifact until asked about or noticed retroactively (see
+`backlog/BACKLOG.md` row `ASPOSE-COM-TARGETS-STATUS-001`, and the `.supervisor/schemas/` addition
+commit `1e310b978c`'s own forensic finding that MT019/MT020 each produced only a fraction of their
+declared stage artifacts while self-reporting full conformance). Both existing detectors
+(`/plan-health-watchdog`'s stall query, `/plan-normalize`'s resume gate) are calibrated to
+multi-day staleness (5 business days / 7 days) and are structurally blind to same-session
+abandonment — items 4-5 do not touch those thresholds; they add a same-session-capable layer
+alongside them.
+
+**Not yet implemented** (tracked in `backlog/BACKLOG.md`, not silently deferred): an automatic
+same-session/turn-boundary reconciliation check (comparing taskcards touched this session against
+same-session commits, to catch a card stuck non-terminal while real work continued — the
+`TC-MEDIA-02`-stuck-at-13:17-while-commits-kept-landing-until-17:28 shape from the same incident),
+and a `/session-start` briefing item that queries `reports/plan_state/*/taskcards.jsonl`
+mechanically instead of relying solely on hand-written `HANDOFF.md`/`BACKLOG.md` prose (which was
+independently found to already be several days stale). See `backlog/BACKLOG.md` for the tracked
+row.
 
 ## Non-goals
 
