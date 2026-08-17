@@ -11,9 +11,7 @@
       "PdfName"
     ],
     "methods_used": [
-      "Document.convert_to_pdfa",
-      "Document.load_from",
-      "Document.validate_pdfa"
+      "Document.load_from"
     ],
     "formats_referenced": [
       "pdf",
@@ -31,7 +29,6 @@
       "Document"
     ],
     "methods_used": [
-      "Document.convert_to_pdfa",
       "Document.load_from"
     ],
     "formats_referenced": [
@@ -1111,9 +1108,7 @@
     "classes_used": [
       "Document"
     ],
-    "methods_used": [
-      "Document.generate_appearances"
-    ],
+    "methods_used": [],
     "formats_referenced": [],
     "provenance": "scout"
   },

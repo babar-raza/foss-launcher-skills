@@ -32094,5 +32094,2706 @@
       }
     ],
     "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6db225de",
+    "text": "The library supports embedding custom fonts and images via AuthoredFont and AuthoredImage, enabling full Unicode text rendering.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AuthoredFont\n  Docstring: A normalized embedded font and the mutable CID mapping for authored text.\nClass: AuthoredImage\n  Docstring: Prepared image data and PDF image XObject metadata."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0e950415",
+    "text": "It includes utilities for low‑level PDF parsing and validation, such as ChainResult for certificate path analysis.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ChainResult\n  Docstring: Result of building and validating a certificate path.\n  Properties: trust_status, chain, errors, warnings"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5ca2cbfc",
+    "text": "Use AnnotationCollection.add(subtype, rect, contents, title, appearance_normal, properties) to create a new annotation of the specified type on a page.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AnnotationCollection\n  Methods: add(subtype, rect, contents, title, appearance_normal, properties) -> Annotation"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2217e87d",
+    "text": "Annotation objects expose properties like rect, contents, and color, which can be read or modified directly.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Annotation\n  Properties: subtype, contents, rect, title, author, has_appearance, appearance_normal, properties, color"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-b6132301",
+    "text": "AnnotationFlags enum values (e.g., PRINT, READ_ONLY) can be combined to control annotation visibility and editability.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AnnotationFlags\n  Enum values: DEFAULT, INVISIBLE, HIDDEN, PRINT, NO_ZOOM, NO_ROTATE, NO_VIEW, READ_ONLY, LOCKED, TOGGLE_NO_VIEW"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-871fa156",
+    "text": "AuthoredFont.encode(text) returns the byte sequence for embedding the given Unicode string into a PDF font stream.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AuthoredFont\n  Methods: encode(text) -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e9336f84",
+    "text": "AuthoredImage provides metadata such as width, height, and color_space, and the raw stream_data for inclusion as an XObject.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AuthoredImage\n  Properties: meta, stream_data, decoded_data, width, height, bits_per_component, color_space, components, filter_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-775c4861",
+    "text": "If a character cannot be mapped to a glyph, AuthoredFont.glyph_id returns None, allowing developers to handle missing glyphs gracefully.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: AuthoredFont\n  Methods: glyph_id(character) -> int | None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0e2a62e1",
+    "text": "When working with binary data sources, ByteArrayDataSource.read_bytes(limits) respects the provided limits to avoid excessive memory usage.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ByteArrayDataSource\n  Methods: read_bytes(limits) -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e420467d",
+    "text": "BitStream.write(value, offset, bit_count) writes bits into the buffer at the given offset, useful for constructing PDF binary structures.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: BitStream\n  Methods: write(value, offset, bit_count) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a7cfc533",
+    "text": "Cluster.empty() creates a new empty Cluster instance, and clone() returns a deep copy of an existing cluster.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Cluster\n  Methods: empty() -> Cluster; clone() -> Cluster"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-40d226da",
+    "text": "The library can import CDR and CGM vector graphics using CdrLoadOptions and CgmLoadOptions.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CdrLoadOptions\n  Docstring: Options for loading CDR files.\nClass: CgmLoadOptions\n  Docstring: Options for loading CGM files."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-22615147",
+    "text": "The library can extract text, images, attachments, metadata, and bookmarks from existing PDF files.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Extract text, images, attachments, metadata, and bookmarks"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-c74a64e9",
+    "text": "It provides heuristic PDF/A and PDF/UA validation as well as conversion to these standards.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Perform heuristic PDF/A and PDF/UA checks and conversions"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1abd610c",
+    "text": "Open an existing PDF by calling Document.load_from(source, password, limits) which returns a Document instance.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Document ... Methods: load_from(source, password, limits) -> Document"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2ad3f887",
+    "text": "Add an attachment to a PDF with Document.add_attachment(name, content, mime, description, creation_date, mod_date, relationship, compress).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Document ... Methods: add_attachment(name, content, mime, description, creation_date, mod_date, relationship, compress) -> Document"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-49ae843b",
+    "text": "Render a page to a raster image with Document.render_page(page_index, dpi, scale, background, antialias, shape_substitute_text).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Document ... Methods: render_page(page_index, dpi, scale, background, antialias, shape_substitute_text) -> RasterizedPage"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-db0b7f75",
+    "text": "Save a PDF document to a chosen format using Document.save(destination, save_format, overwrite), where save_format is a member of the DocFormat enum.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Document ... Methods: save(destination, save_format, overwrite) -> Document"
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: DocFormat ... Enum values: PDF, HTML, MARKDOWN, SVG"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-4eb1c651",
+    "text": "Extract plain text from a content stream with ContentStreamParser.extract_text() or best_effort_extract_text().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ContentStreamParser ... Methods: extract_text() -> str; best_effort_extract_text() -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6ff52d9d",
+    "text": "When a PDF is encrypted, call Document.decrypt(password) before accessing its content; otherwise decryption errors will be raised.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Document ... Methods: decrypt(password) -> Document"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2819a4c6",
+    "text": "To protect against resource‑exhaustion attacks, supply a PdfLoadLimits instance to parsing functions such as ContentStreamParser and CosExtractor.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "fuzz/targets.py",
+        "snippet": "_LIMITS = PdfLoadLimits(... max_input_bytes=_MAX_INPUT_BYTES, ... )"
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ContentStreamParser ... Methods: extract_text() -> str; best_effort_extract_text() -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-206424f5",
+    "text": "The Color class offers predefined static methods (e.g., Color.red(), Color.Blue()) that return Color objects with RGBA components accessible via r, g, b, and a properties.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Color ... Methods: red() -> Color; Blue() -> Color; ... Properties: r, g, b, a"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e5cd8768",
+    "text": "FontRepository aggregates multiple font sources and resolves fonts by name.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FontRepository\n  Docstring: Aggregate font sources and resolve fonts by name."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a15cdfbd",
+    "text": "FontRepository.add_source(source) registers a new FontSource with the repository.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: add_source(source) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5d31630a",
+    "text": "FontRepository.find_font(font_name) returns a FontDescriptor for the requested font or None if not found.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "find_font(font_name) -> FontDescriptor | None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0ff7f0c2",
+    "text": "The library supports both STANDARD and DYNAMIC PDF forms, enabling developers to create interactive documents with AcroForm fields.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FormType\n  Enum values: STANDARD, DYNAMIC"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Form\n  Docstring: Represents an interactive form (AcroForm) within a PDF document."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-eb206055",
+    "text": "GradientAxialShading defines axial (linear) gradient fills with start and end colors for PDF graphics.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: GradientAxialShading\n  Properties: start_color, end_color, start, end"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-fd8f2e75",
+    "text": "HtmlLoadOptions and HtmlSaveOptions enable conversion between HTML and PDF, supporting loading HTML documents and saving PDFs as HTML with configurable resources.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: HtmlLoadOptions\n  Properties: base_dir"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: HtmlSaveOptions\n  Properties: split_into_pages, resources_directory, xps_intermediate_file, aps_intermediate_file, use_area_clipping, max_distance_between_text_lines"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-41b93566",
+    "text": "HtmlSaveOptions.split_into_pages controls whether the exported HTML is divided into separate files per PDF page.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Properties: split_into_pages"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-09a7ffe7",
+    "text": "IncorrectCMapUsageException is raised when a CMap is used incorrectly, indicating that the CMap definition must be reviewed.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IncorrectCMapUsageException\n  Docstring: Raised when there is an incorrect usage of CMap."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-35d8197c",
+    "text": "ImagePlacement.replace(new_image_data) updates the image bytes of an existing placement without altering its position or other attributes.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ImagePlacement\n  Methods: replace(new_image_data) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-ceab3e5e",
+    "text": "IMatrix provides basic 2‑D transformation operations, such as translate(x, y), for manipulating graphic coordinates.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IMatrix\n  Methods: translate(x, y) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2ace459d",
+    "text": "GlyphPlacement represents a shaped glyph with font index, glyph ID, Unicode text, and precise x/y positioning, enabling low‑level text layout analysis.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: GlyphPlacement\n  Properties: font_index, gid, unicode_text, x, y, x_advance"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-ba16d69f",
+    "text": "GeneratedAppearance bundles appearance content bytes with required ExtGState entries and font references for custom rendering of PDF elements.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: GeneratedAppearance\n  Properties: content, ext_gstates, fonts"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-9369e481",
+    "text": "Use IncrementalUpdate.find_last_eof() to locate the EOF marker of the original PDF before appending changes.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: find_last_eof() -> int"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1f8631d9",
+    "text": "Call IncrementalWriter.write_incremental() to generate a byte stream that appends new objects and an updated cross‑reference table to an existing PDF document.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IncrementalWriter ... Methods: write_incremental() -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5cbf96cb",
+    "text": "Add a new PDF object with IncrementalUpdate.add_new_object(obj_bytes) which returns the assigned object number.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: add_new_object(obj_bytes) -> int"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-dbfe7889",
+    "text": "Retrieve the script of a JavaScriptAction via its script property to embed custom JavaScript in a PDF.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: JavaScriptAction ... Properties: script"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1d5a6cf9",
+    "text": "If InvalidPasswordException is raised, ensure the correct password is supplied when opening an encrypted PDF.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: InvalidPasswordException ... Docstring: Raised when an incorrect password is provided for an encrypted document."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-bafadc27",
+    "text": "When InvalidPdfFileFormatException occurs, verify that the input bytes represent a well‑formed PDF and respect the load limits defined in PdfLoadLimits.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: InvalidPdfFileFormatException ... Docstring: Raised when the PDF file format is invalid or corrupted."
+      },
+      {
+        "source_file": "fuzz/targets.py",
+        "snippet": "LIMITS = PdfLoadLimits(... max_input_bytes=_MAX_INPUT_BYTES, ... )"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-116787ad",
+    "text": "The LayoutResult.lines property provides a list of LayoutLine objects representing the fully laid‑out text lines of a page.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: LayoutResult ... Properties: lines"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: LayoutLine ... Properties: text, actual_text, glyphs, width, base_direction"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-67d88d5b",
+    "text": "The **Merger** class concatenates every input PDF into a single document using its **process** method.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Merger\n  Docstring: Concatenate every input PDF into a single document.\n  Methods: process(options) -> ResultContainer; process(options) -> ResultContainer"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0f9f4b72",
+    "text": "The **Optimizer** class improves each input PDF by compressing streams and removing unused objects via its **process** method.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Optimizer\n  Docstring: Optimize each input PDF (compression + unused-object cleanup).\n  Methods: process(options) -> ResultContainer; process(options) -> ResultContainer"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e33a07bb",
+    "text": "Configure optimization settings such as **remove_unused_objects** and **image_compression_quality** with the **OptimizationOptions** class.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OptimizationOptions\n  Properties: remove_unused_objects, remove_unused_streams, allow_reuse_page_content, link_duplicate_streams, unembed_fonts, image_compression_quality, image_max_dimension, image_target_dpi, image_progressive, remove_duplicate_images"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-62a8e74c",
+    "text": "The **OptimizeOptions** class groups inputs, outputs, and data sources for the optimizer and exposes flags like **compress_streams**.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OptimizeOptions\n  Docstring: Options for :class:`Optimizer`.\n  Methods: add_input(source) -> PluginOptions; add_output(source) -> PluginOptions; add_data_source(source) -> PluginOptions\n  Properties: compress_streams, remove_unused_objects, limits, inputs, outputs"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-64a71609",
+    "text": "An **OperationResult** can be inspected to determine whether it holds a string or a byte array, and then converted accordingly.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OperationResult\n  Methods: is_string() -> bool; is_byte_array() -> bool; to_array() -> bytes; to_string() -> str; save(destination) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1b446baf",
+    "text": "The **MemoryFontSource** class lets developers supply a font program directly from in‑memory bytes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: MemoryFontSource\n  Docstring: Expose a font program supplied as in-memory bytes.\n  Methods: get_font_definitions() -> list[FontDescriptor]\n  Properties: font_data, name, priority"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6e161d49",
+    "text": "Use **MemoryFontSource.font_data** to access the raw byte array of the supplied font.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: MemoryFontSource\n  Properties: font_data, name, priority"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-84aa0870",
+    "text": "The **Matrix** class provides 2‑D transformation utilities; **translate(x, y)** shifts the matrix, and **multiply(other)** composes it with another matrix.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Matrix\n  Methods: translate(x, y) -> None; multiply(other) -> Matrix\n  Properties: a, b, c, d, e, f"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a8d79a0a",
+    "text": "For 3‑D transformations, the **Matrix3D** class stores a 3×3 matrix plus translation components.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Matrix3D\n  Docstring: Represents a 3D transformation matrix.\n  Properties: m11, m12, m13, m21, m22, m23, m31, m32, m33, dx"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a36a6928",
+    "text": "The **OutlineCollection** class manages top‑level PDF bookmarks; call **add(item)** to insert a new **OutlineItem**.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OutlineCollection\n  Methods: add(item) -> OutlineItem; remove(item) -> None; clear() -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-dcb55fe6",
+    "text": "Each **OutlineItem** represents a bookmark with properties such as **title**, **page_index**, and **destination**.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OutlineItem\n  Properties: title, page_index, is_bold, is_italic, destination, children"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-60afb446",
+    "text": "The **NamespaceProvider** resolves XMP namespace prefixes to URIs and vice‑versa, supporting registration of custom namespaces.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: NamespaceProvider\n  Docstring: Resolve XMP namespace prefixes and URIs.\n  Methods: get_namespace_uri(prefix) -> str | None; register(prefix, uri) -> XmpNamespaceProvider; get_uri(prefix) -> str | None; get_prefix(uri) -> str | None; prefixes() -> list[str]; uris() -> list[str]; items() -> list[tuple[str, str]]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-153821e5",
+    "text": "The **OfdLoadOptions** class indicates that the library can load OFD files, a format distinct from PDF.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OfdLoadOptions\n  Docstring: Options for loading OFD files."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-ab691e10",
+    "text": "**PDF3DView** objects expose properties like **name**, **render_mode**, **lighting_scheme**, and **ctm** to describe a saved 3‑D view.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PDF3DView\n  Properties: name, render_mode, lighting_scheme, ctm"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-d9889d3a",
+    "text": "The **PDF3DLightingScheme** enum provides predefined lighting options such as **HEADLAMP**, **WHITE**, and **CUSTOM** for 3‑D rendering.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PDF3DLightingScheme\n  Enum values: HEADLAMP, WHITE, GRAY, DARK, CUSTOM"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-7f636302",
+    "text": "The **PDF3DRenderMode** enum defines how 3‑D content is drawn, offering **SOLID**, **WIREFRAME**, and **TRANSPARENT** modes.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PDF3DRenderMode\n  Enum values: SOLID, WIREFRAME, TRANSPARENT"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6dd1f1b0",
+    "text": "If an **OperationResult** is a byte array, calling **save(destination)** writes the data directly to a file or stream.",
+    "kind": "api",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OperationResult\n  Methods: ... save(destination) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-110e97ec",
+    "text": "The library does not expose a direct API for loading PDF files; loading is performed internally by other components not listed in the public API.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.78,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "No class in the verified list provides a public load method for PDF documents."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-595de03f",
+    "text": "The library provides PDF/A validation and conversion, returning detailed results and heuristic notices through PdfAValidator and related result classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfAValidator\n  Docstring: Plugin that runs PDF/A validation on one or more inputs.\n  Methods: process(options) -> list[PdfAValidationResult]\nClass: PdfAValidationResult\n  Docstring: Detailed result of a PDF/A validation run.\n  Properties: is_valid, HEURISTIC_VALIDATION_NOTICE, errors, warnings, level, is_heuristic\nClass: PdfAConversionResult\n  Docstring: Result of a PDF/A conversion operation.\n  Properties: is_valid, errors, level"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a00be290",
+    "text": "Create a new page with Document.pages.add() and place Unicode text using page.add_text(text, x, y, font_size=18, font='MyFont.ttf').",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Page\n  Methods: add_text(text, x, y, font_size, font_name, font, color, tag, actual_text, layout) -> Page"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-8d1203c4",
+    "text": "Replace existing text on a page by calling page.replace_text(search, replacement, case_sensitive=False), which returns the number of replacements performed.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Page\n  Methods: replace_text(search, replacement, case_sensitive, max_count, font, layout) -> int"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-214ae4d4",
+    "text": "Redact sensitive content with page.redact_text(search, overlay=True, overlay_color='black'), which overwrites matched text and returns the count of redactions.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Page\n  Methods: redact_text(search, case_sensitive, max_count, overlay, overlay_color) -> int"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-ab4672c2",
+    "text": "Render a page to a raster image with page.render(dpi=300, background='white') and then write it to disk using page.save_as_image('out.png', dpi=300).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Page\n  Methods: render(dpi, scale, background, antialias, shape_substitute_text) -> RasterizedPage; save_as_image(path, dpi, scale, background, antialias) -> Path"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-56f531a8",
+    "text": "When a PDF file is severely corrupted, parsing it raises PdfCorruptedError, which includes a recoverable flag indicating whether processing can continue.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfCorruptedError\n  Docstring: Unrecoverable PDF corruption.\n  Properties: message, offset, recoverable"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-4f0e0bd4",
+    "text": "If the supplied font cannot represent a character, the library raises an exception to prevent silent loss of data.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A character that the supplied font cannot represent raises `FontEmbeddingException` instead of silently writing `.notdef`.\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e528ad37",
+    "text": "PdfCosParser.parse() reads raw PDF bytes and returns a PdfDocument object that represents the low‑level COS object graph.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfCosParser\n  Docstring: Parse a PDF file (bytes) into a :class:`PdfDocument`.\n  Methods: parse() -> PdfDocument; get_object(ref) -> Any"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-efb1c66b",
+    "text": "Custom low‑code processing pipelines can be built by subclassing the PdfPlugin base class and implementing the process() method.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfPlugin\n  Docstring: Base class for low-code plugins.\n  Methods: process(options) -> ResultContainer"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-57a1364a",
+    "text": "Use PdfExtractor.bind_pdf() to open a PDF (optionally with a password), then call extract_text() and get_text() to obtain the full document text as a string.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: bind_pdf(source, password, limits) -> None; extract_text() -> None; get_text() -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-007cc9ed",
+    "text": "PdfExtractor provides has_next_page_text() and get_next_page_text() to iterate over pages when extracting large PDFs.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: has_next_page_text() -> bool; get_next_page_text() -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-17bf87f6",
+    "text": "To extract embedded images, call PdfExtractor.extract_image() and then retrieve each image with get_next_image() while has_next_image() returns true.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: extract_image() -> None; has_next_image() -> bool; get_next_image() -> Any"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-479f74a8",
+    "text": "PdfFileEditor offers high‑level editing operations such as concatenate(), extract(), insert(), delete(), append(), and add_page_break() to modify PDF files without manual object handling.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: concatenate(inputs, output) -> bool; extract(source, destination, page_from, page_to) -> bool; insert(source, insert_file, destination, position) -> bool; delete(source, destination, pages_to_delete, page_to, page_from) -> bool; append(source, append_source, destination) -> bool; add_page_break(input_path, output_path) -> bool"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-f909ccfe",
+    "text": "If processing a PDF would exceed configured safety thresholds, a PdfResourceLimitException is raised, indicating that limits may need to be increased or the document reduced.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfResourceLimitException\n  Docstring: Raised when processing a PDF would exceed a configured resource limit."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6ab55626",
+    "text": "When a PDF contains a recoverable structural error, PdfMalformedError is thrown with the recoverable property set to true, allowing the application to continue after handling the issue.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfMalformedError\n  Docstring: Recoverable malformed PDF structure.\n  Properties: message, offset, recoverable"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-30a5a5d0",
+    "text": "PdfLoadLimits.unlimited() returns a limits object with no safety caps, useful when processing trusted PDFs that should not be constrained by resource limits.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfLoadLimits\n  Methods: unlimited() -> PdfLoadLimits"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6a3a1c29",
+    "text": "The library provides heuristic PDF/UA validation through the PdfUaValidator plugin, allowing batch compliance checks on multiple inputs.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfUaValidator\n  Docstring: Plugin that runs heuristic PDF/UA validation on one or more inputs.\n  Methods: process(options) -> list[PdfUaValidationResult]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-88464f8b",
+    "text": "PdfWriterV0 can serialize a SimplePdf object to PDF 1.7 bytes, supporting PDF output generation.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfWriterV0\n  Docstring: Writes SimplePdf to PDF 1.7 format.\n  Methods: write() -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-400a49f5",
+    "text": "Instantiate PdfWriterV0 with a SimplePdf model, call write() to obtain PDF bytes, and then write those bytes to a .pdf file.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfWriterV0\n  Methods: write() -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-9b943e8d",
+    "text": "To validate a digital signature, create a PdfSignature object and call its validate(options) method, which returns a ValidationResult indicating the signature status.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfSignature\n  Methods: validate(options) -> ValidationResult"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-8ab82c1e",
+    "text": "PdfUaValidateOptions lets you add multiple PDF sources with add_input(source) before passing the options to PdfUaValidator.process for batch validation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfUaValidateOptions\n  Methods: add_input(source) -> PdfUaValidateOptions"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfUaValidator\n  Methods: process(options) -> list[PdfUaValidationResult]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-cbf1f35f",
+    "text": "PdfStream behaves like a mutable mapping; you can retrieve values with get(key, default) and remove entries with pop(key, default).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfStream\n  Methods: get(key, default) -> Any; pop(key, default) -> Any"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5caaa78a",
+    "text": "PdfUaValidationResult accumulates validation issues via add_error(error) and add_warning(warning), and can be exported as a dictionary with to_dict().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfUaValidationResult\n  Methods: add_error(error) -> None; add_warning(warning) -> None; to_dict() -> dict"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5cb66a6e",
+    "text": "If PdfSignature.validate raises PdfValidationException, the PDF failed compliance checks; catch the exception to handle invalid signatures.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PdfValidationException\n  Docstring: Raised when a PDF document fails validation or compliance checks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1374d653",
+    "text": "When processing untrusted PDFs, configure limits in PluginOptions.limits to prevent excessive memory or CPU usage.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PluginOptions\n  Properties: limits, inputs, outputs"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-f8ff81df",
+    "text": "The library supports splitting a PDF into individual pages using the Splitter class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Splitter\n  Docstring: Split the first input PDF into one document per page."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a3c06755",
+    "text": "It provides utilities for generating self‑signed certificates and creating PKCS#7 or CAdES signatures via SigningUtils.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SigningUtils\n  Methods: create_self_signed_cert() -> tuple[x509.Certificate, rsa.RSAPrivateKey]; sign_data_pkcs7(...); sign_data_cades(...)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-9d1641d4",
+    "text": "Use SimplePdf.from_file(path, password, limits) to load a PDF from disk into a SimplePdf object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Methods: from_file(path, password, limits) -> SimplePdf"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5df13aaa",
+    "text": "Call SimplePdf.save(path) to write the modified document back to a file.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Methods: save(path) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-adf863d6",
+    "text": "Retrieve the number of pages with the SimplePdf.page_count property.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Properties: page_count"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5c857647",
+    "text": "Adjust page rotation with SimplePdf.set_page_rotation(page_index, degrees).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Methods: set_page_rotation(page_index, degrees) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0f26b759",
+    "text": "Extract raw page content bytes via SimplePdf.get_page_content(index).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Methods: get_page_content(index) -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6110c3e7",
+    "text": "Create a new PDF by merging multiple SimplePdf instances using SimplePdf.merge().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SimplePdf\n  Methods: merge() -> SimplePdf"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-3af9dee1",
+    "text": "If a PDF exceeds configured load limits, parsing stops and raises AsposePdfException; adjust limits via PdfLoadLimits to handle larger files.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "fuzz/targets.py",
+        "snippet": "except _EXPECTED_ERRORS: return  # includes AsposePdfException when limits are exceeded"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-dfe0f1d2",
+    "text": "Rectangle class defines x, y, width, and height properties to specify image placement bounds on a PDF page.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Rectangle\n  Properties: x, y, width, height"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-72f5604e",
+    "text": "Text extraction features include plain‑text extraction, fragment‑level extraction, regex search, and replace operations.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextAbsorber ... Methods: visit(...); reset(); remove_all_text(); apply_for_all_fragments(action) -> list[Any]"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextFragmentAbsorber ... Properties: text_fragments, regex_results, errors, phrase, text_search_options, text_replace_options, has_errors"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextExtractor ... Methods: process(options) -> ResultContainer"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-ed1bfc36",
+    "text": "Use TextExtractor.process(options) to extract plain text from a PDF, which returns a ResultContainer with the extracted content.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextExtractor ... Methods: process(options) -> ResultContainer"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-dcfbf42a",
+    "text": "Create a TextExtractionOptions object and set its text_formatting_mode property to control how whitespace and line breaks are represented in the extracted text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextExtractionOptions ... Properties: text_formatting_mode"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-07d8017e",
+    "text": "Add a new logical element to a document's structure tree with TaggedContent.add_element(structure_type, parent, index, page_number, mcids, alt_text, actual_text), which returns a StructureElement for further configuration.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TaggedContent ... Methods: add_element(structure_type, parent, index, page_number, mcids, alt_text, actual_text) -> StructureElement"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6604eca3",
+    "text": "Move an existing StructureElement to a different parent node using StructureElement.move_to(parent, index).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StructureElement ... Methods: move_to(parent, index) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-90549fbb",
+    "text": "Define the visual reading order of a group of structure elements with StructureElement.set_reading_order(elements).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StructureElement ... Methods: set_reading_order(elements) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-43048352",
+    "text": "When decoding PDF streams, StreamDecoder.decode only supports filter names such as FlateDecode, ASCIIHexDecode, ASCII85Decode, RunLengthDecode, and LZWDecode; using an unsupported filter will raise an exception.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "fuzz/targets.py",
+        "snippet": "_FILTERS = (None, \"FlateDecode\", \"ASCIIHexDecode\", \"ASCII85Decode\", \"RunLengthDecode\", \"LZWDecode\")"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StreamDecoder ... Methods: decode(data, filters, decode_parms, limits, max_output_bytes) -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-efd763b6",
+    "text": "If TextFragmentAbsorber.apply_for_all_fragments(action) is called with no matching fragments, it returns an empty list without raising an error.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextFragmentAbsorber ... Methods: apply_for_all_fragments(action) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-8ad474fd",
+    "text": "StatisticsEntry.stop() records the end time of an operation; get_elapsed_time() then returns the elapsed seconds as a float.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StatisticsEntry ... Methods: stop() -> None; get_elapsed_time() -> float"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2dc94292",
+    "text": "StreamEncoder.encode(data, filters, decode_parms) returns a byte string that represents the input data encoded with the specified PDF stream filters.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StreamEncoder ... Methods: encode(data, filters, decode_parms) -> bytes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-31c42ac5",
+    "text": "SvgLoadOptions can be used to import SVG files into a PDF document; the class exposes conversion_engine and page_info properties to control the import process.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SvgLoadOptions ... Properties: conversion_engine, page_info"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-d3ab210a",
+    "text": "Signature validation is provided via ValidationOptions and ValidationResult, allowing configurable revocation and timestamp checks.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/validation.py",
+        "snippet": "Class: ValidationOptions ... Properties: validation_mode, validation_method, trusted_certificates, allow_self_signed, check_revocation, check_timestamp"
+      },
+      {
+        "source_file": "aspose_pdf/validation.py",
+        "snippet": "Class: ValidationResult ... Properties: is_valid, status, message, errors, signer, trust_status, revocation_status, timestamp"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-00901a00",
+    "text": "Use Document.pages.add().add_text(..., layout=TextLayoutOptions(...)) to add Unicode text with fallback fonts and width constraints.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "page.add_text(\n        \"English العربية 123\",\n        x=72,\n        y=720,\n        font_size=16,\n        font=\"NotoSansArabic-Regular.ttf\",\n        layout=TextLayoutOptions(\n            fallback_fonts=[\"NotoSans-Regular.ttf\"],\n            max_width=300,\n            alignment=\"start\",\n            language=\"ar\",\n        ),\n    )"
+      },
+      {
+        "source_file": "aspose_pdf/text_layout.py",
+        "snippet": "Class: TextLayoutOptions ... Properties: direction, language, script, features, fallback_fonts, max_width, line_height, alignment"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-71353b52",
+    "text": "If a font lacks a glyph for a character, the library raises FontEmbeddingException instead of inserting a .notdef placeholder.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.3,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A character that the supplied font cannot represent raises `FontEmbeddingException` instead of silently writing `.notdef`."
+      }
+    ],
+    "stale_warning": "Source code references 'FontEmbeddingException' in non-test files — claim that it is not consumed may be incorrect",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-74c01b81",
+    "text": "When using TextLayoutOptions, ensure the `text-layout` extra is installed; otherwise layout parameters are ignored.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.83,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Optional extras add ... HarfBuzz/bidi complex-text layout:\n\n```bash\npython -m pip install 'aspose-pdf-foss-for-python[images,woff2,text-layout]'\n```"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-7236862d",
+    "text": "The `XYZDestination` class lets developers specify a page location using `left` and `top` coordinates and an optional `zoom` factor.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XYZDestination\n  Docstring: Position ``(left, top)`` at the upper-left with an optional ``zoom``.\n  Properties: page, left, top, zoom"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e9f9f01c",
+    "text": "`XmpArray` provides an ordered XMP array value with `add(item)` and `remove(item)` methods and an `items` property to access the stored elements.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmpArray\n  Docstring: An ordered XMP array value.\n  Methods: add(item) -> None; remove(item) -> bool\n  Properties: items, namespace_provider, kind"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-d3131e78",
+    "text": "`XmpField` represents a single XMP property and exposes `prefix`, `name`, `namespace_uri`, `value`, `language`, `is_uri`, and `qualifiers` properties.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmpField\n  Docstring: A single XMP property.\n  Properties: prefix, name, namespace_uri, value, language, is_uri, qualifiers"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a1bf2b55",
+    "text": "`XmpNamespaceProvider` offers bidirectional XMP namespace resolution via `register`, `get_uri`, `get_prefix`, and enumeration methods.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmpNamespaceProvider\n  Docstring: Bidirectional XMP namespace prefix <-> URI resolver.\n  Methods: register(prefix, uri) -> XmpNamespaceProvider; get_uri(prefix) -> str | None; get_prefix(uri) -> str | None; prefixes() -> list[str]; uris() -> list[str]; items() -> list[tuple[str, str]]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-54135a41",
+    "text": "`XmpPacket` enables building, parsing, and serializing XMP metadata, with typed setters like `set_int`, `set_bool`, `set_date`, and corresponding getters.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmpPacket\n  Docstring: An in-memory XMP packet: an ordered collection of properties.\n  Methods: add(value) -> None; parse(data, provider) -> XmpPacket; serialize() -> bytes; ... set_int(prefix, name, value, uri) -> XmpField; get_int(prefix_or_uri, name) -> int | None; set_bool(...); get_bool(...); set_date(...); get_date(...); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-79120171",
+    "text": "The library supports adding text, images, lines, rectangles, annotations, and form data to PDF pages through high‑level Document and Page APIs.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Add Standard-14 or embedded Unicode text, including shaped bidirectional text, plus images, lines, rectangles, annotations, attachments, and form data"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-8c5a03f3",
+    "text": "Use `add_document_timestamp` to append an ETSI.RFC3161 timestamp to a PDF as part of the PAdES‑LTA signing step.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: add_document_timestamp\n  Docstring: Append a document timestamp (``ETSI.RFC3161``) — the PAdES-LTA step."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-321283c1",
+    "text": "`build_button_appearance` creates the appearance stream for a check box or radio button widget, handling both the Off and On states.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: build_button_appearance\n  Docstring: Build one check box / radio widget state (``/AP /N`` Off or On)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-dc39b1f6",
+    "text": "`build_cades_signed_data` generates a detached CAdES‑BES SignedData object over arbitrary data, providing the core of a PAdES‑B signature.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: build_cades_signed_data\n  Docstring: Build a detached **CAdES-BES** ``SignedData`` over *data* (PAdES-B core)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-f3f76569",
+    "text": "`build_dss` adds a Document Security Store (``/DSS``) to an existing PDF via an incremental update and returns the modified document.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: build_dss\n  Docstring: Return *original_pdf* with a ``/DSS`` added via an incremental update."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-3bdab364",
+    "text": "When processing untrusted PDFs, parsers may raise `AsposePdfException`, `EOFError`, `IndexError`, `KeyError`, `TypeError`, `UnicodeError`, `ValueError`, `struct.error`, or `zlib.error`; callers should catch these exceptions.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "fuzz/targets.py",
+        "snippet": "_EXPECTED_ERRORS = (\n    AsposePdfException,\n    EOFError,\n    IndexError,\n    KeyError,\n    TypeError,\n    UnicodeError,\n    ValueError,\n    struct.error,\n    zlib.error,\n)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e64444df",
+    "text": "It supports PDF validation, including certificate and revocation checks for digital signatures.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Create and inspect PDF signatures"
+      },
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Determine the revocation status of *cert* (issued by *issuer*)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e724c97c",
+    "text": "Use the `catalog` class to retrieve the document’s root dictionary (`/Root`) or receive `None` if unavailable.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Return the document catalog (``/Root``) dictionary, or ``None``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-59a2b809",
+    "text": "The `choose_tags` class helps assign structural tags such as H1, H2, H3, or P to individual text objects for semantic markup.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Pick a structure tag (``H1``/``H2``/``H3`` or ``P``) per text object."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-10b5af99",
+    "text": "`check_crl` returns `None` when the provided CRL does not apply to the certificate, allowing callers to skip non‑relevant revocation data.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Evaluate a single DER CRL for *cert*; ``None`` if not applicable."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-7173f7eb",
+    "text": "`check_ocsp_response` similarly returns `None` if the OCSP response cannot be used for the certificate, preventing false‑positive validation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Evaluate a single DER OCSP response for *cert*; ``None`` if not applicable."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-f4f5ab01",
+    "text": "Use find_layout_elements on a page's content stream to retrieve positioned text objects and image paints in the order they appear.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: find_layout_elements\n  Docstring: Locate positioned text objects and image paints in *content*, in stream order."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-8254e0a9",
+    "text": "Invoke enable_ltv on an already signed PDF to add a /DSS dictionary, converting a PAdES‑T signature into a PAdES‑LT compliant document.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: enable_ltv\n  Docstring: Add a ``/DSS`` to an already-signed PDF, turning PAdES-T into PAdES-LT."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-11f4750d",
+    "text": "If ext_from_magic returns None, the input data is not a recognized encoded image; ensure the source is a supported image format before processing.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ext_from_magic\n  Docstring: Return a file extension if *data* already is an encoded image, else None."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-d98bed8d",
+    "text": "The library provides low‑level utilities for handling PDF content streams, such as extracting text and detecting marked‑content operators.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Extract text, images, attachments, metadata, and bookmarks\n- Replace or redact text in supported content streams"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-22f07815",
+    "text": "It supports embedding Unicode text with automatic font subsetting and ToUnicode mapping, ensuring correct rendering of non‑Standard‑14 characters.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Add Standard-14 or embedded Unicode text, including shaped bidirectional\n  text, plus images, lines, rectangles, annotations, attachments, and form data"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-2730d869",
+    "text": "Use `get_logger(module_name)` to obtain a child logger for consistent library logging.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: get_logger\n  Docstring: Return a child logger for the given module name."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e4d2d415",
+    "text": "`glyph_name_to_unicode(name)` translates an Adobe glyph name into its Unicode character, returning ``None`` when the name is not in the Adobe Glyph List.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: glyph_name_to_unicode\n  Docstring: Map an Adobe glyph *name* to its Unicode string, or ``None``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-06dc1cc0",
+    "text": "`group_into_paragraphs(ordered)` groups reading‑ordered elements into logical paragraph structures for downstream processing.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: group_into_paragraphs\n  Docstring: Group reading-ordered *ordered* elements into structure groups."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-63f1b181",
+    "text": "`group_rows(elements)` arranges a flat list of visual elements into rows that correspond to individual visual lines, preserving reading order.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: group_rows\n  Docstring: Group *elements* into rows of one visual line each, in reading order."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-00646a4c",
+    "text": "`load_system_trust_roots` attempts a best‑effort load of the operating‑system CA bundle without requiring extra dependencies.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: load_system_trust_roots\n  Docstring: Best-effort load of the operating-system CA bundle (no extra deps)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-d2411391",
+    "text": "`locate_matches` returns user‑space quadrilaterals that cover each occurrence of a search string within PDF content.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: locate_matches\n  Docstring: Return user-space quads covering each match of *search* in *content*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e4113ad3",
+    "text": "`make_timestamp_token` builds an RFC 3161 timestamp token signed by a local Time‑Stamp Authority.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: make_timestamp_token\n  Docstring: Build an RFC 3161 timestamp token signed by a local TSA."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-1b6109a0",
+    "text": "`move_text_position` applies a PDF text‑positioning operator and automatically joins the run when the positioning continues.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: move_text_position\n  Docstring: Apply a positioning operator, joining the run when it continues."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a4659402",
+    "text": "`multiply_pdf_affine` multiplies two PDF affine transformation matrices (a * b) and returns the resulting CTM.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: multiply_pdf_affine\n  Docstring: Multiply PDF affines: ``new_ctm = a * b`` (each is a,b,c,d,e,f)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-c220cb49",
+    "text": "`needs_shaping` determines whether a given text string contains any right‑to‑left or complex‑script characters that require shaping.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: needs_shaping\n  Docstring: Whether *text* contains any RTL or complex-script scalar worth shaping."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-cd66bfc1",
+    "text": "`normalize_rgb` converts RGB color values supplied in either 0‑1 float or 0‑255 integer ranges to the PDF‑standard 0‑1 float representation.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: normalize_rgb\n  Docstring: Normalize an RGB color from 0..1 or 0..255 channels to PDF 0..1 values."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-feb5930c",
+    "text": "`opaque_composite_codec` returns the codec used to skip unresolved composite‑font operands during PDF processing.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: opaque_composite_codec\n  Docstring: Return the codec used to skip unresolved composite-font operands."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e62a5e74",
+    "text": "`parse` converts an XMP packet (provided as bytes or text) into a structured :class:`XmpPacket` object.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse\n  Docstring: Parse an XMP packet (bytes or text) into an :class:`XmpPacket`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0edc3b4c",
+    "text": "`parse_default_appearance` interprets a PDF /DA string and extracts the font name, font size, and fill‑colour operator.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_default_appearance\n  Docstring: Parse a ``/DA`` string into ``(font_name, font_size, fill_colour_op)``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-aa0a97cb",
+    "text": "`parse_encoding_cmap` parses a CID Encoding CMap and returns a mapping of code‑bytes to CID together with sorted code lengths.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_encoding_cmap\n  Docstring: Parse a CID Encoding CMap into ``(code-bytes -> CID, sorted code lengths)``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-71d75898",
+    "text": "`parse_encoding_cmap_codespaces` validates and returns the codespace ranges defined in an embedded Encoding CMap.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_encoding_cmap_codespaces\n  Docstring: Return validated codespace ranges from an embedded Encoding CMap."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-29130ad2",
+    "text": "`parse_encoding_cmap_wmode` extracts the bounded WMode value from an embedded Encoding CMap.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_encoding_cmap_wmode\n  Docstring: Return an embedded Encoding CMap's bounded ``WMode`` value."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-5e015520",
+    "text": "`parse_faces` reads font data and yields a :class:`SfntFace` object for each face contained in the file.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_faces\n  Docstring: Parse *data* and return one :class:`SfntFace` per contained face."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6e8637d7",
+    "text": "`parse_image_placements_from_content` scans a PDF content stream and extracts all image placements represented by Do operators together with their transformation matrices.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_image_placements_from_content\n  Docstring: Parse PDF content stream and extract image placements (Do operator with matrix)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-0c24e2cd",
+    "text": "The library can extract image placement information from PDF pages, allowing developers to locate and manipulate embedded images.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_image_placements_from_content\n  Docstring: Parse PDF content stream and extract image placements (Do operator with matrix)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-56d81ca4",
+    "text": "`load_system_trust_roots` may return an empty certificate store on systems without a native CA bundle; provide a custom bundle via the library's trust‑store API as a workaround.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: load_system_trust_roots\n  Docstring: Best-effort load of the operating-system CA bundle (no extra deps)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-fc384a1e",
+    "text": "`measure` provides utilities for measuring text and graphics dimensions within a PDF page.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.78,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: measure"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-389f77e9",
+    "text": "`opaque_composite_codec` can be used to obtain the codec that safely skips unknown composite‑font operands during PDF parsing.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: opaque_composite_codec\n  Docstring: Return the codec used to skip unresolved composite-font operands."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6b61f0d8",
+    "text": "`parse_to_unicode_cmap` reads a ToUnicode CMap stream and produces a mapping from PDF code bytes to Unicode text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_to_unicode_cmap\n  Docstring: Parse a ToUnicode CMap stream into a code-bytes -> unicode-text map."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e5ec63e3",
+    "text": "`parse_xmp` extracts an XMP packet from raw data and returns an :class:`XmpPacket` object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: parse_xmp\n  Docstring: Parse an XMP packet into an :class:`XmpPacket`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-7dd2d92e",
+    "text": "`pdf_date_to_iso8601` converts a PDF date string (e.g., ``D:20231231120000+01'00'``) into an ISO‑8601 formatted timestamp.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pdf_date_to_iso8601\n  Docstring: Convert a PDF date (``D:YYYYMMDDHHmmSS+HH'mm'``) to an ISO-8601 string."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-01333afe",
+    "text": "`pdf_literal` encodes a Unicode string as a PDF literal string while preserving the original UTF‑8 byte sequence.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pdf_literal\n  Docstring: Encode text as a PDF literal string preserving UTF-8 bytes."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-17efc010",
+    "text": "`pdfa_extended` runs the extended PDF/A structural validation and returns a tuple of error and warning messages.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pdfa_extended\n  Docstring: Return ``(errors, warnings)`` for the extended PDF/A structural checks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-99e4bbe8",
+    "text": "`pdfua_extended` performs the extended PDF/UA catalog checks and reports any errors or warnings.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pdfua_extended\n  Docstring: Return ``(errors, warnings)`` for the extended PDF/UA catalog checks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-45f89a5d",
+    "text": "`pdfua_pages` validates PDF/UA page and annotation requirements, returning any detected errors and warnings.",
+    "kind": "api",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pdfua_pages\n  Docstring: Return ``(errors, warnings)`` for the PDF/UA page/annotation checks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-46421a5a",
+    "text": "The library supports adding Unicode text, images, lines, rectangles, annotations, attachments, and form data to PDF pages.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Add Standard-14 or embedded Unicode text, including shaped bidirectional text, plus images, lines, rectangles, annotations, attachments, and form data"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-9c9017b3",
+    "text": "When a font cannot represent a requested character, the library raises `FontEmbeddingException` instead of silently using a .notdef glyph.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A character that the supplied font cannot represent raises `FontEmbeddingException` instead of silently writing `.notdef`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-555e3011",
+    "text": "`pop_nesting` and `push_nesting` manage nesting levels for container structures during PDF parsing.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: pop_nesting\nClass: push_nesting"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-148a86ea",
+    "text": "It provides built‑in text replacement and redaction capabilities within PDF content streams.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: replace_text_in_content\n  Docstring: Replace text inside PDF text-showing operands."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: redact_text_in_content\n  Docstring: Remove text from simple text-showing operands."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-3fd552fc",
+    "text": "Use the `render_page` class to render a specific page index from a `SimplePdf` into an RGB raster.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: render_page\n  Docstring: Render ``page_index`` from a ``SimplePdf`` into an RGB raster."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-a9af3395",
+    "text": "The `resolve_output_path` class returns a `Path` whose suffix matches the requested output file extension.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: resolve_output_path\n  Docstring: Return a ``Path`` whose suffix matches *produced_ext*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-72c68354",
+    "text": "If a non‑None load‑options argument is supplied when loading a PDF, `reject_load_options` will raise an error, enforcing the default loading behavior.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: reject_load_options\n  Docstring: Reject a non-``None`` load-options argument."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-e52249bd",
+    "text": "The library includes low‑level helpers such as `uri_for` to generate safe resource URIs and `safe_resource_name` to validate stream names, ensuring PDF resources are correctly referenced.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: uri_for"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: safe_resource_name\n  Docstring: Return *name* when it is safe for content streams, otherwise ``None``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-f9983e26",
+    "text": "Use `serialize` to convert an `XmpPacket` object into raw XMP packet bytes for embedding into a PDF.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: serialize\n  Docstring: Serialize an :class:`XmpPacket` into XMP packet bytes."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-affc1a18",
+    "text": "For Type1 fonts, `subset_type1` removes unused glyphs by keeping only the specified glyph names, emptying the rest.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: subset_type1\n  Docstring: Return a subset of *font_bytes* keeping *keep_names* (others emptied)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-af198868",
+    "text": "`shape_run` shapes a Unicode text string against a given SFNT program, returning glyph coordinates and advances in em units for custom text layout.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: shape_run\n  Docstring: Shape *text* against one SFNT *program*; coords/advances in em units."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-72c335c7",
+    "text": "`shape_single_font_line` performs bidi reordering and shaping of a single line of text using a single font program, simplifying complex script rendering.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: shape_single_font_line\n  Docstring: Bidi-reorder and shape one line of *text* against a single SFNT *program*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-db6bde8a",
+    "text": "If `safe_resource_name` returns `None`, the provided name contains unsafe characters and should be sanitized before using it in a content stream.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: safe_resource_name\n  Docstring: Return *name* when it is safe for content streams, otherwise ``None``."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-fbce64f9",
+    "text": "The **verify_signer** class cryptographically verifies a parsed signer against the provided *signed_bytes*.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Class: verify_signer\n  Docstring: Cryptographically verify a parsed signer against *signed_bytes*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-66ee484a",
+    "text": "The **verify_timestamp_token** class validates an RFC 3161 timestamp token and ensures it timestamps the given *signed_value*.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Class: verify_timestamp_token\n  Docstring: Verify an RFC 3161 token and that it timestamps *signed_value*."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-python-6912ac58",
+    "text": "The **xyz_type** class lacks documentation, suggesting it may be an internal placeholder; avoid using it in production code until official guidance is released.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_pdf/api.py",
+        "snippet": "Class: xyz_type"
+      }
+    ],
+    "provenance": "enriched"
   }
 ]

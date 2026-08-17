@@ -3209,6 +3209,61 @@
     "reachable": false
   },
   {
+    "name": "Decoder",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose_pdf/engine/ccitt.py",
+    "line": 53,
+    "bases": [],
+    "methods": [
+      {
+        "name": "build",
+        "params": [
+          {
+            "name": "term",
+            "type": ""
+          },
+          {
+            "name": "makeup",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 63,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/ccitt.py"
+      },
+      {
+        "name": "decode",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "params",
+            "type": ""
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 236,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/ccitt.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": false,
+    "canonical_namespace": "engine.ccitt",
+    "class_import": "engine.ccitt.Decoder"
+  },
+  {
     "name": "decode_group4",
     "kind": "function",
     "doc": "Decode CCITT Group-4 (T.6) compressed image data.",
@@ -8972,6 +9027,43 @@
     "class_import": "engine.io.BitStream"
   },
   {
+    "name": "Decoder",
+    "kind": "class_definition",
+    "doc": "JBIG2 decoder that parses segment structure and extracts bitmap data.",
+    "file": "src/aspose_pdf/engine/jbig2.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "decode",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "params",
+            "type": "dict | None"
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "Decode JBIG2 data and return a bitmap.",
+        "line": 140,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/jbig2.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "engine.jbig2",
+    "class_import": "engine.jbig2.Decoder"
+  },
+  {
     "name": "encode",
     "kind": "function",
     "doc": "Encode interleaved 8-bit *samples* as a JPEG.",
@@ -9012,6 +9104,43 @@
     ],
     "return_type": "bytes",
     "reachable": false
+  },
+  {
+    "name": "Decoder",
+    "kind": "class_definition",
+    "doc": "JPEG 2000 (JPX) Stream Decoder.",
+    "file": "src/aspose_pdf/engine/jpx.py",
+    "line": 77,
+    "bases": [],
+    "methods": [
+      {
+        "name": "decode",
+        "params": [
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "parms",
+            "type": "dict[str, Any] | None"
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "Decode JPEG 2000 data using Pillow.",
+        "line": 81,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/jpx.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "engine.jpx",
+    "class_import": "engine.jpx.Decoder"
   },
   {
     "name": "get_logger",
@@ -11271,6 +11400,236 @@
     "reachable": false,
     "canonical_namespace": "engine.signing",
     "class_import": "engine.signing.SigningUtils"
+  },
+  {
+    "name": "TextFragmentAbsorber",
+    "kind": "class_definition",
+    "doc": "Absorber that extracts text fragments from a SimplePdf instance.",
+    "file": "src/aspose_pdf/engine/simple_pdf.py",
+    "line": 384,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 387,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear collected fragments.",
+        "line": 390,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "visit",
+        "params": [
+          {
+            "name": "pdf",
+            "type": "SimplePdf"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Collect text fragments using the sophisticated ContentStreamParser.",
+        "line": 394,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "remove_all_text",
+        "params": [
+          {
+            "name": "pdf",
+            "type": "SimplePdf"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove all visible text from PDF by clearing page contents.",
+        "line": 412,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "apply_for_all_fragments",
+        "params": [
+          {
+            "name": "action",
+            "type": ""
+          }
+        ],
+        "return_type": "None",
+        "doc": "Apply a function to all fragments.",
+        "line": 418,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "fragments",
+        "type": "list[TextFragment]",
+        "doc": "Gets the fragments.",
+        "line": 388,
+        "file": "src/aspose_pdf/engine/simple_pdf.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "engine.simple_pdf",
+    "class_import": "engine.simple_pdf.TextFragmentAbsorber"
+  },
+  {
+    "name": "ImagePlacement",
+    "kind": "class_definition",
+    "doc": "Represents an image placement on a page.",
+    "file": "src/aspose_pdf/engine/simple_pdf.py",
+    "line": 427,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "page_index",
+            "type": "int"
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 430,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "path",
+            "type": "str | Path"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Save image to file.",
+        "line": 436,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "replace",
+        "params": [
+          {
+            "name": "new_data",
+            "type": "bytes"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Replace image data.",
+        "line": 440,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "hide",
+        "params": [],
+        "return_type": "None",
+        "doc": "Mark image as hidden.",
+        "line": 444,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "",
+        "doc": "Gets the name.",
+        "line": 431,
+        "file": "src/aspose_pdf/engine/simple_pdf.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_index",
+        "type": "",
+        "doc": "Gets the page index.",
+        "line": 432,
+        "file": "src/aspose_pdf/engine/simple_pdf.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data",
+        "type": "",
+        "doc": "Gets the data.",
+        "line": 433,
+        "file": "src/aspose_pdf/engine/simple_pdf.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "engine.simple_pdf",
+    "class_import": "engine.simple_pdf.ImagePlacement"
+  },
+  {
+    "name": "ImagePlacementAbsorber",
+    "kind": "class_definition",
+    "doc": "Absorber that finds image placements in a PDF.",
+    "file": "src/aspose_pdf/engine/simple_pdf.py",
+    "line": 449,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 452,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      },
+      {
+        "name": "visit",
+        "params": [
+          {
+            "name": "pdf",
+            "type": "SimplePdf"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Find all image placements in the PDF.",
+        "line": 455,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/engine/simple_pdf.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "image_placements",
+        "type": "list[ImagePlacement]",
+        "doc": "Gets the image placements.",
+        "line": 453,
+        "file": "src/aspose_pdf/engine/simple_pdf.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "engine.simple_pdf",
+    "class_import": "engine.simple_pdf.ImagePlacementAbsorber"
   },
   {
     "name": "LazyImageDict",
@@ -15658,6 +16017,28 @@
     "reachable": false
   },
   {
+    "name": "decode",
+    "kind": "function",
+    "doc": "Reconstruct the SFNT font wrapped in WOFF *data*.",
+    "file": "src/aspose_pdf/engine/woff.py",
+    "line": 52,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "name": "limits",
+        "type": "PdfLoadLimits | None"
+      }
+    ],
+    "return_type": "bytes | None",
+    "reachable": false
+  },
+  {
     "name": "build_sfnt",
     "kind": "function",
     "doc": "Assemble an SFNT from decompressed *tables*, fixing offsets/checksums.",
@@ -17539,6 +17920,989 @@
     "public_import_module": ""
   },
   {
+    "name": "UnsignedContent",
+    "kind": "class_definition",
+    "doc": "Represents a collection of unsigned content elements in a PDF document.",
+    "file": "src/aspose_pdf/forms.py",
+    "line": 520,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "pages",
+            "type": "list[Any] | None"
+          },
+          {
+            "name": "form_fields",
+            "type": "list[Any] | None"
+          },
+          {
+            "name": "annotations",
+            "type": "list[Any] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 526,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "add_page",
+        "params": [
+          {
+            "name": "page",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add a page to the unsigned content.",
+        "line": 538,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "remove_page",
+        "params": [
+          {
+            "name": "page",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove a page from the unsigned content if present.",
+        "line": 542,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "add_form_field",
+        "params": [
+          {
+            "name": "field",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add a form field to the unsigned content.",
+        "line": 547,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "remove_form_field",
+        "params": [
+          {
+            "name": "field",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove a form field from the unsigned content if present.",
+        "line": 551,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "add_annotation",
+        "params": [
+          {
+            "name": "annotation",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add an annotation to the unsigned content.",
+        "line": 556,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "remove_annotation",
+        "params": [
+          {
+            "name": "annotation",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove an annotation from the unsigned content if present.",
+        "line": 560,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Reset all collections to empty lists.",
+        "line": 565,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "pages",
+        "type": "list[Any]",
+        "doc": "Gets the pages.",
+        "line": 533,
+        "file": "src/aspose_pdf/forms.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "form_fields",
+        "type": "list[Any]",
+        "doc": "Gets the form fields.",
+        "line": 534,
+        "file": "src/aspose_pdf/forms.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "annotations",
+        "type": "list[Any]",
+        "doc": "Gets the annotations.",
+        "line": 535,
+        "file": "src/aspose_pdf/forms.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "forms",
+    "class_import": "forms.UnsignedContent",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "UnsignedContentAbsorber",
+    "kind": "class_definition",
+    "doc": "Extract unsigned form fields and annotations from a PDF document.",
+    "file": "src/aspose_pdf/forms.py",
+    "line": 580,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "document",
+            "type": "Document"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 597,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear the last extracted content.",
+        "line": 601,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "get_extracted",
+        "params": [],
+        "return_type": "UnsignedContent | None",
+        "doc": "Return the last extracted content, if any.",
+        "line": 605,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "has_extracted",
+        "params": [],
+        "return_type": "bool",
+        "doc": "True if extraction has been performed.",
+        "line": 609,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      },
+      {
+        "name": "extract",
+        "params": [],
+        "return_type": "UnsignedContent",
+        "doc": "Extract unsigned form fields and annotations from the document.",
+        "line": 632,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/forms.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "forms",
+    "class_import": "forms.UnsignedContentAbsorber",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "Document",
+    "kind": "class_definition",
+    "doc": "Pythonic wrapper for PDF document lifecycle and core operations.",
+    "file": "src/aspose_pdf/generated/document.py",
+    "line": 29,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "source",
+            "type": "str | Path | bytes | bytearray | BinaryIO | None"
+          },
+          {
+            "name": "options",
+            "type": "Any"
+          },
+          {
+            "name": "password",
+            "type": "str | None"
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Create a new :class:`Document` instance.",
+        "line": 38,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "load_from",
+        "params": [
+          {
+            "name": "source",
+            "type": "str | bytes | bytearray | Path | BinaryIO"
+          },
+          {
+            "name": "password",
+            "type": "str | None"
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Load a document from *source* using native engine.",
+        "line": 103,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "destination",
+            "type": "Any"
+          },
+          {
+            "name": "save_format",
+            "type": "Any"
+          },
+          {
+            "name": "overwrite",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Save the document to *destination* using native engine.",
+        "line": 164,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "close",
+        "params": [],
+        "return_type": "",
+        "doc": "Alias of :meth:`dispose`.",
+        "line": 194,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "dispose",
+        "params": [],
+        "return_type": "None",
+        "doc": "Release resources associated with this document.",
+        "line": 198,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "merge",
+        "params": [],
+        "return_type": "Document",
+        "doc": "Merge the supplied *documents* into the current one.",
+        "line": 213,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "optimize",
+        "params": [
+          {
+            "name": "compress_images",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Perform generic optimizations on the document.",
+        "line": 225,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "optimize_resources",
+        "params": [
+          {
+            "name": "remove_unused",
+            "type": "bool"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Optimize shared resources such as fonts and images.",
+        "line": 239,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "repair",
+        "params": [],
+        "return_type": "Document",
+        "doc": "Attempt to repair the document's structure via the engine.",
+        "line": 251,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "flatten",
+        "params": [],
+        "return_type": "Document",
+        "doc": "Flatten form fields and annotations via the engine.",
+        "line": 261,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "free_memory",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear any cached data that might hold onto memory.",
+        "line": 271,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "encrypt",
+        "params": [
+          {
+            "name": "password",
+            "type": "str"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Encrypt the document with the given *password*.",
+        "line": 277,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "decrypt",
+        "params": [
+          {
+            "name": "password",
+            "type": "str"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Decrypt the document if *password* matches the stored one.",
+        "line": 286,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "change_passwords",
+        "params": [
+          {
+            "name": "old_password",
+            "type": "str"
+          },
+          {
+            "name": "new_password",
+            "type": "str"
+          }
+        ],
+        "return_type": "Document",
+        "doc": "Change the document's password from *old_password* to *new_password*.",
+        "line": 298,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "validate",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Return ``True`` if the document is structurally valid.",
+        "line": 309,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "check",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Alias for :meth:`validate` kept for API compatibility.",
+        "line": 315,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/document.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "load_limits",
+        "type": "PdfLoadLimits",
+        "writable": false,
+        "doc": "Return the resource limits used for loading this document.",
+        "line": 96,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "is_disposed",
+        "type": "bool",
+        "writable": false,
+        "doc": "Expose the disposal state of the document.",
+        "line": 323,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "page_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Number of pages currently in the document.",
+        "line": 328,
+        "file": "src/aspose_pdf/generated/document.py"
+      },
+      {
+        "name": "file_name",
+        "type": "Any",
+        "doc": "Gets the file name.",
+        "line": 70,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "info",
+        "type": "Any",
+        "doc": "Gets the info.",
+        "line": 71,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "metadata",
+        "type": "Any",
+        "doc": "Gets the metadata.",
+        "line": 72,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "id",
+        "type": "Any",
+        "doc": "Gets the id.",
+        "line": 73,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "version",
+        "type": "Any",
+        "doc": "Gets the version.",
+        "line": 74,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "pages",
+        "type": "Any",
+        "doc": "Gets the pages.",
+        "line": 75,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "outlines",
+        "type": "Any",
+        "doc": "Gets the outlines.",
+        "line": 76,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "named_destinations",
+        "type": "Any",
+        "doc": "Gets the named destinations.",
+        "line": 77,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "form",
+        "type": "Any",
+        "doc": "Gets the form.",
+        "line": 78,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_encrypted",
+        "type": "Any",
+        "doc": "Gets the is encrypted.",
+        "line": 79,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "permissions",
+        "type": "Any",
+        "doc": "Gets the permissions.",
+        "line": 80,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_pdfa_compliant",
+        "type": "Any",
+        "doc": "Gets the is pdfa compliant.",
+        "line": 81,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_pdfua_compliant",
+        "type": "Any",
+        "doc": "Gets the is pdfua compliant.",
+        "line": 82,
+        "file": "src/aspose_pdf/generated/document.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "generated.document",
+    "class_import": "generated.document.Document",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "UnsignedContentAbsorber",
+    "kind": "class_definition",
+    "doc": "Extracts unsigned content elements; includes form field/annotation info.",
+    "file": "src/aspose_pdf/generated/forms.py",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "Initialize absorber with optional configuration.",
+        "line": 14,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "extract",
+        "params": [],
+        "return_type": "UnsignedContent",
+        "doc": "Extract unsigned content into an :class:`UnsignedContent` instance.",
+        "line": 22,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear any previously extracted content.",
+        "line": 36,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "get_extracted",
+        "params": [],
+        "return_type": "UnsignedContent | None",
+        "doc": "Return the last extracted :class:`UnsignedContent` instance, if any.",
+        "line": 43,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "has_extracted",
+        "params": [],
+        "return_type": "bool",
+        "doc": "Convenience method to check whether extraction has been performed.",
+        "line": 47,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "generated.forms",
+    "class_import": "generated.forms.UnsignedContentAbsorber",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "UnsignedContent",
+    "kind": "class_definition",
+    "doc": "Container for unsigned content (pages, form fields, annotations).",
+    "file": "src/aspose_pdf/generated/forms.py",
+    "line": 52,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "Initialize UnsignedContent with optional collections.",
+        "line": 58,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "add_page",
+        "params": [
+          {
+            "name": "page",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add a page to the unsigned content.",
+        "line": 68,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "remove_page",
+        "params": [
+          {
+            "name": "page",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove a page from the unsigned content if present.",
+        "line": 72,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "add_form_field",
+        "params": [
+          {
+            "name": "field",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add a form field to the unsigned content.",
+        "line": 77,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "remove_form_field",
+        "params": [
+          {
+            "name": "field",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove a form field from the unsigned content if present.",
+        "line": 81,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "add_annotation",
+        "params": [
+          {
+            "name": "annotation",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add an annotation to the unsigned content.",
+        "line": 86,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "remove_annotation",
+        "params": [
+          {
+            "name": "annotation",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Remove an annotation from the unsigned content if present.",
+        "line": 90,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Reset all collections to empty lists.",
+        "line": 95,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/forms.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "pages",
+        "type": "list[Any]",
+        "doc": "Gets the pages.",
+        "line": 62,
+        "file": "src/aspose_pdf/generated/forms.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "form_fields",
+        "type": "list[Any]",
+        "doc": "Gets the form fields.",
+        "line": 63,
+        "file": "src/aspose_pdf/generated/forms.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "annotations",
+        "type": "list[Any]",
+        "doc": "Gets the annotations.",
+        "line": 64,
+        "file": "src/aspose_pdf/generated/forms.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "generated.forms",
+    "class_import": "generated.forms.UnsignedContent",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "PdfAValidateOptions",
+    "kind": "class_definition",
+    "doc": "Options for a PDF/A validation run.",
+    "file": "src/aspose_pdf/generated/pdfa.py",
+    "line": 11,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "Initialize the validation options.",
+        "line": 17,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "add_input",
+        "params": [],
+        "return_type": "",
+        "doc": "Register an input source for validation.",
+        "line": 35,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear all stored options and inputs, returning to a clean state.",
+        "line": 62,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "set_option",
+        "params": [
+          {
+            "name": "key",
+            "type": "str"
+          },
+          {
+            "name": "value",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Set a single option value.",
+        "line": 67,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "get_options",
+        "params": [],
+        "return_type": "dict[str, Any]",
+        "doc": "Return a shallow copy of the stored options dictionary.",
+        "line": 76,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "pdfa_version",
+        "type": "Any",
+        "writable": false,
+        "doc": "Gets the pdfa version.",
+        "line": 30,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "optimize_file_size",
+        "type": "Any",
+        "writable": false,
+        "doc": "Gets the optimize file size.",
+        "line": 31,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_low_memory_mode",
+        "type": "Any",
+        "writable": false,
+        "doc": "Gets the is low memory mode.",
+        "line": 32,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "log_output_source",
+        "type": "Any",
+        "writable": false,
+        "doc": "Gets the log output source.",
+        "line": 33,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "inputs",
+        "type": "",
+        "doc": "Gets the inputs.",
+        "line": 27,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "generated.pdfa",
+    "class_import": "generated.pdfa.PdfAValidateOptions",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
+    "name": "PdfAValidationResult",
+    "kind": "class_definition",
+    "doc": "Result of a PDF/A validation run.",
+    "file": "src/aspose_pdf/generated/pdfa.py",
+    "line": 84,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 90,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Reset the validation result to its default state.",
+        "line": 100,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "add_error",
+        "params": [
+          {
+            "name": "error",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add an error message to the result and mark it as invalid.",
+        "line": 110,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      },
+      {
+        "name": "to_dict",
+        "params": [],
+        "return_type": "dict[str, Any]",
+        "doc": "Return a dictionary representation of the validation result.",
+        "line": 123,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/generated/pdfa.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_valid",
+        "type": "bool",
+        "doc": "Gets the is valid.",
+        "line": 97,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "errors",
+        "type": "list[str]",
+        "doc": "Gets the errors.",
+        "line": 98,
+        "file": "src/aspose_pdf/generated/pdfa.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "canonical_namespace": "generated.pdfa",
+    "class_import": "generated.pdfa.PdfAValidationResult",
+    "exported_via_package_init": true,
+    "public_import_module": ""
+  },
+  {
     "name": "Point3D",
     "kind": "class_definition",
     "doc": "Represents a 3D point.",
@@ -17985,6 +19349,318 @@
     "reachable": false,
     "canonical_namespace": "html",
     "class_import": "html.HtmlLoadOptions"
+  },
+  {
+    "name": "Rectangle",
+    "kind": "class_definition",
+    "doc": "Rectangle representing image placement bounds on a PDF page.",
+    "file": "src/aspose_pdf/images.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "x",
+            "type": "float"
+          },
+          {
+            "name": "y",
+            "type": "float"
+          },
+          {
+            "name": "width",
+            "type": "float"
+          },
+          {
+            "name": "height",
+            "type": "float"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 38,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/images.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "x",
+        "type": "",
+        "doc": "Gets the x.",
+        "line": 41,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "y",
+        "type": "",
+        "doc": "Gets the y.",
+        "line": 42,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 43,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 44,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "images",
+    "class_import": "images.Rectangle"
+  },
+  {
+    "name": "ImagePlacement",
+    "kind": "class_definition",
+    "doc": "Represent an image placed on a PDF page.",
+    "file": "src/aspose_pdf/images.py",
+    "line": 50,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "image_data",
+            "type": "bytes | bytearray"
+          },
+          {
+            "name": "page_index",
+            "type": "int"
+          },
+          {
+            "name": "rect",
+            "type": "Rectangle | None"
+          },
+          {
+            "name": "resolution",
+            "type": "tuple[float, float] | None"
+          },
+          {
+            "name": "rotation",
+            "type": "int"
+          },
+          {
+            "name": "matrix",
+            "type": "tuple[float, float, float, float, float, float] | None"
+          },
+          {
+            "name": "meta",
+            "type": "dict | None"
+          },
+          {
+            "name": "limits",
+            "type": "PdfLoadLimits | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 71,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "replace",
+        "params": [
+          {
+            "name": "new_image_data",
+            "type": "bytes | bytearray"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Replace the current image data with new_image_data.",
+        "line": 108,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "path",
+            "type": "str | os.PathLike"
+          },
+          {
+            "name": "color_space",
+            "type": "str | None"
+          }
+        ],
+        "return_type": "Path",
+        "doc": "Save the image as a real, openable image file.",
+        "line": 123,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "hide",
+        "params": [],
+        "return_type": "None",
+        "doc": "Hide the image placement.",
+        "line": 171,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/images.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "image_data",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Return the current image payload.",
+        "line": 181,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "rectangle",
+        "type": "Rectangle",
+        "writable": false,
+        "doc": "Bounding rectangle of the image on the page (x, y, width, height in PDF points).",
+        "line": 191,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "resolution",
+        "type": "tuple[float, float]",
+        "writable": false,
+        "doc": "Image resolution as (horizontal_dpi, vertical_dpi).",
+        "line": 198,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "rotation",
+        "type": "int",
+        "writable": false,
+        "doc": "Rotation angle in degrees (0, 90, 180, 270).",
+        "line": 205,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "matrix",
+        "type": "tuple[float, float, float, float, float, float]",
+        "writable": false,
+        "doc": "PDF transformation matrix (a, b, c, d, e, f).",
+        "line": 210,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "width",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Pixel width from the image XObject, when known.",
+        "line": 217,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "height",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Pixel height from the image XObject, when known.",
+        "line": 222,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "bits_per_component",
+        "type": "int | None",
+        "writable": false,
+        "doc": "Bits per colour component, when known.",
+        "line": 227,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "color_space",
+        "type": "str | None",
+        "writable": false,
+        "doc": "Resolved colour-space kind (``gray``/``rgb``/``cmyk``/``indexed``).",
+        "line": 232,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "name",
+        "type": "",
+        "doc": "Gets the name.",
+        "line": 90,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_index",
+        "type": "",
+        "doc": "Gets the page index.",
+        "line": 92,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "images",
+    "class_import": "images.ImagePlacement"
+  },
+  {
+    "name": "ImagePlacementAbsorber",
+    "kind": "class_definition",
+    "doc": "Absorber to collect image placements from PDF pages.",
+    "file": "src/aspose_pdf/images.py",
+    "line": 240,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 247,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/images.py"
+      },
+      {
+        "name": "visit",
+        "params": [
+          {
+            "name": "page_or_pdf",
+            "type": ""
+          }
+        ],
+        "return_type": "None",
+        "doc": "Visit a page or PDF and collect all image placements.",
+        "line": 279,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/images.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "image_placements",
+        "type": "list[ImagePlacement]",
+        "doc": "Gets the image placements.",
+        "line": 248,
+        "file": "src/aspose_pdf/images.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "images",
+    "class_import": "images.ImagePlacementAbsorber"
   },
   {
     "name": "Destination",
@@ -18836,6 +20512,22 @@
     "reachable": false,
     "canonical_namespace": "load_options",
     "class_import": "load_options.CdrLoadOptions"
+  },
+  {
+    "name": "SvgLoadOptions",
+    "kind": "class_definition",
+    "doc": "Options for loading SVG files.",
+    "file": "src/aspose_pdf/load_options.py",
+    "line": 52,
+    "bases": [
+      "_BaseLoadOptions"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "exported",
+    "reachable": false,
+    "canonical_namespace": "load_options",
+    "class_import": "load_options.SvgLoadOptions"
   },
   {
     "name": "CgmLoadOptions",
@@ -22571,6 +24263,56 @@
     "class_import": "svg.PageInfo"
   },
   {
+    "name": "SvgLoadOptions",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "src/aspose_pdf/svg.py",
+    "line": 25,
+    "bases": [
+      "_BaseSvgLoadOptions"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "page_size",
+            "type": "tuple[float, float] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 26,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/svg.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "conversion_engine",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the conversion engine.",
+        "line": 32,
+        "file": "src/aspose_pdf/svg.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "page_info",
+        "type": "PageInfo",
+        "writable": false,
+        "doc": "Gets the page info.",
+        "line": 40,
+        "file": "src/aspose_pdf/svg.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": false,
+    "canonical_namespace": "svg",
+    "class_import": "svg.SvgLoadOptions"
+  },
+  {
     "name": "TaggedContext",
     "kind": "class_definition",
     "doc": "",
@@ -23174,6 +24916,146 @@
     "class_import": "text.RegexResult"
   },
   {
+    "name": "TextFragmentAbsorber",
+    "kind": "class_definition",
+    "doc": "Absorbs text fragments from a PDF page or document.",
+    "file": "src/aspose_pdf/text.py",
+    "line": 190,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "phrase",
+            "type": "str | None"
+          },
+          {
+            "name": "text_search_options",
+            "type": "TextSearchOptions | None"
+          },
+          {
+            "name": "text_replace_options",
+            "type": "Any | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 237,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "visit",
+        "params": [
+          {
+            "name": "page_or_doc",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Process *page_or_doc* and collect matching text fragments.",
+        "line": 286,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "reset",
+        "params": [],
+        "return_type": "None",
+        "doc": "Clear all collected fragments, regex results and errors.",
+        "line": 312,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "remove_all_text",
+        "params": [],
+        "return_type": "None",
+        "doc": "Remove all collected text fragments (alias for reset without clearing errors).",
+        "line": 319,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "apply_for_all_fragments",
+        "params": [
+          {
+            "name": "action",
+            "type": "Callable[[TextFragment], Any]"
+          }
+        ],
+        "return_type": "list[Any]",
+        "doc": "Apply *action* to every collected fragment and return the results.",
+        "line": 324,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "text_fragments",
+        "type": "list[TextFragment]",
+        "writable": false,
+        "doc": "List of :class:`TextFragment` objects found by the last visit.",
+        "line": 268,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "regex_results",
+        "type": "list[RegexResult]",
+        "writable": false,
+        "doc": "List of :class:`RegexResult` objects (populated on regex search).",
+        "line": 273,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "errors",
+        "type": "list[Any]",
+        "writable": false,
+        "doc": "Errors collected during the last visit, if any.",
+        "line": 278,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "phrase",
+        "type": "str | None",
+        "doc": "Gets the phrase.",
+        "line": 244,
+        "file": "src/aspose_pdf/text.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_search_options",
+        "type": "TextSearchOptions",
+        "doc": "Gets the text search options.",
+        "line": 245,
+        "file": "src/aspose_pdf/text.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "text_replace_options",
+        "type": "Any | None",
+        "doc": "Gets the text replace options.",
+        "line": 250,
+        "file": "src/aspose_pdf/text.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "has_errors",
+        "type": "bool",
+        "doc": "Gets the has errors.",
+        "line": 255,
+        "file": "src/aspose_pdf/text.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "exported",
+    "reachable": false,
+    "canonical_namespace": "text",
+    "class_import": "text.TextFragmentAbsorber"
+  },
+  {
     "name": "TextAbsorber",
     "kind": "class_definition",
     "doc": "Absorbs text from PDF pages (legacy class, alias for TextFragmentAbsorber).",
@@ -23272,6 +25154,104 @@
     "reachable": false,
     "canonical_namespace": "text",
     "class_import": "text.TextAbsorber"
+  },
+  {
+    "name": "TextFragmentCollection",
+    "kind": "class_definition",
+    "doc": "A mutable ordered collection of :class:`TextFragment` objects.",
+    "file": "src/aspose_pdf/text.py",
+    "line": 497,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 500,
+        "is_constructor": true,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "add",
+        "params": [
+          {
+            "name": "fragment",
+            "type": "Any"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Add *fragment* to the collection; ``None`` is silently ignored.",
+        "line": 503,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "remove",
+        "params": [
+          {
+            "name": "fragment",
+            "type": "Any"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "Remove *fragment* from the collection.",
+        "line": 509,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "clear",
+        "params": [],
+        "return_type": "None",
+        "doc": "Remove all fragments from the collection.",
+        "line": 526,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "contains",
+        "params": [
+          {
+            "name": "fragment",
+            "type": "Any"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "Return ``True`` if *fragment* is present in the collection.",
+        "line": 530,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "item",
+        "params": [
+          {
+            "name": "index",
+            "type": "int"
+          }
+        ],
+        "return_type": "Any",
+        "doc": "Return the fragment at *index* (0-based).",
+        "line": 536,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      },
+      {
+        "name": "get_enumerator",
+        "params": [],
+        "return_type": "Iterator[Any]",
+        "doc": "Return an iterator over the collection.",
+        "line": 548,
+        "is_constructor": false,
+        "file": "src/aspose_pdf/text.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "text",
+    "class_import": "text.TextFragmentCollection"
   },
   {
     "name": "TextLayoutOptions",

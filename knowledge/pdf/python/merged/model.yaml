@@ -1,33 +1,32 @@
-bundle_generated_at: '2026-08-14T12:00:35.213049+00:00'
-bundle_id: 67cf9f02-9cc2-40ea-b6d0-365a93db0171
-config_sha: e034fc744e7fe760
-enrichment_status: full
-extractor_hash: a52df5d20ccdf3ca
 family: pdf
-generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: e4c8ab7067719992e73a6895057ba08116308af80fcf4e397b421aecc6f376e7
-  extractor_config_sha: e034fc744e7fe760
-  products_json_entry_sha: 16a493cfbf766c089fe365680542357e6deccee3e898bf89ab230d6c9a39d740
-  scout_api_surface_sha: 3ed6afbf3f6e71ee9e0967997dae0e2da4921b0a1ac403e4baaa55995608812f
-  scout_claims_sha: c48f58bad430ddeddde640f84e3d69490340371a86cc400b3114b14cb31d321f
-license: MIT
 platform: python
 product_name: aspose-pdf-foss-for-python
-promoted_at: '2026-08-14T12:00:35.333954+00:00'
-repo_sha: 537b8273b185e4f7440b201cacad56567e55b2f0
-repo_url: https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git
-schema_version: 2
-source: scout_and_enriched
-stale_since: null
-stats:
-  class_count: 227
-  enriched_claims: 515
-  forbidden_count: 7
-  scout_claims: 1782
-  snippet_count: 100
-  supplemental_claims: 0
-  total_claims: 2249
 version: ''
+license: MIT
+repo_url: https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git
+repo_sha: 537b8273b185e4f7440b201cacad56567e55b2f0
+config_sha: e034fc744e7fe760
+stale_since: null
+promoted_at: '2026-08-17T14:49:30.290828+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+bundle_id: fbb4acaa-9122-4ef8-be6d-78ecd22975cc
+bundle_generated_at: '2026-08-17T14:49:30.149482+00:00'
+input_hashes:
+  extractor_config_sha: e034fc744e7fe760
+  scout_claims_sha: c48f58bad430ddeddde640f84e3d69490340371a86cc400b3114b14cb31d321f
+  scout_api_surface_sha: 7ed10611c18bc889ee893a3f24a2697aa68c135048a8216fb7ca34fc966d39dc
+  enriched_claims_sha: d10772bb9b76f21f5852f8a088ab3e802476b4cdb9a256a1be6c5f80b4e016fc
+  products_json_entry_sha: 16a493cfbf766c089fe365680542357e6deccee3e898bf89ab230d6c9a39d740
+stats:
+  scout_claims: 1782
+  enriched_claims: 691
+  supplemental_claims: 0
+  total_claims: 2425
+  class_count: 247
+  forbidden_count: 7
+  snippet_count: 100

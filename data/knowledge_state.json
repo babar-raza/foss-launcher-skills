@@ -88,43 +88,86 @@
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\3d\\net\\3d-key-features-dotnet\\index.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:12.951714Z"
+        "recorded_at": "2026-08-17T12:08:19.226887Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\ArrayList.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:05.479497Z"
+        "recorded_at": "2026-08-17T12:08:18.556518Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\BasicLoadOptions.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:05.592943Z"
+        "recorded_at": "2026-08-17T12:08:18.568555Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\ColladaLoadOptions.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:06.025543Z"
+        "recorded_at": "2026-08-17T12:08:18.605457Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\FileSystemFactory.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:06.955648Z"
+        "recorded_at": "2026-08-17T12:08:18.688688Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\IOService.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:07.751233Z"
+        "recorded_at": "2026-08-17T12:08:18.752788Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\TmfLoadOptions.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:10.958997Z"
+        "recorded_at": "2026-08-17T12:08:19.035922Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\TmfSaveOptions.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:10.963308Z"
+        "recorded_at": "2026-08-17T12:08:19.040691Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\net\\VertexElementVector.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:44:11.815758Z"
+        "recorded_at": "2026-08-17T12:08:19.119417Z"
+      },
+      "content\\blog.aspose.org\\3d\\net\\3d-key-features-dotnet\\index.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.175847Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\ArrayList.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.137242Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\BasicLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.142198Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\ColladaLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.146970Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\FileSystemFactory.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.151167Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\IOService.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.155140Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\TmfLoadOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.159151Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\TmfSaveOptions.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.163745Z"
+      },
+      "content\\reference.aspose.org\\en\\3d\\net\\VertexElementVector.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-17T12:08:49.167764Z"
       }
     },
     "family": "3d",
-    "platform": "net"
+    "platform": "net",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-17T12:26:01.773778Z",
+      "report_path": "reports\\audit\\3d-net-truth-20260817.md",
+      "verdict": "PASS",
+      "warn_count": 26
+    }
   },
   "3d/python": {
     "accepted_baseline": {
@@ -821,9 +864,9 @@
   },
   "pdf/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T12:00:35.333954+00:00",
+      "accepted_at": "2026-08-17T14:49:30.290828+00:00",
       "repo_sha": "537b8273b185e4f7440b201cacad56567e55b2f0",
-      "run_id": "promote-20260814T120035Z",
+      "run_id": "promote-20260817T144930Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
@@ -833,7 +876,7 @@
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\python\\developer-guide\\data.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:40.099627Z"
+        "recorded_at": "2026-08-17T15:02:17.364521Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\python\\developer-guide\\generated.md": {
         "reason": "audit_fail",
@@ -845,7 +888,14 @@
       }
     },
     "family": "pdf",
-    "platform": "python"
+    "platform": "python",
+    "truth_audit": {
+      "fail_count": 14,
+      "recorded_at": "2026-08-17T14:58:00.909271Z",
+      "report_path": "reports\\audit\\pdf-python-truth-20260817.md",
+      "verdict": "FAIL",
+      "warn_count": 35
+    }
   },
   "slides/cpp": {
     "accepted_baseline": {

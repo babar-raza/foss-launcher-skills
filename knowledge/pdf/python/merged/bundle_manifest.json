@@ -1,36 +1,36 @@
 {
   "schema_version": 2,
-  "bundle_id": "67cf9f02-9cc2-40ea-b6d0-365a93db0171",
+  "bundle_id": "fbb4acaa-9122-4ef8-be6d-78ecd22975cc",
   "family": "pdf",
   "platform": "python",
   "repo_sha": "537b8273b185e4f7440b201cacad56567e55b2f0",
-  "generated_at": "2026-08-14T12:00:35.213049+00:00",
+  "generated_at": "2026-08-17T14:49:30.149482+00:00",
   "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "e5653d90a470d8bd2d04413f6a299817af99871db3919e64004106148fb233ac",
+      "sha256": "8e55ee82b3ae795939484c96cbb5bdc7aa0513dcd1a1a4d80affd12e15f807be",
       "bytes": 1223
     },
     "api_surface.json": {
-      "sha256": "0310fbe56aed6552fa5a9d18a598042d5a45cef461a2cdd126dbbb04025194e7",
-      "bytes": 631928
+      "sha256": "7f8b1487280cc8a5c4103798224bc44df1d83cea92d77198c61c96a81318f6bb",
+      "bytes": 686630
     },
     "api_surface.md": {
-      "sha256": "65632d8dc2e78fbea0b5f629347e4c616a47dd58efb2dcdf612ee177460d80c2",
-      "bytes": 66831
+      "sha256": "15b3647dcf9f06a19f638e2246392fe7b4fa03e68f19cc74259539e48f16cdbd",
+      "bytes": 72851
     },
     "formats.json": {
       "sha256": "31cf9c95ebfbb6a7e0560df983e3fe147eaa14120a0b6bc1ba31cff8e16a3383",
       "bytes": 3138
     },
     "formats.md": {
-      "sha256": "31c8172da326b35367168286e67c9a7f203d91d818b185320b8d2cffbf7c4e46",
+      "sha256": "c599068eac597e510a114046329d9020909bf6cc4bd5985870e2bbb2953d8f3a",
       "bytes": 587
     },
     "claims.json": {
-      "sha256": "351a79e12225bc73b1f90e62a08ef70218cbf65c8a05e1da764f2ce1221eed02",
-      "bytes": 900991
+      "sha256": "22520eb61f6ac9c8b864d8a843f8a70e9477f4426d235bd6888ead1b1ff69f1c",
+      "bytes": 1002515
     },
     "limitations.md": {
       "sha256": "b1d0df1fd1a88a228b9f98841e7282ebffa5c1f0c20a378900ef616902df82d1",
@@ -41,7 +41,7 @@
       "bytes": 174
     },
     "merge_report.md": {
-      "sha256": "90abb1883afddb211dad555749424183df53171726352a49ef60583a861e409e",
+      "sha256": "858b7ef5e3dd2ee7f0f83a981836a78e27dbf44214c8978141a3a6c4fe6b5ba8",
       "bytes": 514
     },
     "snippets/snippet_001.py": {
@@ -445,10 +445,10 @@
       "bytes": 528
     },
     "snippets/snippets_index.json": {
-      "sha256": "dc513d38a290940c1a99846900f942a4e6f20bbfbd6529769c5cfa2143ab7643",
-      "bytes": 37429
+      "sha256": "2ea370e72be9e5eb3724856e19e0ce88e597ee7e41bdaae2c427578cad7b0878",
+      "bytes": 37281
     }
   },
-  "promote_run_id": "promote-20260814T120035Z",
+  "promote_run_id": "promote-20260817T144930Z",
   "status": "COMPLETE"
 }
