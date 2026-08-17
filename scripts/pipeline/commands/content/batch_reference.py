@@ -569,6 +569,7 @@ def _build_page(
     member_erc_index: dict[str, str] | None = None,
     model_sha: str = "",
     model_version: str = "",
+    content_created_at: str | None = None,
 ) -> str:
     """Build a template-based skeleton reference page from an api_surface entry.
 
@@ -636,7 +637,14 @@ def _build_page(
             seen_api_names.add(f"{name}.{pname}")
             apis_list.append(f"  - {name}.{pname}")
     # Frontmatter
-    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    # content_created_at must be deterministic across a crash/retry pair under the
+    # same run_id: two _production_run() calls stamping different wall-clock values
+    # would produce different frontmatter hashes and trip a false-positive "Page
+    # decision collision" in _emit_run_decision() (MT033-WAECOLLISION-001). Callers
+    # pass the immutable run-manifest timestamp via _run_recorded_at(); this only
+    # falls back to the live clock when no run context is available (e.g. direct
+    # unit tests of _build_page()).
+    now_iso = content_created_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
     lines = [
         "---",
         f"linkTitle: {name}",
@@ -2251,7 +2259,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 continue
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
-                                   model_sha=model_sha, model_version=model_version)
+                                   model_sha=model_sha, model_version=model_version,
+                                   content_created_at=_run_recorded_at(resolved_run_root))
             # Timestamp-only churn guard: in --rebuild-all mode, skip pages where
             # the only differences from the existing file are pure timestamp fields
             # (content_created_at, graded_at, grade, graded_content_hash, content_hash).

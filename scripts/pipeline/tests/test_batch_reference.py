@@ -14,6 +14,7 @@ Covers (S-62 Healing Sprint — F-1 + F-6):
 import json
 import hashlib
 import sys
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -161,6 +162,10 @@ def test_reference_write_ahead_evidence_survives_writer_crash(
     assert result["errors"] == 1
     assert page.read_text(encoding="utf-8") == old_content
 
+    # Cross a real clock-second boundary before retrying (MT033-WAECOLLISION-001):
+    # the retry must not embed a different content_created_at than the crashed
+    # original just because real wall-clock time has moved on.
+    time.sleep(1.1)
     monkeypatch.setattr(_br, "safe_content_write", original_write)
     result = _production_run(
         "fake",
@@ -172,6 +177,19 @@ def test_reference_write_ahead_evidence_survives_writer_crash(
     )
     assert result["updated"] == 1
     assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
+    # Regression guard for MT033-WAECOLLISION-001: content_created_at must be
+    # sourced from the immutable run manifest, not the retry's own wall-clock
+    # time -- otherwise a retry landing in a different clock-second than the
+    # crashed original produces a different frontmatter hash and trips a
+    # false-positive "Page decision collision" in _emit_run_decision(). The
+    # sleep above already proved this test crosses a real second boundary
+    # between the two _production_run() calls; on pre-fix code this assertion
+    # (or the collision itself) fails intermittently depending on real timing.
+    final_content = page.read_text(encoding="utf-8")
+    assert "content_created_at: '2026-07-26T00:00:00Z'" in final_content, (
+        "content_created_at must be sourced from manifest.json's created_at, "
+        "not a fresh datetime.now() call:\n" + final_content
+    )
 
 
 class TestKindFilterJava:
