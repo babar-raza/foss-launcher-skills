@@ -2355,6 +2355,65 @@ def test_seo_stability_is_independent_of_aggregate_verifier(tmp_path: Path):
     )
 
 
+def test_oracle_command_scoped_to_run_receipts(tmp_path: Path):
+    """3d/net fan-out defect (successor to MT033's 6 chain fixes): the oracle
+    stage was invoked with no --receipts flag, so refresh_oracle.py silently
+    fell back to the platform's default reports/refresh_review/{f}/{p}/receipts/
+    directory -- which can hold stale BODY_UPDATED receipts from an unrelated,
+    much older process -- instead of this run's own scoped receipts. Live
+    impact: 36 pre-existing-drift locale files got validated and FAILed
+    oracle for a run that never touched them. The fix passes --receipts
+    pointing at this run's own run_root/receipts directory explicitly."""
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ORACLE-SCOPE",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [
+        "content/docs.aspose.org/en/pdf/net/page.md"
+    ]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    captured_oracle_args: list[list[str]] = []
+
+    def capturing_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if any(str(value).endswith("refresh_oracle.py") for value in args):
+            captured_oracle_args.append(list(args))
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=capturing_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    refresh_run.verify_run(manifest)
+
+    assert len(captured_oracle_args) == 1
+    oracle_args = captured_oracle_args[0]
+    assert "--receipts" in oracle_args
+    receipts_arg = oracle_args[oracle_args.index("--receipts") + 1]
+    expected_root = str(
+        tmp_path / "reports/refresh_runs/pdf/net/RUN-ORACLE-SCOPE/receipts"
+    )
+    assert receipts_arg == expected_root
+
+
 def test_independent_seo_failure_blocks_when_other_validators_pass(tmp_path: Path):
     manifest = refresh_run.create_run(
         "pdf",

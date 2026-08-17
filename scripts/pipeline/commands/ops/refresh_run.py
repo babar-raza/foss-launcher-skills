@@ -1933,6 +1933,8 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
             str(_repo_root / "scripts/pipeline/commands/content/refresh_oracle.py"),
             family,
             platform,
+            "--receipts",
+            str(run_root / "receipts"),
         ],
         "triage_confirm": [
             python,
