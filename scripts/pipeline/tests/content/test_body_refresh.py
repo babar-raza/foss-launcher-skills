@@ -1625,6 +1625,135 @@ def test_paragraph_rewrite_code_fence_balanced_rewrite_accepted():
     assert context.get("_fallback_reason") == "NONE"
 
 
+def test_code_block_structure_shifted_detects_same_count_reshuffle():
+    """RPR-ST086-01 unit test: a fence dropped after one block and a fence
+    inserted mid-way through the next block nets to the same total ``` count
+    (4 -> 4) but reshuffles which text is fenced code vs. unfenced prose.
+    _code_block_structure_shifted must catch this even though
+    CODE_FENCE_IMBALANCE's count check would pass it."""
+    source = (
+        "```python\n"
+        "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill\n"
+        "```\n"
+        "\n"
+        "This is a longer explanatory paragraph about applying styles to "
+        "further cells in the worksheet, which now unintentionally includes "
+        "the following code inline as plain prose text describing font "
+        "configuration steps:\n"
+        "\n"
+        "```python\n"
+        "from aspose.cells_foss import Workbook, Font\n"
+        "font.bold = True\n"
+        "font.italic = False\n"
+        "font.size = 14\n"
+        "worksheet.cells['A1'].value = \"Header\"\n"
+        "workbook.save(\"output.xlsx\")\n"
+        "```\n"
+    )
+    corrupted = (
+        "```python\n"
+        "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill\n"
+        "\n"
+        "This is a longer explanatory paragraph about applying styles to "
+        "further cells in the worksheet, which now unintentionally includes "
+        "the following code inline as plain prose text describing font "
+        "configuration steps:\n"
+        "\n"
+        "```python\n"
+        "from aspose.cells_foss import Workbook, Font\n"
+        "```\n"
+        "font.bold = True\n"
+        "font.italic = False\n"
+        "font.size = 14\n"
+        "worksheet.cells['A1'].value = \"Header\"\n"
+        "workbook.save(\"output.xlsx\")\n"
+        "```\n"
+    )
+    assert source.count("```") == corrupted.count("```")
+    assert br._code_block_structure_shifted(source, corrupted) is True
+
+
+def test_code_block_structure_shifted_tolerates_small_legitimate_edit():
+    """A normal small edit inside a code block (e.g. a changed argument or
+    an added line reflecting a real API change) must NOT be flagged — only
+    a gross length swing consistent with block-boundary corruption should be."""
+    source = (
+        "```python\n"
+        "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill\n"
+        "```\n"
+    )
+    edited = (
+        "```python\n"
+        "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill (updated)\n"
+        "```\n"
+    )
+    assert br._code_block_structure_shifted(source, edited) is False
+
+
+def test_paragraph_rewrite_code_fence_content_shifted_triggers_fallback():
+    """RPR-ST086-02: full _paragraph_rewrite path — an LLM rewrite whose
+    fence count matches the source but whose fenced-block content has
+    shifted position/size must fall back to section_text, using the new
+    CODE_FENCE_CONTENT_SHIFTED reason (distinct from CODE_FENCE_IMBALANCE,
+    which only catches a changed total count)."""
+    section_text = (
+        "```python\n"
+        "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill\n"
+        "```\n"
+        "\n"
+        "This is a longer explanatory paragraph about applying styles to "
+        "further cells in the worksheet, which now unintentionally includes "
+        "the following code inline as plain prose text describing font "
+        "configuration steps:\n"
+        "\n"
+        "```python\n"
+        "from aspose.cells_foss import Workbook, Font\n"
+        "font.bold = True\n"
+        "font.italic = False\n"
+        "font.size = 14\n"
+        "worksheet.cells['A1'].value = \"Header\"\n"
+        "workbook.save(\"output.xlsx\")\n"
+        "```\n"
+    )
+
+    class ContentShiftingLLM:
+        class MockResult:
+            data = (
+                "```python\n"
+                "cell.style.fill.set_solid_fill(\"FF1E64C8\")  # navy fill\n"
+                "\n"
+                "This is a longer explanatory paragraph about applying styles to "
+                "further cells in the worksheet, which now unintentionally includes "
+                "the following code inline as plain prose text describing font "
+                "configuration steps:\n"
+                "\n"
+                "```python\n"
+                "from aspose.cells_foss import Workbook, Font\n"
+                "```\n"
+                "font.bold = True\n"
+                "font.italic = False\n"
+                "font.size = 14\n"
+                "worksheet.cells['A1'].value = \"Header\"\n"
+                "workbook.save(\"output.xlsx\")\n"
+                "```\n"
+            )
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=ContentShiftingLLM)
+    change = {"change_id": "CHG-FENCE-003", "symbol": "Cell", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    assert section_text.count("```") == ContentShiftingLLM.MockResult.data.count("```")
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert result.startswith(section_text.rstrip())
+    assert context.get("_fallback_reason") == "CODE_FENCE_CONTENT_SHIFTED"
+
+
 # ── RPR-E-02: generation-time forbidden-claims gate ──────────────────────────
 
 def test_generation_blocked_on_forbidden_claim(tmp_path, monkeypatch):

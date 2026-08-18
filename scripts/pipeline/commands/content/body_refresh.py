@@ -310,6 +310,54 @@ _PROMPT_ECHO_PHRASES = (
 )
 
 
+def _fenced_code_blocks(text: str) -> list[str]:
+    """Return the content of every fenced code block in text (the segments
+    between odd/even ``` pairs, per a naive left-to-right toggle). Assumes
+    the ``` count is already known to be even and balanced -- callers must
+    run the count check first."""
+    parts = text.split("```")
+    return [parts[i] for i in range(1, len(parts), 2)]
+
+
+def _code_block_structure_shifted(section_text: str, llm_output: str) -> bool:
+    """RPR-ST086-01: True if the fenced code blocks' CONTENT has been
+    reshuffled even though the total ``` count matches (ST-082's own
+    CODE_FENCE_IMBALANCE guard only checks the total count, which is
+    necessary but not sufficient -- a fence removed at one point and a
+    fence added at another within the same multi-heading section nets to
+    the same total while still corrupting the actual open/close nesting).
+
+    Found live 2026-08-18, cells/python, 6th retest attempt (with ST-085's
+    grounding fix confirmed working correctly this same run): one closing
+    fence was dropped after a working code example (leaving it open into
+    the following prose) and a fence pair was inserted a few lines into the
+    NEXT code example (splitting its import line from the ~15 lines of
+    real code that followed, which then sat as unfenced plain text) --
+    total count unchanged (14 -> 14), so the existing guard passed.
+
+    Heuristic (deliberately conservative, not a proof): compare the two
+    texts' lists of fenced-code-block contents pairwise by position. A
+    block that absorbed neighboring prose (or lost most of its own content
+    to becoming unfenced) shows up as a large length swing relative to its
+    counterpart. Blocks may legitimately differ some (PARAGRAPH_REWRITE can
+    edit a call to a changed member), so this only flags a swing extreme
+    enough that "reshuffled structure" is a much likelier explanation than
+    "a normal edit" -- both bounds are intentionally generous.
+    """
+    source_blocks = _fenced_code_blocks(section_text)
+    output_blocks = _fenced_code_blocks(llm_output)
+    if len(source_blocks) != len(output_blocks):
+        return True  # count guard should have already caught this; defense in depth
+    for src, out in zip(source_blocks, output_blocks):
+        src_len, out_len = len(src.strip()), len(out.strip())
+        if src_len < 20 and out_len < 20:
+            continue  # both trivially short — not worth judging
+        longer, shorter = max(src_len, out_len), min(src_len, out_len)
+        if longer > 3 * max(shorter, 1) and (longer - shorter) > 80:
+            return True
+    return False
+
+
 def run_is_llm_degraded(receipts: list[dict]) -> bool:
     """RPR-E-05: a run is 'LLM degraded' if any page's fallback_reason names a cause
     other than a link-preservation violation (which reflects LLM output quality, not
@@ -1220,6 +1268,20 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
                 f"using deterministic fallback"
             )
             return _fallback("CODE_FENCE_IMBALANCE")
+
+        # RPR-ST086-01: same-total-count fence guards above cannot catch a
+        # fence removed at one point and a fence added elsewhere within the
+        # same multi-heading section — the count matches while the actual
+        # block boundaries have shifted (one block left open into following
+        # prose, a different block's real content reduced to unfenced text).
+        # See _code_block_structure_shifted's docstring for the live incident.
+        if _code_block_structure_shifted(section_text, llm_output):
+            print(
+                "CODE_FENCE_CONTENT_SHIFTED: fenced code block content shifted "
+                "position/size between source and LLM output despite matching "
+                "fence count — using deterministic fallback"
+            )
+            return _fallback("CODE_FENCE_CONTENT_SHIFTED")
 
         # RPR-ST082-04: prompt-echo guard. Reject output that leaks one of
         # this prompt's own scaffolding phrases (the model completing past
