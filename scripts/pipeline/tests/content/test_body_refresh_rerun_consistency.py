@@ -49,6 +49,7 @@ def reset_config():
         safe_write_fn=None,
         hash_validation=True,
         forbidden_claims=None,
+        cache_schema_override=None,
     )
 
 
@@ -233,6 +234,46 @@ def test_case_a_changed_input_misses_cache(tmp_path):
     page.write_text(_PAGE_BODY.replace("in detail", "at length"), encoding="utf-8")
     _execute(tmp_path, "pdf", "net", "changed-second")
     assert _CountingRouter.calls == 2
+
+
+def test_cache_schema_bump_invalidates_entries_from_older_schema(tmp_path):
+    """RPR-ST082-02 regression: a post-response validation guard (like the
+    code-fence-balance check) has no pattern string to fold into the cache
+    key, so an entry accepted before the guard existed would otherwise keep
+    being served forever on identical input — confirmed live 2026-08-18,
+    cells/python: the fence-imbalance guard's own commit landed, but a
+    same-input rerun kept reproducing the exact pre-fix broken output because
+    the cache key was unchanged and a cache HIT bypasses every guard. Bumping
+    _BODY_REFRESH_CACHE_SCHEMA is the sanctioned fix for exactly this case —
+    prove it actually busts old entries rather than trusting the comment.
+    Uses the cache_schema_override configure() seam rather than patching the
+    module constant directly, per this repo's monkeypatch-lint policy."""
+    _CountingRouter.calls = 0
+    _CountingRouter.vary_output = False
+    page = _setup(tmp_path)
+    br.configure(safe_write_fn=lambda p, c, **kw: True)
+
+    # Simulate a pre-fix cache entry: run once under a simulated OLD schema.
+    br.configure(cache_schema_override="1")
+    _execute(tmp_path, "pdf", "net", "old-schema-first")
+    assert _CountingRouter.calls == 1
+
+    # Same input again under the OLD schema — must be a cache hit (sanity
+    # check that the harness itself behaves as expected before the real
+    # assertion below).
+    page.write_text(_PAGE_BODY, encoding="utf-8")
+    _execute(tmp_path, "pdf", "net", "old-schema-second")
+    assert _CountingRouter.calls == 1, "same schema, same input must still hit cache"
+
+    # Now go back to the real (unoverridden) schema and rerun with identical
+    # input — this must be a fresh LLM call, not a reuse of the old-schema
+    # entry.
+    br.configure(cache_schema_override=None)
+    page.write_text(_PAGE_BODY, encoding="utf-8")
+    _execute(tmp_path, "pdf", "net", "new-schema-third")
+    assert _CountingRouter.calls == 2, (
+        "bumped schema must miss the cache entry stored under the old schema"
+    )
 
 
 def test_case_b_forced_fresh_varies_but_never_regresses(tmp_path):

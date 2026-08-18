@@ -115,6 +115,7 @@ _cfg_hash_validation: bool = True       # set False in tests to skip hash checks
 _cfg_writes_root: str = "reports/body_refresh_writes"  # TC-09: post-write evidence log
 _cfg_forbidden_claims: "list[str] | None" = None  # RPR-E-02: injected in tests; None = load from index.json
 _cfg_api_fact_summary_fn: Any = None    # RPR-ST082-01: injected in tests to mock api_surface grounding lookup
+_cfg_cache_schema_override: "str | None" = None  # RPR-ST082-02: injected in tests to simulate an older cache schema
 
 
 def configure(
@@ -126,11 +127,12 @@ def configure(
     writes_root: str | None = None,
     forbidden_claims: "list[str] | None | object" = _UNSET,
     api_fact_summary_fn: Any = _UNSET,
+    cache_schema_override: "str | None | object" = _UNSET,
 ) -> None:
     """Override dependencies for testing (configure() seam pattern)."""
     global _cfg_reports_root, _cfg_receipts_root, _cfg_llm_router_class
     global _cfg_safe_write_fn, _cfg_hash_validation, _cfg_writes_root
-    global _cfg_forbidden_claims, _cfg_api_fact_summary_fn
+    global _cfg_forbidden_claims, _cfg_api_fact_summary_fn, _cfg_cache_schema_override
     if reports_root is not None:
         _cfg_reports_root = reports_root
     if receipts_root is not None:
@@ -147,6 +149,8 @@ def configure(
         _cfg_forbidden_claims = forbidden_claims  # type: ignore[assignment]
     if api_fact_summary_fn is not _UNSET:
         _cfg_api_fact_summary_fn = api_fact_summary_fn
+    if cache_schema_override is not _UNSET:
+        _cfg_cache_schema_override = cache_schema_override  # type: ignore[assignment]
 
 
 # ── RPR-E-04: surface-differentiated update-strategy policy ──────────────────
@@ -266,7 +270,16 @@ class _LLMCircuit:
 
 # HARDEN-A4: bump when the cached-output contract changes (prompt content is
 # hashed into the key, so prompt template changes invalidate automatically).
-_BODY_REFRESH_CACHE_SCHEMA = "1"
+# Unlike RG-010's link patterns, RPR-ST082-02's code-fence-balance guard has
+# no pattern string to fold into the key (it's a plain ``` count comparison)
+# — bumped 1->2 for it live 2026-08-18: without this, a cache HIT returns
+# entry["output"] directly (see the cache-lookup block below), skipping
+# every post-response guard including this one, so an entry accepted before
+# the guard existed keeps being served as if it had passed. Confirmed live:
+# cells/python's working-with-cells.md kept reproducing its exact fence-
+# broken output on a 3rd run even after the guard code landed, because the
+# 2nd run's bad response was still cached under the unbumped schema.
+_BODY_REFRESH_CACHE_SCHEMA = "2"
 
 # RG-010 link-preservation guard patterns (hoisted module-level for A4/R4: the
 # cache key folds these pattern strings in, so TIGHTENING the guard mechanically
@@ -994,7 +1007,7 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
             family, platform, change_type,
             sha256_text(system_prompt), sha256_text(user_prompt),
             sha256_text(_ENTERPRISE_LINK_RE.pattern + _INTERNAL_LINK_RE.pattern),
-            _BODY_REFRESH_CACHE_SCHEMA,
+            _cfg_cache_schema_override or _BODY_REFRESH_CACHE_SCHEMA,
         ])
         entry = llm_cache.load(cache_key)
         if entry is not None and isinstance(entry.get("output"), str):
