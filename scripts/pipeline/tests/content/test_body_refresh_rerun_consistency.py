@@ -40,7 +40,7 @@ def reset_config():
     # symbols (not present in this repo's real knowledge/ data) still reach
     # the LLM call they're actually testing, rather than short-circuiting to
     # NO_GROUNDING_AVAILABLE.
-    br.configure(api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub grounding fact for tests")
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform, **kw: f"`{symbol}` (class): stub grounding fact for tests")
     yield
     br.configure(
         reports_root="reports/refresh_review",

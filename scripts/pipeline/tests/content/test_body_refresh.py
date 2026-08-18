@@ -25,7 +25,7 @@ def reset_config():
     # NO_GROUNDING_AVAILABLE fallback. Tests specifically covering the real
     # grounding-fix behavior override this per-test via their own
     # br.configure(api_fact_summary_fn=...) call.
-    br.configure(api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub grounding fact for tests")
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform, **kw: f"`{symbol}` (class): stub grounding fact for tests")
     yield
     br.configure(
         reports_root="reports/refresh_review",
@@ -1153,7 +1153,7 @@ def test_paragraph_rewrite_falls_back_when_no_grounding_available():
 
     br.configure(
         llm_router_class=ShouldNotBeCalledLLM,
-        api_fact_summary_fn=lambda symbol, family, platform: "",
+        api_fact_summary_fn=lambda symbol, family, platform, **kw: "",
     )
     change = {"change_id": "CHG-NOGROUND-001", "symbol": "NoSuchClass", "change_type": "API_MODIFIED"}
     context = {"family": "pdf", "platform": "net"}
@@ -1183,7 +1183,7 @@ def test_deterministic_fallback_skips_note_when_section_ends_mid_code_fence():
     )
     assert section_text.count("```") % 2 != 0  # sanity: genuinely mid-fence
 
-    br.configure(api_fact_summary_fn=lambda symbol, family, platform: "")
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform, **kw: "")
     change = {"change_id": "CHG-MIDFENCE-001", "symbol": "NoSuchClass", "change_type": "API_MODIFIED"}
     context = {"family": "cells", "platform": "python"}
 
@@ -1211,7 +1211,7 @@ def test_paragraph_rewrite_rejects_leaked_prompt_scaffolding():
 
     br.configure(
         llm_router_class=EchoingLLM,
-        api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub",
+        api_fact_summary_fn=lambda symbol, family, platform, **kw: f"`{symbol}` (class): stub",
     )
     change = {"change_id": "CHG-ECHO-001", "symbol": "Cell", "change_type": "API_MODIFIED"}
     context = {"family": "cells", "platform": "python"}
@@ -1251,7 +1251,7 @@ def test_paragraph_rewrite_ungrounded_prompt_includes_real_api_facts():
     )
     br.configure(
         llm_router_class=CapturingLLM,
-        api_fact_summary_fn=lambda symbol, family, platform: real_members if symbol == "Cell" else "",
+        api_fact_summary_fn=lambda symbol, family, platform, **kw: real_members if symbol == "Cell" else "",
     )
     change = {"change_id": "CHG-CELL-001", "symbol": "Cell", "change_type": "API_MODIFIED"}
     context = {"family": "cells", "platform": "python"}
@@ -1264,6 +1264,50 @@ def test_paragraph_rewrite_ungrounded_prompt_includes_real_api_facts():
     # real facts to work from instead of just a name and a claim of "changed".
     assert "__init__(value, formula)" in captured["user"] or "__init__(value, formula)" in captured["system"]
     assert "not claim any member was removed" in captured["system"].lower() or "do not claim any member was removed" in captured["system"].lower()
+
+
+def test_current_api_fact_summary_recursively_grounds_nested_types():
+    """RPR-ST085-01 end-to-end regression, using this repo's own real
+    knowledge/cells/python data: grounding `Cell` alone is not enough to
+    prevent a false claim about `Font.bold` (2 property-hops away:
+    `Cell.style` -> `Style.font` -> `Font.bold`) — the summary must
+    recursively expand nested property types, not just `Cell`'s own direct
+    members. Mirrors the real cells/python incident where the LLM, grounded
+    only in `Cell`, fabricated a false "Font.bold is not directly settable"
+    claim contradicting Font's and Cell.style's own real docstrings."""
+    import json as _json
+    repo_root = Path(__file__).resolve().parents[4]
+    surface_path = repo_root / "knowledge" / "cells" / "python" / "merged" / "api_surface.json"
+    if not surface_path.exists():
+        pytest.skip("no knowledge/cells/python/merged/api_surface.json in this checkout")
+    data = _json.loads(surface_path.read_text(encoding="utf-8"))
+    classes = data.get("classes", data) if isinstance(data, dict) else data
+    names = {c.get("name") for c in classes if isinstance(c, dict)}
+    if not {"Cell", "Style", "Font"} <= names:
+        pytest.skip("this checkout's cells/python knowledge doesn't have the expected Cell/Style/Font shape")
+
+    br._API_SURFACE_CACHE.clear()
+    summary = br._current_api_fact_summary("Cell", "cells", "python")
+
+    assert "`Style`" in summary, "one-hop nested type (Cell.style -> Style) must be included"
+    assert "`Font`" in summary, "two-hop nested type (Style.font -> Font) must be included"
+    assert "bold" in summary, "Font's own real bold/italic/etc. members must be present as facts"
+
+
+def test_scan_section_for_class_references_finds_real_classes_only():
+    """RPR-ST085-01: the backtick-class-reference scanner must only surface
+    names that are real classes in the product's api_surface.json — a
+    backtick-quoted property name or unrelated capitalized word must not be
+    treated as a class reference."""
+    br._API_SURFACE_CACHE.clear()
+    section_text = (
+        "Use `Font` to control text appearance; the `bold` property is a "
+        "boolean. `NotARealClassXYZ` should be ignored.\n"
+    )
+    found = br._scan_section_for_class_references(section_text, "cells", "python")
+    assert "Font" in found
+    assert "NotARealClassXYZ" not in found
+    assert "bold" not in found  # lowercase — never matches the class-ref pattern
 
 
 def test_receipt_written_per_page(tmp_path):

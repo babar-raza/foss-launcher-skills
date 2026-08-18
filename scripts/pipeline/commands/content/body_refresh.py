@@ -835,26 +835,10 @@ def _load_current_api_surface_index(family: str, platform: str) -> dict[str, dic
     return index
 
 
-def _current_api_fact_summary(symbol: str, family: str, platform: str) -> str:
-    """Return a compact, factual summary of `symbol`'s CURRENT real members
-    (constructor, methods, properties) from api_surface.json, or "" if the
-    symbol isn't present.
-
-    This exists to ground PARAGRAPH_REWRITE's degraded (no-claim-grounding)
-    prompt path in real, verifiable facts instead of the bare symbol name +
-    change_type it previously ran on. Found live 2026-08-18, cells/python:
-    given only "Cell has changed (API_MODIFIED)" and "CellValueHandler has
-    changed (API_MODIFIED)" as separate, factless signals on the same
-    section, the LLM invented a fictional migration -- a fabricated
-    `CellValueHandler`-based replacement API and a false claim that `Cell`'s
-    real, still-present `__init__(value=None, formula=None)` constructor had
-    been removed. Feeding the model `Cell`'s actual current members closes
-    exactly that gap: there is no factual basis left to invent from.
-    """
-    index = _load_current_api_surface_index(family, platform)
-    entry = index.get(symbol)
-    if not entry:
-        return ""
+def _one_class_fact_block(symbol: str, entry: dict) -> tuple[str, list[str]]:
+    """Render one class's fact block plus the list of its own property names
+    (for the caller to attempt nested expansion on). Internal helper for
+    _current_api_fact_summary()."""
     parts = [f"`{symbol}` ({entry.get('kind', 'class')})"]
     bases = entry.get("bases") or []
     if bases:
@@ -870,12 +854,108 @@ def _current_api_fact_summary(symbol: str, family: str, platform: str) -> str:
             method_strs.append(f"{pname}({params})")
         if method_strs:
             parts.append("methods: " + ", ".join(method_strs))
+    prop_names: list[str] = []
     properties = entry.get("properties") or []
     if properties:
         prop_names = [p.get("name", "") for p in properties[:25] if isinstance(p, dict) and p.get("name")]
         if prop_names:
             parts.append("properties: " + ", ".join(prop_names))
-    return "\n".join(parts)
+    return "\n".join(parts), prop_names
+
+
+def _current_api_fact_summary(
+    symbol: str, family: str, platform: str, *, extra_symbols: "list[str] | None" = None,
+) -> str:
+    """Return a compact, factual summary of `symbol`'s CURRENT real members
+    (constructor, methods, properties) from api_surface.json, or "" if the
+    symbol isn't present.
+
+    This exists to ground PARAGRAPH_REWRITE's degraded (no-claim-grounding)
+    prompt path in real, verifiable facts instead of the bare symbol name +
+    change_type it previously ran on. Found live 2026-08-18, cells/python:
+    given only "Cell has changed (API_MODIFIED)" and "CellValueHandler has
+    changed (API_MODIFIED)" as separate, factless signals on the same
+    section, the LLM invented a fictional migration -- a fabricated
+    `CellValueHandler`-based replacement API and a false claim that `Cell`'s
+    real, still-present `__init__(value=None, formula=None)` constructor had
+    been removed. Feeding the model `Cell`'s actual current members closes
+    exactly that gap: there is no factual basis left to invent from.
+
+    RPR-ST085-01: the first version of this function only covered the one
+    top-level `symbol` from the change record, not any RELATED type the
+    section's own prose/code actually discusses. Found live 2026-08-18,
+    cells/python (5th retest, all of ST-082/083/084's guards active and
+    correctly blocking the OTHER defect classes): grounded in `Cell`'s own
+    members (which include a `style` property but say nothing about what
+    `Style` or its nested `Font` look like), the LLM still fabricated a
+    false claim that `Font.bold`/`.italic`/etc. "are not directly settable"
+    and invented a `cell.apply_style()`-only workflow -- `apply_style()` is
+    real, but the "direct assignment doesn't work" claim contradicts
+    `Font`'s and `Cell.style`'s own docstrings, both of which show
+    `style.font.bold = True` as the documented pattern. The false claim was
+    TWO property hops from `symbol` (`Cell` -> `style` -> `Style` -> `font`
+    -> `Font.bold`), so a single flat level of nesting is not enough: this
+    does a bounded BREADTH-FIRST expansion (depth capped at 2 additional
+    hops, class count capped at 12, both to keep the prompt a sane size for
+    a page with many properties) from two seed sets — (a) `symbol`'s own
+    properties, capitalized to PascalCase and checked against the real
+    class index (the common Python convention: a `style` property returns a
+    `Style` instance); (b) `extra_symbols`, any additional class names the
+    caller found named elsewhere in the section text (see
+    _scan_section_for_class_references). Each newly-discovered class's own
+    properties seed the next round, so `Style`'s `font` property correctly
+    pulls in `Font` even though `Font` is never named directly by `Cell`.
+    """
+    index = _load_current_api_surface_index(family, platform)
+    entry = index.get(symbol)
+    if not entry:
+        return ""
+    block, prop_names = _one_class_fact_block(symbol, entry)
+    parts = [block]
+
+    covered = {symbol}
+    frontier = list(dict.fromkeys(
+        list(extra_symbols or []) + [p.capitalize() for p in prop_names if p]
+    ))
+    max_depth, max_classes = 2, 12
+    depth = 0
+    while frontier and depth < max_depth and len(covered) < max_classes:
+        next_frontier: list[str] = []
+        for extra in frontier:
+            if not extra or extra in covered or len(covered) >= max_classes:
+                continue
+            covered.add(extra)
+            nested_entry = index.get(extra)
+            if not nested_entry:
+                continue
+            nested_block, nested_props = _one_class_fact_block(extra, nested_entry)
+            parts.append(nested_block)
+            next_frontier.extend(p.capitalize() for p in nested_props if p)
+        frontier = list(dict.fromkeys(next_frontier))
+        depth += 1
+    return "\n\n".join(parts)
+
+
+# Backtick-quoted PascalCase identifier, optionally dotted to a member
+# (`Style`, `Font.bold`, `Cell.style`) -- used to find OTHER class names a
+# section explicitly names beyond the one `symbol` from the change record.
+_BACKTICK_CLASS_REF_RE = re.compile(r"`([A-Z][A-Za-z0-9_]*)(?:\.[A-Za-z_][A-Za-z0-9_]*)?`")
+
+
+def _scan_section_for_class_references(section_text: str, family: str, platform: str) -> list[str]:
+    """Return the distinct real class names backtick-referenced in
+    section_text (e.g. `Font.bold` -> "Font"), for grounding classes the
+    section discusses beyond the one `symbol` the change record names."""
+    index = _load_current_api_surface_index(family, platform)
+    found: list[str] = []
+    seen = set()
+    for name in _BACKTICK_CLASS_REF_RE.findall(section_text):
+        if name in seen:
+            continue
+        seen.add(name)
+        if name in index:
+            found.append(name)
+    return found
 
 
 def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
@@ -992,19 +1072,29 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         # real, current api_surface.json members instead: with an actual
         # fact list to work from, there's nothing left to hallucinate about.
         fact_fn = _cfg_api_fact_summary_fn or _current_api_fact_summary
-        api_facts = fact_fn(symbol, family, platform)
+        # RPR-ST085-01: also ground any OTHER real class the section text
+        # explicitly names, not just the primary symbol — see
+        # _current_api_fact_summary's docstring for the real incident this
+        # closes (Font.bold falsely claimed non-settable while grounded
+        # only in Cell's own members).
+        extra_symbols = _scan_section_for_class_references(section_text, family, platform)
+        extra_symbols = [s for s in extra_symbols if s != symbol]
+        api_facts = fact_fn(symbol, family, platform, extra_symbols=extra_symbols)
         if api_facts:
             system_prompt = (
                 f"You are a technical writer updating {family}/{platform} documentation.\n"
                 f"`{symbol}` may have changed ({change_type}) since this paragraph was "
-                f"written. Below are `{symbol}`'s ACTUAL CURRENT members, verified directly "
-                f"from the library's source code — this is the only information you have "
-                f"about what is real.\n\n"
-                f"Current members of {symbol}:\n{api_facts}\n\n"
-                f"Rules (strict):\n"
+                f"written. Below are the ACTUAL CURRENT members of `{symbol}` and every "
+                f"other real class this section itself references, verified directly from "
+                f"the library's source code — this is the only information you have about "
+                f"what is real, for ANY class discussed below, not `{symbol}` alone.\n\n"
+                f"Current members:\n{api_facts}\n\n"
+                f"Rules (strict, apply to every class listed above):\n"
                 f"  - Only correct a sentence if it conflicts with a member listed above.\n"
                 f"  - Do NOT claim any member was removed, renamed, or deprecated unless it "
                 f"is genuinely absent from the list above.\n"
+                f"  - Do NOT claim a member must be set/accessed indirectly (e.g. through "
+                f"another method) unless the list above shows no direct way to do so.\n"
                 f"  - Do NOT introduce, recommend, or reference any other class or "
                 f"replacement API as a migration target — the list above is the complete "
                 f"set of facts you have; nothing outside it may be mentioned.\n"
