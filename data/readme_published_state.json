@@ -1,0 +1,17 @@
+{
+  "_comment": "MT056 (2026-08-18) — durable per-product record of README publication events to the real upstream FOSS repos. Exists because republication debt previously lived only in the plan's taskcard register and was LOST there (TC-HARDEN-47/48, re-registered by MT056 §4 — the two live Mermaid-clipping defects on 3d/net and 3d/python published upstream). readme_refresh_run.py's audit-portfolio consumes this via check key 'published_readme_current' (advisory): a product listed here whose clone-cache README.md no longer matches the canonical candidate is flagged 'republication pending' on every audit run, so the debt is mechanically re-derived instead of remembered. _do_push appends/updates an entry on every real (non-dry-run) push. Seeded 2026-08-18 from the authoritative plan's own recorded PR/merge history — each entry cites its plan evidence; products with no confirmed publication record are deliberately absent, never guessed.",
+  "schema_version": 1,
+  "products": [
+    {"family": "3d", "platform": "java", "last_known_publication": "2026-08-11", "evidence": "PR #1 merged (plan: merged discovered 2026-08-05 sweep); follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"},
+    {"family": "3d", "platform": "typescript", "last_known_publication": "2026-08-11", "evidence": "PR #1 merged; follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"},
+    {"family": "3d", "platform": "net", "last_known_publication": "2026-08-05", "evidence": "PR #1 merged pre-MT024; NEVER republished with flat-topology diagram — live clipping confirmed 2026-08-14 (plan:12932-12948); TC-HARDEN-47 open"},
+    {"family": "3d", "platform": "python", "last_known_publication": "2026-08-05", "evidence": "PR #1 merged pre-MT024; NEVER republished — live clipping confirmed 2026-08-14 (plan:12932-12948); TC-HARDEN-48 open"},
+    {"family": "note", "platform": "python", "last_known_publication": "2026-08-16", "evidence": "PR #5 squash-merged 2026-08-16 (merge commit 41de2e8a); merged content = the then-repo-presenter candidate"},
+    {"family": "pdf", "platform": "cpp", "last_known_publication": "2026-08-17", "evidence": "MT054: candidate byte-identical to live upstream README in both trees (clone rev 888700a8e3, live-verified); MT053 published-state bypass fires for it"},
+    {"family": "cells", "platform": "go", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally (in-between state disclosed by MT053)"},
+    {"family": "cells", "platform": "java", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally"},
+    {"family": "cells", "platform": "net", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally"},
+    {"family": "slides", "platform": "cpp", "last_known_publication": "2026-08-18", "evidence": "MT056 reconciliation: canonical candidate byte-identical (stripped) to clone-cache upstream README (mt056_tree_reconciliation.json, T2_CURRENT_PUBLISHED)"},
+    {"family": "words", "platform": "net", "last_known_publication": "2026-08-18", "evidence": "MT056 reconciliation: canonical candidate byte-identical (stripped) to clone-cache upstream README (mt056_tree_reconciliation.json, T2_CURRENT_PUBLISHED)"}
+  ]
+}
