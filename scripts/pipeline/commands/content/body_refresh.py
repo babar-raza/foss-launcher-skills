@@ -114,6 +114,7 @@ _cfg_safe_write_fn: Any = None          # injected in tests to mock file writes
 _cfg_hash_validation: bool = True       # set False in tests to skip hash checks
 _cfg_writes_root: str = "reports/body_refresh_writes"  # TC-09: post-write evidence log
 _cfg_forbidden_claims: "list[str] | None" = None  # RPR-E-02: injected in tests; None = load from index.json
+_cfg_api_fact_summary_fn: Any = None    # RPR-ST082-01: injected in tests to mock api_surface grounding lookup
 
 
 def configure(
@@ -124,11 +125,12 @@ def configure(
     hash_validation: bool | None = None,
     writes_root: str | None = None,
     forbidden_claims: "list[str] | None | object" = _UNSET,
+    api_fact_summary_fn: Any = _UNSET,
 ) -> None:
     """Override dependencies for testing (configure() seam pattern)."""
     global _cfg_reports_root, _cfg_receipts_root, _cfg_llm_router_class
     global _cfg_safe_write_fn, _cfg_hash_validation, _cfg_writes_root
-    global _cfg_forbidden_claims
+    global _cfg_forbidden_claims, _cfg_api_fact_summary_fn
     if reports_root is not None:
         _cfg_reports_root = reports_root
     if receipts_root is not None:
@@ -143,6 +145,8 @@ def configure(
         _cfg_writes_root = writes_root
     if forbidden_claims is not _UNSET:
         _cfg_forbidden_claims = forbidden_claims  # type: ignore[assignment]
+    if api_fact_summary_fn is not _UNSET:
+        _cfg_api_fact_summary_fn = api_fact_summary_fn
 
 
 # ── RPR-E-04: surface-differentiated update-strategy policy ──────────────────
@@ -772,6 +776,78 @@ def _get_claim_grounding(change: dict, context: dict) -> tuple[str, str]:
     return old_text, new_text
 
 
+_API_SURFACE_CACHE: dict[tuple[str, str], dict[str, dict]] = {}
+
+
+def _load_current_api_surface_index(family: str, platform: str) -> dict[str, dict]:
+    """Load knowledge/{family}/{platform}/merged/api_surface.json into a
+    {class_name: entry} index, cached per (family, platform) for the life of
+    the process. Returns {} if the file is absent or unparseable."""
+    key = (family, platform)
+    if key in _API_SURFACE_CACHE:
+        return _API_SURFACE_CACHE[key]
+    index: dict[str, dict] = {}
+    repo_root = Path(__file__).resolve().parents[4]
+    surface_path = repo_root / "knowledge" / family / platform / "merged" / "api_surface.json"
+    try:
+        data = json.loads(surface_path.read_text(encoding="utf-8"))
+        classes = data.get("classes", data) if isinstance(data, dict) else data
+        for entry in classes:
+            if isinstance(entry, dict) and entry.get("name"):
+                # A same-name duplicate (different namespace) is rare enough that
+                # keeping the first-seen entry is an acceptable approximation for
+                # grounding text — this index is a hallucination guard, not the
+                # authoritative disambiguation batch_reference.py performs.
+                index.setdefault(entry["name"], entry)
+    except (OSError, json.JSONDecodeError):
+        pass
+    _API_SURFACE_CACHE[key] = index
+    return index
+
+
+def _current_api_fact_summary(symbol: str, family: str, platform: str) -> str:
+    """Return a compact, factual summary of `symbol`'s CURRENT real members
+    (constructor, methods, properties) from api_surface.json, or "" if the
+    symbol isn't present.
+
+    This exists to ground PARAGRAPH_REWRITE's degraded (no-claim-grounding)
+    prompt path in real, verifiable facts instead of the bare symbol name +
+    change_type it previously ran on. Found live 2026-08-18, cells/python:
+    given only "Cell has changed (API_MODIFIED)" and "CellValueHandler has
+    changed (API_MODIFIED)" as separate, factless signals on the same
+    section, the LLM invented a fictional migration -- a fabricated
+    `CellValueHandler`-based replacement API and a false claim that `Cell`'s
+    real, still-present `__init__(value=None, formula=None)` constructor had
+    been removed. Feeding the model `Cell`'s actual current members closes
+    exactly that gap: there is no factual basis left to invent from.
+    """
+    index = _load_current_api_surface_index(family, platform)
+    entry = index.get(symbol)
+    if not entry:
+        return ""
+    parts = [f"`{symbol}` ({entry.get('kind', 'class')})"]
+    bases = entry.get("bases") or []
+    if bases:
+        parts.append(f"bases: {', '.join(str(b) for b in bases)}")
+    methods = entry.get("methods") or []
+    if methods:
+        method_strs = []
+        for m in methods[:25]:
+            if not isinstance(m, dict):
+                continue
+            pname = m.get("name", "")
+            params = ", ".join(p.get("name", "") for p in (m.get("params") or []) if isinstance(p, dict))
+            method_strs.append(f"{pname}({params})")
+        if method_strs:
+            parts.append("methods: " + ", ".join(method_strs))
+    properties = entry.get("properties") or []
+    if properties:
+        prop_names = [p.get("name", "") for p in properties[:25] if isinstance(p, dict) and p.get("name")]
+        if prop_names:
+            parts.append("properties: " + ", ".join(prop_names))
+    return "\n".join(parts)
+
+
 def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     """Rewrite a paragraph using LLMRouter (callsite: body_refresh_paragraph_rewrite)."""
     def _deterministic_fallback() -> str:
@@ -864,14 +940,43 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
             f"Original section:\n\n{section_text}\n\nRewritten section:"
         )
     else:
-        # Degraded (ungrounded) mode — merged.bak absent or no claim_id
-        system_prompt = (
-            f"You are a technical writer updating {family}/{platform} documentation. "
-            f"Rewrite the following paragraph to reflect that {symbol} has changed "
-            f"({change_type}). Keep the same structure and tone. Be concise and accurate. "
-            f"Do not add new unrelated content. Preserve all code blocks verbatim unless "
-            f"they directly reference {symbol}."
-        )
+        # Degraded (ungrounded) mode — merged.bak absent or no claim_id.
+        # RPR-ST082-01: this path used to tell the LLM only the bare symbol
+        # name + change_type ("Cell has changed (API_MODIFIED)") with zero
+        # facts about what actually changed -- an instruction the model can
+        # only satisfy by inventing specifics. Ground it in the symbol's
+        # real, current api_surface.json members instead: with an actual
+        # fact list to work from, there's nothing left to hallucinate about.
+        fact_fn = _cfg_api_fact_summary_fn or _current_api_fact_summary
+        api_facts = fact_fn(symbol, family, platform)
+        if api_facts:
+            system_prompt = (
+                f"You are a technical writer updating {family}/{platform} documentation.\n"
+                f"`{symbol}` may have changed ({change_type}) since this paragraph was "
+                f"written. Below are `{symbol}`'s ACTUAL CURRENT members, verified directly "
+                f"from the library's source code — this is the only information you have "
+                f"about what is real.\n\n"
+                f"Current members of {symbol}:\n{api_facts}\n\n"
+                f"Rules (strict):\n"
+                f"  - Only correct a sentence if it conflicts with a member listed above.\n"
+                f"  - Do NOT claim any member was removed, renamed, or deprecated unless it "
+                f"is genuinely absent from the list above.\n"
+                f"  - Do NOT introduce, recommend, or reference any other class or "
+                f"replacement API as a migration target — the list above is the complete "
+                f"set of facts you have; nothing outside it may be mentioned.\n"
+                f"  - If nothing in the paragraph conflicts with the list above, return it "
+                f"unchanged.\n"
+                f"  - Preserve all code blocks verbatim unless they call a member NOT in "
+                f"the list above.\n"
+                f"  - Do not add new unrelated content. Do not remove links.\n"
+                f"  - Output only the rewritten paragraph, nothing else."
+            )
+        else:
+            # No claim grounding AND the symbol isn't in the current api_surface
+            # (e.g. genuinely removed, or a non-class change) -- there is no
+            # factual anchor available at all. Do not ask the LLM to describe
+            # a change it cannot verify; fall back to the deterministic template.
+            return _fallback("NO_GROUNDING_AVAILABLE")
         user_prompt = f"Original paragraph:\n\n{section_text}\n\nRewritten paragraph:"
 
     # HARDEN-A4: content-hash cache. The rendered prompts embed the section text,

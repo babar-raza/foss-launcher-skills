@@ -401,6 +401,7 @@ _FALLBACK_REASONS = {
     "LLM_EMPTY_RESPONSE",            # result.data falsy
     "LINK_PRESERVATION_VIOLATION",   # RG-010 guard rejected the LLM output
     "CIRCUIT_OPEN",                  # run-scoped circuit already open — LLM not attempted
+    "NO_GROUNDING_AVAILABLE",        # no claim text and symbol absent from api_surface.json — nothing factual to rewrite from
 }
 
 

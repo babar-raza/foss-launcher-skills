@@ -35,6 +35,12 @@ _FIXTURES_DIR = _PIPELINE_DIR / "tests" / "fixtures"
 
 @pytest.fixture(autouse=True)
 def reset_config():
+    # RPR-ST082-01: default every test to a permissive api_fact_summary_fn stub
+    # so tests exercising _paragraph_rewrite's LLM branch for fixture-only
+    # symbols (not present in this repo's real knowledge/ data) still reach
+    # the LLM call they're actually testing, rather than short-circuiting to
+    # NO_GROUNDING_AVAILABLE.
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub grounding fact for tests")
     yield
     br.configure(
         reports_root="reports/refresh_review",

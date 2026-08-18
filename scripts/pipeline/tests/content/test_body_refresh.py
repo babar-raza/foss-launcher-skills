@@ -17,6 +17,15 @@ import commands.content.body_refresh as br
 
 @pytest.fixture(autouse=True)
 def reset_config():
+    # RPR-ST082-01: default every test to a permissive api_fact_summary_fn stub
+    # so the many tests exercising _paragraph_rewrite's LLM branch for symbols
+    # that don't exist in this repo's real knowledge/ data (e.g. "Document3D",
+    # "PdfDocument" as fixture-only stand-ins) still reach the LLM call they're
+    # actually testing, rather than short-circuiting to the new
+    # NO_GROUNDING_AVAILABLE fallback. Tests specifically covering the real
+    # grounding-fix behavior override this per-test via their own
+    # br.configure(api_fact_summary_fn=...) call.
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub grounding fact for tests")
     yield
     br.configure(
         reports_root="reports/refresh_review",
@@ -1068,6 +1077,138 @@ def test_get_claim_grounding_loads_real_claim_text_when_present():
         f"expected non-empty claim text for {family}/{platform} claim_id={claim_id} "
         f"via merged/claims.json — grounding returned empty, path resolution likely still broken"
     )
+
+
+def test_current_api_fact_summary_loads_real_members_when_present():
+    """End-to-end regression proof using this repo's own real api_surface.json:
+    _current_api_fact_summary() must return a non-empty, factual summary
+    (constructor/methods/properties) for a real class, not just an empty
+    string or the bare class name."""
+    import json as _json
+    repo_root = Path(__file__).resolve().parents[4]
+    knowledge_dir = repo_root / "knowledge"
+    if not knowledge_dir.is_dir():
+        pytest.skip("no knowledge/ directory in this checkout")
+    candidate = None
+    for family_dir in knowledge_dir.iterdir():
+        if not family_dir.is_dir():
+            continue
+        for platform_dir in family_dir.iterdir():
+            surface_path = platform_dir / "merged" / "api_surface.json"
+            if not surface_path.exists():
+                continue
+            try:
+                data = _json.loads(surface_path.read_text(encoding="utf-8"))
+                classes = data.get("classes", data) if isinstance(data, dict) else data
+                for entry in classes:
+                    if isinstance(entry, dict) and entry.get("name") and (
+                        entry.get("methods") or entry.get("properties")
+                    ):
+                        candidate = (family_dir.name, platform_dir.name, entry["name"])
+                        break
+            except (ValueError, OSError):
+                continue
+            if candidate:
+                break
+        if candidate:
+            break
+    if candidate is None:
+        pytest.skip("no product with a populated merged/api_surface.json found in this checkout")
+
+    family, platform, symbol = candidate
+    br._API_SURFACE_CACHE.clear()
+    summary = br._current_api_fact_summary(symbol, family, platform)
+    assert summary, (
+        f"expected non-empty api-surface summary for {family}/{platform}::{symbol} "
+        f"— grounding returned empty"
+    )
+    assert symbol in summary
+
+
+def test_current_api_fact_summary_empty_for_unknown_symbol():
+    """A symbol absent from api_surface.json (or an unknown product) must return
+    "" rather than fabricating anything — this is the signal _paragraph_rewrite
+    uses to fall back to NO_GROUNDING_AVAILABLE instead of calling the LLM."""
+    br._API_SURFACE_CACHE.clear()
+    summary = br._current_api_fact_summary(
+        "TotallyFictionalClassNameXYZ123", "pdf", "net"
+    )
+    assert summary == ""
+
+
+def test_paragraph_rewrite_falls_back_when_no_grounding_available():
+    """RPR-ST082-01: with no claim grounding AND the symbol absent from
+    api_surface.json, _paragraph_rewrite must not call the LLM at all — there
+    is nothing factual to ground a rewrite in, so asking the model to describe
+    "what changed" is exactly the setup that produced the fabricated
+    CellValueHandler/PdfDocument migration narratives. Must fall back to the
+    deterministic template with fallback_reason=NO_GROUNDING_AVAILABLE."""
+    section_text = "Some prose that never invokes the LLM's distinctive marker.\n"
+
+    class ShouldNotBeCalledLLM:
+        def __init__(self):
+            pass
+        def call_chat(self, *a, **kw):
+            raise AssertionError("LLM must not be called when no grounding is available")
+
+    br.configure(
+        llm_router_class=ShouldNotBeCalledLLM,
+        api_fact_summary_fn=lambda symbol, family, platform: "",
+    )
+    change = {"change_id": "CHG-NOGROUND-001", "symbol": "NoSuchClass", "change_type": "API_MODIFIED"}
+    context = {"family": "pdf", "platform": "net"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    # The deterministic template (not the LLM) produced this — it may append
+    # its own generic, symbol-referencing note, but never anything the LLM
+    # would have needed to invent.
+    assert result.startswith(section_text.rstrip())
+    assert context.get("_fallback_reason") == "NO_GROUNDING_AVAILABLE"
+
+
+def test_paragraph_rewrite_ungrounded_prompt_includes_real_api_facts():
+    """RPR-ST082-01 root-cause regression: when a real api-surface summary IS
+    available, the ungrounded-mode prompt sent to the LLM must actually
+    contain those facts (not just the bare symbol name + change_type, which
+    is what previously let the model invent a fictional migration API).
+    Mirrors the real cells/python incident: `Cell` marked API_MODIFIED with
+    zero claim grounding, LLM given nothing but the name invented a
+    `CellValueHandler`-based replacement and falsely claimed `Cell.__init__`
+    had been removed."""
+    section_text = "Assign to `cell.value` to write a string, integer, or float.\n"
+    captured = {}
+
+    class CapturingLLM:
+        def __init__(self):
+            pass
+        def call_chat(self, *, prompt_system, prompt_user, **kw):
+            captured["system"] = prompt_system
+            captured["user"] = prompt_user
+            class MockResult:
+                data = section_text  # unchanged — nothing conflicts
+            return MockResult()
+
+    real_members = (
+        "`Cell` (class)\n"
+        "methods: __init__(value, formula), is_empty(), clear_value()\n"
+        "properties: value, formula, style"
+    )
+    br.configure(
+        llm_router_class=CapturingLLM,
+        api_fact_summary_fn=lambda symbol, family, platform: real_members if symbol == "Cell" else "",
+    )
+    change = {"change_id": "CHG-CELL-001", "symbol": "Cell", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert result == section_text.strip()
+    # The real, current members must actually be present in the prompt sent
+    # to the model — this is what closes the hallucination gap: the model has
+    # real facts to work from instead of just a name and a claim of "changed".
+    assert "__init__(value, formula)" in captured["user"] or "__init__(value, formula)" in captured["system"]
+    assert "not claim any member was removed" in captured["system"].lower() or "do not claim any member was removed" in captured["system"].lower()
 
 
 def test_receipt_written_per_page(tmp_path):
