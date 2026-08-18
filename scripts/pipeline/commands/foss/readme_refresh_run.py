@@ -44,6 +44,7 @@ lines -- that script is the product of many real incidents over months; this one
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -98,9 +99,18 @@ NEXT_STATES: dict[str, set[str]] = {
 _SAFE_TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
+_DEFAULT_CANDIDATE_TREE_NAME = "repo-presenter-regen-full"
+# MT055/TC-MICRO-03 (2026-08-18): promoted from "repo-presenter" per a real, evidence-backed
+# decision (repo-presenter-regen-full is the more current tree in every measured dimension --
+# 16 of 30 active products carry MT041's mandatory Dependencies section only there, 0 the other
+# way; see reports/_scratch/mt055_tree_divergence_inventory.json). "repo-presenter" itself is
+# NOT deleted or otherwise touched by this change -- it remains on disk as a historical tree;
+# reconciling/retiring it is deliberately deferred to a later, separate pass. Pass
+# candidate_tree_name="repo-presenter" explicitly to configure() to address the old tree.
 _repo_root = _DEFAULT_REPO_ROOT
 _reports_root = _DEFAULT_REPO_ROOT / "reports"
 _clone_cache_root = _DEFAULT_REPO_ROOT / "runs" / ".clone_cache"
+_candidate_tree_name = _DEFAULT_CANDIDATE_TREE_NAME
 _command_runner: Callable[..., "subprocess.CompletedProcess[str]"] = subprocess.run
 _now: Callable[[], datetime] = lambda: datetime.now(timezone.utc)
 _verification_runner: "Callable[[Path, dict], dict] | None" = None
@@ -115,16 +125,36 @@ def configure(
     repo_root: "Path | str | None" = None,
     reports_root: "Path | str | None" = None,
     clone_cache_root: "Path | str | None" = None,
+    candidate_tree_name: "str | None" = None,
     command_runner: "Callable[..., subprocess.CompletedProcess[str]] | None" = None,
     now: "Callable[[], datetime] | None" = None,
     verification_runner: "Callable[[Path, dict], dict] | None" = None,
 ) -> None:
-    """Override external boundaries for tests; call without arguments to reset."""
-    global _repo_root, _reports_root, _clone_cache_root, _command_runner, _now, _verification_runner
+    """Override external boundaries for tests; call without arguments to reset.
+
+    MT055/TC-MICRO-01 (2026-08-18): `reports_root` and `candidate_tree_name` are deliberately
+    two separate knobs, not one. `_reports_root` means "the real reports/ directory" -- it is
+    also consumed by `_run_root`/`_product_root`/`_product_lock_path` for run-evidence and lock
+    paths, which have nothing to do with which candidate tree is being audited. Before this fix,
+    every disposition/candidate path helper hardcoded the literal segment "repo-presenter"
+    immediately after `_reports_root`, so pointing `reports_root` directly at a differently-named
+    tree (e.g. "reports/repo-presenter-regen-full") silently resolved to a nonexistent nested
+    path (".../repo-presenter-regen-full/repo-presenter/...") -- confirmed live during the MT054
+    preservation audit, and the reason the "isolated mirror" workaround (physically copying files
+    into `{tmp}/repo-presenter/{family}/{platform}/*` before calling `configure(reports_root=tmp)`)
+    was required for every prior audit against an alternate tree. `candidate_tree_name` closes
+    this: pass `configure(candidate_tree_name="repo-presenter-regen-full")` directly against the
+    real `reports/` root, with no copy step needed.
+    """
+    global _repo_root, _reports_root, _clone_cache_root, _candidate_tree_name
+    global _command_runner, _now, _verification_runner
     _repo_root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     _reports_root = Path(reports_root) if reports_root is not None else _repo_root / "reports"
     _clone_cache_root = (
         Path(clone_cache_root) if clone_cache_root is not None else _repo_root / "runs" / ".clone_cache"
+    )
+    _candidate_tree_name = (
+        candidate_tree_name if candidate_tree_name is not None else _DEFAULT_CANDIDATE_TREE_NAME
     )
     _command_runner = command_runner or subprocess.run
     _now = now or (lambda: datetime.now(timezone.utc))
@@ -175,18 +205,18 @@ def _product_lock_path(family: str, platform: str) -> Path:
 
 
 def _candidate_readme_path(family: str, platform: str) -> Path:
-    return _reports_root / "repo-presenter" / family / platform / "readme.md"
+    return _reports_root / _candidate_tree_name / family / platform / "readme.md"
 
 
 def _upstream_issues_path(family: str, platform: str) -> Path:
-    return _reports_root / "repo-presenter" / family / platform / "upstream-issues.md"
+    return _reports_root / _candidate_tree_name / family / platform / "upstream-issues.md"
 
 
 def _content_dispositions_path(family: str, platform: str) -> Path:
     """Fifteenth incident / MT030 (2026-08-09): the real, agent-authored artifact
     `dropped_claims.json` only ever promised (docstring-only, 2026-08-04 through 2026-08-09,
     never implemented). Sibling to readme.md/upstream-issues.md, same directory."""
-    return _reports_root / "repo-presenter" / family / platform / "content-dispositions.json"
+    return _reports_root / _candidate_tree_name / family / platform / "content-dispositions.json"
 
 
 def _structure_dispositions_path(family: str, platform: str) -> Path:
@@ -196,7 +226,7 @@ def _structure_dispositions_path(family: str, platform: str) -> Path:
     schema's `classification` enum (narrative/mechanism/branding/history/redundant) has no
     honest value for "a directory tree." See `extract_old_readme_structural_units`'s own
     docstring for what this file records."""
-    return _reports_root / "repo-presenter" / family / platform / "structure-dispositions.json"
+    return _reports_root / _candidate_tree_name / family / platform / "structure-dispositions.json"
 
 
 def _badge_dispositions_path(family: str, platform: str) -> Path:
@@ -205,7 +235,7 @@ def _badge_dispositions_path(family: str, platform: str) -> Path:
     or-override decision for every badge `extract_badges` finds in the OLD upstream README --
     see `reconcile_badges`'s own docstring for the recommendation this file must confirm or
     override, never silently accept unexamined."""
-    return _reports_root / "repo-presenter" / family / platform / "badge-dispositions.json"
+    return _reports_root / _candidate_tree_name / family / platform / "badge-dispositions.json"
 
 
 def _code_example_dispositions_path(family: str, platform: str) -> Path:
@@ -214,11 +244,340 @@ def _code_example_dispositions_path(family: str, platform: str) -> Path:
     agent-authored tier. Records the merge/relocate/exclude/correct disposition for every code
     unit `extract_old_readme_code_units` finds in the OLD upstream README -- see that function's
     own docstring for the code-example-inventory blind spot this file exists to close."""
-    return _reports_root / "repo-presenter" / family / platform / "code-example-dispositions.json"
+    return _reports_root / _candidate_tree_name / family / platform / "code-example-dispositions.json"
 
 
 def _product_clone_cache(family: str, platform: str) -> Path:
     return _clone_cache_root / f"aspose_{family}_{platform}"
+
+
+# --- MT056 (Fifty-Sixth incident, 2026-08-18): canonical candidate store, change scopes, ------
+# --- acceptance registry. Plan: MT056 §3; forensic basis: reports/_scratch/ ------------------
+# --- mt056_regression_ledger.md (patterns 2, 4, 6, 7). ---------------------------------------
+
+
+_ARCHIVED_TREE_MARKER_NAME = "_ARCHIVED.json"
+
+
+def _candidate_store_path() -> Path:
+    return _repo_root / "data" / "readme_candidate_store.json"
+
+
+def _published_state_path() -> Path:
+    return _repo_root / "data" / "readme_published_state.json"
+
+
+def _load_candidate_store() -> "dict | None":
+    """The durable canonical-tree decision record (data/readme_candidate_store.json). Absent
+    file -> None -> every store gate below is a backward-compatible no-op (tests with tmp
+    repo_root, pre-MT056 checkouts)."""
+    path = _candidate_store_path()
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_published_state() -> "dict | None":
+    path = _published_state_path()
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _require_canonical_tree(action: str) -> None:
+    """Canonical-location HARD gate for mutating entry points (start/push): a run may only ever
+    be created against, and a push may only ever ship from, the canonical candidate tree the
+    user decided on (MT055 TC-MICRO-03-02 human gate, recorded durably in
+    data/readme_candidate_store.json). Read-only review of an archived tree goes through
+    audit-portfolio --candidate-tree instead."""
+    store = _load_candidate_store()
+    if store is None:
+        return
+    canonical = store.get("canonical_tree")
+    if canonical and _candidate_tree_name != canonical:
+        raise ReadmeRefreshRunError(
+            f"{action} refused: configured candidate tree {_candidate_tree_name!r} is not the "
+            f"canonical tree {canonical!r} (data/readme_candidate_store.json). Runs and pushes "
+            "operate only on the canonical store; use `audit-portfolio --candidate-tree` for "
+            "read-only review of an archived tree."
+        )
+
+
+def _validate_candidate_tree_for_audit() -> "str | None":
+    """audit-portfolio's own tree validation: canonical -> None (no tag); a registered archived
+    tree -> a human-readable non-canonical tag; anything else -> refused outright (stale-path
+    protection -- an unregistered tree, e.g. a frozen _scratch mirror layout, must never be
+    silently audited as if it were a live store)."""
+    store = _load_candidate_store()
+    if store is None:
+        return None
+    canonical = store.get("canonical_tree")
+    archived = set(store.get("archived_trees") or [])
+    if canonical is None or _candidate_tree_name == canonical:
+        return None
+    if _candidate_tree_name in archived:
+        return f"NON-CANONICAL (archived tree {_candidate_tree_name!r}, read-only review)"
+    raise ReadmeRefreshRunError(
+        f"audit-portfolio refused: {_candidate_tree_name!r} is neither the canonical tree "
+        f"({canonical!r}) nor a registered archived tree ({sorted(archived)}); register it in "
+        "data/readme_candidate_store.json or point at a real store"
+    )
+
+
+def _check_manifest_candidate_tree(manifest: dict) -> None:
+    """Mid-run tree-flip protection: a run pins the candidate tree it was started against; a
+    later stage running under a differently-configured tree would read/promote a different
+    product copy than the one the run's own checks validated. Tolerant of pre-MT056 manifests
+    (no candidate_tree key)."""
+    pinned = manifest.get("candidate_tree")
+    if pinned is not None and pinned != _candidate_tree_name:
+        raise ReadmeRefreshRunError(
+            f"run {manifest.get('run_id')!r} was started against candidate tree {pinned!r} but "
+            f"the current configuration points at {_candidate_tree_name!r} -- refusing to mix "
+            "trees mid-run"
+        )
+
+
+def _candidate_store_findings(family: str, platform: str) -> list[dict]:
+    """The '>1 current candidate' enforcement scan (MT056 Stage 4): every sibling
+    `repo-presenter*` tree under reports/ other than the canonical one must either hold no
+    candidate for this product, or be a registered archived tree whose _ARCHIVED.json marker
+    fingerprints still match its on-disk content byte-for-byte. Findings (all hard):
+      - the configured tree itself is not canonical;
+      - an unregistered sibling tree holds a live readme.md for this product (split-brain);
+      - a registered archived tree has no marker (archival incomplete);
+      - a marker fingerprint mismatch (archive violated -- someone wrote to a frozen tree).
+    No store file -> no findings (legacy/test mode)."""
+    store = _load_candidate_store()
+    if store is None:
+        return []
+    findings: list[dict] = []
+    canonical = store.get("canonical_tree")
+    archived = set(store.get("archived_trees") or [])
+    if canonical and _candidate_tree_name != canonical:
+        findings.append({
+            "tree": _candidate_tree_name,
+            "reason": f"configured candidate tree {_candidate_tree_name!r} is not the canonical "
+                      f"tree {canonical!r}",
+        })
+    if not _reports_root.is_dir():
+        return findings
+    for entry in sorted(_reports_root.glob("repo-presenter*")):
+        if not entry.is_dir() or entry.name == canonical:
+            continue
+        candidate_paths = [
+            p for p in (
+                entry / family / platform / "readme.md",
+                entry / "repo-presenter" / family / platform / "readme.md",
+            ) if p.is_file()
+        ]
+        if not candidate_paths:
+            continue
+        if entry.name not in archived:
+            findings.append({
+                "tree": entry.name,
+                "reason": f"unregistered candidate tree {entry.name!r} holds a live readme.md "
+                          f"for {family}/{platform} -- more than one current candidate exists; "
+                          "register the tree as archived (with an _ARCHIVED.json marker) in "
+                          "data/readme_candidate_store.json, or remove the copy",
+            })
+            continue
+        marker = entry / _ARCHIVED_TREE_MARKER_NAME
+        if not marker.is_file():
+            findings.append({
+                "tree": entry.name,
+                "reason": f"tree {entry.name!r} is registered as archived but carries no "
+                          f"{_ARCHIVED_TREE_MARKER_NAME} marker -- archival incomplete",
+            })
+            continue
+        try:
+            marker_data = json.loads(marker.read_text(encoding="utf-8"))
+        except Exception:
+            findings.append({
+                "tree": entry.name,
+                "reason": f"unreadable {_ARCHIVED_TREE_MARKER_NAME} in {entry.name!r}",
+            })
+            continue
+        recorded = marker_data.get("readme_sha256") or {}
+        for path in candidate_paths:
+            rel_key = str(path.relative_to(entry)).replace("\\", "/")
+            actual = hashlib.sha256(path.read_bytes()).hexdigest()
+            expected = recorded.get(rel_key)
+            if expected is None:
+                findings.append({
+                    "tree": entry.name,
+                    "path": rel_key,
+                    "reason": f"archived tree {entry.name!r} holds {rel_key} but its marker "
+                              "records no fingerprint for it -- archival incomplete for this "
+                              "product",
+                })
+            elif expected != actual:
+                findings.append({
+                    "tree": entry.name,
+                    "path": rel_key,
+                    "reason": f"ARCHIVE VIOLATED: {entry.name!r}/{rel_key} changed after "
+                              "archival -- frozen trees are immutable; recover the archived "
+                              "content or re-run the archival pass deliberately",
+                })
+    return findings
+
+
+def _acceptance_registry_path(family: str, platform: str) -> Path:
+    """Sibling to readme.md/the disposition files, same agent-visible tier, same (canonical)
+    tree. Stores block identities, hashes, states, and evidence refs -- NEVER candidate
+    content (MT056 Stage 7)."""
+    return _reports_root / _candidate_tree_name / family / platform / "acceptance-registry.json"
+
+
+def _load_acceptance_registry(family: str, platform: str) -> dict:
+    path = _acceptance_registry_path(family, platform)
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise ReadmeRefreshRunError(f"Unreadable acceptance registry at {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ReadmeRefreshRunError(f"Acceptance registry at {path} is not a JSON object")
+    return data
+
+
+def _scope_root(family: str, platform: str, run_id: str) -> Path:
+    return _run_root(family, platform, run_id) / "scope"
+
+
+def _change_scope_path(family: str, platform: str, run_id: str) -> Path:
+    return _scope_root(family, platform, run_id) / "change_scope.json"
+
+
+def _scope_baseline_path(family: str, platform: str, run_id: str) -> Path:
+    """The IMMUTABLE per-scope baseline (captured once at declare-scope). Deliberately not the
+    rolling checks/last_checked_candidate.md snapshot, which is overwritten on every check
+    iteration by design (TC-HARDEN-12 checkpoint-0 semantics) and therefore cannot anchor an
+    out-of-scope-diff proof across multiple repair iterations."""
+    return _scope_root(family, platform, run_id) / "baseline_candidate.md"
+
+
+def _load_change_scope(family: str, platform: str, run_id: str) -> "dict | None":
+    path = _change_scope_path(family, platform, run_id)
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise ReadmeRefreshRunError(f"Unreadable change scope at {path}: {exc}") from exc
+
+
+def _apply_scope_enforcement(
+    result: dict, family: str, platform: str, run_id: str, text: str
+) -> None:
+    """MT056 fail-closed enforcement, applied by BOTH ingest_candidate and recheck (unlike the
+    recheck-only, opt-in TC-HARDEN-12 isolation checks):
+
+      - candidate_store_integrity [hard]: the >1-current-candidate / archive-integrity scan.
+      - scope_compliance [hard, when a scope is declared]: candidate vs. the scope's immutable
+        baseline; any unauthorized block change fails (out-of-scope diff gate).
+      - frozen_blocks_unchanged [hard, when an acceptance registry exists]: CONVERGED/
+        FROZEN_ACCEPTED blocks must be byte-identical unless the active scope authorizes them.
+      - scope_required [hard, when a registry exists and no scope is declared]: the document
+        drifted from its last-accepted state with no declared scope -> fail closed. An
+        unchanged document passes (stable regeneration after convergence must stay green).
+    """
+    result["candidate_store_integrity"] = {
+        "hard_gate": True, "findings": _candidate_store_findings(family, platform),
+    }
+    scope = _load_change_scope(family, platform, run_id)
+    registry = _load_acceptance_registry(family, platform)
+    entries = registry.get("blocks") or []
+
+    authorized: list[str] = []
+    if scope is not None:
+        authorized = list(scope.get("areas") or []) + list(scope.get("allowed_dependencies") or [])
+        if scope.get("full_rewrite"):
+            result["scope_compliance"] = {
+                "hard_gate": True, "findings": [],
+                "detail": {"issue": scope.get("issue"), "full_rewrite": True},
+            }
+        else:
+            baseline_path = _scope_baseline_path(family, platform, run_id)
+            if not baseline_path.is_file():
+                result["scope_compliance"] = {
+                    "hard_gate": True,
+                    "findings": [{
+                        "reason": "declared change scope has no baseline snapshot on disk -- "
+                                  "re-run declare-scope",
+                    }],
+                }
+            else:
+                baseline_text = baseline_path.read_text(encoding="utf-8")
+                result["scope_compliance"] = {
+                    "hard_gate": True,
+                    "findings": checks.check_scope_compliance(baseline_text, text, authorized),
+                    "detail": {
+                        "issue": scope.get("issue"),
+                        "areas": scope.get("areas"),
+                        "allowed_dependencies": scope.get("allowed_dependencies"),
+                    },
+                }
+
+    if entries:
+        if scope is not None and scope.get("full_rewrite"):
+            frozen_authorized = [e.get("block_id") for e in entries if isinstance(e.get("block_id"), str)]
+        else:
+            frozen_authorized = authorized
+        result["frozen_blocks_unchanged"] = {
+            "hard_gate": True,
+            "findings": checks.check_frozen_blocks_unchanged(text, entries, frozen_authorized),
+        }
+        doc_sha = registry.get("document_sha256")
+        scope_required_findings: list[dict] = []
+        if scope is None and isinstance(doc_sha, str):
+            current_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            if current_sha != doc_sha:
+                snapshot = registry.get("block_fingerprints") or {}
+                live = checks.compute_block_fingerprints(text)
+                changed = sorted(
+                    block_id for block_id in set(snapshot) | set(live)
+                    if snapshot.get(block_id) != live.get(block_id)
+                )
+                scope_required_findings.append({
+                    "changed_blocks": changed,
+                    "reason": "this product has an acceptance registry and the candidate has "
+                              "drifted from its last-accepted state, but no change scope is "
+                              "declared for this run -- declare-scope (naming the intended "
+                              "areas) before regenerating; undeclared drift fails closed",
+                })
+        result["scope_required"] = {"hard_gate": True, "findings": scope_required_findings}
+
+
+def _published_readme_current_findings(
+    family: str, platform: str, readme_already_published: bool
+) -> list[dict]:
+    """MT056 Stage-9 republication tripwire (advisory): a product with a recorded publication
+    (data/readme_published_state.json) whose clone-cache README no longer matches the canonical
+    candidate carries open republication debt. Mechanically re-derives what the plan's taskcard
+    register once LOST (TC-HARDEN-47/48: 3d/net + 3d/python published pre-MT024, still clipping
+    live) -- the debt can no longer exist only in a register."""
+    if readme_already_published:
+        return []
+    state = _load_published_state()
+    if state is None:
+        return []
+    for row in state.get("products") or []:
+        if row.get("family") == family and row.get("platform") == platform:
+            return [{
+                "reason": f"{family}/{platform} was published upstream (last known "
+                          f"{row.get('last_known_publication')}) but the live upstream README "
+                          "no longer matches the canonical candidate -- republication pending",
+                "evidence": row.get("evidence"),
+            }]
+    return []
 
 
 @contextmanager
@@ -513,6 +872,8 @@ def start_run(
 
     product = _resolve_product(family, platform)
     _check_family_registered(family)
+    # MT056: a run may only be created against the canonical candidate tree.
+    _require_canonical_tree("start")
     repo_full_name = product["repo_url"].split("github.com/", 1)[-1].rstrip("/")
 
     with _product_guard(family, platform):
@@ -555,6 +916,9 @@ def start_run(
             "repo_full_name": repo_full_name,
             "repo_url": product["repo_url"],
             "clone_url": product["clone_url"],
+            # MT056: pin the candidate tree this run operates on -- later stages refuse to run
+            # under a differently-configured tree (_check_manifest_candidate_tree).
+            "candidate_tree": _candidate_tree_name,
             "state": "CREATED",
             "session_owner": owner,
             "created_at": now,
@@ -1122,6 +1486,31 @@ def _detect_install_info(family: str, platform: str) -> dict:
     }
 
 
+def _readme_matches_published_upstream(old_readme_text: str, candidate_text: str) -> bool:
+    """MT053 (Forty-Fourth incident, 2026-08-18): once a candidate has already been pushed and
+    merged into the real upstream repo, `old_readme_text` (the clone cache's real, current
+    README.md) becomes the candidate itself -- the entire "preserve content from the old
+    README" premise this skill's disposition-tracking machinery (content_unit_*/structural_
+    unit_*/code_example_*/badge_disposition_* -- ~26 checks) depends on is moot, and running it
+    anyway produces pure false-positive noise (confirmed live: 158 hard-gate failures for
+    `pdf/cpp`, entirely a position-based-unit_id-drift artifact of extracting "content to
+    preserve" from a text that already IS the candidate).
+
+    Deliberately narrow: whitespace-only normalization (`.strip()` on each side), nothing more
+    permissive -- a false positive here (wrongly treating a genuinely still-independent old
+    README as "published" and silently disabling real preservation tracking for it) is the
+    dangerous failure direction and must stay effectively impossible; a false negative (missing
+    a published state with more than trivial whitespace drift) just means the preservation-
+    tracking checks keep running normally, the safe default. Computed fresh on every call --
+    never persisted, matching this module's own established "recompute at check time, don't
+    trust a cached flag" discipline already used for `_detect_archetype`/`_detect_capability_
+    dependencies`.
+    """
+    if not old_readme_text or not candidate_text:
+        return False
+    return old_readme_text.strip() == candidate_text.strip()
+
+
 def _detect_license_file(clone_cache: Path) -> "dict | None":
     """TC-HARDEN-20 (MT034, Twentieth incident, 2026-08-12): the exact-20-char-prefix match
     against the literal string "MIT License" missed real license files phrased "The MIT
@@ -1468,6 +1857,7 @@ def ingest_candidate(
         if manifest["session_owner"] != owner:
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
 
+        _check_manifest_candidate_tree(manifest)
         candidate_path = _candidate_readme_path(family, platform)
         if not candidate_path.is_file():
             raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
@@ -1475,6 +1865,9 @@ def ingest_candidate(
         clone_cache = _product_clone_cache(family, platform)
 
         result = _run_deterministic_checks(family, platform, text, clone_cache)
+        # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
+        # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
+        _apply_scope_enforcement(result, family, platform, run_id, text)
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
@@ -1591,6 +1984,15 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # genuine, currently-latent risk for future content this check exists to catch early.
     result["diagram_label_token_length"] = {
         "hard_gate": False, "findings": checks.check_diagram_label_token_length(text),
+    }
+    # MT056 (Fifty-Sixth incident, 2026-08-18): the HARD geometry gate -- subsumes the advisory
+    # token-length rule above (kept unchanged for continuity) and adds the previously-unguarded
+    # label-bulk clause (greedy word-wrap estimate; >3 rendered lines fails). Corpus-grounded
+    # thresholds; the two real, live-render-confirmed oversized/clipping label shapes both fail
+    # it, every render-verified-clean label passes. See check_diagram_label_geometry's docstring
+    # and reports/_scratch/mt056_regression_ledger.md (R-01/R-02).
+    result["diagram_label_geometry"] = {
+        "hard_gate": True, "findings": checks.check_diagram_label_geometry(text),
     }
     # Eleventh incident / MT025 (2026-08-08): the simplified diagram model shipped with no
     # mechanism requiring a Starting Points container for transform/compile-archetype products
@@ -1784,6 +2186,21 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         uncorrelated = []
         old_readme_text = ""
 
+    # MT053 (Forty-Fourth incident, 2026-08-18): computed once, fresh, immediately after
+    # old_readme_text is resolved -- gates the entire preservation-tracking block below. See
+    # _readme_matches_published_upstream's own docstring for why this must stay narrow.
+    readme_already_published = _readme_matches_published_upstream(old_readme_text, text)
+    result["readme_already_published"] = {
+        "hard_gate": False,
+        "findings": [],
+        "detail": {"published": readme_already_published},
+    }
+    # MT056: republication-debt tripwire (advisory) -- see _published_readme_current_findings.
+    result["published_readme_current"] = {
+        "hard_gate": False,
+        "findings": _published_readme_current_findings(family, platform, readme_already_published),
+    }
+
     if has_dispositions_file and uncorrelated:
         result["dropped_content"] = {
             "hard_gate": True, "findings": dropped["internal_labels"], "detail": dropped,
@@ -1814,183 +2231,268 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # only ever tracked links/headings -- these 6 checks close the much larger prose gap a real
     # 5-product survey confirmed. content-dispositions.json is agent-authored, same tier as
     # readme.md/upstream-issues.md -- read here, never written by this script.
-    content_units = checks.extract_old_readme_content_units(old_readme_text)
-    dispositions_path = _content_dispositions_path(family, platform)
-    dispositions = (
-        json.loads(dispositions_path.read_text(encoding="utf-8")) if dispositions_path.is_file() else []
-    )
-    result["content_unit_disposition_coverage"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_disposition_coverage(content_units, dispositions),
-    }
-    # MT048 (note/python pilot, 2026-08-15): unit_id-presence alone (above) cannot detect
-    # position-based drift -- a shifted id that still happens to exist in the current extraction
-    # passes that check while pointing at different content. Cross-checks every disposition's own
-    # stored excerpt against the live extractor's excerpt for the same unit_id; see check_content_
-    # unit_excerpt_matches_extraction's own docstring for the real, previously only-manually-
-    # caught MT030 Phase 2 incident this closes.
-    result["content_unit_excerpt_matches_extraction"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_excerpt_matches_extraction(content_units, dispositions),
-    }
-    result["content_unit_evidence_resolves"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_evidence_resolves(
-            dispositions, str(clone_cache), _load_package_registry(),
-            _load_content_docs_texts(family, platform),
-        ),
-    }
-    result["content_unit_merged_into_target_section"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_merged_into_target_section(text, dispositions),
-    }
-    result["content_unit_no_exact_duplicate_merge"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_no_exact_duplicate_merge(dispositions),
-    }
-    result["content_unit_classification_plausibility"] = {
-        "hard_gate": False,
-        "findings": checks.check_content_unit_classification_plausibility(content_units, dispositions),
-    }
-    result["content_unit_probable_duplicate"] = {
-        "hard_gate": False,
-        "findings": checks.check_content_unit_probable_duplicate(dispositions),
-    }
-    # Sixteenth incident / MT031 (2026-08-10): a mixed unit (real actionable fact bundled with
-    # pure hedge/CTA prose) can be classified/excluded wholesale, silently losing the fact.
-    # Standing, non-blocking safeguard for every future dispatch -- never a hard gate, since a
-    # differently-worded embedded fact won't trip the fixed phrase list.
-    result["content_unit_embedded_actionable_fact"] = {
-        "hard_gate": False,
-        "findings": checks.check_content_unit_embedded_actionable_fact(content_units, dispositions),
-    }
-    # MT051 (Forty-First incident, 2026-08-16): a bare image-markdown unit excluded via
-    # candidate_section_reference can pass the check above on generic keyword overlap with a
-    # prose section, even when the specific image itself was never actually re-embedded anywhere
-    # -- real, confirmed against page/python's own regen-full u0014-u0016.
-    result["image_content_unit_excluded_reason_verified"] = {
-        "hard_gate": False,
-        "findings": checks.check_image_content_unit_excluded_reason_verified(
-            content_units, dispositions, text
-        ),
-    }
+    # MT053 (Forty-Fourth incident, 2026-08-18): the entire preservation-tracking block below --
+    # every check that extracts "content to preserve" from old_readme_text and cross-references
+    # it against a disposition JSON file -- assumes old_readme_text is genuinely independent,
+    # at-risk-of-loss content. Once readme_already_published is True, that assumption is false
+    # (old_readme_text IS the candidate), so the extractors are never even called and every one
+    # of these 25 result keys becomes a uniform, disclosed no-op instead of running position-
+    # based extraction against a self-referential text (confirmed live: 158 false hard-gate
+    # failures for pdf/cpp before this gate existed). Checks that verify the candidate against
+    # real, CURRENT, independent data (real source, real registries, real badge/CI facts) are
+    # deliberately NOT in this list -- see _readme_matches_published_upstream's own docstring
+    # and the "What should be preserved" section of MT053 for the full reasoning.
+    if readme_already_published:
+        _skip_detail = {
+            "skipped": True,
+            "skip_reason": (
+                "readme already matches the published upstream README (byte-identical, "
+                "whitespace-normalized) -- old-README preservation-tracking is moot for this "
+                "product; see MT053"
+            ),
+        }
+        for _key, _hard_gate in (
+            ("content_unit_disposition_coverage", True),
+            ("content_unit_excerpt_matches_extraction", True),
+            ("content_unit_evidence_resolves", True),
+            ("content_unit_merged_into_target_section", True),
+            ("content_unit_no_exact_duplicate_merge", True),
+            ("content_unit_redundant_claim_verifiable", False),
+            ("content_unit_classification_plausibility", False),
+            ("content_unit_probable_duplicate", False),
+            ("content_unit_embedded_actionable_fact", False),
+            ("image_content_unit_excluded_reason_verified", False),
+            ("structural_unit_disposition_coverage", True),
+            ("structural_unit_evidence_resolves", True),
+            ("structural_unit_merged_into_target_section", True),
+            ("structural_unit_no_exact_duplicate_merge", True),
+            ("structural_unit_tree_paths_plausible", False),
+            ("code_example_disposition_coverage", True),
+            ("code_example_evidence_resolves", True),
+            ("code_example_no_exact_duplicate_merge", True),
+            ("code_example_api_coverage_survives", True),
+            ("code_example_excluded_reason_citation_too_narrow", False),
+            ("cli_category_representation", False),
+            ("badge_disposition_coverage", True),
+            ("badge_evidence_resolves", True),
+            ("badge_preserved_or_credited_in_candidate", True),
+            ("badge_probable_duplicate_disposition", False),
+        ):
+            result[_key] = {"hard_gate": _hard_gate, "findings": [], **_skip_detail}
+        # Real bug found live wiring this in (MT053): a later check outside this block --
+        # check_dependency_disposition_reconciliation, added by MT041 after this preservation-
+        # tracking block was originally written -- reads `content_units`/`dispositions` too
+        # (cross-referencing "5_dependency_claim"-classified disposition entries against the old
+        # README's own content units). Skipping the whole `else` branch left both names unbound,
+        # a real `UnboundLocalError` the first time this path was actually exercised, not merely
+        # assumed safe. `content_units=[]`/`dispositions=[]` here reproduces the exact vacuous
+        # (zero-findings) result that check already returns for `dispositions=[]` on its own
+        # terms, without loading a disposition file this branch has already decided is moot.
+        content_units, dispositions = [], []
+    else:
+        # Fifteenth incident / MT030 (2026-08-09): verify-and-merge of the old README's real
+        # prose -- mechanism-level explanations (e.g. pdf/cpp's real font-fallback rationale) and
+        # branding/positioning claims (e.g. "Official Aspose project") get verified against the
+        # real product repo and merged into the new candidate; pure narrative/origin-story/CTA
+        # prose stays explicitly out of scope, per the user's own decision. dropped_content above
+        # only ever tracked links/headings -- these 6 checks close the much larger prose gap a
+        # real 5-product survey confirmed. content-dispositions.json is agent-authored, same tier
+        # as readme.md/upstream-issues.md -- read here, never written by this script.
+        content_units = checks.extract_old_readme_content_units(old_readme_text)
+        dispositions_path = _content_dispositions_path(family, platform)
+        dispositions = (
+            json.loads(dispositions_path.read_text(encoding="utf-8")) if dispositions_path.is_file() else []
+        )
+        result["content_unit_disposition_coverage"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_disposition_coverage(content_units, dispositions),
+        }
+        # MT048 (note/python pilot, 2026-08-15): unit_id-presence alone (above) cannot detect
+        # position-based drift -- a shifted id that still happens to exist in the current
+        # extraction passes that check while pointing at different content. Cross-checks every
+        # disposition's own stored excerpt against the live extractor's excerpt for the same
+        # unit_id; see check_content_unit_excerpt_matches_extraction's own docstring for the
+        # real, previously only-manually-caught MT030 Phase 2 incident this closes.
+        result["content_unit_excerpt_matches_extraction"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_excerpt_matches_extraction(content_units, dispositions),
+        }
+        result["content_unit_evidence_resolves"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_evidence_resolves(
+                dispositions, str(clone_cache), _load_package_registry(),
+                _load_content_docs_texts(family, platform),
+            ),
+        }
+        result["content_unit_merged_into_target_section"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_merged_into_target_section(text, dispositions),
+        }
+        result["content_unit_no_exact_duplicate_merge"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_no_exact_duplicate_merge(dispositions),
+        }
+        result["content_unit_redundant_claim_verifiable"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_redundant_claim_verifiable(dispositions, text),
+        }
+        result["content_unit_classification_plausibility"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_classification_plausibility(content_units, dispositions),
+        }
+        result["content_unit_probable_duplicate"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_probable_duplicate(dispositions),
+        }
+        # Sixteenth incident / MT031 (2026-08-10): a mixed unit (real actionable fact bundled
+        # with pure hedge/CTA prose) can be classified/excluded wholesale, silently losing the
+        # fact. Standing, non-blocking safeguard for every future dispatch -- never a hard gate,
+        # since a differently-worded embedded fact won't trip the fixed phrase list.
+        result["content_unit_embedded_actionable_fact"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_embedded_actionable_fact(content_units, dispositions),
+        }
+        # MT051 (Forty-First incident, 2026-08-16): a bare image-markdown unit excluded via
+        # candidate_section_reference can pass the check above on generic keyword overlap with a
+        # prose section, even when the specific image itself was never actually re-embedded
+        # anywhere -- real, confirmed against page/python's own regen-full u0014-u0016.
+        result["image_content_unit_excluded_reason_verified"] = {
+            "hard_gate": False,
+            "findings": checks.check_image_content_unit_excluded_reason_verified(
+                content_units, dispositions, text
+            ),
+        }
 
-    # Twenty-Fourth incident / mission (2026-08-13, cells/go's missing Project Structure section):
-    # structural (non-prose) section preservation -- content-unit extraction above can never see
-    # this by design (it strips fenced code before segmenting). structure-dispositions.json is a
-    # sibling to content-dispositions.json, same tier, same directory -- never an extension of
-    # that file's own prose-tone-specific classification enum.
-    structural_units = checks.extract_old_readme_structural_units(old_readme_text)
-    structure_dispositions_path = _structure_dispositions_path(family, platform)
-    structure_dispositions = (
-        json.loads(structure_dispositions_path.read_text(encoding="utf-8"))
-        if structure_dispositions_path.is_file() else []
-    )
-    result["structural_unit_disposition_coverage"] = {
-        "hard_gate": True,
-        "findings": checks.check_structural_unit_disposition_coverage(structural_units, structure_dispositions),
-    }
-    result["structural_unit_evidence_resolves"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_evidence_resolves(
-            structure_dispositions, str(clone_cache), _load_package_registry(),
-            _load_content_docs_texts(family, platform),
-        ),
-    }
-    result["structural_unit_merged_into_target_section"] = {
-        "hard_gate": True,
-        "findings": checks.check_structural_unit_merged_into_target_section(text, structure_dispositions),
-    }
-    result["structural_unit_no_exact_duplicate_merge"] = {
-        "hard_gate": True,
-        "findings": checks.check_structural_unit_no_exact_duplicate_merge(structure_dispositions),
-    }
-    result["structural_unit_tree_paths_plausible"] = {
-        "hard_gate": False,
-        "findings": checks.check_structural_unit_tree_paths_plausible(
-            structural_units, structure_dispositions, str(clone_cache)
-        ),
-    }
+        # Twenty-Fourth incident / mission (2026-08-13, cells/go's missing Project Structure
+        # section): structural (non-prose) section preservation -- content-unit extraction above
+        # can never see this by design (it strips fenced code before segmenting). structure-
+        # dispositions.json is a sibling to content-dispositions.json, same tier, same directory
+        # -- never an extension of that file's own prose-tone-specific classification enum.
+        structural_units = checks.extract_old_readme_structural_units(old_readme_text)
+        structure_dispositions_path = _structure_dispositions_path(family, platform)
+        structure_dispositions = (
+            json.loads(structure_dispositions_path.read_text(encoding="utf-8"))
+            if structure_dispositions_path.is_file() else []
+        )
+        result["structural_unit_disposition_coverage"] = {
+            "hard_gate": True,
+            "findings": checks.check_structural_unit_disposition_coverage(structural_units, structure_dispositions),
+        }
+        result["structural_unit_evidence_resolves"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_evidence_resolves(
+                structure_dispositions, str(clone_cache), _load_package_registry(),
+                _load_content_docs_texts(family, platform),
+                # MT055/TC-MICRO-04: a structural unit represents a verbatim extraction from the
+                # old README (a directory tree, a fenced block) -- citing README.md as its own
+                # source is real provenance, never the circular self-citation this flag exists
+                # to catch for content-unit factual claims.
+                reject_self_citation=False,
+            ),
+        }
+        result["structural_unit_merged_into_target_section"] = {
+            "hard_gate": True,
+            "findings": checks.check_structural_unit_merged_into_target_section(text, structure_dispositions),
+        }
+        result["structural_unit_no_exact_duplicate_merge"] = {
+            "hard_gate": True,
+            "findings": checks.check_structural_unit_no_exact_duplicate_merge(structure_dispositions),
+        }
+        result["structural_unit_tree_paths_plausible"] = {
+            "hard_gate": False,
+            "findings": checks.check_structural_unit_tree_paths_plausible(
+                structural_units, structure_dispositions, str(clone_cache)
+            ),
+        }
+
+        # Thirty-Seventh incident / MT047 (2026-08-15): code-example (fenced-code) preservation
+        # -- extract_old_readme_content_units strips ALL fenced code before segmenting by design,
+        # and extract_old_readme_structural_units (above) only ever captures it when the prose
+        # extractor finds NOTHING real in the same section -- a section combining a large code
+        # block with even one surviving prose sentence was invisible to both, by construction,
+        # until this incident. code-example-dispositions.json is a third sibling, same tier, same
+        # directory as content-/structure-/badge-dispositions.json.
+        code_units = checks.extract_old_readme_code_units(old_readme_text)
+        code_example_dispositions_path = _code_example_dispositions_path(family, platform)
+        code_example_dispositions = (
+            json.loads(code_example_dispositions_path.read_text(encoding="utf-8"))
+            if code_example_dispositions_path.is_file() else []
+        )
+        result["code_example_disposition_coverage"] = {
+            "hard_gate": True,
+            "findings": checks.check_code_example_disposition_coverage(code_units, code_example_dispositions),
+        }
+        result["code_example_evidence_resolves"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_evidence_resolves(
+                code_example_dispositions, str(clone_cache), _load_package_registry(),
+                _load_content_docs_texts(family, platform),
+                # MT055/TC-MICRO-04: a code-example unit represents a verbatim extraction (a real
+                # fenced command/block) from the old README -- same reasoning as the structural
+                # call site above, not the circular self-citation this flag exists to catch.
+                reject_self_citation=False,
+            ),
+        }
+        result["code_example_no_exact_duplicate_merge"] = {
+            "hard_gate": True,
+            "findings": checks.check_code_example_no_exact_duplicate_merge(code_example_dispositions),
+        }
+        result["code_example_api_coverage_survives"] = {
+            "hard_gate": True,
+            "findings": checks.check_code_example_api_coverage_survives(text, code_example_dispositions),
+        }
+        result["code_example_excluded_reason_citation_too_narrow"] = {
+            "hard_gate": False,
+            "findings": checks.check_code_example_excluded_reason_citation_too_narrow(
+                code_example_dispositions, text
+            ),
+        }
+        result["cli_category_representation"] = {
+            "hard_gate": False,
+            "findings": checks.check_cli_category_representation(text, code_units),
+        }
+
+        # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation --
+        # previously nonexistent (no parsing/classification/dedup mechanism anywhere in this
+        # module). badge-dispositions.json is a second sibling, same tier, same directory.
+        old_badges = checks.extract_badges(old_readme_text)
+        new_badges = checks.extract_badges(text)
+        badge_dispositions_path = _badge_dispositions_path(family, platform)
+        badge_dispositions = (
+            json.loads(badge_dispositions_path.read_text(encoding="utf-8"))
+            if badge_dispositions_path.is_file() else []
+        )
+        result["badge_disposition_coverage"] = {
+            "hard_gate": True,
+            "findings": checks.check_badge_disposition_coverage(old_badges, new_badges, badge_dispositions),
+        }
+        result["badge_evidence_resolves"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_evidence_resolves(
+                badge_dispositions, str(clone_cache), _load_package_registry(),
+                _load_content_docs_texts(family, platform),
+            ),
+        }
+        result["badge_preserved_or_credited_in_candidate"] = {
+            "hard_gate": True,
+            "findings": checks.check_badge_preserved_or_credited_in_candidate(new_badges, badge_dispositions),
+        }
+        result["badge_probable_duplicate_disposition"] = {
+            "hard_gate": False,
+            "findings": checks.check_badge_probable_duplicate_disposition(badge_dispositions),
+        }
+
     # Twenty-Fifth mission (2026-08-13, cells/java healing pass): a restored Project Structure
     # tree must use the one canonical, already-shipped visual convention (cells/go's box-drawing
-    # style), not whichever style the old README happened to use natively.
+    # style), not whichever style the old README happened to use natively. A candidate-quality
+    # check (the candidate's own formatting convention), not old-README preservation -- runs
+    # unconditionally, regardless of readme_already_published (MT053).
     result["project_structure_canonical_tree_format"] = {
         "hard_gate": True,
         "findings": checks.check_project_structure_canonical_tree_format(text),
     }
-
-    # Thirty-Seventh incident / MT047 (2026-08-15): code-example (fenced-code) preservation --
-    # extract_old_readme_content_units strips ALL fenced code before segmenting by design, and
-    # extract_old_readme_structural_units (above) only ever captures it when the prose extractor
-    # finds NOTHING real in the same section -- a section combining a large code block with even
-    # one surviving prose sentence was invisible to both, by construction, until this incident.
-    # code-example-dispositions.json is a third sibling, same tier, same directory as content-/
-    # structure-/badge-dispositions.json.
-    code_units = checks.extract_old_readme_code_units(old_readme_text)
-    code_example_dispositions_path = _code_example_dispositions_path(family, platform)
-    code_example_dispositions = (
-        json.loads(code_example_dispositions_path.read_text(encoding="utf-8"))
-        if code_example_dispositions_path.is_file() else []
-    )
-    result["code_example_disposition_coverage"] = {
-        "hard_gate": True,
-        "findings": checks.check_code_example_disposition_coverage(code_units, code_example_dispositions),
-    }
-    result["code_example_evidence_resolves"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_evidence_resolves(
-            code_example_dispositions, str(clone_cache), _load_package_registry(),
-            _load_content_docs_texts(family, platform),
-        ),
-    }
-    result["code_example_no_exact_duplicate_merge"] = {
-        "hard_gate": True,
-        "findings": checks.check_code_example_no_exact_duplicate_merge(code_example_dispositions),
-    }
-    result["code_example_api_coverage_survives"] = {
-        "hard_gate": True,
-        "findings": checks.check_code_example_api_coverage_survives(text, code_example_dispositions),
-    }
-    result["code_example_excluded_reason_citation_too_narrow"] = {
-        "hard_gate": False,
-        "findings": checks.check_code_example_excluded_reason_citation_too_narrow(
-            code_example_dispositions, text
-        ),
-    }
-    result["cli_category_representation"] = {
-        "hard_gate": False,
-        "findings": checks.check_cli_category_representation(text, code_units),
-    }
-
-    # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation -- previously
-    # nonexistent (no parsing/classification/dedup mechanism anywhere in this module). badge-
-    # dispositions.json is a second sibling, same tier, same directory.
-    old_badges = checks.extract_badges(old_readme_text)
-    new_badges = checks.extract_badges(text)
-    badge_dispositions_path = _badge_dispositions_path(family, platform)
-    badge_dispositions = (
-        json.loads(badge_dispositions_path.read_text(encoding="utf-8"))
-        if badge_dispositions_path.is_file() else []
-    )
-    result["badge_disposition_coverage"] = {
-        "hard_gate": True,
-        "findings": checks.check_badge_disposition_coverage(old_badges, new_badges, badge_dispositions),
-    }
-    result["badge_evidence_resolves"] = {
-        "hard_gate": True,
-        "findings": checks.check_content_unit_evidence_resolves(
-            badge_dispositions, str(clone_cache), _load_package_registry(),
-            _load_content_docs_texts(family, platform),
-        ),
-    }
-    result["badge_preserved_or_credited_in_candidate"] = {
-        "hard_gate": True,
-        "findings": checks.check_badge_preserved_or_credited_in_candidate(new_badges, badge_dispositions),
-    }
-    result["badge_probable_duplicate_disposition"] = {
-        "hard_gate": False,
-        "findings": checks.check_badge_probable_duplicate_disposition(badge_dispositions),
-    }
+    # Both of these operate on the candidate's own badge row only (never old_readme_text) --
+    # candidate-quality checks, not old-README preservation. Run unconditionally (MT053).
     result["badge_static_claims_dynamic_fact"] = {
         "hard_gate": False,
         "findings": checks.check_badge_static_claims_dynamic_fact(text),
@@ -2233,12 +2735,23 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
     state, never requires an active run (`start`/`plan`) for the product being audited.
 
     Returns `{"products": [{"family", "platform", "clean", "hard_gate_findings": {check_name:
-    count}}], "clean_count", "dirty_count", "total", "skipped": [{"family", "platform",
-    "reason"}]}` -- `hard_gate_findings` only ever lists a check that both IS a hard gate and
-    currently has at least one finding, matching `phase2_scan.py`'s own established summary
-    shape (the one this function replaces) so a prior run's mental model of the output
-    transfers directly.
+    count}, "published"}], "clean_count", "dirty_count", "total", "skipped": [{"family",
+    "platform", "reason"}]}` -- `hard_gate_findings` only ever lists a check that both IS a hard
+    gate and currently has at least one finding, matching `phase2_scan.py`'s own established
+    summary shape (the one this function replaces) so a prior run's mental model of the output
+    transfers directly. `published` (TC-HARDEN-116, MT053, 2026-08-18) surfaces `_run_
+    deterministic_checks`'s own `readme_already_published` detection directly, so a portfolio
+    scan shows at a glance which products have already been pushed and merged upstream (and
+    therefore have their old-README preservation-tracking checks correctly bypassed) without
+    needing a separate byte-identity pass.
+
+    MT056 (2026-08-18): validates the configured candidate tree against the durable canonical-
+    store record first -- the canonical tree audits normally; a registered ARCHIVED tree is
+    allowed (read-only review) but the result carries a `non_canonical` tag; any unregistered
+    tree is refused outright (stale-path protection). The result also carries
+    `candidate_tree` so no audit output is ever ambiguous about which store it describes.
     """
+    non_canonical_tag = _validate_candidate_tree_for_audit()
     products = _load_products()
     exclusions = _load_registry_exclusions()
     excluded_keys = {
@@ -2270,10 +2783,14 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
             for name, check in result.items()
             if check.get("hard_gate") and check.get("findings")
         }
+        published = bool(
+            result.get("readme_already_published", {}).get("detail", {}).get("published", False)
+        )
         product_results.append({
             "family": fam, "platform": plat,
             "clean": not hard_gate_findings,
             "hard_gate_findings": hard_gate_findings,
+            "published": published,
         })
 
     clean_count = sum(1 for p in product_results if p["clean"])
@@ -2283,6 +2800,8 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         "dirty_count": len(product_results) - clean_count,
         "total": len(product_results),
         "skipped": skipped,
+        "candidate_tree": _candidate_tree_name,
+        "non_canonical": non_canonical_tag,
     }
 
 
@@ -2355,6 +2874,7 @@ def recheck(
         manifest = _load_manifest(family, platform, run_id)
         if manifest["session_owner"] != owner:
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        _check_manifest_candidate_tree(manifest)
         candidate_path = _candidate_readme_path(family, platform)
         text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
         clone_cache = _product_clone_cache(family, platform)
@@ -2363,12 +2883,292 @@ def recheck(
             result, family, platform, run_id, text,
             allowed_headings=allowed_headings, mermaid_only=mermaid_only,
         )
+        # MT056: fail-closed scope/store/frozen-block enforcement (recheck records the findings;
+        # it deliberately still never raises -- AWAITING_REVIEW is a human-in-the-loop hold).
+        _apply_scope_enforcement(result, family, platform, run_id, text)
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
         _write_checks_snapshot(family, platform, run_id, text)
         _event(family, platform, run_id, "RECHECK_COMPLETED")
         return result
+
+
+# --- MT056: declare-scope / accept-blocks / converge-verify --------------------------------
+
+
+def declare_scope(
+    family: str, platform: str, run_id: str, *,
+    issue: str,
+    areas: "list[str] | None" = None,
+    allowed_dependencies: "list[str] | None" = None,
+    acceptance_criteria: "str | None" = None,
+    full_rewrite: bool = False,
+    session_id: "str | None" = None,
+) -> dict:
+    """MT056 Stage 5: create the change-scope manifest BEFORE regeneration. Records what this
+    run is authorized to change (`areas`, by stable block id: `##`-heading slugs plus
+    `__preamble__` and `mermaid`), which dependent blocks may legitimately move with it
+    (`allowed_dependencies` -- declared in advance, never discovered after a broad diff), and
+    the acceptance criteria. Snapshots the current canonical candidate as this scope's
+    IMMUTABLE baseline; every subsequent ingest/recheck fails closed on any block that changes
+    without being authorized here.
+
+    `--full-rewrite` is the explicit form of a whole-document scope (first composition, or a
+    deliberate total regeneration) -- an implied full-document scope does not exist; that
+    ambiguity is the R-03/R-12 whole-file-regen defect class.
+
+    A block id named in `areas` that does not exist in the baseline is legal (it authorizes
+    ADDING that block) and is recorded under `unknown_areas` for reviewer visibility."""
+    owner = _session_id(session_id)
+    with _product_guard(family, platform):
+        manifest = _load_manifest(family, platform, run_id)
+        if manifest["session_owner"] != owner:
+            raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        if manifest.get("state") in TERMINAL_STATES:
+            raise ReadmeRefreshRunError(f"Run {run_id} is terminal ({manifest.get('state')}); scopes are per-live-run")
+        _check_manifest_candidate_tree(manifest)
+        if not isinstance(issue, str) or not issue.strip():
+            raise ReadmeRefreshRunError("declare-scope requires a non-empty --issue")
+        area_list = [a.strip() for a in (areas or []) if a and a.strip()]
+        dep_list = [d.strip() for d in (allowed_dependencies or []) if d and d.strip()]
+        if not full_rewrite and not area_list:
+            raise ReadmeRefreshRunError("declare-scope requires --areas (or --full-rewrite for a whole-document scope)")
+
+        candidate_path = _candidate_readme_path(family, platform)
+        baseline_text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else None
+        if baseline_text is None and not full_rewrite:
+            raise ReadmeRefreshRunError(
+                "no existing candidate to scope against -- a first composition is a "
+                "whole-document change; declare it explicitly with --full-rewrite"
+            )
+
+        scope_root = _scope_root(family, platform, run_id)
+        scope_root.mkdir(parents=True, exist_ok=True)
+        scope_path = _change_scope_path(family, platform, run_id)
+        if scope_path.is_file():
+            history_dir = scope_root / "history"
+            history_dir.mkdir(exist_ok=True)
+            stamp = _now().strftime("%Y%m%dT%H%M%SZ")
+            shutil.copy2(scope_path, history_dir / f"change_scope-{stamp}.json")
+            baseline_path = _scope_baseline_path(family, platform, run_id)
+            if baseline_path.is_file():
+                shutil.copy2(baseline_path, history_dir / f"baseline_candidate-{stamp}.md")
+
+        unknown_areas: list[str] = []
+        if baseline_text is not None:
+            baseline_blocks = checks.split_into_scope_blocks(baseline_text)
+            unknown_areas = sorted(set(area_list + dep_list) - set(baseline_blocks))
+        record = {
+            "schema_version": 1,
+            "issue": issue.strip(),
+            "areas": area_list,
+            "allowed_dependencies": dep_list,
+            "acceptance_criteria": acceptance_criteria,
+            "full_rewrite": full_rewrite,
+            "unknown_areas": unknown_areas,
+            "declared_at": _utc(),
+            "declared_by_session": owner,
+            "baseline_sha256": (
+                hashlib.sha256(baseline_text.encode("utf-8")).hexdigest()
+                if baseline_text is not None else None
+            ),
+        }
+        if baseline_text is not None:
+            _scope_baseline_path(family, platform, run_id).write_text(baseline_text, encoding="utf-8")
+            _write_json(
+                scope_root / "baseline_fingerprints.json",
+                checks.compute_block_fingerprints(baseline_text),
+            )
+        _write_json(scope_path, record)
+        _event(
+            family, platform, run_id, "SCOPE_DECLARED",
+            issue=record["issue"], areas=area_list, allowed_dependencies=dep_list,
+            full_rewrite=full_rewrite,
+        )
+        return record
+
+
+def accept_blocks(
+    family: str, platform: str, run_id: str, *,
+    blocks: list[str],
+    status: str = "CONVERGED",
+    governing_rule: "str | None" = None,
+    evidence_ref: "str | None" = None,
+    note: "str | None" = None,
+    session_id: "str | None" = None,
+) -> dict:
+    """MT056 Stage 7: record accepted blocks in the product's acceptance registry
+    (acceptance-registry.json, sibling to the disposition files -- identities, hashes, states,
+    evidence refs; never candidate content). CONVERGED/FROZEN_ACCEPTED may only be recorded
+    while the run's latest checks result is clean of hard-gate findings AND the candidate on
+    disk is byte-identical to the last-checked snapshot (accepting an unchecked edit is
+    forbidden by construction). Each accepted block stores its content hash and the pinned
+    clone-cache HEAD as its source fingerprint -- source invalidation is later detected
+    explicitly (converge-verify), never remembered."""
+    owner = _session_id(session_id)
+    with _product_guard(family, platform):
+        manifest = _load_manifest(family, platform, run_id)
+        if manifest["session_owner"] != owner:
+            raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        _check_manifest_candidate_tree(manifest)
+        if status not in checks._ACCEPTANCE_BLOCK_STATUSES:
+            raise ReadmeRefreshRunError(
+                f"status {status!r} is not one of {sorted(checks._ACCEPTANCE_BLOCK_STATUSES)}"
+            )
+        block_list = [b.strip() for b in blocks if b and b.strip()]
+        if not block_list:
+            raise ReadmeRefreshRunError("accept-blocks requires at least one block id")
+
+        candidate_path = _candidate_readme_path(family, platform)
+        if not candidate_path.is_file():
+            raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+        text = candidate_path.read_text(encoding="utf-8")
+
+        if status in ("CONVERGED", "FROZEN_ACCEPTED"):
+            result_path = _run_root(family, platform, run_id) / "checks" / "result.json"
+            if not result_path.is_file():
+                raise ReadmeRefreshRunError(
+                    "no checks/result.json for this run -- run ingest-candidate or recheck first"
+                )
+            last = json.loads(result_path.read_text(encoding="utf-8"))
+            hard_failures = [
+                name for name, r in last.items() if r.get("hard_gate") and r.get("findings")
+            ]
+            if hard_failures:
+                raise ReadmeRefreshRunError(
+                    f"cannot accept blocks as {status} while hard gates fail: {hard_failures}"
+                )
+            snapshot_path = _checks_snapshot_path(family, platform, run_id)
+            if not snapshot_path.is_file() or snapshot_path.read_text(encoding="utf-8") != text:
+                raise ReadmeRefreshRunError(
+                    "candidate on disk differs from the last-checked snapshot -- recheck first; "
+                    "accepting an unchecked edit is forbidden"
+                )
+
+        live_fp = checks.compute_block_fingerprints(text)
+        missing = [b for b in block_list if b not in live_fp]
+        if missing and status in ("CONVERGED", "FROZEN_ACCEPTED"):
+            raise ReadmeRefreshRunError(
+                f"block(s) {missing} not present in the candidate -- cannot accept a block that "
+                "does not exist"
+            )
+
+        scope = _load_change_scope(family, platform, run_id)
+        registry = _load_acceptance_registry(family, platform) or {
+            "schema_version": 1, "family": family, "platform": platform, "blocks": [],
+        }
+        entries = registry.setdefault("blocks", [])
+        by_id = {e.get("block_id"): e for e in entries if isinstance(e.get("block_id"), str)}
+        now = _utc()
+        pinned_head = (manifest.get("pinned_inputs") or {}).get("clone_cache_head")
+        for block_id in block_list:
+            entry = by_id.get(block_id)
+            if entry is None:
+                entry = {"block_id": block_id, "historical_defects": [], "history": []}
+                entries.append(entry)
+                by_id[block_id] = entry
+            entry["status"] = status
+            if block_id in live_fp:
+                entry["accepted_sha256"] = live_fp[block_id]
+            entry["source_fingerprint"] = {"clone_cache_head": pinned_head}
+            if governing_rule is not None:
+                entry["governing_rule"] = governing_rule
+            if evidence_ref is not None:
+                entry["evidence_ref"] = evidence_ref
+            entry["last_authorized_change"] = {
+                "run_id": run_id,
+                "scope_issue": (scope or {}).get("issue"),
+            }
+            entry.setdefault("history", []).append(
+                {"at": now, "status": status, "run_id": run_id, "note": note}
+            )
+        registry["document_sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        registry["block_fingerprints"] = live_fp
+        registry["updated_at"] = now
+        registry["updated_by_run"] = run_id
+        _write_json(_acceptance_registry_path(family, platform), registry)
+        _event(family, platform, run_id, "BLOCKS_ACCEPTED", blocks=block_list, status=status)
+        return registry
+
+
+def converge_verify(
+    family: str, platform: str, run_id: str, *,
+    apply_invalidation: bool = False,
+    session_id: "str | None" = None,
+) -> dict:
+    """MT056 convergence gate: recompute the live candidate's block fingerprints against the
+    acceptance registry. Converged means: zero drift on any CONVERGED/FROZEN_ACCEPTED block AND
+    the whole document matches its last-accepted hash -- i.e. re-running the same regeneration
+    produced no further change. Also detects source invalidation (pinned clone-cache HEAD moved
+    since a block's acceptance): reported always; statuses flipped to
+    INVALIDATED_BY_SOURCE_CHANGE only under --apply-invalidation (an explicit reopening, never
+    a silent rewrite)."""
+    owner = _session_id(session_id)
+    with _product_guard(family, platform):
+        manifest = _load_manifest(family, platform, run_id)
+        if manifest["session_owner"] != owner:
+            raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        _check_manifest_candidate_tree(manifest)
+        candidate_path = _candidate_readme_path(family, platform)
+        if not candidate_path.is_file():
+            raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+        text = candidate_path.read_text(encoding="utf-8")
+        registry = _load_acceptance_registry(family, platform)
+        entries = registry.get("blocks") or []
+        if not entries:
+            raise ReadmeRefreshRunError(
+                f"no acceptance registry (or no accepted blocks) for {family}/{platform} -- "
+                "nothing to verify; accept-blocks first"
+            )
+        drift = checks.check_frozen_blocks_unchanged(text, entries, [])
+        document_stable = registry.get("document_sha256") == hashlib.sha256(
+            text.encode("utf-8")
+        ).hexdigest()
+
+        clone_cache = _product_clone_cache(family, platform)
+        current_head = None
+        if clone_cache.is_dir():
+            try:
+                current_head = _git("rev-parse", "HEAD", cwd=clone_cache)
+            except ReadmeRefreshRunError:
+                current_head = None
+        invalidated: list[str] = []
+        now = _utc()
+        for entry in entries:
+            if entry.get("status") not in ("CONVERGED", "FROZEN_ACCEPTED"):
+                continue
+            pinned = (entry.get("source_fingerprint") or {}).get("clone_cache_head")
+            if pinned and current_head and pinned != current_head:
+                invalidated.append(entry["block_id"])
+                if apply_invalidation:
+                    entry["status"] = "INVALIDATED_BY_SOURCE_CHANGE"
+                    entry.setdefault("history", []).append({
+                        "at": now, "status": "INVALIDATED_BY_SOURCE_CHANGE", "run_id": run_id,
+                        "note": f"clone-cache HEAD moved {pinned} -> {current_head}",
+                    })
+        if apply_invalidation and invalidated:
+            registry["updated_at"] = now
+            registry["updated_by_run"] = run_id
+            _write_json(_acceptance_registry_path(family, platform), registry)
+
+        verdict = {
+            "converged": not drift and document_stable,
+            "drift_findings": drift,
+            "document_stable": document_stable,
+            "source_invalidated_blocks": invalidated,
+            "invalidation_applied": bool(apply_invalidation and invalidated),
+            "clone_cache_head": current_head,
+            "verified_at": now,
+        }
+        scope_root = _scope_root(family, platform, run_id)
+        scope_root.mkdir(parents=True, exist_ok=True)
+        _write_json(scope_root / "converge_verify.json", verdict)
+        _event(
+            family, platform, run_id, "CONVERGE_VERIFY",
+            converged=verdict["converged"], invalidated=len(invalidated),
+        )
+        return verdict
 
 
 # --- verify-examples: VERIFYING_EXAMPLES -> AWAITING_REVIEW --------------------------------
@@ -2613,6 +3413,10 @@ def push(
         manifest = _load_manifest(family, platform, run_id)
         if manifest["session_owner"] != owner:
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        # MT056: a push may only ever ship the canonical tree's candidate, and only under the
+        # same tree the run was started against.
+        _require_canonical_tree("push")
+        _check_manifest_candidate_tree(manifest)
 
         _transition(manifest, "PUSHING", checkpoint="pushing_started")
 
@@ -2646,8 +3450,29 @@ def push(
             _transition(manifest, "APPROVED", checkpoint="dry_run_rehearsed")
             return manifest
 
+        # MT056: record the publication durably in data/readme_published_state.json so the
+        # republication-debt tripwire (published_readme_current) re-derives it mechanically on
+        # every future audit -- never only in a plan register (the TC-HARDEN-47/48 loss class).
+        _record_publication(family, platform, receipt.get("pr_url"))
         _transition(manifest, "PUSHED", checkpoint="pushed")
         return manifest
+
+
+def _record_publication(family: str, platform: str, pr_url: "str | None") -> None:
+    state = _load_published_state() or {"schema_version": 1, "products": []}
+    rows = state.setdefault("products", [])
+    for row in rows:
+        if row.get("family") == family and row.get("platform") == platform:
+            row["last_known_publication"] = _now().date().isoformat()
+            row["evidence"] = f"recorded by push (PR: {pr_url})"
+            break
+    else:
+        rows.append({
+            "family": family, "platform": platform,
+            "last_known_publication": _now().date().isoformat(),
+            "evidence": f"recorded by push (PR: {pr_url})",
+        })
+    _write_json(_published_state_path(), state)
 
 
 def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool) -> dict:
@@ -2703,8 +3528,13 @@ def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool) -> dict:
         # token before this propagates anywhere it could be persisted (manifest.json via
         # _block()'s failure_reason, events.jsonl, or this process's own stdout/stderr).
         raise ReadmeRefreshRunError(str(exc).replace(gh_token, "***REDACTED***")) from exc
+    # MT056 (R-19, confirmed live 2026-08-16 via `gh pr view --json isDraft` -> true): MT032's
+    # 2026-08-10 "no --draft" decision was applied to the skill doc and the manual SOP but never
+    # to this CLI path -- the flag survived here, contradicting the documented contract. Removed;
+    # none of these repos have branch protection or a second reviewer, so draft mode was pure
+    # friction (MT032's own recorded reasoning).
     pr_result = _command_runner(
-        ["gh", "pr", "create", "--draft", "--repo", manifest["repo_full_name"], "--base", default_branch,
+        ["gh", "pr", "create", "--repo", manifest["repo_full_name"], "--base", default_branch,
          "--head", branch, "--title", "Refresh README: verified examples and documentation links",
          "--body", f"Automated, human-reviewed refresh via /readme-refresh (run {run_id})."],
         cwd=str(work_dir), capture_output=True, text=True, timeout=60,
@@ -2862,6 +3692,56 @@ def main(argv: "list[str] | None" = None) -> int:
     p_audit.add_argument("--family", help="Limit to one family (requires --platform).")
     p_audit.add_argument("--platform", help="Limit to one platform (requires --family).")
     p_audit.add_argument("--json", action="store_true", help="Print the full structured result.")
+    # MT056: read-only review of a non-default tree. Validated against
+    # data/readme_candidate_store.json -- canonical or registered-archived only.
+    p_audit.add_argument(
+        "--candidate-tree",
+        help="Audit this candidate tree instead of the configured default (canonical or a "
+             "registered archived tree only; output is tagged non-canonical for the latter).",
+    )
+
+    # MT056: change-scope / acceptance-registry / convergence workflow.
+    p_scope = sub.add_parser("declare-scope")
+    p_scope.add_argument("--run-id", required=True)
+    p_scope.add_argument("--session-id")
+    p_scope.add_argument("--issue", required=True, help="What this scope is correcting.")
+    p_scope.add_argument(
+        "--areas",
+        help="Comma-separated stable block ids this run may change (## heading slugs, plus "
+             "'__preamble__' and 'mermaid').",
+    )
+    p_scope.add_argument(
+        "--allowed-deps",
+        help="Comma-separated block ids that may legitimately change as declared dependents "
+             "of the target areas (TOC, anchors, a summary of the changed section).",
+    )
+    p_scope.add_argument("--criteria", help="Acceptance criteria for the targeted area.")
+    p_scope.add_argument(
+        "--full-rewrite", action="store_true",
+        help="Explicit whole-document scope (first composition / deliberate total regen).",
+    )
+
+    p_accept = sub.add_parser("accept-blocks")
+    p_accept.add_argument("--run-id", required=True)
+    p_accept.add_argument("--session-id")
+    p_accept.add_argument("--blocks", required=True, help="Comma-separated block ids.")
+    p_accept.add_argument(
+        "--status", default="CONVERGED",
+        help="CONVERGED (default) | FROZEN_ACCEPTED | ACTIVE_IMPROVEMENT | NEEDS_REVIEW | "
+             "BLOCKED | INVALIDATED_BY_SOURCE_CHANGE",
+    )
+    p_accept.add_argument("--governing-rule")
+    p_accept.add_argument("--evidence-ref")
+    p_accept.add_argument("--note")
+
+    p_converge = sub.add_parser("converge-verify")
+    p_converge.add_argument("--run-id", required=True)
+    p_converge.add_argument("--session-id")
+    p_converge.add_argument(
+        "--apply-invalidation", action="store_true",
+        help="Flip source-invalidated CONVERGED/FROZEN blocks to INVALIDATED_BY_SOURCE_CHANGE "
+             "(explicit reopening).",
+    )
 
     args = parser.parse_args(argv)
     try:
@@ -2871,14 +3751,23 @@ def main(argv: "list[str] | None" = None) -> int:
                 skip_preflight=args.skip_preflight,
             )
         elif args.command == "audit-portfolio":
+            if args.candidate_tree:
+                configure(candidate_tree_name=args.candidate_tree)
             result = audit_portfolio(family=args.family, platform=args.platform)
             if args.json:
                 print(json.dumps(result, indent=2, ensure_ascii=False))
             else:
+                if result.get("non_canonical"):
+                    print(f"*** {result['non_canonical']} ***")
                 print(f"{result['clean_count']}/{result['total']} products ALL HARD GATES CLEAN")
+                published = [p for p in result["products"] if p.get("published")]
+                if published:
+                    names = ", ".join(f"{p['family']}/{p['platform']}" for p in published)
+                    print(f"Already published upstream ({len(published)}): {names}")
                 for p in result["products"]:
                     if not p["clean"]:
-                        print(f"  DIRTY {p['family']}/{p['platform']}: {p['hard_gate_findings']}")
+                        tag = " [published]" if p.get("published") else ""
+                        print(f"  DIRTY {p['family']}/{p['platform']}{tag}: {p['hard_gate_findings']}")
                 if result["skipped"]:
                     print(f"Skipped ({len(result['skipped'])}, no candidate yet):")
                     for s in result["skipped"]:
@@ -2913,6 +3802,37 @@ def main(argv: "list[str] | None" = None) -> int:
                 result = verify(family, platform, args.run_id, session_id=args.session_id)
                 print(json.dumps(result, indent=2, ensure_ascii=False))
                 return 0
+            elif args.command == "declare-scope":
+                record = declare_scope(
+                    family, platform, args.run_id, session_id=args.session_id,
+                    issue=args.issue,
+                    areas=[a.strip() for a in args.areas.split(",")] if args.areas else None,
+                    allowed_dependencies=(
+                        [d.strip() for d in args.allowed_deps.split(",")] if args.allowed_deps else None
+                    ),
+                    acceptance_criteria=args.criteria,
+                    full_rewrite=args.full_rewrite,
+                )
+                print(json.dumps(record, indent=2, ensure_ascii=False))
+                return 0
+            elif args.command == "accept-blocks":
+                registry = accept_blocks(
+                    family, platform, args.run_id, session_id=args.session_id,
+                    blocks=[b.strip() for b in args.blocks.split(",")],
+                    status=args.status,
+                    governing_rule=args.governing_rule,
+                    evidence_ref=args.evidence_ref,
+                    note=args.note,
+                )
+                print(json.dumps(registry, indent=2, ensure_ascii=False))
+                return 0
+            elif args.command == "converge-verify":
+                verdict = converge_verify(
+                    family, platform, args.run_id, session_id=args.session_id,
+                    apply_invalidation=args.apply_invalidation,
+                )
+                print(json.dumps(verdict, indent=2, ensure_ascii=False))
+                return 0 if verdict["converged"] else 2
             elif args.command == "abandon":
                 manifest = abandon_run(family, platform, args.run_id, reason=args.reason, session_id=args.session_id)
             elif args.command == "recover":

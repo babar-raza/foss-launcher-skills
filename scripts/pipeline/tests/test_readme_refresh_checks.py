@@ -5759,6 +5759,66 @@ def test_evidence_resolves_skips_category_1_entries(tmp_path):
     assert checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path)) == []
 
 
+# MT055/TC-MICRO-04 (2026-08-18): self-citation rejection, RC-C from the MT054 audit -- ~40 of
+# pdf/net's own 69 real disposition units cited `evidence_ref: "README.md"` (the old README
+# being audited) as their own supporting evidence, which trivially "resolves" (the file exists)
+# without being real verification. A 9-unit hand sample found 1 real, confirmed factual failure
+# hiding behind exactly this circular citation.
+
+def test_evidence_resolves_flags_self_citation_of_root_readme(tmp_path):
+    (tmp_path / "README.md").write_text("# Real old README\n", encoding="utf-8")
+    dispositions = [_content_unit(evidence_ref="README.md")]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0001"
+    assert "self-citation" in findings[0]["reason"]
+
+
+def test_evidence_resolves_flags_self_citation_case_insensitive(tmp_path):
+    (tmp_path / "README.md").write_text("# Real old README\n", encoding="utf-8")
+    dispositions = [_content_unit(evidence_ref="readme.md")]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path))
+    assert len(findings) == 1
+    assert "self-citation" in findings[0]["reason"]
+
+
+def test_evidence_resolves_allows_real_subdirectory_readme_not_self_citation(tmp_path):
+    # A README belonging to a subdirectory (e.g. a bundled examples/tests project) is a real,
+    # genuinely independent file -- never the same document the disposition claim is about.
+    (tmp_path / "examples").mkdir()
+    (tmp_path / "examples" / "README.md").write_text("# Examples\n", encoding="utf-8")
+    dispositions = [_content_unit(evidence_ref="examples/README.md")]
+    assert checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path)) == []
+
+
+def test_evidence_resolves_reject_self_citation_false_allows_verbatim_extraction_provenance(tmp_path):
+    # Structural/code-example units cite README.md as the real, literal source of a verbatim
+    # extraction (a directory tree, a fenced command) -- legitimate provenance, not a factual
+    # claim needing independent verification. reject_self_citation=False must allow this.
+    (tmp_path / "README.md").write_text("# Real old README\n\n```bash\npip install -e .\n```\n", encoding="utf-8")
+    dispositions = [_content_unit(evidence_ref="README.md")]
+    assert checks.check_content_unit_evidence_resolves(
+        dispositions, str(tmp_path), reject_self_citation=False
+    ) == []
+
+
+def test_evidence_resolves_real_pdf_net_shaped_self_citation_sample(tmp_path):
+    # Real, captured shape from pdf/net's own content-dispositions.json (MT054 audit finding
+    # NET-001's own sample): a compound claim self-cited against the very document it describes.
+    (tmp_path / "README.md").write_text(
+        "# Aspose.PDF FOSS for .NET\n\nSupports rendering to PNG, JPEG, and BMP.\n",
+        encoding="utf-8",
+    )
+    dispositions = [_content_unit(
+        unit_id="u0037",
+        excerpt="Rendering supports PNG, JPEG, and BMP output at configurable DPI.",
+        evidence_type="clone_cache_path", evidence_ref="README.md",
+    )]
+    findings = checks.check_content_unit_evidence_resolves(dispositions, str(tmp_path))
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == "u0037"
+
+
 # --- check_content_unit_merged_into_target_section (hard gate) ----------------------------------
 
 _MERGE_TARGET_README = (
@@ -8529,3 +8589,377 @@ def test_split_excerpt_into_table_aware_groups_returns_none_for_non_table_excerp
     # Direct proof the helper itself is a real, conditional no-op -- confirms the caller's
     # fall-through to the unchanged sentence-based split is reached, not silently bypassed.
     assert checks._split_excerpt_into_table_aware_groups("Just an ordinary single sentence.") is None
+
+
+# ---------------------------------------------------------------------------------------------
+# MT052 (Forty-Third incident, 2026-08-18): pdf/go's content-dispositions.json claimed real
+# capability coverage never actually written into the candidate -- two distinct blind spots in
+# check_content_unit_merged_into_target_section (semicolon-joined compound excerpts never
+# splitting; a compound group's match accepting a weak bare token) let 6 real capabilities
+# silently pass a hard gate that should have caught them. Fixtures below are captured verbatim
+# from pdf/go's own real content-dispositions.json (u0093, u0042, u0048, u0041).
+# ---------------------------------------------------------------------------------------------
+
+_PDF_GO_U0048_EXCERPT = (
+    "- **Document JavaScript & open action** — `Document.JavaScript()` is the "
+    "document-level named-script collection (`/Catalog/Names/JavaScript`); "
+    "`Document.SetOpenAction` sets the action run when the document opens (GoTo, "
+    "JavaScript, …)"
+)
+_PDF_GO_U0048_TOKENS = [
+    "Document.JavaScript()", "/Catalog/Names/JavaScript", "Document.SetOpenAction",
+    "JavaScript", "SetOpenAction", "GoTo",
+]
+
+_PDF_GO_U0093_EXCERPT = (
+    "`Document.JavaScript()` is a named-script collection (`Add`/`Get`/`Has`/`Remove`/`Names`/"
+    "`Count`/`Clear`)\nbacked by the `/Catalog/Names/JavaScript` name tree — distinct from "
+    "the action-level\n`JavaScriptAction` that fires on an annotation click. "
+    "`Document.SetOpenAction` /\n`OpenAction` / `RemoveOpenAction` manage the "
+    "`/Catalog/OpenAction` run on open (GoTo,\nJavaScript, Named, …); a GoTo open-action "
+    "resolves its destination to a 1-based page\nnumber on read. Both round-trip through Save "
+    "and coexist with named destinations.\nDocument-level JavaScript executes in the "
+    "recipient's viewer when the file is opened —\nembed only scripts you authored or "
+    "audited."
+)
+_PDF_GO_U0093_TOKENS = [
+    "Document.JavaScript()", "Add", "Get", "Has", "Remove", "Names", "Count", "Clear",
+    "/Catalog/Names/JavaScript", "JavaScriptAction", "Document.SetOpenAction", "OpenAction",
+    "RemoveOpenAction", "/Catalog/OpenAction", "JavaScript", "SetOpenAction", "GoTo",
+]
+
+_PDF_GO_U0042_EXCERPT = (
+    "- **Add text** — draw text on pages with font selection, alignment, word wrap, "
+    "color, background, underline, strikethrough, rotation, and behind-content mode. "
+    "**Right-to-left / bidirectional** text (Hebrew and Arabic) is laid out via a pure-Go "
+    "Unicode Bidi Algorithm (UAX #9): set `TextStyle.RTL` or just include RTL characters, and "
+    "each line is reordered into visual order with embedded numbers/Latin kept left-to-right; "
+    "RTL paragraphs right-align by default. **Arabic contextual shaping** (connected "
+    "letterforms + lam-alef ligatures via Presentation Forms-B) renders proper Arabic with any "
+    "font that covers the block (e.g. the bundled DejaVu Sans)"
+)
+_PDF_GO_U0042_TOKENS = ["TextStyle.RTL", "UAX", "TextStyle", "RTL", "DejaVu"]
+
+_PDF_GO_U0041_EXCERPT = (
+    "- **Add blank pages** — append or insert blank pages into existing documents at any "
+    "position"
+)
+
+
+def test_split_excerpt_into_sentence_groups_splits_real_pdf_go_u0048_on_semicolon():
+    # Fix item 1 (TC-HARDEN-105): a `;` immediately followed by a backtick-quoted identifier is
+    # now a real split point -- MT049's own terminal-punctuation-only rule never split this real,
+    # captured semicolon-joined bullet, letting the SetOpenAction half silently vanish.
+    groups = checks._split_excerpt_into_sentence_groups(_PDF_GO_U0048_EXCERPT)
+    assert len(groups) == 2
+    assert "Document.JavaScript()" in groups[0]
+    assert "Document.SetOpenAction" in groups[1]
+
+
+def test_split_excerpt_into_sentence_groups_semicolon_split_requires_backtick_identifier():
+    # Negative control: a bare `;` with no backtick-quoted identifier immediately after must NOT
+    # split -- the rule is deliberately narrow, not a blanket semicolon-as-boundary rule.
+    excerpt = "This does one thing; and also another thing in plain prose."
+    assert checks._split_excerpt_into_sentence_groups(excerpt) == [excerpt]
+
+
+def test_merge_into_target_section_catches_real_pdf_go_u0093_setopenaction_gap():
+    # Fix item 2 (TC-HARDEN-106): u0093's real Group 2 previously passed via the bare, reused
+    # word "JavaScript" (present elsewhere for unrelated reasons -- JavaScriptCollection, a
+    # DateField JS-format action) while its own distinctive dotted identifiers
+    # (Document.SetOpenAction, /Catalog/OpenAction) never appeared anywhere. The corrected,
+    # compound-token-preferring check must now catch this real, confirmed gap.
+    entry = {
+        "unit_id": "u0093", "excerpt": _PDF_GO_U0093_EXCERPT, "salient_tokens": list(_PDF_GO_U0093_TOKENS),
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text = (
+        "## API Reference\n\n"
+        "`Document.JavaScript()` is the document-level named-script collection backed by the "
+        "`/Catalog/Names/JavaScript` name tree (ISO 32000-1 §7.7.4 / §8.5.1).\n\n"
+        "Annotations support GoTo, JavaScript, Named, and other action types.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1 and findings[0]["unit_id"] == "u0093"
+    assert "Document.SetOpenAction" in findings[0]["reason"]
+
+
+def test_merge_into_target_section_u0093_group1_still_passes_via_compound_token():
+    # Regression guard: u0093's own Group 1 (the genuine JS-collection-storage fact) must
+    # continue to pass unchanged -- it already correctly matches via its own compound token
+    # `/Catalog/Names/JavaScript`, not a bare word.
+    entry = {
+        "unit_id": "u0093", "excerpt": _PDF_GO_U0093_EXCERPT, "salient_tokens": list(_PDF_GO_U0093_TOKENS),
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text = (
+        "## API Reference\n\n"
+        "`Document.JavaScript()` is the document-level named-script collection backed by the "
+        "`/Catalog/Names/JavaScript` name tree.\n\n"
+        "`Document.SetOpenAction` / `OpenAction` / `RemoveOpenAction` manage the "
+        "`/Catalog/OpenAction` run on open.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_merge_into_target_section_catches_real_pdf_go_u0042_rtl_gap():
+    # Same real defect shape as u0093, second confirmed instance: the whole excerpt (a single,
+    # unsplit group -- its own bold-markdown "**Right-to-left" boundary never triggers MT049's
+    # capital-letter lookahead) previously passed via the bare, reused class name "TextStyle"
+    # instead of its own distinctive dotted token "TextStyle.RTL", the group's only compound
+    # token. The corrected, compound-token-preferring check must now catch this real gap even
+    # with no group split at all -- proof item 2 (TC-HARDEN-106) closes real cases item 1
+    # (TC-HARDEN-105) does not reach.
+    entry = {
+        "unit_id": "u0042", "excerpt": _PDF_GO_U0042_EXCERPT, "salient_tokens": list(_PDF_GO_U0042_TOKENS),
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text = (
+        "## API Reference\n\n"
+        "`TextStyle` configures font selection, alignment, word wrap, color, background, "
+        "underline, strikethrough, and rotation for drawn text.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1 and findings[0]["unit_id"] == "u0042"
+
+
+def test_merge_into_target_section_passes_real_bare_token_case_unchanged():
+    # Regression guard (item 2's own "must not regress" requirement): a real, sampled,
+    # currently-passing single-bare-token merge (words/net's own real shape) must continue to
+    # pass unchanged -- its one group has no compound token at all, so it correctly falls back
+    # to the original "any token" behavior.
+    entry = {
+        "unit_id": "wn0001",
+        "excerpt": "The library ships a real Document Object Model, not a thin XML wrapper.",
+        "salient_tokens": ["Document", "XML"],
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text = "## API Reference\n\nThe `Document` object model exposes the full DOCX structure.\n"
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_merge_into_target_section_trailing_segment_promotes_real_short_names():
+    # Real, confirmed false positive found via a live portfolio sweep, fixed the same day
+    # (_compound_token_trailing_segment): pdf/go's own real u0010 merges cleanly using the
+    # product's own already-established bare short names "NUp"/"Booklet" -- both must be
+    # promoted to "strong" because they exactly equal the TRAILING segment of their own group's
+    # compound tokens (Document.NUp -> NUp, Document.Booklet -> Booklet), not rejected merely for
+    # being bare.
+    entry = {
+        "unit_id": "u0010",
+        "excerpt": (
+            "- **Imposition** — `Document.NUp` lays multiple source pages onto larger sheets in "
+            "a Rows×Cols grid; `Document.Booklet` reorders pages two-up for saddle-stitch "
+            "binding. Both return a new document (source untouched), built from Form XObjects"
+        ),
+        "salient_tokens": ["Document.NUp", "Document.Booklet", "NUp", "Booklet", "XObjects"],
+        "disposition": "merged_reframed", "target_section": "Key Capabilities",
+    }
+    text = (
+        "## Key Capabilities\n\n"
+        "`Rotate`/`SetRotation` turn pages; `NUp` and `Booklet` support N-up printing or "
+        "saddle-stitch binding, each returning a new document built from Form XObjects.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_merge_into_target_section_trailing_segment_does_not_promote_leading_segment():
+    # Regression guard: a blind substring match would also wrongly promote "TextStyle" (the
+    # LEADING segment of TextStyle.RTL, not the trailing one) -- must stay weak, since promoting
+    # it would silently reintroduce the real u0042 false negative this whole rule exists to close.
+    entry = {
+        "unit_id": "u0042", "excerpt": _PDF_GO_U0042_EXCERPT, "salient_tokens": list(_PDF_GO_U0042_TOKENS),
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text = (
+        "## API Reference\n\n"
+        "`TextStyle` configures font selection, alignment, word wrap, color, background, "
+        "underline, strikethrough, and rotation for drawn text.\n"
+    )
+    findings = checks.check_content_unit_merged_into_target_section(text, [entry])
+    assert len(findings) == 1 and findings[0]["unit_id"] == "u0042"
+
+
+def test_content_unit_redundant_claim_verifiable_flags_real_pdf_go_u0041():
+    # Fix item 3 (TC-HARDEN-107): u0041's real disposition has empty salient_tokens and no
+    # backtick-quoted identifier at all -- even after the extended stoplist, only "append"/
+    # "insert" remain, both too generic to mechanically verify. Must fire.
+    entry = {
+        "unit_id": "u0041", "excerpt": _PDF_GO_U0041_EXCERPT, "salient_tokens": [],
+        "disposition": "excluded", "classification": "redundant_with_existing",
+        "target_section": None,
+    }
+    findings = checks.check_content_unit_redundant_claim_verifiable([entry], "")
+    assert len(findings) == 1 and findings[0]["unit_id"] == "u0041"
+
+
+def test_content_unit_redundant_claim_verifiable_silent_on_verifiable_short_claim():
+    # Negative control: a short, identifier-free claim that still carries 3+ genuinely
+    # distinctive words (not stripped by the stoplist) is NOT flagged -- the heuristic targets
+    # only the specific "nothing left to verify" shape, not every short excluded claim.
+    entry = {
+        "unit_id": "u9999",
+        "excerpt": "- **Barcode symbology autodetection** — scans QR, DataMatrix, and Aztec",
+        "salient_tokens": [],
+        "disposition": "excluded", "classification": "redundant_with_existing",
+        "target_section": None,
+    }
+    assert checks.check_content_unit_redundant_claim_verifiable([entry], "") == []
+
+
+def test_content_unit_redundant_claim_verifiable_ignores_non_redundant_dispositions():
+    # Scope guard: only excluded/redundant_with_existing entries with empty salient_tokens are
+    # considered -- a merged entry, or an excluded entry with real tokens, is never flagged.
+    entries = [
+        {
+            "unit_id": "m1", "excerpt": "Append or insert blank pages.", "salient_tokens": [],
+            "disposition": "merged_reframed", "classification": "2_mechanism_explanation",
+            "target_section": "API Reference",
+        },
+        {
+            "unit_id": "e1", "excerpt": "Append or insert blank pages.",
+            "salient_tokens": ["AddBlankPage"],
+            "disposition": "excluded", "classification": "redundant_with_existing",
+            "target_section": None,
+        },
+    ]
+    assert checks.check_content_unit_redundant_claim_verifiable(entries, "") == []
+
+
+# MT052 (Forty-Third incident): the mirrors-clause exemption (`_mirrors_clause_only_tokens`) and
+# the trailing-segment paren/slash fix (`_compound_token_trailing_segment`), both real code
+# landed this session -- fixtures built from the exact real `pdf/go` excerpts/tokens this
+# incident's own investigation captured, proving both fixes against real content, not synthetic
+# stand-ins.
+
+def test_mirrors_clause_sentence_initial_form_excluded_from_required_tokens():
+    # Real, captured u0033 shape: "Mirrors Aspose.PDF for .NET's `Document.OptimizeResources`."
+    # -- the .NET-only identifier must never be required to match the Go candidate's own text.
+    entry = {
+        "unit_id": "u0033",
+        "excerpt": (
+            "- **Optimize (unified)** — `Document.Optimize(OptimizationOptions)` runs a "
+            "size-reduction pass in one call: remove unused objects, subset fonts, "
+            "Flate-compress uncompressed streams, dedupe byte-identical streams, and "
+            "optionally recompress images; returns an `OptimizationResult` of per-op counts. "
+            "`DefaultOptimizationOptions()` is the safe lossless preset. Mirrors Aspose.PDF "
+            "for .NET's `Document.OptimizeResources`"
+        ),
+        "salient_tokens": [
+            "Document.Optimize(OptimizationOptions)", "OptimizationResult",
+            "DefaultOptimizationOptions()", "Document.OptimizeResources", "OptimizeResources",
+        ],
+        "disposition": "merged_reframed", "target_section": "Key Capabilities",
+    }
+    text = (
+        "## Key Capabilities\n\n"
+        "`Document.Optimize(OptimizationOptions)` runs a size-reduction pass; "
+        "`DefaultOptimizationOptions()` is the safe lossless preset, returning an "
+        "`OptimizationResult` of per-op counts.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_mirrors_clause_mid_sentence_form_excluded_from_required_tokens():
+    # Real, captured u0065 shape: "...mirroring the intent of Aspose.PDF for .NET's
+    # `PdfFileEditor.MakeNUp` / `MakeBooklet`, adapted to..." -- the mid-sentence "mirroring"
+    # form (not sentence-initial "Mirrors") must be recognized too.
+    entry = {
+        "unit_id": "u0065",
+        "excerpt": (
+            "`NUp` arranges pages in a `Rows`×`Cols` grid, scaling each to fit its cell "
+            "(aspect preserved, centered) and filling sheet after sheet. `Booklet` imposes "
+            "pages two-up in saddle-stitch order. Both return a new `*Document` (the receiver "
+            "is untouched) built from Form XObjects, so the output is an ordinary PDF. This is "
+            "a production helper (not a PDF-spec feature) mirroring the intent of Aspose.PDF "
+            "for .NET's `PdfFileEditor.MakeNUp` / `MakeBooklet`, adapted to the "
+            "`Document`-method API."
+        ),
+        "salient_tokens": ["NUp", "Booklet", "*Document", "PdfFileEditor.MakeNUp", "MakeNUp"],
+        "disposition": "excluded",
+        "verification": {"evidence_type": "candidate_section_reference", "evidence_ref": "Key Capabilities"},
+        "target_section": None,
+    }
+    text = (
+        "## Key Capabilities\n\n"
+        "`NUp` and `Booklet` impose pages onto larger sheets, returning a new `*Document` "
+        "built from Form XObjects.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_mirrors_clause_whole_excerpt_pure_mirrors_skips_verification_entirely():
+    # Real, captured u0128 shape: the ENTIRE excerpt is a mirrors clause with no independent
+    # Go-side claim of its own -- after filtering, zero tokens remain, and the unit must be
+    # skipped entirely (never fall through to the word-overlap fallback, which would test the
+    # mirrors clause's own generic words against an unrelated body for a meaningless result).
+    entry = {
+        "unit_id": "u0128",
+        "excerpt": (
+            "Mirrors the intent of Aspose.PDF for .NET's generator / `Page.Paragraphs` / "
+            "`FloatingBox` / columns / floats."
+        ),
+        "salient_tokens": ["Page.Paragraphs", "FloatingBox", "PDF", "NET"],
+        "disposition": "excluded",
+        "verification": {"evidence_type": "candidate_section_reference", "evidence_ref": "API Reference"},
+        "target_section": None,
+    }
+    text = "## API Reference\n\nNothing about generators or paragraphs is mentioned here at all.\n"
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_mirrors_clause_does_not_exclude_tokens_with_a_real_independent_occurrence():
+    # Negative control: a token that ALSO occurs outside the mirrors clause (a real, independent
+    # Go-side use) must still be required and must still be checked against the body normally --
+    # the exemption only ever applies to tokens whose EVERY occurrence is inside the clause.
+    entry = {
+        "unit_id": "uXXXX",
+        "excerpt": (
+            "`Document.Stamp` places overlay content on a page. Mirrors Aspose.PDF for .NET's "
+            "`Document.Stamp` family."
+        ),
+        "salient_tokens": ["Document.Stamp"],
+        "disposition": "merged_reframed", "target_section": "API Reference",
+    }
+    text_missing = "## API Reference\n\nNo stamp API is mentioned anywhere here.\n"
+    findings = checks.check_content_unit_merged_into_target_section(text_missing, [entry])
+    assert len(findings) == 1 and findings[0]["unit_id"] == "uXXXX"
+    text_present = "## API Reference\n\n`Document.Stamp` overlays a stamp onto a page.\n"
+    assert checks.check_content_unit_merged_into_target_section(text_present, [entry]) == []
+
+
+def test_trailing_segment_strips_slash_containing_parenthesized_args():
+    # Real, captured u0023 shape: `Document.ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)`'s own
+    # parenthesized argument list contains literal "/" characters -- naively splitting on "./"
+    # BEFORE stripping the parens computes a garbage trailing segment ("3A)" instead of the real
+    # "ValidatePDFA"), which would wrongly refuse to promote the bare "ValidatePDFA" sibling
+    # token even though it's the product's own real, already-used short name.
+    assert checks._compound_token_trailing_segment(
+        "Document.ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)"
+    ) == "ValidatePDFA"
+    entry = {
+        "unit_id": "u0023",
+        "excerpt": (
+            "- **PDF/A validate + convert** — `Document.ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)` "
+            "reports archival-conformance violations for the basic levels, and "
+            "`Document.ConvertToPDFA(...)` adjusts the document toward conformance."
+        ),
+        "salient_tokens": [
+            "Document.ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)", "Document.ConvertToPDFA(...)",
+            "ValidatePDFA", "ConvertToPDFA",
+        ],
+        "disposition": "merged_reframed", "target_section": "Key Capabilities",
+    }
+    text = (
+        "## Key Capabilities\n\n"
+        "`ValidatePDFA` reports archival-conformance violations; `ConvertToPDFA` adjusts the "
+        "document toward conformance in one call.\n"
+    )
+    assert checks.check_content_unit_merged_into_target_section(text, [entry]) == []
+
+
+def test_trailing_segment_empty_parens_unaffected_by_paren_stripping():
+    # Regression guard: the already-proven `pdf.NewTable()` -> "NewTable" trailing-segment case
+    # (empty, non-slash-containing parens) must be completely unaffected by the new paren-first
+    # stripping order.
+    assert checks._compound_token_trailing_segment("pdf.NewTable()") == "NewTable"

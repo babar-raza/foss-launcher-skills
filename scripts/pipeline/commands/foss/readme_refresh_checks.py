@@ -178,6 +178,7 @@ change to that logic, only to classification.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -5002,6 +5003,307 @@ def check_only_sections_changed(
 
 
 # ==================================================================================================
+# Fifty-Sixth incident / MT056 (2026-08-18): scoped, convergent idempotency.
+#
+# Content-addressed BLOCK identity (sha256 over block text, stable heading slugs -- never a
+# positional counter; the positional unit_id scheme is the confirmed root cause of the R-07
+# disposition-drift regression class, see reports/_scratch/mt056_regression_ledger.md pattern 4)
+# plus the three enforcement primitives the change-scope workflow in readme_refresh_run.py
+# (declare-scope / accept-blocks / converge-verify) is built on:
+#   - split_into_scope_blocks / compute_block_fingerprints: the block model.
+#   - check_scope_compliance [hard gate when a scope is declared]: out-of-scope-diff gate --
+#     any block that changed vs. the immutable scope baseline without being authorized fails.
+#   - check_frozen_blocks_unchanged [hard gate when an acceptance registry exists]: frozen-block
+#     gate -- a CONVERGED/FROZEN_ACCEPTED block whose live hash no longer matches its accepted
+#     hash, without an authorizing scope, fails.
+#   - check_diagram_label_geometry [HARD gate, superseding the advisory
+#     check_diagram_label_token_length as the blocking guard]: label-bulk/clipping geometry.
+# ==================================================================================================
+
+
+_SCOPE_BLOCK_MERMAID_ID = "mermaid"
+_SCOPE_BLOCK_PREAMBLE_ID = "__preamble__"
+
+
+def _slugify_block_heading(heading: str) -> str:
+    """Stable block id for a `##` section heading: lowercase, non-alphanumeric runs collapsed
+    to single hyphens ("Key Capabilities" -> "key-capabilities"). Deliberately case-insensitive
+    so the MT024 title-case migration class of change (pure re-casing) still maps to the same
+    block identity; an actual RENAME is, by design, a remove+add of two different block ids and
+    therefore needs both ids authorized in the scope (plus any dependent anchor/TOC blocks)."""
+    slug = re.sub(r"[^a-z0-9]+", "-", heading.strip().lower()).strip("-")
+    return slug or "untitled-section"
+
+
+def split_into_scope_blocks(markdown_text: str) -> dict[str, str]:
+    """Split a candidate README into stable, content-addressable blocks:
+
+    - `"__preamble__"` -- everything before the first `##` heading (title/badges/banner/intro),
+      exactly as `_split_into_sections` defines it.
+    - `"mermaid"` -- the FIRST ```` ```mermaid ```` block in the document (fences included),
+      exposed as its own block so a diagram-only scope can authorize the diagram without
+      authorizing its host section's prose. The host section's own block text carries the
+      placeholder in the diagram's position, so prose edits around the diagram are still
+      attributed to the host section, never masked by the diagram's extraction.
+    - one block per `##` section, keyed by `_slugify_block_heading(heading)`.
+
+    Reuses `_split_into_sections` (H2-only boundaries; `###` subsections stay inside their
+    owning section) and `_MERMAID_BLOCK_FULL_RE`/`_MERMAID_BLOCK_PLACEHOLDER` (the exact
+    mechanism `check_only_mermaid_block_changed` has used since MT021) rather than inventing a
+    third parser. A duplicate `##` heading collapses to one key -- the same already-known
+    property `_split_into_sections` has; `check_required_sections`/duplicate-row gates keep real
+    candidates free of duplicate H2s."""
+    mermaid_match = _MERMAID_BLOCK_FULL_RE.search(markdown_text)
+    working_text = markdown_text
+    if mermaid_match:
+        working_text = (
+            markdown_text[: mermaid_match.start()]
+            + _MERMAID_BLOCK_PLACEHOLDER
+            + markdown_text[mermaid_match.end():]
+        )
+    sections = _split_into_sections(working_text)
+    blocks: dict[str, str] = {}
+    for heading, text in sections.items():
+        if heading == "__preamble__":
+            blocks[_SCOPE_BLOCK_PREAMBLE_ID] = text
+        else:
+            blocks[_slugify_block_heading(heading)] = text
+    if mermaid_match:
+        blocks[_SCOPE_BLOCK_MERMAID_ID] = mermaid_match.group(0)
+    return blocks
+
+
+def compute_block_fingerprints(markdown_text: str) -> dict[str, str]:
+    """sha256 hex digest per scope block (UTF-8 of the block's exact text, newlines included).
+    Content-addressed by construction: editing any byte of a block changes its fingerprint;
+    reordering or renaming other blocks never does."""
+    return {
+        block_id: hashlib.sha256(text.encode("utf-8")).hexdigest()
+        for block_id, text in split_into_scope_blocks(markdown_text).items()
+    }
+
+
+def check_scope_compliance(
+    baseline_markdown_text: str,
+    candidate_markdown_text: str,
+    authorized_block_ids: list[str],
+) -> list[dict]:
+    """Out-of-scope-diff HARD gate (MT056). Compares the candidate against the scope's own
+    IMMUTABLE baseline snapshot (captured at declare-scope time -- never the rolling
+    last-checked snapshot, which is overwritten as iterations proceed) and fails on any block
+    that changed, appeared, or disappeared without being authorized.
+
+    `authorized_block_ids` is the union of the scope's `areas` and `allowed_dependencies` --
+    the caller merges them; this function does not distinguish the two (both are authorized;
+    the distinction is documentation of intent in the scope record itself).
+
+    Returns `{"block_id", "change", "reason"}` findings; empty iff every unauthorized block is
+    byte-identical to the baseline. This is deliberately the same proof shape as
+    `check_only_sections_changed`, upgraded to (a) content-addressed block ids including the
+    `mermaid` pseudo-block, and (b) an immutable baseline, closing the R-10-adjacent defect
+    where the rolling snapshot was overwritten even by a failed iteration."""
+    baseline_blocks = split_into_scope_blocks(baseline_markdown_text)
+    candidate_blocks = split_into_scope_blocks(candidate_markdown_text)
+    authorized = set(authorized_block_ids)
+    findings: list[dict] = []
+    for block_id in sorted(set(baseline_blocks) | set(candidate_blocks)):
+        if block_id in authorized:
+            continue
+        old_text = baseline_blocks.get(block_id)
+        new_text = candidate_blocks.get(block_id)
+        if old_text == new_text:
+            continue
+        if old_text is None:
+            change = "added"
+        elif new_text is None:
+            change = "removed"
+        else:
+            change = "modified"
+        findings.append({
+            "block_id": block_id,
+            "change": change,
+            "reason": f"block {block_id!r} was {change} but is not authorized by the active "
+                      "change scope (areas + allowed_dependencies); declare it before "
+                      "regeneration or revert the collateral change",
+        })
+    return findings
+
+
+_FROZEN_BLOCK_STATUSES = frozenset({"CONVERGED", "FROZEN_ACCEPTED"})
+_ACCEPTANCE_BLOCK_STATUSES = frozenset({
+    "ACTIVE_IMPROVEMENT",
+    "CONVERGED",
+    "FROZEN_ACCEPTED",
+    "INVALIDATED_BY_SOURCE_CHANGE",
+    "BLOCKED",
+    "NEEDS_REVIEW",
+})
+
+
+def check_frozen_blocks_unchanged(
+    candidate_markdown_text: str,
+    registry_entries: list[dict],
+    authorized_block_ids: "list[str] | None" = None,
+) -> list[dict]:
+    """Frozen-block HARD gate (MT056). For every acceptance-registry entry whose status is
+    CONVERGED or FROZEN_ACCEPTED, the candidate's live block fingerprint must equal the
+    recorded `accepted_sha256` -- unless the block is authorized by the active change scope
+    (`authorized_block_ids`), in which case the change is a deliberate, declared reopening and
+    the registry entry is expected to be re-accepted (or invalidated) before the run closes.
+
+    A frozen block that has VANISHED from the candidate is also a finding -- deletion is a
+    change. Malformed entries (unknown status, missing accepted_sha256) are findings too:
+    fail-closed, never skip-silently (the R-01 prose-only-rule class)."""
+    authorized = set(authorized_block_ids or [])
+    live = compute_block_fingerprints(candidate_markdown_text)
+    findings: list[dict] = []
+    for entry in registry_entries:
+        block_id = entry.get("block_id")
+        status = entry.get("status")
+        if not isinstance(block_id, str) or not block_id:
+            findings.append({
+                "block_id": str(block_id),
+                "reason": "acceptance-registry entry has no valid block_id",
+            })
+            continue
+        if status not in _ACCEPTANCE_BLOCK_STATUSES:
+            findings.append({
+                "block_id": block_id,
+                "reason": f"acceptance-registry status {status!r} is not one of the defined "
+                          f"states {sorted(_ACCEPTANCE_BLOCK_STATUSES)}",
+            })
+            continue
+        if status not in _FROZEN_BLOCK_STATUSES:
+            continue
+        if block_id in authorized:
+            continue
+        accepted = entry.get("accepted_sha256")
+        if not isinstance(accepted, str) or len(accepted) != 64:
+            findings.append({
+                "block_id": block_id,
+                "reason": f"{status} entry carries no valid accepted_sha256 -- a frozen block "
+                          "without a recorded fingerprint cannot be verified and fails closed",
+            })
+            continue
+        current = live.get(block_id)
+        if current is None:
+            findings.append({
+                "block_id": block_id,
+                "status": status,
+                "reason": f"{status} block {block_id!r} is absent from the candidate -- "
+                          "deleting an accepted block requires an authorizing change scope",
+            })
+        elif current != accepted:
+            findings.append({
+                "block_id": block_id,
+                "status": status,
+                "accepted_sha256": accepted,
+                "current_sha256": current,
+                "reason": f"{status} block {block_id!r} changed without an authorizing change "
+                          "scope -- accepted content must remain byte-identical until a scope "
+                          "explicitly reopens it",
+            })
+    return findings
+
+
+_DIAGRAM_LABEL_CHARS_PER_LINE = 26
+_DIAGRAM_LABEL_MAX_EST_LINES = 3
+
+
+def _estimate_wrapped_lines(label: str, chars_per_line: int) -> int:
+    """Greedy word-wrap estimate of how many lines a node label renders across at Mermaid's
+    ~200px foreignObject width (~26 average-width chars/line in the GitHub default font).
+    Models `white-space: break-spaces` faithfully in the one way that matters: wrapping happens
+    ONLY at whitespace -- an unbroken token longer than the line budget still occupies (and
+    overflows) a single line, exactly the mermaid-js/mermaid#6424 behavior. An approximation by
+    construction (real glyph widths vary); thresholds are corpus-grounded, see
+    check_diagram_label_geometry."""
+    lines = 1
+    current = 0
+    for token in label.split():
+        width = len(token)
+        if current == 0:
+            current = width
+        elif current + 1 + width <= chars_per_line:
+            current += 1 + width
+        else:
+            lines += 1
+            current = width
+    return lines
+
+
+def check_diagram_label_geometry(
+    markdown_text: str,
+    max_token_chars: int = _DIAGRAM_LABEL_MAX_TOKEN_CHARS,
+    chars_per_line: int = _DIAGRAM_LABEL_CHARS_PER_LINE,
+    max_lines: int = _DIAGRAM_LABEL_MAX_EST_LINES,
+) -> list[dict]:
+    """HARD gate (MT056, Fifty-Sixth incident, 2026-08-18): diagram label geometry -- the
+    blocking successor to the advisory `check_diagram_label_token_length` (which stays in place
+    unchanged as the historical, non-blocking form; this gate subsumes its rule).
+
+    Two clauses, both mechanical:
+      1. TOKEN OVERFLOW -- any single whitespace-delimited token longer than `max_token_chars`
+         (28): `break-spaces` never breaks mid-word (mermaid-js/mermaid#6424), so an unbroken
+         token wider than the ~200px node budget clips, full stop. Corpus-grounded: the longest
+         real, render-verified-safe tokens are 21/20 chars; the longest anywhere in the live
+         62-file corpus is 24 (`PPTM/PPSX/PPSM/POTX/POTM`).
+      2. LABEL TOO TALL -- a label whose greedy word-wrap estimate exceeds `max_lines` (3) at
+         `chars_per_line` (26). This is the previously-unguarded adjacent class behind the real
+         2026-08-05 "oversized Outputs box" complaint (R-01) and the exact drift direction the
+         regen-full tree measurably exhibits (labels >40 chars grew 108 -> 130 across the tree;
+         max label 90 chars, ~4+ rendered lines). At 26 chars/line, 3 lines comfortably holds
+         ~78 chars of normal prose -- every render-verified-clean label in the corpus fits;
+         the known-oversized real labels (page/python c5 at 90, slides/net c2 at 86) fail.
+
+    Same label surface as the advisory check: node labels AND subgraph container titles.
+    No mermaid block -> no findings (`check_diagram_shape` separately hard-requires the
+    diagram's existence via the required-section family)."""
+    mermaid_text = extract_mermaid_block(markdown_text)
+    if mermaid_text is None:
+        return []
+    graph = parse_diagram(mermaid_text)
+    findings: list[dict] = []
+
+    labels: list[tuple[str, str]] = [
+        (node_id, label) for node_id, label in graph.node_label.items()
+    ]
+    for line in mermaid_text.splitlines():
+        title_match = _SUBGRAPH_START_RE.match(line.strip())
+        if title_match and title_match.group(2):
+            labels.append((title_match.group(1), title_match.group(2)))
+
+    for label_id, label in labels:
+        for token in label.split():
+            stripped = token.strip(".,;:()[]{}\"'")
+            if len(stripped) > max_token_chars:
+                findings.append({
+                    "node_id": label_id,
+                    "label": label,
+                    "kind": "token_overflow",
+                    "token": stripped,
+                    "token_length": len(stripped),
+                    "reason": f"token {stripped!r} ({len(stripped)} chars) exceeds the "
+                              f"{max_token_chars}-char unbreakable-token ceiling and will clip "
+                              "on renderers that cannot break mid-word (mermaid#6424)",
+                })
+        est_lines = _estimate_wrapped_lines(label, chars_per_line)
+        if est_lines > max_lines:
+            findings.append({
+                "node_id": label_id,
+                "label": label,
+                "kind": "label_too_tall",
+                "label_length": len(label),
+                "estimated_lines": est_lines,
+                "reason": f"label ({len(label)} chars, ~{est_lines} wrapped lines at "
+                          f"~{chars_per_line} chars/line) exceeds the {max_lines}-line node "
+                          "budget -- shorten the label or move detail into Key Capabilities "
+                          "prose; oversized nodes are the confirmed R-01 legibility defect",
+            })
+    return findings
+
+
+# ==================================================================================================
 # Fifteenth incident / MT030 (2026-08-09): verify-and-merge of old-README prose.
 #
 # check_dropped_content (above) only ever tracked links and H2/H3 headings -- real, but a much
@@ -5378,11 +5680,20 @@ def check_content_unit_excerpt_matches_extraction(
     return findings
 
 
+def _is_self_citation_of_root_readme(evidence_ref: str) -> bool:
+    """MT055/TC-MICRO-04: True only for the bare root README filename (case-insensitive, no
+    directory component) -- a real, different README belonging to a subdirectory (e.g.
+    `examples/README.md`) is a genuinely independent file and must never be flagged."""
+    normalized = str(evidence_ref).strip().replace("\\", "/")
+    return "/" not in normalized and normalized.lower() == "readme.md"
+
+
 def check_content_unit_evidence_resolves(
     dispositions: list[dict],
     clone_cache_root: str,
     package_registry: "dict | None" = None,
     docs_texts: "dict[str, str] | None" = None,
+    reject_self_citation: bool = True,
 ) -> list[dict]:
     """Hard gate. For every disposition entry whose verification cites real evidence (anything
     other than `not_applicable_category_1`), confirms the cited evidence actually resolves --
@@ -5400,6 +5711,27 @@ def check_content_unit_evidence_resolves(
     the SAME new candidate rather than upstream source) is always treated as resolved here --
     its real verification is `check_content_unit_merged_into_target_section` below, not this
     function, per this evidence type's own design.
+
+    MT055/TC-MICRO-04 (2026-08-18): when `reject_self_citation` (default True), a `clone_cache_
+    path` evidence_ref of the bare root README itself (`README.md`, case-insensitive, no
+    directory component -- never a real, different README belonging to a subdirectory like
+    `examples/README.md`) is REJECTED even though it technically resolves. Confirmed real during
+    the MT054 preservation audit: ~40 of `pdf/net`'s 69 CONTENT-unit disposition entries cited
+    `evidence_ref: "README.md"` as their own supporting evidence for a claim ABOUT the product
+    (e.g. "supports rendering to PNG/JPEG/BMP") -- circular, not real verification, since the file
+    always "exists" (it's the very document being audited) regardless of whether the claim is
+    true. A hand sample of 9 of the ~40 found 1 real, confirmed factual failure hiding behind
+    exactly this circular citation. This closes RC-C from that audit.
+
+    `reject_self_citation=False` is required for structural- and code-example-unit callers
+    (`structural_unit_evidence_resolves`/`code_example_evidence_resolves` in `_run_deterministic_
+    checks`): those units represent VERBATIM EXTRACTIONS from the old README itself (a directory
+    tree, a fenced bash command) rather than independently-checkable factual claims -- citing the
+    README as the source of a literal excerpt is real, true provenance, not circular reasoning.
+    Confirmed live: applying the self-citation rule unscoped broke this shared function's own
+    test fixture (`_STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE`'s s0001, `_CODE_EXAMPLE_
+    DISPOSITIONS_FOR_SHARED_FIXTURE`'s c0001, both legitimately citing README.md as the literal
+    source of an extracted block) before this parameter was added.
     """
     package_registry = package_registry or {}
     docs_texts = docs_texts or {}
@@ -5413,6 +5745,22 @@ def check_content_unit_evidence_resolves(
         evidence_ref = verification.get("evidence_ref")
         if not evidence_ref:
             continue  # already flagged by check_content_unit_disposition_coverage
+        if (
+            reject_self_citation
+            and evidence_type == "clone_cache_path"
+            and _is_self_citation_of_root_readme(evidence_ref)
+        ):
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "evidence_type": evidence_type,
+                "evidence_ref": evidence_ref,
+                "reason": (
+                    "evidence_ref cites the root README.md itself -- circular self-citation, "
+                    "not real verification of a claim about that same document's content; cite "
+                    "the real source file, class, or registry field the claim actually depends on"
+                ),
+            })
+            continue
         if evidence_type == "clone_cache_path":
             resolved = (root / evidence_ref).is_file()
         elif evidence_type == "package_registry_field":
@@ -5497,8 +5845,28 @@ def _normalize_independent_statement_target(raw_section: str) -> str:
 # own docstring below for the full defect this closes: a compound, multi-sentence excerpt could
 # pass on the strength of ONE bundled fact's token surviving into the target section while a
 # DIFFERENT bundled fact was silently dropped from the merge.
+#
+# MT052 (Forty-Third incident, 2026-08-18) extends the split to a `;` immediately followed by a
+# backtick-quoted, dotted-or-parenthesized identifier starting a new clause -- real, confirmed
+# case: `pdf/go`'s own u0048, "`Document.JavaScript()` is the document-level named-script
+# collection (`/Catalog/Names/JavaScript`); `Document.SetOpenAction` sets the action run when the
+# document opens...", a semicolon-joined bullet bundling two distinct facts that MT049's own
+# terminal-punctuation rule (`.`/`!`/`?` only) never split, letting the second fact's own
+# SetOpenAction claim silently drop out of a merge while the first fact's own token kept the
+# whole-excerpt check passing. Scoped deliberately narrow -- ONLY a semicolon followed by a
+# backtick-quoted identifier, never a bare `;` -- and validated against a real, live negative-
+# control sweep of every real disposition excerpt in the portfolio containing a `;` +
+# backtick-identifier shape (25 real excerpts, both trees) before being trusted: every one of the
+# other 24 is either already a genuinely separate fact (correctly split, no behavior regression
+# since each half's own tokens already independently corroborate in the target section) or a
+# lumped comma/semicolon-joined enumeration of same-shaped items (`Document.NUp`/`Document.
+# Booklet`, `SearchText`/`ReplaceText`, `AddTextField`/... , etc.) where splitting is likewise
+# harmless because BOTH halves' own distinctive tokens are already present together in the same
+# merged section -- none relies on staying unsplit for a currently-passing merge to keep passing.
+_SEMICOLON_CLAUSE_SPLIT_RE = r";\s+(?=`[A-Za-z_][\w.]*\(?\)?`)"
 _SENTENCE_GROUP_SPLIT_RE = re.compile(
     r"(?<![Ee]\.[Gg]\.)(?<![Ii]\.[Ee]\.)(?<![Ee]tc\.)(?<=[.!?])\s+(?=[A-Z0-9`\"'])"
+    r"|" + _SEMICOLON_CLAUSE_SPLIT_RE
 )
 
 # 2026-08-17 -- the precise, deferred fix MT049's own docstring called for: "a correct fix here
@@ -5644,6 +6012,120 @@ def _token_occurs_standalone(token: str, text: str) -> bool:
         start = idx + 1
 
 
+def _compound_token_trailing_segment(token: str) -> str:
+    """Returns the trailing identifier segment of a compound token (`_is_compound_token`) -- the
+    part after its last `.`/`/`, with any trailing `()`/parameter-list punctuation stripped, e.g.
+    `Document.NUp` -> `NUp`, `/Catalog/OpenAction` -> `OpenAction`, `pdf.NewTable()` ->
+    `NewTable`. Used to recognize a bare sibling token (`NUp`, `OpenAction`, `NewTable`) as a
+    real, legitimate short name for a compound token already present in the SAME sentence group,
+    rather than an unrelated generic word that merely happens to co-occur -- see
+    `check_content_unit_merged_into_target_section`'s own docstring for the real, confirmed
+    over-strictness this closes (`pdf/go`'s own real u0010: `NUp`/`Booklet` are the product's own,
+    already-used short names for `Document.NUp`/`Document.Booklet`, genuinely present in the real
+    candidate text -- a first draft of the compound-preference rule that required only the
+    compound form itself wrongly flagged this as a gap; the trailing segment is deliberately the
+    LEADING namespace's opposite, since `TextStyle.RTL`'s own distinctive part is likewise its
+    trailing `RTL`, not the leading, reused `TextStyle` class name -- confirming this asymmetry is
+    consistent across both real cases, not coincidental to one).
+
+    MT052 (Forty-Third incident, 2026-08-18): strips any parenthesized argument list BEFORE
+    splitting on `.`/`/` -- a real argument list can itself contain a literal `/`
+    (`Document.ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)`), which a naive split-first approach treats
+    as more path separators, computing a garbage trailing segment ("3A" instead of the real,
+    intended "ValidatePDFA"). Confirmed live, `pdf/go`'s own real `u0023`."""
+    core = re.sub(r"\([^()]*\)", "", token)
+    tail = re.split(r"[./]", core)[-1]
+    return re.sub(r"[(){}\[\],;:'\"`]+$", "", tail)
+
+
+def _is_compound_token(token: str) -> bool:
+    """True if `token` contains a `.` or `/` AND at least one of its `.`/`/`-separated segments
+    starts with a letter -- a dotted/slashed API identifier (`Document.SetOpenAction`,
+    `/Catalog/OpenAction`) rather than a bare word (`JavaScript`, `TextStyle`, `OpenAction`
+    alone) OR a pure-numeric dotted sequence (`12.3.2.2`, `0.31.2` -- an ISO spec section
+    citation or a semver version number, found live during MT052's own portfolio sweep: neither
+    is a real, alternate-name-bearing API identifier, and requiring one to appear verbatim is a
+    materially different, much stricter claim than this rule was ever meant to make). Used by
+    `check_content_unit_merged_into_target_section` (MT052, Forty-Third incident, 2026-08-18) to
+    require a sentence-group's own MOST distinctive token to match, not just any of its tokens --
+    see that function's own docstring for the real, confirmed defect this closes (a group passing
+    on a bare, generic word that also happens to appear elsewhere in the document for an
+    unrelated reason, while its own real, distinctive dotted identifier is absent)."""
+    if "." not in token and "/" not in token:
+        return False
+    return any(seg and seg[0].isalpha() for seg in re.split(r"[./]", token))
+
+
+def _token_matches_body(token: str, body_lower: str) -> bool:
+    """True if `token` (case-insensitive) appears in `body_lower`, either literally or -- when
+    `token` contains one or more parenthesized argument groups, e.g. `Document.SaveDocx(path)`
+    or `Document.LoadFontByName("Calibri", bold, italic)` -- with those groups stripped.
+
+    Found live during MT052's own portfolio sweep, `pdf/go`: many real, genuine disposition
+    tokens include an illustrative, made-up argument name/list that is never itself literally
+    written in the candidate's own, simpler notation (the real candidate genuinely says
+    `Document.SaveDocx`, never `Document.SaveDocx(path)`) -- a pure token-authoring/formatting
+    mismatch, not a real content gap; a strict literal-substring test alone would have made the
+    new compound-token-preference rule (`check_content_unit_merged_into_target_section`) far too
+    strict the moment it ran against real, dense, heavily-parenthesized method-signature tokens
+    at portfolio scale. Only argument-list parentheses are stripped, never a token's own real,
+    load-bearing prefix like `(*Page)`/`(*Document)` (a Go receiver-type notation) -- both the
+    literal form and the paren-stripped form are tried, so a token whose parenthesized part is
+    genuinely part of its own real identity (rare, not found live) still matches via the first,
+    unmodified check.
+    """
+    token_l = token.lower()
+    if token_l in body_lower:
+        return True
+    stripped = re.sub(r"\([^()]*\)", "", token).strip(" .")
+    return bool(stripped) and stripped.lower() in body_lower
+
+
+# MT052 (Forty-Third incident, 2026-08-18) -- "Mirrors Aspose.X for Y's `Z`" clauses compare the
+# Go candidate's own real capability to the commercial .NET SDK's own API naming convention; `Z`
+# names a .NET identifier, never a claim that the Go candidate's own code uses that literal name.
+# Confirmed real, evidenced, and portfolio-scoped to pdf/go across 6 real units this incident
+# individually verified (u0033/u0065/u0096/u0098/u0099/u0107): every one fails only because its
+# mirrors clause's own .NET-only token has no Go-side match, while the unit's real, independent
+# Go-side claim (already correctly documented) sits in a sibling sentence/group. Both a
+# sentence-initial form ("Mirrors Aspose.PDF for .NET's `X`.") and a mid-sentence form
+# ("...mirroring the intent of Aspose.PDF for .NET's `X`, adapted to...") are confirmed live.
+_MIRRORS_CLAUSE_START_RE = re.compile(
+    r"[Mm]irrors?(?:ing)?\b(?:\s+the\s+intent\s+of)?\s+Aspose\.\w+\s+for\s+[\w.]+"
+    r"(?:\s*/\s*[\w.]+)?'s\b"
+)
+
+
+def _strip_trailing_mirrors_clause(group_text: str) -> str:
+    """Returns `group_text` with everything from a "Mirrors/mirroring [the intent of]
+    Aspose.X for Y's" clause onward removed -- see `_MIRRORS_CLAUSE_START_RE`'s own comment for
+    why this text must never be required to match the Go candidate's own content."""
+    match = _MIRRORS_CLAUSE_START_RE.search(group_text)
+    return group_text[: match.start()] if match else group_text
+
+
+def _mirrors_clause_only_tokens(excerpt: str, tokens: list[str]) -> set[str]:
+    """Returns the subset of `tokens` whose every real, standalone occurrence in `excerpt` falls
+    entirely within a mirrors clause (per `_strip_trailing_mirrors_clause`) -- these must be
+    excluded from `check_content_unit_merged_into_target_section`'s required-token computation
+    BEFORE grouping, so they never leak back in via the "ungrouped tokens become their own
+    required group" fallback either. A token with no real occurrence in the excerpt at all
+    (already outside this excerpt's own text -- a pre-existing, unrelated edge case) is left
+    alone, unaffected by this filter."""
+    groups = _split_excerpt_into_sentence_groups(excerpt)
+    excluded: set[str] = set()
+    for tok in tokens:
+        if not _token_occurs_standalone(tok, excerpt):
+            continue
+        found_outside_mirrors = any(
+            _token_occurs_standalone(tok, _strip_trailing_mirrors_clause(group))
+            for group in groups
+        )
+        if not found_outside_mirrors:
+            excluded.add(tok)
+    return excluded
+
+
 def check_content_unit_merged_into_target_section(
     readme_text: str, dispositions: list[dict]
 ) -> list[dict]:
@@ -5764,6 +6246,44 @@ def check_content_unit_merged_into_target_section(
     fallback below (for units with no `salient_tokens` at all) is deliberately left untouched by this
     extension -- it already has its own separately-tuned, looser tolerance for paraphrasing, and no
     live compound-excerpt-with-zero-tokens case has been found to justify the added complexity.
+
+    MT052 (Forty-Third incident, 2026-08-18) adds one more precision fix to the per-group match
+    itself: within a group, a match is required from the group's own COMPOUND tokens (`_is_
+    compound_token` -- containing `.` or `/`, e.g. `Document.SetOpenAction`, `/Catalog/OpenAction`)
+    when the group has at least one; a group with no compound token at all falls back to the
+    original "any token" test, unchanged. Real, confirmed defect this closes: `pdf/go`'s own u0093
+    Group 2 (`SetOpenAction`/`OpenAction`/`RemoveOpenAction`/`/Catalog/OpenAction`/`Document.
+    SetOpenAction`/`GoTo`/`JavaScript`) was passing purely via the bare word `"JavaScript"` --
+    which legitimately appears dozens of times elsewhere in the document for unrelated reasons
+    (`JavaScriptAction`, `JavaScriptCollection`, a `DateField` JS-format action) -- while its own
+    real, distinctive dotted identifiers (`Document.SetOpenAction`, `/Catalog/OpenAction`) never
+    appeared anywhere in the candidate. `u0042`'s own RTL sentence shows the identical shape,
+    passing via the bare, reused class name `"TextStyle"` instead of its own distinctive `TextStyle.
+    RTL`. This is a precise, evidence-derived rule, not an arbitrary length/percentage threshold --
+    a percentage-based alternative was worked through by hand against both real cases and rejected
+    as needing fragile, edge-case-prone tuning where this compound/bare distinction does not.
+    Confirmed to NOT regress the one case that should still pass unchanged: `u0093` Group 1 (the
+    genuine JS-collection-storage fact) continues to pass via its own compound token `/Catalog/
+    Names/JavaScript`.
+
+    Refined once more, same day, after a live portfolio sweep found a real, confirmed FALSE
+    POSITIVE the first draft of this rule introduced: `pdf/go`'s own real u0010
+    ("**Imposition** -- `Document.NUp` lays multiple source pages... `Document.Booklet`
+    reorders...") merges cleanly into a real candidate sentence using the product's own,
+    already-established bare short names ("`NUp` and `Booklet` impose pages onto larger sheets"),
+    but a "compound tokens only" rule rejected it, since neither bare name is itself a compound
+    token. `_compound_token_trailing_segment` fixes this precisely: a bare sibling token is
+    promoted to "strong" (required, alongside the compound tokens) only when it exactly equals
+    the TRAILING segment of one of the group's own compound tokens (`NUp` from `Document.NUp`,
+    `Booklet` from `Document.Booklet`) -- never a blind substring match, which would have wrongly
+    promoted `TextStyle` too (a substring of `TextStyle.RTL`, but its LEADING segment, not the
+    trailing one) and silently reintroduced the exact RTL false-negative this whole rule exists to
+    close. Confirmed by direct re-run against the full portfolio (both candidate trees) before and
+    after this refinement: dropped `pdf/go`'s own real finding count from a first-draft high (many
+    false positives on legitimately-compressed Key Capabilities bullets, e.g. u0019's `NewTable`/
+    `AddTable` as short names for `pdf.NewTable()`/`(*Page).AddTable(...)`) down to a small,
+    individually-triaged set -- see MT052's own retroactive-fix record for the exact remaining
+    count and disposition.
     """
     sections = _split_into_sections(readme_text)
     findings: list[dict] = []
@@ -5817,6 +6337,20 @@ def check_content_unit_merged_into_target_section(
             # fallback the merge/candidate_section_reference paths use below.
         tokens = entry.get("salient_tokens") or []
         if tokens:
+            excerpt_for_mirrors = entry.get("excerpt") or ""
+            mirrors_only = _mirrors_clause_only_tokens(excerpt_for_mirrors, tokens)
+            if mirrors_only:
+                remaining = [t for t in tokens if t not in mirrors_only]
+                if not remaining:
+                    # The whole excerpt was a pure "mirrors the .NET SDK" comparison with no
+                    # independent Go-side claim of its own (real, confirmed case: pdf/go's
+                    # u0128) -- nothing here is verifiable or unverifiable, so this unit asserts
+                    # nothing that could be wrong; skip it rather than falling through to the
+                    # word-overlap fallback, which would test the mirrors clause's own generic
+                    # words ("intent", "generator") against the body for a meaningless result.
+                    continue
+                tokens = remaining
+        if tokens:
             body_lower = body.lower()
             # MT049/Thirty-Ninth incident: group tokens by which sentence of the excerpt they
             # structurally belong to, then require EACH group's own tokens to have at least one
@@ -5837,14 +6371,38 @@ def check_content_unit_merged_into_target_section(
                 group_tokens.append(ungrouped)
             if not group_tokens:
                 group_tokens = [list(tokens)]
-            missing_groups = [g for g in group_tokens if not any(tok.lower() in body_lower for tok in g)]
+            # MT052 (Forty-Third incident): within a group, a compound token (dotted/slashed --
+            # `_is_compound_token`) must be the one that matches when the group has any; a group
+            # with no compound token at all falls back to the original "any token" test. See the
+            # docstring above for the real, confirmed defect (a bare, generic word matching for an
+            # unrelated reason while the group's own distinctive identifier never appears).
+            def _required_tokens(group: list[str]) -> list[str]:
+                compound = [tok for tok in group if _is_compound_token(tok)]
+                if not compound:
+                    return group
+                trailing = {
+                    _compound_token_trailing_segment(tok).lower()
+                    for tok in compound
+                    if _compound_token_trailing_segment(tok)
+                }
+                strong = list(compound)
+                strong.extend(
+                    tok for tok in group
+                    if tok not in compound and tok.lower() in trailing
+                )
+                return strong
+
+            missing_groups = [
+                g for g in group_tokens
+                if not any(_token_matches_body(tok, body_lower) for tok in _required_tokens(g))
+            ]
             if missing_groups:
                 if len(group_tokens) == 1:
                     reason = ("none of this unit's salient tokens were found in the "
                               f"'{target}' section -- the merge/redundancy claim is not "
                               "traceable to real text")
                 else:
-                    missing_tokens = sorted({tok for g in missing_groups for tok in g})
+                    missing_tokens = sorted({tok for g in missing_groups for tok in _required_tokens(g)})
                     reason = (
                         "this unit's excerpt bundles multiple distinct sentences, and at least "
                         f"one of them (tokens: {', '.join(missing_tokens)}) has no match anywhere "
@@ -5868,6 +6426,70 @@ def check_content_unit_merged_into_target_section(
                     "reason": "no salient tokens available, and fewer than half of the unit's "
                               f"significant words were found in the '{target}' section either",
                 })
+    return findings
+
+
+# MT052 (Forty-Third incident, 2026-08-18) -- a small, disclosed-incomplete extension to the
+# existing `_GENERIC_LABEL_WORDS` stoplist, scoped to `check_content_unit_redundant_claim_
+# verifiable` only (never applied to `_GENERIC_LABEL_WORDS`'s own existing consumer,
+# `check_diagram_no_mechanism_duplicate_output`, which has its own separately-tuned needs).
+# Real, confirmed case this closes: `pdf/go`'s own u0041 ("Add blank pages — append or insert
+# blank pages into existing documents at any position") has zero backtick-quoted identifiers and,
+# even after this extension, its only remaining "significant" words (`append`/`insert`/`blank`)
+# either trivially match elsewhere in the API Reference section for unrelated reasons (table-row
+# insertion, list appending) or are too generic to count as real evidence on their own -- proving
+# a short, identifier-free bullet cannot be reliably word-overlap-verified against a large
+# technical document by stoplist-tuning alone.
+_REDUNDANT_CLAIM_EXTRA_GENERIC_WORDS = {"page", "pages", "blank", "existing", "position"}
+
+
+def check_content_unit_redundant_claim_verifiable(
+    dispositions: list[dict], readme_text: str
+) -> list[dict]:
+    """Heuristic, non-blocking. For an `excluded`/`redundant_with_existing` disposition entry
+    with EMPTY `salient_tokens` -- i.e. a claim this codebase's own extraction never found a
+    backtick-quoted, CamelCase, dotted, or version-shaped identifier for -- filters the excerpt's
+    own 4+-letter words through `_GENERIC_LABEL_WORDS` extended with `_REDUNDANT_CLAIM_EXTRA_
+    GENERIC_WORDS` (`page`/`pages`/`blank`/`existing`/`position`, evidence-grounded in this exact
+    real case, disclosed-incomplete like every other first-instance stoplist in this module). When
+    fewer than 3 genuinely distinctive words remain, emits a named "cannot mechanically verify --
+    confirm by hand" finding.
+
+    Deliberately a heuristic, not a hard gate: this cannot itself determine whether the claimed
+    redundancy is right or wrong -- a short, identifier-free bullet genuinely CAN be redundant
+    (many real, correct dispositions in this exact shape exist across the portfolio) -- it only
+    removes the false confidence a silent pass from `check_content_unit_merged_into_target_
+    section`'s own word-overlap fallback currently gives such a claim, matching the same "even a
+    passing gate proves only its own narrow claim" discipline (Anti-Overclaim rule 2) already
+    applied to `check_installation_matches_package_registry`'s own hard-gate-to-heuristic
+    downgrade once real evidence showed a stronger claim wasn't earned.
+
+    `readme_text` is accepted (not `body`/`target_section`-scoped) for signature symmetry with
+    this module's other content-unit checks and as a hook for a future, stronger version of this
+    check -- the current logic is excerpt-only, since an `excluded`/`redundant_with_existing`
+    entry has no `target_section` to bound a body-side check against (that is exactly the
+    property this heuristic exists to flag as unverifiable, not something it can route around).
+    """
+    del readme_text  # accepted for signature symmetry; see docstring
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") != "excluded":
+            continue
+        if entry.get("classification") != "redundant_with_existing":
+            continue
+        if entry.get("salient_tokens"):
+            continue
+        excerpt = entry.get("excerpt") or ""
+        words = {w.lower() for w in re.findall(r"[A-Za-z]{4,}", excerpt)}
+        distinctive = words - _GENERIC_LABEL_WORDS - _REDUNDANT_CLAIM_EXTRA_GENERIC_WORDS
+        if len(distinctive) < 3:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "reason": "this excluded/redundant_with_existing claim has no backtick-quoted "
+                          "identifier and fewer than 3 distinctive words remain after the generic-"
+                          "label stoplist -- cannot mechanically verify the claimed redundancy is "
+                          "real; confirm by hand before trusting it",
+            })
     return findings
 
 
