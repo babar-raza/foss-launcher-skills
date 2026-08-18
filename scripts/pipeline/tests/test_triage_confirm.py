@@ -186,6 +186,58 @@ class TestLayer2Detection:
         assert result["stale"] is True
         assert any("stale signature" in reason for reason in result["reasons"])
 
+    def test_real_enum_member_is_not_falsely_reported_missing(self, tmp_path):
+        """RPR-ST088-01 regression: api_surface.json stores an enum class's
+        own members under "enum_members", not "methods"/"properties" --
+        the missing-member scan never included that key, so every real,
+        current enum member (e.g. SaveFormat.XLSX) was reported as
+        "missing" the instant its class was cited via a dotted backtick
+        reference. Found live 2026-08-18, cells/python S-84 remediation."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Save with `SaveFormat.XLSX` for the standard Excel format.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "SaveFormat",
+                "methods": [],
+                "properties": [],
+                "enum_members": [
+                    {"name": "XLSX", "value": "auto()"},
+                    {"name": "CSV", "value": "auto()"},
+                ],
+            }],
+            "delta": {"modified_apis": ["SaveFormat"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_real_missing_enum_member_still_detected(self, tmp_path):
+        """Negative control: the enum_members fix above must not blind the
+        checker to a genuinely absent enum member."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Save with `SaveFormat.PDF` for a portable document.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "SaveFormat",
+                "methods": [],
+                "properties": [],
+                "enum_members": [
+                    {"name": "XLSX", "value": "auto()"},
+                    {"name": "CSV", "value": "auto()"},
+                ],
+            }],
+            "delta": {"modified_apis": ["SaveFormat"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("missing member 'SaveFormat.PDF'" in reason for reason in result["reasons"])
+
     def test_bare_empty_parens_naming_a_real_method_is_not_falsely_stale(self, tmp_path):
         """RPR-ST087-01 regression: `Workbook.save()` in running prose just
         NAMES the method -- it is not a claim that save() takes zero

@@ -229,7 +229,19 @@ def triage_confirm(
             continue
         class_name = entry["name"]
         members: set[str] = set()
-        for field in ("methods", "properties", "members", "values"):
+        # RPR-ST088-01: api_surface.json stores enum classes' own members
+        # (e.g. SaveFormat.XLSX, ChartType.LINE) under a dedicated
+        # "enum_members" key, distinct from "methods"/"properties" -- this
+        # loop never scanned it, so EVERY real, current enum member got
+        # reported as "missing" the moment its class was cited via a
+        # dotted backtick reference. Found live 2026-08-18, cells/python
+        # S-84 remediation attempt #8: 6 of the run's 7 remaining
+        # triage_confirm "stale" flags (after ST-087's fix) were this
+        # exact pattern -- SaveFormat.XLSX/CSV/TSV/MARKDOWN/JSON and
+        # ChartType.LINE are all real, current enum members (confirmed
+        # against knowledge/cells/python/merged/api_surface.json), only
+        # SaveFormat.PDF was a genuinely absent member among the 7 flags.
+        for field in ("methods", "properties", "members", "values", "enum_members"):
             for member in entry.get(field) or []:
                 if isinstance(member, str):
                     members.add(member)
