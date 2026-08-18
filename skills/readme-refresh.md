@@ -13,7 +13,7 @@ args: "{family} {platform}"
      preconditions: product active in data/products.json, not excluded, real push/admin access
      postcondition: run is AWAITING_REVIEW, APPROVED, PUSHED, BLOCKED, or ABANDONED
      idempotent: yes — immutable receipts, state checkpoints, single-owner-per-product locking
-     verified: 2026-08-16
+     verified: 2026-08-18
 -->
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -45,7 +45,14 @@ Use only the registered control plane:
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py recover --run-id ID \
   --reason TEXT [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py audit-portfolio \
-  [--family FAMILY --platform PLATFORM] [--json]
+  [--family FAMILY --platform PLATFORM] [--json] [--candidate-tree TREE]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py declare-scope --run-id ID \
+  --issue TEXT (--areas id1,id2 | --full-rewrite) [--allowed-deps id3,id4] [--criteria TEXT] [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py accept-blocks --run-id ID \
+  --blocks id1,id2 [--status CONVERGED|FROZEN_ACCEPTED|ACTIVE_IMPROVEMENT|NEEDS_REVIEW|BLOCKED] \
+  [--governing-rule TEXT] [--evidence-ref TEXT] [--note TEXT] [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py converge-verify --run-id ID \
+  [--apply-invalidation] [--session-id ID]
 ```
 
 `audit-portfolio` (TC-HARDEN-05, MT035, 2026-08-12) is the one subcommand with no `--run-id` —
@@ -75,6 +82,65 @@ identity (`--session-id` or `AGENT_SESSION_ID`/`CODEX_THREAD_ID`/`CLAUDE_CODE_SE
 is checked against the run's `session_owner` — a different session cannot touch someone else's
 run. One `ACTIVE.json` per `(family, platform)` plus a `FileLock` prevents two runs owning the
 same product concurrently.
+
+## Canonical candidate store and surgical change scopes (MT056, Fifty-Sixth incident, 2026-08-18)
+
+**One canonical mutable candidate tree: `reports/repo-presenter-regen-full/{family}/{platform}/`**
+— decided by the user through MT055 TC-MICRO-03-02's human gate and recorded durably in
+`data/readme_candidate_store.json` (never re-derive or re-litigate it). `reports/repo-presenter/`
+and the `-regen-test`/`-regen-reproof` pilots are FROZEN archives, each carrying an
+`_ARCHIVED.json` fingerprint marker; the `candidate_store_integrity` hard gate fails any run
+whenever a non-archived sibling tree holds a candidate copy (>1 current candidate), an archived
+tree lacks its marker, or an archived file changed after freezing (ARCHIVE VIOLATED). `start`
+and `push` refuse outright on a non-canonical tree; `audit-portfolio --candidate-tree` may read
+an archived tree (output tagged NON-CANONICAL); an unregistered tree name is refused everywhere
+(stale-path protection). Every path in this document written as `reports/repo-presenter/...`
+before this section landed now means the canonical tree. Per-product reconciliation state of
+the frozen old tree (7 products NEEDS_REVIEW before their old-tree content may be promoted, by
+explicit per-product human go-ahead only): `reports/_scratch/mt056_tree_reconciliation.json`.
+
+**Surgical, convergent idempotency is mechanically enforced, not remembered.** The contract
+(user mission, 2026-08-18): improving a specific README area may change only that authorized
+area and its explicitly pre-declared dependents; every previously accepted, unrelated area
+stays byte-identical; the targeted area may iterate until it meets its acceptance criteria;
+after convergence, re-running the same regeneration produces no further diff.
+
+- **Blocks**: stable, content-addressed identities — `##`-section slugs (e.g.
+  `key-capabilities`), plus `__preamble__` (title/badges/banner/intro) and `mermaid` (the At a
+  Glance diagram, addressable separately from its host section's prose). sha256 fingerprints,
+  never positional counters (the R-07 drift class).
+- **Before regenerating anything on a product that already has accepted content, declare the
+  scope**: `declare-scope --issue ... --areas ...` snapshots the current canonical candidate as
+  that scope's IMMUTABLE baseline. Dependent blocks that must legitimately move (a TOC entry,
+  an anchor, a summary of the changed section) are declared in `--allowed-deps` IN ADVANCE —
+  never discovered after accepting a broad diff. A whole-document regeneration must be declared
+  explicitly (`--full-rewrite`); an implied full-document scope does not exist.
+- **Enforcement (hard gates at both `ingest-candidate` and `recheck`)**: `scope_compliance`
+  fails any block changed/added/removed outside areas+allowed-deps (out-of-scope diff gate);
+  `frozen_blocks_unchanged` fails any CONVERGED/FROZEN_ACCEPTED block whose hash moved without
+  an authorizing scope; `scope_required` fails undeclared drift on any product with an
+  acceptance registry (an unchanged candidate always passes — stable regeneration after
+  convergence stays green); `candidate_store_integrity` as above.
+- **Acceptance registry** (`acceptance-registry.json`, sibling of the disposition files —
+  identities/hashes/states/evidence, never content): `accept-blocks` records accepted hashes +
+  the pinned clone-cache HEAD per block; CONVERGED/FROZEN_ACCEPTED can only be recorded while
+  the run's latest checks are hard-gate-clean AND the candidate matches the last-checked
+  snapshot. States: `ACTIVE_IMPROVEMENT`, `CONVERGED`, `FROZEN_ACCEPTED`,
+  `INVALIDATED_BY_SOURCE_CHANGE`, `BLOCKED`, `NEEDS_REVIEW`.
+- **Convergence**: `converge-verify` (exit 2 on drift) proves the accepted state is stable —
+  zero drift on frozen blocks, document hash equal to last acceptance. Source invalidation
+  (pinned clone-cache HEAD moved) is always reported and only applied with
+  `--apply-invalidation` — a converged area affected by a real upstream change is reopened
+  through a new explicit scope, never silently rewritten.
+- **Diagram geometry is a HARD gate** (`diagram_label_geometry`): no label token >28 chars
+  (mermaid#6424 unbreakable-token clipping) and no label wrapping past ~3 estimated lines at
+  Mermaid's ~200px node budget (the R-01 oversized-node class). The advisory
+  `diagram_label_token_length` remains as history; the hard gate subsumes it.
+- **Republication debt is re-derived, never remembered** (`published_readme_current`,
+  advisory): products recorded in `data/readme_published_state.json` (auto-appended by every
+  real push) whose live upstream README no longer matches the canonical candidate are flagged
+  "republication pending" on every audit — the mechanical fix for the lost-TC-HARDEN-47/48
+  class (3d/net and 3d/python still carry live pre-MT024 clipping upstream as of 2026-08-18).
 
 ## Steps
 
@@ -193,6 +259,47 @@ same product concurrently.
    coincidentally match unrelated prose regardless of whether the specific image is genuinely
    duplicated) is only trustworthy when the image's own real asset filename actually reappears
    somewhere in the candidate — never on the strength of related-but-generic vocabulary alone.
+
+   **Already-published products bypass all 25 preservation-tracking result keys automatically
+   (TC-HARDEN-115, MT053, Forty-Fourth incident, 2026-08-18).** Once a candidate has already been
+   pushed and merged into the real upstream repo, the clone cache's own `README.md` becomes the
+   candidate itself — extracting "content to preserve" from it and cross-checking against a
+   disposition file is a pure tautology, and the real, position-based `unit_id` extractors
+   produce pure false-positive noise the moment the "old" text's own structure has shifted even
+   slightly since the disposition file was last authored (confirmed live: 158 false hard-gate
+   failures for `pdf/cpp`, entirely this artifact, before this gate existed).
+   `_run_deterministic_checks` computes `_readme_matches_published_upstream(old_readme_text,
+   candidate_text)` once, fresh, immediately after `old_readme_text` is resolved — a
+   deliberately narrow, whitespace-only-normalized (`.strip()`) equality check, never more
+   permissive, so a false positive (silently disabling real preservation tracking for a
+   genuinely still-independent old README) stays effectively impossible; a false negative just
+   means the checks keep running normally, the safe default. When it returns `True`, all 25
+   content/structural/code-example/badge preservation-tracking result keys report a uniform,
+   disclosed `{"skipped": True, "skip_reason": "..."}` no-op instead of running position-based
+   extraction against a self-referential text — `content_units`/`dispositions`, `structural_
+   units`/`structure_dispositions`, `code_units`/`code_example_dispositions`, and `old_badges`/
+   `new_badges`/`badge_dispositions` are never even computed. `readme_already_published` is
+   itself a new, always-present result key
+   (`{"detail": {"published": bool}, "hard_gate": False}`), and `audit-portfolio`'s own
+   structured output surfaces the same `published` field per product for a portfolio-wide view.
+   **Never do this by hand** — the disposition JSON files for an already-published product are
+   never rewritten, deleted, or kept in sync; the real preservation work already happened (the
+   merge itself), and the system's own detection is what neutralizes their staleness, not a
+   fresh, manually-authored replacement. Candidate-quality checks that never read
+   `old_readme_text` at all (`project_structure_canonical_tree_format`, `badge_static_claims_
+   dynamic_fact`, `no_duplicate_badges_in_candidate`, `badge_row_meets_verified_floor`,
+   `badge_available_fact_not_shown`) and every check that verifies the candidate against real,
+   *current* source/registries/reference-site data (`check_named_member_accuracy`, `check_api_
+   reference_table_completeness`, `check_code_example_imports_match_source`, `check_diagram_
+   verified_format_claims`, the `check_dependency_*` family, `check_api_reference_class_internal_
+   only`) are unaffected and keep running unconditionally, published or not — "freshness against
+   the real, live repo" and "preservation of the original README's content" are two different
+   questions this skill already answers with two different mechanisms, and only the second one
+   is what this bypass retires once its premise is gone. A product that was published once and
+   has since been further edited locally (not byte-identical to the live merged README anymore)
+   is **not** detected by this narrow check and correctly falls through to ordinary preservation-
+   tracking behavior — a real, disclosed, deliberately out-of-scope in-between state, not yet
+   solved.
 
    **Prose quality (TC-HARDEN-22, MT034/Twentieth incident, 2026-08-12).** Every existing
    tone-adjacent check (`check_process_narration_smells`, `check_key_capabilities_quality`,
