@@ -20,6 +20,7 @@ Welcome to the central documentation hub for the Aspose.org content generation a
 - **Operations** – runbooks, troubleshooting, telemetry: `/docs/operations/`
 - **Development** – contribution workflow, repo layout, testing: `/docs/development/`
 - **Content System** – Hugo multi-site routing, page resolution, themes, content types, localization: `/docs/content-system/`
+- **README Refresh (S-120)** – current operational reference and plan-vs-system forensic reconciliation for the FOSS README refresh skill: [/docs/readme-refresh/](/docs/readme-refresh/current-operational-reference.md)
 
 All guides link to the appropriate reference pages; duplicate tables or configuration snippets have been removed.
 
