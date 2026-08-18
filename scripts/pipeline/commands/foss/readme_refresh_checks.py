@@ -5522,8 +5522,16 @@ _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
 # drop. Also permanently OPTIONAL, same "vacuously satisfied" precedent.
 _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
     "Intro", "Project History", "Additional Examples", "Project Structure",
-    "Feature Showcase",
+    "Feature Showcase", "Navigation",
 }
+# MT056 follow-up (2026-08-18): "Navigation" was missing from this allowlist -- the same
+# recurring "a real, always-present template section was never added to the allowlist" gap this
+# plan has already found and fixed for Additional Examples/Project Structure/Feature Showcase.
+# Found live on `pdf/cpp`: its 12 real ## Navigation TOC bullets are each their own legitimately
+# merged_verbatim content unit (the product is byte-for-byte identical to its own old README, so
+# every line -- Navigation included -- was extracted and merged verbatim), previously masked by
+# MT053's own published-upstream bypass; the moment ANY edit makes the candidate diverge from
+# published state, the full preservation-tracking battery re-activates and this gap surfaces.
 
 
 def check_content_unit_disposition_coverage(

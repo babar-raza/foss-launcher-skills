@@ -357,7 +357,10 @@ def _write_candidate(
     badge_dispositions=None,
     code_example_dispositions=_CODE_EXAMPLE_DISPOSITIONS_FOR_SHARED_FIXTURE,
 ):
-    candidate_dir = repo_root / "reports" / "repo-presenter" / "testfam" / "testplat"
+    # MT055/TC-MICRO-03: resolved dynamically via the real path helper (not a hardcoded literal)
+    # so this shared fixture always writes into whichever tree the test's own configure() call
+    # is actually pointed at -- stays correct across the default-candidate-tree-name change.
+    candidate_dir = rr._candidate_readme_path("testfam", "testplat").parent
     candidate_dir.mkdir(parents=True, exist_ok=True)
     (candidate_dir / "readme.md").write_text(text, encoding="utf-8")
     (candidate_dir / "upstream-issues.md").write_text(upstream_issues, encoding="utf-8")
@@ -1744,7 +1747,8 @@ def _add_second_product(repo_root, *, family="testfam2", platform="testplat2", a
 
 
 def _write_second_candidate(repo_root, family="testfam2", platform="testplat2"):
-    candidate_dir = repo_root / "reports" / "repo-presenter" / family / platform
+    # MT055/TC-MICRO-03: resolved dynamically, same reasoning as _write_candidate above.
+    candidate_dir = rr._candidate_readme_path(family, platform).parent
     candidate_dir.mkdir(parents=True, exist_ok=True)
     (candidate_dir / "readme.md").write_text("# Incomplete\n\nMissing every required section.\n", encoding="utf-8")
 
@@ -1833,6 +1837,160 @@ def test_audit_portfolio_cli_json_flag_prints_structured_output(tmp_path, capsys
     out = capsys.readouterr().out
     parsed = json.loads(out)
     assert parsed["clean_count"] == 1
+
+
+# --- _readme_matches_published_upstream / readme_already_published bypass (TC-HARDEN-115, ------
+# MT053, Forty-Fourth incident, 2026-08-18): once a candidate has already been pushed and
+# merged upstream, the clone cache's own README.md becomes the candidate itself -- extracting
+# "content to preserve" from it and cross-checking against a disposition file is a pure
+# tautology, and the real, position-based unit_id extractors produce pure false-positive noise
+# (confirmed live: 158 hard-gate failures for pdf/cpp before this gate existed). These tests
+# prove the narrow detector fails closed in both directions, and that the 25 preservation-
+# tracking result keys are uniformly, honestly skipped once published -- while a genuinely
+# still-independent old README (the shared fixture's own default, unpublished state) is
+# completely unaffected.
+
+
+def test_readme_matches_published_upstream_true_for_identical_text():
+    assert rr._readme_matches_published_upstream(_GOOD_CANDIDATE, _GOOD_CANDIDATE) is True
+
+
+def test_readme_matches_published_upstream_true_for_whitespace_only_difference():
+    padded = "\n\n" + _GOOD_CANDIDATE + "\n\n  \n"
+    assert rr._readme_matches_published_upstream(padded, _GOOD_CANDIDATE) is True
+
+
+def test_readme_matches_published_upstream_false_for_one_substantive_line_changed():
+    changed = _GOOD_CANDIDATE.replace(
+        "- Reads and writes TXT files.", "- Reads and writes CSV files.",
+    )
+    assert changed != _GOOD_CANDIDATE, "fixture construction must actually change one real line"
+    assert rr._readme_matches_published_upstream(changed, _GOOD_CANDIDATE) is False
+
+
+def test_readme_matches_published_upstream_false_for_genuinely_different_products():
+    assert rr._readme_matches_published_upstream(_OLD_UPSTREAM_README, _GOOD_CANDIDATE) is False
+
+
+def test_readme_matches_published_upstream_false_for_empty_inputs():
+    assert rr._readme_matches_published_upstream("", _GOOD_CANDIDATE) is False
+    assert rr._readme_matches_published_upstream(_GOOD_CANDIDATE, "") is False
+    assert rr._readme_matches_published_upstream("", "") is False
+
+
+_MT053_PRESERVATION_TRACKING_KEYS = (
+    "content_unit_disposition_coverage",
+    "content_unit_excerpt_matches_extraction",
+    "content_unit_evidence_resolves",
+    "content_unit_merged_into_target_section",
+    "content_unit_no_exact_duplicate_merge",
+    "content_unit_redundant_claim_verifiable",
+    "content_unit_classification_plausibility",
+    "content_unit_probable_duplicate",
+    "content_unit_embedded_actionable_fact",
+    "image_content_unit_excluded_reason_verified",
+    "structural_unit_disposition_coverage",
+    "structural_unit_evidence_resolves",
+    "structural_unit_merged_into_target_section",
+    "structural_unit_no_exact_duplicate_merge",
+    "structural_unit_tree_paths_plausible",
+    "code_example_disposition_coverage",
+    "code_example_evidence_resolves",
+    "code_example_no_exact_duplicate_merge",
+    "code_example_api_coverage_survives",
+    "code_example_excluded_reason_citation_too_narrow",
+    "cli_category_representation",
+    "badge_disposition_coverage",
+    "badge_evidence_resolves",
+    "badge_preserved_or_credited_in_candidate",
+    "badge_probable_duplicate_disposition",
+)
+
+
+def test_run_deterministic_checks_bypasses_all_25_preservation_keys_once_published(tmp_path):
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    # Publish: overwrite the clone cache's real README.md with the exact candidate text, so
+    # old_readme_text IS the candidate (byte-identical, whitespace-normalized) -- the real,
+    # confirmed shape of an already-merged product.
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    # Deliberately no content-/structure-/code-example-/badge-dispositions.json written at all --
+    # if the bypass didn't work, every disposition-coverage check would hard-fail on "no file".
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+
+    result = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+
+    assert result["readme_already_published"]["detail"]["published"] is True
+    assert result["readme_already_published"]["hard_gate"] is False
+    for key in _MT053_PRESERVATION_TRACKING_KEYS:
+        entry = result[key]
+        assert entry["findings"] == [], f"{key} must report zero findings once published"
+        assert entry.get("skipped") is True, f"{key} must be marked skipped once published"
+        assert "readme already matches the published upstream README" in entry["skip_reason"]
+
+
+def test_run_deterministic_checks_leaves_unpublished_product_fully_unaffected(tmp_path):
+    """Non-regression proof: a genuinely still-independent old README (this fixture's own
+    default, unpublished state -- _OLD_UPSTREAM_README != _GOOD_CANDIDATE) must never trip the
+    bypass, and every one of the 25 keys must behave exactly as it did before MT053 (real
+    findings/hard_gate values, never the skipped shape)."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    assert (clone_cache / "README.md").read_text(encoding="utf-8") != _GOOD_CANDIDATE
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    result = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+
+    assert result["readme_already_published"]["detail"]["published"] is False
+    for key in _MT053_PRESERVATION_TRACKING_KEYS:
+        entry = result[key]
+        assert "skipped" not in entry, f"{key} must not be skipped for a genuinely unpublished product"
+        assert "skip_reason" not in entry
+
+
+def test_project_structure_and_badge_candidate_checks_run_unconditionally_when_published(tmp_path):
+    """The three candidate-quality checks that never read old_readme_text at all (project
+    structure formatting, badge static-claims, no-duplicate-badges) must keep running
+    regardless of published state -- confirmed by their absence from the skip set above and a
+    direct re-run here."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+
+    result = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+
+    for key in ("project_structure_canonical_tree_format", "badge_static_claims_dynamic_fact",
+                "no_duplicate_badges_in_candidate"):
+        assert "skipped" not in result[key], f"{key} is a candidate-quality check, must never be skipped"
+
+
+def test_audit_portfolio_surfaces_published_field_per_product(tmp_path, capsys):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+
+    result = rr.audit_portfolio()
+    assert result["products"][0]["published"] is True
+
+    exit_code = rr.main(["audit-portfolio"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    assert "Already published upstream (1): testfam/testplat" in out
 
 
 # --- Illegal transition rejection -----------------------------------------------------------
@@ -2172,3 +2330,98 @@ def test_approve_forces_replan_on_pinned_input_drift(tmp_path, monkeypatch):
 
     manifest = rr.status("testfam", "testplat", run_id)
     assert manifest["state"] == "PLANNED"  # forced back, never silently approved
+
+
+# MT055/TC-MICRO-01 (2026-08-18): the 6 disposition/candidate path helpers used to hardcode the
+# literal segment "repo-presenter" regardless of configure()'s own reports_root -- confirmed live
+# during the MT054 preservation audit to silently resolve `configure(reports_root="reports/repo-
+# presenter-regen-full")` to a nonexistent nested path. The fix adds a dedicated
+# `candidate_tree_name` knob instead of deriving anything from reports_root's own path segment,
+# specifically because _reports_root is also consumed by _run_root/_product_root/
+# _product_lock_path for run-evidence/lock paths that have nothing to do with the candidate tree.
+
+def test_configure_default_candidate_tree_name_is_regen_full():
+    # MT055/TC-MICRO-03 (2026-08-18): a real, evidence-backed decision promoted
+    # repo-presenter-regen-full to the default tree (see reports/_scratch/
+    # mt055_tree_divergence_inventory.json) -- this test documents that decision directly,
+    # replacing the earlier "default is unchanged" guard from TC-MICRO-01, which correctly
+    # asserted the OLD default before this later, separate decision was made.
+    rr.configure()
+    assert rr._candidate_readme_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "readme.md"
+    )
+    assert rr._content_dispositions_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "content-dispositions.json"
+    )
+    assert rr._structure_dispositions_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "structure-dispositions.json"
+    )
+    assert rr._badge_dispositions_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "badge-dispositions.json"
+    )
+    assert rr._code_example_dispositions_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "code-example-dispositions.json"
+    )
+    assert rr._upstream_issues_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter-regen-full" / "testfam" / "testplat" / "upstream-issues.md"
+    )
+
+
+def test_configure_explicit_old_tree_name_still_addressable():
+    # The old tree is not deleted or made unreachable -- it stays addressable by explicit name.
+    rr.configure(candidate_tree_name="repo-presenter")
+    assert rr._candidate_readme_path("testfam", "testplat") == (
+        rr._reports_root / "repo-presenter" / "testfam" / "testplat" / "readme.md"
+    )
+
+
+def test_configure_candidate_tree_name_override_resolves_directly_no_nested_ghost_path(tmp_path):
+    rr.configure(repo_root=tmp_path, candidate_tree_name="repo-presenter-regen-full")
+    resolved = rr._content_dispositions_path("pdf", "go")
+    expected = tmp_path / "reports" / "repo-presenter-regen-full" / "pdf" / "go" / "content-dispositions.json"
+    assert resolved == expected
+    # The historical bug's own exact shape: a nested "repo-presenter" segment must never appear.
+    assert "repo-presenter" not in str(resolved.relative_to(tmp_path / "reports" / "repo-presenter-regen-full"))
+
+
+def test_configure_candidate_tree_name_does_not_affect_run_evidence_or_lock_paths(tmp_path):
+    rr.configure(repo_root=tmp_path, candidate_tree_name="repo-presenter-regen-full")
+    # _run_root / _product_root / _product_lock_path must keep meaning "the real reports/ dir" --
+    # they are not part of the candidate-tree concept this fix scopes to.
+    assert rr._run_root("pdf", "go", "run-1") == tmp_path / "reports" / "readme_refresh_runs" / "pdf" / "go" / "run-1"
+    assert rr._product_root("pdf", "go") == tmp_path / "reports" / "readme_refresh_runs" / "pdf" / "go"
+    assert rr._product_lock_path("pdf", "go") == tmp_path / "reports" / "locks" / "readme_refresh" / "pdf-go.lock"
+
+
+def test_configure_candidate_tree_name_real_pipeline_against_alternate_tree_no_copy_step(tmp_path, monkeypatch):
+    """The real, end-to-end proof this fix exists for: ingest_candidate succeeds directly against
+    a tree named differently from the default, with zero physical-copy isolated-mirror step --
+    the exact workaround this fix makes unnecessary for any future audit."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-candidate-tree-name")
+    repo_root, _upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(
+        repo_root=repo_root, candidate_tree_name="alt-tree", command_runner=_fake_gh_command_runner(),
+    )
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    candidate_dir = repo_root / "reports" / "alt-tree" / "testfam" / "testplat"
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    (candidate_dir / "readme.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    (candidate_dir / "upstream-issues.md").write_text(_UPSTREAM_ISSUES_BLOCKING, encoding="utf-8")
+    (candidate_dir / "content-dispositions.json").write_text(
+        json.dumps(_CONTENT_DISPOSITIONS_FOR_SHARED_FIXTURE), encoding="utf-8"
+    )
+    (candidate_dir / "structure-dispositions.json").write_text(
+        json.dumps(_STRUCTURE_DISPOSITIONS_FOR_SHARED_FIXTURE), encoding="utf-8"
+    )
+    (candidate_dir / "code-example-dispositions.json").write_text(
+        json.dumps(_CODE_EXAMPLE_DISPOSITIONS_FOR_SHARED_FIXTURE), encoding="utf-8"
+    )
+    (candidate_dir / "badge-dispositions.json").write_text("[]", encoding="utf-8")
+
+    rr.ingest_candidate("testfam", "testplat", run_id)  # must not raise -- no repo-presenter/ dir exists anywhere
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
