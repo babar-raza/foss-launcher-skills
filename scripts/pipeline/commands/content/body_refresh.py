@@ -1063,6 +1063,29 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
                 # A link violation is NOT a circuit failure — the LLM was reachable
                 # and responded; its output was just rejected for quality.
                 return _fallback("LINK_PRESERVATION_VIOLATION")
+
+        # RPR-ST082-02: code-fence balance guard. A PARAGRAPH_REWRITE section can
+        # legitimately span multiple fenced code blocks with prose between them
+        # (the whole markdown section between two headings, not one paragraph).
+        # Found live 2026-08-18, cells/python: asked to rewrite such a
+        # multi-block section, the LLM reproduced the prose faithfully but
+        # dropped/misplaced individual ``` markers — e.g. turning a blank line
+        # between two blocks into a stray closing fence, or vice versa —
+        # silently splitting one coherent, valid code block into an unfenced
+        # prose fragment plus an orphaned fence. A triple-backtick count is a
+        # cheap, reliable structural proxy: legitimate prose rewrites never
+        # need to add or remove a fence, so any change in count (or an odd,
+        # unbalanced count) means the fence structure was corrupted.
+        original_fence_count = section_text.count("```")
+        rewritten_fence_count = llm_output.count("```")
+        if rewritten_fence_count % 2 != 0 or rewritten_fence_count != original_fence_count:
+            print(
+                f"CODE_FENCE_IMBALANCE: LLM output has {rewritten_fence_count} "
+                f"fence marker(s) (source had {original_fence_count}) — "
+                f"using deterministic fallback"
+            )
+            return _fallback("CODE_FENCE_IMBALANCE")
+
         context["_fallback_reason"] = "NONE"
         # HARDEN-A4: store only RG-010-passing LLM output — a fallback/template
         # result must never masquerade as a cached LLM rewrite.

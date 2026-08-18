@@ -402,6 +402,7 @@ _FALLBACK_REASONS = {
     "LINK_PRESERVATION_VIOLATION",   # RG-010 guard rejected the LLM output
     "CIRCUIT_OPEN",                  # run-scoped circuit already open — LLM not attempted
     "NO_GROUNDING_AVAILABLE",        # no claim text and symbol absent from api_surface.json — nothing factual to rewrite from
+    "CODE_FENCE_IMBALANCE",          # LLM output's ``` count differs from the source section's — corrupted code-block structure
 }
 
 

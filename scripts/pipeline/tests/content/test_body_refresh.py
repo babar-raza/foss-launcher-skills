@@ -1443,6 +1443,89 @@ def test_paragraph_rewrite_internal_link_stripped_triggers_fallback():
     )
 
 
+def test_paragraph_rewrite_code_fence_imbalance_triggers_fallback():
+    """RPR-ST082-02: an LLM rewrite that changes the number of ``` fence
+    markers (dropping/misplacing one across a multi-code-block section) must
+    fall back to section_text rather than shipping corrupted markdown.
+    Mirrors the real cells/python incident: a two-code-block section's blank
+    separator line was replaced with a stray closing fence, splitting one
+    valid code block into an unfenced prose fragment plus an orphaned fence."""
+    section_text = (
+        "```python\n"
+        "ws.cells['A1'].value = 1\n"
+        "```\n"
+        "\n"
+        "```python\n"
+        "ws.cells['A2'].value = 2\n"
+        "```\n"
+    )
+
+    class FenceDroppingLLM:
+        class MockResult:
+            # The blank separator line between the two blocks was replaced
+            # with a stray extra closing fence (5 markers total vs. the
+            # source's 4), prematurely closing the first block and leaving
+            # the second block's own opener/closer unpaired against it —
+            # the exact real cells/python symptom: a `-` blank line became
+            # a `+` ``` in the diff, with no matching removal elsewhere.
+            data = (
+                "```python\n"
+                "ws.cells['A1'].value = 1\n"
+                "```\n"
+                "```\n"
+                "```python\n"
+                "ws.cells['A2'].value = 2\n"
+                "```\n"
+            )
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=FenceDroppingLLM)
+    change = {"change_id": "CHG-FENCE-001", "symbol": "Cell", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert result.startswith(section_text.rstrip())
+    assert context.get("_fallback_reason") == "CODE_FENCE_IMBALANCE"
+
+
+def test_paragraph_rewrite_code_fence_balanced_rewrite_accepted():
+    """A legitimate rewrite that preserves the same fence count must still be
+    accepted normally — the guard must not reject correct output."""
+    section_text = (
+        "Old prose.\n\n"
+        "```python\n"
+        "x = 1\n"
+        "```\n"
+    )
+    llm_rewrite = (
+        "New prose.\n\n"
+        "```python\n"
+        "x = 1\n"
+        "```\n"
+    )
+
+    class CleanRewriteLLM:
+        class MockResult:
+            data = llm_rewrite
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=CleanRewriteLLM)
+    change = {"change_id": "CHG-FENCE-002", "symbol": "Cell", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert result == llm_rewrite.strip()
+    assert context.get("_fallback_reason") == "NONE"
+
+
 # ── RPR-E-02: generation-time forbidden-claims gate ──────────────────────────
 
 def test_generation_blocked_on_forbidden_claim(tmp_path, monkeypatch):
