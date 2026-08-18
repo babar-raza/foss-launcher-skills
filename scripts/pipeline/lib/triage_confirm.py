@@ -93,7 +93,26 @@ def _normalize_type(value: str) -> str:
 def _signature_claim(value: str) -> tuple[str, ...] | None:
     """Return normalized type tokens, or None when text looks like call values."""
     if not value.strip():
-        return ()
+        # RPR-ST087-01: bare `Class.member()` in running prose (no params
+        # written between the parens) is virtually always just NAMING the
+        # method, not asserting it takes zero arguments -- e.g. "call
+        # `Workbook.save()` to persist changes" is accurate prose even
+        # though save() takes several real params. Treating this as an
+        # explicit zero-arity claim compared it against every real
+        # non-zero-arity method and produced a false "stale signature"
+        # finding on completely normal documentation style. Found live
+        # 2026-08-18, cells/python S-84 remediation attempt #7: 9 of the
+        # session's 17 reported "stale" pages were driven entirely by this
+        # single false-positive pattern (Workbook.save(), Cell.apply_style(),
+        # Cell.put_value(), Cells.iter_rows(), Worksheet.protect(), etc. --
+        # every one a real, current, non-zero-arity method cited by bare
+        # name in prose). None is the correct return here, matching every
+        # other "can't tell what this claims" branch below -- skip the
+        # check rather than manufacture a false positive. A genuinely
+        # zero-arg method cited with empty parens is unaffected: it simply
+        # isn't checked either way, since prose can't misrepresent an
+        # arity it never stated.
+        return None
     types: list[str] = []
     for raw in _split_signature_params(value):
         if (

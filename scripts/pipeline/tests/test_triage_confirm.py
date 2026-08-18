@@ -186,6 +186,59 @@ class TestLayer2Detection:
         assert result["stale"] is True
         assert any("stale signature" in reason for reason in result["reasons"])
 
+    def test_bare_empty_parens_naming_a_real_method_is_not_falsely_stale(self, tmp_path):
+        """RPR-ST087-01 regression: `Workbook.save()` in running prose just
+        NAMES the method -- it is not a claim that save() takes zero
+        arguments. Found live 2026-08-18, cells/python S-84 remediation:
+        the real Workbook.save() takes 5 real params, but citing it with
+        bare empty parens (completely normal prose style) was flagged as a
+        stale signature because the checker treated "()" as an explicit
+        zero-arity assertion."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Call `Workbook.save()` to persist your changes to disk.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Workbook",
+                "methods": [{
+                    "name": "save",
+                    "params": [
+                        {"name": "file_path", "type": ""},
+                        {"name": "save_format", "type": ""},
+                    ],
+                }],
+            }],
+            "delta": {"modified_apis": ["Workbook"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_real_arity_mismatch_with_written_params_still_detected(self, tmp_path):
+        """Negative control: the empty-parens fix above must not blind the
+        checker to a real signature mismatch when prose DOES write out
+        (wrong) params rather than leaving them bare."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Call `Workbook.save(String)` to persist your changes to disk.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Workbook",
+                "methods": [{
+                    "name": "save",
+                    "params": [{"name": "value", "type": "Stream"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["Workbook"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("stale signature" in reason for reason in result["reasons"])
+
     def test_duplicate_class_rows_union_members(self, tmp_path):
         page = _page(
             tmp_path,
