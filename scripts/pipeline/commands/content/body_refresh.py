@@ -292,6 +292,23 @@ _INTERNAL_LINK_RE = re.compile(
     r'\[([^\]]+)\]\((https?://(?:docs|kb|blog|products)\.aspose\.org[^)]*)\)'
 )
 
+# RPR-ST082-04: known prompt-scaffolding phrases that must never appear in
+# accepted LLM output — their presence means the model echoed back part of
+# its own prompt's completion cue instead of (or in addition to) genuine
+# rewritten content, rather than a link or fence-count violation either
+# existing guard would catch. Found live 2026-08-18, cells/python: the
+# literal line "Rewritten paragraph:" (the exact trailing cue from
+# _paragraph_rewrite's ungrounded-mode user_prompt template) was shipped
+# into installation.md's body text. Folded into the A4 cache key like the
+# RG-010 patterns above, so tightening this list mechanically invalidates
+# affected cache entries.
+_PROMPT_ECHO_PHRASES = (
+    "Rewritten paragraph:",
+    "Rewritten section:",
+    "Original paragraph:",
+    "Original section:",
+)
+
 
 def run_is_llm_degraded(receipts: list[dict]) -> bool:
     """RPR-E-05: a run is 'LLM degraded' if any page's fallback_reason names a cause
@@ -875,6 +892,20 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         # content or orphaned sentences with no surrounding context (RG-002).
         if len(section_text.strip()) < 10:
             return section_text
+        # RPR-ST082-03: guard against appending the note INSIDE an open code
+        # fence. section_text is a sliced impact_section region — sometimes
+        # claim_parser.py's section boundary itself ends mid-code-block
+        # (an odd ``` count), not at a clean prose/heading boundary. Blindly
+        # appending "section_text.rstrip() + note" then lands the note
+        # between the fence-halves of the *whole page*, breaking Python
+        # syntax the same way a bad LLM rewrite would — but via the SAFE
+        # fallback path, which no LLM-output guard (RG-010, the fence-
+        # balance check) ever sees. Found live 2026-08-18, cells/python: 4
+        # of 16 scoped files got a note inserted directly inside a `for`
+        # loop body this way. Matches the spirit of the length guard above:
+        # when there's no safe place to add a note, add nothing.
+        if section_text.count("```") % 2 != 0:
+            return section_text
         existing_content = context.get("page_content", section_text)
         if (
             "API surface also includes" in existing_content
@@ -1007,6 +1038,7 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
             family, platform, change_type,
             sha256_text(system_prompt), sha256_text(user_prompt),
             sha256_text(_ENTERPRISE_LINK_RE.pattern + _INTERNAL_LINK_RE.pattern),
+            sha256_text("".join(_PROMPT_ECHO_PHRASES)),
             _cfg_cache_schema_override or _BODY_REFRESH_CACHE_SCHEMA,
         ])
         entry = llm_cache.load(cache_key)
@@ -1098,6 +1130,18 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
                 f"using deterministic fallback"
             )
             return _fallback("CODE_FENCE_IMBALANCE")
+
+        # RPR-ST082-04: prompt-echo guard. Reject output that leaks one of
+        # this prompt's own scaffolding phrases (the model completing past
+        # its intended stopping point and echoing the cue text back as if it
+        # were content). See _PROMPT_ECHO_PHRASES for the real incident.
+        leaked = [p for p in _PROMPT_ECHO_PHRASES if p in llm_output]
+        if leaked:
+            print(
+                f"PROMPT_ECHO_LEAKED: LLM output contains prompt scaffolding "
+                f"text {leaked!r} — using deterministic fallback"
+            )
+            return _fallback("PROMPT_ECHO_LEAKED")
 
         context["_fallback_reason"] = "NONE"
         # HARDEN-A4: store only RG-010-passing LLM output — a fallback/template

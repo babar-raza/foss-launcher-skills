@@ -1167,6 +1167,61 @@ def test_paragraph_rewrite_falls_back_when_no_grounding_available():
     assert context.get("_fallback_reason") == "NO_GROUNDING_AVAILABLE"
 
 
+def test_deterministic_fallback_skips_note_when_section_ends_mid_code_fence():
+    """RPR-ST082-03: the deterministic fallback must not append its note when
+    section_text itself ends inside an open code fence (odd ``` count) —
+    doing so lands the note between the fence-halves of the whole page,
+    breaking Python syntax. Found live 2026-08-18, cells/python: 4 of 16
+    scoped files got a note inserted directly inside a `for` loop body this
+    way. The fallback must return section_text unchanged rather than risk
+    corrupting a mid-block section, matching the existing "nothing sensible
+    to add" precedent for too-short sections."""
+    section_text = (
+        "for i, (q, r, e) in enumerate(zip(quarters, revenue, expenses), start=2):\n"
+        "```python\n"
+        "    ws.cells[f\"A{i}\"].value = q\n"
+    )
+    assert section_text.count("```") % 2 != 0  # sanity: genuinely mid-fence
+
+    br.configure(api_fact_summary_fn=lambda symbol, family, platform: "")
+    change = {"change_id": "CHG-MIDFENCE-001", "symbol": "NoSuchClass", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert result == section_text, (
+        "must return the section unchanged rather than insert a note mid-fence"
+    )
+
+
+def test_paragraph_rewrite_rejects_leaked_prompt_scaffolding():
+    """RPR-ST082-04: LLM output that echoes back the prompt's own completion
+    cue (e.g. the literal "Rewritten paragraph:" trailer) must be rejected
+    and fall back to the deterministic template — found live 2026-08-18,
+    cells/python: this exact phrase was shipped into installation.md."""
+    section_text = "After installing, run the following snippet to confirm the library loads correctly.\n"
+
+    class EchoingLLM:
+        class MockResult:
+            data = "\n\nRewritten paragraph:\nAfter installing, run the following snippet to confirm the library loads correctly.\n"
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(
+        llm_router_class=EchoingLLM,
+        api_fact_summary_fn=lambda symbol, family, platform: f"`{symbol}` (class): stub",
+    )
+    change = {"change_id": "CHG-ECHO-001", "symbol": "Cell", "change_type": "API_MODIFIED"}
+    context = {"family": "cells", "platform": "python"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    assert "Rewritten paragraph:" not in result
+    assert context.get("_fallback_reason") == "PROMPT_ECHO_LEAKED"
+
+
 def test_paragraph_rewrite_ungrounded_prompt_includes_real_api_facts():
     """RPR-ST082-01 root-cause regression: when a real api-surface summary IS
     available, the ungrounded-mode prompt sent to the LLM must actually

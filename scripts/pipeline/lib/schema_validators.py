@@ -403,6 +403,7 @@ _FALLBACK_REASONS = {
     "CIRCUIT_OPEN",                  # run-scoped circuit already open — LLM not attempted
     "NO_GROUNDING_AVAILABLE",        # no claim text and symbol absent from api_surface.json — nothing factual to rewrite from
     "CODE_FENCE_IMBALANCE",          # LLM output's ``` count differs from the source section's — corrupted code-block structure
+    "PROMPT_ECHO_LEAKED",            # LLM output contains a known prompt-scaffolding phrase (echoed the prompt's own cue text back)
 }
 
 
