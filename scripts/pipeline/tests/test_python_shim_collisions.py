@@ -364,3 +364,74 @@ class TestTestFileReachability:
         ]
         result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
         assert result == []
+
+
+class TestTransitiveReachability:
+    """RPR-ST090-01: a class never re-exported by name, but whose defining
+    file sits on a real multi-hop import chain from a governed __init__.py,
+    must be recognized as genuinely reachable -- not treated the same as a
+    truly dead/shim duplicate (Token/TokenType) that has no such chain."""
+
+    def test_class_reachable_only_via_internal_two_hop_chain_survives(self, tmp_path):
+        # cells/python's real shape: __init__.py directly imports
+        # xlsx_encryptor.py (a real public entry point, encrypt_xlsx), which
+        # internally imports CFBWriter from cfb_handler.py. CFBWriter itself
+        # is never re-exported by name, but the chain __init__.py ->
+        # xlsx_encryptor.py -> cfb_handler.py proves it backs real,
+        # live, exported functionality -- unlike Token/TokenType, whose
+        # sole importer (parser.py) has no path back to any __init__.py.
+        _write(
+            tmp_path, "aspose/cells_foss/__init__.py",
+            "from .xlsx_encryptor import encrypt_xlsx, decrypt_xlsx\n",
+        )
+        _write(
+            tmp_path, "aspose/cells_foss/xlsx_encryptor.py",
+            "from .cfb_handler import CFBReader, CFBWriter, is_encrypted_file\n",
+        )
+        classes = [
+            _cls("CFBWriter", bases=[],
+                 file="aspose/cells_foss/cfb_writer.py",
+                 namespace="cells_foss.cfb_writer"),
+            _cls("CFBWriter", bases=[],
+                 file="aspose/cells_foss/cfb_handler.py",
+                 namespace="cells_foss.cfb_handler"),
+        ]
+        source_files = [
+            tmp_path / "aspose/cells_foss/__init__.py",
+            tmp_path / "aspose/cells_foss/xlsx_encryptor.py",
+            tmp_path / "aspose/cells_foss/cfb_writer.py",
+            tmp_path / "aspose/cells_foss/cfb_handler.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert len(result) == 1
+        assert result[0]["file"] == "aspose/cells_foss/cfb_handler.py"
+
+    def test_token_precedent_unaffected_by_transitive_reachability(self, tmp_path):
+        """Negative control: the new transitive-reachability signal must not
+        rescue Token/TokenType -- their sole importer (parser.py) has no
+        import chain back to any governed __init__.py, so the whole group
+        must still be dropped exactly as before."""
+        _write(
+            tmp_path, "aspose/threed/formats/fbx/__init__.py",
+            "from .FbxLoadOptions import FbxLoadOptions\n",
+        )
+        _write(
+            tmp_path, "aspose/threed/formats/fbx/parser.py",
+            "from .tokenizer import Token\n",
+        )
+        classes = [
+            _cls("Token", bases=[],
+                 file="aspose/threed/formats/fbx/binary_tokenizer.py",
+                 namespace="threed.formats.fbx.binary_tokenizer"),
+            _cls("Token", bases=[],
+                 file="aspose/threed/formats/fbx/tokenizer.py",
+                 namespace="threed.formats.fbx.tokenizer"),
+        ]
+        source_files = [
+            tmp_path / "aspose/threed/formats/fbx/__init__.py",
+            tmp_path / "aspose/threed/formats/fbx/parser.py",
+            tmp_path / "aspose/threed/formats/fbx/binary_tokenizer.py",
+            tmp_path / "aspose/threed/formats/fbx/tokenizer.py",
+        ]
+        result = _resolve_python_shim_collisions(classes, source_files, tmp_path)
+        assert result == []

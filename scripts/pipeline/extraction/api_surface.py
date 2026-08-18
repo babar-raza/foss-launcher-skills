@@ -2232,6 +2232,70 @@ def _resolve_python_shim_collisions(
                     if imported_name:
                         reachable.add((imported_name, target_rel))
 
+    # RPR-ST090-01: transitive reachability. The direct `reachable` set above
+    # only captures a class imported ONE hop from a governed __init__.py (or
+    # a test). That correctly excludes Token/TokenType (imported only by a
+    # sibling internal file, formats/fbx/parser.py, which is itself never
+    # reached from any __init__.py or test — genuinely dead-adjacent code).
+    # But it also wrongly excluded a real, live case: cells/python's
+    # `CFBWriter` (cfb_handler.py) is never re-exported by name, yet is
+    # imported and instantiated by xlsx_encryptor.py, whose own
+    # `encrypt_xlsx`/`decrypt_xlsx` functions ARE directly imported by
+    # __init__.py (`from .xlsx_encryptor import encrypt_xlsx, decrypt_xlsx`)
+    # -- a real public entry point's implementation chain passes through
+    # cfb_handler.py two hops out, which is strong evidence of genuine use,
+    # not shim/dead code. Found live 2026-08-18, cells/python S-84
+    # remediation: the whole-group-drop below discarded BOTH same-named
+    # CFBWriter classes (this one and cfb_writer.py's unrelated low-level
+    # MS-CFB writer), which cascaded into knowledge_delta.json wrongly
+    # reporting a real, actively-used class as `removed_apis`.
+    #
+    # Fix: build a file-level import graph from EVERY source file (not just
+    # __init__.py/tests), then BFS from the files already proven reachable
+    # by the direct signals above. A class whose defining file is reached
+    # this way is transitively reachable even though its own name was never
+    # re-exported — this generalizes signal 2 without weakening the
+    # Token/TokenType exclusion, since Token/TokenType's own importer
+    # (parser.py) has no path back to any governed __init__.py either.
+    file_import_graph: dict[str, set[str]] = defaultdict(set)
+    for src_file in source_files:
+        if not src_file.name.endswith(".py"):
+            continue
+        try:
+            src_rel = str(src_file.relative_to(repo)).replace("\\", "/")
+        except ValueError:
+            continue
+        try:
+            content = src_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for dots, modpath, _names_part in (
+            list(_PY_RELATIVE_IMPORT_RE.findall(content))
+            + list(_PY_RELATIVE_IMPORT_PAREN_RE.findall(content))
+        ):
+            if not modpath:
+                continue
+            base_dir = src_file.parent
+            for _ in range(len(dots) - 1):
+                base_dir = base_dir.parent
+            target = base_dir.joinpath(*modpath.split(".")).with_suffix(".py")
+            try:
+                target_rel = str(target.relative_to(repo)).replace("\\", "/")
+            except ValueError:
+                continue
+            file_import_graph[src_rel].add(target_rel)
+
+    transitively_reachable_files: set[str] = set()
+    frontier = [target_rel for _name, target_rel in reachable]
+    seen_files = set(frontier)
+    while frontier:
+        current = frontier.pop()
+        transitively_reachable_files.add(current)
+        for nxt in file_import_graph.get(current, ()):
+            if nxt not in seen_files:
+                seen_files.add(nxt)
+                frontier.append(nxt)
+
     groups: dict[str, list[int]] = defaultdict(list)
     for i, c in enumerate(classes):
         n = c.get("name", "")
@@ -2268,15 +2332,37 @@ def _resolve_python_shim_collisions(
             continue
 
         if not reachable_idx:
-            # Zero reachable (via __init__.py re-export) is only meaningful
-            # when EVERY entry's own directory has a real, curating
-            # __init__.py that had the chance to export it and didn't --
-            # e.g. all Token/TokenType duplicates sit in formats/fbx/,
-            # which has a real __init__.py that imports other classes but
-            # never these, AND (confirmed live 2026-08-17) neither Token
-            # nor TokenType is ever imported from any test file either --
-            # only from one internal implementation file (parser.py),
-            # which is not evidence of public status. A file no __init__.py
+            # RPR-ST090-01: before falling back to the directory-curation
+            # heuristic below, check transitive file reachability -- if
+            # exactly one candidate's defining file sits on a real import
+            # chain from a governed __init__.py (through any number of
+            # internal hops), that one is genuinely live code and the
+            # others are the actual shim/dead duplicates.
+            file_reachable_idx = [
+                i for i, e in entries
+                if e.get("file", "") in transitively_reachable_files
+            ]
+            if len(file_reachable_idx) == 1:
+                for i in indices:
+                    if i not in file_reachable_idx:
+                        discard.add(i)
+                LOG.info(
+                    "PY-SHIM: %s — kept transitively-reachable %s, discarded "
+                    "%d duplicate(s) with no import chain to any __init__.py",
+                    name, classes[file_reachable_idx[0]].get("file", ""),
+                    len(indices) - 1,
+                )
+                continue
+
+            # Zero (transitively) reachable is only meaningful when EVERY
+            # entry's own directory has a real, curating __init__.py that
+            # had the chance to export it and didn't -- e.g. all
+            # Token/TokenType duplicates sit in formats/fbx/, which has a
+            # real __init__.py that imports other classes but never these,
+            # AND (confirmed live 2026-08-17) neither Token nor TokenType is
+            # ever imported from any test file either, nor does their own
+            # importer (parser.py) chain back to any governed __init__.py --
+            # genuine evidence of non-public status. A file no __init__.py
             # imports anything from at all AND that is never imported from
             # any test file (namespace package, or genuinely distinct
             # same-name classes users import directly from their own
