@@ -2250,14 +2250,32 @@ def _resolve_python_shim_collisions(
     # MS-CFB writer), which cascaded into knowledge_delta.json wrongly
     # reporting a real, actively-used class as `removed_apis`.
     #
-    # Fix: build a file-level import graph from EVERY source file (not just
-    # __init__.py/tests), then BFS from the files already proven reachable
-    # by the direct signals above. A class whose defining file is reached
-    # this way is transitively reachable even though its own name was never
-    # re-exported — this generalizes signal 2 without weakening the
-    # Token/TokenType exclusion, since Token/TokenType's own importer
-    # (parser.py) has no path back to any governed __init__.py either.
-    file_import_graph: dict[str, set[str]] = defaultdict(set)
+    # Fix: build TWO graphs from every source file (not just __init__.py/
+    # tests): `file_targets` (which files each file imports FROM, alias-
+    # agnostic -- importing a module executes it regardless of what name
+    # the imported symbol is bound to locally) and `unaliased_imports`
+    # (name, target_file) pairs recorded ONLY when the import is NOT
+    # aliased -- an aliased import (`from .cfb_writer import CFBWriter as
+    # CFBWriterImpl`) deliberately does NOT count as evidence that
+    # "CFBWriter" itself is reachable by that name, since nothing
+    # downstream can ever refer to it as "CFBWriter" again. This
+    # alias-awareness is what correctly separates cfb_writer.py's
+    # CFBWriter (only ever referenced under the CFBWriterImpl alias --
+    # stays excluded) from cfb_handler.py's CFBWriter (imported bare,
+    # `from .cfb_handler import CFBReader, CFBWriter, is_encrypted_file`,
+    # by xlsx_encryptor.py -- correctly recognized as reachable). Without
+    # this distinction, a first version of this fix propagated file-level
+    # reachability through the alias edge too and wrongly re-included
+    # BOTH same-named classes again.
+    #
+    # `reachable_files` is then the set of files transitively imported
+    # (any name, alias or not) starting from files already proven
+    # reachable by the existing direct signals -- this generalizes signal
+    # 2 without weakening the Token/TokenType exclusion, since
+    # Token/TokenType's own importer (parser.py) has no import chain back
+    # to any governed __init__.py either, so it never enters this set.
+    file_targets: dict[str, set[str]] = defaultdict(set)
+    unaliased_imports: dict[str, set[tuple[str, str]]] = defaultdict(set)
     for src_file in source_files:
         if not src_file.name.endswith(".py"):
             continue
@@ -2269,7 +2287,7 @@ def _resolve_python_shim_collisions(
             content = src_file.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        for dots, modpath, _names_part in (
+        for dots, modpath, names_part in (
             list(_PY_RELATIVE_IMPORT_RE.findall(content))
             + list(_PY_RELATIVE_IMPORT_PAREN_RE.findall(content))
         ):
@@ -2283,18 +2301,31 @@ def _resolve_python_shim_collisions(
                 target_rel = str(target.relative_to(repo)).replace("\\", "/")
             except ValueError:
                 continue
-            file_import_graph[src_rel].add(target_rel)
+            file_targets[src_rel].add(target_rel)
+            for raw_name in names_part.split(","):
+                raw_name = raw_name.strip()
+                if not raw_name:
+                    continue
+                if " as " in raw_name:
+                    continue  # aliased -- does not count for name-level reachability
+                unaliased_imports[src_rel].add((raw_name, target_rel))
 
-    transitively_reachable_files: set[str] = set()
-    frontier = [target_rel for _name, target_rel in reachable]
-    seen_files = set(frontier)
+    reachable_files: set[str] = {target_rel for _name, target_rel in reachable}
+    frontier = list(reachable_files)
     while frontier:
         current = frontier.pop()
-        transitively_reachable_files.add(current)
-        for nxt in file_import_graph.get(current, ()):
-            if nxt not in seen_files:
-                seen_files.add(nxt)
-                frontier.append(nxt)
+        for target_rel in file_targets.get(current, ()):
+            if target_rel not in reachable_files:
+                reachable_files.add(target_rel)
+                frontier.append(target_rel)
+
+    def _symbol_transitively_reachable(name: str, file: str) -> bool:
+        if (name, file) in reachable:
+            return True
+        return any(
+            (name, file) in unaliased_imports.get(g, ())
+            for g in reachable_files
+        )
 
     groups: dict[str, list[int]] = defaultdict(list)
     for i, c in enumerate(classes):
@@ -2333,14 +2364,15 @@ def _resolve_python_shim_collisions(
 
         if not reachable_idx:
             # RPR-ST090-01: before falling back to the directory-curation
-            # heuristic below, check transitive file reachability -- if
-            # exactly one candidate's defining file sits on a real import
-            # chain from a governed __init__.py (through any number of
-            # internal hops), that one is genuinely live code and the
-            # others are the actual shim/dead duplicates.
+            # heuristic below, check transitive SYMBOL reachability -- if
+            # exactly one candidate's own name is imported, unaliased, by
+            # some file that is itself reached (through any number of
+            # internal hops) from a governed __init__.py, that one is
+            # genuinely live code and the others are the actual shim/dead
+            # duplicates.
             file_reachable_idx = [
                 i for i, e in entries
-                if e.get("file", "") in transitively_reachable_files
+                if _symbol_transitively_reachable(name, e.get("file", ""))
             ]
             if len(file_reachable_idx) == 1:
                 for i in indices:

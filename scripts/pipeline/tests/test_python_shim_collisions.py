@@ -388,6 +388,16 @@ class TestTransitiveReachability:
             tmp_path, "aspose/cells_foss/xlsx_encryptor.py",
             "from .cfb_handler import CFBReader, CFBWriter, is_encrypted_file\n",
         )
+        # The real repo's cfb_handler.py ALSO imports cfb_writer.py's own
+        # CFBWriter internally, but under an alias -- this must NOT count
+        # as evidence that cfb_writer.py's CFBWriter is reachable by its
+        # own name (a first version of this fix missed this and wrongly
+        # re-included BOTH classes, since propagating file-level
+        # reachability through the alias edge made both files "reachable").
+        _write(
+            tmp_path, "aspose/cells_foss/cfb_handler.py",
+            "from .cfb_writer import CFBWriter as CFBWriterImpl\n",
+        )
         classes = [
             _cls("CFBWriter", bases=[],
                  file="aspose/cells_foss/cfb_writer.py",
