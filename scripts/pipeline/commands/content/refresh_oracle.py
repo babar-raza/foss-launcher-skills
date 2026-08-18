@@ -209,6 +209,45 @@ def _validate_stale_absence(page_path: str, prose_stale_results: dict) -> list[d
     return findings
 
 
+# RPR-ST089-01: bare-word literal/keyword tokens that are never API symbols
+# regardless of family/platform -- Python's `None`/`True`/`False` keywords,
+# Excel formula boolean literals (`TRUE`/`FALSE`), and the common builtin
+# exception names a Python product's error-handling prose routinely cites
+# by name (e.g. "raises `FileNotFoundError`"). None of these collide with a
+# real class name in any product's api_surface.json (verified spot-check
+# against cells/python's), and _BACKTICK_API_RE's `[A-Z]` start requirement
+# means every one of them looks exactly like a claimed API-symbol reference
+# to the naive matcher.
+_LITERAL_AND_BUILTIN_TOKENS = {
+    "None", "True", "False", "TRUE", "FALSE",
+    "AttributeError", "TypeError", "ValueError", "KeyError", "IndexError",
+    "FileNotFoundError", "NotImplementedError", "UnicodeDecodeError",
+    "UnicodeEncodeError", "RuntimeError", "StopIteration", "ImportError",
+    "OSError", "IOError", "ZeroDivisionError", "OverflowError",
+    "MemoryError", "NameError", "PermissionError", "TimeoutError",
+    "ConnectionError", "ArithmeticError", "LookupError",
+}
+
+# RPR-ST089-02: a token made ENTIRELY of hex digit characters (0-9, A-F), in
+# a byte-aligned length (2, 4, 6, or 8 characters), is overwhelmingly more
+# likely to be an ARGB/RGB hex color literal or a single hex byte (e.g.
+# `FF1E64C8`, `FFFFFFFF`, or bare `FF` for "fully opaque alpha") than a real
+# class name -- real PascalCase API class names virtually always contain at
+# least one letter outside A-F, and a genuine 2-letter class name is not a
+# real-world shape this codebase uses anywhere. Found live 2026-08-18,
+# cells/python: a correct styling guide citing hex color literals (8-digit)
+# and the bare alpha-byte shorthand (2-digit) in backticks produced 15
+# false INVALID_SYMBOL findings on a single page.
+_HEX_LITERAL_RE = re.compile(r"^(?:[0-9A-F]{2}){1,4}$")
+
+# RPR-ST089-03: a LETTER+DIGITS token (e.g. `B5`, `D5`, `AB123`) is a
+# spreadsheet cell-address reference, not an API symbol -- extremely common
+# in a spreadsheet product's prose ("apply the style to cell `B5`") and
+# never a real class name shape (api_surface class names don't end in
+# digits following a 1-3 letter prefix with no other letters).
+_CELL_ADDRESS_RE = re.compile(r"^[A-Z]{1,3}[0-9]{1,7}$")
+
+
 def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
     """Return findings for backtick symbols not in api_surface."""
     if not api_surface:
@@ -244,6 +283,18 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # api_surface.json).
         "Square", "Circle", "Line", "Polygon", "PolyLine", "Ink",
         "Highlight", "Underline", "StrikeOut", "Squiggly", "FreeText",
+        # License-name and ARGB-format-notation tokens -- neither is ever a
+        # real API class. "AARRGGBB" is the byte-order NAME for an ARGB hex
+        # literal (Alpha-Red-Green-Blue), not itself valid hex (contains
+        # G), so it doesn't match _HEX_LITERAL_RE and needs an explicit
+        # entry. Found live 2026-08-18, cells/python.
+        "MIT", "AARRGGBB",
+        # Bare single-letter spreadsheet column references ("apply
+        # formatting to column `C`") -- a real api_surface class name is
+        # never a single uppercase letter, matching the existing
+        # X/Y/Z (axis-label) precedent above for the same reasoning.
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
     }
     for i, line in enumerate(body.splitlines(), start=1):
         for m in _BACKTICK_API_RE.finditer(line):
@@ -252,6 +303,10 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
             if token in framework_tokens or base in framework_tokens:
                 continue
             if token in content_tokens:
+                continue
+            if token in _LITERAL_AND_BUILTIN_TOKENS:
+                continue
+            if _HEX_LITERAL_RE.match(token) or _CELL_ADDRESS_RE.match(token):
                 continue
             if token.startswith("Aspose.Pdf") and any(
                 candidate == token or candidate.startswith(token + ".")

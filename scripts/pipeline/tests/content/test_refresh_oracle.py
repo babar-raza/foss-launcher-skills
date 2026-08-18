@@ -139,6 +139,73 @@ def test_pdf_annotation_subtype_literals_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_python_builtins_and_literals_are_allowed(tmp_path):
+    """RPR-ST089-01: Python's None/True/False keywords, Excel formula
+    boolean literals, and common builtin exception names are never API
+    symbols regardless of family/platform. Found live 2026-08-18,
+    cells/python: correct error-handling and formula prose produced false
+    INVALID_SYMBOL findings on `None`, `False`, `AttributeError`, etc."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "If the value is `None`, skip it. Use `=IF(A1,TRUE,FALSE)` for the "
+        "formula. This raises `AttributeError` or `FileNotFoundError` on "
+        "failure.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_hex_color_literals_are_allowed(tmp_path):
+    """RPR-ST089-02: ARGB/RGB hex color literals (8, 6, or 2 hex digits,
+    e.g. `FF1E64C8`, `FFFFFFFF`, bare `FF` for the alpha byte) are never API
+    symbols. Found live 2026-08-18, cells/python: a styling guide citing
+    hex color values produced 15 false INVALID_SYMBOL findings on one
+    page."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Use `FF1E64C8` for corporate blue or `FFFFFFFF` for white. The "
+        "alpha byte `FF` means fully opaque.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_hex_literal_regex_does_not_swallow_real_class_names(tmp_path):
+    """Negative control: the hex-literal exclusion must not blind the
+    checker to a real, non-hex-shaped class name that happens to contain
+    only uppercase letters."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\nUse `NonExistentClass` to convert.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert any(f["finding_type"] == ro.FINDING_INVALID_SYMBOL for f in findings)
+
+
+def test_spreadsheet_cell_addresses_are_allowed(tmp_path):
+    """RPR-ST089-03: spreadsheet cell-address references (`B5`, `D5`) and
+    bare single-letter column references (`C`) are never API symbols in a
+    spreadsheet product's prose. Found live 2026-08-18, cells/python."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Apply the style to cell `B5` and cell `D5`, or to column `C` "
+        "entirely.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_load_api_surface_includes_namespaces_and_members(tmp_path):
     """api_surface loader exposes class imports, namespace prefixes, methods, and properties."""
     _setup(tmp_path)
