@@ -556,6 +556,98 @@ def _apply_scope_enforcement(
         result["scope_required"] = {"hard_gate": True, "findings": scope_required_findings}
 
 
+def _candidate_last_verified_path(family: str, platform: str) -> Path:
+    """TC-M56-09 (2026-08-18): sibling to acceptance-registry.json, same agent-visible tier.
+    Records the fingerprint of the candidate the LAST TIME any check battery actually ran
+    against it (ingest-candidate, recheck, or audit-portfolio) -- never candidate content
+    itself, only its identity. Exists because a real, untracked writer editing a canonical
+    candidate file directly on disk (confirmed live during the MT056 proof pass: 3 products'
+    candidates were edited by a process outside every CLI path, invisible to git since
+    reports/ is gitignored, invisible to every other MT056 gate since no run was ever
+    started) went completely undetected until a portfolio audit happened to notice a
+    downstream side effect. A write-time lock cannot catch this class of incident -- the
+    observed writer never went through any cooperating CLI path to lock against. A fingerprint
+    marker is the only mechanism that can detect the drift after the fact."""
+    return _reports_root / _candidate_tree_name / family / platform / "last-verified.json"
+
+
+def _load_candidate_last_verified(family: str, platform: str) -> "dict | None":
+    path = _candidate_last_verified_path(family, platform)
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _write_candidate_verification_marker(
+    family: str, platform: str, text: str, *, run_id: "str | None"
+) -> None:
+    _write_json(_candidate_last_verified_path(family, platform), {
+        "readme_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "verified_at": _utc(),
+        "verified_by_run_id": run_id,
+        # readme-refresh-seo-deps-headings-hardening mission (2026-08-19), TC-SDH-05: see
+        # checks.CHECKS_MODULE_VERSION's own docstring.
+        "checks_module_version": checks.CHECKS_MODULE_VERSION,
+    })
+
+
+def _checks_currency_findings(family: str, platform: str) -> list[dict]:
+    """TC-SDH-05 (2026-08-19): advisory-only, portfolio-visibility signal -- NEVER a hard gate,
+    same tier as `_candidate_drift_findings` (immediately above), whose "was this candidate
+    edited since it was last checked" question this deliberately does NOT answer. This answers a
+    different one: "was this candidate last checked against the CURRENT checks module, or an
+    older one?" A candidate can be byte-identical to its last-verified snapshot (drift-clean)
+    while that snapshot's own certification predates checks added since -- exactly what happened
+    to 3d/net today: its `audit_portfolio -> clean: true` result from earlier this same session
+    was true, but only against checks module version 1; this mission's 3 new checks (version 2)
+    never ran against it. A marker with no `checks_module_version` field at all (written before
+    this mission) is treated as version 0 -- always stale relative to any real version, the safe
+    default (never silently treated as current)."""
+    marker = _load_candidate_last_verified(family, platform)
+    if marker is None:
+        return []
+    stored_version = marker.get("checks_module_version", 0)
+    current_version = checks.CHECKS_MODULE_VERSION
+    if stored_version >= current_version:
+        return []
+    return [{
+        "reason": f"this candidate was last verified against checks module version "
+                  f"{stored_version} but the running module is version {current_version} -- "
+                  f"its 'clean' certification predates checks added since and should not be "
+                  f"trusted without a fresh audit_portfolio/ingest-candidate/recheck run",
+        "stored_checks_module_version": stored_version,
+        "current_checks_module_version": current_version,
+    }]
+
+
+def _candidate_drift_findings(family: str, platform: str, text: str) -> list[dict]:
+    """TC-M56-09: advisory-only, portfolio-visibility signal -- NEVER a hard gate. A candidate
+    legitimately differs from its own last-verified marker every time an agent edits it before
+    the very next ingest-candidate call in the same, ordinary compose-then-verify workflow;
+    that is expected, not a defect. The real value is in `audit-portfolio`, run independently
+    of any active editing session: a nonzero finding there means the candidate moved since
+    anyone last ran checks on it, regardless of who moved it or why -- exactly the fact that
+    was invisible for 3 real products during the MT056 proof pass until an unrelated
+    portfolio-diff happened to expose a side effect of it."""
+    marker = _load_candidate_last_verified(family, platform)
+    if marker is None:
+        return []
+    recorded_sha = marker.get("readme_sha256")
+    current_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    if recorded_sha == current_sha:
+        return []
+    return [{
+        "reason": f"candidate content changed since it was last verified at "
+                  f"{marker.get('verified_at')!r} (run {marker.get('verified_by_run_id')!r}) -- "
+                  "review this change before treating the candidate as previously audited",
+        "last_verified_at": marker.get("verified_at"),
+        "last_verified_by_run_id": marker.get("verified_by_run_id"),
+    }]
+
+
 def _published_readme_current_findings(
     family: str, platform: str, readme_already_published: bool
 ) -> list[dict]:
@@ -1794,6 +1886,9 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             for direction in ("import", "export")
             for row in candidate_format_evidence.get(direction, [])
         }
+        seo_keywords_filtered = checks.filter_relevant_seo_keywords(
+            raw_seo_keywords["keywords"], family, platform, known_format_names_for_seo,
+        )
         install_info = _detect_install_info(family, platform)
         license_file = _detect_license_file(clone_cache)
         dev_test_artifacts = _detect_dev_test_artifacts(clone_cache)
@@ -1811,8 +1906,13 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
             "license_file": license_file,
             "enterprise_link": _detect_enterprise_link(family, platform),
             "seo_keywords": raw_seo_keywords,
-            "seo_keywords_filtered": checks.filter_relevant_seo_keywords(
-                raw_seo_keywords["keywords"], family, platform, known_format_names_for_seo,
+            "seo_keywords_filtered": seo_keywords_filtered,
+            # readme-refresh-seo-deps-headings-hardening mission (2026-08-19): the typed
+            # placement plan -- see checks.build_seo_keyword_placement_plan's own docstring.
+            # Recomputed fresh (not read back) inside _run_deterministic_checks too, matching
+            # this function's own established pattern for every other _detect_*-derived value.
+            "seo_keyword_placement_plan": checks.build_seo_keyword_placement_plan(
+                seo_keywords_filtered, family,
             ),
             "old_readme_inventory": _old_readme_inventory(clone_cache),
             "homepage": _detect_homepage_link(family, platform),
@@ -1868,6 +1968,9 @@ def ingest_candidate(
         # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
         # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
         _apply_scope_enforcement(result, family, platform, run_id, text)
+        # TC-M56-09: record that this exact content was just verified, regardless of hard-gate
+        # outcome -- "we looked at it" is the marker's semantic, not "it passed".
+        _write_candidate_verification_marker(family, platform, text, run_id=run_id)
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
@@ -2716,6 +2819,52 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             content_units, dispositions, dependency_snapshot,
         ),
     }
+    # readme-refresh-seo-deps-headings-hardening mission (2026-08-19): the Dependencies
+    # ###-subheading presence contract -- see check_dependency_section_subheadings_present's
+    # own docstring. Reuses the same dependency_snapshot already computed at the top of this
+    # function.
+    result["dependency_section_subheadings_present"] = {
+        "hard_gate": True,
+        "findings": checks.check_dependency_section_subheadings_present(text, dependency_snapshot),
+    }
+    # Same mission: the SEO keyword placement-plan usage heuristic -- recomputed fresh here
+    # (never read back from a persisted factpack.json), matching this function's own
+    # established pattern for every other _detect_*-derived value (dependency_snapshot, above,
+    # is the same shape). filter_relevant_seo_keywords needs real per-product format evidence,
+    # cheap to recompute (family/platform only, no clone_cache I/O).
+    seo_candidate_format_evidence = _compute_candidate_format_evidence(family, platform)
+    seo_known_format_names = {
+        row["format"]
+        for direction in ("import", "export")
+        for row in seo_candidate_format_evidence.get(direction, [])
+    }
+    seo_keywords_filtered = checks.filter_relevant_seo_keywords(
+        _detect_seo_keywords(family, platform)["keywords"], family, platform, seo_known_format_names,
+    )
+    seo_keyword_plan = checks.build_seo_keyword_placement_plan(seo_keywords_filtered, family)
+    result["seo_keyword_plan_usage"] = {
+        "hard_gate": False,
+        "findings": checks.check_seo_keyword_plan_usage(text, seo_keyword_plan),
+    }
+    # Same mission: every worked example inside "View Additional Examples" must carry its own
+    # real, non-generic, unique heading -- see check_additional_example_headings' own docstring.
+    result["additional_example_headings"] = {
+        "hard_gate": True,
+        "findings": checks.check_additional_example_headings(text),
+    }
+    # TC-M56-09 (2026-08-18): advisory drift-since-last-verified signal, computed here so it
+    # fires identically from ingest_candidate, recheck, AND audit_portfolio -- the one shared
+    # entry point all three already route through.
+    result["candidate_drift_since_last_verified"] = {
+        "hard_gate": False,
+        "findings": _candidate_drift_findings(family, platform, text),
+    }
+    # Same mission: checks-module-currency staleness tripwire -- see
+    # _checks_currency_findings' own docstring for why "clean" silently rots as checks are added.
+    result["verification_currency"] = {
+        "hard_gate": False,
+        "findings": _checks_currency_findings(family, platform),
+    }
     return result
 
 
@@ -2731,8 +2880,13 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
     narrowed to one `family`/`platform` pair), skips a product with no composed candidate yet
     (never an error -- not every product has been generated), and runs the exact same
     `_run_deterministic_checks` `ingest-candidate`/`recheck` already use against each real
-    candidate on disk. Purely read-only: never writes to any candidate, never mutates any run
-    state, never requires an active run (`start`/`plan`) for the product being audited.
+    candidate on disk. Never writes to any CANDIDATE, never mutates any run state, never
+    requires an active run (`start`/`plan`) for the product being audited. TC-M56-09
+    (2026-08-18) is the one, deliberate exception to "purely read-only": it stamps a small
+    sidecar `last-verified.json` fingerprint marker next to each audited candidate (never the
+    candidate itself) -- the mechanism that lets a LATER audit-portfolio call detect drift from
+    an untracked writer, the exact class of incident (3 real candidates edited outside every
+    CLI path, invisible to every other gate) this pass's own live proof caught red-handed.
 
     Returns `{"products": [{"family", "platform", "clean", "hard_gate_findings": {check_name:
     count}, "published"}], "clean_count", "dirty_count", "total", "skipped": [{"family",
@@ -2778,6 +2932,23 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         text = candidate_path.read_text(encoding="utf-8")
         clone_cache = _product_clone_cache(fam, plat)
         result = _run_deterministic_checks(fam, plat, text, clone_cache)
+        # TC-M56-09: capture the drift finding BEFORE the marker write below overwrites its own
+        # basis for comparison. This is advisory (hard_gate=False) by deliberate design (a
+        # legitimate edit-then-ingest workflow always shows "changed" and that's correct, not a
+        # defect) -- which means it is invisible to `hard_gate_findings` below by construction.
+        # A real, found-live gap in this task's own first draft: audit_portfolio's per-product
+        # summary previously reported ONLY hard-gate findings, so this advisory signal, despite
+        # firing correctly inside _run_deterministic_checks, never reached the actual output --
+        # caught by re-deriving the call chain end to end rather than trusting the unit-level
+        # result alone. Surfaced here as its own explicit field, never buried in a generic
+        # advisory dump.
+        candidate_drift = result.get("candidate_drift_since_last_verified", {}).get("findings", [])
+        # TC-M56-09: audit-portfolio is a real, independent verification pass too -- record it,
+        # same marker, run_id=None (no run owns a portfolio-wide audit). Written AFTER capturing
+        # candidate_drift above -- writing first would make every drift event invisible to this
+        # very call (the marker would already match by the time hard_gate_findings/candidate_
+        # drift below are computed).
+        _write_candidate_verification_marker(fam, plat, text, run_id=None)
         hard_gate_findings = {
             name: len(check["findings"])
             for name, check in result.items()
@@ -2791,6 +2962,7 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
             "clean": not hard_gate_findings,
             "hard_gate_findings": hard_gate_findings,
             "published": published,
+            "candidate_drift": candidate_drift,
         })
 
     clean_count = sum(1 for p in product_results if p["clean"])
@@ -2886,6 +3058,8 @@ def recheck(
         # MT056: fail-closed scope/store/frozen-block enforcement (recheck records the findings;
         # it deliberately still never raises -- AWAITING_REVIEW is a human-in-the-loop hold).
         _apply_scope_enforcement(result, family, platform, run_id, text)
+        # TC-M56-09: same "we looked at it" marker as ingest-candidate.
+        _write_candidate_verification_marker(family, platform, text, run_id=run_id)
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
@@ -3764,9 +3938,17 @@ def main(argv: "list[str] | None" = None) -> int:
                 if published:
                     names = ", ".join(f"{p['family']}/{p['platform']}" for p in published)
                     print(f"Already published upstream ({len(published)}): {names}")
+                # TC-M56-09: drift is advisory (never a hard gate), so it can fire on an
+                # otherwise-clean product -- printed as its own line, independent of the
+                # DIRTY loop below, so it is never silently absorbed into "clean".
+                drifted = [p for p in result["products"] if p.get("candidate_drift")]
+                if drifted:
+                    names = ", ".join(f"{p['family']}/{p['platform']}" for p in drifted)
+                    print(f"Changed since last verified ({len(drifted)}): {names}")
                 for p in result["products"]:
                     if not p["clean"]:
                         tag = " [published]" if p.get("published") else ""
+                        tag += " [drift]" if p.get("candidate_drift") else ""
                         print(f"  DIRTY {p['family']}/{p['platform']}{tag}: {p['hard_gate_findings']}")
                 if result["skipped"]:
                     print(f"Skipped ({len(result['skipped'])}, no candidate yet):")

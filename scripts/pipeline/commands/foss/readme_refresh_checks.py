@@ -187,6 +187,20 @@ from pathlib import Path
 from lib.api_table_dupes import find_duplicate_rows as _find_duplicate_rows
 from dataclasses import dataclass, field
 
+# readme-refresh-seo-deps-headings-hardening mission (2026-08-19), TC-SDH-05: a monotonic
+# version marker for this module, bumped every time a check_* function is added or a hard gate's
+# pass/fail semantics change. Root-cause fix for a real structural gap: a candidate's
+# "audit_portfolio -> clean: true" result is only ever true against the checks that existed AT
+# THAT MOMENT -- nothing in this pipeline previously flagged that a "clean" candidate's
+# certification had gone stale relative to checks added since. `_write_candidate_verification_
+# marker` (readme_refresh_run.py) stamps this value into each candidate's own last-verified.json
+# every time verification runs; `_checks_currency_findings` (same module) compares the stored
+# value against this live constant and reports an advisory (never hard-gate) finding when they
+# diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
+# tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
+# state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
+CHECKS_MODULE_VERSION = 2  # 1 = snapshot at MT056 (2026-08-18); 2 = this mission's 3 new checks
+
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
 _MERMAID_BLOCK_PLACEHOLDER = "```mermaid\n<MERMAID_BLOCK_CHECKED_SEPARATELY>\n```"
@@ -1891,6 +1905,122 @@ def check_process_narration_smells(readme_text: str) -> list[dict]:
         start = max(0, match.start() - 40)
         end = min(len(readme_text), match.end() + 40)
         findings.append({"phrase": match.group(0), "context": readme_text[start:end].replace("\n", " ")})
+    return findings
+
+
+# --- MT057 (Fifty-Seventh incident, 2026-08-19): upstream-issue GitHub Issue draft leak/
+# rejection checks (TC-UIW-06/07). Deliberately a SEPARATE pattern list from
+# _PROCESS_NARRATION_PATTERNS above, not an extension of it -- confirmed, before writing this,
+# that several of the mission's own suggested additive patterns (most notably
+# "upstream-issues.md") are ALREADY a legitimate, sanctioned citation in real, currently-passing
+# README content (e.g. html/python's own "see upstream-issues.md for the root cause" pointer
+# sentence, the exact pattern check_no_upstream_issue_leaked_into_readme's own docstring names
+# as the correct, non-forensic remediation shape). Mutating the shared _PROCESS_NARRATION_
+# PATTERNS list to add issue-draft-only rules would have silently broken every one of those
+# already-correct README candidates the next time check_process_narration_smells runs against
+# them -- a real regression this plan's own "verify against real content before trusting a
+# pattern addition" discipline exists to catch. A citation of upstream-issues.md IS a real leak
+# risk specifically inside a public GitHub Issue draft (it references this project's own
+# internal tracking file, which does not exist in the target repo and reveals this pipeline's
+# own tooling) even though it is fine inside this project's own generated README dev-docs -- two
+# genuinely different contexts, two genuinely different pattern sets, reusing the SAME proven
+# regex-based mechanism (never reimplemented) but never sharing the same constant.
+_ISSUE_DRAFT_ADDITIONAL_LEAK_PATTERNS = [
+    r"\btaskcard\b",
+    r"\bMT0\d+\b",
+    r"\bTC-[A-Z]+-\d+\b",
+    r"\bcandidate-generation\b",
+    r"\bsession_id\b",
+    r"\bfinding_id\b",
+    r"\bbundle_id\b",
+    r"\bclone_cache\b",
+    r"\bupstream-issues\.md\b",
+    r"\bcontent-dispositions\.json\b",
+    r"\breports[/\\]_scratch\b",
+    r"\breports[/\\]repo-presenter\b",
+    r"\breadme_refresh_(?:run|checks)\.py\b",
+    r"C:\\Users\\|/home/[a-z]+/|/Users/[a-z]+/",
+]
+_ISSUE_DRAFT_ADDITIONAL_LEAK_RE = re.compile("|".join(_ISSUE_DRAFT_ADDITIONAL_LEAK_PATTERNS), re.IGNORECASE)
+
+
+def check_no_internal_details_leaked_into_issue_draft(draft_text: str) -> list[dict]:
+    """HARD GATE (MT057, TC-UIW-06). Reuses `_PROCESS_NARRATION_RE` verbatim (the same
+    generation/verification-process narration language this module already forbids in public
+    README prose is equally out of place in a public GitHub Issue draft -- an issue should state
+    a plain, reproducible defect, never narrate this pipeline's own audit trail) PLUS the
+    issue-draft-specific `_ISSUE_DRAFT_ADDITIONAL_LEAK_RE` above (internal task/file/path
+    references that have no legitimate reason to ever appear in a public issue, unlike in this
+    project's own generated README content). A whole-text scan (mirroring `check_process_
+    narration_smells`'s own approach, not `check_no_upstream_issue_leaked_into_readme`'s
+    per-scan-unit splitting) is correct here: a plain phrase/token match, unlike fingerprint-
+    token-overlap matching, cannot misattribute a match across unrelated bullets -- the match
+    position IS the leak's real location, so no unit-splitting is needed to avoid false
+    cross-attribution.
+    """
+    findings = []
+    for pattern_re, category in (
+        (_PROCESS_NARRATION_RE, "process_narration"),
+        (_ISSUE_DRAFT_ADDITIONAL_LEAK_RE, "internal_reference"),
+    ):
+        for match in pattern_re.finditer(draft_text):
+            start = max(0, match.start() - 40)
+            end = min(len(draft_text), match.end() + 40)
+            findings.append({
+                "phrase": match.group(0), "category": category,
+                "context": draft_text[start:end].replace("\n", " "),
+            })
+    return findings
+
+
+# --- MT057 (Fifty-Seventh incident, 2026-08-19): Stage-8 rejection-list check (TC-UIW-07).
+# Genuinely new infrastructure -- confirmed by direct grep, no existing secret/credential
+# pattern library exists anywhere in this repo before this addition. Two tiers, per this
+# module's own established hard-gate/heuristic discipline (e.g. the badge-floor/dependency-
+# claim checks' own hard-gate-vs-heuristic history): a HARD-GATE tier for precise, low-false-
+# positive tokens that block outright, and an ADVISORY-ONLY tier (accusatory language, generic
+# high-entropy strings) that must never auto-block until proven precise at real-content scale --
+# the same "don't trust an unproven heuristic as a hard gate" lesson this plan has re-learned
+# repeatedly (e.g. TC-HARDEN-32's own hard-gate-to-heuristic downgrade).
+_ISSUE_DRAFT_HARD_REJECT_PATTERNS = [
+    (r"\bghp_[A-Za-z0-9]{36,}\b", "github_personal_access_token"),
+    (r"\bgho_[A-Za-z0-9]{36,}\b", "github_oauth_token"),
+    (r"\bAKIA[0-9A-Z]{16}\b", "aws_access_key_id"),
+    (r"\bxox[bp]-[A-Za-z0-9-]{10,}\b", "slack_token"),
+    (r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----", "private_key_block"),
+    (r"\bGH_TOKEN\s*=\s*\S+", "token_assignment"),
+    (r"https?://[^:/\s]+:[^@/\s]+@", "credential_in_url"),
+    (r"C:\\Users\\[A-Za-z0-9_.-]+", "windows_absolute_user_path"),
+    (r"/home/[A-Za-z0-9_.-]+/", "unix_absolute_home_path"),
+    (r"/Users/[A-Za-z0-9_.-]+/", "macos_absolute_home_path"),
+    (r"d-users-prora-onedrive-documents-github-humble-tome", "plan_file_name"),
+]
+_ISSUE_DRAFT_ADVISORY_ACCUSATORY_PATTERNS = [
+    r"\byou broke\b", r"\byour fault\b", r"\bsloppy\b", r"\bnegligent\b", r"\blazy\b",
+    r"\bincompetent\b", r"\bshould have known\b", r"\binexcusable\b",
+]
+
+
+def check_issue_draft_rejection_list(draft_text: str) -> dict:
+    """Two-tier Stage-8 validation (MT057, TC-UIW-07). Returns
+    `{"hard_gate_findings": [...], "advisory_findings": [...]}` -- callers (`validate-draft`)
+    must block on any non-empty `hard_gate_findings`, and surface `advisory_findings` for the
+    mandatory independent-reviewer step, never auto-block on those alone (high-entropy-string
+    and accusatory-language detection are both real false-positive risks unproven at scale)."""
+    hard: list[dict] = []
+    for pattern, label in _ISSUE_DRAFT_HARD_REJECT_PATTERNS:
+        for match in re.finditer(pattern, draft_text):
+            hard.append({"reason": label, "matched_text_redacted": f"[{label} redacted, {len(match.group(0))} chars]"})
+    advisory: list[dict] = []
+    accusatory_re = re.compile("|".join(_ISSUE_DRAFT_ADVISORY_ACCUSATORY_PATTERNS), re.IGNORECASE)
+    for match in accusatory_re.finditer(draft_text):
+        start = max(0, match.start() - 40)
+        end = min(len(draft_text), match.end() + 40)
+        advisory.append({
+            "reason": "accusatory_language", "phrase": match.group(0),
+            "context": draft_text[start:end].replace("\n", " "),
+        })
+    return {"hard_gate_findings": hard, "advisory_findings": advisory}
     return findings
 
 
@@ -3881,6 +4011,93 @@ def check_api_reference_detail_collapsed(readme_text: str) -> list[dict]:
     return []
 
 
+_EXAMPLE_HEADING_LINE_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$", re.MULTILINE)
+_GENERIC_EXAMPLE_HEADING_RE = re.compile(r"^example\s*\d*$", re.IGNORECASE)
+
+
+def check_additional_example_headings(readme_text: str) -> list[dict]:
+    """Hard gate (readme-refresh-seo-deps-headings-hardening mission, 2026-08-19). Every worked
+    example inside the "View Additional Examples" `<details>` disclosure must be introduced by
+    its own real, non-generic, unique heading naming the actual developer task -- not a plain
+    sentence directly followed by a code fence. Confirmed real, previously undocumented,
+    portfolio-wide gap: no contract or validator for this existed anywhere in this pipeline
+    before this mission (3d/net's own 5 collapsed examples, read verbatim, had zero heading
+    markup of any kind -- not even a generic "Example N" label).
+
+    Deliberately scoped to the `<details>` disclosure only, matching the reported defect and
+    the skill's own illustrative contract shape (`<details><summary>View Additional
+    Examples</summary>` -> `### heading` -> ... -> `### heading` -> ... -> `</details>`) -- the
+    always-visible flagship example ahead of the disclosure is a different, already-established
+    convention (one primary worked example, introduced by the section's own lead-in prose) and
+    is not required to carry its own heading by this gate.
+
+    A fenced code block appearing before any heading in the disclosure is a finding (no
+    introducing heading at all). A heading that owns at least one fenced code block (its
+    "territory", up to the next heading or the end of the disclosure) is checked for: a generic
+    label ("Example", "Example 1", case-insensitive) -- finding; a heading text duplicated
+    (case-insensitive) elsewhere in the same disclosure -- finding. A heading with no code block
+    in its territory (a rare sub-grouping heading, not itself "an example") is not itself
+    required to be non-generic/unique by this gate -- only headings that actually introduce a
+    worked example are.
+
+    Multiple code blocks legitimately sharing one heading (e.g. a "before" and "after" snippet
+    under the same worked example) are correctly treated as ONE example, not flagged as a
+    second, headingless one -- this is why the check walks heading "territories" rather than
+    looking backward from each individual code block.
+    """
+    section_match = _EXAMPLES_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    section_text = section_match.group(1)
+    details_match = _DETAILS_BLOCK_RE.search(section_text)
+    if not details_match:
+        return []
+    details_text = details_match.group(0)
+
+    code_blocks = list(_ANY_FENCED_CODE_RE.finditer(details_text))
+    if not code_blocks:
+        return []
+
+    headings = list(_EXAMPLE_HEADING_LINE_RE.finditer(details_text))
+    findings: list[dict] = []
+
+    first_heading_start = headings[0].start() if headings else len(details_text)
+    for code_match in code_blocks:
+        if code_match.start() < first_heading_start:
+            findings.append({
+                "reason": "a worked example (fenced code block) inside \"View Additional "
+                          "Examples\" appears before any heading introduces it -- every "
+                          "example must begin with a real, non-generic heading naming the "
+                          "actual developer task",
+                "context": details_text[max(0, code_match.start() - 80):code_match.start()]
+                    .replace("\n", " ").strip()[-120:],
+            })
+
+    seen_heading_texts: dict[str, int] = {}
+    for i, heading in enumerate(headings):
+        heading_text = heading.group(2).strip()
+        territory_end = headings[i + 1].start() if i + 1 < len(headings) else len(details_text)
+        has_code = any(heading.end() <= cb.start() < territory_end for cb in code_blocks)
+        if not has_code:
+            continue
+        if _GENERIC_EXAMPLE_HEADING_RE.match(heading_text):
+            findings.append({
+                "reason": f"heading {heading_text!r} is a generic label (\"Example\"/\"Example "
+                          f"N\") -- replace it with a real, descriptive heading naming the "
+                          f"actual developer task this example performs",
+                "heading": heading_text,
+            })
+        normalized = heading_text.lower()
+        if normalized in seen_heading_texts:
+            findings.append({
+                "reason": f"heading {heading_text!r} is used more than once inside \"View "
+                          f"Additional Examples\" -- every example needs a distinct heading",
+                "heading": heading_text,
+            })
+        seen_heading_texts[normalized] = seen_heading_texts.get(normalized, 0) + 1
+    return findings
+
+
 _TITLE_CASE_MINOR_WORDS = {
     "a", "an", "the", "and", "or", "but", "nor", "for", "so", "yet",
     "at", "by", "in", "of", "on", "to", "up", "as", "vs", "vs.", "via",
@@ -3990,6 +4207,29 @@ _GENERIC_BACKTICK_EXCLUSIONS = {
     "NotImplementedError", "NotImplemented", "TypeError", "ValueError", "RuntimeError",
 }
 
+_UPSTREAM_ISSUE_ENTRY_RE = re.compile(
+    r"^##\s+(.+?)\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL
+)
+
+
+def split_upstream_issue_entries(upstream_issues_text: str) -> list[tuple[str, str]]:
+    """Real, shared library call (2026-08-19, Fifty-Seventh incident / MT057, TC-UIW-04) --
+    factored out of `_extract_upstream_issue_fingerprints`'s own, previously-inline split logic
+    so the new upstream-issue-workflow module's Stage-1 ingestion reuses the exact same
+    `## {title}` entry boundary this checks module already relies on, rather than a second,
+    silently-divergent copy of the same regex. Returns one `(title, body)` pair per real `##`
+    entry, in document order -- `title` is the heading's own text verbatim (numbered-heading
+    products like `## 1. Old README instructs...` keep their leading "1. " here; callers that
+    care about the bare title strip it themselves, since whether to strip is a caller-specific
+    judgment, not something this shared split step should decide for every consumer).
+
+    Works unchanged for both real upstream-issues.md variants this portfolio carries (Variant A:
+    `## {title}` + Severity/Evidence/Impact/Not-fixable-here-because; Variant B: `## {N}. {title}`
+    + Severity/Evidence only) -- both use plain `##` headings, the only structural assumption
+    this function makes.
+    """
+    return [(m.group(1), m.group(2)) for m in _UPSTREAM_ISSUE_ENTRY_RE.finditer(upstream_issues_text)]
+
 
 def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[str]]:
     """Per real `upstream-issues.md` `## {title}` entry, extract a set of specific, rare
@@ -4038,10 +4278,7 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
     the upstream-issues.md side of the same fingerprint pipeline.
     """
     fingerprints: list[set[str]] = []
-    for match in re.finditer(
-        r"^##\s+(.+?)\s*$(.*?)(?=^##\s|\Z)", upstream_issues_text, re.MULTILINE | re.DOTALL
-    ):
-        body = match.group(2)
+    for _title, body in split_upstream_issue_entries(upstream_issues_text):
         # INFORMATIONAL-severity entries excluded entirely (2026-08-09, found live during
         # this check's own Phase 1 pilot rollout -- cells/go's golang.org/x/crypto note,
         # cells/cpp's bundled-sample note, html/python's [js]-extra-on-Windows note): every
@@ -4451,6 +4688,80 @@ def check_key_capabilities_formatting(readme_text: str) -> list[dict]:
                 "bullet": bullet,
             })
     return findings
+
+
+def build_seo_keyword_placement_plan(seo_keywords_filtered: list[str], family: str) -> list[dict]:
+    """readme-refresh-seo-deps-headings-hardening mission (2026-08-19): a typed, evidence-backed
+    keyword placement PLAN, not just a filtered candidate POOL. Closes the disclosed gap named
+    in this module's own SEO section: `filter_relevant_seo_keywords` (TC-HARDEN-39, above) only
+    ever curates which phrases are relevant at factpack-build time -- nothing recorded what
+    section a phrase was intended for, or later verified the composed text actually used any of
+    them (see `check_seo_keyword_plan_usage`, below). Called identically from `plan_run`
+    (factpack build) and `_run_deterministic_checks` (fresh recompute, matching this pipeline's
+    own established "never trust a persisted factpack.json for a live check" pattern) -- a pure,
+    stateless transform, so recomputing it costs nothing and never drifts from the factpack copy.
+
+    Honest, disclosed limit: `priority` is always `"preferred"`, never `"required"`. This
+    pipeline has no reliable capability-to-keyword mapping that would justify a stronger claim
+    -- `filter_relevant_seo_keywords` only proves a phrase is grounded in the family name, a
+    known real format, or established capability-verb vocabulary, not that it maps to one
+    SPECIFIC verified capability. Inventing that mapping under this mission's own scope would be
+    exactly the kind of overclaimed determinism the mission's own instructions warned against;
+    a future enhancement could add a real "required" tier once such a mapping exists. Every
+    phrase stays optional, natural-language color, matching the skill's own "never force a
+    phrase into every bullet" rule -- `max_uses` is a ceiling, not a mandate.
+    """
+    return [
+        {
+            "phrase": phrase,
+            "source_registry": f"keywords/{family}.json",
+            "applicable_capability": None,  # honest gap -- see docstring; not yet computed
+            "intended_section": "Key Capabilities",
+            "reader_search_intent": "a developer searching for a free/open-source library with this capability",
+            "priority": "preferred",
+            "max_uses": 1,
+        }
+        for phrase in seo_keywords_filtered
+    ]
+
+
+def check_seo_keyword_plan_usage(readme_text: str, seo_keyword_plan: list[dict]) -> list[dict]:
+    """Heuristic/advisory (readme-refresh-seo-deps-headings-hardening mission, 2026-08-19) --
+    deliberately NEVER a hard gate, per this module's own explicit "never turn subjective prose
+    quality into a simplistic hard keyword-count gate" instruction (TC-HARDEN-39 section,
+    above). Confirmed real, live gap this closes: nothing in this pipeline ever cross-referenced
+    `seo_keywords_filtered` against the actually-composed candidate text -- 3d/net's own real
+    Key Capabilities section used zero of its 10 correct, real, `.NET`-scoped SEO phrases, and
+    nothing flagged that.
+
+    Lexical-overlap detection, not exact-phrase matching -- natural paraphrase is expected and
+    correct (this module already prohibits verbatim keyword-list stuffing elsewhere). A phrase
+    "counts as used" when at least one of its own significant (4+ letter) words appears anywhere
+    in the candidate text, reusing the same `_WORD_RE` significant-word idiom already
+    established for `check_key_capabilities_quality`'s bullet-length heuristic; a phrase with no
+    4+-letter words at all (rare, very short phrases) falls back to any-word overlap. WARNs only
+    when the plan is non-empty and LITERALLY ZERO phrases show any overlap anywhere in the
+    document -- a floor against total non-engagement, never a per-bullet or per-phrase count.
+    The plan itself can legitimately be empty (confirmed live for `cells/java`: all 10 raw
+    phrases were contaminated and none survived `filter_relevant_seo_keywords`) -- that is not
+    itself a finding.
+    """
+    if not seo_keyword_plan:
+        return []
+    text_lower = readme_text.lower()
+    for entry in seo_keyword_plan:
+        phrase = entry.get("phrase", "")
+        significant_words = [w.lower() for w in _WORD_RE.findall(phrase)]
+        words_to_check = significant_words or re.findall(r"[A-Za-z]+", phrase.lower())
+        if any(word in text_lower for word in words_to_check):
+            return []
+    return [{
+        "reason": f"{len(seo_keyword_plan)} SEO keyword phrase(s) were filtered as relevant for "
+                  f"this product, but none show any lexical evidence of use anywhere in the "
+                  f"composed candidate -- review whether the Intro/Key Capabilities prose "
+                  f"should weave in some of this real, verified vocabulary",
+        "plan_size": len(seo_keyword_plan),
+    }]
 
 
 def _extract_section_intro_prose(section_body: str) -> str:
@@ -8077,6 +8388,61 @@ def _extract_h3_subsection(section_text: str, heading: str) -> str:
         section_text, re.MULTILINE | re.DOTALL | re.IGNORECASE,
     )
     return match.group(1) if match else ""
+
+
+def check_dependency_section_subheadings_present(
+    readme_text: str, dependency_snapshot: "dict | None"
+) -> list[dict]:
+    """Hard gate (readme-refresh-seo-deps-headings-hardening mission, 2026-08-19). The
+    "## Dependencies" contract (TC-HARDEN-49-56, MT041, this module's own header comment above)
+    mandates 4 real `###` subheadings -- Required Package Dependencies (never omitted, even for
+    the verified-zero fixed sentence), Optional Dependencies / Development Dependencies (silent
+    omission only when the corresponding snapshot bucket is genuinely empty), Native and System
+    Requirements (silent omission only when `native_system` is genuinely empty) -- but nothing
+    ever mechanically enforced their PRESENCE until now. Confirmed real, live defect: 3d/net's
+    own "## Dependencies" section (composed 2026-08-19, the same day) is two flat sentences with
+    ZERO of the four mandated headings -- a documented-but-unchecked contract, not a violated
+    one, the same root-cause shape as every other defect this mission fixes.
+
+    Deliberately does not itself verify subheading CONTENT accuracy -- that is the job of the
+    existing check_dependency_direct_transitive_confusion/optional_presented_as_required/
+    dev_only_presented_as_runtime family. This check only verifies the four headings' presence
+    matches what the real DependencySnapshot data says should exist.
+    """
+    if not dependency_snapshot:
+        return []  # check_dependency_snapshot_completeness already reports this as a hard fail
+    dep_section = _split_into_sections(readme_text).get("Dependencies", "")
+    if not dep_section:
+        return []  # check_required_sections already reports a missing ## Dependencies section
+
+    def _has_h3(heading: str) -> bool:
+        return bool(re.search(
+            rf"^###\s+{re.escape(heading)}\s*$", dep_section, re.MULTILINE | re.IGNORECASE,
+        ))
+
+    findings: list[dict] = []
+    if not _has_h3("Required Package Dependencies"):
+        findings.append({
+            "reason": "the Dependencies section has no \"### Required Package Dependencies\" "
+                      "heading -- required unconditionally, even when the snapshot's required "
+                      "list is empty (in which case it holds only the fixed sentence \"No "
+                      "required third-party package dependencies.\"), never a headingless "
+                      "flat paragraph",
+        })
+
+    for bucket_key, heading in (
+        ("optional", "Optional Dependencies"),
+        ("native_system", "Native and System Requirements"),
+        ("development", "Development Dependencies"),
+    ):
+        if dependency_snapshot.get(bucket_key) and not _has_h3(heading):
+            findings.append({
+                "reason": f"the DependencySnapshot's {bucket_key!r} bucket is non-empty but the "
+                          f"Dependencies section has no \"### {heading}\" heading for it -- a "
+                          f"real, extracted fact is missing from the composed section",
+                "bucket": bucket_key,
+            })
+    return findings
 
 
 def _bulleted_dependency_names(subsection_text: str) -> list[str]:

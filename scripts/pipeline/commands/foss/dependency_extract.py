@@ -175,6 +175,23 @@ def _extract_cargo_dependencies(
         family, platform, "cargo",
         source_manifest_path="Cargo.toml", source_revision=source_revision,
     )
+    # Native-system: [package].edition and [package].rust-version (MSRV) are Cargo's own real
+    # language/toolchain-floor fields -- either may legitimately be absent (edition defaults to
+    # "2015" when unset; rust-version is optional even on modern crates), so each is emitted
+    # independently, never inferred when missing.
+    package_table = data.get("package", {})
+    edition = package_table.get("edition")
+    if edition:
+        _place(snapshot, _entry(
+            "edition", "cargo", version_constraint=str(edition),
+            category="native-system", source_type="registry",
+        ))
+    rust_version = package_table.get("rust-version")
+    if rust_version:
+        _place(snapshot, _entry(
+            "rust-version (MSRV)", "cargo", version_constraint=str(rust_version),
+            category="native-system", source_type="registry",
+        ))
     features = data.get("features", {})
 
     def _feature_for(name: str) -> "str | None":
@@ -261,6 +278,12 @@ def _extract_pypi_dependencies(
             source_manifest_path="pyproject.toml", source_revision=source_revision,
         )
         project = data.get("project", {})
+        requires_python = project.get("requires-python")
+        if requires_python:
+            _place(snapshot, _entry(
+                "requires-python", "pypi", version_constraint=str(requires_python),
+                category="native-system", source_type="registry",
+            ))
         for req in project.get("dependencies", []):
             name, version = _split_pep508(req)
             _place(snapshot, _entry(name, "pypi", version_constraint=version))
@@ -308,6 +331,12 @@ def _extract_pypi_dependencies(
             family, platform, "pypi",
             source_manifest_path="setup.cfg", source_revision=source_revision,
         )
+        python_requires = parser.get("options", "python_requires", fallback=None)
+        if python_requires and python_requires.strip():
+            _place(snapshot, _entry(
+                "python_requires", "pypi", version_constraint=python_requires.strip(),
+                category="native-system", source_type="registry",
+            ))
         install_requires = parser.get("options", "install_requires", fallback="")
         for line in install_requires.splitlines():
             line = line.strip()
@@ -358,6 +387,17 @@ def _extract_pypi_dependencies(
 # this broadening carries no known false-exclusion risk in this portfolio today.
 _TEST_CSPROJ_STEM_RE = re.compile(r"test", re.IGNORECASE)
 
+# A demo/converter console tool is a second, real instance of the same "shortest-path-wins has
+# no way to prefer the real library" bug class as the test-project exclusion above (found
+# 2026-08-19, readme-refresh-seo-deps-headings-hardening mission, reviewing 3d/net):
+# `src/converter/Converter.csproj` (<OutputType>Exe</OutputType>, 3 path segments) sorts strictly
+# BEFORE the real library `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj` (4 segments) on
+# path-depth alone -- this is not even a tie, so a same-depth-only tiebreaker would not have
+# fixed it; OutputType has to be a filtering stage, the same shape as the test-name filter, not
+# a secondary sort key. A cheap text-level regex, not a full parse -- consistent with this
+# module's existing "regex-best-effort" tier for signals that don't need a full XML parse.
+_CSPROJ_EXE_OUTPUT_RE = re.compile(r"<OutputType>\s*Exe\s*</OutputType>", re.IGNORECASE)
+
 
 def _select_main_csproj(repo_root: Path) -> "Path | None":
     """Reuses package_manifest.py's own proven "shortest-path csproj wins" main-library
@@ -370,14 +410,59 @@ def _select_main_csproj(repo_root: Path) -> "Path | None":
     dependencies (NUnit, Microsoft.NET.Test.Sdk) instead of the real library's. Real, non-test
     candidates are always preferred; a test-named project is only ever returned as a last-
     resort fallback when literally no other .csproj exists, never silently treated as if no
-    manifest were found at all."""
+    manifest were found at all.
+
+    2026-08-19: a real, live SECOND instance of the same underlying defect class (shortest-path
+    alone cannot distinguish "real library" from "any other small csproj"), this time NOT a
+    depth tie -- a shallower demo/converter tool beats a deeper real library outright. Fixed the
+    same way the test-project case already is: a second filtering stage, applied after the
+    test-name filter, that prefers a non-`OutputType=Exe` project within whatever set survived
+    the first filter; never excludes Exe outright, since a real product could legitimately have
+    only an Exe-output csproj (the same "last-resort fallback, not a hard exclusion" design as
+    the test-project case)."""
     all_csproj = sorted(
         repo_root.rglob("*.csproj"), key=lambda p: len(p.relative_to(repo_root).parts)
     )
     if not all_csproj:
         return None
     non_test = [p for p in all_csproj if not _TEST_CSPROJ_STEM_RE.search(p.stem)]
-    return non_test[0] if non_test else all_csproj[0]
+    candidates = non_test if non_test else all_csproj
+    non_exe = [
+        p for p in candidates
+        if not _CSPROJ_EXE_OUTPUT_RE.search(p.read_text(encoding="utf-8", errors="ignore"))
+    ]
+    return non_exe[0] if non_exe else candidates[0]
+
+
+_TFM_SPLIT_RE = re.compile(r"[;,]\s*")
+
+
+def _extract_target_framework_native_system(snapshot: DependencySnapshot, csproj_root) -> None:
+    """Reads `<TargetFramework>`/`<TargetFrameworks>` from an already-parsed csproj root element
+    and records the raw, exact TFM list as one native-system entry -- deliberately never computed
+    into an "X or later" claim here. A multi-target list can mix generations that don't compare
+    numerically in a straightforward way (3d/net's own real
+    `net10.0;net8.0;net6.0;netcoreapp3.1`) -- guessing a version FLOOR across that is exactly the
+    kind of "blind regex guess at manifest structure" this module's own docstring already
+    prohibits. Extraction reports the true, complete raw list; phrasing it into prose (e.g.
+    "targets .NET 6.0 or later") is a composition-time judgment call, not an extraction fact."""
+    tfm_text = None
+    for tag in ("TargetFrameworks", "TargetFramework"):
+        for elem in csproj_root.iter():
+            if elem.tag.rsplit("}", 1)[-1] == tag and elem.text and elem.text.strip():
+                tfm_text = elem.text.strip()
+                break
+        if tfm_text:
+            break
+    if not tfm_text:
+        return
+    tfms = [t for t in _TFM_SPLIT_RE.split(tfm_text) if t]
+    if not tfms:
+        return
+    _place(snapshot, _entry(
+        "Target Framework(s)", "nuget", version_constraint=", ".join(tfms),
+        category="native-system", source_type="registry",
+    ))
 
 
 _NUSPEC_XMLNS_RE = re.compile(r'\sxmlns="[^"]+"')
@@ -455,6 +540,19 @@ def _extract_nuget_dependencies(
     if nuspec is not None:
         snapshot = _extract_nuspec_dependencies(family, platform, nuspec, repo_root, source_revision)
         _add_dotnet_test_project_dependencies(snapshot, repo_root, exclude=None)
+        # A .nuspec is authoritative for the published dependency GRAPH (see
+        # _find_nuspec's own docstring) but never carries TargetFramework(s) -- that's a
+        # .csproj-only concept. Best-effort: look up the same main csproj this path would
+        # otherwise have used, purely for its native-system fact; a malformed/absent csproj
+        # here must never invalidate the (already-correct) nuspec-derived dependency data.
+        main_csproj = _select_main_csproj(repo_root)
+        if main_csproj is not None:
+            try:
+                _extract_target_framework_native_system(
+                    snapshot, ElementTree.parse(main_csproj).getroot()
+                )
+            except ElementTree.ParseError:
+                pass
         return snapshot
 
     csproj = _select_main_csproj(repo_root)
@@ -470,6 +568,7 @@ def _extract_nuget_dependencies(
         source_manifest_path=str(csproj.relative_to(repo_root)).replace("\\", "/"),
         source_revision=source_revision,
     )
+    _extract_target_framework_native_system(snapshot, tree.getroot())
     for elem in tree.getroot().iter():
         if elem.tag.rsplit("}", 1)[-1] != "PackageReference":
             continue
@@ -553,6 +652,13 @@ _XMLNS_STRIP_RE = re.compile(r'\sxmlns="[^"]+"')
 _GRADLE_DEP_RE = re.compile(
     r"(?:test)?[Ii]mplementation\s+['\"]([^:'\"]+):([^:'\"]+):([^'\"]+)['\"]"
 )
+# Native-system for the Gradle fallback path: the two most common real idioms for declaring a
+# Java version floor. A disclosed, narrower-but-correct regex scan (not a Groovy/Kotlin-DSL
+# parser) -- matches nothing on an unrecognized idiom rather than guessing.
+_GRADLE_JAVA_VERSION_RE = re.compile(
+    r"sourceCompatibility\s*=\s*['\"]?(?:JavaVersion\.VERSION_)?([\w.]+)['\"]?"
+    r"|languageVersion\s*\.\s*set\s*\(\s*JavaLanguageVersion\s*\.\s*of\s*\(\s*(\d+)\s*\)\s*\)"
+)
 
 
 def _extract_maven_dependencies(
@@ -588,6 +694,25 @@ def _extract_maven_dependencies(
             _place(snapshot, _entry(
                 name, "maven", version_constraint=version, dev_only=dev_only, role=role,
             ))
+        # Native-system: the product's own directly-declared Java version floor. Deliberately
+        # reads only this pom.xml's own <properties> -- never resolved through a parent-POM
+        # inheritance chain (a real, disclosed narrower-but-correct scope, matching this
+        # module's existing csproj/nuspec precedent of preferring an honest partial fact over a
+        # silently-wrong broad one). First match wins; a product declaring more than one of
+        # these in the same pom.xml is not expected.
+        properties = root.find("properties")
+        if properties is not None:
+            for tag in (
+                "maven.compiler.release", "maven.compiler.target",
+                "maven.compiler.source", "java.version",
+            ):
+                value = properties.findtext(tag)
+                if value and value.strip():
+                    _place(snapshot, _entry(
+                        tag, "maven", version_constraint=value.strip(),
+                        category="native-system", source_type="registry",
+                    ))
+                    break
         return snapshot
 
     for gradle_name in ("build.gradle", "build.gradle.kts"):
@@ -611,6 +736,14 @@ def _extract_maven_dependencies(
             dev_only = "test" in text[:text.find(f"{group_id}:{artifact_id}:{version}")][-40:].lower()
             _place(snapshot, _entry(
                 name, "maven", version_constraint=version, dev_only=dev_only,
+                extraction_confidence="regex_best_effort",
+            ))
+        java_version_match = _GRADLE_JAVA_VERSION_RE.search(text)
+        if java_version_match:
+            version = java_version_match.group(1) or java_version_match.group(2)
+            _place(snapshot, _entry(
+                "java", "maven", version_constraint=version,
+                category="native-system", source_type="registry",
                 extraction_confidence="regex_best_effort",
             ))
         return snapshot
@@ -693,6 +826,12 @@ def _extract_npm_dependencies(
         family, platform, "npm",
         source_manifest_path="package.json", source_revision=source_revision,
     )
+    node_engine = (data.get("engines") or {}).get("node")
+    if node_engine:
+        _place(snapshot, _entry(
+            "node", "npm", version_constraint=str(node_engine),
+            category="native-system", source_type="registry",
+        ))
     for name, version in (data.get("dependencies") or {}).items():
         _place(snapshot, _entry(name, "npm", version_constraint=version))
     for name, version in (data.get("devDependencies") or {}).items():

@@ -90,6 +90,28 @@ def test_cargo_non_string_non_table_value_raises(tmp_path):
         pass
 
 
+def test_cargo_extracts_edition_and_rust_version_native_system(tmp_path):
+    # readme-refresh-seo-deps-headings-hardening (2026-08-19): native_system was populated for
+    # go_modules only -- Cargo's own real [package].edition/rust-version fields were never read.
+    (tmp_path / "Cargo.toml").write_text(
+        '[package]\nname = "x"\nversion = "1.0"\nedition = "2021"\nrust-version = "1.74"\n\n'
+        '[dependencies]\nserde = "1"\n',
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "rust", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"edition": "2021", "rust-version (MSRV)": "1.74"}
+
+
+def test_cargo_missing_edition_and_rust_version_omitted_not_guessed(tmp_path):
+    (tmp_path / "Cargo.toml").write_text(
+        '[package]\nname = "x"\nversion = "1.0"\n\n[dependencies]\nserde = "1"\n',
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "rust", tmp_path)
+    assert snap["native_system"] == []
+
+
 # ---------------------------------------------------------------------------------------------
 # Python
 # ---------------------------------------------------------------------------------------------
@@ -187,6 +209,34 @@ def test_pypi_setup_py_only_resolved_via_override(tmp_path):
     (manifest_dir / "setup.py").write_text("print('legacy')\n", encoding="utf-8")
     snap = de.extract_dependencies("t", "python", manifest_dir, pipeline_repo_root=tmp_path)
     assert {e["name"] for e in snap["required"]} == {"requests"}
+
+
+def test_pypi_extracts_requires_python_native_system(tmp_path):
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\nrequires-python = ">=3.10"\ndependencies = ["click"]\n',
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "python", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"requires-python": ">=3.10"}
+
+
+def test_pypi_setup_cfg_extracts_python_requires_native_system(tmp_path):
+    (tmp_path / "setup.cfg").write_text(
+        "[options]\npython_requires = >=3.9\ninstall_requires =\n    requests>=2.0\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "python", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"python_requires": ">=3.9"}
+
+
+def test_pypi_missing_requires_python_omitted_not_guessed(tmp_path):
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\ndependencies = ["click"]\n', encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "python", tmp_path)
+    assert snap["native_system"] == []
 
 
 # ---------------------------------------------------------------------------------------------
@@ -393,6 +443,86 @@ def test_nuget_scans_real_test_project_csproj_when_nuspec_path_used_too(tmp_path
     assert {e["name"] for e in snap["development"]} == {"NUnit"}
 
 
+def test_nuget_extracts_target_frameworks_native_system(tmp_path):
+    # readme-refresh-seo-deps-headings-hardening (2026-08-19): real 3d/net shape -- a multi-
+    # target <TargetFrameworks> list, mixing net10.0/net8.0/net6.0 with the older netcoreapp3.1
+    # idiom. Extraction reports the raw list verbatim; it never computes an "X or later" floor
+    # across generations that don't compare numerically in a simple way.
+    (tmp_path / "x.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <TargetFrameworks>net10.0;net8.0;net6.0;netcoreapp3.1</TargetFrameworks>\n"
+        "  </PropertyGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("3d", "net", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"Target Framework(s)": "net10.0, net8.0, net6.0, netcoreapp3.1"}
+
+
+def test_nuget_single_target_framework_native_system(tmp_path):
+    (tmp_path / "x.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <TargetFramework>net8.0</TargetFramework>\n"
+        "  </PropertyGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "net", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"Target Framework(s)": "net8.0"}
+
+
+def test_nuget_target_framework_extracted_via_nuspec_path_too(tmp_path):
+    # The nuspec-authoritative extraction path never parses the main csproj for dependencies
+    # (see _find_nuspec's own docstring) but must still pick up its TargetFramework(s) fact --
+    # a .nuspec never carries that concept.
+    (tmp_path / "Aspose.Words").mkdir()
+    (tmp_path / "Aspose.Words" / "Aspose.Words.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <TargetFrameworks>net8.0;net462</TargetFrameworks>\n"
+        "  </PropertyGroup>\n  <ItemGroup>\n"
+        '    <PackageReference Include="ILRepack" Version="2.0.46" PrivateAssets="all" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Package").mkdir()
+    (tmp_path / "Package" / "Aspose.Words.FOSS.nuspec").write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">\n'
+        "  <metadata>\n    <dependencies>\n"
+        '      <group targetFramework="net8.0">\n'
+        '        <dependency id="SkiaSharp" version="3.119.0" />\n'
+        "      </group>\n"
+        "    </dependencies>\n  </metadata>\n</package>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("words", "net", tmp_path)
+    assert snap["source_manifest_path"] == "Package/Aspose.Words.FOSS.nuspec"
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"Target Framework(s)": "net8.0, net462"}
+
+
+def test_nuget_selects_library_over_exe_output_on_path_depth_tie(tmp_path):
+    # Real, live latent shape found reviewing 3d/net (2026-08-19): a demo/converter console
+    # tool ties in path depth with the real library and isn't test-named, so the original
+    # shortest-path-wins heuristic (with no secondary key) would pick the demo tool.
+    (tmp_path / "src" / "converter").mkdir(parents=True)
+    (tmp_path / "src" / "converter" / "Converter.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n'
+        "    <OutputType>Exe</OutputType>\n  </PropertyGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "src" / "main" / "Aspose.ThreeD").mkdir(parents=True)
+    (tmp_path / "src" / "main" / "Aspose.ThreeD" / "Aspose.ThreeD.csproj").write_text(
+        '<Project Sdk="Microsoft.NET.Sdk">\n  <ItemGroup>\n'
+        '    <PackageReference Include="RealRuntimeDep" Version="1.0.0" />\n'
+        "  </ItemGroup>\n</Project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("3d", "net", tmp_path)
+    assert snap["source_manifest_path"] == "src/main/Aspose.ThreeD/Aspose.ThreeD.csproj"
+    assert {e["name"] for e in snap["required"]} == {"RealRuntimeDep"}
+
+
 # ---------------------------------------------------------------------------------------------
 # Java
 # ---------------------------------------------------------------------------------------------
@@ -451,6 +581,56 @@ def test_maven_real_cells_java_shape_zero_runtime(tmp_path):
     snap = de.extract_dependencies("cells", "java", tmp_path)
     assert snap["required"] == []
     assert len(snap["development"]) == 2
+
+
+def test_maven_extracts_java_version_native_system_from_properties(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        "<project>\n  <properties>\n"
+        "    <maven.compiler.release>17</maven.compiler.release>\n"
+        "  </properties>\n  <dependencies>\n"
+        "    <dependency><groupId>com.example</groupId><artifactId>runtime-lib</artifactId>"
+        "<version>1.0</version></dependency>\n"
+        "  </dependencies>\n</project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "java", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"maven.compiler.release": "17"}
+
+
+def test_maven_java_version_property_absent_omitted_not_guessed(tmp_path):
+    (tmp_path / "pom.xml").write_text(
+        "<project>\n  <dependencies>\n"
+        "    <dependency><groupId>com.example</groupId><artifactId>runtime-lib</artifactId>"
+        "<version>1.0</version></dependency>\n"
+        "  </dependencies>\n</project>\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "java", tmp_path)
+    assert snap["native_system"] == []
+
+
+def test_maven_gradle_extracts_source_compatibility_native_system(tmp_path):
+    (tmp_path / "build.gradle").write_text(
+        "sourceCompatibility = '11'\n"
+        "dependencies {\n    implementation 'com.example:runtime-lib:1.0'\n}\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "java", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"java": "11"}
+
+
+def test_maven_gradle_extracts_toolchain_language_version_native_system(tmp_path):
+    (tmp_path / "build.gradle.kts").write_text(
+        "java {\n    toolchain {\n        languageVersion.set(JavaLanguageVersion.of(21))\n"
+        "    }\n}\n"
+        "dependencies {\n    implementation(\"com.example:runtime-lib:1.0\")\n}\n",
+        encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "java", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"java": "21"}
 
 
 # ---------------------------------------------------------------------------------------------
@@ -515,6 +695,25 @@ def test_npm_three_way_bucketing(tmp_path):
     assert {e["name"] for e in snap["required"]} == {"a"}
     assert {e["name"] for e in snap["development"]} == {"b"}
     assert {e["name"] for e in snap["optional"]} == {"c"}
+
+
+def test_npm_extracts_engines_node_native_system(tmp_path):
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "x",
+        "engines": {"node": ">=18.0.0"},
+        "dependencies": {"xmldom": "^0.6.0"},
+    }), encoding="utf-8")
+    snap = de.extract_dependencies("3d", "typescript", tmp_path)
+    native = {e["name"]: e["version_constraint"] for e in snap["native_system"]}
+    assert native == {"node": ">=18.0.0"}
+
+
+def test_npm_missing_engines_omitted_not_guessed(tmp_path):
+    (tmp_path / "package.json").write_text(
+        json.dumps({"name": "x", "dependencies": {"xmldom": "^0.6.0"}}), encoding="utf-8",
+    )
+    snap = de.extract_dependencies("t", "typescript", tmp_path)
+    assert snap["native_system"] == []
 
 
 # ---------------------------------------------------------------------------------------------

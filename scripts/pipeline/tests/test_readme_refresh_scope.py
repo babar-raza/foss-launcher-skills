@@ -622,3 +622,139 @@ def test_record_publication_appends_and_updates(tmp_path):
     state = json.loads(rr._published_state_path().read_text(encoding="utf-8"))
     assert len(state["products"]) == 1
     assert "pull/2" in state["products"][0]["evidence"]
+
+
+# --- H. TC-M56-09: candidate-write staleness detection ------------------------------------------
+#
+# GAP-M56-09 (found live during the MT056 proof pass, 2026-08-18): 3 real candidate files
+# (pdf/cpp, pdf/java, pdf/python) were edited directly on disk by an untraced concurrent
+# session -- invisible to git (reports/ is gitignored), invisible to every MT056 gate (no run
+# was ever started for the edit). candidate_store_integrity only detects >1 TREE holding a
+# candidate; nothing detected a write to the SAME file in the SAME tree outside any tracked
+# run. These tests reproduce that exact scenario: audit clean -> raw filesystem write bypassing
+# every CLI path -> re-audit -> the drift must be visible, by name, without assuming who wrote it.
+
+
+def test_candidate_drift_first_ever_check_has_no_marker_and_no_finding(tmp_path):
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    assert rr._load_candidate_last_verified("testfam", "testplat") is None
+    findings = rr._candidate_drift_findings("testfam", "testplat", candidate.read_text(encoding="utf-8"))
+    assert findings == []
+
+
+def test_candidate_drift_silent_when_unchanged_since_last_verified(tmp_path):
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    text = candidate.read_text(encoding="utf-8")
+    rr._write_candidate_verification_marker("testfam", "testplat", text, run_id="run-1")
+    assert rr._candidate_drift_findings("testfam", "testplat", text) == []
+
+
+def test_candidate_drift_fires_on_change_since_last_verified_and_names_the_prior_verification(tmp_path):
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    original = candidate.read_text(encoding="utf-8")
+    rr._write_candidate_verification_marker("testfam", "testplat", original, run_id="run-1")
+
+    edited = original.replace("MIT.", "Apache.")
+    findings = rr._candidate_drift_findings("testfam", "testplat", edited)
+    assert len(findings) == 1
+    assert findings[0]["last_verified_by_run_id"] == "run-1"
+    assert findings[0]["last_verified_at"] is not None
+
+
+def test_candidate_drift_never_a_hard_gate(tmp_path):
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    original = candidate.read_text(encoding="utf-8")
+    rr._write_candidate_verification_marker("testfam", "testplat", original, run_id="run-1")
+    candidate.write_text(original.replace("MIT.", "Apache."), encoding="utf-8")
+    result: dict = {}
+    result["candidate_drift_since_last_verified"] = {
+        "hard_gate": False,
+        "findings": rr._candidate_drift_findings("testfam", "testplat", candidate.read_text(encoding="utf-8")),
+    }
+    assert result["candidate_drift_since_last_verified"]["hard_gate"] is False
+    assert result["candidate_drift_since_last_verified"]["findings"]
+
+
+def test_candidate_drift_end_to_end_reproduces_the_real_pdf_cpp_incident(tmp_path):
+    """The real scenario, reproduced exactly: (1) audit a product clean via the real
+    ingest-candidate call, which stamps the verification marker; (2) an untracked writer edits
+    the candidate directly on disk -- no CLI path, no lock, exactly what happened to pdf/cpp/
+    java/python during the MT056 proof pass; (3) re-run the real deterministic check battery
+    (as audit-portfolio would) and confirm the drift finding fires, naming the prior
+    verification; (4) negative control -- a second immediate re-check with no intervening
+    write produces no finding."""
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    run_id = manifest["run_id"]
+    original = candidate.read_text(encoding="utf-8")
+
+    # Step 1: a real, tracked verification (matches what ingest_candidate/recheck/audit_portfolio
+    # all now do at the end of _run_deterministic_checks + their own marker write).
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    result1 = rr._run_deterministic_checks("testfam", "testplat", original, clone_cache)
+    assert result1["candidate_drift_since_last_verified"]["findings"] == []  # first-ever check
+    rr._write_candidate_verification_marker("testfam", "testplat", original, run_id=run_id)
+
+    # Step 2: untracked writer -- a raw filesystem write, no lock acquired, no CLI path used.
+    candidate.write_text(original.replace("MIT.", "Apache."), encoding="utf-8")
+
+    # Step 3: the next real check battery (e.g. a later audit-portfolio) must surface it.
+    edited = candidate.read_text(encoding="utf-8")
+    result2 = rr._run_deterministic_checks("testfam", "testplat", edited, clone_cache)
+    drift = result2["candidate_drift_since_last_verified"]
+    assert drift["hard_gate"] is False
+    assert len(drift["findings"]) == 1
+    assert drift["findings"][0]["last_verified_by_run_id"] == run_id
+    rr._write_candidate_verification_marker("testfam", "testplat", edited, run_id=None)
+
+    # Step 4 (negative control): re-checking the SAME content immediately after must be silent.
+    result3 = rr._run_deterministic_checks("testfam", "testplat", edited, clone_cache)
+    assert result3["candidate_drift_since_last_verified"]["findings"] == []
+
+
+def test_audit_portfolio_writes_verification_marker_and_surfaces_drift_across_calls(tmp_path):
+    """Proves the real, registered audit-portfolio entry point end to end -- not just the
+    helper functions, and not just _run_deterministic_checks's raw result (which is what the
+    first draft of this test checked, and which silently masked a real bug: audit_portfolio's
+    own per-product summary previously reported ONLY hard-gate findings, so this advisory
+    (hard_gate=False, by deliberate design) signal never reached actual CLI/JSON output despite
+    firing correctly one layer down -- caught only by asserting through audit_portfolio()
+    itself, exactly as a real caller would, then fixed by adding a dedicated `candidate_drift`
+    field to the per-product result)."""
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="not needed for this test",
+                   session_id="sess-a")
+
+    result1 = rr.audit_portfolio()
+    assert result1["products"][0]["candidate_drift"] == []  # first-ever check: no prior marker
+    marker = rr._load_candidate_last_verified("testfam", "testplat")
+    assert marker is not None and marker["verified_by_run_id"] is None
+
+    # Untracked write between two audits -- exactly the real pdf/cpp/java/python incident.
+    original = candidate.read_text(encoding="utf-8")
+    candidate.write_text(original + "\n<!-- untracked edit -->\n", encoding="utf-8")
+
+    result2 = rr.audit_portfolio()
+    assert len(result2["products"][0]["candidate_drift"]) == 1
+    assert result2["products"][0]["candidate_drift"][0]["last_verified_by_run_id"] is None
+
+    # Self-clearing behavior (a real, documented nuance, not a bug): audit_portfolio's own
+    # marker write means the finding is visible for exactly ONE subsequent call -- the very
+    # next unrelated audit (no further edit) already sees the drift as resolved, since the
+    # marker now matches. Confirmed here so this behavior is proven, not just asserted in prose.
+    result3 = rr.audit_portfolio()
+    assert result3["products"][0]["candidate_drift"] == []
+
+
+def test_audit_portfolio_cli_text_output_shows_drift_tag(tmp_path, capsys):
+    repo_root, candidate, manifest = _workflow_repo(tmp_path)
+    rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="not needed for this test",
+                   session_id="sess-a")
+    rr.audit_portfolio()  # first-ever check, establishes the marker
+    original = candidate.read_text(encoding="utf-8")
+    candidate.write_text(original.replace("MIT.", "Apache."), encoding="utf-8")  # also DIRTY
+
+    exit_code = rr.main(["audit-portfolio"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    assert "Changed since last verified (1): testfam/testplat" in out
+    assert "[drift]" in out

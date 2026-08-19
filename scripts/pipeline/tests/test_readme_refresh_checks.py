@@ -1085,6 +1085,81 @@ def test_examples_table_collapsed_matches_title_cased_heading():
     assert findings and "not inside a <details> block" in findings[0]["reason"]
 
 
+# --- check_additional_example_headings (readme-refresh-seo-deps-headings-hardening, 2026-08-19) ---
+
+
+def test_additional_example_headings_flags_zero_heading_markup():
+    # The real, confirmed 3d/net defect: plain sentence directly followed by a code fence, no
+    # heading at all.
+    text = (
+        "## Additional Examples\n\nOne example, shown directly.\n\n```python\nx = 1\n```\n\n"
+        "<details><summary>View Additional Examples</summary>\n\n"
+        "Enumerate a loaded scene's node hierarchy:\n\n```csharp\nfoo();\n```\n\n"
+        "Assign a PBR material:\n\n```csharp\nbar();\n```\n\n</details>\n"
+    )
+    findings = checks.check_additional_example_headings(text)
+    assert len(findings) == 2
+    assert all("no heading" in f["reason"] or "appears before" in f["reason"] for f in findings)
+
+
+def test_additional_example_headings_flags_generic_label():
+    text = (
+        "## Additional Examples\n\nFlagship.\n\n```python\nx = 1\n```\n\n"
+        "<details><summary>View Additional Examples</summary>\n\n"
+        "### Example 1\n\n```csharp\nfoo();\n```\n\n"
+        "### Example\n\n```csharp\nbar();\n```\n\n</details>\n"
+    )
+    findings = checks.check_additional_example_headings(text)
+    reasons = [f["reason"] for f in findings]
+    assert any("generic label" in r for r in reasons)
+    assert sum("generic label" in r for r in reasons) == 2
+
+
+def test_additional_example_headings_flags_duplicate_heading():
+    text = (
+        "## Additional Examples\n\nFlagship.\n\n```python\nx = 1\n```\n\n"
+        "<details><summary>View Additional Examples</summary>\n\n"
+        "### Convert a Scene to OBJ\n\n```csharp\nfoo();\n```\n\n"
+        "### Convert a Scene to OBJ\n\n```csharp\nbar();\n```\n\n</details>\n"
+    )
+    findings = checks.check_additional_example_headings(text)
+    assert any("used more than once" in f["reason"] for f in findings)
+
+
+def test_additional_example_headings_passes_well_formed_distinct_headings():
+    text = (
+        "## Additional Examples\n\nFlagship.\n\n```python\nx = 1\n```\n\n"
+        "<details><summary>View Additional Examples</summary>\n\n"
+        "### Enumerate a Scene's Node Hierarchy\n\n"
+        "Enumerate a loaded scene's node hierarchy:\n\n```csharp\nfoo();\n```\n\n"
+        "### Convert a Lambert Material to PBR\n\n"
+        "Assign a PBR material:\n\n```csharp\nbar();\n```\n\n</details>\n"
+    )
+    assert checks.check_additional_example_headings(text) == []
+
+
+def test_additional_example_headings_allows_multiple_code_blocks_under_one_heading():
+    # A "before" and "after" snippet sharing one real heading must NOT be treated as a second,
+    # headingless example -- the exact false-positive trap a naive "look backward from each
+    # code block" design would fall into.
+    text = (
+        "## Additional Examples\n\nFlagship.\n\n```python\nx = 1\n```\n\n"
+        "<details><summary>View Additional Examples</summary>\n\n"
+        "### Migrate Legacy Load Options\n\n"
+        "Before:\n\n```csharp\nold();\n```\n\nAfter:\n\n```csharp\nnew();\n```\n\n</details>\n"
+    )
+    assert checks.check_additional_example_headings(text) == []
+
+
+def test_additional_example_headings_noop_when_no_details_block():
+    text = "## Additional Examples\n\nFlagship.\n\n```python\nx = 1\n```\n"
+    assert checks.check_additional_example_headings(text) == []
+
+
+def test_additional_example_headings_noop_when_no_examples_section():
+    assert checks.check_additional_example_headings("# Product\n") == []
+
+
 # --- check_api_reference_detail_collapsed (2026-08-15, MT045, TC-HARDEN-67) -----------------------
 
 
@@ -4958,6 +5033,55 @@ def test_seo_keyword_wrong_platform_false_for_own_platform_token():
     assert checks._seo_keyword_wrong_platform("Open source Excel library for Java", "java") is False
 
 
+# --- build_seo_keyword_placement_plan / check_seo_keyword_plan_usage
+# (readme-refresh-seo-deps-headings-hardening, 2026-08-19) --------------------------------------
+
+
+def test_build_seo_keyword_placement_plan_shape():
+    plan = checks.build_seo_keyword_placement_plan(
+        ["Open source 3D library for .NET", "Free .NET 3D graphics library"], "3d",
+    )
+    assert len(plan) == 2
+    assert plan[0]["phrase"] == "Open source 3D library for .NET"
+    assert plan[0]["source_registry"] == "keywords/3d.json"
+    assert plan[0]["intended_section"] == "Key Capabilities"
+    assert plan[0]["priority"] == "preferred"
+    assert plan[0]["max_uses"] == 1
+
+
+def test_build_seo_keyword_placement_plan_empty_pool():
+    assert checks.build_seo_keyword_placement_plan([], "3d") == []
+
+
+def test_check_seo_keyword_plan_usage_noop_on_empty_plan():
+    assert checks.check_seo_keyword_plan_usage("## Key Capabilities\n\n- `Scene` graph.\n", []) == []
+
+
+def test_check_seo_keyword_plan_usage_flags_zero_lexical_overlap():
+    # The real, confirmed 3d/net defect: 10 correct, filtered SEO phrases, and the actual Key
+    # Capabilities section is pure identifier-first API-reference prose with no overlap at all.
+    plan = checks.build_seo_keyword_placement_plan(
+        ["Open source 3D mesh processing .NET", "Free CAD file reader C# library"], "3d",
+    )
+    text = (
+        "## Key Capabilities\n\n"
+        "- Build and traverse a scene graph with `Scene` and `Node`.\n"
+        "- Assign shading materials through `Material` subclasses.\n"
+    )
+    findings = checks.check_seo_keyword_plan_usage(text, plan)
+    assert len(findings) == 1
+    assert findings[0]["plan_size"] == 2
+
+
+def test_check_seo_keyword_plan_usage_passes_on_any_overlap():
+    plan = checks.build_seo_keyword_placement_plan(
+        ["Open source 3D mesh processing .NET", "Free CAD file reader C# library"], "3d",
+    )
+    # Only "processing" (a significant word from the first phrase) needs to appear somewhere.
+    text = "## Key Capabilities\n\n- Real-time mesh processing with `Scene` and `Node`.\n"
+    assert checks.check_seo_keyword_plan_usage(text, plan) == []
+
+
 def test_seo_keyword_wrong_platform_false_when_no_platform_token_present():
     assert checks._seo_keyword_wrong_platform("Open source Excel library", "java") is False
 
@@ -7311,6 +7435,62 @@ def test_check_dependency_direct_transitive_confusion_clean_on_real_manifest_nam
     assert checks.check_dependency_direct_transitive_confusion(text, _CELLS_RUST_DEPENDENCY_SNAPSHOT) == []
 
 
+# --- check_dependency_section_subheadings_present (readme-refresh-seo-deps-headings-hardening,
+# 2026-08-19) ----------------------------------------------------------------------------------
+
+
+def test_check_dependency_section_subheadings_present_flags_headingless_flat_prose():
+    # The real, confirmed 3d/net defect: a ## Dependencies section with real, accurate content
+    # but zero of the four mandated ### subheadings.
+    text = (
+        "## Dependencies\n\nNo required third-party package dependencies. The published "
+        "package builds from Foo.csproj, which declares zero PackageReference entries.\n"
+    )
+    findings = checks.check_dependency_section_subheadings_present(
+        text, dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, required=[]),
+    )
+    assert any("Required Package Dependencies" in f["reason"] for f in findings)
+
+
+def test_check_dependency_section_subheadings_present_passes_full_structure():
+    text = (
+        "## Dependencies\n\n### Required Package Dependencies\n\n"
+        "- `chrono` 0.4 -- date handling.\n\n"
+        "### Optional Dependencies\n\nNo optional third-party package dependencies.\n"
+    )
+    assert checks.check_dependency_section_subheadings_present(
+        text, _CELLS_RUST_DEPENDENCY_SNAPSHOT,
+    ) == []
+
+
+def test_check_dependency_section_subheadings_present_requires_native_system_when_populated():
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `chrono` 0.4 -- date handling.\n"
+    snapshot = dict(_CELLS_RUST_DEPENDENCY_SNAPSHOT, native_system=[
+        {"name": "edition", "ecosystem": "cargo", "version_constraint": "2021",
+         "source_type": "registry", "category": "native-system", "dev_only": False,
+         "activating_feature": None, "platform_condition": None, "role": "runtime",
+         "purpose": None, "is_direct": True, "extraction_confidence": "structured_parse"},
+    ])
+    findings = checks.check_dependency_section_subheadings_present(text, snapshot)
+    assert any(f["bucket"] == "native_system" for f in findings)
+
+
+def test_check_dependency_section_subheadings_present_omits_empty_buckets_silently():
+    # Optional/Native/Development all genuinely empty -- silent omission is correct, not a
+    # finding, when Required Package Dependencies is present.
+    text = "## Dependencies\n\n### Required Package Dependencies\n\n- `chrono` 0.4 -- date handling.\n"
+    assert checks.check_dependency_section_subheadings_present(
+        text, _CELLS_RUST_DEPENDENCY_SNAPSHOT,
+    ) == []
+
+
+def test_check_dependency_section_subheadings_present_no_snapshot_no_missing_section_noop():
+    assert checks.check_dependency_section_subheadings_present("# Product\n", None) == []
+    assert checks.check_dependency_section_subheadings_present(
+        "# Product\n", _CELLS_RUST_DEPENDENCY_SNAPSHOT,
+    ) == []
+
+
 def test_bulleted_dependency_names_does_not_truncate_dotted_npm_scoped_name():
     # Real bug found live 2026-08-14 against cells/typescript: splitting on "." truncated the
     # real npm-scoped dependency "@zip.js/zip.js" to "@zip", producing a false
@@ -8963,3 +9143,112 @@ def test_trailing_segment_empty_parens_unaffected_by_paren_stripping():
     # (empty, non-slash-containing parens) must be completely unaffected by the new paren-first
     # stripping order.
     assert checks._compound_token_trailing_segment("pdf.NewTable()") == "NewTable"
+
+
+# --- MT057 (Fifty-Seventh incident, TC-UIW-06/07): upstream-issue GitHub Issue draft checks ---
+
+
+def test_issue_draft_leak_check_fires_on_process_narration_reused_from_readme_check():
+    # The shared _PROCESS_NARRATION_RE mechanism (already proven against real README content)
+    # must be equally active for an issue draft -- reused, not reimplemented.
+    text = "This session confirmed that the install command fails identically on a clean clone."
+    findings = checks.check_no_internal_details_leaked_into_issue_draft(text)
+    categories = {f["category"] for f in findings}
+    assert "process_narration" in categories
+
+
+def test_issue_draft_leak_check_fires_on_real_internal_artifact_references():
+    # Real, captured-shape leak: a draft that cites this project's own internal tracking
+    # artifacts and plan machinery by name -- exactly what TC-UIW-06 exists to catch.
+    text = (
+        "Per TC-HARDEN-105 in MT052, this finding was recorded in "
+        "reports/repo-presenter/pdf/go/upstream-issues.md (finding_id UF-pdf-go-0003, "
+        "bundle_id UB-pdf-go-0001) after a candidate-generation pass; see "
+        "content-dispositions.json for the disposition trail."
+    )
+    findings = checks.check_no_internal_details_leaked_into_issue_draft(text)
+    categories = {f["category"] for f in findings}
+    assert "internal_reference" in categories
+    phrases = {f["phrase"].lower() for f in findings}
+    assert any("mt0" in p or "tc-harden" in p for p in phrases)
+    assert any("upstream-issues.md" in p for p in phrases)
+    assert any("finding_id" in p for p in phrases)
+    assert any("bundle_id" in p for p in phrases)
+
+
+def test_issue_draft_leak_check_does_not_flag_upstream_issues_md_convention_because_it_never_appears():
+    # Sanity/documentation check, not a real assertion gap: the README-context convention of
+    # citing upstream-issues.md as a plain, non-forensic pointer is legitimate INSIDE a README,
+    # but this check operates on ISSUE DRAFTS, where that same citation is a real leak (the
+    # target repo has no such file) -- confirmed by the test above that it DOES fire there.
+    # This test documents the deliberate asymmetry: check_process_narration_smells (README-
+    # scoped) does not include "upstream-issues.md" in its own shared pattern list, so a real
+    # README's own legitimate pointer sentence stays unaffected by this addition.
+    readme_text = (
+        "`pip install` fails for this repository at any source -- see "
+        "[upstream-issues.md](upstream-issues.md) for the root cause and a verified workaround."
+    )
+    assert checks.check_process_narration_smells(readme_text) == []
+
+
+def test_issue_draft_leak_check_clean_on_a_real_professional_draft():
+    # A real, professional, sanitized draft body (matching the mission's own Stage 7 shape) must
+    # produce zero findings.
+    text = (
+        "## Summary\n\n"
+        "`pip install aspose-pdf-foss` fails on a clean Python 3.12 virtual environment with a "
+        "build-backend error.\n\n"
+        "## Environment\n\nPython 3.12.4, pip 24.0, Ubuntu 22.04.\n\n"
+        "## Minimal reproduction\n\n```bash\npython -m venv .venv\n.venv/bin/pip install "
+        "aspose-pdf-foss\n```\n\n"
+        "## Expected behavior\n\nThe package installs successfully.\n\n"
+        "## Actual behavior\n\nThe build backend raises ModuleNotFoundError for setuptools."
+    )
+    assert checks.check_no_internal_details_leaked_into_issue_draft(text) == []
+
+
+def test_issue_draft_rejection_hard_gate_fires_on_credential_patterns():
+    cases = {
+        "ghp_" + "a" * 36: "github_personal_access_token",
+        "AKIAABCDEFGHIJKLMNOP": "aws_access_key_id",
+        "-----BEGIN RSA PRIVATE KEY-----\nMIIBOgIBAAJBAK\n-----END RSA PRIVATE KEY-----": "private_key_block",
+        "GH_TOKEN=ghp_abcdef1234567890": "token_assignment",
+        "https://user:secretpass@example.com/repo.git": "credential_in_url",
+    }
+    for text, expected_reason in cases.items():
+        result = checks.check_issue_draft_rejection_list(text)
+        reasons = {f["reason"] for f in result["hard_gate_findings"]}
+        assert expected_reason in reasons, f"expected {expected_reason} for {text!r}, got {reasons}"
+
+
+def test_issue_draft_rejection_hard_gate_fires_on_local_absolute_paths():
+    for text in (
+        r"See C:\Users\prora\AppData\Local\Temp\evidence.txt for the raw output.",
+        "See /home/prora/evidence.txt for the raw output.",
+        "See /Users/prora/evidence.txt for the raw output.",
+    ):
+        result = checks.check_issue_draft_rejection_list(text)
+        reasons = {f["reason"] for f in result["hard_gate_findings"]}
+        assert reasons & {"windows_absolute_user_path", "unix_absolute_home_path", "macos_absolute_home_path"}
+
+
+def test_issue_draft_rejection_hard_gate_clean_on_professional_draft():
+    text = (
+        "## Summary\n\n`pip install` fails on a clean Python 3.12 virtualenv.\n\n"
+        "## Minimal reproduction\n\n```bash\npython -m venv .venv && .venv/bin/pip install "
+        "aspose-pdf-foss\n```\n"
+    )
+    result = checks.check_issue_draft_rejection_list(text)
+    assert result["hard_gate_findings"] == []
+    assert result["advisory_findings"] == []
+
+
+def test_issue_draft_rejection_advisory_tier_never_blocks():
+    # The accusatory-language tier is advisory-only by design -- it must be surfaced but must
+    # NEVER appear in hard_gate_findings, since it is an unproven-at-scale heuristic.
+    text = "This is sloppy work and you broke the build."
+    result = checks.check_issue_draft_rejection_list(text)
+    assert result["hard_gate_findings"] == []
+    assert len(result["advisory_findings"]) >= 2
+    reasons = {f["reason"] for f in result["advisory_findings"]}
+    assert reasons == {"accusatory_language"}
