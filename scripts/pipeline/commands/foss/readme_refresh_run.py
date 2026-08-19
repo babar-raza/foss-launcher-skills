@@ -2957,17 +2957,42 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         published = bool(
             result.get("readme_already_published", {}).get("detail", {}).get("published", False)
         )
+        # TC-AUDIT-01 (found live 2026-08-19 composing cells/net): `clean: true` alone conflates
+        # two structurally different states -- a candidate whose disposition-family checks
+        # actually RAN and found nothing wrong, versus one where readme_already_published (MT053)
+        # skipped all 25 of those checks entirely because the candidate is still byte-identical
+        # to the published upstream README. Both report clean:true/{} above, but only the first
+        # means the disposition bookkeeping was ever verified. Confirmed live: 5 of this
+        # portfolio's 8 then-"clean" products (cells/rust, email/cpp, email/net, pdf/net,
+        # words/net) had never been composed at all -- masked by this exact conflation, not
+        # actually checked. `disposition_tracking` makes the distinction explicit and
+        # structural so no future consumer of this output can collapse them again the way the
+        # informal "N/30 clean" framing already did once.
+        disposition_family_skipped = bool(
+            result.get("content_unit_disposition_coverage", {}).get("skipped", False)
+        )
+        if disposition_family_skipped:
+            disposition_tracking = "skipped_published"
+        elif hard_gate_findings:
+            disposition_tracking = "checked_dirty"
+        else:
+            disposition_tracking = "verified"
         product_results.append({
             "family": fam, "platform": plat,
             "clean": not hard_gate_findings,
             "hard_gate_findings": hard_gate_findings,
             "published": published,
             "candidate_drift": candidate_drift,
+            "disposition_tracking": disposition_tracking,
         })
 
     clean_count = sum(1 for p in product_results if p["clean"])
+    disposition_verified_count = sum(
+        1 for p in product_results if p["disposition_tracking"] == "verified"
+    )
     return {
         "products": product_results,
+        "disposition_verified_count": disposition_verified_count,
         "clean_count": clean_count,
         "dirty_count": len(product_results) - clean_count,
         "total": len(product_results),
@@ -3947,6 +3972,16 @@ def main(argv: "list[str] | None" = None) -> int:
                 if result.get("non_canonical"):
                     print(f"*** {result['non_canonical']} ***")
                 print(f"{result['clean_count']}/{result['total']} products ALL HARD GATES CLEAN")
+                # TC-AUDIT-01: "clean" alone conflates real disposition verification with a
+                # published-status skip that never actually checked anything -- always print
+                # this line too so the distinction can't be silently dropped from a default,
+                # non-JSON audit call the way it was before this field existed.
+                print(
+                    f"{result['disposition_verified_count']}/{result['total']} products have "
+                    f"REAL disposition-tracking verification (the rest are either dirty, or "
+                    f"clean only because published-status skipped the check -- see "
+                    f"disposition_tracking per product)"
+                )
                 published = [p for p in result["products"] if p.get("published")]
                 if published:
                     names = ", ".join(f"{p['family']}/{p['platform']}" for p in published)

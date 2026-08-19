@@ -2047,6 +2047,55 @@ def test_audit_portfolio_surfaces_published_field_per_product(tmp_path, capsys):
     assert "Already published upstream (1): testfam/testplat" in out
 
 
+# --- TC-AUDIT-01: disposition_tracking must distinguish real verification from a
+# published-status skip -- both report clean:true, but only one was ever actually checked
+# (found live 2026-08-19: 5 of the portfolio's 8 "clean" products had never been composed at
+# all, masked by this exact conflation) ------------------------------------------------------
+
+
+def test_audit_portfolio_marks_real_verification_as_disposition_tracking_verified(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)  # not published:true, real dispositions engaged and clean
+
+    result = rr.audit_portfolio()
+    product = result["products"][0]
+    assert product["clean"] is True
+    assert product["disposition_tracking"] == "verified"
+    assert result["disposition_verified_count"] == 1
+
+
+def test_audit_portfolio_marks_published_skip_as_disposition_tracking_skipped_published(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+
+    result = rr.audit_portfolio()
+    product = result["products"][0]
+    assert product["published"] is True
+    assert product["clean"] is True  # still reports clean:true -- the whole point of this gap
+    assert product["disposition_tracking"] == "skipped_published"
+    assert result["disposition_verified_count"] == 0  # NOT counted as real verification
+
+
+def test_audit_portfolio_marks_real_findings_as_disposition_tracking_checked_dirty(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _add_second_product(repo_root)
+    _write_second_candidate(repo_root)  # known dirty: required_sections findings
+
+    result = rr.audit_portfolio(family="testfam2", platform="testplat2")
+    product = result["products"][0]
+    assert product["clean"] is False
+    assert product["disposition_tracking"] == "checked_dirty"
+    assert result["disposition_verified_count"] == 0
+
+
 # --- Illegal transition rejection -----------------------------------------------------------
 
 
