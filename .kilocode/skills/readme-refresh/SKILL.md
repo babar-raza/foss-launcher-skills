@@ -15,10 +15,14 @@ args: "{family} {platform}"
      preconditions: product active in data/products.json, not excluded, real push/admin access
      postcondition: run is AWAITING_REVIEW, APPROVED, PUSHED, BLOCKED, or ABANDONED
      idempotent: yes — immutable receipts, state checkpoints, single-owner-per-product locking
-     verified: 2026-08-18
+     verified: 2026-08-19
 -->
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+> The sibling `upstream_issue_workflow.py` module/CLI (see "Upstream issue workflow" below) is a
+> separate, non-run-bound tool for verifying and drafting real upstream-repo defect reports — it
+> is documented here because it's discovered during this skill's own work, not because it's part
+> of this state machine.
 
 # S-120: README Refresh
 
@@ -75,6 +79,31 @@ drift between two products' candidates and their real upstream reference data (e
 `reference.aspose.org` regeneration) can still accumulate silently until someone runs it by
 hand — a real, disclosed, still-open gap (see the skill's own governance taskcard register in
 the plan file for the deferred "should this run on a schedule" decision).
+
+**Checks-module-currency tripwire (readme-refresh-seo-deps-headings-hardening mission,
+2026-08-19).** A real, distinct staleness class from the scheduling gap above: even run by hand,
+on demand, `audit_portfolio → clean: true` only ever proves a candidate is clean against the
+checks that existed AT THAT MOMENT. Confirmed live: `3d/net`'s own `TC-RDR-03-3D-NET` closure
+(2026-08-19, earlier the same day this mission ran) legitimately produced `clean: true, {}`
+hard-gate findings — true, but only against `checks.CHECKS_MODULE_VERSION == 1`; this mission's
+3 new checks (version 2) had not landed yet and never ran against it. Nothing previously flagged
+that a "clean" certification had gone stale relative to checks added since — the same
+"documented rule, never mechanically re-verified" root-cause shape as this mission's other three
+defects, one level up (about the CHECKS themselves, not the candidate).
+
+Fixed the same way `published_readme_current` already makes republication staleness visible,
+applied to this pipeline's own check coverage instead of the target repo's upstream state:
+`checks.CHECKS_MODULE_VERSION` (a monotonic int, bumped whenever a `check_*` function is added
+or a hard gate's pass/fail semantics change) is stamped into each candidate's own
+`last-verified.json` sidecar (`checks_module_version`, alongside the existing `readme_sha256`/
+`verified_at`/`verified_by_run_id`) every time `ingest-candidate`/`recheck`/`audit-portfolio`
+runs verification. `_checks_currency_findings` (advisory, never a hard gate — same tier as its
+sibling `_candidate_drift_findings`) compares the stored version against the live one and
+reports `result["verification_currency"]` when they diverge; a marker with no
+`checks_module_version` field at all (written before this mission) is treated as version 0,
+always stale, the safe default. The moment ANY fresh `audit-portfolio`/`ingest-candidate`/
+`recheck` call runs, the marker updates to the current version and the signal clears itself —
+this is a "needs re-verification" flag, not a permanent scar.
 
 State machine: `CREATED → INPUTS_PINNED → PLANNED → VERIFYING_EXAMPLES → AWAITING_REVIEW →
 APPROVED → PUSHING → PUSHED`. `BLOCKED` is re-enterable from `INPUTS_PINNED`/`PLANNED`/
@@ -483,6 +512,39 @@ after convergence, re-running the same regeneration produces no further diff.
      `check_no_stripped_example_in_description`), and never opens with a lowercase letter unless
      that word is itself a backtick-quoted identifier.
 
+   **Keyword placement plan and usage verification (readme-refresh-seo-deps-headings-hardening
+   mission, 2026-08-19).** The gap the paragraphs above never closed: `filter_relevant_seo_
+   keywords` only ever curates the CANDIDATE POOL of relevant phrases at factpack-build time —
+   nothing recorded what section a phrase was intended for, and nothing ever cross-referenced
+   the actually-composed text against it. Confirmed real, live: `3d/net`'s own real Key
+   Capabilities section (composed independently of this mission) used zero of its 10 correct,
+   real, `.NET`-scoped filtered phrases — a documented-but-unchecked rule, the exact recurring
+   root-cause shape this whole document keeps naming.
+
+   `checks.build_seo_keyword_placement_plan(seo_keywords_filtered, family)` turns the filtered
+   pool into a typed record per phrase — `{phrase, source_registry, applicable_capability,
+   intended_section, reader_search_intent, priority, max_uses}` — recorded in the factpack as
+   `seo_keyword_placement_plan` and recomputed fresh (never read back) inside `_run_
+   deterministic_checks`, matching this module's own established pattern for every other
+   `_detect_*`-derived value. **Honest, disclosed limit**: `priority` is always `"preferred"`,
+   never `"required"` — this pipeline has no reliable capability-to-keyword mapping that would
+   justify a stronger claim (`filter_relevant_seo_keywords` only proves a phrase is grounded in
+   the family name, a known real format, or established capability-verb vocabulary, never that
+   it maps to one SPECIFIC verified capability); `applicable_capability` is `None` for the same
+   reason. Inventing that mapping under this mission's own scope would have been exactly the
+   kind of overclaimed determinism this document's own composition-quality sections keep
+   warning against.
+
+   `check_seo_keyword_plan_usage` (heuristic, deliberately never a hard gate — the "never turn
+   subjective prose quality into a simplistic hard keyword-count gate" rule applies here
+   directly) does lexical-overlap detection, not exact-phrase matching: a phrase "counts as
+   used" when at least one of its own significant (4+ letter) words appears anywhere in the
+   candidate text — natural paraphrase is expected and correct, matching this section's own
+   anti-stuffing rules above. WARNs only when the plan is non-empty and LITERALLY ZERO phrases
+   show any overlap anywhere in the document — a floor against total non-engagement, never a
+   per-bullet or per-phrase count; the plan itself can legitimately be empty (confirmed live for
+   `cells/java`, above) and that is not itself a finding.
+
    **Dependency terminology and the Claims Policy — a mandatory `## Dependencies` section
    (TC-HARDEN-49 through -56, MT041/Thirty-First incident, 2026-08-14).** The real, confirmed
    defect this mission exists to fix: `cells/rust`'s Installation section stated *"Requires a
@@ -553,6 +615,45 @@ after convergence, re-running the same regeneration produces no further diff.
    `_block()`/`ReadmeRefreshRunError` mechanism already proven at `push()`'s own call site — fix
    the named manifest (or add a verified entry to `data/dependency_overrides.json`), then
    `recover` and re-run `plan`.
+
+   **Dependencies subheading presence is now a hard gate; native-system extraction now covers
+   every ecosystem (readme-refresh-seo-deps-headings-hardening mission, 2026-08-19).** Two real,
+   distinct root causes, both confirmed live on `3d/net`'s own real "## Dependencies" section
+   (composed 2026-08-19, the same day): (1) the four-subheading template above was documented
+   but never mechanically checked — `check_dependency_section_subheadings_present` (hard gate)
+   closes this: `### Required Package Dependencies` is required unconditionally (bullets or the
+   fixed empty sentence, never a headingless flat paragraph — 3d/net's exact defect);
+   `### Optional Dependencies`/`### Development Dependencies` omit silently only when their
+   snapshot bucket is genuinely empty; `### Native and System Requirements` is required whenever
+   `native_system` is non-empty. (2) `dependency_extract.py`'s `native_system` bucket — already
+   modeled in the `DependencySnapshot` type and the `"native-system"` `Category` — was populated
+   for exactly ONE of seven ecosystems (`go_modules`, the `go` version directive) before this
+   mission; NuGet/Cargo/pypi/npm/Maven all had zero native/language-version extraction, which is
+   the deeper reason "### Native and System Requirements" was silently absent across most of the
+   portfolio, not a 3d/net-specific gap. Now extracted: .NET `<TargetFramework>`/
+   `<TargetFrameworks>` (raw list, never computed into an "X or later" claim — a multi-target
+   list can mix generations that don't compare simply, e.g. 3d/net's own real
+   `net10.0;net8.0;net6.0;netcoreapp3.1`; phrasing that into prose is a composition-time
+   judgment call, not an extraction fact); Rust `[package].edition`/`.rust-version` (MSRV);
+   Python `requires-python` (pyproject) / `python_requires` (setup.cfg); npm `engines.node`;
+   Maven `<properties>` `maven.compiler.release`/`.target`/`.source`/`java.version` (declared
+   directly in the product's own pom.xml, never resolved through parent-POM inheritance — a
+   disclosed narrower-but-correct scope) with a Gradle `sourceCompatibility`/
+   `JavaLanguageVersion.of(N)` regex-best-effort fallback. Every field is independently optional
+   — silent omission when genuinely absent, never guessed.
+
+   **Same review pass, also fixed**: `_select_main_csproj`'s "shortest-path wins" heuristic had
+   no way to prefer a real library over a same-or-shallower-depth demo/converter tool — a second,
+   real instance of the exact bug class the 2026-08-17 test-project exclusion already fixed once
+   (`words/net`). Confirmed live: 3d/net's own `src/converter/Converter.csproj`
+   (`OutputType=Exe`, 3 path segments) sorts strictly ahead of the real library
+   `src/main/Aspose.ThreeD/Aspose.ThreeD.csproj` (4 segments) — not even a depth tie, so a
+   same-depth-only tiebreaker would not have fixed it. Fixed with a second filtering stage
+   (applied after the existing test-name filter): prefer a non-`OutputType=Exe` project within
+   whatever set survives the first filter, never excluding Exe outright (a real product could
+   legitimately have only an Exe-output csproj). Silently harmless for 3d/net today (both
+   projects have zero `PackageReference`s) but would have silently misattributed a demo tool's
+   own dependencies to "the library's" for a product where it mattered.
 
    **Public-source allowlist for limitations content (2026-08-13, found live on `cells/cpp`).**
    A real Development and Testing sentence cited `upstream-issues.md` by name ("...see
@@ -670,6 +771,66 @@ after convergence, re-running the same regeneration produces no further diff.
        Limitations list, a blank line, then a standalone paragraph: *"These limitations apply only
        to {Product} FOSS — they don't carry over to [{Product} — Enterprise Edition](...), which
        adds..."*
+
+   **Additional-Example heading contract (readme-refresh-seo-deps-headings-hardening mission,
+   2026-08-19) — a genuinely new rule, previously undocumented anywhere in this file.** Every
+   worked example inside the "View Additional Examples" `<details>` disclosure must begin with
+   its own real, non-generic, unique heading naming the actual developer task — never a plain
+   sentence directly followed by a code fence. Confirmed real, live, previously-unnoticed
+   portfolio-wide gap: `3d/net`'s own 5 collapsed examples (read verbatim) had zero heading
+   markup of any kind, not even a generic "Example N" label — no contract or validator for this
+   existed anywhere in this document before this mission.
+
+   Deliberately scoped to the `<details>` disclosure only — the always-visible flagship example
+   ahead of it is a different, already-established convention (one primary worked example,
+   introduced by the section's own lead-in prose) and is not required to carry its own heading
+   by this rule.
+
+   - Heading text must name the real developer task the example performs, using applicable
+     verified keywords naturally — never "Example," "Example 1," or any other numerically- or
+     generically-named placeholder.
+   - Every heading inside the disclosure must be unique; two examples must never share a
+     heading.
+   - Multiple code blocks may legitimately share one heading (a "before"/"after" pair for one
+     worked task) — that is one example, not two, and the second block is never a violation of
+     "every example needs a heading."
+   - The heading must match the code and surrounding explanation — the same "don't rewrite an
+     example's meaning to fit a keyword" discipline already established for Key Capabilities
+     bullets above applies here too.
+   - Never repeat the same keyword formula across every heading — vary phrasing the same way
+     Key Capabilities bullets already vary opening structure.
+
+   ```markdown
+   <details>
+   <summary><strong>View Additional Examples</strong></summary>
+
+   ### Convert a 3D Scene to a Supported Format
+
+   ...
+
+   ### Build and Transform 3D Geometry
+
+   ...
+
+   </details>
+   ```
+
+   The exact headings must be derived from each product's own real, verified workflows — never
+   copied from this illustration.
+
+   `check_additional_example_headings` (hard gate, below) enforces heading presence, uniqueness,
+   and non-genericness mechanically. **A deliberate design decision, not an oversight**: this
+   mission does NOT add a structured JSON sidecar (e.g. `example-workflows.json`) recording each
+   example's id/task/APIs/keywords separately from the rendered Markdown, even though an earlier
+   draft of this mission's own governing plan considered one. Reason: this exact failure
+   mode — a disposition-style JSON sidecar silently drifting out of sync with live content the
+   moment either changes — is precisely what the `TC-MICRO-02`/disposition-remediation
+   incident (`docs/readme-refresh/current-operational-reference.md` §11) already proved real for
+   `content-dispositions.json` (0/48 sampled entries matched their live extraction on reaudit).
+   The rendered heading + prose + code fence already IS the structured record this gate needs;
+   a second, current-examples-specific sidecar (distinct from the EXISTING disposition files,
+   which track old-README *preservation*, a different question entirely) would carry the same
+   drift risk for no correctness gain the Markdown parser doesn't already provide.
 
 4. **`ingest-candidate`** — runs the real deterministic checks module
    (`scripts/pipeline/commands/foss/readme_refresh_checks.py`, 91 `check_*` functions as of
@@ -939,6 +1100,112 @@ after convergence, re-running the same regeneration produces no further diff.
 
 9. **`verify`** — post-push, safely re-runnable any time: confirms the PR still exists and its
    head matches the approved candidate.
+
+## Upstream issue workflow (MT057, Fifty-Seventh incident, 2026-08-19)
+
+A separate, sibling module — `scripts/pipeline/commands/foss/upstream_issue_workflow.py`, its
+own CLI (`PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/foss/
+upstream_issue_workflow.py {command} {family} {platform} ...`) — verifies, classifies,
+deduplicates, bundles, and drafts (**never silently auto-files**) real GitHub Issues for genuine
+upstream defects found in a product's own `upstream-issues.md` during README-generation work.
+It is deliberately NOT part of `readme_refresh_run.py`'s own state machine — a finding and a
+bundle are a different entity type with a different lifecycle (real, separate `FINDING_NEXT_
+STATES`/`BUNDLE_NEXT_STATES` dicts) and a different, genuinely new external side effect (a real
+GitHub Issue, never a README PR) — merging the two would corrupt the README run's own,
+already-proven-narrow transition dict.
+
+**Standing rule, non-negotiable**: a real GitHub Issue is created ONLY via `create-issue --live`
+(never the default), and only when a real `GH_TOKEN` is present — mirroring `push()`'s own
+`GH_TOKEN`-gated, dry-run-first posture exactly. Nothing in this workflow ever creates an issue
+as a side effect of any other step.
+
+**Two-tier state machine, evidence-required on every transition**:
+```
+FINDING_NEXT_STATES:  DISCOVERED -> VERIFYING -> VERIFIED -> DUPLICATE_CHECKED -> BUNDLED
+  (terminal for the finding; bundle_id recorded, further lifecycle on the bundle)
+  Alt-terminal: REJECTED_NOT_UPSTREAM, DUPLICATE_EXISTING, FIXED_UPSTREAM,
+    PRIVATE_SECURITY_ROUTE, BLOCKED_MISSING_EVIDENCE, DEFERRED_LOW_PRIORITY
+
+BUNDLE_NEXT_STATES:   BUNDLED -> DRAFTED -> INDEPENDENTLY_REVIEWED -> READY_TO_CREATE
+  -> CREATED -> REMOTE_VERIFIED
+  Alt-terminal/re-enterable: BLOCKED_IDENTITY, DEFERRED_LOW_PRIORITY, and the same
+    REJECTED_NOT_UPSTREAM / DUPLICATE_EXISTING / FIXED_UPSTREAM / PRIVATE_SECURITY_ROUTE set
+```
+`severity == "critical"` **always, unconditionally** forces `PRIVATE_SECURITY_ROUTE` at
+classification time — a real, structurally-enforced rule, never left to drafting-time judgment.
+
+**Stages and their real CLI verbs** (each requires `FAMILY PLATFORM` as the first two positional
+args, matching every function's own real signature — no ID-parsing magic):
+
+1. `inventory FAMILY PLATFORM` — real, mechanical dual-variant ingestion of the product's own,
+   already-existing `upstream-issues.md` (whichever candidate tree is currently configured
+   canonical). Auto-rejects a finding matching a real entry in `data/upstream_issue_false_
+   positive_exclusions.json` (absent by default, same governance shape as `data/api_reference_
+   class_exclusions.json`).
+2. `verify-finding FAMILY PLATFORM --finding-id ID --outcome O --evidence-ref REF [...]` — always
+   refreshes the real upstream clone first (`git fetch` + default-branch-detect + `git reset
+   --hard`, in place, never a fresh clone). Real reproduction is Python-only
+   (`disposable_python_venv`); every other language honestly records `manual_language_specific`
+   with a real, named per-language procedure note — never a fabricated clean-environment claim.
+   `--outcome` is one of the mission's real 14 `VerificationOutcome` values; an unrecognized value
+   is rejected outright (Python `Literal` hints are never enforced at runtime).
+3. `classify-finding FAMILY PLATFORM --finding-id ID --category C --severity S --priority P
+   --classification-basis TEXT` — requires state VERIFIED.
+4. `search-duplicates FAMILY PLATFORM --finding-id ID --disposition D --disposition-basis TEXT
+   [--query Q ...]` — real, read-only search across 5 real GitHub surfaces (issues, PRs,
+   cross-repo issue search, commit messages, the latest release). `disposition`/
+   `disposition_basis` are real, required caller judgment — this step runs the searches and
+   records the real results, it never decides what they mean.
+5. `bundle FAMILY PLATFORM --finding-ids ID1,ID2 --root-cause TEXT --why-bundled TEXT
+   --same-component --same-root-cause --same-maintainer-audience --same-repro-env
+   --single-fix-resolves-all` — refuses unless ALL five gates are explicitly true, naming exactly
+   which failed. `same_repo` is enforced structurally, never a sixth flag.
+6. `prioritize FAMILY PLATFORM --bundle-id ID [--priority P --priority-basis TEXT]` — real,
+   mechanical derivation (the bundle's own most urgent classified finding) when no override is
+   given; an override with no stated basis is rejected.
+7. `draft-issue FAMILY PLATFORM --bundle-id ID` — composes `draft.md` fresh from each finding's
+   own structured, already-verified fields (`original_observation`, `raw_fields.evidence_raw`/
+   `impact_raw`, `verification.*`, `classification.*`) — **never copies raw `source_excerpt`
+   verbatim**, since that text could itself still carry an internal reference. Requires state
+   BUNDLED.
+8. `validate-draft FAMILY PLATFORM --bundle-id ID --reviewer-id ID --reviewer-verdict
+   approved|confirmed [--reviewer-note TEXT]` — runs both `check_no_internal_details_leaked_
+   into_issue_draft` and `check_issue_draft_rejection_list` as real, blocking hard gates; a
+   real, positive independent reviewer is separately, structurally required — a bundle can never
+   reach `INDEPENDENTLY_REVIEWED` on automated checks alone. On failure the bundle stays at
+   `DRAFTED`; **the sanctioned repair is to hand-edit `draft.md` directly, then re-run
+   `validate-draft`** — re-running `draft-issue` alone reproduces the identical composed text
+   from the same underlying fields and will not fix a leak sourced from `raw_fields` itself
+   (confirmed live, TC-UIW-15's own real walkthrough: the internal-only `upstream-issues.md`
+   schema's own Evidence/Impact register legitimately uses audit-trail phrasing like "fails
+   identically" — real, correct there, but a genuine leak once copied into a public draft; the
+   fix was a direct, hand-authored reword of `draft.md`, not a re-draft).
+9. `check-identity` — standalone, safely re-runnable any time, no family/platform needed. Real
+   `gh api user` call; never raises on an unauthenticated/wrong account (a real, valid outcome to
+   report, not a crash).
+10. `create-issue FAMILY PLATFORM --bundle-id ID [--live]` — identity is re-verified on **every**
+    call, dry-run or not (a dry-run whose preview doesn't reflect a real identity check would be
+    a misleading rehearsal), writing a real `attribution.json` every time. A bundle at
+    `INDEPENDENTLY_REVIEWED` is first queued (`-> READY_TO_CREATE`); a wrong/absent identity
+    routes to the real, re-enterable `BLOCKED_IDENTITY` state and leaves the draft **completely
+    untouched**. Omitting `--live` (the real, safe default) performs zero `gh issue create`/
+    `gh issue view` calls and stops at `READY_TO_CREATE` with the exact real payload
+    (`repo_full_name`, `title`, `body`) written to `creation-receipt.json`. `--live` additionally
+    requires a real `GH_TOKEN`; on success it performs a real, read-only read-back-and-confirm
+    (`gh issue view`) before promoting the bundle to the real `REMOTE_VERIFIED` terminal state — a
+    read-back failure or title mismatch correctly leaves the bundle at the real, inspectable
+    `CREATED` state instead.
+11. `status FAMILY PLATFORM [--json]` — read-only portfolio/product view, every real finding and
+    bundle grouped by state. Safe to call at any time, including against a product with no real
+    inventory yet.
+
+**Evidence layout**: `reports/upstream_issue_runs/{family}/{platform}/` — `inventory.json`,
+`findings/{finding_id}/{manifest.json, verification.json, classification.json, events.jsonl}`,
+`bundles/{bundle_id}/{manifest.json, duplicate-search.json, draft.md, attribution.json,
+validation.json, creation-receipt.json, events.jsonl}`, `duplicate-search-ledger.json`,
+`bundle-ledger.json`. Cross-run audit trail: `reports/upstream_issue_actions.jsonl` (same real
+row shape as `repo_presenter_actions.jsonl`, one row per real action across every stage,
+dry-run and live pushes both recorded via `details["dry_run"]`).
 
 ## Onboarding a new product, platform, or family (TC-HARDEN-35, MT035, 2026-08-12)
 
