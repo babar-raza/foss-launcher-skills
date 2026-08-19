@@ -6817,8 +6817,22 @@ def check_content_unit_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
     merged into the identical `target_section` -- unambiguous, mechanically decidable
     duplication (the fuzzy near-duplicate case is `check_content_unit_probable_duplicate`'s
     heuristic below, not this hard gate).
+
+    Exempts entries whose `verification.evidence_ref` differs (real, live false positive found
+    2026-08-19 composing cells/net: 6 different classes -- ValidationCollection,
+    ConditionalFormattingCollection, ListObjectCollection, HyperlinkCollection,
+    DefinedNameCollection, ChartCollection -- each genuinely have their own `Count: int`
+    property, so their Detailed-Member-Reference excerpts are byte-identical
+    ("- Properties: `Count: int`") purely by API-shape coincidence, not lazy duplication; each
+    was individually verified against its own real source file. This check's excerpt+section
+    key can't see that the surrounding class-heading context makes each occurrence a distinct,
+    independently-verified fact, not a repeated one. Different evidence_ref is a reliable proxy
+    for "these are independently verified, not copy-pasted" -- true lazy duplication (the same
+    disposition copied across unit_ids without doing distinct verification work) still shares
+    one evidence_ref and remains caught.
     """
     seen: dict[tuple[str, "str | None"], list] = {}
+    evidence_by_key: dict[tuple[str, "str | None"], set] = {}
     for entry in dispositions:
         if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
             continue
@@ -6827,9 +6841,13 @@ def check_content_unit_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
             entry.get("target_section"),
         )
         seen.setdefault(key, []).append(entry.get("unit_id"))
+        evidence_by_key.setdefault(key, set()).add(
+            (entry.get("verification") or {}).get("evidence_ref")
+        )
     findings: list[dict] = []
-    for (_excerpt, target), unit_ids in seen.items():
-        if len(unit_ids) > 1:
+    for key, unit_ids in seen.items():
+        if len(unit_ids) > 1 and len(evidence_by_key[key]) == 1:
+            _excerpt, target = key
             findings.append({
                 "unit_ids": unit_ids,
                 "target_section": target,

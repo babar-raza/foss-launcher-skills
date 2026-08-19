@@ -6070,6 +6070,33 @@ def test_no_exact_duplicate_merge_does_not_flag_different_sections():
     assert checks.check_content_unit_no_exact_duplicate_merge(dispositions) == []
 
 
+def test_no_exact_duplicate_merge_exempts_identical_text_with_different_evidence():
+    """Real cells/net false positive (2026-08-19): 6 different classes each genuinely have their
+    own `Count: int` property, so their excerpts are byte-identical by API-shape coincidence,
+    not lazy duplication -- each independently verified against a different real source file."""
+    dispositions = [
+        _content_unit(unit_id="u0053", excerpt="- Properties: `Count: int`",
+                      target_section="API Reference", evidence_ref="src/ValidationCollection.cs"),
+        _content_unit(unit_id="u0059", excerpt="- Properties: `Count: int`",
+                      target_section="API Reference", evidence_ref="src/ConditionalFormattingCollection.cs"),
+    ]
+    assert checks.check_content_unit_no_exact_duplicate_merge(dispositions) == []
+
+
+def test_no_exact_duplicate_merge_still_flags_identical_text_and_evidence():
+    """The exemption is narrow: two entries citing the SAME evidence_ref for the same excerpt
+    are still real, lazy duplication, not independently-verified coincidence -- unchanged from
+    the check's original behavior."""
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt="Same text, same source.",
+                      target_section="API Reference", evidence_ref="src/widget.py"),
+        _content_unit(unit_id="u0002", excerpt="Same text, same source.",
+                      target_section="API Reference", evidence_ref="src/widget.py"),
+    ]
+    findings = checks.check_content_unit_no_exact_duplicate_merge(dispositions)
+    assert findings and set(findings[0]["unit_ids"]) == {"u0001", "u0002"}
+
+
 # --- check_content_unit_classification_plausibility (heuristic) ---------------------------------
 
 
