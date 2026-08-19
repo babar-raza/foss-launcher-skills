@@ -1120,7 +1120,7 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
     manifest = rr.approve("testfam", "testplat", run_id, note="looks good")
     assert manifest["state"] == "APPROVED"
 
-    manifest = rr.push("testfam", "testplat", run_id, dry_run=True)
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model X")
     # --dry-run rehearses everything up to (not including) the live write, then returns to
     # APPROVED -- it must never reach PUSHED without a real push.
     assert manifest["state"] == "APPROVED"
@@ -1153,6 +1153,60 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
     assert rows[0]["details"]["pr_url"] is None
     assert rows[0]["details"]["branch"] == receipt["branch"]
     assert rows[0]["details"]["commit_sha"] == receipt["commit_sha"]
+
+
+# --- F-02: push() commit trailer must come from the caller, never a hardcoded literal ------
+
+
+def _advance_to_approved(repo_root, family="testfam", platform="testplat"):
+    manifest = rr.start_run(family, platform)
+    run_id = manifest["run_id"]
+    rr.plan_run(family, platform, run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate(family, platform, run_id)
+    rr.verify_examples(family, platform, run_id)
+    rr.approve(family, platform, run_id, note="looks good")
+    return run_id
+
+
+def test_push_requires_a_real_acting_model(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-f02-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="acting_model"):
+        rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="")
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="acting_model"):
+        rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="   ")
+
+
+def test_push_commit_trailer_uses_the_caller_supplied_acting_model_not_a_hardcoded_literal(
+    tmp_path, monkeypatch,
+):
+    """F-02 regression: readme_refresh_run.py:3678 used to hardcode
+    'Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>' regardless of which model was
+    actually running the push -- contradicting MT032's 'real acting model, never hardcoded'
+    rule (the same rule invariant 5.9 already applies to the merge-time trailer). Proves two
+    things: (1) the trailer reflects whatever the CALLER passes, not a fixed string, and
+    (2) no literal legacy model name ('Claude Sonnet 5', 'Claude Sonnet 4.6' -- both found
+    hardcoded elsewhere in this repo's own doc examples) survives in the real commit object."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-f02-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    distinctive_model = "Totally-Distinctive-Test-Model-9000"
+    rr.push("testfam", "testplat", run_id, dry_run=True, acting_model=distinctive_model)
+    receipt_path = rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+
+    work_dir = repo_root / "reports" / "readme_refresh_runs" / "_scratch" / f"testfam-testplat-{run_id}"
+    commit_message = _run_git(["log", "-1", "--format=%B", receipt["commit_sha"]], work_dir)
+    assert f"Co-Authored-By: {distinctive_model} <noreply@anthropic.com>" in commit_message
+    assert "Claude Sonnet 5" not in commit_message
+    assert "Claude Sonnet 4.6" not in commit_message
 
 
 # --- repo_presenter_actions.jsonl ledger (TC-HARDEN-15, MT035) -----------------------------

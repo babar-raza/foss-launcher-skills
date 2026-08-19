@@ -3574,14 +3574,22 @@ def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "
 
 
 def push(
-    family: str, platform: str, run_id: str, *, session_id: "str | None" = None, dry_run: bool = False,
-    scratch_root: "Path | str | None" = None,
+    family: str, platform: str, run_id: str, *, acting_model: str, session_id: "str | None" = None,
+    dry_run: bool = False, scratch_root: "Path | str | None" = None,
 ) -> dict:
     """APPROVED -> PUSHING -> PUSHED. Disposable-clone + branch + surgical-diff-checked
     plumbing commit + push + gh pr create (skipped when --dry-run, or when the branch/commit
     steps themselves fail before the network push -- --dry-run stops before any live GitHub
     write). See module docstring's Honest Scope Statement: has been exercised only against
-    local scratch git repos, not a real external org, pending explicit authorization."""
+    local scratch git repos, not a real external org, pending explicit authorization.
+
+    acting_model (F-02, MT032's "real acting model, never hardcoded" rule -- same posture as
+    invariant 5.9's merge-time Co-authored-by trailer): required, no default. This script never
+    knows which model is actually running it; only the calling agent does, so the agent must
+    supply its own real, current display name here every time, the same way it supplies
+    --subject/--body at merge time."""
+    if not acting_model or not acting_model.strip():
+        raise ReadmeRefreshRunError("acting_model is required and must be the real, current model name")
     owner = _session_id(session_id)
     with _product_guard(family, platform):
         manifest = _load_manifest(family, platform, run_id)
@@ -3598,7 +3606,7 @@ def push(
         scratch.mkdir(parents=True, exist_ok=True)
         work_dir = scratch / f"{family}-{platform}-{run_id}"
         try:
-            receipt = _do_push(manifest, work_dir, dry_run=dry_run)
+            receipt = _do_push(manifest, work_dir, dry_run=dry_run, acting_model=acting_model)
         except Exception as exc:
             _block(manifest, str(exc))
             raise ReadmeRefreshRunError(f"push failed, run BLOCKED: {exc}") from exc
@@ -3649,7 +3657,7 @@ def _record_publication(family: str, platform: str, pr_url: "str | None") -> Non
     _write_json(_published_state_path(), state)
 
 
-def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool) -> dict:
+def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str) -> dict:
     family, platform, run_id = manifest["family"], manifest["platform"], manifest["run_id"]
     branch = f"readme-refresh/{_now().strftime('%Y-%m-%d')}"
     candidate_path = _candidate_readme_path(family, platform)
@@ -3675,7 +3683,7 @@ def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool) -> dict:
     commit_message = (
         f"Refresh README: verified examples and documentation links\n\n"
         f"Automated, human-reviewed refresh via /readme-refresh (run {run_id}).\n\n"
-        f"Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n"
+        f"Co-Authored-By: {acting_model} <noreply@anthropic.com>\n"
     )
     commit_sha = _git(
         "commit-tree", tree_sha, "-p", parent_sha, "-m", commit_message, cwd=work_dir,
@@ -3853,6 +3861,11 @@ def main(argv: "list[str] | None" = None) -> int:
     p_push.add_argument("--run-id", required=True)
     p_push.add_argument("--session-id")
     p_push.add_argument("--dry-run", action="store_true")
+    p_push.add_argument(
+        "--acting-model", required=True,
+        help="Real, current display name of the model invoking this push (F-02: this script "
+             "never hardcodes it -- only the calling agent knows its own real name).",
+    )
 
     for name in ("abandon", "recover"):
         cmd = sub.add_parser(name)
@@ -3979,7 +3992,10 @@ def main(argv: "list[str] | None" = None) -> int:
             elif args.command == "approve":
                 manifest = approve(family, platform, args.run_id, note=args.note, session_id=args.session_id)
             elif args.command == "push":
-                manifest = push(family, platform, args.run_id, session_id=args.session_id, dry_run=args.dry_run)
+                manifest = push(
+                    family, platform, args.run_id, session_id=args.session_id, dry_run=args.dry_run,
+                    acting_model=args.acting_model,
+                )
             elif args.command == "verify":
                 result = verify(family, platform, args.run_id, session_id=args.session_id)
                 print(json.dumps(result, indent=2, ensure_ascii=False))
