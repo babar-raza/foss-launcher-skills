@@ -1,0 +1,26 @@
+{
+  "3d/python": {
+    "ecosystem": "pypi",
+    "source_manifest_path": "setup.py",
+    "applicable": true,
+    "not_applicable_reason": null,
+    "required": [],
+    "optional": [],
+    "native_system": [
+      {
+        "name": "Python",
+        "version_constraint": ">=3.7",
+        "purpose": "setup.py's python_requires (also enumerated explicitly via Programming Language :: Python :: 3.7 through 3.12 classifiers)"
+      }
+    ],
+    "proprietary_runtime": [],
+    "development": [
+      {
+        "name": "pytest",
+        "version_constraint": ">=7.0.0",
+        "purpose": "setup.py's optional 'dev' extras_require entry (pip install -e \".[dev]\")"
+      }
+    ],
+    "provenance": "TC-RDR-03-3D-PYTHON (readme-disposition-remediation-2026-08-18), 2026-08-20. 3d/python is the only Python product in this portfolio whose clone-cache manifest is setup.py-only (no pyproject.toml, no setup.cfg) -- confirmed by checking all 12 python products' clone caches. dependency_extract._extract_pypi_dependencies deliberately refuses to parse a setup.py-only manifest by executing it (a documented security/architecture rule, not a parsing gap), and its own error message names data/dependency_overrides.json as the sanctioned escape hatch. Values here are read directly from setup.py's literal install_requires=[] (empty), extras_require={'dev': ['pytest>=7.0.0']}, and python_requires='>=3.7' -- not invented."
+  }
+}

@@ -4206,6 +4206,23 @@ _COUNT_PHRASE_RE = re.compile(r"\b\d+\s+of\s+(?:the\s+)?\d+\b", re.IGNORECASE)
 _GENERIC_BACKTICK_EXCLUSIONS = {
     "NotImplementedError", "NotImplemented", "TypeError", "ValueError", "RuntimeError",
 }
+# A backtick token with no alphanumeric character at all (e.g. a lone `-` used as a formats
+# table "unsupported" placeholder, per this project's own Markdown table convention) cannot be
+# a class/method/file/command fingerprint by construction -- it is punctuation, not an
+# identifier -- yet plain substring containment (`tok in unit`, in
+# check_no_upstream_issue_leaked_into_readme) makes it match almost every bulleted line in a
+# README (each starts with "- "), silently collapsing the intended 2-distinct-token threshold
+# down to "1 real token + near-universal noise." Found live 2026-08-20 on slides/net:
+# upstream-issues.md's SaveFormat-ignored entry backtick-quotes both `-` (a formats.md table
+# cell) and `format`; `format` alone then spuriously concurs with an unrelated Key Capabilities
+# bullet ("...character-level *formatting* via `PortionFormat`...") only because `-` supplied
+# the second "hit" via substring match on that bullet's own leading markdown dash -- not
+# because the bullet restates anything from upstream-issues.md. (The candidate's real,
+# sanctioned plain-pointer disclosure of that same defect, "Saving currently always produces
+# PPTX content...", never uses the word "format" and correctly does not trip this check either
+# way.) Filtered structurally, not by name, since no fixed exclusion list can anticipate every
+# punctuation-only table placeholder a future upstream-issues.md entry might quote.
+_PUNCTUATION_ONLY_TOKEN_RE = re.compile(r"^\W+$")
 
 _UPSTREAM_ISSUE_ENTRY_RE = re.compile(
     r"^##\s+(.+?)\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL
@@ -4293,7 +4310,8 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
         if severity_match and severity_match.group(1).upper() not in ("BLOCKING", "FUNCTIONAL-DEFECT"):
             continue
         body_no_fences = _ANY_FENCED_CODE_RE.sub("", body)
-        tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body_no_fences)) - _GENERIC_BACKTICK_EXCLUSIONS
+        raw_tokens = set(_ANY_BACKTICK_TOKEN_RE.findall(body_no_fences)) - _GENERIC_BACKTICK_EXCLUSIONS
+        tokens = {tok for tok in raw_tokens if not _PUNCTUATION_ONLY_TOKEN_RE.match(tok)}
         tokens |= {m.group(0) for m in _COUNT_PHRASE_RE.finditer(body_no_fences)}
         if tokens:
             fingerprints.append(tokens)
@@ -4338,6 +4356,12 @@ def check_no_upstream_issue_leaked_into_readme(
     instructions. `check_no_undisclosed_blocking_commands` already separately and more
     precisely guards the one real risk specific to these two sections (an undisclosed BLOCKING
     command shipped verbatim); this check's own job is prose narration, not exact commands.
+
+    `## Dependencies` (2026-08-20, TC-RDR-03-3D-TYPESCRIPT) joins the same exemption for the
+    identical reason: MT041 added this section five days after this check first shipped, and a
+    correctly-composed Dependencies bullet's own real name+version citation for any package an
+    upstream-issues.md entry also documents will always concur on 2+ fingerprint tokens purely
+    from stating the real fact, not from narrating the defect.
     """
     if not upstream_issues_text:
         return []
@@ -4357,7 +4381,17 @@ def check_no_upstream_issue_leaked_into_readme(
         line for line in prose.splitlines() if _BADGE_ROW_MARKER not in line
     )
     sections = _split_into_sections(prose)
-    for excluded_heading in ("API Reference", "Installation", "Quick Start"):
+    # "Dependencies" (2026-08-20, TC-RDR-03-3D-TYPESCRIPT): the same "real reference, not
+    # narration" reasoning already established for API Reference/Installation/Quick Start above
+    # applies here too -- MT041 (2026-08-14) added this section five days after this check was
+    # written, and it was never added to the exemption list. A real, correctly-composed
+    # Dependencies bullet cites the exact package name AND exact version constraint (the
+    # portfolio-wide established template), which for any dependency this product's own
+    # upstream-issues.md also happens to document (e.g. 3d/typescript's `adm-zip` `^0.5.16`,
+    # central to a real runtime-vs-devDependency packaging defect) will always concur on 2+
+    # fingerprint tokens (the name plus the version) purely from stating the real fact -- found
+    # live composing this exact product's real Dependencies section, not hypothetical.
+    for excluded_heading in ("API Reference", "Installation", "Quick Start", "Dependencies"):
         if excluded_heading in sections:
             prose = prose.replace(sections[excluded_heading], "", 1)
 
@@ -7714,8 +7748,23 @@ def check_code_example_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
     relocated/corrected entries claiming the identical fingerprint into the identical
     `target_section` is unambiguous, mechanically decidable duplication; an entry with an empty
     fingerprint is never flagged here (nothing checkable to compare).
+
+    Exempts entries whose `verification.evidence_ref` differs -- the same, deliberately narrow
+    proxy `check_content_unit_no_exact_duplicate_merge` already uses for its own identical-text
+    false positive (2026-08-19, cells/net). Real analogous case found composing `font/python`
+    (2026-08-20, TC-PC-FONT-PYTHON): two code units under "Export Live and Static Variable Web
+    Bundles" both call `WebFontBuilder.build(...)` -- the mechanical, deliberately-incomplete
+    `_code_unit_api_call_fingerprint` regex (dotted-call sites only) produces the identical
+    single-item fingerprint `["WebFontBuilder.build"]` for both, even though the two calls
+    demonstrate genuinely different, independently-verified behavior (`variable_mode="live"`
+    vs. `variable_mode="static", stat_policy="static"` -- the static path's STAT-policy handling
+    is independently backed by `ttf/tables/stat.py`'s `normalize_static_stat_policy`, a real,
+    distinct source dependency the live path never touches). Same asymmetry as the content-unit
+    case: true lazy duplication (one disposition copied across unit_ids without distinct
+    verification) still shares one evidence_ref and remains caught.
     """
     seen: dict[tuple, list] = {}
+    evidence_by_key: dict[tuple, set] = {}
     for entry in dispositions:
         if entry.get("disposition") not in _CODE_UNIT_MERGE_DISPOSITIONS:
             continue
@@ -7724,9 +7773,13 @@ def check_code_example_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
             continue
         key = (fingerprint, entry.get("target_section"))
         seen.setdefault(key, []).append(entry.get("unit_id"))
+        evidence_by_key.setdefault(key, set()).add(
+            (entry.get("verification") or {}).get("evidence_ref")
+        )
     findings: list[dict] = []
-    for (fingerprint, target), unit_ids in seen.items():
-        if len(unit_ids) > 1:
+    for key, unit_ids in seen.items():
+        if len(unit_ids) > 1 and len(evidence_by_key[key]) == 1:
+            fingerprint, target = key
             findings.append({
                 "unit_ids": unit_ids,
                 "target_section": target,

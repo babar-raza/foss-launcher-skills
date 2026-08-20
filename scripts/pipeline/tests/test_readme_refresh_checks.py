@@ -8042,6 +8042,36 @@ def test_check_code_example_no_exact_duplicate_merge_clean_on_distinct_fingerpri
     assert checks.check_code_example_no_exact_duplicate_merge(dispositions) == []
 
 
+def test_check_code_example_no_exact_duplicate_merge_exempts_identical_fingerprint_with_different_evidence():
+    """Real font/python false positive (2026-08-20, TC-PC-FONT-PYTHON): two code units under
+    "Export Live and Static Variable Web Bundles" both call `WebFontBuilder.build(...)` -- the
+    mechanical dotted-call fingerprint scan produces the identical single-item fingerprint for
+    both even though they demonstrate genuinely different, independently-verified behavior
+    (`variable_mode="live"` vs. `variable_mode="static", stat_policy="static"`, the latter backed
+    by a real, distinct source dependency the former never touches). Mirrors the exemption
+    `check_content_unit_no_exact_duplicate_merge` already has for the same false-positive shape."""
+    dispositions = [
+        _code_disposition(unit_id="c0021c", api_call_fingerprint=("WebFontBuilder.build",),
+                           evidence_ref="src/aspose_font/web.py"),
+        _code_disposition(unit_id="c0021d", api_call_fingerprint=("WebFontBuilder.build",),
+                           evidence_ref="src/aspose_font/ttf/tables/stat.py"),
+    ]
+    assert checks.check_code_example_no_exact_duplicate_merge(dispositions) == []
+
+
+def test_check_code_example_no_exact_duplicate_merge_still_flags_identical_fingerprint_and_evidence():
+    """The exemption is narrow: two entries citing the SAME evidence_ref for the same fingerprint
+    are still real, lazy duplication, not independently-verified coincidence."""
+    dispositions = [
+        _code_disposition(unit_id="c0021c", api_call_fingerprint=("WebFontBuilder.build",),
+                           evidence_ref="src/aspose_font/web.py"),
+        _code_disposition(unit_id="c0021d", api_call_fingerprint=("WebFontBuilder.build",),
+                           evidence_ref="src/aspose_font/web.py"),
+    ]
+    findings = checks.check_code_example_no_exact_duplicate_merge(dispositions)
+    assert findings and set(findings[0]["unit_ids"]) == {"c0021c", "c0021d"}
+
+
 def test_code_example_evidence_resolves_reuses_content_unit_evidence_resolves(tmp_path):
     # TC-HARDEN-74's own explicit reuse requirement: check_content_unit_evidence_resolves is
     # reused VERBATIM as the code-example evidence-resolution gate -- no new implementation.
