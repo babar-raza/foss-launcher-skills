@@ -65,6 +65,7 @@ For batches large enough to risk OS argument-list-too-long limits, prefer
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -141,13 +142,23 @@ class PlumbCommitTier1Failed(PlumbCommitError):
     gate) fails against the isolated temp index -- no commit is created.
 
     TC-CIR-05 (2026-08-14, CI reliability reassessment, Root Cause A): before this,
-    every commit made through this tool received exactly ONE of pre-commit-audit.sh's
-    ~32 checks (a re-implemented copy of the stale-file-regression check) -- `commit-
-    tree` never invokes git hooks, and this repo has no pre-push hook backstop for
-    plumbed commits either, since they also skip `git push`'s hook the same way. This
-    tool is CLAUDE.md's own sanctioned mechanism for concurrent-session-safe commits,
-    used repeatedly across this very session -- the gap was total, not partial, for
-    every commit that ever went through it.
+    every commit made through this tool received NONE of pre-commit-audit.sh's ~32
+    checks -- `commit-tree` never invokes git hooks, and this repo has no pre-push
+    hook backstop for plumbed commits either, since they also skip `git push`'s hook
+    the same way. This tool is CLAUDE.md's own sanctioned mechanism for
+    concurrent-session-safe commits, used repeatedly across this very session -- the
+    gap was total, not partial, for every commit that ever went through it.
+
+    Step 30 of pre-commit-audit.sh (this repo's Tier 1 script) and this module's own
+    `_check_for_regressions()` both call the SAME `check_stale_file_regression.py`
+    function -- neither is a "re-implemented copy" of the other, an earlier version
+    of this docstring's own wording notwithstanding (corrected 2026-08-20,
+    reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md). They
+    deliberately use DIFFERENT scope: Step 30 excludes `content/` (which has its own
+    dedicated staleness checks elsewhere) and defaults to staged content; this
+    module's `_check_for_regressions()` includes `content/` and checks working-tree
+    content. This is intentional defense-in-depth, not redundant coverage -- do not
+    "simplify" the two into one call with one scope.
     """
 
     def __init__(self, output: str, exit_code: int):
@@ -159,6 +170,68 @@ class PlumbCommitTier1Failed(PlumbCommitError):
             f"below, or pass --skip-tier1-checks with an explicit, logged reason "
             f"for a genuine emergency (matches --skip-stale-check's existing "
             f"escalation pattern -- not a silent default):\n\n{output}"
+        )
+
+
+class PlumbCommitIsolationBreach(PlumbCommitError):
+    """Raised when this module cannot empirically prove, for the exact bash/git
+    pairing about to run scripts/pre-commit-audit.sh, that GIT_INDEX_FILE
+    isolation is actually in effect -- no Tier 1 check is run, no commit is
+    created.
+
+    2026-08-20 production assessment (reports/skill-gaps/2026-08-20-git-plumb-
+    commit-tier1-mutation-safety.md, Root cause 2): `_resolve_git_bash()` verifies
+    only that the resolved `bash` binary is genuine MSYS/Git-Bash -- it does not
+    verify that `git`, as THAT bash resolves it via its own internal PATH, honors
+    GIT_INDEX_FILE for this specific pairing. Confirmed once already (2026-08-14,
+    WSL git silently defeating isolation) that bash-genuineness alone is not
+    sufficient proof. This is a stricter failure mode than `_resolve_git_bash()
+    is None` (which only warns and proceeds WITHOUT Tier 1 coverage) by design:
+    "no bash found" means "no coverage this time"; "isolation defeated" means
+    "actively unsafe to proceed" -- do not collapse these into matching behavior.
+    """
+
+    def __init__(self, detail: str):
+        self.detail = detail
+        super().__init__(
+            f"Refusing to run Tier 1 checks -- could not verify GIT_INDEX_FILE "
+            f"isolation is in effect for this bash/git pairing: {detail}. No "
+            f"commit created. This is a stricter refusal than 'no bash found' "
+            f"(which merely skips Tier 1 coverage) because proceeding here risks "
+            f"Tier 1 checks silently mutating real repo state instead of the "
+            f"intended isolated temp index."
+        )
+
+
+class PlumbCommitPostconditionBreach(PlumbCommitError):
+    """Raised when real repo state (the real .git/index, or the real on-disk
+    content of a path in --files) changed during the Tier 1 check window --
+    i.e. isolation was defeated by some mechanism, known or not, despite the
+    pre-check canary passing. No commit is created.
+
+    This is the mechanism-agnostic backstop: it does not matter WHY real state
+    changed (a bash/git resolution defeat the canary didn't catch, a future
+    pre-commit-audit.sh step that mutates real state without being added to
+    scripts/ci/checks/precommit_audit_mutation_registry.yaml, or something not
+    yet imagined) -- if it changed, refuse and report exactly what changed and
+    whether it overlaps --files, so a human can tell "this tool's isolation
+    failed" apart from "a concurrent session touched something unrelated
+    nearby" (this repo runs multiple concurrent agent sessions against a shared
+    checkout by design -- ST-021). Deliberately does NOT auto-restore: an
+    automated forced restore during confirmed concurrent-session usage carries
+    the same destructive risk toward another session's legitimate state that
+    this repo's own AGENTS.md already prohibits `git reset` for.
+    """
+
+    def __init__(self, detail: str):
+        self.detail = detail
+        super().__init__(
+            f"Refusing to commit -- real repo state changed during the Tier 1 "
+            f"check window, which should be impossible under isolation: "
+            f"{detail}. No commit created, and nothing was auto-restored -- "
+            f"inspect the changes yourself before deciding whether this was "
+            f"this tool's own isolation failing or a concurrent session's "
+            f"unrelated activity."
         )
 
 
@@ -335,8 +408,148 @@ def _resolve_git_bash() -> "str | None":
     return None
 
 
+_ISOLATION_CANARY_VERIFIED: "dict[str, bool]" = {}
+_ISOLATION_CANARY_SENTINEL = ".git_plumb_commit_isolation_canary"
+# git hash-object -t blob --stdin < /dev/null -- the well-known empty-blob SHA,
+# usable directly with `update-index --cacheinfo` without ever writing a real
+# blob to the object store.
+_EMPTY_BLOB_SHA = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+
+
+def _report_or_raise(breach: PlumbCommitError, *, strict: bool) -> None:
+    """Isolation/postcondition breaches: raise (blocking) when `strict` is set,
+    otherwise print loudly and continue (WARN-only soft-launch mode -- see
+    reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md,
+    Phase 2c). Defaults to non-blocking on purpose: this tool is reached for
+    at already-stressful concurrent-session-contention moments, or runs
+    unattended in a weekly CI cron job with nobody watching in real time -- a
+    bug in these newly-added checks must not be able to newly block a commit
+    that would previously have succeeded until there has been a real review
+    window against live usage. Flip via plumb_commit()'s `strict_isolation`
+    parameter (`--strict-isolation` on the CLI) once that review has happened.
+    """
+    if strict:
+        raise breach
+    print(f"WARNING (non-blocking, soft-launch mode): {breach}", file=sys.stderr)
+
+
+def _verify_index_isolation(
+    bash_path: str, tmp_index_path: str, *, repo_root: Path,
+) -> "str | None":
+    """Empirically prove, for this exact bash/git pairing, that GIT_INDEX_FILE
+    redirection is actually in effect -- rather than inferring it from
+    _resolve_git_bash()'s bash-genuineness check alone. That check verifies
+    only that the bash BINARY is genuine MSYS/Git-Bash; it says nothing about
+    whether `git`, as that bash resolves it via its own internal PATH, honors
+    GIT_INDEX_FILE for this pairing -- confirmed insufficient once already
+    (2026-08-14, WSL git silently defeating isolation despite a genuine-bash
+    launcher).
+
+    Adds a throwaway sentinel entry to the already-built isolated temp index
+    (via a direct, non-shell `git update-index` call -- the lower-risk
+    resolution path this module's own core plumbing already relies on), then
+    runs `git ls-files` via the SAME bash binary that will run the real Tier 1
+    script: once with GIT_INDEX_FILE set (must show the sentinel) and once
+    without (must NOT show it -- that would mean this bash/git pairing reads
+    the real index regardless of the env var). The sentinel is always removed
+    from the temp index before returning, pass or fail, so it never leaks into
+    the eventual commit tree.
+
+    Returns None if isolation is verified (also caches success for this
+    process's lifetime, keyed by bash_path -- matches _resolve_git_bash()'s
+    own caching, since this is a property of the bash/git pairing, not of any
+    single invocation). Returns a detail string describing the failure
+    otherwise. Never raises itself -- the caller decides whether to block or
+    warn (see _report_or_raise); a failure is never cached, so a possibly-
+    transient hiccup gets re-probed next time rather than permanently
+    blacklisting a bash_path.
+    """
+    if _ISOLATION_CANARY_VERIFIED.get(bash_path) is True:
+        return None
+
+    env_isolated = {**os.environ, "GIT_INDEX_FILE": tmp_index_path}
+    add_result = _COMMAND_RUNNER(
+        ["git", "update-index", "--add", "--cacheinfo",
+         f"100644,{_EMPTY_BLOB_SHA},{_ISOLATION_CANARY_SENTINEL}"],
+        cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+    )
+    if add_result.returncode != 0:
+        return (
+            f"could not seed isolation-canary sentinel in the temp index: "
+            f"{_redact_credentials(add_result.stderr)}"
+        )
+
+    try:
+        isolated_check = _COMMAND_RUNNER(
+            [bash_path, "-c", "git ls-files"],
+            cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+        )
+        if _ISOLATION_CANARY_SENTINEL not in isolated_check.stdout:
+            return (
+                f"the temp index's own sentinel entry was not visible via "
+                f"{bash_path} with GIT_INDEX_FILE set -- this bash/git "
+                f"pairing does not honor GIT_INDEX_FILE the way this tool "
+                f"requires"
+            )
+
+        env_real = {k: v for k, v in os.environ.items() if k != "GIT_INDEX_FILE"}
+        real_check = _COMMAND_RUNNER(
+            [bash_path, "-c", "git ls-files"],
+            cwd=str(repo_root), capture_output=True, text=True, env=env_real,
+        )
+        if _ISOLATION_CANARY_SENTINEL in real_check.stdout:
+            return (
+                f"{bash_path} showed the isolated temp index's sentinel "
+                f"entry even WITHOUT GIT_INDEX_FILE set -- this bash "
+                f"resolves git in a way that does not distinguish the "
+                f"isolated index from the real one (the confirmed 2026-08-14 "
+                f"WSL-git failure mode, or a sibling of it)"
+            )
+    finally:
+        _COMMAND_RUNNER(
+            ["git", "update-index", "--force-remove", _ISOLATION_CANARY_SENTINEL],
+            cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+        )
+
+    _ISOLATION_CANARY_VERIFIED[bash_path] = True
+    return None
+
+
+def _real_index_snapshot(files: list[str], *, repo_root: Path) -> str:
+    """Real .git/index state for exactly the paths in `files` (a direct,
+    non-shell `git` call -- the lower-risk resolution path). Used as one half
+    of plumb_commit()'s postcondition: if this differs before vs. after the
+    Tier 1 check window, some git command touched the real index during a
+    pass that is supposed to only ever touch the isolated temp index."""
+    if not files:
+        return ""
+    result = _COMMAND_RUNNER(
+        ["git", "ls-files", "--stage", "--", *files],
+        cwd=str(repo_root), capture_output=True, text=True,
+    )
+    return "\n".join(sorted(result.stdout.splitlines()))
+
+
+def _real_content_snapshot(files: list[str], *, repo_root: Path) -> "dict[str, str | None]":
+    """SHA-256 of the real on-disk bytes of every path in `files`, read
+    directly (not via git). This is the half of the postcondition that
+    actually catches a worktree mutation like pre-commit-audit.sh Step 10's
+    `git restore "$_f"` or Step 5's plain Python `atomic_write()` -- neither
+    of which necessarily changes the real .git/index at all, so the index
+    snapshot alone would be blind to them. A missing file maps to None (also
+    a real, detectable state change)."""
+    snapshot: "dict[str, str | None]" = {}
+    for f in files:
+        path = repo_root / f
+        try:
+            snapshot[f] = hashlib.sha256(path.read_bytes()).hexdigest()
+        except OSError:
+            snapshot[f] = None
+    return snapshot
+
+
 def _run_tier1_checks(
-    tmp_index_path: str, message: str, *, repo_root: Path,
+    tmp_index_path: str, message: str, *, repo_root: Path, strict_isolation: bool = False,
 ) -> "subprocess.CompletedProcess | None":
     """Run scripts/pre-commit-audit.sh (Tier 1) against the isolated temp index --
     NOT the real .git/index -- by setting GIT_INDEX_FILE for the subprocess. Every
@@ -387,11 +600,28 @@ def _run_tier1_checks(
             file=sys.stderr,
         )
         return None
+
+    isolation_failure = _verify_index_isolation(bash_path, tmp_index_path, repo_root=repo_root)
+    if isolation_failure is not None:
+        _report_or_raise(
+            PlumbCommitIsolationBreach(isolation_failure), strict=strict_isolation,
+        )
+        # Non-strict (warn-only) path reaches here: do NOT run Tier 1 against an
+        # unproven-isolated environment -- same safe skip as "no bash found"
+        # above, just with a louder, earlier warning already printed.
+        return None
+
     env = {
         **os.environ,
         "GIT_INDEX_FILE": tmp_index_path,
         "EVIDENCE_RESTAMP_MSG": message,
         "BULK_GRADE_MIGRATION_MSG": message,
+        # Tells pre-commit-audit.sh it is running as a read-only parity check
+        # against an isolated temp index, not the real interactive commit hook
+        # it was originally written for -- Step 5 and Step 10 branch on this to
+        # report findings instead of mutating real repo state. Set uncondition-
+        # ally here; never set by an operator or any other caller.
+        "PC_AUDIT_NO_MUTATE": "1",
     }
     return _COMMAND_RUNNER(
         [bash_path, "scripts/pre-commit-audit.sh"],
@@ -411,6 +641,7 @@ def plumb_commit(
     session_id: "str | None" = None,
     skip_stale_check: bool = False,
     skip_tier1_checks: bool = False,
+    strict_isolation: bool = False,
     push: bool = True,
     ack_gitignored: "list[str] | None" = None,
 ) -> dict[str, Any]:
@@ -444,9 +675,24 @@ def plumb_commit(
         /.supervisor/state/ with zero feedback, because .gitignore was
         never checked against --files before staging.
 
+    strict_isolation: when True, an isolation-canary failure or a postcondition
+        breach (real .git/index or real on-disk content of a --files path
+        changed during the Tier 1 check window) raises and blocks the commit.
+        Defaults to False (report loudly, do not block) -- a deliberate
+        soft-launch posture for these newly-added checks (see
+        reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md,
+        Phase 2c): this tool is reached for at already-stressful
+        concurrent-session-contention moments or runs unattended in a weekly
+        CI cron job, so a bug in a brand-new safety check must not be able to
+        newly block a commit that would previously have succeeded until there
+        has been a real review window against live usage. Flip to True (also
+        available as `--strict-isolation` on the CLI) once that review is done.
+
     Returns a result dict: {head_sha, tree_sha, commit_sha, pushed, files,
-    gitignore_warnings}. Raises PlumbCommitBlocked if an uncovered
-    regression is found, or PlumbCommitError for any git operation failure.
+    gitignore_warnings, tier1_output}. Raises PlumbCommitBlocked if an
+    uncovered regression is found, PlumbCommitIsolationBreach /
+    PlumbCommitPostconditionBreach if strict_isolation=True and an isolation
+    problem is detected, or PlumbCommitError for any git operation failure.
     """
     root = Path(repo_root) if repo_root is not None else _REPO_ROOT
     if remote_name is None:
@@ -501,12 +747,54 @@ def plumb_commit(
         finally:
             os.unlink(_pathspec_path)
 
+        tier1_output = ""
         if not skip_tier1_checks:
-            tier1_result = _run_tier1_checks(tmp_index_path, message, repo_root=root)
+            # Postcondition safety net: snapshot real state scoped to exactly
+            # --files immediately before and after the Tier 1 check window.
+            # This is mechanism-agnostic by design -- it does not matter WHY
+            # real state changed (a bash/git resolution defeat the isolation
+            # canary didn't catch, a pre-commit-audit.sh step that mutates
+            # real state without being added to
+            # scripts/ci/checks/precommit_audit_mutation_registry.yaml, or
+            # something not yet imagined) -- if either snapshot differs, Tier 1
+            # should have been fully isolated and provably was not.
+            _pre_index = _real_index_snapshot(files, repo_root=root)
+            _pre_content = _real_content_snapshot(files, repo_root=root)
+
+            tier1_result = _run_tier1_checks(
+                tmp_index_path, message, repo_root=root, strict_isolation=strict_isolation,
+            )
+
+            _post_index = _real_index_snapshot(files, repo_root=root)
+            _post_content = _real_content_snapshot(files, repo_root=root)
+            if _pre_index != _post_index:
+                _report_or_raise(
+                    PlumbCommitPostconditionBreach(
+                        f"real .git/index changed for one or more of --files "
+                        f"during the Tier 1 check window (before: "
+                        f"{_pre_index!r}, after: {_post_index!r})"
+                    ),
+                    strict=strict_isolation,
+                )
+            _changed_content = sorted(
+                f for f in files if _pre_content.get(f) != _post_content.get(f)
+            )
+            if _changed_content:
+                _report_or_raise(
+                    PlumbCommitPostconditionBreach(
+                        f"real on-disk content changed for "
+                        f"{len(_changed_content)} file(s) in --files during "
+                        f"the Tier 1 check window: {', '.join(_changed_content)}"
+                    ),
+                    strict=strict_isolation,
+                )
+
             if tier1_result is not None and tier1_result.returncode != 0:
                 raise PlumbCommitTier1Failed(
                     tier1_result.stdout + tier1_result.stderr, tier1_result.returncode,
                 )
+            if tier1_result is not None:
+                tier1_output = tier1_result.stdout
 
         tree_sha = _git_indexed(["write-tree"]).stdout.strip()
     finally:
@@ -544,6 +832,7 @@ def plumb_commit(
         "pushed": pushed,
         "files": list(files),
         "gitignore_warnings": gitignore_warnings,
+        "tier1_output": tier1_output,
     }
 
 
@@ -608,6 +897,16 @@ def main(argv: "list[str] | None" = None) -> int:
                         help="Skip scripts/pre-commit-audit.sh (Tier 1). Emergency "
                              "escape hatch only, matching --skip-stale-check's "
                              "existing escalation pattern -- not a routine default.")
+    parser.add_argument("--strict-isolation", action="store_true",
+                        help="Block the commit on an isolation-canary failure or a "
+                             "postcondition breach (real .git/index or real on-disk "
+                             "content of a --files path changed during the Tier 1 "
+                             "check window), instead of the default: report loudly "
+                             "and proceed. Defaults to off for a soft-launch review "
+                             "window on these newly-added checks -- see "
+                             "reports/skill-gaps/"
+                             "2026-08-20-git-plumb-commit-tier1-mutation-safety.md, "
+                             "Phase 2c.")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
     parser.add_argument("--ack-gitignored", nargs="+", default=None,
                         help="Paths in --files that are intentionally .gitignore-matched "
@@ -646,7 +945,8 @@ def main(argv: "list[str] | None" = None) -> int:
             branch=args.branch, remote=args.remote,
             base_sha=args.base_sha, session_id=args.session_id,
             skip_stale_check=args.skip_stale_check,
-            skip_tier1_checks=args.skip_tier1_checks, push=not args.no_push,
+            skip_tier1_checks=args.skip_tier1_checks,
+            strict_isolation=args.strict_isolation, push=not args.no_push,
             ack_gitignored=args.ack_gitignored,
         )
     except PlumbCommitBlocked as exc:
@@ -659,6 +959,9 @@ def main(argv: "list[str] | None" = None) -> int:
     print(f"commit_sha={result['commit_sha']}")
     print(f"tree_sha={result['tree_sha']}")
     print(f"pushed={result['pushed']}")
+    if result["tier1_output"].strip():
+        print("--- Tier 1 output ---")
+        print(result["tier1_output"])
 
     if result["pushed"]:
         run_id = _file_skill_run_record(

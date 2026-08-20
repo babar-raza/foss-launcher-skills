@@ -848,3 +848,217 @@ def test_multiple_gitignored_files_all_detected(tmp_path):
 
     assert sorted(result["gitignore_warnings"]) == ["ignored/one.txt", "ignored/two.txt"]
     assert result["pushed"] is True
+
+
+# ---------------------------------------------------------------------------
+# Isolation canary + postcondition safety net (2026-08-20 production
+# assessment, reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-
+# safety.md, Root causes 1/2/4). These tests use the module's own
+# `configure(command_runner=...)` seam to simulate a bash/git pairing that
+# does not honor GIT_INDEX_FILE -- the class of failure confirmed live once
+# already (2026-08-14, WSL git) -- without needing a real WSL install on the
+# machine running the suite. Every other subprocess call is passed through to
+# real `subprocess.run` unchanged, matching this file's established
+# preference for exercising real git behavior rather than simulating it
+# wholesale.
+# ---------------------------------------------------------------------------
+
+class TestIsolationCanary:
+
+    def test_canary_verified_and_cached_on_the_real_isolated_bash(self, tmp_path):
+        """The happy path is already implicitly exercised by every other real
+        Tier1 test in this file (the canary runs before every one of them) --
+        this test asserts the caching side effect explicitly."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=0)
+        real_bash = gpc._resolve_git_bash()
+        assert real_bash is not None
+        gpc._ISOLATION_CANARY_VERIFIED.pop(real_bash, None)
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "canary happy path", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        assert result["pushed"] is True
+        assert gpc._ISOLATION_CANARY_VERIFIED.get(real_bash) is True
+
+    def test_canary_detects_isolation_defeat_and_skips_tier1_non_strict(self, tmp_path, capsys):
+        """Default (strict_isolation=False): a detected isolation defeat must
+        never let Tier 1 actually run against unproven isolation -- the fake
+        script here exits 1, which WOULD raise PlumbCommitTier1Failed if it
+        ran; the commit succeeding proves it never did."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=1)
+
+        real_bash = gpc._resolve_git_bash()
+        assert real_bash is not None
+        gpc._ISOLATION_CANARY_VERIFIED.pop(real_bash, None)
+
+        def _faking_runner(cmd, **kwargs):
+            if cmd == [real_bash, "-c", "git ls-files"]:
+                return subprocess.CompletedProcess(
+                    cmd, 0, stdout=f"{gpc._ISOLATION_CANARY_SENTINEL}\n", stderr="",
+                )
+            return subprocess.run(cmd, **kwargs)
+
+        gpc.configure(command_runner=_faking_runner)
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "canary should catch this", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        assert result["pushed"] is True
+        assert "WARNING" in capsys.readouterr().err
+        assert gpc._ISOLATION_CANARY_VERIFIED.get(real_bash) is not True
+
+    def test_canary_detects_isolation_defeat_and_blocks_strict(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=0)
+
+        real_bash = gpc._resolve_git_bash()
+        assert real_bash is not None
+        gpc._ISOLATION_CANARY_VERIFIED.pop(real_bash, None)
+
+        def _faking_runner(cmd, **kwargs):
+            if cmd == [real_bash, "-c", "git ls-files"]:
+                return subprocess.CompletedProcess(
+                    cmd, 0, stdout=f"{gpc._ISOLATION_CANARY_SENTINEL}\n", stderr="",
+                )
+            return subprocess.run(cmd, **kwargs)
+
+        gpc.configure(command_runner=_faking_runner)
+        head_before = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+        with pytest.raises(gpc.PlumbCommitIsolationBreach):
+            gpc.plumb_commit(
+                ["f.txt"], "canary should block this", repo_root=work, branch="main",
+                remote=str(bare), skip_stale_check=True, strict_isolation=True,
+            )
+
+        head_after = _git(work, "rev-parse", "HEAD").stdout.strip()
+        assert head_after == head_before
+
+    def test_canary_removes_its_sentinel_from_the_committed_tree(self, tmp_path):
+        """The sentinel entry added to the temp index for the canary probe
+        must never leak into the actual commit content."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "sentinel must not leak", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        tree_files = _git(bare, "ls-tree", "-r", "--name-only", result["commit_sha"]).stdout
+        assert gpc._ISOLATION_CANARY_SENTINEL not in tree_files
+
+
+class TestPostconditionSafetyNet:
+
+    def test_postcondition_catches_a_plain_non_git_worktree_mutation_non_strict(self, tmp_path, capsys):
+        """Simulates pre-commit-audit.sh Step 5's actual mutation shape (a
+        plain, non-git file write during the Tier 1 window, confirmed live in
+        the 2026-08-20 assessment as Root cause 4) -- proves the postcondition
+        catches it generically, with no Step-5-specific code anywhere in
+        git_plumb_commit.py."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("original", encoding="utf-8")
+        _write_fake_precommit_script(
+            work, exit_code=0,
+            extra_shell='printf "mutated by a plain non-git file write" > "f.txt"\n',
+        )
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "postcondition should catch this", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        assert result["pushed"] is True  # non-strict: proceeds anyway
+        assert "WARNING" in capsys.readouterr().err
+        # Proves this was genuinely detected via the real on-disk content hash,
+        # not the index (this mutation never touches any index at all).
+        assert (work / "f.txt").read_text(encoding="utf-8") == "mutated by a plain non-git file write"
+
+    def test_postcondition_blocks_a_plain_non_git_worktree_mutation_strict(self, tmp_path):
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("original", encoding="utf-8")
+        _write_fake_precommit_script(
+            work, exit_code=0,
+            extra_shell='printf "mutated" > "f.txt"\n',
+        )
+        head_before = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+        with pytest.raises(gpc.PlumbCommitPostconditionBreach):
+            gpc.plumb_commit(
+                ["f.txt"], "postcondition should block this", repo_root=work, branch="main",
+                remote=str(bare), skip_stale_check=True, strict_isolation=True,
+            )
+
+        head_after = _git(work, "rev-parse", "HEAD").stdout.strip()
+        assert head_after == head_before
+
+    def test_postcondition_catches_a_real_index_only_mutation(self, tmp_path, capsys):
+        """A mutation that touches only the REAL .git/index (content on disk
+        unchanged) must be caught by the index half of the postcondition even
+        though the content-hash half sees nothing."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(
+            work, exit_code=0,
+            # `env -u` strips GIT_INDEX_FILE for just this one command, simulating
+            # a step (or a sub-process it calls) that drops the isolation env var
+            # -- the real .git/index gets this add, not the isolated temp one.
+            # Content on disk is untouched by `git add` alone, isolating this test
+            # to the index half of the postcondition specifically.
+            extra_shell="env -u GIT_INDEX_FILE git add f.txt\n",
+        )
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "index postcondition should catch this", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        assert result["pushed"] is True
+        assert "WARNING" in capsys.readouterr().err
+        # Clean up the real index entry this test's fake script staged for
+        # real, so it doesn't leak into any other test sharing this fixture's
+        # teardown expectations.
+        subprocess.run(["git", "restore", "--staged", "f.txt"], cwd=str(work), check=False)
+
+    def test_postcondition_does_not_false_positive_on_untouched_state(self, tmp_path):
+        """Happy path: a Tier 1 pass that touches nothing real must not raise
+        or warn -- already covered implicitly by every other passing test in
+        this file, asserted here explicitly against a clean capsys."""
+        work, bare = _init_repo_with_remote(tmp_path)
+        (work / "f.txt").write_text("v", encoding="utf-8")
+        _write_fake_precommit_script(work, exit_code=0)
+
+        result = gpc.plumb_commit(
+            ["f.txt"], "clean pass", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True,
+        )
+
+        assert result["pushed"] is True
+
+
+def test_tier1_output_threaded_through_result_on_success(tmp_path):
+    """plumb_commit()'s successful-path result must carry Tier 1's stdout,
+    not discard it -- otherwise a Step 5/Step 10 check-only-mode FINDING has
+    no observable effect on the caller (2026-08-20 assessment finding)."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    _write_fake_precommit_script(
+        work, exit_code=0, extra_shell='echo "[Step 10] FINDING: example"\n',
+    )
+
+    result = gpc.plumb_commit(
+        ["f.txt"], "tier1 output should be threaded through", repo_root=work,
+        branch="main", remote=str(bare), skip_stale_check=True,
+    )
+
+    assert "[Step 10] FINDING: example" in result["tier1_output"]

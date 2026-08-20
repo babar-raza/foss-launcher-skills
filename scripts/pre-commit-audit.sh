@@ -361,15 +361,36 @@ _pc_step_start "content_hash normalization"
 # Scope: all content/*/en/ sites.  websites.aspose.org hub pages (_index.md)
 # lack provenance by design — they are navigation pages outside the content
 # quality pipeline (no grade, evidence, or staleness tracking expected).
+#
+# PC_AUDIT_NO_MUTATE (git_plumb_commit.py's Tier-1 parity-check mode, set only
+# by that tool, never by an operator): this step's --apply write lands on the
+# REAL working-tree file via a plain Python file write with zero git
+# involvement, regardless of which index GIT_INDEX_FILE points at -- when
+# invoked as a read-only parity check against an isolated temp index, that
+# write is a genuine real-repo-state mutation, not a helpful correction the
+# operator is about to see and `git add`. In this mode, run --dry-run instead
+# (report only, matches this script's own upstream flag contract) so the
+# real file is never touched; still block the commit if a stale content_hash
+# is found, since committing one is exactly what this step exists to prevent.
 if [ ${#changed[@]} -gt 0 ] && [ -n "$_HOOK_PYTHON" ]; then
     _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile5"
+    if [ -n "${PC_AUDIT_NO_MUTATE:-}" ]; then
+        _hash_write_flag="--dry-run"
+    else
+        _hash_write_flag="--apply"
+    fi
     _hash_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
-        --apply --files-from "$_tmpfile5" 2>&1)
+        "$_hash_write_flag" --files-from "$_tmpfile5" 2>&1)
     _hash_status=$?
     rm -f "$_tmpfile5"
     echo "$_hash_out"
-    _hash_updated=$(echo "$_hash_out" | grep -oE 'Updated: [0-9]+' | grep -oE '[0-9]+' || echo 0)
+    # provenance_normalize_hash.py's summary line reads "Updated: N" in
+    # --apply mode but "Would update: N" in --dry-run mode (different label,
+    # not just different count) -- match both, or PC_AUDIT_NO_MUTATE mode
+    # would always read 0 here and silently let a stale content_hash through
+    # instead of blocking it (caught in review while adding this branch).
+    _hash_updated=$(echo "$_hash_out" | grep -oiE '(updated|would update): [0-9]+' | grep -oE '[0-9]+' || echo 0)
     if [ "$_hash_status" -ne 0 ]; then
         echo ""
         echo "BLOCKED: content_hash normalization reported errors (see above)."
@@ -378,8 +399,13 @@ if [ ${#changed[@]} -gt 0 ] && [ -n "$_HOOK_PYTHON" ]; then
     fi
     if [ "${_hash_updated:-0}" -gt 0 ]; then
         echo ""
-        echo "BLOCKED: content_hash was stale on ${_hash_updated} file(s) and has been corrected"
-        echo "  on disk — review the diff, then 'git add' the corrected file(s) and retry the commit."
+        if [ -n "${PC_AUDIT_NO_MUTATE:-}" ]; then
+            echo "BLOCKED: content_hash is stale on ${_hash_updated} file(s) (check-only mode --"
+            echo "  NOT corrected on disk). Recompute and retry."
+        else
+            echo "BLOCKED: content_hash was stale on ${_hash_updated} file(s) and has been corrected"
+            echo "  on disk — review the diff, then 'git add' the corrected file(s) and retry the commit."
+        fi
         _pc_step_end "FAIL"
         _pc_exit 1
     fi
@@ -643,6 +669,34 @@ _pc_step_start "graded_at reversion"
 # Calls check_graded_at_only.py (which uses the venv python -- not bare python).
 # Blocking (exit 1): PARSE_FAILURE signals an unreadable diff (Case D).
 # Non-blocking: Case A files are reverted and commit continues without them.
+#
+# Two independent safety fixes layered on the original revert logic:
+#
+# 1. Unstaged-delta guard (unconditional, both callers, both real interactive
+#    commits and git_plumb_commit.py's parity check): check_graded_at_only.py
+#    classifies a file as revert-eligible using ONLY the STAGED diff
+#    (git diff --cached HEAD). If the file was partially staged (e.g. `git add
+#    -p` staged only the graded_at: hunk, leaving real, legitimate edits
+#    unstaged), the classification is still correct for the staged diff, but
+#    a full worktree restore below would silently discard those unstaged
+#    edits -- they were never part of the graded_at-only staged diff and were
+#    never going to be touched by this commit. Detected live by direct code
+#    analysis, no prior incident on record (2026-08-20 production assessment,
+#    reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md,
+#    Root cause 5). Fix: only unstage (safe, index-only) when the file has
+#    unstaged delta beyond HEAD; skip the destructive worktree restore for
+#    that file and report it instead of silently destroying real work.
+#
+# 2. PC_AUDIT_NO_MUTATE (git_plumb_commit.py's Tier-1 parity-check mode, set
+#    only by that tool, never by an operator): `git restore "$_f"` /
+#    `git checkout HEAD -- "$_f"` with no --source and no GIT_WORK_TREE set
+#    anywhere in this repo unconditionally write to the REAL working tree,
+#    regardless of which index GIT_INDEX_FILE points at -- a genuine
+#    real-repo-state mutation when this script is invoked as a read-only
+#    parity check against an isolated temp index, not the real interactive
+#    hook it was designed for (same report, Root cause 1). In this mode,
+#    never touch git state at all (not even the safe unstage) -- report the
+#    revert candidates only.
 # ---------------------------------------------------------------------------
 if [ ${#changed[@]} -gt 0 ]; then
     # Cross-platform .venv detection
@@ -659,9 +713,20 @@ if [ ${#changed[@]} -gt 0 ]; then
         printf '%s\n' "${changed[@]}" > "$_tmpfile10"
         _ga_stderr=$(mktemp /tmp/graded-at-err-XXXXXX.txt 2>/dev/null || mktemp)
         revert_candidates=()
+        # `| tr -d '\r'` strips Windows CRLF line endings check_graded_at_only.py's
+        # stdout carries when run under a native-Windows python.exe (text-mode
+        # print() writes os.linesep, i.e. \r\n) -- without it, `read -r` leaves a
+        # trailing \r embedded in each captured path, and EVERY git command below
+        # that consumes "$_f" (restore --staged, reset HEAD --, restore, checkout
+        # HEAD --) then fails with "pathspec '...\r' did not match any file(s)"
+        # (silently, since all are `2>/dev/null`) -- confirmed live while adding
+        # this step's tests (2026-08-20): Step 10 printed "REVERT <path>" but the
+        # file was never actually touched. The identical fix already exists one
+        # step earlier in this file (Step 1's path_guard.py --stdin pipe, line
+        # ~167) -- it was never propagated to this second Python-stdout consumer.
         while IFS= read -r _line; do revert_candidates+=("$_line"); done < <(
             "$_ga_python" scripts/pipeline/commands/governance/check_graded_at_only.py \
-                --files-from "$_tmpfile10" 2>"$_ga_stderr"
+                --files-from "$_tmpfile10" 2>"$_ga_stderr" | tr -d '\r'
         )
         rm -f "$_tmpfile10"
         if grep -q '^PARSE_FAILURE:' "$_ga_stderr" 2>/dev/null; then
@@ -673,13 +738,30 @@ if [ ${#changed[@]} -gt 0 ]; then
         fi
         rm -f "$_ga_stderr"
         if [ ${#revert_candidates[@]} -gt 0 ]; then
-            echo "[Step 10] Auto-reverting graded_at-only staged files:"
-            for _f in "${revert_candidates[@]}"; do
-                echo "  REVERT $_f"
-                git restore --staged "$_f" 2>/dev/null || git reset HEAD -- "$_f" 2>/dev/null
-                git restore "$_f" 2>/dev/null || git checkout HEAD -- "$_f" 2>/dev/null
-            done
-            echo "[Step 10] Reverted ${#revert_candidates[@]} graded_at-only file(s)."
+            if [ -n "${PC_AUDIT_NO_MUTATE:-}" ]; then
+                echo "[Step 10] FINDING: ${#revert_candidates[@]} graded_at-only staged file(s) found"
+                echo "  (check-only mode -- NOT reverting; these would be dropped from a real commit):"
+                for _f in "${revert_candidates[@]}"; do
+                    echo "  $_f"
+                done
+            else
+                echo "[Step 10] Auto-reverting graded_at-only staged files:"
+                _reverted_count=0
+                for _f in "${revert_candidates[@]}"; do
+                    _unstaged=$(git diff --name-only -- "$_f" 2>/dev/null)
+                    if [ -n "$_unstaged" ]; then
+                        echo "  UNSTAGE-ONLY $_f (has unstaged edits beyond the staged graded_at bump --"
+                        echo "    working tree left untouched; re-stage your real edits and retry)"
+                        git restore --staged "$_f" 2>/dev/null || git reset HEAD -- "$_f" 2>/dev/null
+                    else
+                        echo "  REVERT $_f"
+                        git restore --staged "$_f" 2>/dev/null || git reset HEAD -- "$_f" 2>/dev/null
+                        git restore "$_f" 2>/dev/null || git checkout HEAD -- "$_f" 2>/dev/null
+                        _reverted_count=$((_reverted_count + 1))
+                    fi
+                done
+                echo "[Step 10] Reverted ${_reverted_count} of ${#revert_candidates[@]} graded_at-only file(s)."
+            fi
         fi
     fi
 fi

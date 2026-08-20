@@ -1,0 +1,38 @@
+# scripts/ci/checks/precommit_audit_mutation_registry.yaml
+#
+# Registry of every step in scripts/pre-commit-audit.sh that is CAPABLE of
+# mutating real repo state (the real working tree and/or the real .git/index)
+# when the script is run as git_plumb_commit.py's Tier-1 parity check against
+# an isolated temp index, rather than as the real interactive commit hook it
+# was originally written for.
+#
+# 2026-08-20 production assessment
+# (reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md)
+# found TWO such steps -- one git-command-based (Step 10), one a plain,
+# non-git Python file write (Step 5) -- confirming that a purely
+# git-verb-based static check cannot be relied upon as the authoritative
+# control here (see that report's Root cause 4). This registry is the
+# best-effort, human-maintained half of the mutation-safety control:
+# check_precommit_audit_mutation_safety.py verifies every entry below
+# actually has its guard present in the script, and separately does an
+# advisory (non-blocking) scan for mutation signatures OUTSIDE this list, to
+# catch an obviously-forgotten registration. It is NOT a claim of exhaustive
+# coverage -- a script that shells out to arbitrary Python cannot be proven
+# mutation-free by static text analysis alone. The AUTHORITATIVE control is
+# git_plumb_commit.py's own runtime postcondition (real-index + real-content
+# snapshot compare around the Tier-1 check window), which is mechanism-
+# agnostic and catches deviations regardless of whether the responsible step
+# is listed here.
+#
+# Add an entry here whenever a new pre-commit-audit.sh step is found (or
+# added) that can write to the real working tree or the real .git/index, and
+# gate it behind the same guard var these two already use.
+
+steps:
+  - name: "content_hash normalization"
+    guard: "PC_AUDIT_NO_MUTATE"
+    mechanism: "plain Python file write (provenance_normalize_hash.py --apply -> provenance.write_provenance -> atomic_write) -- zero git involvement"
+
+  - name: "graded_at reversion"
+    guard: "PC_AUDIT_NO_MUTATE"
+    mechanism: "git restore / git checkout HEAD -- against the real working tree (no GIT_WORK_TREE isolation exists anywhere in this repo)"
