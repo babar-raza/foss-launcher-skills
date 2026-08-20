@@ -8,9 +8,14 @@
 > [plan-system-forensic-reconciliation.md](plan-system-forensic-reconciliation.md) (the forensic
 > report) and the original plan file it audits.
 >
-> **Snapshot date: 2026-08-18 ~21:25 local** (working tree; MT041–MT056 changes uncommitted;
-> MT056's code substantially landed at 21:19 — scope enforcement, acceptance registry,
-> label-geometry hard gate, draft-flag removal — while its plan execution record was still empty).
+> **Snapshot date: 2026-08-20 ~17:45 local.** MT041–MT056 (scope enforcement, acceptance
+> registry, label-geometry hard gate, draft-flag removal) landed and committed 2026-08-19
+> (`1f4b934a6e`). Since that snapshot, the entire disposition-family remediation this file's §11
+> once tracked as the largest open item (TC-MICRO-02) has been **closed**: a fresh, coherent,
+> unscoped `audit-portfolio` run on 2026-08-20 confirms **30/30 products clean, 0 dirty** — up
+> from the 3/30 genuinely-verified baseline this same investigation started from. F-02 and
+> TC-AUDIT-01 are also closed. See §11 for the real remaining open items (now short: republication
+> push authorization + this closeout pass itself).
 > Re-run the [Consistency check](#consistency-check) before trusting this file in a later session.
 
 ---
@@ -200,21 +205,29 @@ may not change without a new authorizing scope; source-change invalidation reope
 
 ## 11. Current pending and deferred work (genuine open items only)
 
-Full detail: forensic report §8/§10 and the plan's MT055 §2 register + MT056 §5.
+Full detail: forensic report §8/§10, the plan's MT055 §2 register + MT056 §5, and
+`C:\Users\prora\.claude\plans\an-independent-review-reflect-dazzling-elephant.md` (the
+2026-08-19/20 remediation session's own plan/log — the authoritative source for everything
+closed below; per-product evidence lives in `reports/plan_state/readme-disposition-remediation-
+2026-08-18/taskcards.jsonl` and `reports/plan_state/readme-portfolio-closure-2026-08-19/
+taskcards.jsonl`).
 
 | ID | Item | Status |
 |---|---|---|
-| TC-MICRO-02 | **Redesigned 2026-08-18, registered as a real mission** (was prose-only until then — never a taskcard_store.py row): `reports/plan_state/readme-disposition-remediation-2026-08-18/`. A control/treatment scratch pilot (`reports/_scratch/tc-micro-02-eval-20260818/report.md`) disproved TC-MICRO-02's own original root-cause theory ("positional unit_id drift, fixable by content-based remap") — 0/48 sampled disposition entries matched the live extraction on 2 products; both old READMEs had roughly doubled in content-unit count since dispositions were last authored. Real remediation is per-product compose-stage re-authoring, not a bookkeeping script. See TC-RDR-00..TC-RDR-OUTOFSCOPE in the registered mission for the corrected decomposition (classify-first, never bulk). | **Open, P0 — largest item.** TC-RDR-01 (portfolio classification probe) CLOSED 2026-08-18. TC-RDR-03+ per-product composition: `barcode/python` CLOSED (2026-08-18, bookkeeping-only pilot), `3d/net` CLOSED (2026-08-19, full compose + G-52 PLY false-claim reverified with executable proof + 8 further real content/mechanical fixes — see backlog G-52), `3d/java` CLOSED (2026-08-19, full compose + a 210-count real API-surface gap closed by mirroring the reference index + a fabricated-interfaces defect caught in the OLD upstream README itself + an OBJ-import claim independently reverified with executable proof against both source and the published Maven Central jar — see backlog G-50). 8 of the remaining products (`3d/typescript`, `3d/python`, `cells/cpp`, `email/python`, `html/python`, `page/python`, `cells/python`, `tex/python`) still TODO, being worked product-by-product, most-serious-first. |
-| TC-HARDEN-47 / 48 | Republish `3d/net` / `3d/python` (live diagram clipping on GitHub since 2026-08-05) | **Open, P0** (needs push authorization) |
-| TC-M56-01…08 | Canonical-store gates, change scopes (`declare-scope`/`accept-blocks`/`converge-verify`), acceptance registry, label-geometry hard gate, published-staleness tripwire, pilot + fixtures + evidence | **Code landed 21:19 (uncommitted, unrecorded)** — plan §6 execution record still empty; pilot/fixtures/evidence bundle status unknown at snapshot |
-| F-02 | `_do_push` hardcodes `Co-Authored-By: Claude Sonnet 5` (run.py:3504) — contradicts MT032's never-hardcode rule. (F-01, the `--draft` flag, was fixed in-tree at 21:19 during the reconciliation audit) | **Open defect** |
+| TC-MICRO-02 | Per-product disposition-family remediation across the full 30-product portfolio (root cause: old-README content-unit counts had grown/restructured since disposition sidecars were last authored — a bookkeeping-script remap was disproven by a control/treatment pilot; real fix is per-product compose-stage re-authoring). | **CLOSED 2026-08-20.** All 30 products individually taken through the same rigor: real-unit extraction, batch API-name verification against live source, evidence pre-validation, scratch-then-canonical scratch/treatment proof, determinism check. A fresh, coherent, unscoped `audit-portfolio` run (2026-08-20 ~17:45) confirms **30/30 clean, 0 dirty**. Along the way, ~15 genuine content defects were found and fixed (not just bookkeeping) — examples: `3d/typescript` had 4 real product bugs (broken OBJ import/export, broken GLB export, glTF round-trip node duplication) confirmed by *running the product's own test suite*, not just reading source; `cells/java` had a fabricated `SheetVisibility` API claim; `pdf/go` had a fabricated public `FontRepository` type; `pdf/java` had a false "PDF/X out of scope" claim; `words/python`/`slides/python` had a stale fabricated dev-dependency claim (the specific defect that originally motivated `check_dependency_development_claim_not_in_manifest`). Full per-defect evidence in the taskcard ledgers above. |
+| TC-AUDIT-01 | `audit_portfolio`'s `clean: true` conflated genuine disposition verification with `published:true`'s deliberate MT053 skip — the "8/30 clean" headline this reference and the forensic report both cited turned out to mean "3/30 genuinely verified." | **CLOSED** (`91a4dfd51d`). `audit_portfolio` now reports a real `disposition_tracking` field (`verified`/`checked_dirty`/`skipped_published`) and `disposition_verified_count`, so this conflation can't recur. Note: a product reporting `skipped_published` on a given run is not necessarily unverified — see the taskcard ledgers for products individually verified during closure whose candidate is currently, correctly, byte-identical to their live README again. |
+| RC-C cluster (backlog G-51) | `content_unit_evidence_resolves` / `content_unit_merged_into_target_section` findings across several products, some citing a fabricated `TC-MICRO-04` reference. | **CLOSED** (`TC-RC-01` + children, 2026-08-20). Dominant case (`pdf/net`, 58 findings) and the tail case (`note/python`, 4 findings — 2 real disposition-metadata bugs, 2 genuinely-dropped facts restored to prose) both closed with real, source-grounded evidence; the fabricated reference was never reused. |
+| F-02 | `_do_push` hardcoded `Co-Authored-By: Claude Sonnet 5` — contradicted MT032's never-hardcode rule. | **CLOSED** (`fc28d32b9c`). `_do_push`/`push` now require a real `--acting-model` value; a regression test asserts no hardcoded model string can ship again. |
+| TC-HARDEN-47 / 48 | Republish `3d/net` / `3d/python` (live diagram clipping on GitHub since 2026-08-05). | **Open, P0.** Local candidates confirmed to carry the flat-topology fix. Push explicitly gated on a fresh, separate user go-ahead per invariant 9 — not authorized as part of this closeout pass. |
+| New: local-ahead-of-live gaps | `cells/go`, `slides/cpp` (and likely others under W5 below) had a real `## Dependencies` section added locally this session that the live upstream README still lacks — confirmed via live GitHub fetch, not assumed. | **Open, diagnostic only** — not folded into TC-HARDEN-47/48 (reserved for the confirmed `3d/net`/`3d/python` regression). Needs the same design as W5 below before any systematic push. |
+| 3 real check-code bugs found composing this session | (1) `check_no_upstream_issue_leaked_into_readme`: a punctuation-only backtick token (e.g. a lone `-` table placeholder) could spuriously match nearly every bulleted line via bare substring containment. (2) Same check: `## Dependencies` was never added to the narration-exemption list (API Reference/Installation/Quick Start already were). (3) `check_code_example_no_exact_duplicate_merge` had no `evidence_ref`-based exemption, unlike its already-fixed content-unit sibling — two code units sharing a mechanical API-call fingerprint but demonstrating genuinely different, independently-verified behavior were false-flagged. | **CLOSED** (`bf9381af81`). 2 new regression tests; scoped suite (723 tests) green. |
 | TC-MICRO-03 tail | Old-tree (`repo-presenter`) mechanical promotions + NEEDS_REVIEW triage + retirement | Open |
-| W5 (MT053) | Published-then-locally-edited state (cells/go, cells/java, cells/net, 3d/java, 3d/typescript) needs its own design | Open (blocked on design) |
+| W5 (MT053) | Published-then-locally-edited state needs its own design — the byte-compare `published` check structurally can't detect "local candidate is ahead of live," only "local differs from live." Confirmed to affect at least `cells/go`, `slides/cpp` this session (row above), likely also `cells/java`, `3d/java`, `3d/typescript` per the original W5 note. | Open (blocked on design) |
 | TC-HARDEN-01 tail | Real verify-examples runners for Java/.NET/Go/Rust/C++/TS | Open, P1 (per-language missions) |
 | TC-HARDEN-17 | Durability of `reports/repo-presenter*` (single machine, gitignored) | **Blocked on user policy decision** |
 | TC-HARDEN-02 | `SKIP_SKILL_CONTEXT_CHECK=1` session-env bypass | Blocked on user/environment |
-| Sweep backlogs | MT049 (39 entries, pdf/go triage), MT052/TC-110 (32 combos), MT055 self-citation (13 combos incl. pdf/net regen-full ×58 units) | Open, folded into TC-MICRO-02 |
-| Misc deferred | code-example dispositions for ~29 products · portfolio internal-class-leak run (perf) · scratch-script retirement (TC-HARDEN-14) · registry.yaml "21 checks" description fix · pdf/cpp 182 filler descriptions (P4) · `cells/python` live Enterprise-href push · TC-HARDEN-03 DAR gate (governance-owned) · mission registration (TC-HARDEN-06, P3) · `/repo-presenter-metadata` (needs go-ahead) | Open/deferred |
+| Sweep backlogs | MT049 (39 entries, pdf/go triage), MT052/TC-110 (32 combos), MT055 self-citation (13 combos) | **Closed as part of TC-MICRO-02** above — folded in, not tracked separately anymore |
+| Misc deferred | portfolio internal-class-leak run (perf) · scratch-script retirement (TC-HARDEN-14) · registry.yaml "21 checks" description fix · pdf/cpp 182 filler descriptions (P4) · `cells/python` live Enterprise-href push · TC-HARDEN-03 DAR gate (governance-owned) · mission registration (TC-HARDEN-06, P3) · `/repo-presenter-metadata` (needs go-ahead) | Open/deferred |
 
 ## 12. Do-not-do rules
 
@@ -253,13 +266,14 @@ ls scripts/pipeline/commands/foss/readme_refresh_run.py \
 # 3. Canonical tree constant (expected: repo-presenter-regen-full)
 grep -n '_DEFAULT_CANDIDATE_TREE_NAME' scripts/pipeline/commands/foss/readme_refresh_run.py
 
-# 4. Open-defect marker (F-02): expected present at snapshot; if absent, F-02 is fixed — update §11.
+# 4. F-02 regression guard: this must stay EMPTY (fixed 2026-08-19, commit fc28d32b9c — _do_push
+#    now requires a real --acting-model, no hardcoded model string):
 grep -n 'Co-Authored-By: Claude Sonnet 5' scripts/pipeline/commands/foss/readme_refresh_run.py
 #    F-01 regression guard: this must stay EMPTY (the --draft flag was removed 2026-08-18 21:19):
 grep -n '"--draft"' scripts/pipeline/commands/foss/readme_refresh_run.py
 
 # 5. Check-function count vs doc claims (drifts upward as missions land)
-grep -c '^def check_' scripts/pipeline/commands/foss/readme_refresh_checks.py   # ~98 at snapshot
+grep -c '^def check_' scripts/pipeline/commands/foss/readme_refresh_checks.py   # 103 at snapshot
 
 # 6. Store record + canonical trees
 cat data/readme_candidate_store.json 2>/dev/null
