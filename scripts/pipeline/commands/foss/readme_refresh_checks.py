@@ -5833,7 +5833,7 @@ _CONTENT_UNIT_VERIFICATION_STATUSES = frozenset({
 # drop. Also permanently OPTIONAL, same "vacuously satisfied" precedent.
 _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
     "Intro", "Project History", "Additional Examples", "Project Structure",
-    "Feature Showcase", "Navigation",
+    "Feature Showcase", "Navigation", "Third-Party Notices",
 }
 # MT056 follow-up (2026-08-18): "Navigation" was missing from this allowlist -- the same
 # recurring "a real, always-present template section was never added to the allowlist" gap this
@@ -5843,6 +5843,16 @@ _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
 # every line -- Navigation included -- was extracted and merged verbatim), previously masked by
 # MT053's own published-upstream bypass; the moment ANY edit makes the candidate diverge from
 # published state, the full preservation-tracking battery re-activates and this gap surfaces.
+#
+# "Third-Party Notices" (2026-08-20, readme-disposition-remediation-2026-08-18 mission,
+# TC-RDR-03-PDF-CPP): the SAME recurring gap again, same root cause -- a real, always-present
+# `## Third-Party Notices` H2 (used by pdf/cpp and pdf/go for bundled-codec/font/GoogleTest
+# licensing disclosures) was never added to this allowlist, so a genuine, correctly-targeted
+# `merged_verbatim` disposition into that real section failed
+# `check_content_unit_disposition_coverage` with "needs a real target_section" even though the
+# candidate's own heading is right there. Not optional/vacuous like Additional Examples/Project
+# Structure -- a product either has real third-party-bundled code to disclose or it doesn't --
+# but the allowlist membership question is identical to every prior entry in this list.
 
 
 def check_content_unit_disposition_coverage(
