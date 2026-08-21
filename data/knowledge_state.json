@@ -569,9 +569,9 @@
   },
   "cells/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T11:45:53.591144+00:00",
+      "accepted_at": "2026-08-18T18:25:45.780415+00:00",
       "repo_sha": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
-      "run_id": "promote-20260814T114553Z",
+      "run_id": "promote-20260818T182545Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
@@ -581,7 +581,14 @@
       }
     },
     "family": "cells",
-    "platform": "python"
+    "platform": "python",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-18T17:55:21.800487Z",
+      "report_path": "reports\\audit\\cells-python-truth-20260818.md",
+      "verdict": "PASS",
+      "warn_count": 1
+    }
   },
   "cells/rust": {
     "accepted_baseline": {

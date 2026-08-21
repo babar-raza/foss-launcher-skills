@@ -4415,6 +4415,56 @@
     "class_import": "cells_foss.cfb_handler.CFBReader"
   },
   {
+    "name": "CFBWriter",
+    "kind": "class_definition",
+    "doc": "Writes encrypted XLSX to CFB format.",
+    "file": "aspose/cells_foss/cfb_handler.py",
+    "line": 336,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "Initialize CFB writer.",
+        "line": 341,
+        "is_constructor": true,
+        "file": "aspose/cells_foss/cfb_handler.py"
+      },
+      {
+        "name": "write",
+        "params": [
+          {
+            "name": "file_path",
+            "type": ""
+          },
+          {
+            "name": "encryption_info_xml",
+            "type": ""
+          },
+          {
+            "name": "encrypted_package",
+            "type": ""
+          },
+          {
+            "name": "package_size",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Write CFB file with EncryptionInfo and EncryptedPackage streams.",
+        "line": 345,
+        "is_constructor": false,
+        "file": "aspose/cells_foss/cfb_handler.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": false,
+    "canonical_namespace": "cells_foss.cfb_handler",
+    "class_import": "cells_foss.cfb_handler.CFBWriter"
+  },
+  {
     "name": "is_encrypted_file",
     "kind": "function",
     "doc": "Check if a file is an encrypted XLSX (CFB format).",

@@ -1,36 +1,36 @@
 {
   "schema_version": 2,
-  "bundle_id": "8a65abc9-ccc2-414d-9a64-500e86a44df6",
+  "bundle_id": "67a6de5d-8fed-4a3a-8dcc-9010a2cc6475",
   "family": "cells",
   "platform": "python",
   "repo_sha": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
-  "generated_at": "2026-08-14T11:45:53.462284+00:00",
+  "generated_at": "2026-08-18T18:25:45.670404+00:00",
   "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "2578624f18ff3c822b1d9c9d0ea4184b0c7253658455d3ad4b3a41c5414f31cb",
-      "bytes": 1225
+      "sha256": "14b64a14973e170f66023d98685347d3592aace4af6eb180a097ff6c208b0315",
+      "bytes": 1220
     },
     "api_surface.json": {
-      "sha256": "0aa383451a34664050da0cea205ed40c2fd9eab41144ea690bd310d970795449",
-      "bytes": 442697
+      "sha256": "7f8acd55cdc8530a89f890133b4f7c7ca85732c8cc90d1003859ad15fdaa45bf",
+      "bytes": 444022
     },
     "api_surface.md": {
-      "sha256": "29605f711cc3c96dd02e42982b9824c35f7eb7e78a65dc5e8defa8bf4087ec79",
-      "bytes": 47201
+      "sha256": "afacb91049eecdb35dc6f281092d98493b026a401ad5192a642cc9796579cbd5",
+      "bytes": 47360
     },
     "formats.json": {
       "sha256": "490e6eb99a4a65e61f993bee38094a36994067b45ac8c98992be71ec5ae53d58",
       "bytes": 2950
     },
     "formats.md": {
-      "sha256": "10694520087d971b7158786bb20f51697f3753da10d7970504afcea9d6286964",
+      "sha256": "dfd2d18e1192b314897d9d2a711fe380f9b40510e4a55aa301afe76161646674",
       "bytes": 362
     },
     "claims.json": {
-      "sha256": "673f960bbebe024886971c22e1e01a93d63672ee17bdb9bcba9d234938fae3da",
-      "bytes": 787566
+      "sha256": "360227a56c4cff7b61c2e42aa621881885aa4cc8b71a8679e6e32b4662cd9f16",
+      "bytes": 449998
     },
     "limitations.md": {
       "sha256": "de66a4f714b4b86fba695d0d70ea8ae0acb03060f71daa3e9d181ab2e440405d",
@@ -41,8 +41,8 @@
       "bytes": 178
     },
     "merge_report.md": {
-      "sha256": "37845d1d84d731779f922ca20adc08bb408a431a1d7a131f01c5884a82ca2ba6",
-      "bytes": 517
+      "sha256": "b133cb580e7a06efa48155be7f9db553ddb3debb7cf74ce6439bb949fa943fdd",
+      "bytes": 514
     },
     "snippets/snippet_001.py": {
       "sha256": "15c44f47b64c5a1c8ec2abbd3c171ea01bc7815e45d271fc7878c62794b76e8e",
@@ -449,6 +449,6 @@
       "bytes": 37936
     }
   },
-  "promote_run_id": "promote-20260814T114553Z",
+  "promote_run_id": "promote-20260818T182545Z",
   "status": "COMPLETE"
 }
