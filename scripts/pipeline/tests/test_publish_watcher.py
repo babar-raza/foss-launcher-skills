@@ -176,6 +176,94 @@ def test_format_issue_body_includes_actionable_steps_and_findings():
     assert "Action Required" in body
 
 
+def test_steady_state_detects_newer_live_version_on_published_entry():
+    """MT036 gap G3: an already-published family (cells, recorded 26.5.0) must be
+    flagged when the live version has moved past what's recorded -- the case
+    check_unpublished_families() structurally can never catch, since it skips
+    published:true entries entirely."""
+    data = _fake_data()
+
+    def checker(group_id, artifact_id):
+        if artifact_id == "aspose-cells-foss":
+            return "26.7.0"
+        return None
+
+    proposals = sut.check_published_families_for_new_version(data, live_checker=checker)
+    assert len(proposals) == 1
+    assert proposals[0]["family"] == "cells"
+    assert proposals[0]["recorded_version"] == "26.5.0"
+    assert proposals[0]["live_version"] == "26.7.0"
+
+
+def test_steady_state_no_proposal_when_live_version_matches_recorded():
+    data = _fake_data()
+    proposals = sut.check_published_families_for_new_version(
+        data, live_checker=lambda g, a: "26.5.0"  # matches cells' recorded version exactly
+    )
+    assert proposals == []
+
+
+def test_steady_state_skips_unpublished_entries():
+    """The mirror-image invariant of test_already_published_families_are_never_rechecked:
+    an unpublished entry is check_unpublished_families()'s job, never this function's."""
+    data = _fake_data()
+    calls = []
+
+    def checker(group_id, artifact_id):
+        calls.append((group_id, artifact_id))
+        return "1.0.0"
+
+    sut.check_published_families_for_new_version(data, live_checker=checker)
+    assert ("org.aspose.slides.foss", "aspose-slides-foss") not in calls, "unpublished entry must never be checked by the steady-state watcher"
+
+
+def test_steady_state_is_pure_never_mutates_data():
+    data = _fake_data()
+    before = json.loads(json.dumps(data))  # deep copy for comparison
+    sut.check_published_families_for_new_version(data, live_checker=lambda g, a: "99.0.0")
+    assert data == before
+
+
+def test_apply_version_update_proposal_updates_only_version():
+    data = _fake_data()
+    proposal = {
+        "family": "cells", "platform": "java",
+        "group_id": "org.aspose", "artifact_id": "aspose-cells-foss",
+        "recorded_version": "26.5.0", "live_version": "26.7.0",
+        "central_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+    }
+    entry = sut.apply_version_update_proposal(data, proposal, checked_at="2026-08-21")
+    assert entry["candidate"]["version"] == "26.7.0"
+    assert entry["candidate"]["group_id"] == "org.aspose"  # unrelated fields preserved
+    assert entry["verification"]["published"] is True
+    assert entry["verification"]["verified_at"] == "2026-08-21"
+    assert "26.5.0" in entry["verification"]["evidence_note"] and "26.7.0" in entry["verification"]["evidence_note"]
+
+
+def test_format_version_update_issue_body_includes_recorded_and_live_versions():
+    proposals = [{
+        "family": "cells", "platform": "java", "group_id": "org.aspose",
+        "artifact_id": "aspose-cells-foss", "recorded_version": "26.5.0", "live_version": "26.7.0",
+        "central_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+    }]
+    body = sut.format_version_update_issue_body(proposals)
+    assert "26.5.0" in body and "26.7.0" in body
+    assert "--mode=republish" in body
+    assert "Action Required" in body
+
+
+def test_run_version_watch_never_writes(tmp_path):
+    """Mirror of test_apply_proposal_is_not_called_by_run_watch, for the steady-state path."""
+    data_path = tmp_path / "package_registry.json"
+    data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")
+    sut.configure(data_path=data_path)
+    try:
+        sut.run_version_watch(live_checker=lambda g, a: "99.0.0")
+        assert json.loads(data_path.read_text(encoding="utf-8")) == _fake_data()
+    finally:
+        sut.configure(data_path=None)
+
+
 def test_cli_exit_code_reflects_findings(tmp_path, capsys):
     data_path = tmp_path / "package_registry.json"
     data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")

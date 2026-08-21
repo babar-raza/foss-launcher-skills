@@ -6,20 +6,51 @@ name: Publish to Maven Central
 #   {ARTIFACT_ID}   — Maven artifactId, e.g. aspose-3d-foss
 #   {JAVA_VERSION}  — Java version for temurin runner, e.g. 17 or 21
 #
-# Trigger: tag push (v* or V*) fires the full release pipeline.
-# GitHub Actions creates the GitHub Release automatically — product team
-# cuts a release with: git tag vX.Y.Z && git push origin vX.Y.Z
+# Trigger: EITHER a tag push (v* or V*) OR a published, non-draft, non-prerelease
+# GitHub Release fires the full release pipeline — whichever a human uses.
+# The `guard` job resolves a single canonical tag/version regardless of which
+# event fired, so every downstream step is trigger-agnostic. Both entry paths
+# converge on the same concurrency-serialized, idempotent `release-deploy` job:
+# firing both for the same version (e.g. publishing a Release with a brand-new
+# tag also fires push:tags — a documented GitHub Actions behavior) is safe by
+# design, not by luck — see the concurrency group and idempotency marker below.
 #
 # Bugs fixed vs. sprint-deployed versions (2026-07-16):
-#   - waitUtil → waitUntil (central-publishing-maven-plugin parameter)
+#   - waitUtil → waitUntil (central-publishing-maven-plugin parameter — this
+#     lives in the product repo's pom.xml, governed by S-110 Step A5, not here)
 #   - Removed "Install Maven (act only)" debug step (was PDF-specific)
 #   - Added 3-artifact final poll (jar + pom + sources, not just jar)
 #
-# Last validated: 2026-07-16 (S-110 foss-java-publish)
+# Hardening added (MT036-2026-08-21-PDF-JAVA-MAVEN-PUBLISH-HARDENING):
+#   - Dual trigger (tag push OR release published), not tag-push-only
+#   - New `guard` job: resolves tag/version via env: indirection (never inline
+#     ${{ }} interpolation into a run: body — tag names are attacker-shaped
+#     input; git allows $, `, ;, &, (, ) in ref names); rejects draft/prerelease/
+#     malformed-tag/version-mismatch/SNAPSHOT-alpha before any secret is touched
+#   - concurrency: group keyed on VERSION (not tag) on release-deploy — the two
+#     trigger paths, and v/V-prefix duplicates, serialize onto the same lane;
+#     different versions still run in parallel
+#   - Idempotency marker: a small asset attached to the GitHub Release itself
+#     (read-your-writes consistent, unlike the CDN-fronted repo1.maven.org
+#     mirror during Central's async validation window) — written only after a
+#     real `mvn deploy` success, read by `guard` on every run before deciding
+#     whether build/sign/deploy should run at all
+#   - Least-privilege permissions: workflow-level default is `contents: read`;
+#     only `release-deploy` is elevated to `contents: write` (dry-run jobs and
+#     `guard` never write to the repo or create a Release)
+#   - actions/checkout and actions/setup-java pinned to full commit SHA (with a
+#     version comment) rather than a floating major-version tag — justified
+#     specifically because this workflow imports a real GPG private key and
+#     Sonatype credentials on every real run; pair with Dependabot's
+#     github-actions ecosystem in the product repo to keep pins current
+#
+# Last validated: 2026-08-21 (MT036 hardening pass)
 
 on:
   push:
-    tags: ['v*', 'V*']          # PRIMARY: tag push fires full release pipeline
+    tags: ['v*', 'V*']
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       target:
@@ -30,7 +61,7 @@ on:
         options: [ubuntu, windows]
 
 permissions:
-  contents: write               # required to create GitHub Release via gh cli
+  contents: read               # least-privilege default; release-deploy alone elevates
 
 jobs:
 
@@ -39,11 +70,13 @@ jobs:
     name: Dry-run build — ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && inputs.target != 'windows'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Set up Java {JAVA_VERSION} — no GPG (dry-run)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: '{JAVA_VERSION}'
@@ -107,6 +140,8 @@ jobs:
     name: Dry-run build — Windows self-hosted (maven-pilot)
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'windows'
     runs-on: [self-hosted, Windows, maven-pilot]
+    permissions:
+      contents: read
     steps:
       - name: Export user PATH
         shell: powershell
@@ -116,10 +151,10 @@ jobs:
               Add-Content -Path $env:GITHUB_PATH -Value $_
           }
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Set up Java {JAVA_VERSION} — no GPG (dry-run)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: '{JAVA_VERSION}'
@@ -154,7 +189,7 @@ jobs:
             Write-Error "Version $VER already on Maven Central: $URL"; exit 1
           } catch {
             if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
-            Write-Host "Version $VER not yet on Maven Central — OK."
+            Write-Host "Version $VER not yet on Maven Central -- OK."
           }
 
       - name: Secret scan
@@ -162,7 +197,7 @@ jobs:
         run: |
           $pgp = & git grep -nI -E 'BEGIN PGP PRIVATE KEY BLOCK|BEGIN PGP PUBLIC KEY BLOCK' `
             -- ':(exclude).github/workflows/maven-central-release.yml' 2>&1
-          if ($pgp) { Write-Error 'PGP key block found — aborting'; exit 1 }
+          if ($pgp) { Write-Error 'PGP key block found -- aborting'; exit 1 }
           Write-Host 'Secret scan: CLEAN'
           exit 0
 
@@ -193,21 +228,118 @@ jobs:
           $u = & git ls-files --others --exclude-standard
           if ($u) { Write-Error "Untracked files: $u"; exit 1 }
 
-      - run: Write-Host '::notice::DEPLOY SKIPPED — dry-run-windows'
+      - run: Write-Host '::notice::DEPLOY SKIPPED -- dry-run-windows'
         shell: powershell
 
-  # ── JOB 3: Release deploy (tag push) ─────────────────────────────────────────
+  # ── JOB 3: Guard — resolve release identity, reject invalid runs ────────────
+  guard:
+    name: Guard and resolve release identity
+    if: >
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+      github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.coords.outputs.version }}
+      proceed: ${{ steps.coords.outputs.proceed }}
+      already_published: ${{ steps.published-check.outputs.already_published }}
+    steps:
+      - name: Reject draft or prerelease (release event only)
+        if: github.event_name == 'release'
+        run: |
+          if [ "${{ github.event.release.draft }}" = "true" ]; then
+            echo "::error::Release is a draft — refusing to publish"; exit 1
+          fi
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "::error::Release is marked prerelease — refusing to publish"; exit 1
+          fi
+
+      # Tag names are attacker-shaped input (git ref-name rules allow $, `, ;, &,
+      # ( ) — never splice github.ref_name / github.event.release.tag_name
+      # directly into a run: body; always go through env: indirection first,
+      # then validate with the regex below before using it anywhere else.
+      - name: Resolve canonical tag/version
+        id: resolve
+        env:
+          PUSH_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then TAG="$RELEASE_TAG"; else TAG="$PUSH_TAG"; fi
+          if ! [[ "$TAG" =~ ^[vV][0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Malformed tag '$TAG' — expected v<major>.<minor>.<patch>"; exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: refs/tags/${{ steps.resolve.outputs.tag }}
+
+      - name: Set up Java {JAVA_VERSION} — no GPG (guard reads pom.xml only)
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: '{JAVA_VERSION}'
+          cache: maven
+
+      - name: Guard coordinates and tag/pom version match
+        id: coords
+        run: |
+          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
+          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
+          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          TAG_VER="${{ steps.resolve.outputs.tag }}"
+          TAG_VER="${TAG_VER#[vV]}"
+          [ "$GID" = "org.aspose" ]       || { echo "::error::groupId must be org.aspose (got $GID)"; exit 1; }
+          [ "$AID" = "{ARTIFACT_ID}" ]    || { echo "::error::artifactId must be {ARTIFACT_ID} (got $AID)"; exit 1; }
+          case "$VER" in *-SNAPSHOT|*-alpha*) echo "::error::Pre-release versions cannot be published"; exit 1 ;; esac
+          [ "$TAG_VER" = "$VER" ] || { echo "::error::Tag ${{ steps.resolve.outputs.tag }} does not match pom.xml version $VER"; exit 1; }
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+          echo "Coordinates OK: ${GID}:${AID}:${VER} (tag: ${{ steps.resolve.outputs.tag }})"
+
+      # This marker asserts only that a prior release-deploy run's `mvn deploy`
+      # returned success for this exact version — not that Central Portal's
+      # validation/publish has fully completed (that's the separate
+      # waitUntil=validated behavior in the product repo's pom.xml). It exists
+      # so a redundant second trigger for the same version (e.g. a tag push and
+      # a Release publish both firing near-simultaneously) can no-op cleanly
+      # instead of attempting a second mvn deploy while the first is still
+      # mid-flight or its result hasn't yet propagated to repo1.maven.org.
+      - name: Check publish idempotency marker
+        id: published-check
+        run: |
+          TAG="${{ steps.resolve.outputs.tag }}"
+          if gh release view "$TAG" --repo "${{ github.repository }}" --json assets \
+               --jq '.assets[].name' 2>/dev/null | grep -qx 'maven-central-published.marker'; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── JOB 4: Release deploy (tag push OR release published) ───────────────────
   release-deploy:
     name: Build, sign, and deploy Maven release
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: guard
+    if: needs.guard.outputs.proceed == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write            # required to create the GitHub Release / upload the marker asset
+    concurrency:
+      group: maven-central-publish-${{ needs.guard.outputs.version }}
+      cancel-in-progress: false  # never kill a run that may be mid-upload to Central Portal
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: refs/tags/${{ needs.guard.outputs.tag }}
 
       - name: Set up Java {JAVA_VERSION} with GPG import
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: '{JAVA_VERSION}'
@@ -218,22 +350,9 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
 
-      - name: Guard coordinates and verify tag matches pom version
-        run: |
-          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
-          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
-          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          [ "$GID" = "org.aspose" ]       || { echo "groupId must be org.aspose (got $GID)"; exit 1; }
-          [ "$AID" = "{ARTIFACT_ID}" ]    || { echo "artifactId must be {ARTIFACT_ID} (got $AID)"; exit 1; }
-          case "$VER" in *-SNAPSHOT|*-alpha*) echo "Pre-release versions cannot be published"; exit 1 ;; esac
-          TAG="${{ github.ref_name }}"
-          TAG_VER="${TAG#[vV]}"
-          [ "$TAG_VER" = "$VER" ] || { echo "Tag $TAG does not match pom.xml version $VER"; exit 1; }
-          echo "Coordinates OK: ${GID}:${AID}:${VER} (tag: ${TAG})"
-
       - name: Check version not already on Maven Central
         run: |
-          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          VER="${{ needs.guard.outputs.version }}"
           STATUS="$(curl -s -o /dev/null -w "%{http_code}" \
             "https://repo1.maven.org/maven2/org/aspose/{ARTIFACT_ID}/${VER}/")"
           [ "$STATUS" = "200" ] && { echo "Version ${VER} already on Maven Central — nothing to do"; exit 1; } \
@@ -245,11 +364,17 @@ jobs:
             -- ':!.github/workflows/maven-central-release.yml' \
             && { echo "PGP key block found — aborting"; exit 1; } || true
 
-      - name: Create GitHub Release if not exists
+      # Idempotent: whichever run wins the concurrency race creates the
+      # Release (or finds a human-created one from the GitHub UI and no-ops);
+      # a redundant second run finds it already exists and no-ops too — never
+      # a red gh release create failure over a race between the two trigger
+      # paths. Never overwrites title/notes of an existing (e.g. human-authored)
+      # Release.
+      - name: Ensure GitHub Release exists (idempotent)
         run: |
-          TAG="${{ github.ref_name }}"
+          TAG="${{ needs.guard.outputs.tag }}"
           if gh release view "$TAG" --repo "${{ github.repository }}" > /dev/null 2>&1; then
-            echo "Release $TAG already exists — skipping creation"
+            echo "Release $TAG already exists — leaving title/notes as-is"
           else
             gh release create "$TAG" \
               --repo "${{ github.repository }}" \
@@ -260,6 +385,7 @@ jobs:
           fi
 
       - name: Build, package, and sign
+        if: needs.guard.outputs.already_published != 'true'
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
@@ -267,9 +393,10 @@ jobs:
         run: mvn -B clean verify -DskipTests
 
       - name: Verify 6 artifacts (3 jars + 3 signatures)
+        if: needs.guard.outputs.already_published != 'true'
         run: |
           AID="{ARTIFACT_ID}"
-          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          VER="${{ needs.guard.outputs.version }}"
           for f in \
             "target/${AID}-${VER}.jar" \
             "target/${AID}-${VER}-sources.jar" \
@@ -282,6 +409,7 @@ jobs:
           echo "All 6 artifacts present."
 
       - name: Verify clean working tree
+        if: needs.guard.outputs.already_published != 'true'
         run: |
           git diff --exit-code
           git diff --cached --exit-code
@@ -289,16 +417,39 @@ jobs:
             || { echo "Untracked files after build"; exit 1; }
 
       - name: Deploy to Maven Central (autoPublish=true, waitUntil=validated)
+        if: needs.guard.outputs.already_published != 'true'
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: mvn -B deploy -DskipTests
 
+      - name: Record Maven Central publish marker
+        if: needs.guard.outputs.already_published != 'true'
+        run: |
+          TAG="${{ needs.guard.outputs.tag }}"
+          MARKER="$(mktemp)"
+          {
+            echo "version=${{ needs.guard.outputs.version }}"
+            echo "tag=$TAG"
+            echo "published_by_run=${{ github.run_id }}"
+            echo "published_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "$MARKER"
+          for i in 1 2 3; do
+            gh release upload "$TAG" "$MARKER#maven-central-published.marker" \
+              --repo "${{ github.repository }}" --clobber && break
+            echo "gh release upload attempt $i failed, retrying..."; sleep 5
+          done
+
+      - name: Skip notice (already published by a prior run)
+        if: needs.guard.outputs.already_published == 'true'
+        run: echo "::notice::Publish marker found for ${{ needs.guard.outputs.tag }} — a prior run already deployed this version. Skipping build/sign/deploy."
+
       - name: Verify artifact available on Maven Central (best-effort, 10 min)
+        if: needs.guard.outputs.already_published != 'true'
         run: |
           AID="{ARTIFACT_ID}"
-          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          VER="${{ needs.guard.outputs.version }}"
           for SUFFIX in ".jar" ".pom" "-sources.jar"; do
             URL="https://repo1.maven.org/maven2/org/aspose/${AID}/${VER}/${AID}-${VER}${SUFFIX}"
             echo "Polling: $URL"

@@ -1,23 +1,33 @@
 <!-- CONTRACT: agent-executed
      purpose: publish a FOSS Java library to Maven Central with surgical pom changes,
-              GHA automation via tag-push trigger, PUBLISHING.md documentation committed
-              to the product repo, and aspose.org English content healing
+              GHA automation via a dual tag-push/release-published trigger,
+              PUBLISHING.md documentation committed to the product repo, and aspose.org
+              English content healing — serving both a product's first publication and
+              its later republication (a version bump) as one skill (see §6b rationale
+              in plans/mission-plan-the-end-to-end-linked-feather.md: the two cases share
+              ~90% of the same 16-step pipeline; the deltas are narrow enough to be modes
+              of one flow rather than a second skill)
      preconditions: active session; FOSS repo accessible on GitHub; GPG backup key at
                     $USERPROFILE\OneDrive\Documents\aspose-foss-gpg-signing-key.asc;
                     sonatype_user + sonatype_password in process env;
                     GPG_PASSPHRASE in Windows User-scope env
-     postcondition: artifact live on Maven Central; PUBLISHING.md committed to product repo;
+     postcondition: artifact live on Maven Central; PUBLISHING.md committed to product repo
+                    (Publication History appended, not overwritten, on a republish);
                     aspose.org English content files healed and committed; all changes pushed
-     idempotent: Phase A skipped if version already on Maven Central; Phase B (content
-                 healing) always runs regardless
-     verified: 2026-07-16
+     idempotent: Step A1 resolves one of four states from live signals (never published;
+                 published+documented; published+undocumented; this exact run's target
+                 version not yet published) — Phase A's depth varies accordingly; Phase B
+                 (content healing) always runs regardless
+     verified: 2026-08-21 (MT036 hardening pass — dual-trigger workflow, --mode
+               cross-check, name/description quality audit, changelog generation,
+               PUBLISHING.md append-on-republish; supersedes 2026-07-16 baseline)
 -->
 # S-110: FOSS Java Publish — Maven Central Publication and Content Healing
 
 **Arguments**: $ARGUMENTS
 Expected format:
 ```
-{github-org}/{repo-name} {artifact-id} {version} [--java {java-version}] [--family {content-family}]
+{github-org}/{repo-name} {artifact-id} {version} [--java {java-version}] [--family {content-family}] [--mode {first-publish|republish}]
 ```
 
 | Parameter | Required | Values |
@@ -27,6 +37,7 @@ Expected format:
 | `{version}` | Yes | Release version, e.g. `26.5.0` — must not contain SNAPSHOT or alpha |
 | `--java` | No | Java version for GHA temurin runner (default: `17`); MUST match pom.xml `<maven.compiler.source>` |
 | `--family` | No | Content family slug for aspose.org healing, e.g. `3d`, `pdf` (derived from repo name if omitted) |
+| `--mode` | No | `first-publish` or `republish` — an explicit statement of operator intent, cross-checked against Step A1's live signals in Step A1b below. Omit to rely on Step A1's auto-detection alone (unchanged, backward-compatible default). Providing it turns a wrong version number or a stale assumption about a product's publish state into an early, clearly-worded HALT instead of a routing decision the operator has to infer from Step A1's printed branch. |
 
 **Examples:**
 ```
@@ -115,6 +126,32 @@ to do."
 | 200 | 404 | **Docs-only remediation.** Artifact is live but undocumented. Run Step A1a below, then proceed directly to Step B1. Do NOT attempt to republish (coordinates are immutable once live on Central; skip A2, A4-A8, A11, A12, A14-A16 entirely — see Step A1a for exactly what still runs). |
 
 This check is the FIRST action. Do not clone or edit any file without running it.
+
+### Step A1b — Explicit `--mode` cross-check (only if `--mode` was passed)
+
+If `--mode` was NOT passed, skip this step — Step A1's table above is the sole routing
+authority (unchanged behavior).
+
+If `--mode` WAS passed, verify it agrees with what the live signals actually show, using
+a query broader than Step A1's version-specific check — query whether the artifactId has
+EVER been published, at any version, not just at `{version}`:
+
+```bash
+ANY_VERSION_LIVE=$(curl -s -o /dev/null -w "%{http_code}" \
+  "https://repo1.maven.org/maven2/org/aspose/{artifact-id}/maven-metadata.xml")
+```
+
+| `--mode` | `ANY_VERSION_LIVE` | Verdict |
+|---|---|---|
+| `first-publish` | 200 (some version already live) | **HALT** — "`--mode=first-publish` was given but `{artifact-id}` already has a published version on Maven Central. Coordinates are immutable; this cannot be a first publication. If you intend to ship `{version}` as a new release, re-run with `--mode=republish`." |
+| `republish` | 404 (nothing live yet) | **HALT** — "`--mode=republish` was given but `{artifact-id}` has never been published. There is no prior release to build on. If this is genuinely the first release, re-run with `--mode=first-publish`." |
+| `first-publish` | 404 | Agrees with Step A1's routing — proceed. |
+| `republish` | 200 | Agrees with Step A1's routing — proceed. |
+
+This is a coarser, cheaper pre-check than Step A5's own immutable-coordinate guard (which
+runs later, after cloning, and checks the SPECIFIC groupId/artifactId values in the cloned
+pom.xml) — it exists to catch an operator's wrong assumption as early and as cheaply as
+possible, before any clone or credential validation happens, not to replace Step A5's check.
 
 ### Step A1a — Docs-only remediation (published, but PUBLISHING.md missing)
 
@@ -210,6 +247,7 @@ Read the current `pom.xml`. For each required element, record current state and 
 | `<groupId>` | `org.aspose` | Correct — IMMUTABLE after first publish |
 | `<artifactId>` | `{artifact-id}` arg | Correct — IMMUTABLE after first publish |
 | `<version>` | `{version}` arg | Correct |
+| `<name>` / `<description>` | Grounded, capability-specific — see quality audit below | Add or refresh |
 | `<url>` | `https://github.com/{org}/{repo}` | Add |
 | `<licenses><license>` | MIT block | Add |
 | `<developers><developer>` | Canonical block (see below) | Add or replace non-canonical form |
@@ -233,6 +271,34 @@ Read the current `pom.xml`. For each required element, record current state and 
 ```
 
 If `<groupId>` or `<artifactId>` is already published on Maven Central at a DIFFERENT value than the arguments, **HALT** — these are immutable once any version is published.
+
+**`<name>`/`<description>` quality audit** (added MT036-2026-08-21 — Central Portal has no
+README-rendering feature of any kind, confirmed by direct research against Sonatype's own
+docs and live artifact pages for two of the most-used libraries on Maven Central; the
+`<description>` field is genuinely the *entire* text surface the platform exposes, so it is
+worth getting right, not just present):
+
+1. **Grounding source, in priority order**: (a) if `content/blog.aspose.org/{family}/java/`
+   or the product repo's own `README.md` has already been through a grounded refresh (e.g.
+   the `readme-refresh` skill, S-120) and is current, condense its capability-summary
+   language into 1-2 sentences; (b) otherwise, pull the top capability clusters directly from
+   `knowledge/{family}/java/merged/api_surface.json` / `claims.json`. Never invent a
+   capability that isn't traceable to one of these sources — same evidence discipline as
+   every content page in this repo (AGENTS.md §5/§11).
+2. **Reject boilerplate**: a description that only restates the product name (e.g. "Open-source
+   PDF library, API-compatible with Aspose.PDF for Java") without naming at least 2-3 concrete
+   capabilities or supported formats fails this audit. Front-load the most distinctive terms —
+   Central Portal's search results favor whatever a query matches earliest in a truncated
+   listing.
+3. **`<name>`**: the existing `Aspose.{Family} FOSS` pattern is adequate; changing it is
+   optional polish, not required.
+4. **On a republish** (per `--mode=republish` or Step A1's auto-detected equivalent branch):
+   re-evaluate whether the new version's real capability changes (from the changelog step
+   below) materially change what the description should say — if not, leave the existing,
+   already-audited text unchanged rather than editing it for its own sake.
+5. Print the before/after description text for operator confirmation alongside the rest of
+   Step A5's audit table — this is a content change to a public listing, not a mechanical
+   metadata fill-in, and deserves the same visibility.
 
 **Required plugin XML blocks (copy verbatim, fill in values):**
 
@@ -358,9 +424,28 @@ grep "waitUtil"  {path}/.github/workflows/maven-central-release.yml && exit 1 ||
 
 ### Step A9 — Write PUBLISHING.md to product repo
 
-Write `PUBLISHING.md` to the root of the FOSS repo using the template below, filled with
-actual sprint values. This file IS committed to the product repo — it is the product team's
-runbook after the agent session ends. BOM-zero enforcement.
+**First publication** (`PUBLISHING.md` does not exist yet in the clone): write the file
+fresh from the template below, filled with actual sprint values. BOM-zero enforcement.
+
+**Republication** (`PUBLISHING.md` already exists — the normal case for every release after
+the first): do NOT regenerate the whole file. Read the existing file, and:
+1. Update the "pom.xml changes" table's `{After}` column values that actually changed this
+   run (typically just `version`, and `<name>`/`<description>` if Step A5's quality audit
+   produced new text) — leave rows for unchanged elements as they were.
+2. Update the "Smoke Test Results" table with this run's results.
+3. **Append** a new row to "Publication History" — do not replace the table. The prior
+   version's row (and every version before it) must remain, in date order, oldest first.
+4. Leave "What Needs Further Work (Product Team Actions)" as-is except to remove any row the
+   product team has since resolved (detect via a HEAD-vs-audited-state diff, not by assuming)
+   — never silently drop an item that's still genuinely open.
+
+Losing a prior release's Publication History row on a routine version bump was a real,
+confirmed gap in this skill (found MT036-2026-08-21): the original template-fill approach
+had no append logic at all, so a second real invocation would have silently regenerated the
+whole file and discarded `26.6.0`'s row when publishing `26.8.0`. Treat any regeneration
+that doesn't preserve prior rows as a bug, not an acceptable simplification.
+
+BOM-zero enforcement applies to both paths.
 
 **PUBLISHING.md template (fill all `{placeholders}` at runtime):**
 
@@ -427,25 +512,48 @@ Source code, README, existing workflows, tests, docs, and all files not listed a
 
 ## How to Cut Future Releases
 
-Publishing a new version requires **one command**:
+Two ways to trigger a release — pick whichever fits your workflow, both are equivalent:
 
+**Option A — push a tag** (bump version, then tag):
 ```bash
-# 1. Bump version in pom.xml, commit, push
 sed -i 's/<version>{version}<\/version>/<version>NEW_VERSION<\/version>/' pom.xml
 git commit -am "chore: bump version to NEW_VERSION"
 git push origin {default-branch}
-
-# 2. Push a tag — GitHub Actions does the rest
 git tag vNEW_VERSION
 git push origin vNEW_VERSION
 ```
 
+**Option B — publish a GitHub Release** (bump version and push the commit as above, then
+use "Draft a new release" in the GitHub UI, or `gh release create vNEW_VERSION --generate-notes`,
+and publish it as non-draft, non-prerelease). The workflow's `guard` job resolves the tag
+either way and both paths converge on the identical build/sign/deploy logic — publishing a
+Release with a brand-new tag also fires the tag-push trigger, and the workflow's concurrency
+group + idempotency marker make that safe (at most one real deploy happens per version).
+
 GitHub Actions (`maven-central-release.yml`) will automatically:
-1. Create a GitHub Release with auto-generated release notes
-2. Build with Java {java-ver}; generate `-sources.jar` and `-javadoc.jar`
-3. Sign all 3 jars with GPG key E176D5CBCA1DCC62
-4. Upload to Sonatype Central Portal and publish (`autoPublish=true`)
-5. Artifact available at: `https://repo1.maven.org/maven2/org/aspose/{artifact-id}/`
+1. Reject the run if the Release is a draft or prerelease, the tag is malformed, or it
+   doesn't match the pom version
+2. Create a GitHub Release with auto-generated release notes (if one doesn't already exist)
+3. Build with Java {java-ver}; generate `-sources.jar` and `-javadoc.jar`
+4. Sign all 3 jars with GPG key E176D5CBCA1DCC62
+5. Upload to Sonatype Central Portal and publish (`autoPublish=true`, blocking on
+   `waitUntil=validated` — a portal rejection now fails the build instead of silently
+   leaving the artifact "Pending Validation")
+6. Artifact available at: `https://repo1.maven.org/maven2/org/aspose/{artifact-id}/`
+
+Prefer re-running `/foss-java-publish` (this skill, with `--mode=republish`) over cutting a
+release by hand — it also produces the evidence-grounded changelog (below), re-audits the
+`<name>`/`<description>` listing text, and appends the Publication History row automatically.
+
+## Changelog
+
+Every republication generates a structured changelog — Added / Changed / Fixed / Deprecated /
+Removed / Compatibility / Migration — from the real diff between this version's and the
+previous version's `knowledge/{family}/java/merged/{api_surface.json,claims.json}` (via
+`/knowledge-diff {family} java`), not from GitHub's raw auto-generated commit summary. Every
+Added/Changed/Removed line cites a real `claim_id` or API symbol. See the generated
+`CHANGELOG.md` in this repo for the full history; GitHub's own `--generate-notes` text
+attached to each Release is a convenience summary only, never the authoritative record.
 
 ## GitHub Secrets (do not remove)
 
@@ -465,6 +573,29 @@ For secret rotation or recovery: contact the infrastructure team.
 | {version} | {date} | S-110 foss-java-publish (automated) | https://repo1.maven.org/maven2/org/aspose/{artifact-id}/{version}/ |
 ```
 
+### Step A9a — Generate changelog (republication only — skip on a genuine first publish)
+
+Skip entirely if this run's Step A1/A1b routing determined this is a first publication
+(nothing to diff against). On a republish:
+
+1. Run `/knowledge-diff {family} java` for real against the previous accepted knowledge
+   baseline and this run's `{version}` source, producing the authoritative api_surface/claims
+   delta — reuse this repo's own existing, evidence-grounded extraction machinery. Never
+   free-generate changelog content from a raw `git log` between tags.
+2. From that delta, build a structured draft: **Added / Changed / Fixed / Deprecated /
+   Removed / Compatibility / Migration**, plus the Maven coordinates and canonical install
+   snippet. Every Added/Changed/Removed line must cite a real `claim_id` or `api_surface.json`
+   symbol.
+3. Validate the draft against the changelog-grounding validator
+   (`scripts/pipeline/commands/knowledge/changelog_grounding.py` — reject any uncited line,
+   reject unsupported marketing language, require the Maven-coordinates/install-command
+   section to be present).
+4. Prepend the validated entry (newest first) to `CHANGELOG.md` at the repo root — create the
+   file with a one-line header if it doesn't exist yet.
+5. GitHub's own `gh release create --generate-notes` text remains a convenience summary only
+   — it is never treated as the authoritative changelog source for this file or for any
+   downstream content generation.
+
 ### Step A10 — Surgical boundary verification
 
 Assert that the diff is limited to exactly the allowed files:
@@ -474,7 +605,7 @@ git -C {path} diff --name-only HEAD
 git -C {path} ls-files --others --exclude-standard
 ```
 
-Allowed files (new or modified): `pom.xml`, `.gitignore`, `.github/workflows/maven-central-release.yml`, `PUBLISHING.md`.
+Allowed files (new or modified): `pom.xml`, `.gitignore`, `.github/workflows/maven-central-release.yml`, `PUBLISHING.md`, `CHANGELOG.md` (republication only, per Step A9a).
 
 If ANY other file appears: **HALT** — "Surgical boundary violated: unexpected file `{name}` in diff. Review and unstage before proceeding. No commit was made."
 
@@ -520,16 +651,20 @@ Verify: `gh secret list --repo {org}/{repo}` → exactly 4 rows.
 
 ### Step A13 — Commit and push to FOSS repo
 
-Stage ONLY the four allowed files:
+Stage ONLY the allowed files — four on a first publish, five on a republish that produced a
+changelog entry (Step A9a):
 ```bash
 git -C {path} add pom.xml .gitignore \
     .github/workflows/maven-central-release.yml PUBLISHING.md
+# Republication only, if Step A9a ran:
+git -C {path} add CHANGELOG.md
 ```
 
 Verify staged file list matches the boundary before committing:
 ```bash
 git -C {path} diff --staged --name-only
-# Must show only: pom.xml  .gitignore  .github/workflows/maven-central-release.yml  PUBLISHING.md
+# Must show only: pom.xml  .gitignore  .github/workflows/maven-central-release.yml
+#                 PUBLISHING.md  [CHANGELOG.md — republication only]
 ```
 
 Commit with structured message:
@@ -674,10 +809,13 @@ into PUBLISHING.md for the product team.
 
 **Check the shortcode data source FIRST**, before touching any content file. A Hugo shortcode
 system (`layouts/shortcodes/maven-coord.html` / `maven-gav.html`, built under Mission MT008,
-`plans/master-plan.md`) renders the Maven coordinate from `data/foss_packages.json` — never
-from page frontmatter, never from hardcoded text. If `data/foss_packages.json` has (or, after
-Step B4a below, now has) a `{family}.java` entry with `published: true`, the correct fix for
-every literal `<groupId>`/`<version>`/Gradle-coordinate mention across
+`plans/master-plan.md`) renders the Maven coordinate from `data/package_registry.json` — never
+from page frontmatter, never from hardcoded text. (This file superseded `data/foss_packages.json`
+on 2026-08-01, Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-14 — if any older material
+you're working from still says `foss_packages.json`, that file no longer exists; use
+`package_registry.json` and the field names below.) If `data/package_registry.json` has (or,
+after Step B4a below, now has) a `{family}.java` entry with `verification.published: true`, the
+correct fix for every literal `<groupId>`/`<version>`/Gradle-coordinate mention across
 docs/blog/kb/products is a **shortcode conversion**, not a text substitution — literal text is
 a staleness risk regardless of whether it happens to be momentarily correct (same principle as
 `maven_coordinates.py`'s audit module). Do not hand-patch C1–C4 below unless the family/platform
@@ -685,10 +823,22 @@ genuinely has no shortcode entry and adding one is out of scope for this run.
 
 **Step B4a — Update the data source (covers C1/C2/C3/C4 in one place, all locales, all of
 docs/blog/kb/products at once):**
-1. Add/update `data/foss_packages.json`'s `{family}.java` entry: `published: true`,
-   `confirmed: {group_id: "org.aspose", artifact_id: "{artifact-id}", version: "{version}"}`,
-   `confirmed_at`, `confirmed_evidence` (cite the live HTTP 200 checks + GitHub Release +
-   Sonatype deploymentId gathered in Phase A), `central_url`.
+1. Add/update `data/package_registry.json`'s `{family}.java` entry (current schema — do NOT use
+   the retired top-level `published`/`confirmed`/`confirmed_at`/`confirmed_evidence`/`central_url`
+   field names from the old `foss_packages.json` shape):
+   ```json
+   "candidate": {"group_id": "org.aspose", "artifact_id": "{artifact-id}", "version": "{version}", "repo_sha": "{clone-head-sha}"},
+   "verification": {
+     "published": true,
+     "verified_at": "{ISO-8601 timestamp}",
+     "evidence_url": "https://repo1.maven.org/maven2/org/aspose/{artifact-id}/",
+     "evidence_note": "{cite the live HTTP 200 checks + GitHub Release + Sonatype deploymentId gathered in Phase A}",
+     "method": "foss-java-publish-S110",
+     "consecutive_checks_agreeing": 2
+   }
+   ```
+   (`evidence_url` is the closest current equivalent to the old `central_url` — a maven2
+   group/artifact directory listing, not a version-specific URL.)
 2. If `{family}` is not yet in `maven_shortcode_migrator.py`'s `_FAMILY_ARTIFACT_KEYWORD` dict
    (`scripts/pipeline/commands/content/maven_shortcode_migrator.py`), add it —
    `"{family}": "{family}-foss"` (or whatever substring the real artifactId's family-specific
@@ -750,7 +900,7 @@ Print the full pre-edit table to the operator before ANY edits:
 === CONTENT HEALING PLAN (operator confirmation required) ===
 
 Artifact: org.aspose:{artifact-id}:{version}
-Mechanism: {shortcode migration (data/foss_packages.json + maven_shortcode_migrator.py,
+Mechanism: {shortcode migration (data/package_registry.json + maven_shortcode_migrator.py,
            all locales) | literal C1-C4 fallback (English-only) — state which path was used}
 
 maven_shortcode_migrator (if used): N files_migrated, N block_replacements, N inline_replacements
@@ -934,6 +1084,9 @@ aspose.org commit: {sha}
 | `templates/workflows/maven-central-release.yml.tpl` missing | HALT — cannot generate workflow |
 | `--java` arg does not match `<maven.compiler.source>` in pom | HALT before any file edits |
 | `<groupId>` or `<artifactId>` already on Central at different coordinates | HALT — immutable |
+| `--mode` disagrees with Step A1b's live-signal cross-check | HALT — specific mismatch message (Step A1b) |
+| `<description>` audit finds an uncited capability claim | HALT — fix the claim or its citation before proceeding (Step A5) |
+| Changelog-grounding validator rejects an uncited line | HALT — fix the changelog draft, never commit unvalidated content (Step A9a) |
 | BOM detected in written pom.xml | HALT — abort and diagnose write tool |
 | `waitUtil` typo found in written files | HALT — fix before staging |
 | Surgical boundary violated (unexpected file in diff) | HALT before staging |
@@ -946,7 +1099,7 @@ aspose.org commit: {sha}
 ### What S-110 will never do
 
 - Modify source code, test files, README, or existing workflow files in the product repo
-- Push more than four files to the FOSS repo: `pom.xml`, `.gitignore`, `maven-central-release.yml`, `PUBLISHING.md`
+- Push more than five files to the FOSS repo: `pom.xml`, `.gitignore`, `maven-central-release.yml`, `PUBLISHING.md`, `CHANGELOG.md` (the fifth only on a republish that produced a changelog entry, Step A9a)
 - Use live `gpg --export-secret-keys` (opens pinentry GUI, blocks non-TTY sessions)
 - Skip the surgical boundary check before staging
 - Skip the post-healing grep sweep before committing

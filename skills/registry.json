@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 112,
+  "skill_count": 111,
   "skills": [
     {
       "id": "S-01",
@@ -735,14 +735,6 @@
       "internal": false,
       "canonical_path": "skills/production-localization-incident.md",
       "args": "``"
-    },
-    {
-      "id": "S-110",
-      "slug": "foss-java-publish",
-      "name": "FOSS Java Publish — Maven Central Publication and Content Healing",
-      "description": "Publish a FOSS Java library to Maven Central with exactly the surgical changes required —",
-      "internal": false,
-      "canonical_path": "skills/foss-java-publish.md"
     },
     {
       "id": "S-111",

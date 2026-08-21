@@ -4624,6 +4624,23 @@ scripts:
     change_impact: "Converts knowledge_delta.json string arrays into typed semantic change objects; drives body_impact.py and body_refresh.py"
     notes: "S-104 semantic-diff; output: reports/refresh_review/{family}/{platform}/semantic_changes.json"
 
+  - path: scripts/pipeline/commands/knowledge/changelog_grounding.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge
+    backing:
+      kind: skill
+      ref: foss-java-publish
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/knowledge/test_changelog_grounding.py
+    deprecated_since: null
+    change_impact: "Builds and validates an evidence-grounded CHANGELOG.md entry from semantic_diff.py's typed change objects, for a Java-FOSS product republication; consumer of semantic_diff.py's output, not a second diff engine"
+    notes: "MT036-2026-08-21 (PDF/Java Maven publish hardening, gap G5); invoked by skills/foss-java-publish.md Step A9a; input: reports/refresh_review/{family}/{platform}/semantic_changes.json"
+
   - path: scripts/pipeline/commands/content/claim_parser.py
     kind: entrypoint
     lifecycle: active
