@@ -93,3 +93,16 @@ overrides:
     verification_date: "2026-07-09"
     verification_url: "https://products.aspose.com/barcode/python-net/"
     notes: "products.aspose.com/barcode/python-net/ HTTP 200 (live verified 2026-07-09). Enterprise barcode Python product uses python-net slug."
+
+  # pdf/python was missing from this file entirely (products.aspose.com.platforms in
+  # data/aspose_com_targets.json has no pdf/python or pdf/python-net key at all, unlike
+  # pdf/go and pdf/cpp which each got their own one-off manual-correction entries) -- found
+  # live 2026-08-18 via readme-refresh's Enterprise Edition link, which was silently falling
+  # back to the bare family page https://products.aspose.com/pdf/ for pdf/python only, while
+  # every other Python product below already resolves to its real python-net bridge page.
+  pdf/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-08-18"
+    verification_url: "https://products.aspose.com/pdf/python-net/"
+    notes: "products.aspose.com/pdf/python/ HTTP 301 -> products.aspose.com/pdf/python-net/ HTTP 200 (live verified 2026-08-18, curl). products.aspose.com/pdf/python-java/ and /pdf/python-cpp/ also return 200 as real, distinct alternate bridge pages, but python-net is Aspose's own designated canonical (the bare python/ slug redirects there directly, a stronger signal than the cells/email/slides/words/html/3d/barcode precedent where python/ merely also 200s as a separate FOSS landing page). Same python-net policy as every other Python product in this file."

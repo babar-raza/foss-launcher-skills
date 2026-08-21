@@ -611,6 +611,12 @@
           "http_status": 200,
           "redirect_chain": []
         },
+        "pdf/python-net": {
+          "url": "https://products.aspose.com/pdf/python-net/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-18-pdf-python-bundled-python-net-page"
+        },
         "cells/python-net": {
           "url": "https://products.aspose.com/cells/python-net/",
           "http_status": 200,
