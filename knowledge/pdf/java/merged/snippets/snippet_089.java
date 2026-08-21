@@ -1,14 +1,7 @@
 @Test
-    public void dwt53_constantLow_zeroHigh_reconstructsConstant() {
-        int len = 16;
-        int halfLen = (len + 1) / 2;
-        int[] buf = new int[len];
-        for (int i = 0; i < halfLen; i++) buf[i] = 1000;       // low (LL)
-        // high (HL) already zero
-
-        JPXDecodeFilter.inverseDWT53_1D(buf, 0, len);
-
-        for (int i = 0; i < len; i++) {
-            assertEquals(1000, buf[i], "5/3 IDWT of constant-low should reproduce constant; idx " + i);
-        }
+    public void saturatedCyanCrushesRed() {
+        int out = RgbPrintShift.shift(0xFF000000 | (45 << 16) | (109 << 8) | 146);
+        assertEquals(0, (out >> 16) & 0xFF);
+        assertTrue(Math.abs(((out >> 8) & 0xFF) - 109) <= 1);
+        assertTrue(Math.abs((out & 0xFF) - 148) <= 2);
     }

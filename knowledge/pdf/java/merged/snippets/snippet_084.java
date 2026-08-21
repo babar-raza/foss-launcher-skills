@@ -1,12 +1,5 @@
-private static byte[] deflate(byte[] raw) {
-        Deflater deflater = new Deflater();
-        deflater.setInput(raw);
-        deflater.finish();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buf = new byte[8192];
-        while (!deflater.finished()) {
-            out.write(buf, 0, deflater.deflate(buf));
-        }
-        deflater.end();
-        return out.toByteArray();
+@Test
+    void inactiveWithoutParityFlag() {
+        // the suite runs without -Drender.acrobatPrintParity — both switches off
+        assertTrue(!CmykPrintLut.active() || Boolean.getBoolean("render.acrobatPrintParity"));
     }

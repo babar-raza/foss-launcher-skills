@@ -1,5 +1,32 @@
 [
   {
+    "format": "PDF",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/LoadFormat.java",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "HTML",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/LoadFormat.java",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "DocX",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/LoadFormat.java",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
     "format": "Pdf",
     "enum": "SaveFormat",
     "value": "",
@@ -10,6 +37,24 @@
   },
   {
     "format": "Html",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "DocX",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Doc",
     "enum": "SaveFormat",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
@@ -38,7 +83,7 @@
     "enum": "",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/engine/font/cff/CFFFontLoader.java",
-    "line": 34,
+    "line": 33,
     "direction": "import"
   },
   {
@@ -58,6 +103,22 @@
     "direction": "export"
   },
   {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/DocLoadOptions.java",
+    "line": 20,
+    "direction": "import"
+  },
+  {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/DocSaveOptions.java",
+    "line": 13,
+    "direction": "export"
+  },
+  {
     "format": "Html",
     "enum": "",
     "value": "",
@@ -70,7 +131,7 @@
     "enum": "",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/HtmlSaveOptions.java",
-    "line": 6,
+    "line": 11,
     "direction": "export"
   },
   {
@@ -150,7 +211,7 @@
     "enum": "",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/engine/filter/JPXDecodeFilter.java",
-    "line": 411,
+    "line": 234,
     "direction": "import"
   },
   {
@@ -166,7 +227,7 @@
     "enum": "",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/engine/render/TextRenderer.java",
-    "line": 32,
+    "line": 35,
     "direction": "export"
   },
   {
@@ -192,13 +253,5 @@
     "file": "src/main/java/org/aspose/pdf/text/FontTypes.java",
     "line": 7,
     "direction": "detect"
-  },
-  {
-    "format": "Pdf",
-    "enum": "",
-    "value": "",
-    "file": "src/main/java/org/aspose/pdf/Document.java",
-    "line": 155,
-    "direction": "import"
   }
 ]
