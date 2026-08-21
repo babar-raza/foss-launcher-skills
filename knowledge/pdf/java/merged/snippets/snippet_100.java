@@ -1,11 +1,12 @@
 @Test
-    void syntheticTtfParses() throws Exception {
-        byte[] ttf = MinimalTtf.build("TestFont", glyphs());
-        TrueTypeReader r = new TrueTypeReader(ttf);
-        assertEquals(1000, r.getUnitsPerEm(), "unitsPerEm");
-        assertEquals(3, r.getNumGlyphs(), ".notdef + A + B");
-        assertEquals(1, r.getGlyphId('A'), "cmap A→gid1");
-        assertEquals(2, r.getGlyphId('B'), "cmap B→gid2");
-        assertEquals(700, r.getAdvanceWidth(1), "hmtx A advance");
-        assertEquals(800, r.getAdvanceWidth(2), "hmtx B advance");
+    public void smallStreamsDecodeNormallyUnderCap() throws Exception {
+        setCap(TEST_CAP);
+        byte[] raw = "Hello, ISO 32000! ".repeat(100).getBytes("US-ASCII");
+        assertArrayEquals(raw, new FlateFilter().decode(deflate(raw), null),
+                "flate round-trip under cap");
+        RunLengthFilter rl = new RunLengthFilter();
+        assertArrayEquals(raw, rl.decode(rl.encode(raw, null), null),
+                "run-length round-trip under cap");
+        // LZWFilter is decode-only (encode throws "use FlateDecode") — its
+        // cap shares DecodeLimits.check with the two filters tested above.
     }

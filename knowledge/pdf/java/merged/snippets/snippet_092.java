@@ -1,14 +1,11 @@
 @Test
-    public void dwt97_constantLow_K_check_alternate() {
-        int len = 16;
-        int halfLen = (len + 1) / 2;
-        double[] buf = new double[len];
-        for (int i = 0; i < halfLen; i++) buf[i] = K_97;       // low = K
-
-        JPXDecodeFilter.inverseDWT97_1D(buf, 0, len);
-
-        System.out.println("[dwt97] feed K=" + K_97 + " expect ?");
-        for (int i = 0; i < len; i++) {
-            System.out.printf("  out[%d] = %.6f%n", i, buf[i]);
+    public void unshiftRoundTrip() {
+        int[] samples = {0xFFC110A0, 0xFFFFB81C, 0xFF808080, 0xFF204060, 0xFFFFF67F};
+        for (int argb : samples) {
+            int rt = RgbPrintShift.shift(RgbPrintShift.unshift(argb));
+            for (int sh = 0; sh <= 16; sh += 8) {
+                assertTrue(Math.abs(((rt >> sh) & 0xFF) - ((argb >> sh) & 0xFF)) <= 1,
+                        String.format("%08X -> %08X", argb, rt));
+            }
         }
     }

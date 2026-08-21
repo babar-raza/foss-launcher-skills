@@ -20,7 +20,8 @@
       "WidgetAnnotation.getCharacteristics"
     ],
     "formats_referenced": [
-      "cs"
+      "cs",
+      "doc"
     ],
     "provenance": "scout"
   },
@@ -46,7 +47,8 @@
       "WidgetAnnotation.getCharacteristics"
     ],
     "formats_referenced": [
-      "cs"
+      "cs",
+      "doc"
     ],
     "provenance": "scout"
   },
@@ -78,6 +80,7 @@
     ],
     "formats_referenced": [
       "cs",
+      "doc",
       "rgb"
     ],
     "provenance": "scout"
@@ -110,6 +113,7 @@
     ],
     "formats_referenced": [
       "cs",
+      "doc",
       "rgb"
     ],
     "provenance": "scout"
@@ -141,6 +145,7 @@
     ],
     "formats_referenced": [
       "cs",
+      "doc",
       "rgb"
     ],
     "provenance": "scout"
@@ -167,7 +172,8 @@
       "WidgetAnnotation.getCharacteristics"
     ],
     "formats_referenced": [
-      "cs"
+      "cs",
+      "doc"
     ],
     "provenance": "scout"
   },
@@ -194,7 +200,8 @@
       "WidgetAnnotation.getCharacteristics"
     ],
     "formats_referenced": [
-      "cs"
+      "cs",
+      "doc"
     ],
     "provenance": "scout"
   },
@@ -221,7 +228,8 @@
       "WidgetAnnotation.getCharacteristics"
     ],
     "formats_referenced": [
-      "cs"
+      "cs",
+      "doc"
     ],
     "provenance": "scout"
   },
@@ -449,6 +457,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -480,6 +489,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -515,6 +525,7 @@
       "TextAnnotation.getPdfDictionary"
     ],
     "formats_referenced": [
+      "doc",
       "pdf",
       "text"
     ],
@@ -570,6 +581,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -603,6 +615,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -632,6 +645,7 @@
       "Page.getRotate"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -663,6 +677,7 @@
       "Page.setRotate"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -691,6 +706,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -721,6 +737,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -751,6 +768,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -780,6 +798,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -810,6 +829,7 @@
       "Page.add"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -836,7 +856,9 @@
       "HighlightAnnotation.getQuadPoints",
       "Page.add"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -861,7 +883,9 @@
       "Page.add",
       "UnderlineAnnotation.getQuadPoints"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -886,7 +910,9 @@
       "Page.add",
       "StrikeOutAnnotation.getQuadPoints"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -911,7 +937,9 @@
       "Page.add",
       "SquigglyAnnotation.getQuadPoints"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -942,6 +970,7 @@
       "Page.getPdfDictionary"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -973,7 +1002,9 @@
       "StrikeOutAnnotation.getSubtype",
       "UnderlineAnnotation.getSubtype"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1002,6 +1033,7 @@
       "WatermarkAnnotation.setText"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -1028,6 +1060,7 @@
       "WatermarkAnnotation.getText"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -1056,7 +1089,9 @@
       "WatermarkAnnotation.getOpacity",
       "WatermarkAnnotation.setOpacity"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1080,7 +1115,9 @@
       "WatermarkAnnotation.getAngle",
       "WatermarkAnnotation.setAngle"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1114,6 +1151,7 @@
       "WatermarkAnnotation.getPdfDictionary"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1384,6 +1422,7 @@
       "Option",
       "Page",
       "Para",
+      "Paragraph",
       "Paragraphs",
       "RadioButtonOptionField",
       "Re",
@@ -1407,7 +1446,9 @@
       "Paragraphs.size",
       "RadioButtonOptionField.setOptionName"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1430,6 +1471,7 @@
       "Option",
       "Page",
       "Para",
+      "Paragraph",
       "Paragraphs",
       "Re",
       "Rectangle"
@@ -1448,7 +1490,9 @@
       "Paragraphs.add",
       "Paragraphs.get"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1468,6 +1512,7 @@
       "FormFieldParagraph",
       "Page",
       "Para",
+      "Paragraph",
       "Paragraphs",
       "Re",
       "Rectangle",
@@ -1488,6 +1533,7 @@
       "Paragraphs.get"
     ],
     "formats_referenced": [
+      "doc",
       "text"
     ],
     "provenance": "scout"
@@ -1511,6 +1557,7 @@
       "Option",
       "Page",
       "Para",
+      "Paragraph",
       "Paragraphs",
       "RadioButtonOptionField",
       "Re",
@@ -1532,7 +1579,9 @@
       "Paragraphs.size",
       "RadioButtonOptionField.setOptionName"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1554,6 +1603,7 @@
       "Option",
       "Page",
       "Para",
+      "Paragraph",
       "Paragraphs",
       "RadioButtonOptionField",
       "Re",
@@ -1578,6 +1628,7 @@
       "TextFragment.TextFragment"
     ],
     "formats_referenced": [
+      "doc",
       "pdf",
       "text"
     ],
@@ -1597,6 +1648,7 @@
       "Op",
       "Option",
       "Para",
+      "Paragraph",
       "RadioButtonOptionField"
     ],
     "methods_used": [
@@ -1622,6 +1674,7 @@
       "Op",
       "Option",
       "Para",
+      "Paragraph",
       "RadioButtonOptionField"
     ],
     "methods_used": [],
@@ -1653,6 +1706,7 @@
       "DocumentActions.getOpenAction"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1689,6 +1743,7 @@
       "UriAction.getUri"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1714,6 +1769,7 @@
       "PdfName.of"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1743,6 +1799,7 @@
       "PdfName.of"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1769,6 +1826,7 @@
       "PdfName.of"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1803,6 +1861,7 @@
       "UriAction.getUri"
     ],
     "formats_referenced": [
+      "doc",
       "pdf"
     ],
     "provenance": "scout"
@@ -1829,7 +1888,9 @@
       "DocumentActions.setOpenAction",
       "Page.add"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -1844,7 +1905,9 @@
       "DocumentActions"
     ],
     "methods_used": [],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "doc"
+    ],
     "provenance": "scout"
   },
   {
@@ -2018,6 +2081,238 @@
   {
     "id": "snippet_082",
     "file": "snippet_082.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/CmykPrintLutTest.java",
+    "source_function": "latticeCornersMatchMeasurement",
+    "source_line": 15,
+    "classes_used": [
+      "BI",
+      "CmykPrintLut",
+      "Corner"
+    ],
+    "methods_used": [
+      "CmykPrintLut.toRGB",
+      "CmykPrintLut.toRGBInt"
+    ],
+    "formats_referenced": [
+      "cmyk",
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/CmykPrintLutTest.java",
+    "source_function": "inverseRoundTripsThroughTheLattice",
+    "source_line": 25,
+    "classes_used": [
+      "BI",
+      "CmykPrintLut"
+    ],
+    "methods_used": [
+      "BI.toString",
+      "CmykPrintLut.inverse",
+      "CmykPrintLut.toRGB",
+      "CmykPrintLut.toRGBInt"
+    ],
+    "formats_referenced": [
+      "cmyk",
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/CmykPrintLutTest.java",
+    "source_function": "inactiveWithoutParityFlag",
+    "source_line": 43,
+    "classes_used": [
+      "Boolean",
+      "CmykPrintLut"
+    ],
+    "methods_used": [
+      "CmykPrintLut.active"
+    ],
+    "formats_referenced": [
+      "cmyk"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "cleanup",
+    "source_line": 18,
+    "classes_used": [
+      "Property",
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.clear"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "assertShift",
+    "source_line": 25,
+    "classes_used": [
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "measuredChartColors",
+    "source_line": 35,
+    "classes_used": [
+      "Color"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "neutralsFollowMeasuredToneCurve",
+    "source_line": 44,
+    "classes_used": [
+      "Curve"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "saturatedCyanCrushesRed",
+    "source_line": 55,
+    "classes_used": [
+      "Re",
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "alphaPreserved",
+    "source_line": 64,
+    "classes_used": [
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "activationLifecycle",
+    "source_line": 71,
+    "classes_used": [
+      "Property",
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.active",
+      "RgbPrintShift.clear",
+      "RgbPrintShift.setActive"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "unshiftRoundTrip",
+    "source_line": 89,
+    "classes_used": [
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift",
+      "RgbPrintShift.unshift"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "workingSpaceMultiplyMatchesGold",
+    "source_line": 103,
+    "classes_used": [
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift",
+      "RgbPrintShift.unshift"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/colorspace/RgbPrintShiftTest.java",
+    "source_function": "shiftImageMatchesScalar",
+    "source_line": 118,
+    "classes_used": [
+      "Image",
+      "RgbPrintShift"
+    ],
+    "methods_used": [
+      "RgbPrintShift.shift",
+      "RgbPrintShift.shiftImage"
+    ],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "restoreLimit",
     "source_line": 31,
@@ -2030,8 +2325,8 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_083",
-    "file": "snippet_083.java",
+    "id": "snippet_096",
+    "file": "snippet_096.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "setCap",
     "source_line": 36,
@@ -2044,8 +2339,8 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_084",
-    "file": "snippet_084.java",
+    "id": "snippet_097",
+    "file": "snippet_097.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "deflate",
     "source_line": 40,
@@ -2055,8 +2350,8 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_085",
-    "file": "snippet_085.java",
+    "id": "snippet_098",
+    "file": "snippet_098.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "flateBombIsRejectedAtCap",
     "source_line": 54,
@@ -2075,8 +2370,8 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_086",
-    "file": "snippet_086.java",
+    "id": "snippet_099",
+    "file": "snippet_099.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "runLengthBombIsRejectedAtCap",
     "source_line": 66,
@@ -2084,6 +2379,7 @@
       "Filter",
       "Message",
       "Re",
+      "Run",
       "RunLengthFilter"
     ],
     "methods_used": [
@@ -2095,8 +2391,8 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_087",
-    "file": "snippet_087.java",
+    "id": "snippet_100",
+    "file": "snippet_100.java",
     "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
     "source_function": "smallStreamsDecodeNormallyUnderCap",
     "source_line": 82,
@@ -2105,6 +2401,7 @@
       "Filter",
       "FlateFilter",
       "LZWFilter",
+      "Run",
       "RunLengthFilter"
     ],
     "methods_used": [
@@ -2117,241 +2414,6 @@
       "RunLengthFilter.encode"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_088",
-    "file": "snippet_088.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/DecodeBombGuardTest.java",
-    "source_function": "capDefaultsAndDisable",
-    "source_line": 96,
-    "classes_used": [
-      "DecodeLimits",
-      "Property"
-    ],
-    "methods_used": [
-      "DecodeLimits.maxDecodedBytes"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_089",
-    "file": "snippet_089.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
-    "source_function": "dwt53_constantLow_zeroHigh_reconstructsConstant",
-    "source_line": 23,
-    "classes_used": [
-      "Filter",
-      "ID",
-      "JPXDecodeFilter"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_090",
-    "file": "snippet_090.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
-    "source_function": "dwt97_constantLow_zeroHigh_reconstructsConstant",
-    "source_line": 46,
-    "classes_used": [
-      "Filter",
-      "ID",
-      "JPXDecodeFilter"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_091",
-    "file": "snippet_091.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
-    "source_function": "dwt97_zeroLow_zeroHigh_isZero",
-    "source_line": 68,
-    "classes_used": [
-      "Filter",
-      "JPXDecodeFilter"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_092",
-    "file": "snippet_092.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
-    "source_function": "dwt97_constantLow_K_check_alternate",
-    "source_line": 82,
-    "classes_used": [
-      "Filter",
-      "JPXDecodeFilter"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_093",
-    "file": "snippet_093.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/filter/JPXDecodeFilterDWTTest.java",
-    "source_function": "dwt97_roundTrip_smallSignal",
-    "source_line": 102,
-    "classes_used": [
-      "DeviceCMYK",
-      "Filter",
-      "ID",
-      "JPXDecodeFilter",
-      "Op",
-      "Operator"
-    ],
-    "methods_used": [
-      "Filter.toString",
-      "ID.toString",
-      "Operator.toString"
-    ],
-    "formats_referenced": [
-      "cmyk"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_094",
-    "file": "snippet_094.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
-    "source_function": "fixtureTtf",
-    "source_line": 23,
-    "classes_used": [
-      "Font",
-      "Integer",
-      "Map"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ttf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_095",
-    "file": "snippet_095.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
-    "source_function": "resolvesFamilyInConfiguredDir",
-    "source_line": 29,
-    "classes_used": [
-      "Config",
-      "Font",
-      "FontDiskLookup",
-      "Path",
-      "Re",
-      "TrueTypeReader",
-      "Type"
-    ],
-    "methods_used": [
-      "Config.toString",
-      "Font.toString",
-      "FontDiskLookup.loadStyled",
-      "Re.toString",
-      "TrueTypeReader.getNumGlyphs"
-    ],
-    "formats_referenced": [
-      "ttf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_096",
-    "file": "snippet_096.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
-    "source_function": "emptyDirFallsThroughToNull",
-    "source_line": 38,
-    "classes_used": [
-      "Font",
-      "FontDiskLookup",
-      "Path"
-    ],
-    "methods_used": [
-      "Font.toString",
-      "FontDiskLookup.loadStyled"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_097",
-    "file": "snippet_097.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
-    "source_function": "missingDirNeverThrows",
-    "source_line": 45,
-    "classes_used": [
-      "Font",
-      "FontDiskLookup"
-    ],
-    "methods_used": [
-      "FontDiskLookup.loadStyled"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_098",
-    "file": "snippet_098.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/FontDiskLookupStyledTest.java",
-    "source_function": "styledRequestStillEmbedsAvailableFace",
-    "source_line": 53,
-    "classes_used": [
-      "Font",
-      "FontDiskLookup",
-      "Path",
-      "Re"
-    ],
-    "methods_used": [
-      "Font.toString",
-      "FontDiskLookup.loadStyled",
-      "Re.toString"
-    ],
-    "formats_referenced": [
-      "ttf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_099",
-    "file": "snippet_099.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/Type0FontBuilderLatinTest.java",
-    "source_function": "glyphs",
-    "source_line": 23,
-    "classes_used": [
-      "Integer",
-      "Map"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_100",
-    "file": "snippet_100.java",
-    "source_file": "src/test/java/org/aspose/pdf/engine/font/ttf/Type0FontBuilderLatinTest.java",
-    "source_function": "syntheticTtfParses",
-    "source_line": 30,
-    "classes_used": [
-      "Font",
-      "Re",
-      "TrueTypeReader",
-      "Type"
-    ],
-    "methods_used": [
-      "TrueTypeReader.getAdvanceWidth",
-      "TrueTypeReader.getGlyphId",
-      "TrueTypeReader.getNumGlyphs",
-      "TrueTypeReader.getUnitsPerEm"
-    ],
-    "formats_referenced": [
-      "ttf"
-    ],
     "provenance": "scout"
   }
 ]
