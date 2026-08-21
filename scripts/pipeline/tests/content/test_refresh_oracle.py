@@ -206,6 +206,58 @@ def test_spreadsheet_cell_addresses_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_external_brand_possessive_context_is_allowed(tmp_path):
+    """RPR-ST091-02: a capitalized backtick token on a line that also names
+    an external product via a possessive brand reference ("Microsoft's X")
+    is that external product's own class name, not this codebase's API.
+    Found live 2026-08-18, cells/python: a plugin-integration note citing
+    Microsoft's MarkItDown library was flagged as an unknown symbol."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "The optional `markitdown-aspose-cells-plugin` package integrates "
+        "with Microsoft's MarkItDown library. Install it with pip, then "
+        "use it transparently via the `MarkItDown` API.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_external_brand_phrase_is_allowed(tmp_path):
+    """RPR-ST091-02: explicit "third-party"/"external library" phrasing on
+    the same line is an equally valid signal, independent of a possessive
+    brand name being present."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "This is a third-party integration; see `SomeExternalWidget` for "
+        "details.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_external_brand_context_scoped_to_same_line_only(tmp_path):
+    """Negative control: the external-brand guard must not blind the
+    checker to a genuinely unknown symbol elsewhere on the page, just
+    because an unrelated possessive brand name appears on another line."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "This library is inspired by Microsoft's design philosophy.\n\n"
+        "Use `NonExistentClass` to convert.\n",
+    )
+    api_surface = {"Workbook", "Worksheet"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert any(f["finding_type"] == ro.FINDING_INVALID_SYMBOL for f in findings)
+    assert any("NonExistentClass" in f["detail"] for f in findings)
+
+
 def test_load_api_surface_includes_namespaces_and_members(tmp_path):
     """api_surface loader exposes class imports, namespace prefixes, methods, and properties."""
     _setup(tmp_path)

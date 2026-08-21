@@ -240,6 +240,37 @@ _LITERAL_AND_BUILTIN_TOKENS = {
 # false INVALID_SYMBOL findings on a single page.
 _HEX_LITERAL_RE = re.compile(r"^(?:[0-9A-F]{2}){1,4}$")
 
+# RPR-ST091-02: a capitalized backtick token on a line that also names an
+# external product/library by a possessive brand reference ("Microsoft's
+# X", "Google's Y") or explicit third-party phrasing is very likely THAT
+# external product's own class/API name, not this codebase's api_surface --
+# general, not tied to any one vendor, so it generalizes to future content
+# without needing a new allowlist entry per external library. Found live
+# 2026-08-18, cells/python: "The optional `markitdown-aspose-cells-plugin`
+# package integrates with Microsoft's MarkItDown library... use it
+# transparently via the `MarkItDown` API" flagged `MarkItDown` as an
+# unknown symbol -- it's Microsoft's own library, correctly named in a
+# plugin-integration note, not a cells/python class.
+#
+# Scope is deliberately the SAME LINE as the match only (mirrors
+# triage_confirm's RPR-ST091-01 negation-context guard) -- a page-wide
+# scan risks suppressing a genuinely wrong claim elsewhere on the page
+# merely because an unrelated brand name appears somewhere else on it.
+_EXTERNAL_BRAND_POSSESSIVE_RE = re.compile(
+    r"\b[A-Z][A-Za-z0-9]+(?:\.[A-Z][A-Za-z0-9]+)*'s\b"  # "Microsoft's", "Adobe's" -- deliberately case-SENSITIVE (lowercase "it's"/"let's" must never match)
+)
+_EXTERNAL_LIBRARY_PHRASE_RE = re.compile(
+    r"\bthird[- ]party\b|\bexternal (?:library|libraries|tool|package)\b",
+    re.IGNORECASE,
+)
+
+
+def _has_external_brand_context(line: str) -> bool:
+    return bool(
+        _EXTERNAL_BRAND_POSSESSIVE_RE.search(line)
+        or _EXTERNAL_LIBRARY_PHRASE_RE.search(line)
+    )
+
 # RPR-ST089-03: a LETTER+DIGITS token (e.g. `B5`, `D5`, `AB123`) is a
 # spreadsheet cell-address reference, not an API symbol -- extremely common
 # in a spreadsheet product's prose ("apply the style to cell `B5`") and
@@ -307,6 +338,8 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
             if token in _LITERAL_AND_BUILTIN_TOKENS:
                 continue
             if _HEX_LITERAL_RE.match(token) or _CELL_ADDRESS_RE.match(token):
+                continue
+            if _has_external_brand_context(line):
                 continue
             if token.startswith("Aspose.Pdf") and any(
                 candidate == token or candidate.startswith(token + ".")

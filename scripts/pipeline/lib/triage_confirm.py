@@ -83,6 +83,46 @@ def _split_signature_params(value: str) -> list[str]:
     return params
 
 
+# RPR-ST091-01: negation/error-context guard for the missing-member check.
+# A backtick-quoted `ClassName.member` citation next to explicit "this
+# doesn't work" language is documenting an ABSENCE, not asserting the
+# member exists -- e.g. a troubleshooting table row "**`AttributeError` on
+# `SaveFormat.PDF`** | PDF export is not in the FOSS library; use
+# `SaveFormat.MARKDOWN` or `SaveFormat.XLSX` instead" is entirely correct,
+# current documentation, yet the missing-member scan's plain backtick match
+# has no way to distinguish it from a genuine (wrong) claim that
+# `SaveFormat.PDF` is a real, current member. Found live 2026-08-18,
+# cells/python S-84 remediation: export-troubleshooting.md's real,
+# accurate error-table entry was the last remaining flagged "stale" page,
+# blocking the S-84 gate on content that needed no change at all.
+#
+# Scope is deliberately narrow: same LINE as the match only (not the whole
+# page) -- markdown table rows and single-sentence prose in this repo are
+# each one logical line, so this catches the real repro shape without
+# risking a false negative elsewhere on the page (suppressing a genuinely
+# wrong claim merely because the word "AttributeError" appears somewhere
+# unrelated, further down the same page, would be worse than the false
+# positive this fixes).
+_NEGATION_CONTEXT_RE = re.compile(
+    r"\b(?:AttributeError|NotImplementedError|NotSupportedException|"
+    r"UnsupportedOperationException|NotImplementedException)\b"
+    r"|\bis\s+not\s+(?:in|part\s+of|available|supported|implemented|present)\b"
+    r"|\bdoes\s+not\s+(?:exist|support)\b"
+    r"|\bnot\s+(?:yet\s+)?(?:supported|available|implemented|present)\b"
+    r"|\bno\s+longer\s+(?:exists?|supported|available)\b",
+    re.IGNORECASE,
+)
+
+
+def _line_containing(text: str, pos: int) -> str:
+    """Return the full line of *text* that character offset *pos* falls in."""
+    start = text.rfind("\n", 0, pos) + 1
+    end = text.find("\n", pos)
+    if end == -1:
+        end = len(text)
+    return text[start:end]
+
+
 def _normalize_type(value: str) -> str:
     value = re.sub(r"^(?:ref|out|in|params)\s+", "", value.strip(), flags=re.I)
     value = re.sub(r"\s+", "", value)
@@ -291,12 +331,15 @@ def triage_confirm(
         # real ")" -- a chained call then fails to match at all (silently
         # skipped, not mis-attributed), while a real single call's params
         # ("path, opts") are still captured correctly.
-        for member in re.findall(
+        for match in re.finditer(
             rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
             rf"(?:\([^`()]*\))?`",
             body,
         ):
+            member = match.group(1)
             if api_name in current_members and member not in current_members[api_name]:
+                if _NEGATION_CONTEXT_RE.search(_line_containing(body, match.start())):
+                    continue
                 reasons.append(
                     f"body references missing member '{api_name}.{member}' "
                     "on a modified API"

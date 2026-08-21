@@ -186,6 +186,63 @@ class TestLayer2Detection:
         assert result["stale"] is True
         assert any("stale signature" in reason for reason in result["reasons"])
 
+    def test_missing_member_in_error_table_row_is_not_falsely_stale(self, tmp_path):
+        """RPR-ST091-01 regression: a troubleshooting table row documenting
+        that a member DOESN'T exist / causes an error is accurate content,
+        not a stale claim. Found live 2026-08-18, cells/python S-84
+        remediation: export-troubleshooting.md's real error table --
+        "**`AttributeError` on `SaveFormat.PDF`** | PDF export is not in
+        the FOSS library; use `SaveFormat.MARKDOWN` or `SaveFormat.XLSX`
+        instead" -- was flagged as claiming SaveFormat.PDF is real."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "| **`AttributeError` on `SaveFormat.PDF`** | PDF export is not "
+            "in the FOSS library; use `SaveFormat.MARKDOWN` or "
+            "`SaveFormat.XLSX` instead |\n",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "SaveFormat",
+                "methods": [],
+                "properties": [],
+                "enum_members": [
+                    {"name": "MARKDOWN", "value": "auto()"},
+                    {"name": "XLSX", "value": "auto()"},
+                ],
+            }],
+            "delta": {"modified_apis": ["SaveFormat"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_negation_context_scoped_to_same_line_only(self, tmp_path):
+        """Negative control: the negation guard above must not blind the
+        checker to a genuine missing-member claim elsewhere on the page,
+        just because unrelated error language appears somewhere else."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Handling errors is not supported by every method.\n\n"
+            "Save with `SaveFormat.PDF` for a portable document.\n",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "SaveFormat",
+                "methods": [],
+                "properties": [],
+                "enum_members": [
+                    {"name": "MARKDOWN", "value": "auto()"},
+                    {"name": "XLSX", "value": "auto()"},
+                ],
+            }],
+            "delta": {"modified_apis": ["SaveFormat"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("missing member 'SaveFormat.PDF'" in reason for reason in result["reasons"])
+
     def test_real_enum_member_is_not_falsely_reported_missing(self, tmp_path):
         """RPR-ST088-01 regression: api_surface.json stores an enum class's
         own members under "enum_members", not "methods"/"properties" --
