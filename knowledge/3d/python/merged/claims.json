@@ -32031,33 +32031,6 @@
     "provenance": "enriched"
   },
   {
-    "claim_id": "ERC-3d-python-5d5a953e",
-    "text": "BoundingBoxExtent.extent_x represents the size of the bounding box along the X axis.",
-    "kind": "api",
-    "confidence": 0.8,
-    "claim_source": "llm_member_doc",
-    "page_role": "reference",
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-3d-python-66535fad",
-    "text": "BoundingBoxExtent.extent_y represents the size of the bounding box along the Y axis.",
-    "kind": "api",
-    "confidence": 0.8,
-    "claim_source": "llm_member_doc",
-    "page_role": "reference",
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-3d-python-d3c0504c",
-    "text": "BoundingBoxExtent.extent_z represents the size of the bounding box along the Z axis.",
-    "kind": "api",
-    "confidence": 0.8,
-    "claim_source": "llm_member_doc",
-    "page_role": "reference",
-    "provenance": "enriched"
-  },
-  {
     "claim_id": "ERC-3d-python-f2ea090c",
     "text": "Camera.move_forward moves the camera forward by the specified distance.",
     "kind": "api",
@@ -45952,6 +45925,2253 @@
       {
         "source_file": "verified_facts.txt",
         "snippet": "Enum values: REPEAT, CLAMP, MIRROR"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-5c72a427",
+    "text": "The library supports keyframe animation, allowing animation clips and channels to be attached to scene nodes via AnimationClip, AnimationNode, and BindPoint.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Animate scene properties with keyframe sequences (AnimationClip, KeyframeSequence.add(time, value, interpolation), KeyFrame) bound to node/material properties via AnimationNode/BindPoint."
+      },
+      {
+        "source_file": "aspose/threed/AnimationClip.py",
+        "snippet": "class AnimationClip ... Methods: create_animation_node(node_name) -> 'AnimationNode'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f4072761",
+    "text": "Materials can be enriched with properties such as albedo, metallic_factor, and roughness_factor through the property system of A3DObject and its subclasses.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Assign Lambert, Phong, or PBR (metallic-roughness) materials to nodes, including glTF material properties such as albedo, metallic_factor, and roughness_factor."
+      },
+      {
+        "source_file": "aspose/threed/A3DObject.py",
+        "snippet": "def set_property(self, property: str, value): ... new_prop = Property(property, value) ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-12f86535",
+    "text": "To import an OBJ file, create a Scene instance and call Scene.open with an ObjLoadOptions object; the scene graph will be populated with Node, Mesh, and Material objects.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "scene = Scene()\noptions = ObjLoadOp\n# (example truncated) ...\nscene.open('model.obj', options)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-9b3dbbfa",
+    "text": "Exporting a scene to glTF is done by calling Scene.save with a file path ending in .gltf or .glb; the library writes geometry, materials, and animation data.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Export the same Scene model back out to OBJ, STL, glTF/GLB, or 3MF with Scene.save(...)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-9aa77456",
+    "text": "Create an animation by instantiating AnimationClip, adding an AnimationNode via create_animation_node, then adding keyframes to an AnimationChannel with add(time, value, interpolation).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/AnimationClip.py",
+        "snippet": "def create_animation_node(self, node_name) -> 'AnimationNode': ..."
+      },
+      {
+        "source_file": "aspose/threed/AnimationChannel.py",
+        "snippet": "def add(self, time, value, interpolation): ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f652a98e",
+    "text": "Use BindPoint.get_keyframe_sequence to retrieve or create a KeyframeSequence for a specific property, then bind it to a node using AnimationNode.get_bind_point.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/BindPoint.py",
+        "snippet": "def get_keyframe_sequence(self, channel_name) -> 'KeyframeSequence': ..."
+      },
+      {
+        "source_file": "aspose/threed/AnimationNode.py",
+        "snippet": "def get_bind_point(self, target, prop_name, create) -> 'BindPoint': ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4f0012ad",
+    "text": "COLLADA files can only be imported; attempting to save a scene as COLLADA will raise an error because export is not exposed in the public API.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ, STL, glTF, COLLADA (.dae) — import only; export unavailable"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-159ca97d",
+    "text": "If a property name is not found, find_property returns None; developers should check the result before calling get_property to avoid AttributeError.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/A3DObject.py",
+        "snippet": "def find_property(self, property_name: str):\n        return self._properties.find_property(property_name)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-391db0e1",
+    "text": "The library supports importing OBJ, STL, glTF/GLB, COLLADA, and 3MF files into an in‑memory Scene model.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`), and 3MF files into a common `Scene` model with `Scene.open(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f7c2d69d",
+    "text": "Developers can apply Boolean operations such as add, subtract, and intersect on mesh operands via BooleanOperator.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/BooleanOperator.py",
+        "snippet": "Docstring: Boolean operator allows you to apply Boolean operation on two IMeshConvertible instances."
+      },
+      {
+        "source_file": "aspose/threed/BooleanOperation.py",
+        "snippet": "Enum values: ADD, SUB, INTERSECT"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-3e5a61b8",
+    "text": "Create a BooleanOperand from a mesh and optional transform by calling BooleanOperand.of(mesh, transform).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/BooleanOperand.py",
+        "snippet": "Methods: of(node) -> \"BooleanOperand\"; of(mesh, transform) -> \"BooleanOperand\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4efcc05d",
+    "text": "Use BooleanOperator.get_bounding_box() to retrieve the axis‑aligned bounding box that encloses the result of a Boolean operation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/BooleanOperator.py",
+        "snippet": "Methods: get_bounding_box() -> BoundingBox",
+        "claim_id": "ERC-3d-python-007",
+        "text": "Box.to_mesh() converts a parametric box primitive into a triangulated Mesh object ready for export or further processing.",
+        "kind": "api",
+        "page_role": "docs",
+        "confidence": 0.96,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "aspose/threed/Box.py",
+            "snippet": "Methods: to_mesh() -> 'Mesh'"
+          }
+        ]
+      },
+      {
+        "claim_id": "ERC-3d-python-008",
+        "text": "Circle.create_element(element_type, mapping_mode, reference_mode) adds a new vertex element to the circle’s mesh geometry.",
+        "kind": "api",
+        "page_role": "docs",
+        "confidence": 0.94,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "aspose/threed/Circle.py",
+            "snippet": "Methods: create_element(element_type, mapping_mode, reference_mode) -> 'VertexElement'"
+          }
+        ]
+      },
+      {
+        "claim_id": "ERC-3d-python-009",
+        "text": "BoundingBox.merge() expands the current box to include another geometry or point, enabling incremental bounding‑box construction.",
+        "kind": "api",
+        "page_role": "docs",
+        "confidence": 0.93,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "aspose/threed/BoundingBox.py",
+            "snippet": "Methods: merge();"
+          }
+        ]
+      },
+      {
+        "claim_id": "ERC-3d-python-010",
+        "text": "Attempting to export a COLLADA scene will raise an error because ColladaExporter is not exposed; use a supported format instead.",
+        "kind": "troubleshoot",
+        "page_role": "kb",
+        "confidence": 0.88,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "README.md",
+            "snippet": "COLLADA export is not currently reachable through the public API"
+          }
+        ]
+      },
+      {
+        "claim_id": "ERC-3d-python-011",
+        "text": "When constructing a BooleanOperator, ensure both operands implement IMeshConvertible; otherwise get_bounding_box() may return a null box.",
+        "kind": "troubleshoot",
+        "page_role": "kb",
+        "confidence": 0.85,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "aspose/threed/BooleanOperator.py",
+            "snippet": "Docstring: Boolean operator allows you to apply Boolean operation on two IMeshConvertible instances."
+          },
+          {
+            "source_file": "aspose/threed/BoundingBox.py",
+            "snippet": "Methods: get_null() -> 'BoundingBox'"
+          }
+        ]
+      },
+      {
+        "claim_id": "ERC-3d-python-012",
+        "text": "BooleanOperation enum provides the values ADD, SUB, and INTERSECT to specify the type of Boolean operation.",
+        "kind": "api",
+        "page_role": "reference",
+        "confidence": 0.97,
+        "claim_source": "llm_enriched",
+        "evidence": [
+          {
+            "source_file": "aspose/threed/BooleanOperation.py",
+            "snippet": "Enum values: ADD, SUB, INTERSECT"
+          }
+        ]
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1b03a5b0",
+    "text": "Use CompositeCurve.add_segment(curve, same_direction) to assemble multiple Curve objects into a single composite geometry.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_definitions.txt",
+        "snippet": "Class: CompositeCurve ... Methods: add_segment(curve, same_direction) -> None; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-84b1fe88",
+    "text": "Retrieve the axis‑aligned bounding box of any Curve, CompositeCurve, Cylinder, or Dish by calling get_bounding_box(), which returns a BoundingBox instance.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_definitions.txt",
+        "snippet": "Class: Curve ... Methods: get_bounding_box() -> BoundingBox; ...\nClass: CompositeCurve ... Methods: get_bounding_box() -> BoundingBox; ...\nClass: Cylinder ... Methods: get_bounding_box(); ...\nClass: Dish ... Methods: get_bounding_box(); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-664b2abc",
+    "text": "Set custom metadata on any object that inherits from A3DObject (e.g., CustomObject) using set_property(property, value) and retrieve it with get_property(property).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_definitions.txt",
+        "snippet": "Class: CustomObject ... Methods: set_property(property, value); get_property(property); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-87e30f8a",
+    "text": "When creating a VertexElement for a Cylinder, you must add the element to the cylinder with add_element(element); otherwise the mesh will miss the attribute and exported files may lack the corresponding data.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_definitions.txt",
+        "snippet": "Class: Cylinder ... Methods: create_element(... ) -> 'VertexElement'; add_element(element); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1e078b93",
+    "text": "The CompareFunction enum defines depth/stencil test functions such as NEVER, LESS, GREATER, and ALWAYS for rendering pipelines.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_definitions.txt",
+        "snippet": "Class: CompareFunction ... Enum values: NEVER, LESS, EQUAL, LESS_EQUAL, GREATER, NOT_EQUAL, GREATER_EQUAL, ALWAYS"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bac7a884",
+    "text": "The library provides a unified set of entity classes such as Entity, Ellipse, and EllipseShape to represent geometric and scene data.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Entity ...\nClass: Ellipse ...\nClass: EllipseShape ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-9e0a7931",
+    "text": "Export and import of major 3D file formats such as OBJ, STL, glTF, COLLADA (import only) and 3MF are supported through dedicated exporter and importer classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`) — import only; export unavailable ... Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8189f537",
+    "text": "The library includes math utilities such as FVector2, FVector3, FVector4, and FMatrix4 for vector and matrix operations needed in 3D transformations.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FVector2 ...\nClass: FVector3 ...\nClass: FVector4 ...\nClass: FMatrix4 ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-dc9312cb",
+    "text": "Check whether a format is supported for export by calling Exporter.supports_format(file_format) before invoking export(scene, stream, options).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Exporter\n  Methods: supports_format(file_format) -> bool; export(scene, stream, options)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-51310775",
+    "text": "COLLADA files can be imported but not exported; attempting to export a COLLADA scene will raise an ExportException.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "COLLADA (.dae) — import only; export unavailable"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ExportException\n  Docstring: Exceptions when Aspose.3D failed to export the scene to file."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-2e2707e2",
+    "text": "If Exporter.export raises ExportException, verify that the target format is supported by calling supports_format first.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Exporter\n  Methods: supports_format(file_format) -> bool; export(scene, stream, options)"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ExportException\n  Docstring: Exceptions when Aspose.3D failed to export the scene to file."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-df88bc14",
+    "text": "EntityRenderer provides the lifecycle methods begin(), render(entity, context), and end() for custom rendering implementations.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: EntityRenderer\n  Methods: begin(); render(entity, context); end()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-552c1a70",
+    "text": "The library can import OBJ, STL, glTF, COLLADA, and 3MF files and export OBJ, STL, glTF, and 3MF files.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`) — import only; export unavailable ... Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-cb3eabbc",
+    "text": "Aspose.3D for Python enables developers to import and export 3D scenes in formats such as OBJ, STL, glTF, and 3MF using a unified Scene API.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`), and 3MF files into a common `Scene` model with `Scene.open(...)`.\nExport the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-94329190",
+    "text": "Using the FbxPlugin class you can obtain format‑specific loaders, exporters and detectors for FBX files.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/formats/fbx/FbxPlugin.py",
+        "snippet": "class FbxPlugin:\n    def get_importer(self) -> 'FbxImporter': ...\n    def get_exporter(self) -> 'FbxExporter': ...\n    def get_format_detector(self) -> 'FbxFormatDetector': ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-325a0dc5",
+    "text": "You can detect a file’s format by calling FileFormat.detect(stream, file_name) which returns a FileFormat object or None.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/formats/FileFormat.py",
+        "snippet": "def detect(stream, file_name) -> Optional['FileFormat']:\n    ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-548e1d34",
+    "text": "The library supports importing and exporting glTF 2.0 files through the GltfPlugin class.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: GltfPlugin\n  Methods: get_file_format() -> 'GltfFormat'; get_importer() -> 'Importer'; get_exporter() -> 'Exporter'; get_format_detector() -> 'FormatDetector'; create_load_options() -> 'GltfLoadOptions'; create_save_options() -> 'GltfSaveOptions'"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-41c0b233",
+    "text": "Developers can customize glTF import behavior, such as flipping the V texture coordinate, by setting properties on a GltfLoadOptions instance.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: GltfLoadOptions\n  Properties: flip_tex_coord_v, file_format, encoding, file_system, lookup_paths, file_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-37c38df6",
+    "text": "GltfFormatDetector.detect(stream, file_name) returns a FileFormat value that identifies the format of the supplied data.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: GltfFormatDetector\n  Methods: detect(stream, file_name) -> 'FileFormat'; detect(stream, file_name) -> 'FileFormat'"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-55305b17",
+    "text": "The Group class enables developers to build logical hierarchies of nodes, query child groups, and manage custom properties.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: Group\n  Docstring: A Group represents the logical relationships of Node.\n  Methods: find_property(property_name); get_property(property); set_property(property, value); remove_property(property)\n  Properties: parent, groups, nodes, name, properties"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-7a4d7beb",
+    "text": "HShape provides an IFC‑compatible H‑shaped profile with configurable width, depth, web thickness, and flange thickness.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: HShape\n  Docstring: IFC compatible H-shape profile.\n  Properties: width, depth, web_thickness, flange_thickness, parent_nodes, parent_node, excluded, scene, name, properties"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-9623f02e",
+    "text": "HalfSpace.remove_property() returns a boolean indicating success, but it does not accept a property name argument.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: HalfSpace\n  Methods: remove_property() -> bool; get_property(property); set_property(property, value); find_property(property_name); get_bounding_box(); get_entity_renderer_key()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-a7fce61e",
+    "text": "IBuffer defines a size property and map/unmap methods for accessing vertex or index buffer memory.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: IBuffer\n  Docstring: Interface for vertex/index buffer.\n  Methods: map(access); unmap()\n  Properties: size"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-3e4b3bbf",
+    "text": "ICommandList lets developers bind vertex and index buffers and issue draw or draw_indexed calls with full control over counts and offsets.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ICommandList\n  Methods: set_vertex_buffer(buffer, offset); set_index_buffer(buffer, offset, index_type); draw(vertex_count, instance_count, start_vertex, start_instance); draw_indexed(index_count, instance_count, start_index, base_vertex, start_instance)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-62eac692",
+    "text": "Entities that implement IMeshConvertible can be transformed into a Mesh by calling to_mesh().",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: IMeshConvertible\n  Methods: to_mesh() -> \"Mesh\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-d464550e",
+    "text": "Setting GltfSaveOptions.binary_mode to true causes the scene to be saved as a binary GLB file instead of a JSON glTF file.",
+    "kind": "format",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: GltfSaveOptions\n  Properties: file_format, binary_mode, flip_tex_coord_v, export_textures, encoding, file_system, lookup_paths, file_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-87282681",
+    "text": "Html5SaveOptions currently only provides a docstring and does not expose configurable properties; developers should use GltfSaveOptions or other format‑specific options for detailed control.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.83,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: Html5SaveOptions\n  Docstring: Save options for HTML5"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-491a7206",
+    "text": "Use IOService.detect_format(stream, file_name) to automatically determine the format of an input stream or file name.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "class IOService ... Methods: detect_format(stream, file_name);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-14bdfb87",
+    "text": "Create an exporter for a specific format by calling IOService.create_exporter(format_type) and then invoke its export functionality.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "class IOService ... Methods: create_exporter(format_type);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-fc6976c8",
+    "text": "The IRenderWindow.show() method opens a window for rendering the scene, while IRenderWindow.close() releases the window resources.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "class IRenderWindow ... Methods: show(); close()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f5a01218",
+    "text": "ImageRenderOptions lets developers set background_color, enable_shadows, and asset_directories before rendering an image.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "class ImageRenderOptions ... Properties: background_color, enable_shadows, asset_directories"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-aa62f343",
+    "text": "If rendering initialization fails, an InitializationException is thrown, indicating missing or incompatible graphics resources.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "class InitializationException ... Exception thrown when rendering initialization fails."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-27fd83a0",
+    "text": "Create a JtLoadOptions instance to specify JT import settings before calling the scene load routine.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: JtLoadOptions\n  Docstring: Load options for JT"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-6e721dbb",
+    "text": "Define animation curves by creating a KeyframeSequence, adding KeyFrame objects with time, value, and interpolation, and binding the sequence to a node property.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: KeyframeSequence\n  Methods: reset(); add(time, value, interpolation); ...\n  Properties: name, properties, bind_point, key_frames, ...\nClass: KeyFrame\n  Properties: time, value, interpolation, tangent_weight_mode, step_mode, next_in_tangent, out_tangent, out_weight, next_in_weight, tension"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-37ed34b4",
+    "text": "Set material textures by calling LambertMaterial.set_texture(slot_name, texture) where slot names correspond to the MAP_* enum values.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: LambertMaterial\n  Methods: get_texture(slot_name); set_texture(slot_name, texture); ...\n  Enum values: MAP_SPECULAR, MAP_DIFFUSE, MAP_EMISSIVE, MAP_AMBIENT, MAP_NORMAL"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-64ddb12d",
+    "text": "Create a parametric L‑shape profile with LShape and adjust its dimensions via the depth, width, and thickness properties before converting it to a mesh.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: LShape\n  Docstring: IFC compatible L-shape profile that defined by parameters.\n  Properties: depth, width, thickness, fillet_radius, edge_radius, ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-2df31c99",
+    "text": "When using Mesh.optimize, provide appropriate tolerance values to avoid loss of detail; setting tolerances too high may collapse small features.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Mesh\n  Methods: ... optimize(vertex_elements, tolerance_control_point, tolerance_normal, tolerance_uv) -> 'Mesh'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-13dfae2a",
+    "text": "The Matrix4.translate(tx, ty, tz) method returns a new matrix representing a translation by the given offsets.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Matrix4\n  Methods: ... translate(tx, ty, tz) -> 'Matrix4'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-a017ba4f",
+    "text": "Mesh.triangulate() converts all polygon faces in the mesh to triangles and returns the updated mesh.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Mesh\n  Methods: ... triangulate() -> 'Mesh'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-0ad8e4e9",
+    "text": "InvalidOperationException is raised when an operation is not supported by the current object state.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.3,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: InvalidOperationException"
+      }
+    ],
+    "stale_warning": "Source code references 'InvalidOperationException' in non-test files — claim that it is not consumed may be incorrect",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1287bfaf",
+    "text": "The library includes a full set of vector, matrix, and quaternion utilities for 3D math, accessible via Vector3, Quaternion, and Matrix4.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/verify_module.py",
+        "snippet": "from aspose.threed.utilities import Vector3, Quaternion, Matrix4\nv = Vector3(1.0, 2.0, 3.0)\nq = Quaternion(1.0, 0.0, 0.0, 0.0)\nm = Matrix4()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b5374427",
+    "text": "Aspose.3D FOSS for Python lets developers construct hierarchical 3D scene graphs by creating and linking Node objects.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Build 3D scenes programmatically with `Scene`, `Node`, `Mesh`, `Camera`, and `Light` in a hierarchical node graph."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-153a2d1c",
+    "text": "The library provides PbrMaterial to define physically based rendering properties such as albedo, metallic_factor, and roughness_factor for realistic material appearance.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: PbrMaterial ... Properties: albedo, albedo_texture, normal_texture, metallic_factor, roughness_factor, metallic_roughness, occlusion_texture, occlusion_factor, emissive_texture, emissive_color"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f38fbc3c",
+    "text": "MorphTargetDeformer enables geometry deformation by managing multiple MorphTargetChannel objects, each with per‑target weight control.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: MorphTargetDeformer ... Properties: channels, owner, name, properties"
+      },
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: MorphTargetChannel ... Methods: get_weight(target) -> float; set_weight(target, weight); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-177a93cd",
+    "text": "NurbsSurface objects can be converted to mesh geometry via the to_mesh() method, supporting NURBS‑based modeling workflows.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: NurbsSurface ... Methods: to_mesh(); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-6580bfaa",
+    "text": "Use ObjImporter.import_scene(scene, stream, options) to load an OBJ file into a scene graph.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjImporter ... Methods: import_scene(scene, stream, options); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-9b3209f6",
+    "text": "Call ObjExporter.export(scene, stream, options) to write the current scene to an OBJ, GLTF2, or 3MF file, depending on the selected file format.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjExporter ... Methods: export(scene, stream, options); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-2570047e",
+    "text": "Create load options with ObjLoadOptions and set flip_coordinate_system or enable_materials to control import behavior.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjLoadOptions ... Properties: flip_coordinate_system, enable_materials, scale, normalize_normal, ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8da3e886",
+    "text": "Retrieve the file format object via ObjPlugin.get_file_format() and then use its WAVEFRONT_OBJ() method to specify OBJ format for export.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjPlugin ... Methods: get_file_format() -> 'ObjFormat'; ..."
+      },
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjFormat ... Methods: WAVEFRONT_OBJ(); GLTF2(); MICROSOFT_3MF_FORMAT(); FBX7400ASCII(); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8139bff1",
+    "text": "Access and modify a PbrMaterial's texture slots using get_texture(slot_name) and set_texture(slot_name, texture).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: PbrMaterial ... Methods: get_texture(slot_name); set_texture(slot_name, texture); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-454ba9fc",
+    "text": "COLLADA files can be imported but not exported; developers should use OBJ or glTF for export workflows.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with .mtl materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (.dae) — import only; export unavailable"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8f5bbe82",
+    "text": "If ObjImporter.supports_format(file_format) returns False, ensure the file format object was obtained via ObjFormat (e.g., ObjFormat.WAVEFRONT_OBJ()).",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjImporter ... Methods: supports_format(file_format) -> bool; ..."
+      },
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: ObjFormat ... Methods: WAVEFRONT_OBJ(); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1dedc74e",
+    "text": "MorphTargetChannel.get_weight(target) returns the weight value for a specific morph target.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: MorphTargetChannel ... Methods: get_weight(target) -> float; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f30ee4b1",
+    "text": "The library provides a comprehensive material system with PbrSpecularMaterial for physically based rendering and PhongMaterial for classic shading, allowing developers to define diffuse, specular, emissive, and normal textures.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PbrSpecularMaterial ... Properties: name, properties, transparency, normal_texture, specular_glossiness_texture, glossiness_factor, specular, diffuse_texture, diffuse, emissive_texture\nClass: PhongMaterial ... Properties: specular_color, specular_factor, shininess, reflection_color, reflection_factor, emissive_color, ambient_color, diffuse_color, transparent_color, transparency"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-a8037514",
+    "text": "Developers can export 3D scenes to PDF by configuring PdfSaveOptions with a lighting scheme and render mode, then saving the scene using the PDF exporter.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PdfSaveOptions ... Properties: lighting_scheme, render_mode"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-67772b24",
+    "text": "The library supports the PLY file format for both import and export through PlyLoadOptions and PlySaveOptions, enabling developers to work with point‑cloud data.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PlyFormat\nClass: PlyLoadOptions\nClass: PlySaveOptions"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-f0c0d4f4",
+    "text": "A Plane object can be converted into a triangulated mesh by calling its to_mesh() method, simplifying the creation of planar geometry for rendering.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Plane ... Methods: to_mesh() -> 'Mesh'"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4b261b94",
+    "text": "To assign a texture to a PbrSpecularMaterial, call set_texture(slot_name, texture) with one of the supported slot names such as MAP_DIFFUSE or MAP_NORMAL.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PbrSpecularMaterial ... Methods: set_texture(slot_name, texture) -> None\nEnum values: MAP_SPECULAR, MAP_DIFFUSE, MAP_EMISSIVE, MAP_AMBIENT, MAP_NORMAL, MAP_SPECULAR_GLOSSINESS"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-718bb35a",
+    "text": "Retrieve the current specular factor of a PhongMaterial by calling get_property('specular_factor') or using the specular_factor property directly.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PhongMaterial ... Methods: get_property(property); set_property(property, value)\nProperties: specular_factor"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-df8ea948",
+    "text": "Create PDF import options by instantiating PdfLoadOptions and pass the instance to the PDF importer to control how PDF files are read.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PdfLoadOptions"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1dc6d414",
+    "text": "Use PolygonBuilder to define custom polygon geometry by calling begin(), adding vertex indices with add_vertex(index), and finalizing with end().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PolygonBuilder ... Methods: begin(); add_vertex(index); end()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b2e832e9",
+    "text": "The library does not provide COLLADA export functionality; attempting to export a COLLADA file will result in an unsupported operation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)` (COLLADA import is supported; COLLADA export is not currently reachable through the public API — see [Scope and limitations])\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-fadfdf1f",
+    "text": "When creating a vertex element on a Plane with create_element(element_type, mapping_mode, reference_mode), ensure that mapping_mode and reference_mode match the expected PixelMapMode and reference conventions to avoid missing vertex data.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.81,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Plane ... Methods: create_element(element_type, mapping_mode, reference_mode) -> 'VertexElement'\nClass: PixelMapMode ... Enum values: STENCIL, DEPTH, COLOR"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-c19b3a89",
+    "text": "Parametric primitives such as Pyramid and RectangularTorus can be converted to triangulated Mesh objects via the to_mesh() method.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Pyramid ... Methods: to_mesh() -> 'Mesh'; ...\nClass: RectangularTorus ... Methods: to_mesh() -> 'Mesh'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1326596a",
+    "text": "Use Primitive.create_element(element_type, mapping_mode, reference_mode) to add a new vertex element to a primitive.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Primitive ... Methods: create_element(element_type, mapping_mode, reference_mode) -> 'VertexElement'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-04aa99f3",
+    "text": "Call Primitive.get_bounding_box() to retrieve the axis‑aligned bounding box of the primitive's geometry.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Primitive ... Methods: get_bounding_box(); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-fc776f93",
+    "text": "Set a primitive's visibility with the visible property; when false the primitive is not rendered.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Primitive ... Properties: visible, ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1862413e",
+    "text": "Retrieve or modify custom data on any entity using the generic Property API: get_property(name), set_property(name, value).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Property ... Methods: get_extra(name); set_extra(name, value); ...\nClass: Primitive ... Methods: get_property(property); set_property(property, value); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-5681d962",
+    "text": "If a required property is missing, use find_property(property_name) to safely check for its existence before calling get_property.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Primitive ... Methods: find_property(property); get_property(property); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-93859040",
+    "text": "When exporting to COLLADA, the library will raise a NotImplementedError because COLLADA export is not supported in the FOSS version.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.3,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "COLLADA export is not currently reachable through the public API — see [Scope and limitations]."
+      }
+    ],
+    "stale_warning": "Source code references 'When' in non-test files — claim that it is not consumed may be incorrect",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-34c63fc2",
+    "text": "Quaternion.normalize() returns a new Quaternion with unit length without modifying the original instance.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_Spec.txt",
+        "snippet": "Class: Quaternion ... Methods: normalize() -> 'Quaternion'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-d65044a1",
+    "text": "It provides a full vector, matrix, quaternion, and bounding box math suite for geometric calculations.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Work with `Vector2`/`Vector3`/`Vector4`, `Matrix4`, `Quaternion`, and `BoundingBox` utilities for transforms and spatial queries."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-7a097f6c",
+    "text": "Save a scene to a desired format by calling `scene.save('output.glb')`, which infers the format from the file extension.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Scene",
+        "snippet": "Methods: save(file_or_stream, format_or_options)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-7b6b4a52",
+    "text": "Render a scene to an image by calling `scene.render(camera, 'render.png', size, format, options)`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Scene",
+        "snippet": "Methods: render(camera, file_name_or_bitmap, size, format, options)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4c13ff17",
+    "text": "If a post‑processing effect is not found, `Renderer.get_post_processing(name)` returns None; ensure the name matches a registered post‑processing before calling `Renderer.execute`.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Renderer",
+        "snippet": "Methods: get_post_processing(name); execute(post_processing, result) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-563e436c",
+    "text": "The `Renderer` class provides a `clear_cache()` method to free cached rendering resources.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Renderer",
+        "snippet": "Methods: clear_cache() -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b6365c50",
+    "text": "The library supports reading and writing STL, OBJ, glTF/GLB, and 3MF files directly from file paths or binary streams.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`),\n  and 3MF files into a common `Scene` model with `Scene.open(...)`.\n- Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-562cc1c0",
+    "text": "Parametric primitives such as Sphere can be converted to mesh geometry with the to_mesh() method for further processing.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Convert built-in parametric primitives (`Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`,\n  `Dish`, ...) into triangulated `Mesh` objects with `to_mesh()`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bd5d70dc",
+    "text": "Load an STL scene by calling StlImporter.import_scene(scene, stream, options) after confirming StlImporter.supports_format(file_format).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: StlImporter\n  Methods: supports_format(file_format) -> bool; import_scene(scene, stream, options);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-64fb2dea",
+    "text": "Create load options for STL files with StlPlugin.create_load_options(), then adjust flip_coordinate_system or scale before importing.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: StlPlugin\n  Methods: ... create_load_options() -> 'StlLoadOptions';\nClass: StlLoadOptions\n  Properties: flip_coordinate_system, scale, file_format, encoding, file_system, lookup_paths, file_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-c3073c85",
+    "text": "Configure STL export using StlSaveOptions; set binary_mode to True for binary STL output and export_textures to include embedded textures.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: StlSaveOptions\n  Properties: flip_coordinate_system, scale, binary_mode, export_textures, file_format, encoding, file_system, lookup_paths, file_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bef20027",
+    "text": "Retrieve the STL file format descriptor via StlPlugin.get_file_format() to access metadata such as extension, content_type, and version.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: StlPlugin\n  Methods: get_file_format() -> 'StlFormat';\nClass: StlFormat\n  Properties: extension, extensions, content_type, file_format_type, version, can_export, can_import, formats"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-892b5e0e",
+    "text": "COLLADA files can be imported but not exported; attempting to export COLLADA will result in an unsupported operation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "(COLLADA import is supported; COLLADA export is not currently reachable through the public\n  API — see [Scope and limitations](#scope-and-limitations))."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-c8630b05",
+    "text": "If STL import produces incorrectly oriented geometry, enable flip_coordinate_system in StlLoadOptions to correct the coordinate system.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: StlLoadOptions\n  Properties: flip_coordinate_system, scale, file_format, encoding, file_system, lookup_paths, file_name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b8d45761",
+    "text": "ShaderStage enum defines the pipeline stages VERTEX, FRAGMENT, GEOMETRY, TESSELLATION_CONTROL, TESSELLATION_EVALUATION, and COMPUTE.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: ShaderStage\n  Enum values: VERTEX, FRAGMENT, GEOMETRY, TESSELLATION_CONTROL, TESSELLATION_EVALUATION, COMPUTE"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b731a484",
+    "text": "The library supports reading and writing OBJ, STL, glTF/GLB, and 3MF file formats, enabling full round‑trip conversion of 3D assets.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ ... STL ... glTF 2.0 / GLB, COLLADA (.dae) — import only; export unavailable ... 3MF files ... Export the same Scene model back out to OBJ, STL, glTF/GLB, or 3MF"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-83512112",
+    "text": "Parametric primitives such as TShape can be defined with precise dimensions and then converted to mesh geometry for inclusion in a scene.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/TShape.py",
+        "snippet": "Class: TShape\nDocstring: IFC compatible T-shape defined by parameters."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-2cabb152",
+    "text": "Texture objects allow developers to control UV transformations, filtering, and wrapping modes for material mapping.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/Texture.py",
+        "snippet": "Class: Texture\nMethods: set_translation(u, v); set_scale(u, v); set_rotation(u, v)\nProperties: wrap_mode_u, wrap_mode_v, min_filter, mag_filter, mip_filter, uv_rotation"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-21513742",
+    "text": "Use SweptAreaSolid.get_bounding_box() to obtain the axis‑aligned BoundingBox that encloses the swept solid, useful for spatial queries.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/SweptAreaSolid.py",
+        "snippet": "Methods: get_bounding_box() -> BoundingBox"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-dd304978",
+    "text": "To assign a custom name to a Text profile, set its name property; the content, font, and font_size properties define the rendered text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/Text.py",
+        "snippet": "Properties: content, font, font_size, name"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8728ebd7",
+    "text": "Create a ThreeMfSaveOptions instance and set enable_compression=True to produce compressed 3MF files during export.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/ThreeMfSaveOptions.py",
+        "snippet": "Properties: enable_compression, build_all, flip_coordinate_system, unit, pretty_print, export_textures"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4a113e71",
+    "text": "ThreeMfPlugin.get_exporter() returns the exporter object that implements export(scene, stream, options) for 3MF output.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/ThreeMfPlugin.py",
+        "snippet": "Methods: get_exporter() -> 'Exporter'"
+      },
+      {
+        "source_file": "aspose/threed/ThreeMfExporter.py",
+        "snippet": "Methods: export(scene, stream, options)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b1702b91",
+    "text": "The TokenType enum provides constants like OPEN_BRACKET and COMMA for parsing custom 3D file formats.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/TokenType.py",
+        "snippet": "Enum values: OPEN_BRACKET, CLOSE_BRACKET, DATA, COMMA, KEY"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-abbc6884",
+    "text": "If a 3MF node is not marked as buildable via ThreeMfFormat.set_buildable(node, True), it will be ignored during export; ensure the buildable flag is set for all objects you wish to include.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/ThreeMfFormat.py",
+        "snippet": "Methods: set_buildable(node, value, transform); is_buildable(node) -> bool"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-8d6ce794",
+    "text": "Texture.set_rotation(u, v) rotates the texture coordinates by the specified angles along the U and V axes.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose/threed/Texture.py",
+        "snippet": "Methods: set_rotation(u, v) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bdca8751",
+    "text": "Developers can generate a parametric torus and directly obtain a triangulated mesh by calling `Torus.to_mesh()`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Torus ... Methods: to_mesh() -> 'Mesh'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-d1033083",
+    "text": "The `Transform` class lets you define an entity’s translation, scaling, and rotation using fluent setters such as `set_translation`, `set_scale`, and `set_rotation`.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Transform ... Methods: set_translation(tx, ty, tz) -> 'Transform'; set_scale(sx, sy, sz) -> 'Transform'; set_rotation(rw, rx, ry, rz) -> 'Transform'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-b822e5d6",
+    "text": "The library can be installed directly from a local clone using `pip install -e .` and does not require any external dependencies.",
+    "kind": "install",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Install directly from a local clone: ... pip install -e . ... The package declares support for Python 3.7 through 3.12 and has no required third‑party dependencies."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-40bf7fd5",
+    "text": "COLLADA export is currently not reachable through the public API, so developers should use other formats for saving scenes.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "COLLADA import is supported; COLLADA export is not currently reachable through the public API"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-841d32f3",
+    "text": "`Torus.create_element(element_type, mapping_mode, reference_mode)` creates a custom vertex element that can be attached to the torus geometry.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Torus ... Methods: create_element(element_type, mapping_mode, reference_mode) -> 'VertexElement'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-c0ce3a4d",
+    "text": "`TransformBuilder.translate(tx, ty, tz)` or `translate(v)` adds a translation step to the transformation chain, returning the builder for further chaining.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: TransformBuilder ... Methods: translate(tx, ty, tz) -> 'TransformBuilder'; translate(v) -> 'TransformBuilder'; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-91057f57",
+    "text": "`VertexElement.set_indices(data)` assigns index data to a vertex element, enabling indexed geometry.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: VertexElement ... Methods: set_indices(data); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-5776aaf7",
+    "text": "`Vector3` provides essential 3‑D vector operations including dot product, cross product, normalization, and angle calculation.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Vector3 ... Methods: dot(rhs) -> float; cross(rhs) -> 'Vector3'; normalize() -> 'Vector3'; angle_between(dir, up) -> float; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-88d36e11",
+    "text": "`TrialException.set_suppress_trial_exception(value)` can be used to silence the trial‑exception that is raised when no license is applied.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: TrialException ... Methods: set_suppress_trial_exception(value); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-41f9efbc",
+    "text": "`U3dLoadOptions` and `U3dSaveOptions` classes allow developers to configure loading and saving of U3D files.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: U3dLoadOptions ... Docstring: Load options for U3D; Class: U3dSaveOptions ... Docstring: Save options for U3D"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-569dc6df",
+    "text": "`TransformBuilder` enables construction of complex transformation matrices by chaining scaling, rotation, and translation operations before retrieving the final matrix via its `matrix` property.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: TransformBuilder ... Docstring: The TransformBuilder is used to build transform matrix by a chain of transformations. ... Properties: matrix, compose_order"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-fcd1e406",
+    "text": "Aspose.3D FOSS for Python enables developers to build and manipulate 3D mesh vertex data using a full set of typed vertex element classes such as VertexElementNormal, VertexElementUV, VertexElementVertexColor, and VertexElementWeight.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementNormal\n  Methods: set_data(data); set_indices(data); clear(); copy_to(target)\nClass: VertexElementUV\n  Methods: add_data(data); set_data(data); set_indices(data); clear(); copy_to(target)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-7a9fdb30",
+    "text": "The library supports importing OBJ, STL (binary and ASCII), glTF/GLB, COLLADA (.dae) and 3MF files, and exporting OBJ, STL, glTF/GLB and 3MF files.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "- Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`), and 3MF files into a common `Scene` model with `Scene.open(...)`.\n- Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bf38d801",
+    "text": "VertexElementType enum defines the set of supported vertex element categories, including NORMAL, TANGENT, UV, VERTEX_COLOR, SMOOTHING_GROUP, EDGE_CREASE, and others.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementType\n  Enum values: BINORMAL, NORMAL, TANGENT, MATERIAL, POLYGON_GROUP, UV, VERTEX_COLOR, SMOOTHING_GROUP, VERTEX_CREASE, EDGE_CREASE"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-adf8067a",
+    "text": "To assign UV coordinates to a mesh, call VertexElementUV.add_data(data) or VertexElementUV.set_data(data) with a list of texture coordinates.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementUV\n  Methods: add_data(data); set_data(data); set_indices(data); clear(); copy_to(target)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-3938b167",
+    "text": "VertexElementNormal.set_data(data) expects an iterable of normal vectors matching the mesh's vertex count.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementNormal\n  Methods: set_data(data); set_indices(data); clear(); copy_to(target)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-13366838",
+    "text": "When reusing a VertexElement instance, call clear() to remove existing data before setting new values.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Methods: clear()  (available on all VertexElement* classes)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-1ad0f36d",
+    "text": "COLLADA files can be imported but cannot be exported because the public API does not expose a COLLADA writer.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "COLLADA import is supported; COLLADA export is not currently reachable through the public API — see [Scope and limitations]\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-2b996059",
+    "text": "The library has no external dependencies; install it by cloning the repository and running `pip install -e .`.",
+    "kind": "install",
+    "page_role": "product",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A PyPI package has not been published yet. Install directly from a local clone:\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install -e .\n```"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-4c15e6aa",
+    "text": "VertexElementUV includes a texture_mapping property that describes how UV coordinates map to texture layers.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementUV\n  Properties: texture_mapping, data, indices, vertex_element_type, name, mapping_mode, reference_mode"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-cc68bf6a",
+    "text": "VertexElementWeight.set_data(data) allows assigning skinning weights to vertices for skeletal animation.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexElementWeight\n  Methods: set_data(data); set_indices(data); clear(); copy_to(target)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-bf5ae6ae",
+    "text": "VertexField objects describe the memory layout of a vertex attribute, exposing data_type, semantic, offset, and size information.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: VertexField\n  Methods: compare_to(other) -> int\n  Properties: data_type, semantic, alias, index, offset, size"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-175ae4b6",
+    "text": "Watermark.encode_watermark embeds a text string into a Mesh, optionally using a password and a permanent flag.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Watermark\n  Methods: encode_watermark(input, text) -> 'Mesh'; encode_watermark(input, text, password) -> 'Mesh'; encode_watermark(input, text, password, permanent) -> 'Mesh';"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-990911ec",
+    "text": "Watermark.decode_watermark extracts the embedded text from a Mesh, optionally requiring a password.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Watermark\n  Methods: decode_watermark(input) -> str; decode_watermark(input, password) -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-6c0d60b3",
+    "text": "VertexFieldDataType enum defines the data types that can be assigned to vertex fields, such as FLOAT, VECTOR3, DOUBLE, and others.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: VertexFieldDataType\n  Enum values: FLOAT, F_VECTOR2, F_VECTOR3, F_VECTOR4, DOUBLE, VECTOR2, VECTOR3, VECTOR4, BYTE_VECTOR4, INT8"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-36ace6bb",
+    "text": "VertexFieldSemantic enum provides standard semantics for vertex attributes, including POSITION, NORMAL, UV, and VERTEX_COLOR.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: VertexFieldSemantic\n  Enum values: POSITION, BINORMAL, NORMAL, TANGENT, UV, VERTEX_COLOR, VERTEX_CREASE, EDGE_CREASE, USER_DATA, VISIBILITY"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-cd9d3735",
+    "text": "WrapMode enum controls how texture coordinates are wrapped, offering REPEAT, CLAMP, and MIRROR options.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: WrapMode\n  Enum values: REPEAT, CLAMP, MIRROR"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-a73900eb",
+    "text": "WeightedMode enum specifies weighting behavior for mesh processing with values NONE, OUT_WEIGHT, NEXT_IN_WEIGHT, and BOTH.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: WeightedMode\n  Enum values: NONE, OUT_WEIGHT, NEXT_IN_WEIGHT, BOTH"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-ef7c7f12",
+    "text": "Viewport class represents a rendering viewport, allowing developers to define the area where a scene is drawn.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Viewport\n  Docstring: Viewport for rendering."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-ccee588a",
+    "text": "WindowHandle class encapsulates a native window handle for use with rendering contexts.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: WindowHandle\n  Docstring: Window handle for render window."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-5e6b7e5b",
+    "text": "ZShape models an IFC‑compatible Z‑shaped profile with properties such as depth, flange_width, and methods to query geometry and custom properties.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ZShape\n  Methods: get_extent() -> 'Vector2'; get_entity_renderer_key(); get_bounding_box() -> BoundingBox; find_property(property_name); get_property(property); set_property(property, value); remove_property(property)\n  Properties: depth, flange_width, flange_thickness, web_thickness, fillet_radius, edge_radius, parent_nodes, parent_node, excluded, scene"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-90990ec1",
+    "text": "The library can import OBJ, STL, glTF/GLB, COLLADA (import only), and 3MF files into its scene graph.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`) ... into a common `Scene` model with `Scene.open(...)`."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-727e7d65",
+    "text": "The library can export OBJ, STL, glTF/GLB, and 3MF files from the scene graph; COLLADA export is not currently available through the public API.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)` (COLLADA import is supported; COLLADA export is not currently reachable through the public API)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-3d-python-a460a19b",
+    "text": "COLLADA export is not reachable through the public API, so developers should use OBJ, STL, glTF/GLB, or 3MF when saving scenes.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "(COLLADA import is supported; COLLADA export is not currently reachable through the public API — see [Scope and limitations])."
       }
     ],
     "provenance": "enriched"

@@ -171,19 +171,19 @@
   },
   "3d/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T11:52:56.169369+00:00",
+      "accepted_at": "2026-08-21T15:59:47.987054+00:00",
       "repo_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
-      "run_id": "promote-20260814T115256Z",
+      "run_id": "promote-20260821T155948Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\Token.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:52:59.714404Z"
+        "recorded_at": "2026-08-21T15:59:50.680275Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\TokenType.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:52:59.718654Z"
+        "recorded_at": "2026-08-21T15:59:50.689513Z"
       }
     },
     "family": "3d",

@@ -24,8 +24,8 @@
       "display_name": "Aspose.3D for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 327,
-      "claim_count": 3452
+      "class_count": 329,
+      "claim_count": 3590
     },
     {
       "family": "3d",
@@ -87,8 +87,8 @@
       "display_name": "Aspose.Cells for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 128,
-      "claim_count": 2381
+      "class_count": 129,
+      "claim_count": 1313
     },
     {
       "family": "cells",
@@ -195,8 +195,8 @@
       "display_name": "Aspose.Pdf for Java",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 994,
-      "claim_count": 13895
+      "class_count": 1115,
+      "claim_count": 15538
     },
     {
       "family": "pdf",
@@ -214,7 +214,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 236,
-      "claim_count": 1734
+      "claim_count": 2425
     },
     {
       "family": "slides",

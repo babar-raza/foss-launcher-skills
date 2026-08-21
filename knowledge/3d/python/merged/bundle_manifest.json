@@ -1,36 +1,36 @@
 {
   "schema_version": 2,
-  "bundle_id": "45a39a59-e537-46ea-af38-9091d0803201",
+  "bundle_id": "694ef75b-543f-4849-949a-4f5625ea3797",
   "family": "3d",
   "platform": "python",
   "repo_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
-  "generated_at": "2026-08-14T11:52:56.017661+00:00",
+  "generated_at": "2026-08-21T15:59:47.792783+00:00",
   "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "f9e5f67480bc80196c449636578c0b07a494ac6169fc8bcc8424ae608595657c",
+      "sha256": "a65f3d6222072fc9323028351cbf56bcb5a55e6f20f3b49a0594535237a68dfe",
       "bytes": 1214
     },
     "api_surface.json": {
-      "sha256": "1265edb3b67b2fb2ac34348b433fb863f16b239ae370be10c6d17edf472a539f",
-      "bytes": 1043841
+      "sha256": "3738583bc4f1cb39dd8869ecc46c908e6b6b195f09b6bb2c918a2ea1ef274826",
+      "bytes": 1046929
     },
     "api_surface.md": {
-      "sha256": "67cae89fcf6219f5c4dbb2f454bcbc3ace855453995c08b7cb0ea1412e13cc22",
-      "bytes": 105952
+      "sha256": "0f1e120da1b9f24cfc94903e9c9c0a51607cd6e758a9486896ec127bc081ea50",
+      "bytes": 106197
     },
     "formats.json": {
       "sha256": "dfb0a16ccf061e7b2ceb3c14e2a01ff57f7c9d6621f76097426e2205e2342d00",
       "bytes": 16733
     },
     "formats.md": {
-      "sha256": "d1357d41d3e10adf3f4c3d7b0001e4f0aacbb6c49ae86a356820dd7c382b1e04",
+      "sha256": "f4965b7fae682063714aad25e8449ab9311ad8909829235b0f7df8c233447808",
       "bytes": 1629
     },
     "claims.json": {
-      "sha256": "59c71a6c44a59b0f038f33c5bb92b099d402074e785b2c9d1927e7f5acdf3c53",
-      "bytes": 1313351
+      "sha256": "dc5049bf5bc954b1df4b560b3a47245ab463465ca643f39cf368d4dc07947669",
+      "bytes": 1398743
     },
     "limitations.md": {
       "sha256": "6fb7c3cd6a20e5d461e314516338ef8113faecb1637cd9f91e5d64e9a35a84a6",
@@ -41,7 +41,7 @@
       "bytes": 166
     },
     "merge_report.md": {
-      "sha256": "ce67d99e9615a0cc25ee55837f626e13423b89569711eef0390dc147c808c5a1",
+      "sha256": "0729ace79db5168f79aa1b1ab93c73625bf53792e10f870b26a151b03af0e085",
       "bytes": 516
     },
     "snippets/snippet_001.py": {
@@ -445,10 +445,10 @@
       "bytes": 908
     },
     "snippets/snippets_index.json": {
-      "sha256": "4ee3deb15d4cd2a08977ff327d4e6635978e14f67abef80b9bccbdb3cde0b6d4",
-      "bytes": 47538
+      "sha256": "bbda4f9f865d11debd44b360e9ed104e85057ddc664863ddf83608a18c3a5892",
+      "bytes": 47570
     }
   },
-  "promote_run_id": "promote-20260814T115256Z",
+  "promote_run_id": "promote-20260821T155948Z",
   "status": "COMPLETE"
 }

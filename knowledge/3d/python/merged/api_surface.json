@@ -25864,6 +25864,135 @@
     "class_import": "threed.formats.fbx.parser.FbxParser"
   },
   {
+    "name": "TokenType",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose/threed/formats/fbx/tokenizer.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_string",
+        "params": [
+          {
+            "name": "t",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 12,
+        "is_constructor": false,
+        "file": "aspose/threed/formats/fbx/tokenizer.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": false,
+    "enum_members": [
+      {
+        "name": "OPEN_BRACKET",
+        "value": "0"
+      },
+      {
+        "name": "CLOSE_BRACKET",
+        "value": "1"
+      },
+      {
+        "name": "DATA",
+        "value": "2"
+      },
+      {
+        "name": "COMMA",
+        "value": "3"
+      },
+      {
+        "name": "KEY",
+        "value": "4"
+      }
+    ],
+    "canonical_namespace": "threed.formats.fbx.tokenizer",
+    "class_import": "threed.formats.fbx.tokenizer.TokenType"
+  },
+  {
+    "name": "Token",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose/threed/formats/fbx/tokenizer.py",
+    "line": 23,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "text",
+            "type": "str"
+          },
+          {
+            "name": "token_type",
+            "type": "int"
+          },
+          {
+            "name": "line",
+            "type": "int"
+          },
+          {
+            "name": "column",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 24,
+        "is_constructor": true,
+        "file": "aspose/threed/formats/fbx/tokenizer.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "text",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the text.",
+        "line": 31,
+        "file": "aspose/threed/formats/fbx/tokenizer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the type.",
+        "line": 35,
+        "file": "aspose/threed/formats/fbx/tokenizer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "line",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the line.",
+        "line": 39,
+        "file": "aspose/threed/formats/fbx/tokenizer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "column",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the column.",
+        "line": 43,
+        "file": "aspose/threed/formats/fbx/tokenizer.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": false,
+    "canonical_namespace": "threed.formats.fbx.tokenizer",
+    "class_import": "threed.formats.fbx.tokenizer.Token"
+  },
+  {
     "name": "FbxTokenizer",
     "kind": "class_definition",
     "doc": "",

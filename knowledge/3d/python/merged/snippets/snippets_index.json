@@ -721,7 +721,8 @@
     "source_function": "test_simple",
     "source_line": 4,
     "classes_used": [
-      "FbxTokenizer"
+      "FbxTokenizer",
+      "Token"
     ],
     "methods_used": [
       "FbxTokenizer.tokenize"
@@ -738,7 +739,8 @@
     "source_function": "test_tokenizer",
     "source_line": 9,
     "classes_used": [
-      "FbxTokenizer"
+      "FbxTokenizer",
+      "Token"
     ],
     "methods_used": [
       "FbxTokenizer.tokenize"
