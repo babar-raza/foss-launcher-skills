@@ -45,6 +45,7 @@ except ImportError:
     yaml = None  # YAML export will be skipped if pyyaml not available
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 REPO_ROOT = _REPO_ROOT
 
@@ -68,34 +69,16 @@ KNOWN_FAMILIES = {
     "pdf", "psd", "pub", "slides", "svg", "tasks", "tex", "words", "zip",
 }
 
-# Platform canonical + alias table (§3.4)
-PLATFORM_ALIASES: dict[str, str] = {
-    # net
-    "net": "net", "dotnet": "net", "csharp": "net",
-    "net60": "net", "net48": "net", "net40": "net",
-    # python
-    "python": "python", "py": "python", "python3": "python",
-    "python-net": "python", "python-java": "python",
-    # java
-    "java": "java", "java8": "java", "java11": "java", "java-android": "java",
-    # cpp
-    "cpp": "cpp", "c-plus-plus": "cpp", "cplusplus": "cpp", "c++": "cpp",
-    # nodejs
-    "nodejs": "nodejs", "node": "nodejs", "node-js": "nodejs",
-    "javascript": "nodejs", "js": "nodejs",
-    # android
-    "android": "android", "android-java": "android",
-    # cloud
-    "cloud": "cloud", "rest-api": "cloud", "api": "cloud", "saas": "cloud",
-    # ruby
-    "ruby": "ruby", "ruby-net": "ruby",
-    # go
-    "go": "go", "golang": "go",
-    # rust
-    "rust": "rust", "rs": "rust",
-    # typescript
-    "typescript": "typescript",
-}
+# Platform canonical + alias table (§3.4).
+# TC5 (2026-08-21): this used to be an independent, local copy that had drifted
+# from lib/backlink_targets.py's table -- missing python-cpp/go-cpp/nodejs-cpp/
+# javascript-cpp/php/php-java/jasperreports/rust-cpp, which caused this fetcher
+# to classify those real, live, HTTP-200 aspose.com platforms as "unknown" and
+# silently drop them from the structured target map (confirmed live:
+# reference.aspose.com/pdf/python-cpp/ was invisible to the resolver purely
+# because of this gap, not because the data didn't exist). Now imported from the
+# single canonical definition so the two can never diverge again.
+from lib.backlink_targets import PLATFORM_ALIASES, load_canonical_overrides as _load_canonical_overrides_raw  # noqa: E402
 
 CANONICAL_PLATFORMS = set(PLATFORM_ALIASES.values())
 
@@ -122,6 +105,35 @@ class TargetEntry:
     url_type: str  # family-products | platform-products | family-docs | platform-docs | etc.
     family: Optional[str]
     platform: Optional[str]  # canonical platform token
+    # TC17 (2026-08-21): explicit provenance for whether this entry's mere
+    # EXISTENCE was independently confirmed by a real sitemap crawl, or only
+    # guessed by synthesizing a candidate URL from local aspose.org content
+    # and then HTTP-verifying that one guess. Both paths verify http_status
+    # the same way, but only "crawled" proves the URL is independently
+    # discoverable -- a "synthesized" entry's absence from the target map
+    # is NOT proof the equivalent page doesn't exist on aspose.com, only
+    # that nobody has yet guessed the right slug for it. Confirmed live
+    # (2026-08-21): products.aspose.com's and docs.aspose.com's real
+    # sitemaps are minimal (3 and 2 URLs respectively -- homepage/search/
+    # categories only, no per-product pages), so "synthesized" is not a
+    # temporary fallback for these two subdomains -- it is the only viable
+    # inventory method available, an external fact about those sites, not
+    # a gap in this fetcher.
+    inventory_completeness: str = "crawled"  # "crawled" | "synthesized"
+    # TC8 (2026-08-21): per-entry freshness, narrowed scope -- the map-wide
+    # staleness TTL gate (STALE_WARN_DAYS/STALE_BLOCK_DAYS) and the daily
+    # scheduled re-verification workflow already shipped via unrelated
+    # mission MT022 and are confirmed live/working; only this per-URL field
+    # was still missing. Without it, a scoped run (e.g. --families 3d) that
+    # only re-verifies SOME entries has no way to tell which entries in the
+    # merged map are freshly re-checked vs. carried over unchanged from a
+    # much older run -- the map-wide provenance.generated_at timestamp
+    # can't distinguish them. Set once per run (not per individual
+    # verify_url() call) via build_target_map()'s run_started_at, so every
+    # entry actually verified in a given run shares one timestamp;
+    # merge_preserved_families() leaves untouched entries' existing
+    # last_verified value alone, exactly the scoping property this exists for.
+    last_verified: Optional[str] = None
 
 
 @dataclass
@@ -423,6 +435,14 @@ def fetch_sitemap_urls(sitemap_url: str, session: requests.Session, depth: int =
             child_url = _find_text(sitemap_elem, "loc")
             if child_url:
                 child_url = child_url.strip()
+                # TC17 (2026-08-21, MT009 SEED-15): sitemap.org's spec requires <loc>
+                # to be absolute, but not every real-world sitemap generator complies --
+                # a relative child <loc> (e.g. "/sitemap-products.xml" instead of
+                # "https://products.aspose.com/sitemap-products.xml") previously broke
+                # the recursive fetch outright, since `session.get()` cannot resolve a
+                # bare relative path with no base. urljoin is a no-op when child_url is
+                # already absolute, so this is safe for the common (compliant) case too.
+                child_url = urllib.parse.urljoin(sitemap_url, child_url)
                 # Skip non-English locale sub-sitemaps (e.g. /de/sitemap.xml, /fr/sitemap.xml)
                 if _NON_EN_LOCALE_RE.search(child_url):
                     continue
@@ -470,17 +490,56 @@ def discover_families_and_platforms(repo_root: Path) -> dict[str, set[str]]:
     return result
 
 
+def load_synthesis_override_candidates(repo_root: Path) -> dict:
+    """TC6 (2026-08-21): flatten lib.backlink_targets.load_canonical_overrides()'s
+    raw {"overrides": {...}} shape into {"{family}/{local_platform}":
+    target_platform_slug} for synthesize_urls_for_subdomain()'s convenience.
+
+    Used to also try an override's suggested slug as a synthesis candidate --
+    without this, synthesis only ever guesses the LOCAL aspose.org platform
+    slug (e.g. "python"), so a real bridge page that only exists under a
+    differently-named slug (e.g. docs.aspose.com/3d/python-net/, HTTP 200,
+    vs docs.aspose.com/3d/python/, HTTP 404) is structurally never
+    discovered for a synthesis-only subdomain, even though resolve_backlink()
+    would apply the exact same override at lookup time and expect to find
+    that entry already present. Deliberately reuses the one shared raw
+    loader rather than re-parsing the YAML file itself (the exact
+    single-canonical-definition discipline TC5 established for
+    PLATFORM_ALIASES). Returns {} if the file is missing/unreadable
+    (non-fatal -- synthesis still works with local slugs alone).
+    """
+    raw = _load_canonical_overrides_raw(repo_root)
+    result: dict[str, str] = {}
+    for key, entry in (raw.get("overrides") or {}).items():
+        if isinstance(entry, dict) and entry.get("http_verified") is True:
+            target_platform = entry.get("target_platform")
+            if target_platform:
+                result[key] = target_platform
+    return result
+
+
 def synthesize_urls_for_subdomain(
     subdomain: str,
     families_platforms: dict[str, set[str]],
     filter_families: Optional[set[str]],
+    canonical_overrides: Optional[dict] = None,
 ) -> list[tuple[str, str, Optional[str], Optional[str]]]:
     """
     Construct candidate URLs for a subdomain from known families/platforms.
     Returns list of (url, url_type, family, platform).
+
+    canonical_overrides: (TC6, 2026-08-21) optional {"{family}/{local_platform}":
+    "{target_platform}"} map from load_synthesis_override_candidates(). When a local
+    platform has a verified override, an ADDITIONAL candidate is emitted
+    using the override's target_platform slug (not a replacement -- both are
+    tried and HTTP-verified independently, since either or neither may be a
+    real page). The additional candidate is keyed under the override's own
+    slug (not the local one), matching what resolve_backlink() will actually
+    look up once the override is applied at resolution time.
     """
     base = f"https://{subdomain}/"
     results: list[tuple[str, str, Optional[str], Optional[str]]] = []
+    overrides = canonical_overrides or {}
 
     for family, platforms in sorted(families_platforms.items()):
         if filter_families and family not in filter_families:
@@ -496,6 +555,11 @@ def synthesize_urls_for_subdomain(
             plat_url = f"{base}{family}/{platform}/"
             plat_type = "platform-products" if "products" in subdomain else "platform-docs"
             results.append((plat_url, plat_type, family, platform))
+
+            override_platform = overrides.get(f"{family}/{platform}")
+            if override_platform and override_platform != platform:
+                override_url = f"{base}{family}/{override_platform}/"
+                results.append((override_url, plat_type, family, override_platform))
 
     return results
 
@@ -565,6 +629,7 @@ def build_target_map(
     all_entries: dict[str, TargetEntry] = {}  # url → TargetEntry
     warnings: list[str] = []
     unavailable_sources: list[str] = []
+    run_started_at = datetime.now(timezone.utc).isoformat()  # TC8 (2026-08-21)
 
     filter_families: Optional[set[str]] = set(args.families) if args.families else None
 
@@ -575,6 +640,7 @@ def build_target_map(
         f"Discovered {len(families_platforms)} families from content directory",
         file=sys.stderr,
     )
+    canonical_overrides = load_synthesis_override_candidates(repo_root)  # TC6 (2026-08-21)
 
     # Subdomains that must be synthesized (no useful product-level sitemaps).
     # When --products-sitemap is active, products.aspose.com is fetched from its
@@ -593,7 +659,9 @@ def build_target_map(
     for subdomain in sorted(SYNTHESIZE_SUBDOMAINS):
         priority = "P0"
         print(f"[{priority}] Synthesizing URLs for {subdomain} ...", file=sys.stderr)
-        candidates = synthesize_urls_for_subdomain(subdomain, families_platforms, filter_families)
+        candidates = synthesize_urls_for_subdomain(
+            subdomain, families_platforms, filter_families, canonical_overrides
+        )
         included = 0
         excluded = 0
         redirects_seen = 0
@@ -637,6 +705,8 @@ def build_target_map(
                 url_type=url_type,
                 family=family,
                 platform=platform,
+                inventory_completeness="synthesized",
+                last_verified=run_started_at,
             )
             all_entries[final_url] = entry
             included += 1
@@ -738,6 +808,8 @@ def build_target_map(
                 url_type=url_type,
                 family=family,
                 platform=platform,
+                inventory_completeness="crawled",
+                last_verified=run_started_at,
             )
             all_entries[final_url] = entry
             included += 1
@@ -768,6 +840,8 @@ def build_target_map(
             "url": entry.url,
             "http_status": entry.http_status,
             "redirect_chain": entry.redirect_chain,
+            "inventory_completeness": entry.inventory_completeness,
+            "last_verified": entry.last_verified,
         }
         all_urls_flat[norm_url] = {
             "http_status": entry.http_status,
@@ -775,6 +849,8 @@ def build_target_map(
             "family": entry.family,
             "platform": entry.platform,
             "redirect_chain": entry.redirect_chain,
+            "inventory_completeness": entry.inventory_completeness,
+            "last_verified": entry.last_verified,
         }
 
         if entry.url_type in ("family-products", "family-docs", "family-reference",

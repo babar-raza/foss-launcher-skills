@@ -31,6 +31,15 @@ KNOWN_FAMILIES = {
     "pdf", "psd", "pub", "slides", "svg", "tasks", "tex", "words", "zip",
 }
 
+# Canonical platform-alias table (TC5, 2026-08-21). This is the SINGLE definition
+# for the whole backlink pipeline -- fetch_aspose_com_targets.py imports it from
+# here rather than keeping its own copy. Before this fix, that file had an
+# independent, smaller table missing python-cpp/go-cpp/nodejs-cpp/javascript-cpp/
+# php/php-java/jasperreports/rust-cpp, which silently classified real, live
+# HTTP-200 platforms (e.g. reference.aspose.com/pdf/python-cpp/) as "unknown" and
+# dropped them from the structured target map. "rs" (short for rust) is the one
+# alias fetch_aspose_com_targets.py had that this table lacked -- folded in below
+# so the union is complete in both directions, not just this file's superset.
 PLATFORM_ALIASES: dict[str, str] = {
     "net": "net", "dotnet": "net", "csharp": "net", "net60": "net", "net48": "net", "net40": "net",
     "python": "python", "py": "python", "python3": "python", "python-net": "python",
@@ -47,7 +56,7 @@ PLATFORM_ALIASES: dict[str, str] = {
     "typescript": "typescript",
     # Enterprise-only bridge slugs (no local aspose.org equivalent)
     "jasperreports": "jasperreports",
-    "rust": "rust", "rust-cpp": "rust",
+    "rust": "rust", "rust-cpp": "rust", "rs": "rust",
 }
 
 LOCALE_CODES = {
@@ -116,6 +125,28 @@ BLOCKED_TARGET  = "BLOCKED_TARGET"
 SKIPPED         = "SKIPPED"
 # P0 A2: page uses a family-level link when a verified platform-level target exists
 FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE = "FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE"
+# TC2 (2026-08-21): correct target URL, but the anchor text doesn't match the
+# governed registry wording -- the exact defect class that let "commercial
+# edition" survive indefinitely on products.aspose.org/cells, since the old
+# URL-only classification treated it as COMPLIANT forever.
+WRONG_ANCHOR_TEXT = "WRONG_ANCHOR_TEXT"
+# TC2 (2026-08-21): 2 distinct qualifying URLs both individually "acceptable"
+# (e.g. both the family-level AND platform-level link present at once) --
+# previously silently classified COMPLIANT because the old check only asked
+# "is ANY existing URL acceptable," never "are there redundant ones."
+DUPLICATE_LINK = "DUPLICATE_LINK"
+# TC10 (2026-08-21): 2+ distinct qualifying URLs present, but they don't span
+# distinct aspose.com hosts (e.g. two different products.aspose.com URLs) --
+# the user's own diversity requirement ("those links must be from different
+# subdomains on aspose.com"). Distinct from DUPLICATE_LINK, which is the more
+# specific family+platform-fallback-chain redundancy case (checked first);
+# this catches any other same-host pairing DUPLICATE_LINK doesn't cover, e.g.
+# an acceptable link plus an unrelated WRONG_TARGET link on the same host.
+# Previously: "a page with two links, both to products.aspose.com, passes as
+# fully COMPLIANT today" (confirmed live) -- the old single-URL-match loop
+# below returned COMPLIANT on the first acceptable URL without ever checking
+# whether a sibling link shared its host.
+DUPLICATE_SUBDOMAIN = "DUPLICATE_SUBDOMAIN"
 
 # A7-03: KB anchor transition statuses (LEGACY_COMPAT_MODE vs CANONICAL_POST_P0_MODE)
 ACCEPTABLE_LEGACY_KB_PRE_P0     = "ACCEPTABLE_LEGACY_KB_PRE_P0"
@@ -213,6 +244,12 @@ SOURCE_TO_TARGET_PREFIX: dict = {
     "products.aspose.org":  "products",
     "blog.aspose.org":      "blog",
 }
+
+# TC7 (2026-08-21): target host -> HOST_MAP prefix key (the reverse of
+# HOST_MAP itself). Needed because resolve_backlink()'s preferred_sd is a
+# host ("reference.aspose.com") but platform_variant_authority.json's
+# request_key format uses the short prefix ("reference/pdf/python").
+TARGET_HOST_TO_PREFIX: dict = {v: k for k, v in HOST_MAP.items()}
 
 
 # ── Data structures ───────────────────────────────────────────────────────────
@@ -617,11 +654,14 @@ def resolve_backlink(
     canonical_overrides: Optional[dict] = None,
     authority: Optional[dict] = None,
     source_file: Optional[str] = None,
+    variant_authority: Optional[dict] = None,
 ) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
     """
     Resolve the best backlink target URL per §Q.4 default fallback matrix.
     Returns (chosen_url, chosen_type, chosen_subdomain, fallback_reason).
-    chosen_url is None on BLOCKED_TARGET.
+    chosen_url is None on BLOCKED_TARGET, also None when
+    chosen_type == ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS (routes to S-90,
+    not bot-executable -- see variant_authority below).
 
     exact_deep_match_enabled: If True, consult deep backlink authority (Layer 3).
     Default is False per §J.1 — v1 behavior is byte-identical when False.
@@ -631,6 +671,14 @@ def resolve_backlink(
 
     authority: Layer 3 approved backlink authority dict (loaded from backlink_authority.json).
     source_file: Repo-relative path of the source content file for authority lookup.
+
+    variant_authority: (TC7, 2026-08-21) optional dict from load_variant_authority(),
+    keyed by request_key ("{prefix}/{family}/{local_platform}"). When a
+    REVIEW_REQUIRED record exists for this (family, platform) on the resolved
+    target subdomain, resolution stops and returns AMBIGUOUS_PLATFORM_TARGETS
+    instead of silently picking a candidate via alias-table order. Omitting
+    this parameter (the default) preserves prior behavior exactly -- opt-in,
+    backward compatible, matching every other Layer-0.5+ enrichment param above.
     """
     if not family:
         return None, None, None, "no family detected"
@@ -669,6 +717,36 @@ def resolve_backlink(
         return None, None, None, f"no blog.aspose.com ancestor found for {family}/{platform}"
 
     if platform:
+        # TC7 (2026-08-21): Check the variant authority BEFORE the plain platform
+        # lookup / canonical override. A REVIEW_REQUIRED record means Layer 0.6
+        # (backlink_build_platform_variant_authority.py) already found 2+ live,
+        # HTTP-verified candidate platform slugs for this (family, local platform)
+        # pair with no canonical rule to pick between them (e.g. reference.aspose.com's
+        # pdf/python: both python-cpp and python-net verified 200, no override
+        # exists to resolve it). Previously resolve_backlink() never consulted this
+        # -- the record was computed and sitting in platform_variant_authority.json,
+        # but _lookup_platform()/alias-table iteration order silently picked
+        # whichever variant happened to already be keyed in the target map,
+        # exactly the "most obvious" judgment call the user asked to be made
+        # deliberately, not by accident. An EXPLICIT_OVERRIDE decision (a
+        # canonical_overrides entry already resolves the ambiguity) is not
+        # blocked here -- only genuine, still-unresolved REVIEW_REQUIRED records are.
+        if variant_authority:
+            prefix = TARGET_HOST_TO_PREFIX.get(preferred_sd)
+            if prefix:
+                request_key = f"{prefix}/{family}/{platform}"
+                variant_rec = variant_authority.get(request_key)
+                if variant_rec and variant_rec.get("decision") == "REVIEW_REQUIRED":
+                    alternatives = variant_rec.get("alternatives") or []
+                    candidate_slugs = ", ".join(a.get("slug", "?") for a in alternatives)
+                    return (
+                        None,
+                        ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS,
+                        preferred_sd,
+                        f"{variant_rec.get('review_reason', 'multiple_verified_variants')}: "
+                        f"candidates=[{candidate_slugs}]",
+                    )
+
         # Check canonical override first (A2 P0 — only http_verified: true entries used)
         if canonical_overrides:
             override_key = f"{family}/{platform}"
@@ -831,6 +909,37 @@ def count_qualifying_com_links(body_text: str) -> tuple[int, list[str]]:
     return len(cleaned), cleaned
 
 
+# TC2 (2026-08-21): markdown-link-aware extraction, giving (anchor_text, url)
+# pairs instead of bare URLs -- needed to detect WRONG_ANCHOR_TEXT, which
+# count_qualifying_com_links() structurally cannot see (it only ever
+# extracted the URL half of a link, by design, for its original purpose).
+MD_ASPOSE_COM_LINK_RE = re.compile(
+    r'\[([^\]]+)\]\((https?://[a-z0-9.-]+\.aspose\.com/[^\s\)]*)\)',
+    re.IGNORECASE,
+)
+
+
+def extract_qualifying_com_links(body_text: str) -> list[tuple[str, str]]:
+    """Extract (anchor_text, url) pairs for qualifying *.aspose.com/* markdown
+    links in body text. Same code-fence/inline-code stripping and
+    NON_QUALIFYING_COM_HOSTS filtering as count_qualifying_com_links() --
+    kept as a separate function rather than changing that one's return shape,
+    since count_qualifying_com_links() has existing callers that expect a
+    bare URL list and this is deliberately additive, not a replacement.
+    """
+    stripped = CODE_FENCE_RE.sub("", body_text)
+    stripped = INLINE_CODE_RE.sub("", stripped)
+    pairs = MD_ASPOSE_COM_LINK_RE.findall(stripped)
+    cleaned: list[tuple[str, str]] = []
+    for anchor_text, url in pairs:
+        url = url.rstrip('.,;:)"\'')
+        host = url.split("/")[2].lower() if url.count("/") >= 2 else ""
+        if host in NON_QUALIFYING_COM_HOSTS:
+            continue
+        cleaned.append((anchor_text, url))
+    return cleaned
+
+
 # ── Compliance classification ─────────────────────────────────────────────────
 
 def classify_compliance(
@@ -843,6 +952,8 @@ def classify_compliance(
     *,
     chosen_target_type: Optional[str] = None,
     chosen_target_subdomain: Optional[str] = None,
+    existing_links: Optional[list[tuple[str, str]]] = None,
+    expected_anchor_text: Optional[str] = None,
 ) -> str:
     """
     Return compliance status.
@@ -852,6 +963,15 @@ def classify_compliance(
     family/platform: used to build the full acceptable fallback URL set per §Q.4
     chosen_target_type: "platform" or "family" from resolve_backlink (A2 P0)
     chosen_target_subdomain: e.g. "kb.aspose.com" from resolve_backlink (A2 P0)
+    existing_links: (TC2, 2026-08-21) optional (anchor_text, url) pairs from
+        extract_qualifying_com_links() -- when provided together with
+        expected_anchor_text, enables WRONG_ANCHOR_TEXT detection. Omitting
+        either keeps prior behavior exactly (backward compatible) -- every
+        existing caller that only ever passed existing_urls is unaffected.
+    expected_anchor_text: (TC2) the governed anchor text a compliant link on
+        chosen_target_url must carry, e.g. from _expected_anchor_text() in
+        backlink_backfill.py or the equivalent registry-driven computation
+        for non-products subdomains.
     """
     if chosen_target_url is None:
         return status_on_blocked
@@ -859,7 +979,7 @@ def classify_compliance(
     if existing_count == 0:
         return MISSING
 
-    if existing_count > 2:
+    if existing_count > get_max_enterprise_links_per_page():
         return OVER_LIMIT
 
     # Build the set of all acceptable URLs (chosen + full fallback chain per §Q.4).
@@ -871,13 +991,31 @@ def classify_compliance(
     # A2 P0: Detect FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE before computing acceptable set.
     # If resolver found a platform-level target but existing URL is the family-level URL
     # on the same subdomain, the page is using a broader link than necessary.
+    # TC2 (2026-08-21): this must only fire when the family URL is used INSTEAD OF the
+    # platform target -- not when both are present at once, which is a DUPLICATE_LINK
+    # case (confirmed live on 64 kb.aspose.org pages) and needs its own, more specific
+    # status further down. Without this guard, this check fired unconditionally the
+    # moment ANY existing URL matched the family URL, silently absorbing the duplicate
+    # case and never letting the DUPLICATE_LINK detection below ever run.
     if chosen_target_type == "platform" and chosen_target_subdomain and family:
         family_url_on_sd = _norm(f"https://{chosen_target_subdomain}/{family}/")
-        for url in existing_urls:
-            if _norm(url) == family_url_on_sd:
-                return FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
+        platform_target_also_present = _norm(chosen_target_url) in {_norm(u) for u in existing_urls}
+        if not platform_target_also_present:
+            for url in existing_urls:
+                if _norm(url) == family_url_on_sd:
+                    return FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
 
     acceptable: set[str] = {_norm(chosen_target_url)}
+    # TC2 (2026-08-21): the same-subdomain family URL is also an acceptable
+    # single link (that's exactly what FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
+    # above alternatively classifies it as) -- adding it here lets the
+    # DUPLICATE_LINK check below correctly count it as a second, redundant
+    # acceptable match when the platform URL is ALSO present. Previously this
+    # set only ever added products.aspose.com/docs.aspose.com/reference.aspose.com
+    # family fallbacks unconditionally, never the actual resolution subdomain's
+    # own family URL.
+    if chosen_target_subdomain and family:
+        acceptable.add(_norm(f"https://{chosen_target_subdomain}/{family}/"))
     if family and chosen_target_subdomain != "blog.aspose.com":
         # Products family/platform are acceptable fallbacks for non-blog page types.
         # Blog pages must use blog.aspose.com — products.aspose.com is WRONG_TARGET for blog.
@@ -888,9 +1026,48 @@ def classify_compliance(
         acceptable.add(_norm(f"https://docs.aspose.com/{family}/"))
         acceptable.add(_norm(f"https://reference.aspose.com/{family}/"))
 
+    # TC2 (2026-08-21): DUPLICATE_LINK -- 2 distinct acceptable URLs present at
+    # once (e.g. both the family-level AND platform-level link, the exact
+    # defect confirmed live on 64 kb.aspose.org pages: a family "See Also"
+    # bullet never removed when a platform-specific one was later appended).
+    # Must run BEFORE the single-match COMPLIANT check below, since that
+    # check would otherwise return COMPLIANT on the first acceptable URL it
+    # finds and never notice a second, redundant one.
+    distinct_acceptable_matches = {
+        _norm(url) for url in existing_urls if _norm(url) in acceptable
+    }
+    if len(distinct_acceptable_matches) > 1:
+        return DUPLICATE_LINK
+
+    # TC10 (2026-08-21): DUPLICATE_SUBDOMAIN -- 2+ distinct qualifying links
+    # present (within budget, not already caught by DUPLICATE_LINK above),
+    # but at least 2 of them share an aspose.com host. Must run before the
+    # single-URL-match loop below, which would otherwise return COMPLIANT on
+    # the first acceptable URL and never notice a same-host sibling.
+    def _host(u: str) -> str:
+        return u.split("://", 1)[-1].split("/", 1)[0].lower()
+
+    distinct_existing = {_norm(u) for u in existing_urls}
+    if len(distinct_existing) > 1:
+        hosts = [_host(u) for u in distinct_existing]
+        if len(set(hosts)) < len(hosts):
+            return DUPLICATE_SUBDOMAIN
+
     # 1 or 2 links — COMPLIANT if any existing URL is in acceptable set
     for url in existing_urls:
         if _norm(url) in acceptable:
+            # TC2 (2026-08-21): WRONG_ANCHOR_TEXT -- correct URL, but the
+            # anchor text doesn't match the governed registry wording. Only
+            # checked when both existing_links and expected_anchor_text are
+            # supplied (keyword-only, opt-in -- omitting either preserves
+            # the exact prior URL-only behavior for every existing caller).
+            if existing_links is not None and expected_anchor_text is not None:
+                matching_anchor_texts = {
+                    anchor for anchor, link_url in existing_links
+                    if _norm(link_url) == _norm(url)
+                }
+                if matching_anchor_texts and expected_anchor_text not in matching_anchor_texts:
+                    return WRONG_ANCHOR_TEXT
             return COMPLIANT
 
     # Parent-path coverage rule: if any existing URL is a URL-prefix of the chosen
@@ -1036,6 +1213,42 @@ class SlotConfig:
     enabled: bool
 
 
+_CANONICAL_OVERRIDES_CACHE: Optional[dict] = None
+_CANONICAL_OVERRIDES_PATH: Optional[Path] = None
+
+
+def load_canonical_overrides(repo_root: Optional[Path] = None) -> dict:
+    """TC6 (2026-08-21): the single canonical loader for
+    data/backlinks/platform_canonical_overrides.yaml's http_verified: true
+    entries, returned as the raw {"overrides": {...}} dict resolve_backlink()
+    expects for its canonical_overrides= parameter.
+
+    Previously, callers of resolve_backlink() had to load and filter this
+    file themselves -- backlink_backfill.py did (correctly); batch_reference.py
+    and generate_product_backlink_copy.py never did at all, so every verified
+    override was silently inert for those call sites regardless of the
+    override table's own per-target-subdomain HTTP-200 verification logic
+    inside resolve_backlink() -- confirmed as the same recurring
+    call-site-omission pattern MT043 independently found and fixed once
+    already, in readme_refresh_run.py. Caches after first load, path-aware
+    (mirrors load_slot_registry()'s own pattern) so a different repo_root
+    (e.g. in a test) is not served a stale cached value.
+    """
+    global _CANONICAL_OVERRIDES_CACHE, _CANONICAL_OVERRIDES_PATH
+    root = Path(repo_root) if repo_root else _REPO_ROOT
+    path = root / "data" / "backlinks" / "platform_canonical_overrides.yaml"
+    if _CANONICAL_OVERRIDES_CACHE is not None and _CANONICAL_OVERRIDES_PATH == path:
+        return _CANONICAL_OVERRIDES_CACHE
+    try:
+        import yaml
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except (FileNotFoundError, OSError):
+        raw = {}
+    _CANONICAL_OVERRIDES_CACHE = raw
+    _CANONICAL_OVERRIDES_PATH = path
+    return raw
+
+
 _SLOT_REGISTRY_CACHE: Optional[dict] = None
 _SLOT_REGISTRY_PATH: Optional[Path] = None
 
@@ -1070,6 +1283,44 @@ def load_slot_registry(registry_path: Optional[Path] = None) -> dict:
     _SLOT_REGISTRY_CACHE = slots
     _SLOT_REGISTRY_PATH = path
     return slots
+
+
+_MAX_LINKS_CACHE: Optional[int] = None
+_MAX_LINKS_CACHE_PATH: Optional[Path] = None
+_MAX_LINKS_DEFAULT_FALLBACK = 2  # only used if the registry is missing/unreadable
+
+
+def get_max_enterprise_links_per_page(registry_path: Optional[Path] = None) -> int:
+    """TC9 (2026-08-21): the single source of truth for the max-qualifying-
+    links-per-page cap, read from data/backlinks/link_slot_registry.yaml's
+    global.max_enterprise_links_per_page field.
+
+    Before this fix, this exact value was hardcoded independently in 3 places
+    (backlink_backfill.py's MAX_QUALIFYING_LINKS, backlink_targets.py's
+    classify_compliance() existing_count > 2 check, backlink_html_audit.py's
+    own total > 2 check) that happened to agree (all "2") but had no wiring
+    between them -- and this YAML file's own max_enterprise_links_per_page
+    field, despite being schema-validated and documented as "enforced by"
+    those exact 3 files, was never actually read by any of them. Cached with
+    the same path-aware invalidation pattern as load_slot_registry() above,
+    so passing a different registry_path (e.g. in a test) picks up the new
+    value immediately rather than reusing a stale cache.
+    """
+    global _MAX_LINKS_CACHE, _MAX_LINKS_CACHE_PATH
+    path = Path(registry_path) if registry_path else (_REPO_ROOT / "data" / "backlinks" / "link_slot_registry.yaml")
+    if _MAX_LINKS_CACHE is not None and _MAX_LINKS_CACHE_PATH == path:
+        return _MAX_LINKS_CACHE
+    try:
+        import yaml
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        value = raw.get("global", {}).get("max_enterprise_links_per_page")
+        if not isinstance(value, int) or value < 1:
+            value = _MAX_LINKS_DEFAULT_FALLBACK
+    except (FileNotFoundError, OSError):
+        value = _MAX_LINKS_DEFAULT_FALLBACK
+    _MAX_LINKS_CACHE = value
+    _MAX_LINKS_CACHE_PATH = path
+    return value
 
 
 def get_slot_for_page_type(page_type_str: str, registry: Optional[dict] = None) -> Optional[SlotConfig]:

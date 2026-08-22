@@ -63,7 +63,10 @@ load_env()
 from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
 from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError, _normalize_body  # noqa: E402
-from lib.backlink_targets import load_target_map, resolve_backlink, target_map_age_days, STALE_WARN_DAYS  # noqa: E402
+from lib.backlink_targets import (  # noqa: E402
+    load_target_map, resolve_backlink, target_map_age_days, STALE_WARN_DAYS,
+    load_canonical_overrides,
+)
 from lib.reference_filter import (  # noqa: E402
     _passes_platform_scope,
     _CPP_ABSTRACT_BASES,
@@ -101,6 +104,26 @@ def _get_backlink_target_map() -> dict | None:
                     age_days, STALE_WARN_DAYS,
                 )
     return _backlink_target_map or None
+
+
+_canonical_overrides: dict | None = None
+
+
+def _get_canonical_overrides() -> dict:
+    """Load and cache platform_canonical_overrides.yaml (TC6, 2026-08-21).
+
+    Previously this call site never loaded or passed canonical_overrides= to
+    resolve_backlink() at all, so a verified override (e.g. words/python ->
+    python-net) was silently inert for reference.aspose.org backlinks
+    specifically, even though the same override worked correctly for other
+    call sites that did pass it -- the exact recurring call-site-omission
+    pattern MT043 already found and fixed once, independently, in
+    readme_refresh_run.py.
+    """
+    global _canonical_overrides
+    if _canonical_overrides is None:
+        _canonical_overrides = load_canonical_overrides(_DEFAULT_REPO_ROOT)
+    return _canonical_overrides
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -877,7 +900,8 @@ def _build_page(
     if _tm:
         try:
             chosen_url, _rtype, _rsubdomain, _fallback = resolve_backlink(
-                family, platform, "reference.aspose.org", _tm
+                family, platform, "reference.aspose.org", _tm,
+                canonical_overrides=_get_canonical_overrides(),
             )
             if chosen_url:
                 lines.append("## See Also")

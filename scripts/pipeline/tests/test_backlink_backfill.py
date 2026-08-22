@@ -1427,3 +1427,388 @@ class TestRewriteYamlLiteralBlockScalar:
         # Re-parse and verify content is identical
         new_data = yaml.safe_load(result.split("---")[1])
         assert new_data["overview"]["content"] == original_content
+
+
+# ---------------------------------------------------------------------------
+# TC1 (2026-08-21): the governed-chokepoint regression test. Reproduces the
+# exact real-world defect: the ungoverned LLM-copy cache
+# (reports/backlinks/products_llm_copy_generation.json) contained stale
+# "commercial edition" wording that backfill_products_yaml() wrote verbatim
+# onto products.aspose.org/cells (commit 9dc60356e7, 2026-06-07) because the
+# validator gating it (_validate_overview_update) only checked URL presence
+# and 80% retention -- never anchor wording. This test proves the wired-in
+# _validate_llm_output() gate now rejects that exact cache content and falls
+# through to the governed template instead.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import backfill_products_yaml as _backfill_products_yaml  # noqa: E402
+from commands.ops.backlink_backfill import _check_backlink_exemption  # noqa: E402
+from commands.ops.backlink_backfill import _insert_see_also  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# TC3 (2026-08-21): auto_updatable: false no longer blanket-blocks backlink
+# reconciliation -- only an explicit, reasoned, unexpired backlink_scope:
+# exempt marker does. Reproduces the exact real-world defect: commit
+# 3729d558a6 (2026-06-06) used auto_updatable: false to justify deleting the
+# CTA from products.aspose.org/words, which then carried zero backlink for
+# 2.5+ months because nothing could ever touch it again.
+# ---------------------------------------------------------------------------
+
+class TestBacklinkExemption:
+    def test_auto_updatable_false_alone_is_not_exempt(self):
+        """The exact real-world words/_index.md case: auto_updatable: false
+        with no exemption marker must NOT be treated as exempt -- this is
+        what makes reconciliation proceed instead of skipping forever."""
+        raw = "---\nprovenance:\n  auto_updatable: false\n---\n"
+        assert _check_backlink_exemption(raw) is None
+
+    def test_explicit_exemption_with_reason_is_honored(self):
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: pending legal review of enterprise terms\n"
+            "---\n"
+        )
+        reason = _check_backlink_exemption(raw)
+        assert reason is not None
+        assert "pending legal review" in reason
+
+    def test_exemption_without_reason_is_not_honored(self):
+        """A frivolous/incomplete exemption (no stated reason) must not be
+        honored -- refuses to silently exempt a page with no justification."""
+        raw = "---\nbacklink_scope: exempt\n---\n"
+        assert _check_backlink_exemption(raw) is None
+
+    def test_expired_exemption_auto_degrades(self):
+        """An exemption past its stated expiry must NOT stay honored forever
+        -- it degrades back to normal reconciliation automatically."""
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: temporary\n"
+            "backlink_exempt_expires: 2020-01-01\n"
+            "---\n"
+        )
+        assert _check_backlink_exemption(raw) is None
+
+    def test_unexpired_exemption_with_future_date_is_honored(self):
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: temporary\n"
+            "backlink_exempt_expires: 2099-01-01\n"
+            "---\n"
+        )
+        assert _check_backlink_exemption(raw) is not None
+
+
+class TestGovernedChokepointRejectsStaleCache:
+    _CELLS_FIXTURE = textwrap.dedent("""\
+        ---
+        layout: family
+        title: Aspose.Cells FOSS
+        overview:
+          enable: true
+          content: Aspose.Cells FOSS is a free, open-source Excel library.
+        provenance:
+          auto_updatable: true
+        ---
+        """)
+
+    def _write_fixture(self, tmp_path):
+        products_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        products_dir.mkdir(parents=True)
+        fp = products_dir / "_index.md"
+        fp.write_text(self._CELLS_FIXTURE, encoding="utf-8")
+        return fp
+
+    def _write_stale_cache(self, tmp_path, rel_path, output_text):
+        reports_dir = tmp_path / "reports" / "backlinks"
+        reports_dir.mkdir(parents=True)
+        import json
+        (reports_dir / "products_llm_copy_generation.json").write_text(
+            json.dumps([{"file_path": rel_path, "output_text": output_text}]),
+            encoding="utf-8",
+        )
+
+    def test_stale_commercial_edition_cache_is_rejected_falls_back_to_template(self, tmp_path):
+        fp = self._write_fixture(tmp_path)
+        rel_path = "content/products.aspose.org/en/cells/_index.md"
+        # The exact real-world stale cache content (paraphrased structure,
+        # same defect: correct URL, banned "commercial edition" wording).
+        stale_cache_text = (
+            "Aspose.Cells FOSS is a free, open-source Excel library. For more capabilities, "
+            "see the [Aspose.Cells commercial edition](https://products.aspose.com/cells/)."
+        )
+        self._write_stale_cache(tmp_path, rel_path, stale_cache_text)
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = _backfill_products_yaml(
+                fp, "https://products.aspose.com/cells/", "cells", None,
+                FAMILIES_MAP, PLATFORMS_MAP, dry_run=True, target_type="family",
+            )
+        finally:
+            _bbm.configure()
+
+        assert "commercial edition" not in change.after_snippet.lower()
+        assert "https://products.aspose.com/cells/" in change.after_snippet
+        # Falls through to the governed template's own wording instead.
+        assert "Enterprise Product Family" in change.after_snippet
+
+    def test_clean_cache_content_still_accepted(self, tmp_path):
+        """Negative control: a cache entry that DOES use governed wording
+        must still be accepted, not always forced to the template."""
+        fp = self._write_fixture(tmp_path)
+        rel_path = "content/products.aspose.org/en/cells/_index.md"
+        clean_cache_text = (
+            "Aspose.Cells FOSS is a free, open-source Excel library. For the enterprise "
+            "product family, see "
+            "[Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/)."
+        )
+        self._write_stale_cache(tmp_path, rel_path, clean_cache_text)
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = _backfill_products_yaml(
+                fp, "https://products.aspose.com/cells/", "cells", None,
+                FAMILIES_MAP, PLATFORMS_MAP, dry_run=True, target_type="family",
+            )
+        finally:
+            _bbm.configure()
+
+        assert change.after_snippet == clean_cache_text[:200]
+
+
+# ---------------------------------------------------------------------------
+# TC4 (2026-08-21): _insert_see_also() must REPLACE a stale family-level
+# bullet when inserting a platform-level one, not append alongside it.
+# Reproduces the exact defect confirmed live on 64 kb.aspose.org pages
+# (commit 0750217ce8 added platform-level KB links to pages that already
+# had family-level ones, e.g. slides/python/faq.md going from 1 to 2 links).
+# ---------------------------------------------------------------------------
+
+class TestReplaceNotAppendFamilyLink:
+    def test_platform_insertion_replaces_stale_family_bullet(self):
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides — Enterprise Knowledge Base](https://kb.aspose.com/slides/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            family_url_to_replace="https://kb.aspose.com/slides/",
+        )
+        assert "kb.aspose.com/slides/)" not in result  # stale family bullet gone
+        assert "kb.aspose.com/slides/python/" in result  # new platform bullet present
+        assert result.count("- [") == 1  # exactly one bullet, not two
+
+    def test_no_family_url_to_replace_still_just_appends(self):
+        """Negative control: omitting family_url_to_replace (e.g. inserting
+        a family-level link, or a platform link when no family link exists
+        yet) must behave exactly as before -- pure append, no side effects."""
+        body = "\n## See Also\n\n- [Existing Unrelated Link](https://kb.aspose.com/pdf/)\n"
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(body, "## See Also", new_entry, "kb.aspose.org")
+        assert "kb.aspose.com/pdf/" in result  # unrelated existing bullet untouched
+        assert "kb.aspose.com/slides/python/" in result
+        assert result.count("- [") == 2
+
+    def test_family_url_not_present_is_a_no_op_removal(self):
+        """If the family bullet isn't actually there, nothing is removed --
+        this must not accidentally delete an unrelated bullet."""
+        body = "\n## See Also\n\n- [Existing Unrelated Link](https://kb.aspose.com/pdf/)\n"
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            family_url_to_replace="https://kb.aspose.com/slides/",
+        )
+        assert "kb.aspose.com/pdf/" in result
+        assert result.count("- [") == 2
+
+    def test_backfill_markdown_end_to_end_replaces_not_duplicates(self, tmp_path):
+        """Full end-to-end reproduction of the confirmed-live kb defect via
+        backfill_markdown(), not just the lower-level helper."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides — Enterprise Knowledge Base](https://kb.aspose.com/slides/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert not change.skipped
+        assert change.after_snippet.count("- [") <= 1  # within the 200-char snippet window
+        assert any("REPLACED_FAMILY_LINK" in w for w in change.warning_messages)
+
+
+# ---------------------------------------------------------------------------
+# TC9 (2026-08-21): max_enterprise_links_per_page single-source-of-truth.
+# Proves _max_qualifying_links() here and get_max_enterprise_links_per_page()
+# in backlink_targets.py are the same function/cache, not two independent
+# literals that happen to agree today -- the exact failure mode this card
+# closes (previously: MAX_QUALIFYING_LINKS here, a hardcoded `> 2` in
+# classify_compliance(), and a third hardcoded `> 2` in
+# backlink_html_audit.py, none of them reading link_slot_registry.yaml
+# despite its own header claiming all 3 "enforce" it).
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import _max_qualifying_links  # noqa: E402
+from lib.backlink_targets import get_max_enterprise_links_per_page  # noqa: E402
+
+
+class TestMaxQualifyingLinksConfig:
+    def _write_registry(self, tmp_path: Path, value) -> Path:
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        registry_path = tmp_path / "link_slot_registry.yaml"
+        registry_path.write_text(
+            f"global:\n  max_enterprise_links_per_page: {value}\n",
+            encoding="utf-8",
+        )
+        return registry_path
+
+    def test_delegates_to_shared_config_reader(self, tmp_path):
+        registry_path = self._write_registry(tmp_path, 4)
+        assert _max_qualifying_links(registry_path) == 4
+
+    def test_changing_the_yaml_value_changes_the_effective_cap(self, tmp_path):
+        """The card's own acceptance check: changing max_enterprise_links_per_page
+        in the YAML changes the effective cap here -- via the exact same call
+        (and cache) that backlink_targets.classify_compliance() and
+        backlink_html_audit.classify_html_record() also make."""
+        low = self._write_registry(tmp_path / "low", 1)
+        high = self._write_registry(tmp_path / "high", 9)
+        assert _max_qualifying_links(low) == 1
+        assert _max_qualifying_links(high) == 9
+
+    def test_default_call_matches_the_shared_reader_exactly(self):
+        # No registry_path on either side -> both must resolve identically,
+        # proving this module has no independent literal of its own anymore.
+        assert _max_qualifying_links() == get_max_enterprise_links_per_page()
+
+
+# ---------------------------------------------------------------------------
+# TC10 (2026-08-21): insertion-time subdomain-diversity enforcement. Directly
+# implements the write-side half of the user's own requirement: "those links
+# must be from different subdomains on aspose.com." classify_compliance()
+# (test_backlink_targets.py::TestDuplicateSubdomain) proves the READ/audit
+# side detects this; these tests prove the WRITE side stops creating it and
+# actively cleans it up when found.
+# ---------------------------------------------------------------------------
+
+class TestInsertionTimeSubdomainDiversity:
+    def test_fresh_insertion_scrubs_other_same_host_bullet(self):
+        """Inserting a new platform-level bullet must remove a pre-existing,
+        unrelated bullet on the SAME host (not just the family-fallback
+        case TC4 already covers) -- otherwise the page ends up with 2 links
+        to the same aspose.com subdomain the moment insertion completes."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            new_target_url="https://kb.aspose.com/slides/python/",
+        )
+        assert "kb.aspose.com/cells/)" not in result  # unrelated same-host bullet gone
+        assert "kb.aspose.com/slides/python/" in result  # new bullet present
+        assert result.count("- [") == 1
+
+    def test_fresh_insertion_without_new_target_url_does_not_scrub(self):
+        """Negative control: omitting new_target_url (the pre-TC10 call
+        shape) must not scrub anything -- purely additive, backward compatible."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(body, "## See Also", new_entry, "kb.aspose.org")
+        assert "kb.aspose.com/cells/)" in result  # untouched
+        assert result.count("- [") == 2
+
+    def test_different_host_bullet_is_never_touched(self):
+        """Negative control: a pre-existing bullet on a DIFFERENT host must
+        survive insertion untouched -- diversity is the goal, not indiscriminate
+        cleanup."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides Docs](https://docs.aspose.com/slides/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            new_target_url="https://kb.aspose.com/slides/python/",
+        )
+        assert "docs.aspose.com/slides/" in result
+        assert "kb.aspose.com/slides/python/" in result
+        assert result.count("- [") == 2
+
+    def test_backfill_markdown_idempotent_case_removes_other_same_host_bullet(self, tmp_path):
+        """End-to-end via backfill_markdown(): the correct target is already
+        present, but a stale, unrelated same-host bullet is also there --
+        this is the DUPLICATE_SUBDOMAIN precursor classify_compliance() now
+        detects, and this proves the write path actually resolves it rather
+        than treating 'target already present' as fully idempotent."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert not change.skipped
+        assert "kb.aspose.com/cells/" not in change.after_snippet
+        assert "kb.aspose.com/slides/python/" in change.after_snippet
+        assert any("REMOVED_DUPLICATE_SUBDOMAIN_LINK" in w for w in change.warning_messages)
+
+    def test_backfill_markdown_idempotent_case_different_host_left_alone(self, tmp_path):
+        """Negative control for the idempotency-path cleanup: a same-page
+        sibling bullet on a DIFFERENT host must not be touched, and the page
+        must be reported as the normal idempotent skip."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)\n"
+            "- [Aspose.Slides Docs](https://docs.aspose.com/slides/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert change.skipped
+        assert change.skip_reason == "Already contains target URL (idempotent)"

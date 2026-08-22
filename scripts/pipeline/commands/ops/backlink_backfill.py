@@ -55,6 +55,7 @@ from lib.backlink_targets import (
     classify_compliance,
     classify_page_type,
     count_qualifying_com_links,
+    get_max_enterprise_links_per_page as _lib_get_max_enterprise_links_per_page,
     load_anchor_registry,
     load_target_map,
     resolve_backlink,
@@ -88,24 +89,78 @@ def _literal_str_representer(dumper, data):
 _LiteralDumper.add_representer(str, _literal_str_representer)
 
 
-def _anchor_suffix_for(target_url: str, target_type: str) -> str:
+def _anchor_suffix_for(target_url: str, target_type: str, source_subdomain: str | None = None) -> str:
     """Return the enterprise suffix string for the given target URL and type.
 
     Uses the anchor registry via select_anchor_template_id + registry suffix lookup.
     Replaces the deprecated build_enterprise_anchor_suffix() in insertion paths (V21).
+
+    source_subdomain: (TC14, 2026-08-21) optional, forwarded to
+    select_anchor_template_id() -- required to correctly distinguish a
+    blog.aspose.org source's legacy blog-products-* templates (deprecated,
+    still present on some live pages) from an ordinary products-* template
+    for the same target_url. Omitting it (the original call shape) preserves
+    exact prior behavior for the products.aspose.org-only call site below.
     """
     registry = load_anchor_registry()
-    tid = select_anchor_template_id(target_url, target_type)
+    tid = select_anchor_template_id(target_url, target_type, source_subdomain=source_subdomain)
     return registry.get("templates", {}).get(tid, {}).get("suffix", "Enterprise Product")
+
+
+def _expected_anchor_text(
+    target_url: str,
+    family: str,
+    platform: str | None,
+    families_map: dict,
+    platforms_map: dict,
+    target_type: str | None = None,
+    source_subdomain: str | None = None,
+) -> str:
+    """Return the exact governed anchor text (bracket contents, no URL) for a
+    products.aspose.org link -- the single source of truth for both the
+    template fallback below and the validator gating any candidate text
+    against it (TC1, 2026-08-21). Extracted from _apply_overview_template()
+    so template generation and validation can never drift from each other.
+
+    source_subdomain: (TC14, 2026-08-21) see _anchor_suffix_for() -- pass the
+    audited/inserted page's own source subdomain (e.g. "blog.aspose.org")
+    when calling this for a non-products source, so a legacy blog-products-*
+    template is correctly distinguished from an ordinary one for the same URL.
+    """
+    fam_title = families_map.get(family, f"Aspose.{family.title()}")
+    # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
+    if platform and target_type != "family":
+        plat_title = platforms_map.get(platform, platform.title())
+        display = f"{fam_title} for {plat_title}"
+    else:
+        display = fam_title
+    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform", source_subdomain=source_subdomain)
+    return f"{display} — {enterprise_suffix}"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Safety constants (§8.3)
 # ──────────────────────────────────────────────────────────────────────────────
 
-MAX_QUALIFYING_LINKS = 2   # never add if already at this count
+def _max_qualifying_links(registry_path: Path | None = None) -> int:
+    """TC9 (2026-08-21): single source of truth, read from
+    data/backlinks/link_slot_registry.yaml's global.max_enterprise_links_per_page
+    -- was previously a hardcoded module constant here, independently
+    duplicated (and never wired to the registry file that claimed to
+    "enforce" it) in backlink_targets.py's classify_compliance() and
+    backlink_html_audit.py. A function call (not a constant) so a changed
+    YAML value takes effect immediately, including in tests that point at a
+    different registry file -- a plain constant, evaluated once at import,
+    could never support that. registry_path is a straight passthrough to
+    backlink_targets.get_max_enterprise_links_per_page(), which owns the
+    actual read+cache; kept optional so production call sites (below) never
+    need to pass it.
+    """
+    return _lib_get_max_enterprise_links_per_page(registry_path)
+
+
 # Process MISSING and WRONG_TARGET (has aspose.com links but none match accepted targets).
-# For WRONG_TARGET: add correct target link if existing_count < MAX_QUALIFYING_LINKS.
+# For WRONG_TARGET: add correct target link if existing_count < max qualifying links.
 BACKFILL_STATUSES = frozenset({"MISSING", "WRONG_TARGET"})
 
 # Sections to create for each subdomain
@@ -231,7 +286,7 @@ def backfill_products_yaml(
 
     # Max-link guard
     link_count, _ = count_qualifying_com_links(current_content)
-    if link_count >= MAX_QUALIFYING_LINKS:
+    if link_count >= _max_qualifying_links():
         return BackfillChange(
             file=rel, subdomain="products.aspose.org", family=family, platform=platform,
             page_type="products-plugin" if platform else "products-family",
@@ -240,13 +295,25 @@ def backfill_products_yaml(
             skipped=True, skip_reason=f"Already at max links ({link_count})", dry_run=dry_run,
         )
 
+    # TC1 (2026-08-21): the single governed anchor-text gate. Any candidate
+    # text -- whether from the LLM-copy cache or freshly templated -- must
+    # pass this check before being accepted; it is the ONLY validator this
+    # function trusts. Previously, _validate_overview_update() (URL presence
+    # + 80% retention only, no anchor-text check) was the actual gate, which
+    # is why the LLM-copy cache's stale "Aspose.Cells commercial edition"
+    # text passed straight through onto the live cells page -- the URL was
+    # correct, so the wording-blind check never caught it.
+    expected_anchor_text = _expected_anchor_text(
+        target_url, family, platform, families_map, platforms_map, target_type
+    )
+
     # Try to get LLM-generated copy first
     new_content = _get_llm_copy_for_file(rel, current_content, target_url,
                                           family, platform, families_map, platforms_map,
                                           target_type=target_type)
 
-    # Validate new_content has exactly 1 new link to target
-    if not _validate_overview_update(current_content, new_content, target_url):
+    # Validate new_content has the correct anchor text (not just URL presence)
+    if _validate_llm_output(current_content, new_content, target_url, expected_anchor_text):
         # Generate fresh template sentence as fallback
         new_content = _apply_overview_template(current_content, target_url,
                                                 family, platform, families_map, platforms_map,
@@ -342,6 +409,21 @@ _JACCARD_NOISE_WORDS = frozenset({
 _PROHIBITED_PHRASES = [
     "industry-leading", "best-in-class", "only solution",
     "guarantee", "guaranteed", "unparalleled", "world-class",
+    # TC1 (2026-08-21): the "commercial X" family -- the exact wording that
+    # leaked into products.aspose.org/cells ("Aspose.Cells commercial
+    # edition") via the ungoverned LLM-copy cache this fix retires. These are
+    # the phrases from generate_product_backlink_copy.py's _FORBIDDEN_PHRASES
+    # that are universally wrong regardless of source (LLM or template) --
+    # deliberately NOT importing that file's full list: several of its other
+    # entries ("for the enterprise product family, see", "alongside these
+    # open-source libraries") are LLM-variety-nudging rules that the
+    # deterministic _apply_overview_template() fallback below legitimately
+    # generates as its own governed, reviewed template text -- importing
+    # those too would make the safe fallback reject its own output.
+    "buy now", "click here",
+    "full-featured commercial edition", "commercial edition",
+    "commercial product family", "commercial counterpart",
+    "commercial licensing", "commercial support", "commercial version",
 ]
 
 
@@ -512,19 +594,15 @@ def _apply_overview_template(
 
     target_type: "platform" or "family". When "family", anchor omits platform suffix.
     """
-    fam_title = families_map.get(family, f"Aspose.{family.title()}")
-    # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
-    if platform and target_type != "family":
-        plat_title = platforms_map.get(platform, platform.title())
-        display = f"{fam_title} for {plat_title}"
-    else:
-        display = fam_title
+    expected_anchor_text = _expected_anchor_text(
+        target_url, family, platform, families_map, platforms_map, target_type
+    )
+    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform")
 
     # Measure word count
     wc = len(current_content.split())
 
-    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform")
-    anchor = f"[{display} \u2014 {enterprise_suffix}]({target_url})"
+    anchor = f"[{expected_anchor_text}]({target_url})"
 
     if enterprise_suffix == "Enterprise Product Family":
         sentence = f"For the enterprise product family, see {anchor}."
@@ -634,7 +712,13 @@ def _build_see_also_entry(
     else:
         display = fam_title
 
-    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform")
+    # TC14 (2026-08-21): pass the real source subdomain so a legacy
+    # blog-products-* template is correctly distinguished from an ordinary
+    # products-* one for the same target_url -- in practice fresh
+    # resolve_backlink() calls never route a blog source to a products.aspose.com
+    # target, so this only matters for defensive consistency with
+    # _expected_anchor_text()'s own now-identical parameter.
+    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform", source_subdomain=subdomain)
     link_text = f"{display} \u2014 {enterprise_suffix}"
     return f"- [{link_text}]({target_url})"
 
@@ -723,8 +807,85 @@ def backfill_markdown(
     raw = file_path.read_text(encoding="utf-8")
     fm, body = _split_frontmatter(raw)
 
+    # TC4 (2026-08-21): computed early so it's available both for the
+    # already-duplicated cleanup path below AND the fresh-insertion path
+    # further down (same value either way).
+    family_url_to_replace: str | None = None
+    if target_type != "family" and platform:
+        candidate = target_url.rstrip("/").rsplit("/", 1)[0] + "/"
+        if candidate.rstrip("/") != target_url.rstrip("/"):
+            family_url_to_replace = candidate
+
+    # TC10 (2026-08-21): also computed early (moved up from further below) so
+    # the idempotency-path DUPLICATE_SUBDOMAIN cleanup can re-insert the
+    # target's own bullet after scrubbing same-host siblings, without
+    # duplicating _build_see_also_entry()'s call or its formatting logic.
+    section_header = _get_section_header(subdomain)
+    entry = _build_see_also_entry(target_url, family, platform, subdomain, families_map, platforms_map,
+                                   target_type=target_type)
+
     # Idempotency: check if target URL already in body
     if target_url.rstrip("/") in body:
+        # TC4 (2026-08-21): the platform link is already present, but if a
+        # STALE family-level bullet is ALSO still present, this page is one
+        # of the confirmed-live duplicate-link cases (64 kb.aspose.org pages)
+        # -- clean it up now instead of treating "target already present" as
+        # fully idempotent. This is the retroactive half of the fix; the
+        # insertion-time half further down prevents NEW duplicates.
+        if family_url_to_replace and family_url_to_replace.rstrip("/") in body:
+            new_body = _remove_stale_family_bullet(body, section_header, family_url_to_replace)
+            if new_body != body:
+                if not dry_run:
+                    new_raw = fm + new_body
+                    file_path.write_text(new_raw, encoding="utf-8")
+                return BackfillChange(
+                    file=rel, subdomain=subdomain, family=family, platform=platform,
+                    page_type=page_type, target_url=target_url,
+                    action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
+                    before_snippet=body[:200], after_snippet=new_body[:200],
+                    dry_run=dry_run,
+                    warning_messages=[
+                        f"REPLACED_FAMILY_LINK: removed stale existing family-level bullet "
+                        f"({family_url_to_replace}) -- platform-level link was already present"
+                    ],
+                )
+        # TC10 (2026-08-21): the target link is already present, but some
+        # OTHER bullet on the same aspose.com host is also still in the
+        # section (a DUPLICATE_SUBDOMAIN case not covered by the
+        # family-bullet-specific cleanup above, e.g. a leftover WRONG_TARGET
+        # link that was never part of the family/platform fallback chain).
+        # Retroactive counterpart to _insert_see_also()'s new_target_url scrub,
+        # which only runs on the fresh-insertion path.
+        target_host = target_url.split("://", 1)[-1].split("/", 1)[0].lower()
+        section_before = _extract_affected_section(body, section_header)
+        other_same_host = [
+            u for u in count_qualifying_com_links(section_before)[1]
+            if u.split("://", 1)[-1].split("/", 1)[0].lower() == target_host
+            and u.rstrip("/") != target_url.rstrip("/")
+        ]
+        if other_same_host:
+            new_body, _ = _scrub_wrong_section_links(body, section_header, target_host)
+            # _scrub_wrong_section_links would also strip the target bullet itself
+            # (it matches on host, not on the full URL) -- re-insert it if so.
+            if target_url.rstrip("/") not in new_body:
+                new_body = _insert_see_also(
+                    new_body, section_header, entry, subdomain,
+                )
+            if new_body != body:
+                if not dry_run:
+                    new_raw = fm + new_body
+                    file_path.write_text(new_raw, encoding="utf-8")
+                return BackfillChange(
+                    file=rel, subdomain=subdomain, family=family, platform=platform,
+                    page_type=page_type, target_url=target_url,
+                    action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
+                    before_snippet=body[:200], after_snippet=new_body[:200],
+                    dry_run=dry_run,
+                    warning_messages=[
+                        f"REMOVED_DUPLICATE_SUBDOMAIN_LINK: removed {len(other_same_host)} other "
+                        f"{target_host} bullet(s) -- target link was already present"
+                    ],
+                )
         return BackfillChange(
             file=rel, subdomain=subdomain, family=family, platform=platform,
             page_type=page_type, target_url=target_url,
@@ -734,8 +895,8 @@ def backfill_markdown(
         )
 
     # Phase 6.3: For blog posts, scrub stale wrong-section products.aspose.com links
-    # before the max-link guard. Without this, blog posts at MAX_QUALIFYING_LINKS
-    # would be blocked even though all their links are wrong-section (F4).
+    # before the max-link guard. Without this, blog posts at the max qualifying
+    # link count would be blocked even though all their links are wrong-section (F4).
     warnings_acc: list[str] = []
     if subdomain == "blog.aspose.org":
         body, scrubbed = _scrub_wrong_section_links(
@@ -748,7 +909,7 @@ def backfill_markdown(
 
     # Max-link guard
     link_count, _ = count_qualifying_com_links(body)
-    if link_count >= MAX_QUALIFYING_LINKS:
+    if link_count >= _max_qualifying_links():
         return BackfillChange(
             file=rel, subdomain=subdomain, family=family, platform=platform,
             page_type=page_type, target_url=target_url,
@@ -757,9 +918,9 @@ def backfill_markdown(
             skipped=True, skip_reason=f"Already at max links ({link_count})", dry_run=dry_run,
         )
 
-    section_header = _get_section_header(subdomain)
-    entry = _build_see_also_entry(target_url, family, platform, subdomain, families_map, platforms_map,
-                                   target_type=target_type)
+    # section_header/entry/family_url_to_replace were already computed above
+    # (TC4/TC10, 2026-08-21) -- reused here for the fresh-insertion path's
+    # replace-not-append behavior.
 
     # Phase 4: near-duplicate detection before injection (accumulator pattern, F5-safe)
     # Hard-block at high similarity — prevents duplicate anchor text with different URL.
@@ -781,7 +942,32 @@ def backfill_markdown(
         )
 
     # Build the new body
-    new_body = _insert_see_also(body, section_header, entry, subdomain)
+    if family_url_to_replace and family_url_to_replace.rstrip("/") in body:
+        warnings_acc.append(
+            f"REPLACED_FAMILY_LINK: removed stale family-level bullet "
+            f"({family_url_to_replace}) in favor of the platform-level link"
+        )
+    # TC10 (2026-08-21): warn when insertion is about to remove some OTHER
+    # (non-family-fallback) same-host bullet too -- see _insert_see_also()'s
+    # new_target_url param, which does the actual removal.
+    _target_host = target_url.split("://", 1)[-1].split("/", 1)[0].lower()
+    _section_before = _extract_affected_section(body, section_header) or ""
+    _other_same_host = [
+        u for u in count_qualifying_com_links(_section_before)[1]
+        if u.split("://", 1)[-1].split("/", 1)[0].lower() == _target_host
+        and (not family_url_to_replace or u.rstrip("/") != family_url_to_replace.rstrip("/"))
+    ]
+    if _other_same_host:
+        warnings_acc.append(
+            f"REMOVED_DUPLICATE_SUBDOMAIN_LINK: removed {len(_other_same_host)} other "
+            f"{_target_host} bullet(s) already in this section to keep the page's "
+            f"aspose.com links on distinct hosts"
+        )
+    new_body = _insert_see_also(
+        body, section_header, entry, subdomain,
+        family_url_to_replace=family_url_to_replace,
+        new_target_url=target_url,
+    )
 
     # Phase 4: prose validation after injection
     section_after = _extract_affected_section(new_body, section_header)
@@ -803,8 +989,69 @@ def backfill_markdown(
     )
 
 
-def _insert_see_also(body: str, section_header: str, entry: str, subdomain: str) -> str:
-    """Insert or append to See Also / Related Resources section."""
+def _remove_stale_family_bullet(body: str, section_header: str, family_url: str) -> str:
+    """Remove a bullet line linking to family_url from the named section, if
+    present (TC4, 2026-08-21). Returns body unchanged if the section or the
+    bullet doesn't exist. Shared by _insert_see_also() (prevents new
+    duplicates at insertion time) and backfill_markdown()'s idempotency path
+    (retroactively cleans up an already-existing duplicate).
+    """
+    header_pattern = rf"^{re.escape(section_header)}\s*$"
+    existing = _find_section(body, header_pattern)
+    if not existing:
+        return body
+    _, content_start = existing
+    next_heading = re.search(r'^\s*##', body[content_start:], re.MULTILINE)
+    section_end = content_start + next_heading.start() if next_heading else len(body)
+
+    stale_bullet_re = re.compile(
+        r'^- \[.*?\]\(' + re.escape(family_url.rstrip("/")) + r'/?\)\n?',
+        re.MULTILINE,
+    )
+    section_text = body[content_start:section_end]
+    new_section_text, removed = stale_bullet_re.subn('', section_text)
+    if not removed:
+        return body
+    return body[:content_start] + new_section_text + body[section_end:]
+
+
+def _insert_see_also(
+    body: str,
+    section_header: str,
+    entry: str,
+    subdomain: str,
+    *,
+    family_url_to_replace: str | None = None,
+    new_target_url: str | None = None,
+) -> str:
+    """Insert or append to See Also / Related Resources section.
+
+    family_url_to_replace: (TC4, 2026-08-21) when set, any existing bullet
+    line in the section whose URL matches this family-level URL is removed
+    before the new (platform-level) entry is inserted -- previously this
+    function only ever appended, silently leaving a stale family-level
+    bullet alongside the new platform-level one (confirmed live on 64
+    kb.aspose.org pages).
+
+    new_target_url: (TC10, 2026-08-21) when set, any OTHER pre-existing
+    bullet in the section that shares the new target's aspose.com host is
+    also removed before insertion -- prevents insertion from creating a
+    fresh DUPLICATE_SUBDOMAIN instance (the user's own diversity
+    requirement: "those links must be from different subdomains on
+    aspose.com"). family_url_to_replace already covers the specific
+    family-vs-platform case above; this catches any other same-host bullet
+    a WRONG_TARGET resolution left behind (e.g. a stale link that was never
+    part of the family/platform fallback chain at all). Reuses the same
+    scrub mechanism already proven for blog's wrong-section cleanup
+    (Phase 6.3) rather than a new regex.
+    """
+    if family_url_to_replace:
+        body = _remove_stale_family_bullet(body, section_header, family_url_to_replace)
+
+    if new_target_url:
+        host = new_target_url.split("://", 1)[-1].split("/", 1)[0].lower()
+        body, _ = _scrub_wrong_section_links(body, section_header, host)
+
     # Check if section already exists
     header_pattern = rf"^{re.escape(section_header)}\s*$"
     existing = _find_section(body, header_pattern)
@@ -814,9 +1061,10 @@ def _insert_see_also(body: str, section_header: str, entry: str, subdomain: str)
         section_start, content_start = existing
         # Find end of section (next ## heading or end of file)
         next_heading = re.search(r'^\s*##', body[content_start:], re.MULTILINE)
+        section_end = content_start + next_heading.start() if next_heading else len(body)
+
         if next_heading:
-            insert_at = content_start + next_heading.start()
-            return body[:insert_at].rstrip() + "\n" + entry + "\n\n" + body[insert_at:]
+            return body[:section_end].rstrip() + "\n" + entry + "\n\n" + body[section_end:]
         else:
             # Append at end of section
             return body.rstrip() + "\n" + entry + "\n"
@@ -874,6 +1122,41 @@ def _load_display_maps(repo_root: Path) -> tuple[dict, dict]:
         platforms_map = {}
 
     return families_map, platforms_map
+
+
+_BACKLINK_SCOPE_EXEMPT_RE = re.compile(r'backlink_scope:\s*["\']?exempt["\']?\s*$', re.MULTILINE)
+_BACKLINK_EXEMPT_REASON_RE = re.compile(r'backlink_exempt_reason:\s*["\']?([^\n"\']+)["\']?\s*$', re.MULTILINE)
+_BACKLINK_EXEMPT_EXPIRES_RE = re.compile(r'backlink_exempt_expires:\s*["\']?([0-9-]{10})["\']?\s*$', re.MULTILINE)
+
+
+def _check_backlink_exemption(raw: str) -> str | None:
+    """TC3 (2026-08-21): return a skip reason if this page has a valid,
+    unexpired backlink_scope: exempt marker in its frontmatter -- otherwise
+    None (proceed with reconciliation). Requires a real, non-frivolous
+    exemption: entering EXEMPT is meant to require S-90 governed inspection
+    per this mission's design (the CLI layer here can't enforce that gate
+    itself, but it can and does refuse to honor an exemption that has no
+    stated reason, and refuses to honor one whose expiry has passed rather
+    than treating a stale marker as permanent).
+    """
+    if not _BACKLINK_SCOPE_EXEMPT_RE.search(raw):
+        return None
+    reason_match = _BACKLINK_EXEMPT_REASON_RE.search(raw)
+    reason = reason_match.group(1).strip() if reason_match else None
+    expires_match = _BACKLINK_EXEMPT_EXPIRES_RE.search(raw)
+    if expires_match:
+        try:
+            expires_date = datetime.fromisoformat(expires_match.group(1)).date()
+            if expires_date < datetime.now(timezone.utc).date():
+                # Expired exemption auto-degrades back to normal reconciliation
+                # rather than silently staying exempt forever.
+                return None
+        except ValueError:
+            pass  # unparseable date -- fail closed to "not exempt", not "exempt forever"
+    if not reason:
+        # No stated reason -- refuse to honor a frivolous/incomplete exemption.
+        return None
+    return f"backlink_scope: exempt ({reason})"
 
 
 def run_backfill(
@@ -943,22 +1226,41 @@ def run_backfill(
             if pt in OUT_OF_SCOPE_TYPES:
                 continue
 
-            # Check auto_updatable (skip protected pages unless --include-protected)
-            if not include_protected and sd != "blog.aspose.org":
+            # TC3 (2026-08-21): auto_updatable: false no longer blocks backlink
+            # reconciliation. Root cause of the original behavior: this flag
+            # was designed to protect hand-authored PROSE from bot rewrites,
+            # but the check treated the mandatory backlink CTA as part of that
+            # protected prose too -- even though the write functions below
+            # (backfill_products_yaml/backfill_markdown) were already narrowly
+            # scoped to just the CTA sentence/See-Also section, never a
+            # full-prose rewrite. Confirmed live: commit 3729d558a6 (2026-06-06)
+            # used this exact flag to justify DELETING the CTA from 22 pages
+            # including products.aspose.org/words, which then carried zero
+            # backlink for 2.5+ months because nothing could ever touch it
+            # again. The only thing that should still block reconciliation is
+            # an EXPLICIT, reasoned, time-bounded exemption -- not the blanket
+            # content-protection flag, which was never meant to govern this.
+            if sd != "blog.aspose.org":
                 try:
                     raw = fpath.read_text(encoding="utf-8")
-                    if "auto_updatable: false" in raw:
-                        changes.append(BackfillChange(
-                            file=fpath.relative_to(repo_root).as_posix(),
-                            subdomain=sd, family=family, platform=platform,
-                            page_type=pt.value, target_url="",
-                            action="skip", before_snippet="", after_snippet="",
-                            skipped=True, skip_reason="auto_updatable: false (use --include-protected)",
-                            dry_run=dry_run,
-                        ))
-                        continue
                 except Exception:
-                    pass
+                    raw = ""
+                exempt_reason = _check_backlink_exemption(raw)
+                if exempt_reason:
+                    changes.append(BackfillChange(
+                        file=fpath.relative_to(repo_root).as_posix(),
+                        subdomain=sd, family=family, platform=platform,
+                        page_type=pt.value, target_url="",
+                        action="skip", before_snippet="", after_snippet="",
+                        skipped=True, skip_reason=exempt_reason,
+                        dry_run=dry_run,
+                    ))
+                    continue
+                # --include-protected retains its original meaning: a full,
+                # unscoped write (used by TC15's canary/staged content backfill
+                # when a page genuinely needs more than the CTA touched). The
+                # narrow CTA-only reconciliation above proceeds regardless.
+                _ = include_protected  # still consumed by callers expecting it; no longer a skip gate here
 
             # Resolve target
             chosen_url, chosen_type, chosen_sd, fallback_reason = resolve_backlink(
@@ -1005,11 +1307,48 @@ def run_backfill(
             # Phase 6.3 (outer loop): For blog posts, if ALL qualifying links are wrong-section
             # products.aspose.com links, they will be scrubbed by backfill_markdown(). Reset
             # link_count so the max-link guard doesn't block before scrubbing can run (F4).
-            if sd == "blog.aspose.org" and link_count >= MAX_QUALIFYING_LINKS:
+            if sd == "blog.aspose.org" and link_count >= _max_qualifying_links():
                 try:
                     _, _existing_urls = count_qualifying_com_links(body)
                     if _existing_urls and all("products.aspose.com/" in u for u in _existing_urls):
                         link_count = 0  # all wrong-section; backfill_markdown() will scrub them
+                except Exception:
+                    pass
+
+            # TC4 (2026-08-21): this outer max-link guard runs BEFORE
+            # backfill_markdown()/backfill_products_yaml() is ever called, so
+            # their own retroactive duplicate-cleanup never got a chance to
+            # run -- confirmed live: content/kb.aspose.org/en/pdf/cpp/_index.md
+            # stayed skipped ("2 existing links >= max 2") even after that fix
+            # landed, because this earlier gate intercepted it first. Original
+            # carve-out covered only the exact {family_url, chosen_url}
+            # pairing on non-products subdomains. TC10 (2026-08-21) generalizes
+            # this to any subdomain, and to any case where the correct
+            # (chosen) target is already present alongside >=1 other distinct
+            # link sharing its host -- the general DUPLICATE_SUBDOMAIN
+            # precursor, not just the family-vs-platform special case.
+            # products.aspose.org is included because backfill_products_yaml()
+            # always fully regenerates overview.content when it proceeds
+            # (never partial-appends), so letting a duplicate-subdomain
+            # products page through is safe -- it self-heals via that
+            # regeneration rather than needing its own bullet-level cleanup.
+            if sd != "blog.aspose.org" and link_count >= _max_qualifying_links() and family and chosen_url:
+                try:
+                    _existing_text = overview_content if sd == "products.aspose.org" else body
+                    _, _existing_urls = count_qualifying_com_links(_existing_text)
+                    _distinct_existing = {u.rstrip("/").lower() for u in _existing_urls}
+                    _chosen_norm = chosen_url.rstrip("/").lower()
+                    _chosen_host = chosen_url.split("://", 1)[-1].split("/", 1)[0].lower()
+                    _is_same_host_dup = (
+                        _chosen_norm in _distinct_existing
+                        and len(_distinct_existing) > 1
+                        and any(
+                            u != _chosen_norm and u.split("://", 1)[-1].split("/", 1)[0] == _chosen_host
+                            for u in _distinct_existing
+                        )
+                    )
+                    if _is_same_host_dup:
+                        link_count = 0  # genuine duplicate-subdomain case; downstream backfill will dedup
                 except Exception:
                     pass
 
@@ -1018,13 +1357,13 @@ def run_backfill(
                 # If links are in the acceptable fallback chain → COMPLIANT, skip.
                 # If links are WRONG_TARGET and count < MAX → add correct link.
                 # If OVER_LIMIT (>= MAX) → skip without touching.
-                if link_count >= MAX_QUALIFYING_LINKS:
+                if link_count >= _max_qualifying_links():
                     changes.append(BackfillChange(
                         file=fpath.relative_to(repo_root).as_posix(),
                         subdomain=sd, family=family, platform=platform,
                         page_type=pt.value, target_url=chosen_url,
                         action="skip", before_snippet="", after_snippet="",
-                        skipped=True, skip_reason=f"Has {link_count} existing aspose.com link(s) >= max {MAX_QUALIFYING_LINKS}",
+                        skipped=True, skip_reason=f"Has {link_count} existing aspose.com link(s) >= max {_max_qualifying_links()}",
                         dry_run=dry_run,
                     ))
                     continue

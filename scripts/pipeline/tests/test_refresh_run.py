@@ -19,12 +19,41 @@ MODEL_SHA = "a" * 40
 HEAD_SHA = "b" * 40
 
 
+def _write_empty_backlink_manifest(args: list[str]) -> None:
+    """TC12 (2026-08-21): apply_run()'s new backlink-reconciliation step
+    always invokes backlink_backfill.py --output <path> and requires that
+    file to exist with a valid total_errors/changes shape. Every stub
+    command_runner in this file that doesn't specifically test backlink
+    reconciliation must still satisfy this contract, so it's centralized
+    here rather than duplicated across every fixture."""
+    str_args = [str(a) for a in args]
+    if "backlink_backfill.py" not in " ".join(str_args):
+        return
+    if "--output" not in str_args:
+        return
+    out_path = Path(str_args[str_args.index("--output") + 1])
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps({
+        "generated_at": "2026-07-25T00:00:00+00:00",
+        "generator": "test-stub",
+        "dry_run": False,
+        "total_candidates": 0,
+        "total_modified": 0,
+        "total_skipped": 0,
+        "total_errors": 0,
+        "changes": [],
+        "errors": [],
+        "rollback_commands": [],
+    }), encoding="utf-8")
+
+
 def _runner(
     args: list[str],
     **_: object,
 ) -> subprocess.CompletedProcess[str]:
     if args[:3] == ["git", "rev-parse", "HEAD"]:
         return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+    _write_empty_backlink_manifest(args)
     return subprocess.CompletedProcess(args, 0, "", "")
 
 
@@ -1288,6 +1317,132 @@ def test_apply_reconciliation_blocks_generated_over_existing_content(tmp_path: P
     )
 
     with pytest.raises(refresh_run.RefreshRunError, match="reconciliation failed"):
+        refresh_run.apply_run(manifest)
+
+
+# ---------------------------------------------------------------------------
+# TC12 (2026-08-21, backlink-governance-redesign): apply_run()'s new
+# backlink-reconciliation writer step. This is the mission's own mandatory
+# acceptance criterion: "An end-to-end test proves refresh-product repairs a
+# deliberately-broken backlink on a fixture product across all 5 subdomains,
+# not just reference.aspose.org." The scope here is docs.aspose.org --
+# confirmed by this mission's own research to be one of the 4 subdomains
+# refresh-product previously never touched at all for backlinks.
+# ---------------------------------------------------------------------------
+
+def test_apply_run_reconciles_backlink_outside_reference_subdomain(tmp_path: Path):
+    """The core repeatability fix: a docs.aspose.org page with a WRONG
+    aspose.com backlink gets corrected by apply_run()'s new step, even
+    though nothing about this page's content (body_refresh.py's own scope)
+    needed changing -- proving backlink correctness no longer depends on
+    reference.aspose.org's side-effect-only coverage."""
+    broken = "content/docs.aspose.org/en/pdf/net/getting-started.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [broken], "RUN-BACKLINK-FIX")
+    corrected_text = "---\ntitle: Getting Started\n---\n\nFixed body with correct link.\n"
+
+    def runner(args: list[str], **_: object):
+        str_args = [str(a) for a in args]
+        if any("body_refresh.py" in a for a in str_args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-BACKLINK-FIX"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-BACKLINK-FIX",
+                    "page_path": broken,
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if "backlink_backfill.py" in " ".join(str_args):
+            # Simulate the real tool: writes the corrected page for real,
+            # and reports it as a non-skipped change in its output manifest.
+            (tmp_path / broken).write_text(corrected_text, encoding="utf-8")
+            out_path = Path(str_args[str_args.index("--output") + 1])
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps({
+                "generated_at": "2026-07-25T00:00:00+00:00",
+                "generator": "test-stub", "dry_run": False,
+                "total_candidates": 1, "total_modified": 1,
+                "total_skipped": 0, "total_errors": 0,
+                "changes": [{
+                    "file": broken, "subdomain": "docs.aspose.org",
+                    "family": "pdf", "platform": "net", "page_type": "docs-article",
+                    "target_url": "https://docs.aspose.com/pdf/net/",
+                    "action": "md_see_also", "before_snippet": "", "after_snippet": "",
+                    "skipped": False, "skip_reason": "", "dry_run": False,
+                    "warning_messages": [],
+                }],
+                "errors": [], "rollback_commands": [],
+            }), encoding="utf-8")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+    # The writer step's effect actually landed on disk.
+    assert (tmp_path / broken).read_text(encoding="utf-8") == corrected_text
+    # The later OCC guard in verify_run() (_assert_scope_ownership) would
+    # otherwise block on this out-of-band write, since backlink_backfill.py
+    # emits no page_decisions.jsonl row for it -- confirm
+    # _record_extra_allowed_hash() actually registered it, the same sidecar
+    # mechanism already proven for the TC-DUPIDX-02 index step.
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-BACKLINK-FIX"
+    extra_hashes = json.loads(
+        (run_root / "extra_allowed_hashes.json").read_text(encoding="utf-8")
+    )
+    assert broken in extra_hashes
+    # Hash the actual bytes on disk (not the in-memory string) -- Path.write_text()
+    # applies platform newline translation, so this avoids a spurious \n vs \r\n mismatch.
+    expected_hash = "sha256:" + hashlib.sha256((tmp_path / broken).read_bytes()).hexdigest()
+    assert expected_hash in extra_hashes[broken]
+
+
+def test_apply_run_backlink_reconciliation_reports_page_errors(tmp_path: Path):
+    """Negative control: backlink_backfill.py's own CLI always exits 0 even
+    when manifest.errors is non-empty (confirmed live) -- apply_run() must
+    explicitly inspect total_errors and raise, not trust the exit code alone."""
+    broken = "content/docs.aspose.org/en/pdf/net/broken.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [broken], "RUN-BACKLINK-ERR")
+
+    def runner(args: list[str], **_: object):
+        str_args = [str(a) for a in args]
+        if any("body_refresh.py" in a for a in str_args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-BACKLINK-ERR"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-BACKLINK-ERR",
+                    "page_path": broken,
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if "backlink_backfill.py" in " ".join(str_args):
+            out_path = Path(str_args[str_args.index("--output") + 1])
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps({
+                "generated_at": "2026-07-25T00:00:00+00:00",
+                "generator": "test-stub", "dry_run": False,
+                "total_candidates": 1, "total_modified": 0,
+                "total_skipped": 0, "total_errors": 1,
+                "changes": [],
+                "errors": [{"file": broken, "error": "YAML round-trip failure"}],
+                "rollback_commands": [],
+            }), encoding="utf-8")
+            return subprocess.CompletedProcess(args, 0, "", "")  # exit 0, per real tool
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    with pytest.raises(refresh_run.RefreshRunError, match="backlink reconciliation reported"):
         refresh_run.apply_run(manifest)
 
 

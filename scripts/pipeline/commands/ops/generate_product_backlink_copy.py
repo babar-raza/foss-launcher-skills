@@ -622,6 +622,8 @@ def build_request(
     families_map: dict,
     platforms_map: dict,
     target_map: dict,
+    *,
+    canonical_overrides: dict | None = None,
 ) -> BacklinkCopyRequest | None:
     """Build a BacklinkCopyRequest for a products page."""
     try:
@@ -649,6 +651,7 @@ def build_request(
         platform=platform,
         source_subdomain="products.aspose.org",
         target_map=target_map,
+        canonical_overrides=canonical_overrides,
     )
     if not chosen_url:
         log.warning("BLOCKED_TARGET for %s/%s — skipping", family, platform or "")
@@ -774,8 +777,15 @@ def main() -> int:
 
     # Load target map
     try:
-        from lib.backlink_targets import load_target_map
+        from lib.backlink_targets import load_target_map, load_canonical_overrides
         target_map = load_target_map(repo_root)
+        # TC6 (2026-08-21): this call site never loaded/passed canonical_overrides
+        # to resolve_backlink() at all, silently making every verified override
+        # (e.g. words/python -> python-net) inert for products.aspose.org LLM
+        # copy generation specifically -- the same recurring call-site-omission
+        # pattern MT043 already found and fixed once, independently, in
+        # readme_refresh_run.py.
+        canonical_overrides = load_canonical_overrides(repo_root)
     except Exception as exc:
         log.error("Cannot load target map: %s", exc)
         return 1
@@ -796,7 +806,8 @@ def main() -> int:
     records: list[CopyGenerationRecord] = []
     for fpath, family, platform in pages:
         req = build_request(fpath, family, platform, repo_root,
-                            families_map, platforms_map, target_map)
+                            families_map, platforms_map, target_map,
+                            canonical_overrides=canonical_overrides)
         if req is None:
             continue
 

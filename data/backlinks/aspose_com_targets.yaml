@@ -1,5 +1,5 @@
-generated_at: '2026-08-06T08:57:58.165494+00:00'
-source_json_hash: sha256:21c3bf5ccb4d0f867e17d311b04c731ded5ff05ae7c9c6fe2a08aa2dc37c88d6
+generated_at: '2026-08-21T20:44:51.673453+00:00'
+source_json_hash: sha256:1d3559cd5dc2439f2a6df98e672bb87eb2c81570638ad09e46ac3412e21e4dd7
 targets:
   3d:
     http_status: 200
@@ -100,9 +100,9 @@ targets:
   pdf:
     http_status: 200
     url: https://products.aspose.com/pdf/
-  pdf/go:
+  pdf/cpp:
     http_status: 200
-    url: https://products.aspose.com/pdf/go-cpp/
+    url: https://products.aspose.com/pdf/cpp/
   pdf/go-cpp:
     http_status: 200
     url: https://products.aspose.com/pdf/go-cpp/
@@ -112,6 +112,9 @@ targets:
   pdf/net:
     http_status: 200
     url: https://products.aspose.com/pdf/net/
+  pdf/python-net:
+    http_status: 200
+    url: https://products.aspose.com/pdf/python-net/
   psd:
     http_status: 200
     url: https://products.aspose.com/psd/
@@ -148,6 +151,9 @@ targets:
   words:
     http_status: 200
     url: https://products.aspose.com/words/
+  words/net:
+    http_status: 200
+    url: https://products.aspose.com/words/net/
   words/python:
     http_status: 200
     url: https://products.aspose.com/words/python-net/

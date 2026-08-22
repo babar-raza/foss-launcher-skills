@@ -76,7 +76,18 @@ Skills that support deep mode must document this explicitly and require the `--d
 passed by the operator. No skill activates deep mode automatically based on content type.
 
 Current skills supporting `--deep`: `batch-reference`, `batch-remediate`, `content-enrich`,
-`page-update`, `refresh-product`, `heal-page`, `launch-product`.
+`page-update`, `heal-page`, `launch-product`.
+
+**Correction (TC12, 2026-08-21):** `refresh-product` was previously listed here, but this was
+false -- confirmed by direct code read that `refresh_run.py`'s `apply_run()` had (and still has)
+zero `--deep` references anywhere in the file, self-contradicting this document's own claim.
+`refresh-product` now does invoke `backlink_backfill.py` for real, across all 5 subdomains (the
+previous gap: only reference.aspose.org ever got backlink reconciliation during a refresh, as a
+side effect of `batch-reference.py`'s own content generation) -- but it does so in v1/non-deep
+mode (`exact_deep_match_enabled=False`, no `--deep` flag), matching every other non-deep skill's
+default behavior per §3 above. Adding real `--deep` support to `refresh-product` -- Layer 3 exact
+reference-class/KB-article matching during a routine refresh -- is a separate, unscoped decision,
+not implied by this fix.
 
 ---
 

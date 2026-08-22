@@ -26,6 +26,8 @@ from lib.backlink_targets import (
     target_map_age_days, STALE_WARN_DAYS, STALE_BLOCK_DAYS,
     MISSING, COMPLIANT, WRONG_TARGET, OVER_LIMIT, BLOCKED_TARGET,
     FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
+    WRONG_ANCHOR_TEXT, DUPLICATE_LINK,  # TC2 (2026-08-21)
+    DUPLICATE_SUBDOMAIN,  # TC10 (2026-08-21)
     ACCEPTABLE_LEGACY_KB_PRE_P0, CANONICAL_KB_POST_P0, UPGRADE_CANDIDATE_NOT_YET_FIXED,
     LEGACY_COMPAT_MODE, CANONICAL_POST_P0_MODE,
     PREFERRED_TARGET_SUBDOMAIN,
@@ -502,6 +504,178 @@ class TestClassifyCompliance:
         # but target starts with "https://kb.aspose.com/cells/" so it IS a valid parent.
         # Confirm COMPLIANT (the host-level URL is a parent of the target path).
         assert status == COMPLIANT, f"Expected COMPLIANT (host-level is parent), got {status}"
+
+    # ── TC2 (2026-08-21): WRONG_ANCHOR_TEXT and DUPLICATE_LINK ──────────────
+
+    def test_wrong_anchor_text_confirmed_live_cells_case(self):
+        """Reproduces the exact live defect: products.aspose.org/cells has the
+        CORRECT URL but the banned "commercial edition" anchor text -- this is
+        precisely why the old URL-only check treated it as COMPLIANT forever."""
+        status = classify_compliance(
+            1,
+            ["https://products.aspose.com/cells/"],
+            "https://products.aspose.com/cells/",
+            family="cells",
+            existing_links=[("Aspose.Cells commercial edition", "https://products.aspose.com/cells/")],
+            expected_anchor_text="Aspose.Cells — Enterprise Product Family",
+        )
+        assert status == WRONG_ANCHOR_TEXT
+
+    def test_correct_anchor_text_still_compliant(self):
+        """Negative control: matching anchor text must still be COMPLIANT,
+        not force every page through the new check."""
+        status = classify_compliance(
+            1,
+            ["https://products.aspose.com/cells/"],
+            "https://products.aspose.com/cells/",
+            family="cells",
+            existing_links=[("Aspose.Cells — Enterprise Product Family", "https://products.aspose.com/cells/")],
+            expected_anchor_text="Aspose.Cells — Enterprise Product Family",
+        )
+        assert status == COMPLIANT
+
+    def test_anchor_text_check_is_opt_in_backward_compatible(self):
+        """Omitting existing_links/expected_anchor_text (every pre-existing
+        caller) must behave exactly as before -- wrong wording is invisible
+        without opting in, not a silent behavior change for old callers."""
+        status = classify_compliance(
+            1,
+            ["https://products.aspose.com/cells/"],
+            "https://products.aspose.com/cells/",
+            family="cells",
+        )
+        assert status == COMPLIANT
+
+    def test_duplicate_link_confirmed_live_kb_case(self):
+        """Reproduces the exact live defect confirmed on 64 kb.aspose.org
+        pages: both the family-level AND platform-level "See Also" links
+        present at once. The old check returned COMPLIANT on the first
+        acceptable URL found and never noticed the redundant second one."""
+        status = classify_compliance(
+            2,
+            ["https://kb.aspose.com/slides/", "https://kb.aspose.com/slides/python/"],
+            "https://kb.aspose.com/slides/python/",
+            family="slides",
+            platform="python",
+            chosen_target_type="platform",
+            chosen_target_subdomain="kb.aspose.com",
+        )
+        assert status == DUPLICATE_LINK
+
+    def test_single_platform_link_not_flagged_duplicate(self):
+        """Negative control: exactly one acceptable link must remain
+        COMPLIANT, not be misclassified as a duplicate."""
+        status = classify_compliance(
+            1,
+            ["https://kb.aspose.com/slides/python/"],
+            "https://kb.aspose.com/slides/python/",
+            family="slides",
+            platform="python",
+        )
+        assert status == COMPLIANT
+
+    def test_duplicate_link_checked_before_wrong_anchor_text(self):
+        """When a page has BOTH a duplicate-link problem AND a wrong-anchor
+        problem, DUPLICATE_LINK must win -- it's checked first because the
+        single-match loop that WRONG_ANCHOR_TEXT lives in would otherwise
+        return on the first (possibly correctly-worded) match and hide the
+        redundant second link entirely."""
+        status = classify_compliance(
+            2,
+            ["https://kb.aspose.com/slides/", "https://kb.aspose.com/slides/python/"],
+            "https://kb.aspose.com/slides/python/",
+            family="slides",
+            platform="python",
+            chosen_target_type="platform",
+            chosen_target_subdomain="kb.aspose.com",
+            existing_links=[
+                ("Aspose.Slides — Enterprise Knowledge Base", "https://kb.aspose.com/slides/"),
+                ("wrong wording here", "https://kb.aspose.com/slides/python/"),
+            ],
+            expected_anchor_text="Aspose.Slides for Python — Enterprise Knowledge Base",
+        )
+        assert status == DUPLICATE_LINK
+
+
+# ── TC10 (2026-08-21): TestDuplicateSubdomain ────────────────────────────────
+
+class TestDuplicateSubdomain:
+    """User's own hypothetical, taken directly from the plan: 'a page with
+    two links, both to products.aspose.com, passes as fully COMPLIANT
+    today.' These tests confirm that no longer happens."""
+
+    def test_two_links_same_host_confirmed_regression_case(self):
+        """The exact confirmed-today-broken case: 2 distinct products.aspose.com
+        URLs, one of them the correct chosen target. Previously COMPLIANT
+        (the old single-match loop returned on the first hit and never
+        checked the second link's host)."""
+        status = classify_compliance(
+            2,
+            ["https://products.aspose.com/words/", "https://products.aspose.com/cells/"],
+            "https://products.aspose.com/words/",
+            family="words", platform=None,
+        )
+        assert status == DUPLICATE_SUBDOMAIN
+
+    def test_two_links_different_hosts_still_compliant(self):
+        """Negative control: 2 links on 2 DIFFERENT hosts must remain COMPLIANT --
+        this is the actual diversity goal, not just 'flag any 2-link page.'"""
+        status = classify_compliance(
+            2,
+            ["https://products.aspose.com/words/", "https://kb.aspose.com/words/"],
+            "https://products.aspose.com/words/",
+            family="words", platform=None,
+        )
+        assert status == COMPLIANT
+
+    def test_single_link_not_flagged(self):
+        """Negative control: a single qualifying link must never trigger
+        DUPLICATE_SUBDOMAIN -- the check requires 2+ distinct URLs."""
+        status = classify_compliance(
+            1,
+            ["https://products.aspose.com/words/"],
+            "https://products.aspose.com/words/",
+            family="words", platform=None,
+        )
+        assert status == COMPLIANT
+
+    def test_literal_repeated_identical_url_not_flagged(self):
+        """The same URL mentioned twice in prose is not '2 distinct links to
+        the same host' -- it's one link, repeated. Must not be misclassified
+        as a diversity violation."""
+        status = classify_compliance(
+            2,
+            ["https://products.aspose.com/words/", "https://products.aspose.com/words/"],
+            "https://products.aspose.com/words/",
+            family="words", platform=None,
+        )
+        assert status == COMPLIANT
+
+    def test_duplicate_link_takes_precedence_over_duplicate_subdomain(self):
+        """When both DUPLICATE_LINK (family+platform, same host) and the more
+        general DUPLICATE_SUBDOMAIN condition technically apply to the same
+        page, DUPLICATE_LINK's more specific, actionable diagnosis wins --
+        it's checked first in classify_compliance()."""
+        status = classify_compliance(
+            2,
+            ["https://kb.aspose.com/slides/", "https://kb.aspose.com/slides/python/"],
+            "https://kb.aspose.com/slides/python/",
+            family="slides", platform="python",
+            chosen_target_type="platform",
+            chosen_target_subdomain="kb.aspose.com",
+        )
+        assert status == DUPLICATE_LINK
+
+    def test_three_links_over_limit_takes_precedence(self):
+        """OVER_LIMIT (checked earliest) must still win over DUPLICATE_SUBDOMAIN
+        when existing_count exceeds the registry cap, regardless of hosts."""
+        status = classify_compliance(
+            3,
+            ["https://products.aspose.com/words/", "https://kb.aspose.com/words/", "https://docs.aspose.com/words/"],
+            "https://products.aspose.com/words/",
+            family="words", platform=None,
+        )
+        assert status == OVER_LIMIT
 
 
 # ── load_target_map tests ─────────────────────────────────────────────────────
@@ -1231,6 +1405,195 @@ class TestPlatformVariantAuthority:
             assert rec is None  # no generation — all return None safely
 
 
+# ── TC7 (2026-08-21): TestResolveBacklinkVariantAuthority ────────────────────
+# Distinct from TestPlatformVariantAuthority above (which tests
+# resolve_variant_target()/load_variant_authority() in isolation, proving
+# they compute the right REVIEW_REQUIRED decision). These tests prove the
+# actual wiring: resolve_backlink() itself now consults variant_authority=
+# and stops instead of silently picking a candidate -- the exact gap
+# confirmed live (2026-08-21): resolve_variant_target() had zero call sites
+# anywhere in scripts/pipeline/ outside its own tests before this fix.
+
+from lib.backlink_targets import ResolutionKind
+
+
+class TestResolveBacklinkVariantAuthority:
+
+    def _tm_with_both_variants(self):
+        """Minimal target map: reference.aspose.com has BOTH pdf/python-cpp
+        and pdf/python-net live (the real confirmed-ambiguous case's shape) --
+        no pdf/python key at all, since the real crawled data never produces
+        an exact local-slug match here."""
+        return {
+            "targets": {
+                "reference.aspose.com": {
+                    "families": {
+                        "pdf": {"url": "https://reference.aspose.com/pdf/", "http_status": 200},
+                    },
+                    "platforms": {
+                        "pdf/python-cpp": {"url": "https://reference.aspose.com/pdf/python-cpp/", "http_status": 200},
+                        "pdf/python-net": {"url": "https://reference.aspose.com/pdf/python-net/", "http_status": 200},
+                    },
+                },
+            },
+            "all_urls": {},
+        }
+
+    def test_review_required_returns_ambiguous_status_not_silent_pick(self, tmp_path):
+        """The confirmed real case: reference.aspose.com pdf/python has 2 live
+        verified variants (python-cpp, python-net) and no canonical rule --
+        must return AMBIGUOUS_PLATFORM_TARGETS with chosen_url=None, not
+        silently fall through to whatever _lookup_platform() would have
+        found (or not found) for the bare 'python' slug."""
+        tm = self._tm_with_both_variants()
+        variant_authority = _make_mock_inventory([
+            _make_authority_record(
+                "reference/pdf/python", "REVIEW_REQUIRED", None, False,
+                alternatives=[
+                    {"slug": "python-cpp", "status": "verified_200"},
+                    {"slug": "python-net", "status": "verified_200"},
+                ],
+                review_reason="multiple_verified_variants_no_canonical_rule",
+            )
+        ])
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "python", "reference.aspose.org", tm,
+            variant_authority=variant_authority,
+        )
+        assert url is None
+        assert utype == ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS
+        assert sd == "reference.aspose.com"
+        assert "python-cpp" in reason and "python-net" in reason
+
+    def test_omitting_variant_authority_preserves_prior_behavior(self, tmp_path):
+        """Backward compatible negative control: without variant_authority=,
+        resolution proceeds exactly as before (silent pick via whatever the
+        target map happens to have under the bare local slug) -- this is the
+        pre-TC7 behavior, still available for any caller that doesn't opt in."""
+        tm = self._tm_with_both_variants()
+        url, utype, sd, reason = resolve_backlink("pdf", "python", "reference.aspose.org", tm)
+        # No pdf/python key exists (only pdf/python-cpp and pdf/python-net) and no
+        # override maps "python"; falls through to family per the existing chain.
+        assert url == "https://reference.aspose.com/pdf/"
+        assert utype == "family"
+
+    def test_variant_authority_with_no_matching_record_falls_through_normally(self, tmp_path):
+        """Negative control: variant_authority is provided but has no entry
+        for this request_key -- must not block anything, falls through to
+        normal resolution exactly as if omitted."""
+        tm = self._tm_with_both_variants()
+        variant_authority = _make_mock_inventory([
+            _make_authority_record("reference/words/python", "REVIEW_REQUIRED", None, False),
+        ])
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "python", "reference.aspose.org", tm,
+            variant_authority=variant_authority,
+        )
+        assert url == "https://reference.aspose.com/pdf/"
+        assert utype == "family"
+
+    def test_explicit_override_decision_is_not_blocked(self, tmp_path):
+        """Negative control: a record with decision != REVIEW_REQUIRED (e.g.
+        EXPLICIT_OVERRIDE, meaning the ambiguity is already resolved) must
+        NOT trigger AMBIGUOUS_PLATFORM_TARGETS -- only genuine, still-open
+        REVIEW_REQUIRED records block resolution."""
+        tm = self._tm_with_both_variants()
+        variant_authority = _make_mock_inventory([
+            _make_authority_record(
+                "reference/pdf/python", "EXPLICIT_OVERRIDE",
+                "https://reference.aspose.com/pdf/python-net/", True,
+            )
+        ])
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "python", "reference.aspose.org", tm,
+            variant_authority=variant_authority,
+        )
+        # EXPLICIT_OVERRIDE isn't consulted by resolve_backlink() for the URL itself
+        # (that's canonical_overrides' job) -- this test only proves it's not
+        # misclassified as AMBIGUOUS_PLATFORM_TARGETS.
+        assert utype != ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS
+
+    def test_family_only_source_never_consults_variant_authority(self, tmp_path):
+        """Negative control: family-only resolution (no platform) must not
+        even attempt a variant-authority lookup -- request_key construction
+        requires a platform."""
+        tm = self._tm_with_both_variants()
+        variant_authority = _make_mock_inventory([
+            _make_authority_record(
+                "reference/pdf/python", "REVIEW_REQUIRED", None, False,
+                review_reason="multiple_verified_variants_no_canonical_rule",
+            )
+        ])
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", None, "reference.aspose.org", tm,
+            variant_authority=variant_authority,
+        )
+        assert utype != ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS
+
+    def test_real_live_data_reference_pdf_python_is_review_required(self):
+        """End-to-end against the REAL, live data files (not a fixture) --
+        confirms the actual repo's platform_variant_authority.json genuinely
+        has this record today, and resolve_backlink() with the real loaded
+        data returns AMBIGUOUS_PLATFORM_TARGETS for it."""
+        from lib.backlink_targets import load_variant_authority, load_target_map
+        variant_authority = load_variant_authority()
+        assert "reference/pdf/python" in variant_authority
+        assert variant_authority["reference/pdf/python"]["decision"] == "REVIEW_REQUIRED"
+
+        real_tm = load_target_map()
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "python", "reference.aspose.org", real_tm,
+            variant_authority=variant_authority,
+        )
+        assert url is None
+        assert utype == ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS
+
+
+# ── TC6 (2026-08-21): TestLoadCanonicalOverrides ─────────────────────────────
+
+from lib.backlink_targets import load_canonical_overrides
+
+
+class TestLoadCanonicalOverrides:
+    """The single canonical loader for platform_canonical_overrides.yaml --
+    previously batch_reference.py and generate_product_backlink_copy.py each
+    would have needed their own copy of this logic (or, as confirmed live,
+    simply never loaded it at all, silently making every verified override
+    inert for those call sites)."""
+
+    def _write_overrides(self, tmp_path: Path, body: str) -> None:
+        backlinks_dir = tmp_path / "data" / "backlinks"
+        backlinks_dir.mkdir(parents=True, exist_ok=True)
+        (backlinks_dir / "platform_canonical_overrides.yaml").write_text(body, encoding="utf-8")
+
+    def test_returns_raw_overrides_shape_for_resolve_backlink(self, tmp_path):
+        self._write_overrides(tmp_path, (
+            'overrides:\n'
+            '  "3d/python":\n'
+            '    target_platform: "python-net"\n'
+            '    http_verified: true\n'
+        ))
+        result = load_canonical_overrides(tmp_path)
+        assert result["overrides"]["3d/python"]["target_platform"] == "python-net"
+
+    def test_missing_file_returns_empty_dict(self, tmp_path):
+        assert load_canonical_overrides(tmp_path) == {}
+
+    def test_different_repo_roots_are_not_cross_contaminated(self, tmp_path):
+        root_a = tmp_path / "a"
+        root_b = tmp_path / "b"
+        self._write_overrides(root_a, 'overrides:\n  "cells/rust":\n    target_platform: "rust-cpp"\n    http_verified: true\n')
+        self._write_overrides(root_b, 'overrides:\n  "pdf/go":\n    target_platform: "go-cpp"\n    http_verified: true\n')
+        assert "cells/rust" in load_canonical_overrides(root_a)["overrides"]
+        assert "pdf/go" in load_canonical_overrides(root_b)["overrides"]
+        assert "pdf/go" not in load_canonical_overrides(root_a)["overrides"]
+
+    def test_default_call_reads_the_real_repo_file(self):
+        result = load_canonical_overrides()
+        assert result["overrides"]["3d/python"]["target_platform"] == "python-net"
+        assert result["overrides"]["3d/python"]["http_verified"] is True
+
+
 # ── A5-Prep: TestLinkSlotRegistry ────────────────────────────────────────────
 
 from lib.backlink_targets import (
@@ -1297,6 +1660,76 @@ class TestLinkSlotRegistry:
             chain = slot_fallback_chain(slot.slot_id, registry)
             assert len(chain) >= 1
             assert len(chain) == len(set(chain)), f"Cycle in fallback chain for {slot.slot_id}"
+
+
+# ── TC9 (2026-08-21): TestMaxEnterpriseLinksPerPage ──────────────────────────
+
+from lib.backlink_targets import get_max_enterprise_links_per_page
+
+
+class TestMaxEnterpriseLinksPerPage:
+    """TC9: max_enterprise_links_per_page must be read from
+    data/backlinks/link_slot_registry.yaml, not hardcoded -- this is the test
+    that would have caught the original dead-config bug (the YAML field was
+    schema-validated and documented as "enforced by" 3 files, but none of
+    them ever actually read it).
+    """
+
+    def _write_registry(self, tmp_path: Path, value) -> Path:
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        registry_path = tmp_path / "link_slot_registry.yaml"
+        registry_path.write_text(
+            f"global:\n  max_enterprise_links_per_page: {value}\n",
+            encoding="utf-8",
+        )
+        return registry_path
+
+    def test_reads_value_from_yaml(self, tmp_path):
+        registry_path = self._write_registry(tmp_path, 5)
+        assert get_max_enterprise_links_per_page(registry_path) == 5
+
+    def test_different_registry_paths_are_not_cross_contaminated(self, tmp_path):
+        # Path-aware cache (mirrors load_slot_registry()'s own pattern) must
+        # not return a stale value cached under a different path.
+        path_a = self._write_registry(tmp_path / "a", 3)
+        path_b = self._write_registry(tmp_path / "b", 7)
+        assert get_max_enterprise_links_per_page(path_a) == 3
+        assert get_max_enterprise_links_per_page(path_b) == 7
+        # Re-reading path_a again must still be 3, not leaked from path_b.
+        assert get_max_enterprise_links_per_page(path_a) == 3
+
+    def test_missing_file_falls_back_to_default(self, tmp_path):
+        missing = tmp_path / "does_not_exist.yaml"
+        assert get_max_enterprise_links_per_page(missing) == 2
+
+    def test_invalid_value_falls_back_to_default(self, tmp_path):
+        registry_path = tmp_path / "invalid.yaml"
+        registry_path.write_text("global:\n  max_enterprise_links_per_page: not_a_number\n", encoding="utf-8")
+        assert get_max_enterprise_links_per_page(registry_path) == 2
+
+    def test_zero_or_negative_value_falls_back_to_default(self, tmp_path):
+        registry_path = tmp_path / "zero.yaml"
+        registry_path.write_text("global:\n  max_enterprise_links_per_page: 0\n", encoding="utf-8")
+        assert get_max_enterprise_links_per_page(registry_path) == 2
+
+    def test_default_call_reads_the_real_repo_registry(self):
+        # No registry_path -> reads data/backlinks/link_slot_registry.yaml.
+        # Confirmed live (2026-08-21): that file's global.max_enterprise_links_per_page is 2.
+        assert get_max_enterprise_links_per_page() == 2
+
+    def test_classify_compliance_over_limit_uses_registry_value_not_a_hardcoded_literal(self):
+        # Regression test for the exact bug this card fixes: classify_compliance()
+        # used to hardcode `existing_count > 2`. Assert it tracks whatever the
+        # real registry currently reports, not a literal baked into the function.
+        current_max = get_max_enterprise_links_per_page()
+        assert classify_compliance(
+            existing_count=current_max, existing_urls=[], chosen_target_url="https://words.aspose.com/",
+            family="words", platform=None,
+        ) != OVER_LIMIT
+        assert classify_compliance(
+            existing_count=current_max + 1, existing_urls=[], chosen_target_url="https://words.aspose.com/",
+            family="words", platform=None,
+        ) == OVER_LIMIT
 
 
 # ── A5-Prep: TestAgentAdjudication ───────────────────────────────────────────

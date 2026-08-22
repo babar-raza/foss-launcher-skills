@@ -1683,7 +1683,10 @@ def _head_scope_conflicts(manifest: dict[str, Any]) -> list[str]:
 
 
 def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
-    """Execute the two refresh writers under the run-bound contract."""
+    """Execute the refresh writers under the run-bound contract: body_refresh.py
+    (non-reference scope), batch_reference.py (reference scope), and -- TC12,
+    2026-08-21 -- backlink_backfill.py's all-5-subdomain reconciliation pass.
+    """
     if manifest["state"] != "PLANNED":
         raise RefreshRunError(f"apply requires PLANNED, got {manifest['state']}")
     conflicts = _head_scope_conflicts(manifest)
@@ -1855,6 +1858,66 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
                 # verify_run() does not block on its own deliberate write.
                 index_rel = index_path.relative_to(_repo_root).as_posix()
                 _record_extra_allowed_hash(run_root, index_rel, _path_hash(index_rel))
+
+    # TC12 (2026-08-21, backlink-governance-redesign): backlink reconciliation
+    # writer step, covering all 5 subdomains -- not just reference.aspose.org's
+    # side effect via batch_reference.py's own content generation above. Before
+    # this, refresh-product (the skill explicitly built to run repeatedly
+    # against an already-launched product) never revisited a page's aspose.com
+    # backlink outside reference.aspose.org: whatever state it had before the
+    # refresh, it still had after, even if wrong. Runs LAST (after both
+    # writers and the index step) for two reasons: (1) body_refresh.py's
+    # RG-010 guard + _PROTECTED_SECTION_IDS mean it only ever PRESERVES an
+    # existing See-Also/Related-Resources link, never corrects one -- so
+    # nothing it does conflicts with a later backlink write; (2) running
+    # reconciliation before body_refresh.py would change page content ahead
+    # of its own pre-write hash validation against body_impact.json's
+    # PLANNED-time snapshot, spuriously triggering VD_SKIPPED_HASH. Scoped by
+    # family/platform across all 5 subdomains (not the narrower pinned
+    # scope_paths) -- deliberately broader than this run's content-diff scope,
+    # since a page can carry a stale/wrong backlink even when its own
+    # knowledge-derived content diff is empty; that gap is exactly what this
+    # step exists to close. Like the TC-DUPIDX-02 index step above, this
+    # writer emits no page_decisions.jsonl row, so every file it actually
+    # modifies must be registered via _record_extra_allowed_hash() or the
+    # later OCC guard in verify_run() would block on its own deliberate write.
+    backlink_manifest_path = run_root / "backlink_reconciliation.json"
+    _require_command(
+        [
+            python,
+            str(_repo_root / "scripts/pipeline/commands/ops/backlink_backfill.py"),
+            "--write",
+            "--family", family,
+            "--platform", platform,
+            "--output", str(backlink_manifest_path),
+        ],
+        "backlink reconciliation",
+        manifest=manifest,
+    )
+    # _require_command() only raises on a nonzero subprocess exit --
+    # backlink_backfill.py's own main() always returns 0 even when its
+    # manifest.errors is non-empty (confirmed: only a fatal target-map load
+    # failure exits nonzero), so per-page failures must be checked explicitly.
+    if not backlink_manifest_path.is_file():
+        raise RefreshRunError(
+            "backlink reconciliation produced no output manifest"
+        )
+    try:
+        backlink_result = json.loads(backlink_manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RefreshRunError(
+            f"backlink reconciliation manifest is not valid JSON: {exc}"
+        ) from exc
+    if backlink_result.get("total_errors"):
+        raise RefreshRunError(
+            f"backlink reconciliation reported {backlink_result['total_errors']} "
+            f"page error(s): {backlink_result.get('errors', [])[:5]}"
+        )
+    for change in backlink_result.get("changes", []):
+        if change.get("skipped"):
+            continue
+        change_rel = change["file"]
+        _record_extra_allowed_hash(run_root, change_rel, _path_hash(change_rel))
 
     manifest["receipt_refs"] = [
         path.relative_to(_repo_root).as_posix() for path in receipts

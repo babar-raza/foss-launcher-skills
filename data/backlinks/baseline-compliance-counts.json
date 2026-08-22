@@ -1,0 +1,39 @@
+{
+  "3d": {
+    "count": 50
+  },
+  "_comment": "TC14 (2026-08-21) initial baseline, generated from a real, live, unscoped backlink_audit.py run against the actual repo (2026-08-22). Counts sum WRONG_TARGET+OVER_LIMIT+BLOCKED_TARGET+WRONG_ANCHOR_TEXT+DUPLICATE_LINK+DUPLICATE_SUBDOMAIN per family across all 5 subdomains -- the same blocking-status set check_backlink_compliance.py (the PR-scoped gate) uses. MISSING/SKIPPED/FAMILY_FALLBACK/COMPLIANT are never counted -- see check_backlink_regression.py module docstring. This is a known, honest starting point (pending TC15's staged backfill), not a target -- the ratchet only blocks further regression from here. Update by hand only when a regression is deliberately accepted, or after TC15 genuinely reduces a family's count (never auto-updated).",
+  "barcode": {
+    "count": 26
+  },
+  "cells": {
+    "count": 274
+  },
+  "email": {
+    "count": 21
+  },
+  "font": {
+    "count": 8
+  },
+  "html": {
+    "count": 17
+  },
+  "note": {
+    "count": 3
+  },
+  "page": {
+    "count": 1
+  },
+  "pdf": {
+    "count": 2186
+  },
+  "slides": {
+    "count": 96
+  },
+  "tex": {
+    "count": 1
+  },
+  "words": {
+    "count": 19
+  }
+}

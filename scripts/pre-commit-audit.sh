@@ -1542,4 +1542,42 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "backlink compliance gate"
+# Step 33 (TC14, backlink-governance-redesign, 2026-08-22): blocks a commit
+# that introduces (or edits into a worse state) a non-compliant aspose.com
+# backlink -- wrong anchor wording, a duplicate link, or a duplicate-subdomain
+# pairing -- on any staged content file. Deliberately scoped to files whose
+# staged diff actually touches an aspose.com link (see
+# check_backlink_compliance.py's own module docstring): the repo currently
+# carries a known, uncorrected backlog of ~125+ non-compliant pages pending
+# TC15's staged backfill, so a blanket "block if non-compliant" gate would
+# immediately block unrelated edits to any of those pages. This only fires
+# on a genuinely new or newly-worsened defect.
+# ---------------------------------------------------------------------------
+changed_backlink=()
+while IFS= read -r _line; do changed_backlink+=("$_line"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | grep '^content/.*\.md$'
+)
+if [ ${#changed_backlink[@]} -eq 0 ]; then
+    _pc_step_end "SKIP"
+elif [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_backlink_compliance.py" ]; then
+    _bcfile=$(mktemp /tmp/backlink-compliance-files-XXXXXX.txt 2>/dev/null || mktemp)
+    printf '%s\n' "${changed_backlink[@]}" > "$_bcfile"
+    "$_HOOK_PYTHON" scripts/ci/checks/check_backlink_compliance.py --files-from "$_bcfile"
+    _bc_status=$?
+    rm -f "$_bcfile"
+    if [ $_bc_status -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: a staged content file introduces (or worsens) a backlink compliance"
+        echo "violation. Fix the anchor text/duplicate link above, then re-stage and commit."
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+    _pc_step_end "PASS"
+else
+    echo "[Step 33] SKIP: .venv not found or check_backlink_compliance.py missing." >&2
+    _pc_step_end "SKIP"
+fi
+
 _pc_exit 0

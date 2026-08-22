@@ -1654,6 +1654,44 @@ class TestGetFamilyDisplay:
 
 
 # ---------------------------------------------------------------------------
+# TC6 (2026-08-21): _get_canonical_overrides() -- the reference.aspose.org
+# See Also generator's resolve_backlink() call previously never loaded or
+# passed canonical_overrides= at all, silently making every verified
+# platform-slug override inert for this call site specifically.
+# ---------------------------------------------------------------------------
+
+class TestGetCanonicalOverrides:
+    def test_returns_real_repo_overrides_data(self):
+        """Confirms this reads the real platform_canonical_overrides.yaml --
+        the file already has verified 3d/python and pdf/go entries."""
+        from batch_reference import _get_canonical_overrides
+        result = _get_canonical_overrides()
+        assert result["overrides"]["3d/python"]["target_platform"] == "python-net"
+        assert result["overrides"]["3d/python"]["http_verified"] is True
+
+    def test_caches_after_first_call(self):
+        """Mirrors _get_backlink_target_map()'s own lazy-cache pattern --
+        the second call must return the identical cached object, not
+        re-read the file."""
+        from batch_reference import _get_canonical_overrides
+        first = _get_canonical_overrides()
+        second = _get_canonical_overrides()
+        assert first is second
+
+    def test_resolve_backlink_call_site_passes_canonical_overrides(self):
+        """Wiring assertion: the See Also generation code must actually pass
+        canonical_overrides= to resolve_backlink(), not just have the helper
+        function exist unused (the exact shape of the original bug -- a
+        function like this existing without ever being wired in)."""
+        import inspect
+        import batch_reference as _br_mod
+        source = inspect.getsource(_br_mod)
+        call_site = source[source.index("TC-BL-007"):]
+        call_site = call_site[:call_site.index("resolve_backlink(") + 400]
+        assert "canonical_overrides=_get_canonical_overrides()" in call_site
+
+
+# ---------------------------------------------------------------------------
 # TC-GATE4B: content_hash stability — generator output matches hook computation
 # ---------------------------------------------------------------------------
 

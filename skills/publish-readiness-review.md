@@ -26,6 +26,21 @@ review required", "human action required", or equivalent, agents MUST invoke thi
 skill rather than halting — see AGENTS.md §7c for the canonical definition.
 (Launch gates: [docs/governance/launch-gates.md](../docs/governance/launch-gates.md))
 
+**AMBIGUOUS_PLATFORM_TARGETS backlink findings** (TC7, 2026-08-21): when
+`resolve_backlink()` (`scripts/pipeline/lib/backlink_targets.py`) returns
+`chosen_type == ResolutionKind.AMBIGUOUS_PLATFORM_TARGETS`, 2+ live,
+HTTP-verified candidate platform slugs exist for the same (family, local
+platform) pair on the target subdomain and no canonical rule picks between
+them (e.g. `reference.aspose.com`'s `pdf/python`: both `python-cpp` and
+`python-net` verified 200). This is a deliberate "most obvious" judgment
+call per the user's own framing, not bot-executable. Inspect the
+`fallback_reason` string for the candidate slug list, pick the correct one
+by checking each candidate URL's actual page content against the source
+page's real platform (e.g. does the reference page's content match a C++
+or a .NET API surface), then record the decision as a new
+`http_verified: true` entry in `data/backlinks/platform_canonical_overrides.yaml`
+so future resolutions no longer hit this status for that pair.
+
 **When real human escalation is still required** (S-90 routes these, does not execute):
 - Grade F after 2 S-26 passes + 1 S-89 batch pass with no improvement
 - PIPELINE-bucket findings from S-87 (skill breakage, extraction failure)
