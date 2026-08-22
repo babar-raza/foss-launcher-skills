@@ -42,11 +42,117 @@ from core.markdown import split_frontmatter  # noqa: E402
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 
+# Injectable seam for the reference-index regeneration step (Task 8, closes G5 --
+# mission-plan-the-end-to-end-vast-hejlsberg.md S9.5): tests override this to a
+# stub instead of exercising the real, much heavier batch_reference.py generator.
+_grouped_index_generator: "Callable[[str, str], dict] | None" = None
 
-def configure(*, repo_root: "Path | str | None" = None) -> None:
+
+def configure(*, repo_root: "Path | str | None" = None, grouped_index_generator=None) -> None:
     """Override module-level path constants for testing."""
-    global REPO_ROOT
+    global REPO_ROOT, _grouped_index_generator
     REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    _grouped_index_generator = grouped_index_generator
+
+
+def _real_grouped_index_generator(family: str, platform: str) -> dict:
+    # Imported lazily -- batch_reference.py is a much heavier module (Knowledge,
+    # evidence.runner, backlink targets, ...) that retire_page.py's other,
+    # non-reference callers should never need to pay the cost of importing.
+    from commands.content.batch_reference import generate_grouped_index
+    return generate_grouped_index(family, platform, dry_run=False)
+
+
+# ---------------------------------------------------------------------------
+# Reference-page removal: retire + unlink (Task 8, closes G5)
+# ---------------------------------------------------------------------------
+# Per direct user instruction, superseding this section's original alias/
+# redirect design (mission plan S9.5): a retired reference page is never
+# linked back to. draft:true (above, unchanged) already removes it from any
+# platform using the dynamic {{< children >}} shortcode -- Hugo excludes
+# draft pages from that listing by construction, nothing to do. Platforms
+# using batch_reference.py's static, hand-baked generate_grouped_index()
+# table need that table actually regenerated, since it is baked from
+# api_surface.json at generation time, not derived live at build time --
+# re-invoking the same generator is the correct fix (not hand-editing the
+# table), and is a no-op-safe, idempotent call already proven by every
+# existing generate_grouped_index() caller.
+
+_REFERENCE_ROOT_MARKER = "reference.aspose.org"
+
+
+def _reference_family_platform(path: Path, repo_root: Path) -> "tuple[str, str] | None":
+    """Return (family, platform) if path is a reference.aspose.org content page.
+
+    Path shape: content/reference.aspose.org/en/{family}/{platform}/{Class}.md
+    Returns None for anything else (family-index pages, or non-reference paths).
+    """
+    try:
+        rel = path.resolve().relative_to(repo_root.resolve())
+    except ValueError:
+        return None
+    parts = rel.parts
+    if len(parts) < 6 or parts[0] != "content" or parts[1] != _REFERENCE_ROOT_MARKER:
+        return None
+    if parts[2] != "en":
+        return None
+    return parts[3], parts[4]
+
+
+def _index_uses_grouped_generator(family: str, platform: str, repo_root: Path) -> bool:
+    """True if this platform's reference index carries an index_generator_version
+    stamp (batch_reference.py's generate_grouped_index() marker, TC-DUPIDX-02) --
+    the reliable, already-existing signal distinguishing a static, hand-baked
+    grouped-module table from the dynamic {{< children >}} shortcode, which
+    stamps nothing because it needs no regeneration."""
+    index_path = repo_root / "content" / _REFERENCE_ROOT_MARKER / "en" / family / platform / "_index.md"
+    if not index_path.is_file():
+        return False
+    text = index_path.read_text(encoding="utf-8")
+    parts = split_frontmatter(text)
+    if parts is None:
+        return False
+    _, yaml_body, _ = parts
+    try:
+        data = yaml.safe_load(yaml_body) or {}
+    except yaml.YAMLError:
+        return False
+    return "index_generator_version" in data
+
+
+def maybe_refresh_reference_index(path: Path, *, dry_run: bool = False) -> "str | None":
+    """After retiring a reference page, keep its platform index consistent.
+
+    Returns one of: None (not a reference page, nothing to do),
+    "children_shortcode_noop" (dynamic index, Hugo already excludes drafts),
+    "regenerated" (grouped index re-run for real), "dry_run" (would regenerate),
+    "generator_skipped" (regeneration ran but declined -- e.g. api_surface.json
+    now has too few entries; surfaced, never silently swallowed).
+    """
+    fp = _reference_family_platform(path, REPO_ROOT)
+    if fp is None:
+        return None
+    family, platform = fp
+
+    if not _index_uses_grouped_generator(family, platform, REPO_ROOT):
+        print(f"INFO: {family}/{platform} reference index uses {{{{< children >}}}} "
+              f"(dynamic) -- draft:true already excludes {path.name} from it.")
+        return "children_shortcode_noop"
+
+    if dry_run:
+        print(f"WOULD REGENERATE: {family}/{platform} grouped reference index "
+              f"(retiring {path.name} may remove its row)")
+        return "dry_run"
+
+    generator = _grouped_index_generator or _real_grouped_index_generator
+    result = generator(family, platform)
+    if result.get("written"):
+        print(f"REGENERATED: {family}/{platform} grouped reference index "
+              f"(retired page {path.name} no longer listed if absent from api_surface.json)")
+        return "regenerated"
+    print(f"WARN: {family}/{platform} grouped reference index regeneration "
+          f"declined: {result.get('reason')}")
+    return "generator_skipped"
 
 
 # ---------------------------------------------------------------------------
@@ -85,6 +191,7 @@ def retire_page(path: Path, *, dry_run: bool = False) -> str:
 
     if dry_run:
         print(f"WOULD RETIRE: {path}")
+        maybe_refresh_reference_index(path, dry_run=True)
         return "dry_run"
 
     # Modify frontmatter in memory only
@@ -106,6 +213,7 @@ def retire_page(path: Path, *, dry_run: bool = False) -> str:
         return "error"
 
     print(f"RETIRED: {path} (retired_at={data['retired_at']})")
+    maybe_refresh_reference_index(path, dry_run=False)
     return "retired"
 
 

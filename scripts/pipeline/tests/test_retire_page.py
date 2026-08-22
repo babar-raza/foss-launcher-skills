@@ -277,3 +277,96 @@ class TestUnRetireFromDelta:
         retire_page.configure(repo_root=tmp_path)
         result = retire_page.un_retire_from_delta("test", "net")
         assert result["un_retired"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Reference-page retire+unlink (mission-plan-the-end-to-end-vast-hejlsberg.md
+# Task 8, closes G5): retire_page() must keep the platform's reference index
+# consistent -- dynamic {{< children >}} platforms need no action (Hugo
+# already excludes draft pages); grouped-index platforms (stamped with
+# index_generator_version) must have their index actually regenerated.
+# ---------------------------------------------------------------------------
+
+class TestReferenceIndexRefresh:
+    def _write_reference_page(self, tmp_path, family, platform, class_name, *, draft=False):
+        ref_root = tmp_path / "content" / "reference.aspose.org" / "en" / family / platform
+        ref_root.mkdir(parents=True, exist_ok=True)
+        fm = f"---\ntitle: {class_name}\nlayout: reference-single\n"
+        if draft:
+            fm += "draft: true\nretired_at: '2026-01-01'\n"
+        fm += "---\nBody.\n"
+        page = ref_root / f"{class_name}.md"
+        page.write_text(fm, encoding="utf-8")
+        return page
+
+    def _write_index(self, tmp_path, family, platform, *, grouped: bool):
+        index_dir = tmp_path / "content" / "reference.aspose.org" / "en" / family / platform
+        index_dir.mkdir(parents=True, exist_ok=True)
+        if grouped:
+            body = "---\ntitle: Index\nindex_generator_version: 1\n---\nGrouped body.\n"
+        else:
+            body = "---\ntitle: Index\n---\n{{< children >}}\n"
+        (index_dir / "_index.md").write_text(body, encoding="utf-8")
+
+    def test_dynamic_children_shortcode_platform_is_noop(self, tmp_path):
+        self._write_index(tmp_path, "cells", "python", grouped=False)
+        page = self._write_reference_page(tmp_path, "cells", "python", "Workbook")
+        calls = []
+        retire_page.configure(
+            repo_root=tmp_path,
+            grouped_index_generator=lambda f, p: calls.append((f, p)) or {"written": True},
+        )
+        result = retire_page.retire_page(page)
+        assert result == "retired"
+        assert calls == []  # generator must never be invoked for a dynamic-index platform
+
+    def test_grouped_index_platform_triggers_regeneration(self, tmp_path):
+        self._write_index(tmp_path, "pdf", "java", grouped=True)
+        page = self._write_reference_page(tmp_path, "pdf", "java", "SomeRemovedClass")
+        calls = []
+
+        def fake_generator(family, platform):
+            calls.append((family, platform))
+            return {"written": True}
+
+        retire_page.configure(repo_root=tmp_path, grouped_index_generator=fake_generator)
+        result = retire_page.retire_page(page)
+        assert result == "retired"
+        assert calls == [("pdf", "java")]
+
+    def test_generator_decline_is_surfaced_not_swallowed(self, tmp_path, capsys):
+        self._write_index(tmp_path, "pdf", "java", grouped=True)
+        page = self._write_reference_page(tmp_path, "pdf", "java", "SomeClass")
+        retire_page.configure(
+            repo_root=tmp_path,
+            grouped_index_generator=lambda f, p: {"written": False, "reason": "api_surface too small"},
+        )
+        result = retire_page.maybe_refresh_reference_index(page)
+        assert result == "generator_skipped"
+        assert "api_surface too small" in capsys.readouterr().out
+
+    def test_dry_run_previews_without_calling_generator(self, tmp_path):
+        self._write_index(tmp_path, "pdf", "java", grouped=True)
+        page = self._write_reference_page(tmp_path, "pdf", "java", "SomeClass")
+        calls = []
+        retire_page.configure(
+            repo_root=tmp_path,
+            grouped_index_generator=lambda f, p: calls.append((f, p)) or {"written": True},
+        )
+        result = retire_page.retire_page(page, dry_run=True)
+        assert result == "dry_run"
+        assert calls == []  # real retirement (and thus regeneration) never happened
+
+    def test_non_reference_page_returns_none(self, tmp_path):
+        docs_root = tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "java"
+        docs_root.mkdir(parents=True)
+        page = docs_root / "overview.md"
+        page.write_text("---\ntitle: Overview\n---\nBody.\n", encoding="utf-8")
+        retire_page.configure(repo_root=tmp_path)
+        assert retire_page.maybe_refresh_reference_index(page) is None
+
+    def test_missing_index_file_is_noop(self, tmp_path):
+        # No _index.md written at all for this platform.
+        page = self._write_reference_page(tmp_path, "pdf", "java", "SomeClass")
+        retire_page.configure(repo_root=tmp_path)
+        assert retire_page.maybe_refresh_reference_index(page) == "children_shortcode_noop"
