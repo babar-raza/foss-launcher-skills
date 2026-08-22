@@ -407,6 +407,40 @@ class TestSetStaleSinceRenamesDelta:
         prev_json = merged / "knowledge_delta.prev.json"
         assert not prev_json.exists()
 
+    def test_second_cycle_rotation_overwrites_existing_prev(self, tmp_path):
+        """G13 (mission-plan-the-end-to-end-vast-hejlsberg.md Task 20): a second
+        (or later) stale-detection cycle must correctly rotate the CURRENT
+        knowledge_delta.json over an already-existing .prev.json from an
+        earlier cycle, not raise or silently leave .prev.json frozen at its
+        old content. Path.rename() raises FileExistsError on Windows in
+        exactly this situation -- the real, confirmed bug this test guards
+        against; Path.replace() (the fix) is an atomic, cross-platform
+        overwrite."""
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_yaml = merged / "model.yaml"
+        delta_json = merged / "knowledge_delta.json"
+        prev_json = merged / "knowledge_delta.prev.json"
+
+        # Simulate: a first stale-detection cycle already rotated an older
+        # delta into .prev.json (still present, stale_since still set from
+        # that first cycle) -- then a fresh refresh cleared stale_since and
+        # wrote a NEW knowledge_delta.json, and staleness was freshly
+        # re-detected a second time (stale_since reset to null in between,
+        # as _clear_stale_since + a new refresh cycle would do).
+        prev_json.write_text('{"removed_apis": ["OldClassFromCycle1"]}', encoding="utf-8")
+        delta_json.write_text('{"removed_apis": ["NewClassFromCycle2"]}', encoding="utf-8")
+        model_yaml.write_text("stale_since: null\nrepo_sha: def456\n", encoding="utf-8")
+
+        _rk._set_stale_since("test", "net")
+
+        assert not delta_json.exists(), "current-cycle delta should have been rotated"
+        assert prev_json.exists()
+        # The stale (cycle-1) content must be replaced by the current (cycle-2)
+        # content, not left frozen at whatever the first cycle wrote.
+        assert "NewClassFromCycle2" in prev_json.read_text(encoding="utf-8")
+        assert "OldClassFromCycle1" not in prev_json.read_text(encoding="utf-8")
+
 
 # ---------------------------------------------------------------------------
 # Fix B: Resurrection detection in delta writer (healing sprint 2026-04-15)

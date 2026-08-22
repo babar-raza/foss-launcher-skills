@@ -249,10 +249,19 @@ def _set_stale_since(family: str, platform: str) -> None:
             if delta_path.exists():
                 prev_path = delta_path.with_suffix(".prev.json")
                 try:
-                    delta_path.rename(prev_path)
-                    print(f"  {family}/{platform}: renamed stale knowledge_delta.json → .prev.json")
+                    # G13 (2026-08-22, mission-plan-the-end-to-end-vast-hejlsberg.md
+                    # Task 20): Path.rename() raises FileExistsError on Windows when
+                    # prev_path already exists -- true from the SECOND stale-detection
+                    # cycle onward, since nothing else ever deletes .prev.json. The
+                    # prior broad except swallowed this into a WARN and left the
+                    # rotation silently stuck at whatever .prev.json held from the
+                    # first cycle, freezing resurrection detection's reference point.
+                    # Path.replace() uses os.replace(), an atomic overwrite on both
+                    # Windows and POSIX -- the correct rotation primitive here.
+                    delta_path.replace(prev_path)
+                    print(f"  {family}/{platform}: rotated knowledge_delta.json → .prev.json")
                 except Exception as exc:
-                    print(f"  {family}/{platform}: WARN — could not rename stale delta: {exc}")
+                    print(f"  {family}/{platform}: WARN — could not rotate stale delta: {exc}")
     except Exception:
         raise  # TC-2: do not swallow; caller decides whether to halt or continue
 
