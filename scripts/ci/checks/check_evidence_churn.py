@@ -39,19 +39,27 @@ Thresholds:
   --block-threshold N  Block if N+ evidence-only files (default: 20)
 
 Override:
-  If the commit message (--commit-msg) or PR body (--pr-body) contains
-  the annotation 'EVIDENCE-RESTAMP: approved by', the check passes
-  regardless of file count.
+  The commit message (--commit-msg) or PR body (--pr-body) must contain the
+  annotation 'EVIDENCE-RESTAMP: approved by ..., run=<path/to/manifest.json>'
+  citing a refresh_run.py manifest that has actually reached at least
+  VALIDATING. Hardened 2026-08-22 (mission-plan-the-end-to-end-vast-hejlsberg.md
+  Task 22, closes G14): the original bypass accepted ANY text matching
+  'EVIDENCE-RESTAMP: approved by', with zero verification that the claimed
+  justification was true — a free-text excuse, not evidence. An annotation
+  present but missing a run= citation, or citing a path that does not exist
+  or whose manifest never reached VALIDATING, is now treated exactly like no
+  annotation at all (falls through to the normal warn/block threshold).
 
 Exit codes:
-  0 = pass (below threshold or annotation present)
-  1 = block (above block threshold, no annotation)
+  0 = pass (below threshold, or annotation present with a verified run citation)
+  1 = block (above block threshold, no verified annotation)
   2 = error (parse failure)
 """
 from __future__ import annotations
 
 import argparse
 import re
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -60,6 +68,78 @@ import yaml
 
 # The bulk re-stamp annotation that overrides the check
 _BULK_ANNOTATION_RE = re.compile(r"EVIDENCE-RESTAMP:\s*approved by", re.IGNORECASE)
+
+# G14 hardening (2026-08-22): the run citation the annotation must additionally
+# carry. Matches "run=reports/refresh_runs/{family}/{platform}/{run_id}" —
+# deliberately permissive about surrounding punctuation/whitespace, since this
+# is free-text a commit message, not a structured field.
+_RUN_CITATION_RE = re.compile(r"run=([^\s,]+)")
+
+# A run manifest's `state` must have progressed at least this far for its
+# citation to count as real verification, not just "a run was started" — see
+# refresh_run.py's NEXT_STATES for the full state machine this mirrors.
+_MIN_VERIFIED_STATES = frozenset({"VALIDATING", "READY_TO_COMMIT", "COMMITTED"})
+
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]
+_repo_root = _DEFAULT_REPO_ROOT
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Override the repo-root seam for tests; call without arguments to reset."""
+    global _repo_root
+    _repo_root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+
+
+def verify_run_citation(run_ref: str) -> "tuple[bool, str]":
+    """Verify an EVIDENCE-RESTAMP annotation's run= citation is real.
+
+    ``run_ref`` is expected to be a path to (or ending in) a run directory
+    under ``reports/refresh_runs/{family}/{platform}/{run_id}`` -- with or
+    without a trailing ``/manifest.json``. Returns (verified, reason); reason
+    explains a False result for the check's own diagnostic output.
+    """
+    ref = run_ref.strip().rstrip("/")
+    if ref.endswith("manifest.json"):
+        manifest_path = _repo_root / ref
+    else:
+        manifest_path = _repo_root / ref / "manifest.json"
+
+    if not manifest_path.is_file():
+        return False, f"cited run manifest not found: {manifest_path}"
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"cited run manifest unreadable: {exc}"
+
+    state = manifest.get("state")
+    if state not in _MIN_VERIFIED_STATES:
+        return False, (
+            f"cited run's state is {state!r}, must be one of "
+            f"{sorted(_MIN_VERIFIED_STATES)} to count as verified evidence"
+        )
+    return True, f"verified: run reached {state}"
+
+
+def bypass_is_verified(combined_text: str) -> "tuple[bool, str]":
+    """Return (bypass_granted, reason) for an EVIDENCE-RESTAMP annotation.
+
+    An annotation with no run= citation, or one that fails verification, is
+    NOT granted a bypass -- it falls through to the normal warn/block
+    threshold exactly as if no annotation were present at all (G14).
+    """
+    if not _BULK_ANNOTATION_RE.search(combined_text):
+        return False, "no EVIDENCE-RESTAMP annotation present"
+
+    citation = _RUN_CITATION_RE.search(combined_text)
+    if not citation:
+        return False, (
+            "EVIDENCE-RESTAMP annotation present but has no run= citation -- "
+            "treated as unverified, per G14 hardening"
+        )
+
+    verified, reason = verify_run_citation(citation.group(1))
+    return verified, reason
 
 # Grade fields are DERIVED from evidence + body content, not independent
 # editorial decisions — when evidence is re-stamped, grade/grade_reasons
@@ -188,11 +268,16 @@ def main() -> int:
                         help="PR body to check for bulk re-stamp annotation")
     args = parser.parse_args()
 
-    # Check for override annotation
+    # Check for override annotation -- G14: must cite a verified run, not just
+    # matching text (see bypass_is_verified()'s docstring for the full rationale).
     combined_text = args.commit_msg + "\n" + args.pr_body
-    if _BULK_ANNOTATION_RE.search(combined_text):
-        print("PASS: EVIDENCE-RESTAMP annotation found — evidence churn check bypassed.")
+    granted, reason = bypass_is_verified(combined_text)
+    if granted:
+        print(f"PASS: EVIDENCE-RESTAMP annotation verified ({reason}) — evidence churn check bypassed.")
         return 0
+    if _BULK_ANNOTATION_RE.search(combined_text):
+        print(f"NOTE: EVIDENCE-RESTAMP annotation present but not verified ({reason}) "
+              f"— falling through to the normal threshold check.")
 
     # Get changed .md files
     changed_files = _get_changed_md_files(mode=args.mode, base_branch=args.base_branch)
@@ -219,9 +304,15 @@ def main() -> int:
         print("reconciles page bodies via S-20 (page-update) before re-stamping evidence.",
               file=sys.stderr)
         print("", file=sys.stderr)
-        print("If this bulk re-stamp is intentional and reviewed, add to the commit message:",
+        print("If this bulk re-stamp is intentional and reviewed, add to the commit message,",
               file=sys.stderr)
-        print("  EVIDENCE-RESTAMP: approved by [name] on [date], reason: [trigger]", file=sys.stderr)
+        print("citing a refresh_run.py run that actually reached VALIDATING or later:",
+              file=sys.stderr)
+        print(
+            "  EVIDENCE-RESTAMP: approved by [name] on [date], reason: [trigger], "
+            "run=reports/refresh_runs/{family}/{platform}/{run_id}",
+            file=sys.stderr,
+        )
         print("", file=sys.stderr)
         print("Evidence-only files:", file=sys.stderr)
         for f in evidence_only_files[:10]:
