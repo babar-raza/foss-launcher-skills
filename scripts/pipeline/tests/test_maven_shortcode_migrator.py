@@ -191,3 +191,86 @@ def test_discover_files_covers_all_locales(tmp_path):
     files = sut.discover_files("3d")
     locales = {f.parts[-5] if "docs.aspose.org" in str(f) else None for f in files}
     assert {"en", "fr", "de"} <= locales
+
+
+# --- Legacy bare "aspose-pdf" artifactId matching (ST-090, formerly ST-041) ---
+# pdf/java's earliest content was authored against a pre-publish placeholder
+# artifactId ("aspose-pdf", no "-foss" suffix) that the standard substring
+# match never caught by design. These tests cover the exact-match legacy
+# widening added 2026-08-22, including the negative controls required before
+# trusting it against the real 73-file backlog item.
+
+def test_legacy_pdf_block_pass_replaces_bare_artifact_id(tmp_path):
+    fp = _write(tmp_path, "content/docs.aspose.org/ar/pdf/java/getting-started/installation.md", (
+        "## مواصلة مافن\n\n"
+        "```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-pdf</artifactId>\n  <version>0.1.0-alpha</version>\n"
+        "</dependency>\n```\n"
+    ))
+    res = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert res["result"] == sut.R_MIGRATED
+    assert res["block_replacements"] == 1
+    text = fp.read_text(encoding="utf-8")
+    assert '{{< maven-coord "pdf" "java" >}}' in text
+    assert "0.1.0-alpha" not in text
+    assert "aspose-pdf<" not in text and "<artifactId>aspose-pdf</artifactId>" not in text
+
+
+def test_legacy_pdf_inline_pass_replaces_bare_mention(tmp_path):
+    fp = _write(tmp_path, "content/blog.aspose.org/pdf/java/some-post/index.fr.md", (
+        "Le paquet est publié sous org.aspose:aspose-pdf:0.1.0-alpha sur Maven Central.\n"
+    ))
+    res = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert res["result"] == sut.R_MIGRATED
+    text = fp.read_text(encoding="utf-8")
+    assert '{{< maven-gav "pdf" "java" >}}' in text
+    assert "0.1.0-alpha" not in text
+
+
+def test_legacy_pdf_current_foss_artifact_id_still_matches(tmp_path):
+    """The widening must not regress the already-correct 'pdf-foss' path."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/pdf/java/getting-started/installation.md", (
+        "```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-pdf-foss</artifactId>\n  <version>26.8.0</version>\n"
+        "</dependency>\n```\n"
+    ))
+    res = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert res["result"] == sut.R_MIGRATED
+    assert res["block_replacements"] == 1
+
+
+def test_legacy_pdf_negative_control_incidental_prose_mention_not_matched(tmp_path):
+    """A bare prose mention of 'aspose-pdf' with no groupId:artifactId
+    coordinate shape at all must not be touched -- this is the negative
+    control the widening was explicitly required to pass before use."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/pdf/java/developer-guide/history.md", (
+        "The project was originally named aspose-pdf before the FOSS spinoff.\n"
+    ))
+    res = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert res["result"] == sut.R_NOOP
+    assert fp.read_text(encoding="utf-8") == "The project was originally named aspose-pdf before the FOSS spinoff.\n"
+
+
+def test_legacy_pdf_negative_control_unrelated_family_not_affected(tmp_path):
+    """The pdf-specific legacy exact-match must never leak into another
+    family's migration run, even if that family's content happens to
+    mention the string "aspose-pdf" incidentally."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/cells/java/developer-guide/interop.md", (
+        "```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-pdf</artifactId>\n  <version>0.1.0-alpha</version>\n"
+        "</dependency>\n```\n"
+    ))
+    res = sut.migrate_file(fp, "cells", dry_run=False)
+    assert res["result"] == sut.R_NOOP
+
+
+def test_legacy_pdf_idempotent_second_run_is_noop(tmp_path):
+    fp = _write(tmp_path, "content/kb.aspose.org/en/pdf/java/faq.md", (
+        "```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-pdf</artifactId>\n  <version>0.1.0-alpha</version>\n"
+        "</dependency>\n```\n"
+    ))
+    first = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert first["result"] == sut.R_MIGRATED
+    second = sut.migrate_file(fp, "pdf", dry_run=False)
+    assert second["result"] == sut.R_NOOP

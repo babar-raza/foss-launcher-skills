@@ -89,6 +89,20 @@ _FAMILY_ARTIFACT_KEYWORD = {
     "slides": "slides-foss",
 }
 
+# Family -> additional EXACT-match legacy artifactId value that predates the
+# current "-foss" naming convention (ST-090, formerly ST-041, 2026-08-22): pdf's
+# earliest content was authored against a pre-publish placeholder artifactId
+# that never got the "-foss" suffix. The normal substring check above
+# deliberately does not catch it ("aspose-pdf" does not contain "pdf-foss") --
+# this was never a migrator bug, just an out-of-pattern legacy value the
+# original design wasn't asked to handle (see backlog/BACKLOG.md ST-090 for
+# the full history). Matched by EXACT equality against the full captured
+# artifactId, not substring, so this cannot over-match an unrelated artifactId
+# that merely contains "aspose-pdf" as part of a longer, different name.
+_FAMILY_LEGACY_ARTIFACT_ID = {
+    "pdf": "aspose-pdf",
+}
+
 # Subdomains this codemod is allowed to touch. reference.aspose.org is
 # deliberately absent -- TC-MT008-00 determined its com.aspose.* mentions are
 # real Java package namespaces, not Maven coordinates.
@@ -118,25 +132,37 @@ def _find_fenced_blocks(text: str) -> list[tuple[int, int, str]]:
     return out
 
 
-def _block_is_dependency_for_family(block_text: str, artifact_keyword: str) -> bool:
+def _block_is_dependency_for_family(
+    block_text: str, artifact_keyword: str, legacy_artifact_id: "str | None" = None
+) -> bool:
     gid_match = _GROUPID_RE.search(block_text)
     aid_match = _ARTIFACTID_RE.search(block_text)
     if not gid_match or not aid_match:
         return False
-    return artifact_keyword in aid_match.group(1)
+    aid = aid_match.group(1)
+    if artifact_keyword in aid:
+        return True
+    return legacy_artifact_id is not None and aid == legacy_artifact_id
 
 
-def _build_inline_pattern(artifact_keyword: str) -> re.Pattern:
+def _build_inline_pattern(artifact_keyword: str, legacy_artifact_id: "str | None" = None) -> re.Pattern:
     # groupId:artifactId(:version), optionally backtick-wrapped. groupId is
     # any aspose-namespaced value (com.aspose, org.aspose, org.aspose.slides.foss
     # style) -- deliberately not anchored to a single "correct" value, matching
     # the block pass's structural (not value-based) philosophy. The optional
     # "aspose-" prefix before artifact_keyword handles the observed
     # "aspose-cells-foss" vs bare "cells-foss" variance in real content.
+    artifact_alt = r"(?:aspose-)?" + re.escape(artifact_keyword)
+    if legacy_artifact_id is not None:
+        # Legacy value alternation is anchored (no surrounding \w) via the
+        # colon-delimited group/artifact/version structure already enforced
+        # by the outer pattern, so this cannot over-match a longer artifactId
+        # that merely starts with the same characters.
+        artifact_alt = "(?:" + artifact_alt + "|" + re.escape(legacy_artifact_id) + ")"
     pattern = (
         r"`?"
         r"(?:com|org)\.aspose(?:\.[\w.]+)?:"
-        r"(?:aspose-)?" + re.escape(artifact_keyword) +
+        + artifact_alt +
         r"(?::[\w.-]+)?"
         r"`?"
     )
@@ -160,6 +186,7 @@ def migrate_file(filepath: Path, family: str, *, dry_run: bool = True) -> dict[s
         return result
 
     artifact_keyword = _FAMILY_ARTIFACT_KEYWORD[family]
+    legacy_artifact_id = _FAMILY_LEGACY_ARTIFACT_ID.get(family)
     original = filepath.read_text(encoding="utf-8", errors="replace")
     text = original
 
@@ -169,14 +196,14 @@ def migrate_file(filepath: Path, family: str, *, dry_run: bool = True) -> dict[s
     block_count = 0
     for start, end, indent in reversed(blocks):
         block_text = text[start:end]
-        if _block_is_dependency_for_family(block_text, artifact_keyword):
+        if _block_is_dependency_for_family(block_text, artifact_keyword, legacy_artifact_id):
             replacement = f'{indent}{{{{< maven-coord "{family}" "java" >}}}}'
             text = text[:start] + replacement + text[end:]
             block_count += 1
 
     # Pass 2: inline replacement (bare or backtick-wrapped mention), applied
     # after the block pass so it never double-matches text already replaced.
-    inline_pattern = _build_inline_pattern(artifact_keyword)
+    inline_pattern = _build_inline_pattern(artifact_keyword, legacy_artifact_id)
     inline_replacement = f'{{{{< maven-gav "{family}" "java" >}}}}'
     text, inline_count = inline_pattern.subn(inline_replacement, text)
 
