@@ -98,6 +98,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_ledger_init_hook.sh"
           }
         ]
       },
@@ -140,6 +144,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_ledger_init_hook.sh"
           }
         ]
       },

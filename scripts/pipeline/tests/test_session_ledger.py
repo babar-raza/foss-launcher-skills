@@ -546,6 +546,23 @@ class TestCLI:
         assert ret == 0
         assert (isolate_session_dir / "cli-test-001.json").exists()
 
+    def test_repo_root_flag_redirects_without_prior_configure(self, tmp_path, monkeypatch):
+        """G16/Task 24: check_ledger_init_hook.sh invokes this CLI directly
+        (a fresh subprocess, no prior configure() call) with --repo-root to
+        redirect where the manifest is written -- this must work standalone,
+        not only via the isolate_session_dir fixture's own configure() call."""
+        monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+        monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+        monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+        try:
+            ret = session_ledger.main([
+                "--repo-root", str(tmp_path), "init", "--session-id", "cli-repo-root-test",
+            ])
+            assert ret == 0
+            assert (tmp_path / "reports" / "session-state" / "cli-repo-root-test.json").is_file()
+        finally:
+            session_ledger.configure()  # reset -- this test deliberately bypasses the fixture
+
     def test_record_command(self, active_session):
         ret = session_ledger.main(["record", "--file", "content/foo.md", "--action", "created"])
         assert ret == 0

@@ -1,5 +1,11 @@
 {
   "files": {
+    "scripts/ci/tests/test_check_backlog_reconciliation_gate.py": {
+      "T1": 0,
+      "T2": 0,
+      "T3": 2,
+      "T4": 0
+    },
     "scripts/ci/tests/test_check_blog_index_metadata.py": {
       "T1": 1,
       "T2": 0,
@@ -9,6 +15,18 @@
     "scripts/ci/tests/test_check_manifest_consistency.py": {
       "T1": 0,
       "T2": 10,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_check_media_asset_size.py": {
+      "T1": 2,
+      "T2": 0,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_check_module_consumption.py": {
+      "T1": 3,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -34,6 +52,18 @@
       "T1": 0,
       "T2": 0,
       "T3": 31,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_check_reference_index_structure.py": {
+      "T1": 1,
+      "T2": 2,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_check_session_identity_parity.py": {
+      "T1": 0,
+      "T2": 2,
+      "T3": 0,
       "T4": 0
     },
     "scripts/ci/tests/test_check_skill_command_parity.py": {
@@ -72,15 +102,33 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/ci/tests/test_check_stale_file_regression.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 2,
+      "T4": 0
+    },
     "scripts/ci/tests/test_check_stale_refresh_gate.py": {
       "T1": 1,
       "T2": 0,
       "T3": 2,
       "T4": 0
     },
-    "scripts/ci/tests/test_validate_skill_ids.py": {
+    "scripts/ci/tests/test_check_supervisor_artifacts.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_check_upstream_drift.py": {
       "T1": 0,
       "T2": 0,
+      "T3": 3,
+      "T4": 0
+    },
+    "scripts/ci/tests/test_validate_skill_ids.py": {
+      "T1": 0,
+      "T2": 1,
       "T3": 3,
       "T4": 0
     },
@@ -93,7 +141,7 @@
     "scripts/pipeline/tests/content/test_refresh_oracle.py": {
       "T1": 0,
       "T2": 1,
-      "T3": 0,
+      "T3": 2,
       "T4": 0
     },
     "scripts/pipeline/tests/content_eval/test_api_completeness.py": {
@@ -123,6 +171,18 @@
     "scripts/pipeline/tests/content_eval/test_capability_claim_check_functional_flag.py": {
       "T1": 5,
       "T2": 0,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/content_eval/test_code_reachability.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/content_eval/test_duplicate_content.py": {
+      "T1": 0,
+      "T2": 1,
       "T3": 0,
       "T4": 0
     },
@@ -174,6 +234,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_attach_evidence_behavior.py": {
+      "T1": 0,
+      "T2": 2,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_attach_evidence_subdomain_filter.py": {
       "T1": 0,
       "T2": 31,
@@ -192,6 +258,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_backfill_knowledge_state.py": {
+      "T1": 3,
+      "T2": 4,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_backlink_adjudicate_review.py": {
       "T1": 0,
       "T2": 6,
@@ -201,6 +273,12 @@
     "scripts/pipeline/tests/test_backlink_expand_reference_index.py": {
       "T1": 7,
       "T2": 0,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/test_backlog_reconcile.py": {
+      "T1": 0,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -218,7 +296,7 @@
     },
     "scripts/pipeline/tests/test_batch_reference.py": {
       "T1": 0,
-      "T2": 3,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -330,6 +408,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_freshness_guard.py": {
+      "T1": 0,
+      "T2": 8,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_freshness_manifest.py": {
       "T1": 0,
       "T2": 16,
@@ -393,6 +477,12 @@
     "scripts/pipeline/tests/test_knowledge_coverage.py": {
       "T1": 0,
       "T2": 10,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/test_knowledge_state.py": {
+      "T1": 0,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -480,6 +570,18 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_promote_atomic.py": {
+      "T1": 0,
+      "T2": 2,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/test_promote_integration.py": {
+      "T1": 0,
+      "T2": 5,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_promote_preserves_history.py": {
       "T1": 0,
       "T2": 1,
@@ -516,6 +618,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_refresh_knowledge_regen_lock.py": {
+      "T1": 0,
+      "T2": 18,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_refresh_validation.py": {
       "T1": 0,
       "T2": 19,
@@ -536,7 +644,7 @@
     },
     "scripts/pipeline/tests/test_repo_patrol.py": {
       "T1": 0,
-      "T2": 19,
+      "T2": 39,
       "T3": 0,
       "T4": 0
     },
@@ -566,7 +674,7 @@
     },
     "scripts/pipeline/tests/test_session_ledger.py": {
       "T1": 0,
-      "T2": 32,
+      "T2": 37,
       "T3": 2,
       "T4": 0
     },
@@ -656,14 +764,14 @@
     },
     "scripts/pipeline/tests/test_truth_audit_unittest.py": {
       "T1": 0,
-      "T2": 3,
+      "T2": 7,
       "T3": 0,
       "T4": 0
     },
     "scripts/pipeline/tests/test_update_product_registry.py": {
       "T1": 0,
-      "T2": 4,
-      "T3": 2,
+      "T2": 11,
+      "T3": 6,
       "T4": 0
     },
     "scripts/pipeline/tests/test_version_capability_evaluators.py": {
@@ -685,14 +793,14 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-31T14:59:32Z",
+  "generated_at": "2026-08-23T08:00:16Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 117,
-    "T2": 853,
-    "T3": 95,
+    "T1": 126,
+    "T2": 942,
+    "T3": 108,
     "T4": 15
   }
 }

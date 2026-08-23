@@ -1455,6 +1455,10 @@ def main(argv: list[str] | None = None) -> int:
         prog="session_ledger",
         description="Session-scoped file touch ledger for /commit scoping.",
     )
+    parser.add_argument(
+        "--repo-root", default=None,
+        help="Override repo root (testing only -- production always uses the real repo root)",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     # init
@@ -1534,6 +1538,8 @@ def main(argv: list[str] | None = None) -> int:
                            help="Session to inherit INTO (default: env/unambiguous scan)")
 
     args = parser.parse_args(argv)
+    if args.repo_root:
+        configure(repo_root=Path(args.repo_root))
     dispatch = {
         "init": cmd_init,
         "record": cmd_record,
