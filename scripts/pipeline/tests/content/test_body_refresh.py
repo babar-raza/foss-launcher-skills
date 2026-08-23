@@ -163,6 +163,63 @@ def _make_change(change_id: str, symbol: str, change_type: str = "API_REMOVED") 
     }
 
 
+def _run_with_explicit_scope(
+    tmp_path: Path, family: str, platform: str, *,
+    scope_paths: list[str], impacts: list[dict], mode: "str | None" = None,
+    run_id: str = "TEST-RUN-SCOPED", **kwargs,
+):
+    """Like _run() above, but the scope is an EXPLICIT path list (not
+    derived from `impacts`) and an optional `mode` is written into the
+    manifest -- needed to exercise remediation mode's own scope-vs-impact
+    reconciliation (a scoped page absent from `impacts` entirely)."""
+    reports = tmp_path / "reports" / family / platform
+    reports.mkdir(parents=True, exist_ok=True)
+    (reports / "body_impact.json").write_text(json.dumps(impacts), encoding="utf-8")
+    (reports / "semantic_changes.json").write_text(json.dumps([]), encoding="utf-8")
+    br.configure(
+        reports_root=str(tmp_path / "reports"),
+        receipts_root=str(reports / "receipts"),
+        hash_validation=False,
+        safe_write_fn=lambda p, c, **kw: True,
+    )
+    run_root = reports / "run-artifacts"
+    run_root.mkdir(parents=True, exist_ok=True)
+    scope = {
+        "schema_version": 1,
+        "run_id": run_id,
+        "family": family,
+        "platform": platform,
+        "paths": scope_paths,
+        "initial_hashes": {},
+    }
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    logical = json.dumps(
+        {"paths": sorted(scope_paths), "input_digest": None},
+        sort_keys=True, separators=(",", ":"),
+    ).encode("utf-8")
+    manifest = {
+        "run_id": run_id,
+        "family": family,
+        "platform": platform,
+        "created_at": "2026-08-23T00:00:00Z",
+        "scope": {
+            "paths": scope_paths,
+            "input_digest": None,
+            "digest": "sha256:" + hashlib.sha256(logical).hexdigest(),
+        },
+        "output_digests": {
+            "scope": "sha256:" + hashlib.sha256(scope_path.read_bytes()).hexdigest(),
+        },
+    }
+    if mode is not None:
+        manifest["mode"] = mode
+    (run_root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    kwargs.setdefault("run_id", run_id)
+    kwargs.setdefault("run_root", run_root)
+    return br.run(family, platform, **kwargs)
+
+
 # ── Tests ─────────────────────────────────────────────────────────────────
 
 def test_execute_requires_explicit_run_id(tmp_path):
@@ -2278,3 +2335,130 @@ class TestTrafficTierOrdering:
         processed_order = [d["page_path"] for d in decisions]
         assert processed_order[0].endswith("a.md")
         assert processed_order[1].endswith("b.md")
+
+
+class TestRemediationModeScopeSynthesis:
+    """Task 12 (mission-plan-the-end-to-end-vast-hejlsberg.md, 2026-08-23): a
+    real, live-found bug. body_refresh.py's run() intersects the explicit
+    scope with body_impact.json's delta-driven citation-match entries
+    UNCONDITIONALLY, regardless of mode -- so a remediation-mode run whose
+    target pages aren't ALSO cited by whatever the live knowledge delta
+    happens to show gets silently reduced to zero impacts, produces zero
+    receipts, and hard-blocks with "Writers produced no run-scoped page
+    decision ledger" -- defeating remediation mode's entire stated purpose
+    (fixing a hand-identified defect independent of the live delta). Fixed
+    by synthesizing a zero-impact (affected_sections=[]) entry for every
+    scoped page not already covered by a real citation match, in remediation
+    mode only -- every such page still gets a real VD_NO_SECTIONS receipt.
+    """
+
+    def test_remediation_mode_synthesizes_receipt_for_uncited_scoped_page(self, tmp_path):
+        page = _make_page(
+            tmp_path, "content/blog.aspose.org/pdf/java/some-post/index.md",
+            "---\ntitle: Post\nauto_updatable: true\n---\n\nAlready-correct content.\n",
+        )
+        # body_impact.json has ZERO entries -- exactly the real, confirmed
+        # scenario (a metadata-only knowledge delta cites nothing anywhere).
+        _run_with_explicit_scope(
+            tmp_path, "pdf", "java",
+            scope_paths=[str(page)], impacts=[], mode="remediation",
+            execute=True,
+        )
+
+        decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
+        assert decisions_path.is_file(), "remediation mode must still produce a page decision ledger"
+        decisions = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").strip().splitlines()]
+        assert len(decisions) == 1
+        assert decisions[0]["page_path"] == Path(str(page)).as_posix()
+        assert decisions[0]["disposition"] == "NOT_AFFECTED"  # maps from VD_NO_SECTIONS
+
+    def test_non_remediation_mode_still_drops_uncited_scoped_page(self, tmp_path):
+        """Negative control: the fix must be remediation-mode-only -- upstream/
+        combined mode's existing delta-driven behavior (scope derived FROM
+        the delta via PIA, so an uncited scoped page would itself be a real
+        anomaly worth investigating, not silently synthesized away) must be
+        completely unchanged."""
+        page = _make_page(
+            tmp_path, "content/blog.aspose.org/pdf/java/some-post/index.md",
+            "---\ntitle: Post\nauto_updatable: true\n---\n\nContent.\n",
+        )
+        _run_with_explicit_scope(
+            tmp_path, "pdf", "java",
+            scope_paths=[str(page)], impacts=[], mode="upstream",
+            execute=True,
+        )
+
+        decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
+        assert not decisions_path.is_file(), (
+            "non-remediation mode must NOT synthesize a receipt for an uncited page -- "
+            "this must remain the exact pre-fix behavior"
+        )
+
+    def test_remediation_mode_still_uses_real_impact_when_present(self, tmp_path):
+        """A scoped page that DOES have a real citation match in remediation
+        mode must be processed normally via that real impact entry, not
+        overridden by a synthesized no-op one (no double-counting, no
+        clobbering a real update with a fake NOT_AFFECTED)."""
+        page = _make_page(
+            tmp_path, "content/docs.aspose.org/en/pdf/java/developer-guide/annotations.md",
+            "---\ntitle: Annotations\nauto_updatable: true\n---\n\n"
+            "## Overview\n\nOld prose about `WidgetAnnotation`.\n",
+        )
+        change = _make_change("CHG-001", "WidgetAnnotation", "API_REMOVED")
+        impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REMOVAL, lines=[3, 5])
+        br.configure(safe_write_fn=lambda p, c, **kw: True)
+
+        _run_with_explicit_scope(
+            tmp_path, "pdf", "java",
+            scope_paths=[str(page)], impacts=[impact], mode="remediation",
+            execute=True,
+        )
+
+        decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
+        decisions = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").strip().splitlines()]
+        # Exactly one decision for this one scoped page -- proves the real
+        # impact was processed through the normal path once, not ALSO
+        # synthesized as a second, duplicate no-op entry (which would either
+        # raise a page-decision collision in _emit_run_decision, or silently
+        # double-count). This is the property that actually matters here:
+        # remediation mode's synthesis must never touch a page already
+        # covered by a real impact.
+        assert len(decisions) == 1
+        assert decisions[0]["page_path"] == Path(str(page)).as_posix()
+
+    def test_remediation_mode_with_multiple_uncited_pages_gets_a_receipt_each(self, tmp_path):
+        pages = [
+            _make_page(
+                tmp_path, f"content/blog.aspose.org/pdf/java/post-{i}/index.md",
+                "---\ntitle: Post\nauto_updatable: true\n---\n\nFine as-is.\n",
+            )
+            for i in range(3)
+        ]
+        _run_with_explicit_scope(
+            tmp_path, "pdf", "java",
+            scope_paths=[str(p) for p in pages], impacts=[], mode="remediation",
+            execute=True,
+        )
+
+        decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
+        decisions = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").strip().splitlines()]
+        assert {d["page_path"] for d in decisions} == {Path(str(p)).as_posix() for p in pages}
+        assert all(d["disposition"] == "NOT_AFFECTED" for d in decisions)
+
+    def test_missing_manifest_mode_field_behaves_like_non_remediation(self, tmp_path):
+        """An older manifest schema with no "mode" field at all (pre-Task-6
+        historical runs, or any manifest missing the field for any reason)
+        must fail open to the ORIGINAL (pre-fix) behavior, not silently
+        assume remediation semantics."""
+        page = _make_page(
+            tmp_path, "content/blog.aspose.org/pdf/java/some-post/index.md",
+            "---\ntitle: Post\nauto_updatable: true\n---\n\nContent.\n",
+        )
+        _run_with_explicit_scope(
+            tmp_path, "pdf", "java",
+            scope_paths=[str(page)], impacts=[], mode=None,
+            execute=True,
+        )
+
+        decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
+        assert not decisions_path.is_file()

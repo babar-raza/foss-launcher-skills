@@ -1783,6 +1783,48 @@ def run(
             if Path(str(impact.get("page_path", ""))).as_posix()
             in scoped_paths
         ]
+        # Remediation mode's whole purpose is fixing a hand-identified, known
+        # defect independent of whatever the CURRENT knowledge delta happens
+        # to show -- that's the entire reason a separate "remediation" mode
+        # exists apart from "upstream"/"combined". body_impact.json, however,
+        # is a delta-driven citation-match signal computed from THIS run's own
+        # knowledge_delta.json; a scoped page absent from it (because the
+        # live delta doesn't happen to cite anything on that page) was
+        # previously silently dropped above, regardless of mode -- producing
+        # zero receipts and defeating remediation's stated purpose whenever
+        # its target pages aren't coincidentally also touched by the live
+        # delta (found live 2026-08-23, mission-plan-the-end-to-end-vast-
+        # hejlsberg.md Task 12, "Writers produced no run-scoped page decision
+        # ledger" on a genuinely metadata-only release with an empty
+        # body_impact.json). Fix: in remediation mode only, synthesize a
+        # zero-impact entry (affected_sections=[]) for every scoped page not
+        # already covered by a real citation match, so every scoped page
+        # still gets a receipt -- VD_NO_SECTIONS for pages with nothing to
+        # update, a real update for any that DO have a genuine citation
+        # match. Upstream/combined mode's existing delta-driven behavior is
+        # untouched: their scope is already derived FROM the delta via PIA,
+        # so every scoped page is expected to have a real impact entry there.
+        run_mode = None
+        manifest_path = resolved_run_root / "manifest.json"
+        if manifest_path.is_file():
+            try:
+                run_mode = json.loads(manifest_path.read_text(encoding="utf-8")).get("mode")
+            except (OSError, json.JSONDecodeError):
+                run_mode = None
+        if run_mode == "remediation":
+            impacted_paths = {
+                Path(str(impact.get("page_path", ""))).as_posix()
+                for impact in impacts
+            }
+            for path in sorted(scoped_paths - impacted_paths):
+                impacts.append({
+                    "impact_id": f"IMP-REMEDIATION-{len(impacts) + 1:04d}",
+                    "page_path": path,
+                    "locale": "en",
+                    "semantic_change_ids": [],
+                    "affected_sections": [],
+                    "planner_signal": False,
+                })
         existing_run_receipts = _existing_run_receipts(
             resolved_run_root, run_id
         )
@@ -1832,6 +1874,76 @@ def run(
     _llm_circuit = _LLMCircuit()
     context["_llm_circuit"] = _llm_circuit
 
+    def _emit_early_exit_decision(
+        page_path: str, verdict: str, locale: str, disposition: str,
+    ) -> dict:
+        """Persist a receipt+decision for a page that exits BEFORE the main
+        update-application logic (no actionable sections, or not
+        auto-updatable) -- these previously only appended to the in-memory
+        `receipts` list and returned, NEVER calling _emit_receipt/
+        _emit_run_decision the way every other exit path (including the
+        later, functionally-identical VD_NO_SECTIONS case reached AFTER
+        processing) does. Found live 2026-08-23 (mission-plan-the-end-to-
+        end-vast-hejlsberg.md Task 12): a run whose entire scope resolves
+        this way produces a completely empty page_decisions.jsonl, which
+        refresh_run.py's apply_run() then rejects outright ("Writers
+        produced no run-scoped page decision ledger") -- even though every
+        scoped page WAS genuinely, correctly processed (there was
+        legitimately nothing to update). Mirrors the later code's own
+        receipt-building shape exactly; old_hash == new_hash and
+        old_content == new_content since nothing changed.
+        """
+        old_content = _read_page(page_path) if Path(page_path).is_file() else ""
+        old_hash = (
+            _file_sha256(Path(page_path)) if Path(page_path).is_file() else "sha256:" + hashlib.sha256(b"").hexdigest()
+        )
+        receipt_data = {
+            "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
+            "run_id": effective_run_id,
+            "page_path": page_path,
+            "locale": locale,
+            "change_ids": [],
+            "semantic_change_ids": [],
+            "strategy_used": UT_SURGICAL,
+            "body_sections_changed": [],
+            "preserved_sections": [],
+            "old_hash": old_hash,
+            "new_hash": old_hash,
+            "verdict": verdict,
+            "strategies_used": [],
+            "forbidden_violations": [],
+            "forbidden_claims_scan": {"ok": True, "error": ""},
+            "regrounding_violations": [],
+            "regrounding_scan": {"ok": True, "error": ""},
+            "surface": _surface_for_page(page_path),
+            "surface_deferrals": [],
+            "fallback_reason": None,
+            "llm_invoked": False,
+            "template_fallback_used": False,
+            "generated_at": (
+                _run_recorded_at(resolved_run_root)
+                if resolved_run_root is not None
+                else datetime.now(timezone.utc).isoformat()
+            ),
+        }
+        if execute:
+            if resolved_run_root is None:
+                raise ValueError("run_root could not be resolved")
+            receipt_path, receipt_digest = _emit_receipt(
+                receipt_data, family, platform, run_root=resolved_run_root,
+            )
+            _emit_run_decision(
+                run_root=resolved_run_root,
+                receipt=receipt_data,
+                receipt_path=receipt_path,
+                receipt_digest=receipt_digest,
+                old_content=old_content,
+                new_content=old_content,
+                impact={},
+                disposition=disposition,
+            )
+        return receipt_data
+
     for source_impact in impacts:
         impact = dict(source_impact)
         page_path = Path(str(impact.get("page_path", ""))).as_posix()
@@ -1878,22 +1990,16 @@ def run(
         # makes the shift math's own precondition hold unconditionally.
         actionable_sections.sort(key=lambda s: s.get("lines", [0, 0])[0])
         if not actionable_sections:
-            receipts.append({
-                "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": effective_run_id,
-                "page_path": page_path,
-                "verdict": VD_NO_SECTIONS,
-            })
+            receipts.append(_emit_early_exit_decision(
+                page_path, VD_NO_SECTIONS, target_locale, "NOT_AFFECTED",
+            ))
             continue
 
         # Check auto_updatable
         if not _is_auto_updatable(page_path):
-            receipts.append({
-                "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": effective_run_id,
-                "page_path": page_path,
-                "verdict": VD_SKIPPED_AUTO,
-            })
+            receipts.append(_emit_early_exit_decision(
+                page_path, VD_SKIPPED_AUTO, target_locale, "SKIPPED",
+            ))
             continue
 
         # Dry run — just plan
