@@ -45,6 +45,7 @@ from lib.schema_validators import (  # noqa: E402
 )
 from lib.provenance import is_manually_curated, read_provenance  # noqa: E402
 from lib.reference_filter import index_generator_version_is_stale  # noqa: E402
+from commands.ops import page_impact_matrix  # noqa: E402
 
 SCHEMA_VERSION = 3
 MODES = frozenset({"upstream", "remediation", "combined"})
@@ -117,8 +118,13 @@ def configure(
     _now = now or (lambda: datetime.now(timezone.utc))
     # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
     # with this module's own configure() -- see batch_reference.py for the same
-    # pattern/rationale.
+    # pattern/rationale. page_impact_matrix follows the identical precedent
+    # (Task 2, 2026-08-23) -- without this, its own default repo_root would
+    # silently diverge from this module's under test, writing real files into
+    # the actual repo's reports/ tree instead of a test's tmp_path (caught
+    # live: an early version of this wiring did exactly that).
     freshness_guard.configure(repo_root=_repo_root)
+    page_impact_matrix.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -2206,6 +2212,30 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
     }
     if not_pass:
         raise RefreshRunError(f"Validation did not pass: {not_pass}")
+
+    # Page-Impact Matrix (S9.1, Task 2, closes G7): a composed, read-only
+    # cross-surface report joining knowledge_delta.json, semantic_changes.json,
+    # page_impact.json, page_decisions.jsonl, triage_verdict.yaml,
+    # package_registry.json, manifest.json, and oracle_verdicts/ -- never a
+    # second source of truth (see page_impact_matrix.py's own docstring for
+    # why that framing matters, per F1). Deliberately placed AFTER the
+    # not_pass gate above (a run that fails validation never reaches this
+    # point, so no matrix is ever written for a run that isn't genuinely
+    # about to be marked READY_TO_COMMIT) and is advisory by construction:
+    # a failure building the matrix must never block a run whose real
+    # validators already passed.
+    try:
+        matrix_json_path, _matrix_md_path = page_impact_matrix.write_matrix_report(
+            family, platform, rid
+        )
+        manifest.setdefault("output_digests", {})["page_impact_matrix"] = (
+            page_impact_matrix.matrix_digest(matrix_json_path)
+        )
+    except Exception as exc:  # noqa: BLE001 -- advisory only, see docstring above
+        manifest.setdefault("output_digests", {})["page_impact_matrix"] = None
+        manifest["page_impact_matrix_error"] = str(exc)
+    _save_manifest(manifest)  # persist the digest even when state is already READY_TO_COMMIT (re-verify)
+
     if manifest["state"] == "VALIDATING":
         _transition(manifest, "READY_TO_COMMIT", checkpoint="validation_complete")
     return manifest

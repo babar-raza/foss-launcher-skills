@@ -1637,6 +1637,43 @@ def test_verify_runs_scoped_content_and_link_gates(tmp_path: Path):
     assert manifest["validation"]["link_validation"] == "PASS"
 
 
+def test_verify_run_writes_page_impact_matrix_and_records_digest(tmp_path: Path):
+    """Task 2 (S9.1, closes G7): verify_run() must build and persist the
+    Page-Impact Matrix as part of a normal successful verification, and
+    record its digest in manifest["output_digests"] -- the same pattern
+    already used for the validation.json digest just above it in the code.
+    Also proves the FRESH-001-style repo_root lockstep fix actually works:
+    page_impact_matrix.py must write under tmp_path (this test's own isolated
+    repo_root), never the real checkout -- an earlier version of this wiring
+    silently wrote into the real repo's reports/ tree instead."""
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-PIM", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest["output_digests"]["page_impact_matrix"] is not None
+    assert manifest["output_digests"]["page_impact_matrix"].startswith("sha256:")
+    matrix_path = tmp_path / "reports" / "refresh_review" / "pdf" / "net" / "page_impact_matrix.json"
+    assert matrix_path.is_file()
+    # Real repo's reports/ tree must never have been touched by this test --
+    # this product has no real refresh_runs/pdf/net matrix on disk today.
+    real_repo_root = Path(__file__).resolve().parents[3]
+    real_matrix_path = real_repo_root / "reports" / "refresh_review" / "pdf" / "net" / "page_impact_matrix.json"
+    assert not real_matrix_path.is_file()
+
+
 def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):
     """MT030-2026-08-13: ADVISORY_VALIDATION_FIELDS must be recorded in the
     manifest but must NEVER block READY_TO_COMMIT, even on a truth_audit FAIL --
