@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 import git_plumb_commit as gpc
+import session_ledger
 from commands.governance import override_manager
 
 
@@ -60,6 +61,17 @@ def _isolate_override_manager(tmp_path):
 def _reset_gpc_config():
     yield
     gpc.configure()
+
+
+@pytest.fixture(autouse=True)
+def _reset_session_ledger_config():
+    """_check_ledger_candidates temporarily repoints session_ledger at
+    plumb_commit's own repo_root and restores it afterward (see its own
+    docstring) -- this is a backstop in case a test raises before that
+    restore runs, so no test in this file can leak a throwaway repo_root
+    into a later one."""
+    yield
+    session_ledger.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -432,6 +444,133 @@ def test_no_base_sha_and_no_skip_is_advisory_pass(tmp_path):
     result = gpc.plumb_commit(
         ["f.txt"], "no base sha", repo_root=work, branch="main", remote=str(bare),
         base_sha=None, session_id="no-such-session-anywhere",
+    )
+    assert result["pushed"] is True
+
+
+# ---------------------------------------------------------------------------
+# Session-ledger cross-check (G16 part 2, Task 25)
+# ---------------------------------------------------------------------------
+
+def test_ledger_blocks_a_file_dirty_before_session_started(tmp_path):
+    """Live two-session replay of the exact incident this check exists to
+    catch (G16, 2026-08-22/23): another session's uncommitted edit already
+    sits on disk when this session's own ledger initializes, then this
+    session (a different, explicit session id) tries to git_plumb_commit it
+    without ever having touched or adopted it. Must fail fast, naming the
+    exact file, instead of silently folding foreign dirt into the commit."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+
+    # "Session A" (a different, prior live session) leaves this file dirty
+    # and uncommitted -- exactly what happened live with refresh_run.py.
+    (work / "shared_file.py").write_text("session A's uncommitted edit\n", encoding="utf-8")
+
+    # "Session B" initializes AFTER session A's edit already exists on disk,
+    # so its own dirty_at_start snapshot correctly captures it as pre-existing.
+    session_ledger.init_session(session_id="session-B")
+
+    with pytest.raises(gpc.PlumbCommitLedgerBlocked) as exc_info:
+        gpc.plumb_commit(
+            ["shared_file.py"], "session B's unrelated commit",
+            repo_root=work, branch="main", remote=str(bare),
+            skip_stale_check=True, session_id="session-B",
+        )
+    assert "shared_file.py" in str(exc_info.value)
+    assert "dirty_at_start" in str(exc_info.value)
+
+    # Nothing pushed.
+    remote_tip = _git(bare, "rev-parse", "main").stdout.strip()
+    local_tip = _git(work, "rev-parse", "HEAD").stdout.strip()
+    assert remote_tip == local_tip
+
+
+def test_ledger_blocks_a_file_dirty_for_unknown_reason(tmp_path):
+    """A file becomes dirty AFTER this session's own init (so it's absent
+    from dirty_at_start) but was never touched/recorded by this session
+    either -- must still block, tagged with the distinct 'not_in_ledger'
+    reason (get_candidates()'s excluded_not_in_ledger bucket)."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    session_ledger.init_session(session_id="session-F")  # clean at this point
+
+    (work / "mystery_file.py").write_text("appears after init, never recorded\n", encoding="utf-8")
+
+    with pytest.raises(gpc.PlumbCommitLedgerBlocked) as exc_info:
+        gpc.plumb_commit(
+            ["mystery_file.py"], "trying to commit a file the ledger never saw",
+            repo_root=work, branch="main", remote=str(bare),
+            skip_stale_check=True, session_id="session-F",
+        )
+    assert "mystery_file.py" in str(exc_info.value)
+    assert "not_in_ledger" in str(exc_info.value)
+
+
+def test_ledger_allows_a_file_actually_touched_this_session(tmp_path):
+    """The overwhelming common case: a session commits exactly the file(s)
+    it itself created/edited and recorded -- must pass, no regression."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    session_ledger.init_session(session_id="session-C")
+
+    (work / "my_file.py").write_text("my own edit\n", encoding="utf-8")
+    session_ledger.record_file(file_path="my_file.py", action="created", session_id="session-C")
+
+    result = gpc.plumb_commit(
+        ["my_file.py"], "session C's own commit",
+        repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, session_id="session-C",
+    )
+    assert result["pushed"] is True
+
+
+def test_ledger_allows_a_file_after_explicit_adopt(tmp_path):
+    """Pre-existing dirt that a session has explicitly verified and adopted
+    (session_ledger.py adopt) must be allowed through -- the documented,
+    audited escape valve for legitimately folding in someone else's (or a
+    prior state's) dirt, distinct from the silent, unverified default this
+    check exists to close."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    (work / "adopted_file.py").write_text("pre-existing dirt\n", encoding="utf-8")
+    session_ledger.init_session(session_id="session-D")
+    session_ledger.adopt_files(["adopted_file.py"], session_id="session-D")
+
+    result = gpc.plumb_commit(
+        ["adopted_file.py"], "adopted then committed",
+        repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, session_id="session-D",
+    )
+    assert result["pushed"] is True
+
+
+def test_skip_ledger_check_bypasses_the_check_entirely(tmp_path):
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    (work / "shared_file.py").write_text("session A's edit\n", encoding="utf-8")
+    session_ledger.init_session(session_id="session-E")
+
+    result = gpc.plumb_commit(
+        ["shared_file.py"], "explicit skip",
+        repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, skip_ledger_check=True, session_id="session-E",
+    )
+    assert result["pushed"] is True
+
+
+def test_ledger_check_is_advisory_pass_with_no_active_session(tmp_path):
+    """No active session at all (ledger never initialized) -- same fail-open
+    policy as a missing base_sha for the stale-file check: never block on
+    the absence of infrastructure, only on the infrastructure actively
+    disagreeing with what's about to be committed."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["f.txt"], "no session at all",
+        repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, session_id="no-such-session-anywhere",
     )
     assert result["pushed"] is True
 

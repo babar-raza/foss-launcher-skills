@@ -45,6 +45,25 @@ CONTRACT: scripts/pipeline/commands/ops/git_plumb_commit.py
            exactly, via the SAME importable function
            (override_manager.find_valid_token_for_path), not a re-
            implementation of it.
+  ledger:  also refuses (raises PlumbCommitLedgerBlocked, commits nothing) if
+           any --files path is dirty in the working tree but not accounted
+           for by the calling session's own session_ledger.py manifest --
+           i.e. it predates the session (dirty_at_start) or is dirty for a
+           reason the session never recorded (not_in_ledger), and was never
+           explicitly adopted. Closes G16 part 2 (mission-plan-the-end-to-
+           end-vast-hejlsberg.md Task 25): this tool previously staged
+           whole-file, on-disk content with no concept of "which lines in
+           this file are mine", risking a foreign, uncommitted, concurrent
+           session's edit being silently folded into an unrelated commit --
+           reproduced live 2026-08-22/23 (refresh_run.py). A missing or
+           uninitialized ledger degrades this check to an advisory pass
+           (same fail-open policy as a missing base_sha for the stale-file
+           check above) -- this protects the case a session's OWN ledger
+           actively disagrees with what it's about to commit, not the
+           absence of a ledger entirely (a documented, accepted coverage
+           boundary: sessions that bypass Edit/Write/session_ledger.py init
+           entirely are not covered by this or any other hook-based gate in
+           this repo).
 
 Usage::
 
@@ -81,8 +100,12 @@ if str(_PIPELINE_ROOT) not in sys.path:
 _CI_CHECKS_DIR = _PIPELINE_ROOT.parent / "ci" / "checks"
 if str(_CI_CHECKS_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_CHECKS_DIR))
+_OPS_DIR = Path(__file__).resolve().parent
+if str(_OPS_DIR) not in sys.path:
+    sys.path.insert(0, str(_OPS_DIR))
 
 import check_stale_file_regression as sfr  # noqa: E402
+import session_ledger  # noqa: E402
 from commands.governance import override_manager  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -134,6 +157,49 @@ class PlumbCommitBlocked(PlumbCommitError):
             f"them: {names}. Re-read the current file and reapply your change on "
             f"top of it, or create a governed override: "
             f"override_manager.py create --paths <file> --reason '...' --plan '...'"
+        )
+
+
+class PlumbCommitLedgerBlocked(PlumbCommitBlocked):
+    """Raised when one or more --files paths are dirty in the working tree
+    but not accounted for by the calling session's own ledger
+    (session_ledger.py) -- G16 part 2, closes the concurrent-session
+    collision this exact class of tool was built to prevent for a
+    different check (the stale-file regression check, above) but never
+    closed for itself.
+
+    Found live 2026-08-22/23: a file carrying another live session's
+    uncommitted, unrelated edit (refresh_run.py) was nearly folded into an
+    unrelated commit through this tool -- caught only by an incidental,
+    manually-run `git status`/`git diff` baseline check before touching
+    anything, not by any mechanical gate. session_ledger.py already builds
+    exactly the data needed to catch this (dirty_at_start vs. touched_files,
+    via get_candidates()) -- this exception is the missing second half:
+    actually consulting it before staging, instead of never at all.
+
+    Remedy: verify the pre-existing dirt is genuinely safe to fold into this
+    commit, then run `session_ledger.py adopt --files <path>...` (after
+    confirming with the session or its owner) before retrying; or drop the
+    file from this commit's --files list if it belongs to someone else's
+    in-flight work. `--skip-ledger-check` exists as a documented,
+    deliberately-loud escape hatch for a genuine emergency only -- mirrors
+    `--skip-stale-check`'s existing convention, never a silent default.
+    """
+
+    def __init__(self, findings: list[dict]):
+        self.findings = findings
+        detail = "\n".join(f"  {f['file']} ({f['reason']})" for f in findings)
+        PlumbCommitError.__init__(
+            self,
+            f"Refusing to commit -- {len(findings)} file(s) are dirty in the "
+            f"working tree but not accounted for by this session's own ledger "
+            f"(session_ledger.py):\n{detail}\n\n"
+            f"Remedy: verify the pre-existing dirt is safe to fold in, then "
+            f"run 'session_ledger.py adopt --files <path>...' before "
+            f"retrying; or drop the file from --files if it belongs to "
+            f"someone else's in-flight work. Pass --skip-ledger-check only "
+            f"for a genuine, logged emergency (mirrors --skip-stale-check's "
+            f"escalation pattern -- never a silent default)."
         )
 
 
@@ -327,6 +393,49 @@ def _check_for_regressions(
             continue  # governed, audited exception -- allowed through
         uncovered.append(finding)
     return uncovered
+
+
+def _check_ledger_candidates(
+    files: list[str], session_id: "str | None", *, repo_root: Path,
+) -> list[dict]:
+    """Cross-check --files against the calling session's own ledger
+    (session_ledger.py, G16 part 2). Returns findings for any file that is
+    dirty in the working tree right now but NOT a legitimate candidate of
+    this session -- i.e. present in session_ledger.get_candidates()'s
+    excluded_dirty_at_start or excluded_not_in_ledger buckets.
+
+    A missing/uninitialized ledger (no active session resolvable at
+    repo_root) yields get_candidates() == ([], [], []), so nothing is ever
+    flagged -- the same fail-open, advisory-pass policy _check_for_regressions
+    already uses for a missing base_sha. This protects the case the ledger
+    actively disagrees with what's about to be committed, not the absence
+    of a ledger entirely (documented coverage boundary, see module docstring
+    and PlumbCommitLedgerBlocked).
+
+    Temporarily repoints session_ledger's module-level repo_root at `root`
+    (restored in `finally`) so this works correctly for both the real repo
+    (where it's already a no-op -- session_ledger's own default repo_root is
+    computed the same way as this module's) and a test's own throwaway repo
+    passed via plumb_commit's `repo_root` parameter.
+    """
+    prior_repo_root = session_ledger._REPO_ROOT
+    session_ledger.configure(repo_root=repo_root)
+    try:
+        _candidates, excluded_prior, excluded_unknown = session_ledger.get_candidates(session_id)
+    finally:
+        session_ledger.configure(repo_root=prior_repo_root)
+
+    excluded_prior_set = {p.replace("\\", "/") for p in excluded_prior}
+    excluded_unknown_set = {p.replace("\\", "/") for p in excluded_unknown}
+
+    findings = []
+    for f in files:
+        normalized = f.replace("\\", "/")
+        if normalized in excluded_prior_set:
+            findings.append({"file": normalized, "reason": "dirty_at_start"})
+        elif normalized in excluded_unknown_set:
+            findings.append({"file": normalized, "reason": "not_in_ledger"})
+    return findings
 
 
 _GIT_BASH_PATH: "str | None" = None
@@ -640,6 +749,7 @@ def plumb_commit(
     base_sha: "str | None" = None,
     session_id: "str | None" = None,
     skip_stale_check: bool = False,
+    skip_ledger_check: bool = False,
     skip_tier1_checks: bool = False,
     strict_isolation: bool = False,
     push: bool = True,
@@ -688,11 +798,18 @@ def plumb_commit(
         has been a real review window against live usage. Flip to True (also
         available as `--strict-isolation` on the CLI) once that review is done.
 
+    skip_ledger_check: when True, skips the session-ledger cross-check
+        (see PlumbCommitLedgerBlocked) entirely. Mirrors skip_stale_check's
+        existing escalation pattern -- a documented, deliberately-loud
+        escape hatch for a genuine emergency, never a routine default.
+
     Returns a result dict: {head_sha, tree_sha, commit_sha, pushed, files,
     gitignore_warnings, tier1_output}. Raises PlumbCommitBlocked if an
-    uncovered regression is found, PlumbCommitIsolationBreach /
-    PlumbCommitPostconditionBreach if strict_isolation=True and an isolation
-    problem is detected, or PlumbCommitError for any git operation failure.
+    uncovered regression is found, PlumbCommitLedgerBlocked if a --files
+    path is dirty but not accounted for by the calling session's own
+    ledger, PlumbCommitIsolationBreach / PlumbCommitPostconditionBreach if
+    strict_isolation=True and an isolation problem is detected, or
+    PlumbCommitError for any git operation failure.
     """
     root = Path(repo_root) if repo_root is not None else _REPO_ROOT
     if remote_name is None:
@@ -706,6 +823,11 @@ def plumb_commit(
         uncovered = _check_for_regressions(files, resolved_base_sha, repo_root=root)
         if uncovered:
             raise PlumbCommitBlocked(uncovered)
+
+    if not skip_ledger_check:
+        ledger_findings = _check_ledger_candidates(files, session_id, repo_root=root)
+        if ledger_findings:
+            raise PlumbCommitLedgerBlocked(ledger_findings)
 
     gitignore_warnings = [f for f in _gitignored_files(files, repo_root=root) if f not in ack_set]
     for f in gitignore_warnings:
@@ -893,6 +1015,11 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--base-sha", default=None)
     parser.add_argument("--session-id", default=None)
     parser.add_argument("--skip-stale-check", action="store_true")
+    parser.add_argument("--skip-ledger-check", action="store_true",
+                        help="Skip the session-ledger cross-check (G16 part 2). "
+                             "Emergency escape hatch only, matching "
+                             "--skip-stale-check's existing escalation pattern -- "
+                             "not a routine default.")
     parser.add_argument("--skip-tier1-checks", action="store_true",
                         help="Skip scripts/pre-commit-audit.sh (Tier 1). Emergency "
                              "escape hatch only, matching --skip-stale-check's "
@@ -945,6 +1072,7 @@ def main(argv: "list[str] | None" = None) -> int:
             branch=args.branch, remote=args.remote,
             base_sha=args.base_sha, session_id=args.session_id,
             skip_stale_check=args.skip_stale_check,
+            skip_ledger_check=args.skip_ledger_check,
             skip_tier1_checks=args.skip_tier1_checks,
             strict_isolation=args.strict_isolation, push=not args.no_push,
             ack_gitignored=args.ack_gitignored,
