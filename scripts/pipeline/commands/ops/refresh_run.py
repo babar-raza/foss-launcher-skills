@@ -1409,6 +1409,29 @@ def _paths_from_pia(path: Path) -> list[str]:
     return sorted(set(selected))
 
 
+_KNOWLEDGE_DELTA_LIST_FIELDS = (
+    "new_claims", "removed_claims", "modified_claims",
+    "new_apis", "removed_apis", "modified_apis", "resurrected_apis",
+)
+
+
+def _knowledge_delta_is_real(delta_path: Path) -> bool:
+    """Task 6 (S9.6): a real, non-empty release delta -- at least one of
+    knowledge_delta.json's 7 change lists is non-empty -- vs. a no-op sync
+    (repo_sha advanced with zero actual API/claim change, which produces no
+    announcement, per S9.6's own scoping). Fails open (False, no announcement
+    forced) on any read error -- this is a same-run gate the caller already
+    knows the file exists for (see the is_file() check just above its call
+    site), not an independent existence check."""
+    try:
+        data = json.loads(delta_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    if not isinstance(data, dict):
+        return False
+    return any(data.get(field) for field in _KNOWLEDGE_DELTA_LIST_FIELDS)
+
+
 def _discover_fact_pack(family: str, platform: str) -> "dict[str, Any] | None":
     """Task 4 (S9.2, reconciles F3/F9): search reports/handoff/*/fact-pack.json
     for one matching this product's family/platform. Fact packs live under a
@@ -1590,6 +1613,14 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
             raise RefreshRunError(
                 "upstream/combined run has no knowledge_delta.json after knowledge refresh"
             )
+        # Task 6 (S9.6, corrected 2026-08-23 -- see the plan's own note on why
+        # /new-blog-post cannot be invoked from here directly): a deterministic
+        # signal only. This run's own agent-facing workflow (the new
+        # blog-release-check skill, S-124) is what actually directs a human/
+        # agent to draft the announcement via /new-blog-post -- prepare_run
+        # itself only records whether a real (non-empty) delta exists, since
+        # that's the one part of this decision that's genuinely mechanical.
+        manifest["blog_announcement_required"] = _knowledge_delta_is_real(delta)
         _require_command(
             [
                 python,

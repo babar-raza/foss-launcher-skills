@@ -811,6 +811,22 @@ scripts:
     deprecated_since: null
     notes: "PIA: score English pages HIGH/MEDIUM/NOT_AFFECTED vs knowledge delta signals; outputs reports/refresh_review/{family}/{platform}/page_impact.json; Step 3.5 of S-84"
 
+  - path: scripts/pipeline/commands/ops/page_impact_matrix.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_page_impact_matrix.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Page-Impact Matrix (mission-plan-the-end-to-end-vast-hejlsberg.md Task 2, closes G7): composed, read-only report joining knowledge_delta.json, semantic_changes.json, page_impact.json, page_decisions.jsonl, triage_verdict.yaml, package_registry.json, manifest.json, and oracle_verdicts/ into reports/refresh_review/{family}/{platform}/page_impact_matrix.{json,md}. Never a second source of truth. Wired into refresh_run.py's verify_run(), advisory-only."
+
   - path: scripts/pipeline/commands/knowledge/stale_detect.py
     kind: entrypoint
     lifecycle: active
@@ -1225,6 +1241,22 @@ scripts:
     test_targets: [scripts/pipeline/tests/test_refresh_run_forensics.py]
     deprecated_since: null
     change_impact: "Read-only historical refresh classifier. Requires explicit Git base/end boundaries, reconciles every legacy BODY_UPDATED row, records normalized body/frontmatter hashes, and never labels a current content defect without separate truth-audit evidence."
+
+  - path: scripts/pipeline/commands/ops/refresh_run_status_scan.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_refresh_run_status_scan.py]
+    deprecated_since: null
+    change_impact: "Cross-product BLOCKED-run staleness scan (mission-plan-the-end-to-end-vast-hejlsberg.md Task 5, closes G1). Read-only: walks reports/refresh_runs/*/*/ACTIVE.json, flags any BLOCKED run whose updated_at exceeds a staleness threshold (default 7 days) as STALE_BLOCKED. Never auto-recovers a blocked run -- visibility only."
+    notes: "Standalone, additive; no refresh_run.py touch point."
 
   - path: scripts/pipeline/lib/knowledge_tiers.py
     kind: library

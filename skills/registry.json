@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 111,
+  "skill_count": 112,
   "skills": [
     {
       "id": "S-01",
@@ -842,6 +842,14 @@
       "internal": false,
       "canonical_path": "skills/forensic-heal-sprint.md",
       "args": "`--mission-id ID [--task-ids ID [ID ...]]`"
+    },
+    {
+      "id": "S-124",
+      "slug": "blog-release-check",
+      "name": "Blog Release Check — Mandatory Per-Release Announcement Trigger",
+      "description": "Checks whether a refresh run's real, non-empty knowledge delta requires a mandatory",
+      "internal": false,
+      "canonical_path": "skills/blog-release-check.md"
     },
     {
       "id": "S-HT-02",

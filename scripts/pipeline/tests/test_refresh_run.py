@@ -878,6 +878,95 @@ def test_upstream_scope_selected_from_real_pia_score_schema(tmp_path: Path):
     assert prepared["scope"]["paths"] == sorted([high, medium])
 
 
+def test_prepare_run_sets_blog_announcement_required_true_for_real_delta(tmp_path: Path):
+    """Task 6 (S9.6, corrected): a real, non-empty knowledge_delta.json must
+    set manifest["blog_announcement_required"] -- the deterministic half of
+    the mandatory-per-release blog announcement decision; the actual
+    drafting is directed by the new blog-release-check skill (S-124), not
+    performed by this code."""
+    page = tmp_path / "content/docs.aspose.org/en/pdf/net/page.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("page\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text(json.dumps({"new_apis": ["Align"]}), encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-BLOG-REAL", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-BLOG-REAL/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps({"pages": [{"path": str(page.relative_to(tmp_path).as_posix()), "pia_score": "HIGH_IMPACT"}]}),
+        encoding="utf-8",
+    )
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared["blog_announcement_required"] is True
+
+
+def test_prepare_run_sets_blog_announcement_required_false_for_no_op_delta(tmp_path: Path):
+    """Negative control: a no-op sync (repo_sha advanced, zero real API/claim
+    change) must never force an announcement -- this is what S9.6's own
+    "still gated on a real delta existing at all" scoping means."""
+    page = tmp_path / "content/docs.aspose.org/en/pdf/net/page.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("page\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-BLOG-NOOP", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-BLOG-NOOP/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps({"pages": [{"path": str(page.relative_to(tmp_path).as_posix()), "pia_score": "HIGH_IMPACT"}]}),
+        encoding="utf-8",
+    )
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared["blog_announcement_required"] is False
+
+
+class TestKnowledgeDeltaIsReal:
+    def test_empty_dict_is_not_real(self, tmp_path: Path):
+        delta_path = tmp_path / "knowledge_delta.json"
+        delta_path.write_text("{}", encoding="utf-8")
+        assert refresh_run._knowledge_delta_is_real(delta_path) is False
+
+    def test_all_empty_lists_is_not_real(self, tmp_path: Path):
+        delta_path = tmp_path / "knowledge_delta.json"
+        delta_path.write_text(json.dumps({
+            "new_claims": [], "removed_claims": [], "modified_claims": [],
+            "new_apis": [], "removed_apis": [], "modified_apis": [], "resurrected_apis": [],
+        }), encoding="utf-8")
+        assert refresh_run._knowledge_delta_is_real(delta_path) is False
+
+    def test_one_non_empty_list_is_real(self, tmp_path: Path):
+        delta_path = tmp_path / "knowledge_delta.json"
+        delta_path.write_text(json.dumps({"resurrected_apis": ["Foo"]}), encoding="utf-8")
+        assert refresh_run._knowledge_delta_is_real(delta_path) is True
+
+    def test_malformed_json_fails_open_to_false(self, tmp_path: Path):
+        delta_path = tmp_path / "knowledge_delta.json"
+        delta_path.write_text("not json{{{", encoding="utf-8")
+        assert refresh_run._knowledge_delta_is_real(delta_path) is False
+
+    def test_missing_file_fails_open_to_false(self, tmp_path: Path):
+        assert refresh_run._knowledge_delta_is_real(tmp_path / "does-not-exist.json") is False
+
+    def test_non_dict_json_fails_open_to_false(self, tmp_path: Path):
+        delta_path = tmp_path / "knowledge_delta.json"
+        delta_path.write_text("[1, 2, 3]", encoding="utf-8")
+        assert refresh_run._knowledge_delta_is_real(delta_path) is False
+
+
 def test_upstream_scope_still_zero_when_pia_finds_nothing_affected(tmp_path: Path):
     """Negative control: a real PIA report with ONLY LOW_IMPACT/NOT_AFFECTED
     pages must still correctly raise -- the fix above must not become a
