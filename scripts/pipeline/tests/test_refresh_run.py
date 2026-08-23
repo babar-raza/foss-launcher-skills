@@ -718,6 +718,110 @@ def test_remediation_scope_is_not_broadened_by_historical_pia(tmp_path: Path):
     assert saved_scope["paths"] == [selected]
 
 
+def _remediation_manifest_with_scope(tmp_path: Path, run_id: str, family="pdf", platform="net"):
+    """Shared minimal remediation-mode setup that lets prepare_run() complete
+    successfully -- mirrors test_scope_manifest_digest_is_rechecked_before_planning's
+    sibling above, factored out for the fact-pack tests below (Task 4, S9.2)."""
+    selected = f"content/docs.aspose.org/en/{family}/{platform}/selected.md"
+    page = tmp_path / selected
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("page\n", encoding="utf-8")
+    scope = tmp_path / f"scope-{run_id}.json"
+    scope.write_text(json.dumps({"paths": [selected]}), encoding="utf-8")
+    manifest = refresh_run.create_run(
+        family, platform, mode="remediation",
+        scope_manifest=f"scope-{run_id}.json", run_id=run_id, session_id="session-1",
+    )
+    planning = tmp_path / f"reports/refresh_runs/{family}/{platform}/{run_id}/planning/{family}/{platform}"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps({"pages": [{"path": selected, "pia_score": "HIGH_IMPACT"}]}),
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def _write_fact_pack(tmp_path: Path, mission_id: str, *, family="pdf", platform="net",
+                      version="26.8.0", group_id="org.aspose", artifact_id="aspose-pdf-foss"):
+    handoff_dir = tmp_path / "reports" / "handoff" / mission_id
+    handoff_dir.mkdir(parents=True, exist_ok=True)
+    fact_pack_path = handoff_dir / "fact-pack.json"
+    fact_pack_path.write_text(json.dumps({
+        "product": {"family": family, "platform": platform},
+        "version": {"previous": "26.6.0", "new": version},
+        "maven": {"group_id": group_id, "artifact_id": artifact_id},
+    }), encoding="utf-8")
+    return fact_pack_path
+
+
+def _write_registry_candidate(tmp_path: Path, *, family="pdf", platform="net",
+                               version="26.8.0", group_id="org.aspose", artifact_id="aspose-pdf-foss"):
+    registry_path = tmp_path / "data" / "package_registry.json"
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry_path.write_text(json.dumps({
+        family: {platform: {"candidate": {
+            "group_id": group_id, "artifact_id": artifact_id, "version": version,
+        }}}
+    }), encoding="utf-8")
+
+
+def test_prepare_run_reads_matching_fact_pack_with_no_mismatch(tmp_path: Path):
+    """Task 4 (S9.2): a fact pack that agrees with package_registry.json's
+    candidate must be picked up (fact_pack_ref set) and must never block."""
+    _write_fact_pack(tmp_path, "MT-TEST-2026-08-23-PDF-NET")
+    _write_registry_candidate(tmp_path)
+    manifest = _remediation_manifest_with_scope(tmp_path, "RUN-FACTPACK-OK")
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared["fact_pack_ref"] == "reports/handoff/MT-TEST-2026-08-23-PDF-NET/fact-pack.json"
+
+
+def test_prepare_run_proceeds_with_no_fact_pack_ref_when_none_found(tmp_path: Path):
+    """Documented fallback (S9.2): no fact pack for this product yet must
+    never block -- fact_pack_ref is simply None."""
+    manifest = _remediation_manifest_with_scope(tmp_path, "RUN-NO-FACTPACK")
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared["fact_pack_ref"] is None
+
+
+def test_prepare_run_blocks_on_fact_pack_version_mismatch(tmp_path: Path):
+    """F9's mechanical fix: a fact pack's version.new disagreeing with
+    package_registry.json's candidate.version must fail fast, before any of
+    prepare_run's heavier downstream work runs -- exactly the class of drift
+    that let pdf/java render a stale Maven version in production for real."""
+    _write_fact_pack(tmp_path, "MT-TEST-2026-08-23-PDF-NET-MISMATCH", version="26.9.0")
+    _write_registry_candidate(tmp_path, version="26.8.0")
+    manifest = _remediation_manifest_with_scope(tmp_path, "RUN-FACTPACK-MISMATCH")
+
+    with pytest.raises(refresh_run.RefreshRunError, match="disagrees with data/package_registry.json"):
+        refresh_run.prepare_run(manifest)
+
+
+def test_prepare_run_blocks_on_fact_pack_maven_coordinate_mismatch(tmp_path: Path):
+    _write_fact_pack(tmp_path, "MT-TEST-2026-08-23-PDF-NET-GID", artifact_id="aspose-pdf")
+    _write_registry_candidate(tmp_path, artifact_id="aspose-pdf-foss")
+    manifest = _remediation_manifest_with_scope(tmp_path, "RUN-FACTPACK-GID-MISMATCH")
+
+    with pytest.raises(refresh_run.RefreshRunError, match="maven.artifact_id"):
+        refresh_run.prepare_run(manifest)
+
+
+def test_discover_fact_pack_picks_most_recently_modified_when_multiple_match(tmp_path: Path):
+    refresh_run.configure(repo_root=tmp_path)
+    older = _write_fact_pack(tmp_path, "MT-OLD-2026-08-01-PDF-NET", version="26.7.0")
+    newer = _write_fact_pack(tmp_path, "MT-NEW-2026-08-21-PDF-NET", version="26.8.0")
+    import os as _os
+    now = _os.path.getmtime(newer)
+    _os.utime(older, (now - 100, now - 100))
+
+    found = refresh_run._discover_fact_pack("pdf", "net")
+
+    assert found["version"]["new"] == "26.8.0"
+
+
 def test_upstream_scope_selected_from_real_pia_score_schema(tmp_path: Path):
     """Regression test for a confirmed bug: page_impact_assess.py's real,
     documented output field is "pia_score" (not "impact"/"impact_level"/

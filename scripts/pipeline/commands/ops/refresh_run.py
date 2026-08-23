@@ -1409,6 +1409,84 @@ def _paths_from_pia(path: Path) -> list[str]:
     return sorted(set(selected))
 
 
+def _discover_fact_pack(family: str, platform: str) -> "dict[str, Any] | None":
+    """Task 4 (S9.2, reconciles F3/F9): search reports/handoff/*/fact-pack.json
+    for one matching this product's family/platform. Fact packs live under a
+    mission-ID-named directory (e.g. reports/handoff/MT036-2026-08-21-PDF-JAVA-
+    MAVEN-PUBLISH-HARDENING/), not a predictable {family}/{platform} path -- so
+    this is a search, not a direct path construction (confirmed: no canonical
+    pointer file exists yet; recommended to the publishing lane as a future
+    convenience, not implemented here). When more than one fact pack matches
+    (multiple releases over time), the most recently modified file wins.
+    """
+    handoff_root = _repo_root / "reports" / "handoff"
+    if not handoff_root.is_dir():
+        return None
+    candidates = []
+    for path in handoff_root.glob("*/fact-pack.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        product = data.get("product", {})
+        if product.get("family") == family and product.get("platform") == platform:
+            candidates.append((path.stat().st_mtime, path, data))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda c: c[0])
+    _mtime, path, data = candidates[-1]
+    data["_fact_pack_path"] = str(path.relative_to(_repo_root).as_posix())
+    return data
+
+
+def _load_package_registry_candidate(family: str, platform: str) -> "dict[str, Any] | None":
+    registry_path = _repo_root / "data" / "package_registry.json"
+    if not registry_path.is_file():
+        return None
+    try:
+        data = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    entry = data.get(family, {}).get(platform) if isinstance(data.get(family), dict) else None
+    if not isinstance(entry, dict):
+        return None
+    return entry.get("candidate")
+
+
+def _reconcile_fact_pack_with_registry(
+    fact_pack: dict[str, Any], family: str, platform: str,
+) -> list[str]:
+    """F9's mechanical fix: a fact pack's version/maven coordinates must agree
+    with data/package_registry.json's current candidate -- this is exactly
+    the class of drift that let pdf/java render a stale Maven version in
+    production for a day after its real 26.8.0 republish (F9). Returns a list
+    of human-readable mismatch descriptions; empty means agreement (or the
+    registry has no entry at all yet, which is a separate, non-fact-pack
+    concern this check does not itself raise on -- registry population is
+    /repo-scout's job, not this run's)."""
+    candidate = _load_package_registry_candidate(family, platform)
+    if candidate is None:
+        return []
+
+    mismatches = []
+    fp_version = fact_pack.get("version", {}).get("new")
+    if fp_version and candidate.get("version") and fp_version != candidate.get("version"):
+        mismatches.append(
+            f"version: fact pack says '{fp_version}', "
+            f"package_registry.json candidate says '{candidate.get('version')}'"
+        )
+    fp_maven = fact_pack.get("maven", {})
+    for field in ("group_id", "artifact_id"):
+        fp_value = fp_maven.get(field)
+        reg_value = candidate.get(field)
+        if fp_value and reg_value and fp_value != reg_value:
+            mismatches.append(
+                f"maven.{field}: fact pack says '{fp_value}', "
+                f"package_registry.json candidate says '{reg_value}'"
+            )
+    return mismatches
+
+
 def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
     """Refresh/revalidate inputs and create the immutable run scope."""
     family, platform, rid = (
@@ -1420,6 +1498,32 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
         raise RefreshRunError(
             f"prepare requires INPUTS_PINNED, got {manifest['state']}"
         )
+
+    # Release fact-pack read (Task 4, S9.2, reconciles F3/F9) -- deliberately
+    # first, before the heavier knowledge-refresh subprocess below: this is an
+    # input-validation step, and a real coordinate mismatch here should fail
+    # fast rather than after an expensive knowledge refresh has already run.
+    # Fallback when no fact pack exists for this product yet: proceed with no
+    # fact pack at all (documented, not blocking) -- callers needing release
+    # facts before a real fact pack has been delivered fall back to
+    # live-assembly from package_registry.json directly (data/package_registry.json's
+    # own candidate.* fields), which prepare_run already reads for
+    # reconciliation regardless of whether a fact pack was found.
+    fact_pack = _discover_fact_pack(family, platform)
+    if fact_pack is not None:
+        mismatches = _reconcile_fact_pack_with_registry(fact_pack, family, platform)
+        if mismatches:
+            raise RefreshRunError(
+                f"Release fact pack ({fact_pack.get('_fact_pack_path')}) disagrees "
+                f"with data/package_registry.json's current candidate: "
+                f"{'; '.join(mismatches)}. Reconcile package_registry.json (or the "
+                f"fact pack, if it's the one that's actually stale) before "
+                f"proceeding -- this is exactly the class of drift F9 found live "
+                f"in production."
+            )
+        manifest["fact_pack_ref"] = fact_pack.get("_fact_pack_path")
+    else:
+        manifest["fact_pack_ref"] = None
 
     python = sys.executable
     post_kr_snapshot: dict[str, str] = {}
