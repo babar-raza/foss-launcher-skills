@@ -1629,7 +1629,19 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
             cwd=str(_repo_root),
             capture_output=True,
             text=True,
-            timeout=30,
+            # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+            # Task 14): unlike every other git call in this module, this one is a
+            # deliberate WHOLE-WORKING-TREE diff (no path scoping) -- its cost
+            # scales with the repo's total dirty-file count, not this run's own
+            # scope. Measured live against a real, large, unrelated concurrent-
+            # session sweep (~2,100 dirty files repo-wide, ~164k tracked files,
+            # Windows core.autocrlf=true re-normalization overhead on every
+            # touched file): ~50s, well past the 30s every other call in this
+            # module correctly uses for a single-path or graph-only operation.
+            # A big, in-flight content sweep from another session is a normal,
+            # documented occurrence in this repo (CLAUDE.md's own ST-021 note),
+            # not a rare edge case -- 30s was never sized for it.
+            timeout=180,
         )
         post_kr_snapshot = {
             line.strip(): _path_hash(line.strip())

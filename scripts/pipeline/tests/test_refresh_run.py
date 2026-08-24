@@ -1132,6 +1132,46 @@ def test_apply_run_reference_scope_always_uses_rebuild_all_confirm_rebuild(tmp_p
     assert "--update" not in call
 
 
+def test_prepare_run_post_kr_diff_uses_generous_timeout(tmp_path: Path):
+    """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14): prepare_run's own post-knowledge-refresh 'git diff --name-only
+    <base>' call is a deliberate WHOLE-WORKING-TREE diff (no path scoping),
+    unlike every other git call in this module -- its cost scales with the
+    repo's total dirty-file count, not this run's own scope. Measured live
+    against a real, unrelated concurrent-session sweep (~2,100 dirty files,
+    ~164k tracked files, Windows core.autocrlf re-normalization overhead):
+    ~50s, past the 30s timeout every other single-path/graph-only call in
+    this module correctly uses. This pins the fix (180s) so it can't
+    silently regress back to a value too tight for a real, documented,
+    non-rare occurrence in this repo (CLAUDE.md's own ST-021 note)."""
+    TestFullReferenceScopeResolution._write_api_surface_and_pages(tmp_path)
+
+    recorded_timeouts: list = []
+
+    def _runner_recording_diff_timeout(args: list[str], **kwargs: object):
+        if args[:3] == ["git", "diff", "--name-only"]:
+            recorded_timeouts.append(kwargs.get("timeout"))
+        return _runner(args, **kwargs)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_runner_recording_diff_timeout,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-POSTKR-TIMEOUT", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-POSTKR-TIMEOUT/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(json.dumps({"pages": []}), encoding="utf-8")
+
+    refresh_run.prepare_run(manifest)
+
+    assert recorded_timeouts == [180]
+
+
 def test_upstream_scope_still_zero_when_pia_finds_nothing_affected(tmp_path: Path):
     """Negative control: a real PIA report with ONLY LOW_IMPACT/NOT_AFFECTED
     pages must still correctly raise -- the fix above must not become a
