@@ -190,6 +190,40 @@ def test_hex_literal_regex_does_not_swallow_real_class_names(tmp_path):
     assert any(f["finding_type"] == ro.FINDING_INVALID_SYMBOL for f in findings)
 
 
+def test_byte_array_stream_subclasses_are_allowed(tmp_path):
+    """InputStream/OutputStream were already allowlisted, but not their
+    ByteArray* concrete JDK subclasses -- a routine, correct pairing for
+    in-memory I/O examples. Found live 2026-08-24, pdf/java's
+    developer-guide/io.md."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Use `ByteArrayOutputStream` to capture output, then wrap with "
+        "`ByteArrayInputStream` for downstream processing.\n",
+    )
+    api_surface = {"Document", "Page"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_pdf_content_stream_operator_codes_are_allowed(tmp_path):
+    """PDF content-stream operator codes (ISO 32000-1 SS A.2) are raw format
+    syntax tokens explaining the spec itself, never Java class names.
+    Found live 2026-08-24, pdf/java's developer-guide/operators.md: `Tf`/`Tj`
+    match the same start-uppercase-then-lowercase shape a genuine 2-letter
+    PascalCase class name would."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Text operators include `BT`, `ET`, `Tf`, `Tj`, `Td`, `Tm`.\n",
+    )
+    api_surface = {"Document", "Page"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_spreadsheet_cell_addresses_are_allowed(tmp_path):
     """RPR-ST089-03: spreadsheet cell-address references (`B5`, `D5`) and
     bare single-letter column references (`C`) are never API symbols in a

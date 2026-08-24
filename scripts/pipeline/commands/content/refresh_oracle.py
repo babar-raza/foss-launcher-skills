@@ -293,6 +293,11 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         "NullReferenceException",
         "UnsupportedOperationException", "FileNotFoundException", "IOException",
         "NullPointerException", "IndexOutOfBoundsException", "InputStream", "OutputStream",
+        # JDK in-memory stream subclasses -- InputStream/OutputStream (above)
+        # were already allowlisted, but not their ByteArray* concrete
+        # subclasses, a routine, correct pairing for in-memory I/O examples.
+        # Found live 2026-08-24, pdf/java's developer-guide/io.md.
+        "ByteArrayInputStream", "ByteArrayOutputStream",
     }
     content_tokens = {
         "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",
@@ -326,6 +331,17 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # X/Y/Z (axis-label) precedent above for the same reasoning.
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
+        # PDF content-stream operator codes (ISO 32000-1 §A.2) -- raw PDF
+        # syntax tokens explaining the format itself, never Java class
+        # names, e.g. "text operators (`BT`, `ET`, `Tf`, `Tj`)". `Tf`/`Tj`
+        # match _BACKTICK_API_RE's `[A-Z][A-Za-z0-9_]*` shape (start
+        # uppercase, one lowercase letter) the same way a real 2-letter
+        # PascalCase-looking token would; `BT`/`ET` are all-caps and were
+        # not observed triggering a finding. Found live 2026-08-24, pdf/java's
+        # developer-guide/operators.md and the kb how-to-work-with-operators
+        # page -- same operator table in prose on both.
+        "Tf", "Tj", "BT", "ET", "Td", "TD", "Tm", "TJ", "Tc", "Tw", "Tz",
+        "TL", "Tr", "Ts",
     }
     for i, line in enumerate(body.splitlines(), start=1):
         for m in _BACKTICK_API_RE.finditer(line):
