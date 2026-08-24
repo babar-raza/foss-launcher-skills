@@ -61,7 +61,7 @@
         "warnings": []
       }
     ],
-    "output_hash": "sha256:1d3559cd5dc2439f2a6df98e672bb87eb2c81570638ad09e46ac3412e21e4dd7",
+    "output_hash": "sha256:980ac1417116aa2753afa161725919302417383e93e8e46632089979197c2ec7",
     "total_targets": 5200
   },
   "targets": {
@@ -675,6 +675,18 @@
           "http_status": 200,
           "redirect_chain": [],
           "validated_via": "manual-correction-2026-08-17-words-net-platform-page"
+        },
+        "tex/python": {
+          "url": "https://products.aspose.com/tex/python-net/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-24-tc15-backfill-regression-check"
+        },
+        "page/python": {
+          "url": "https://products.aspose.com/page/python-net/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-24-tc15-backfill-regression-check"
         }
       }
     },

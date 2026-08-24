@@ -1,5 +1,5 @@
 generated_at: '2026-08-21T20:44:51.673453+00:00'
-source_json_hash: sha256:1d3559cd5dc2439f2a6df98e672bb87eb2c81570638ad09e46ac3412e21e4dd7
+source_json_hash: sha256:980ac1417116aa2753afa161725919302417383e93e8e46632089979197c2ec7
 targets:
   3d:
     http_status: 200
@@ -97,6 +97,9 @@ targets:
   page:
     http_status: 200
     url: https://products.aspose.com/page/
+  page/python:
+    http_status: 200
+    url: https://products.aspose.com/page/python-net/
   pdf:
     http_status: 200
     url: https://products.aspose.com/pdf/
@@ -148,6 +151,9 @@ targets:
   tex:
     http_status: 200
     url: https://products.aspose.com/tex/
+  tex/python:
+    http_status: 200
+    url: https://products.aspose.com/tex/python-net/
   words:
     http_status: 200
     url: https://products.aspose.com/words/
