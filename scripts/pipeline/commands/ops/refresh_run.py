@@ -1418,6 +1418,42 @@ def _paths_from_pia(path: Path) -> list[str]:
     return sorted(set(selected))
 
 
+def _full_reference_scope_paths(family: str, platform: str) -> list[str]:
+    """Full, delta-independent reference-page candidate path list (deep-
+    reassessment pass, 2026-08-24, closes G17 at its root -- see prepare_run's
+    own call-site comment for the full rationale).
+
+    Delegates entirely to batch_reference.py's own rebuild_all dry-run (the
+    single existing source of truth for "what classes need a reference page,"
+    already correct and already tested) -- no candidate-selection logic is
+    duplicated here. confirm_rebuild=True is safe and required at this
+    discovery-only, dry-run stage regardless of how many pages would
+    theoretically be eligible: dry_run=True guarantees zero writes happen
+    here; the real safety gate belongs to the REAL, writing invocation this
+    scope later authorizes (apply_run's own --rebuild-all --confirm-rebuild
+    call), which this repo's own governed-refresh accountability (evidence,
+    grading, the human-review artifacts §20 requires) now provides in place
+    of a per-invocation manual confirmation prompt.
+
+    Fails open (empty list, no scope contribution) on any error -- including
+    SystemExit, which batch_reference.run() raises for its own missing-
+    precondition signaling (e.g. no api_surface.json yet) and which does NOT
+    inherit from Exception (the same catch gap found and fixed live in
+    content_coverage_audit.py's own verify_run() wiring). This function runs
+    during prepare_run(), before the run's own knowledge refresh in some
+    call orders is guaranteed complete elsewhere in this same function, so a
+    missing-precondition failure here must degrade to "no reference-scope
+    contribution," never abort the whole scope resolution.
+    """
+    try:
+        result = batch_reference.run(
+            family, platform, dry_run=True, rebuild_all=True, confirm_rebuild=True,
+        )
+    except (Exception, SystemExit):  # noqa: BLE001 -- see docstring above
+        return []
+    return sorted(set(result.get("to_generate_paths", []) + result.get("to_update_paths", [])))
+
+
 _KNOWLEDGE_DELTA_LIST_FIELDS = (
     "new_claims", "removed_claims", "modified_claims",
     "new_apis", "removed_apis", "modified_apis", "resurrected_apis",
@@ -1722,10 +1758,33 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
         # Historical PIA output may inform planning, but must never broaden the
         # paths authorized by the supplied scope manifest.
         scope_paths = explicit_scope_paths
-    elif manifest["mode"] == "combined":
-        scope_paths = sorted(set(explicit_scope_paths + pia_scope_paths))
     else:
-        scope_paths = pia_scope_paths
+        # Full-reference-scope resolution (deep-reassessment pass, 2026-08-24,
+        # closes G17 at its root): page_impact_assess.py's own PIA scoring is
+        # DELTA-scoped (knowledge_delta.json, one cycle's comparison) -- if a
+        # real knowledge advance's content generation is skipped for one
+        # cycle (a different lane's own workflow, an interrupted run, human
+        # error), it becomes permanently invisible to every LATER cycle's own
+        # narrower delta (confirmed live for pdf/java: a real 121-class
+        # subsystem addition never got a single reference page). The
+        # reference surface is structurally different from prose (docs/kb/
+        # blog): it is entirely mechanically generated from api_surface.json,
+        # with no hand-authored-content risk beyond the EXISTING, unchanged
+        # auto_updatable:false/manually-curated protections -- so unlike
+        # prose (where preserve-first, delta-scoped targeting is correct and
+        # untouched here), the reference surface's own scope is pinned as the
+        # FULL, current, delta-INDEPENDENT candidate set every time, not just
+        # the PIA-scored HIGH/MEDIUM subset. batch_reference.py's own
+        # rebuild_all dry-run is the single source of truth for this list (no
+        # candidate-selection logic duplicated); its meaningful-change guard
+        # (already proven, unchanged) means pinning 1000+ existing pages into
+        # scope does not mean 1000+ pages get rewritten -- only genuinely
+        # different ones do, at apply time.
+        full_reference_paths = _full_reference_scope_paths(family, platform)
+        if manifest["mode"] == "combined":
+            scope_paths = sorted(set(explicit_scope_paths + pia_scope_paths + full_reference_paths))
+        else:
+            scope_paths = sorted(set(pia_scope_paths + full_reference_paths))
     if not scope_paths:
         raise RefreshRunError("Refresh scope resolved to zero pages")
     _assert_product_scope(scope_paths, family, platform)
@@ -1809,6 +1868,35 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
         _file_digest(delta) if delta.is_file() else None
     )
     manifest["output_digests"]["scope"] = _file_digest(scope_path)
+
+    # Content-coverage "before" snapshot (deep-reassessment pass, 2026-08-24,
+    # completes G17's fix per direct user instruction: "keep note of what was
+    # there before, and later compare the newly generated pages to make sure
+    # everything existing as well new API references are there"). Captured
+    # here, at the very end of prepare_run() -- after this run's own
+    # knowledge refresh and full-reference-scope resolution above have
+    # already run, but strictly BEFORE apply_run() writes anything -- so this
+    # is a genuine "before this run's own content changes" baseline. Reuses
+    # the exact same detector verify_run() already runs "after" (see its own
+    # content_coverage_summary step) with no duplicated candidate-selection
+    # logic, and the same default (non-rebuild_all) mode, so before/after are
+    # computed by an identical method and are directly comparable. Advisory
+    # only, same fail-open shape as every other optional-diagnostic step in
+    # this module -- a missing api_surface.json (SystemExit) or any other
+    # read error degrades to "no baseline available" rather than blocking
+    # planning; verify_run()'s own comparison step degrades the same way when
+    # this is None.
+    try:
+        before_report = content_coverage_audit.scan_product(family, platform)
+        manifest["content_coverage_before"] = {
+            "total_candidates": before_report["total_candidates"],
+            "missing_page_count": before_report["missing_page_count"],
+            "missing_classes": before_report["missing_classes"],
+        }
+    except (Exception, SystemExit) as exc:  # noqa: BLE001 -- advisory only, see comment above
+        manifest["content_coverage_before"] = None
+        manifest["content_coverage_before_error"] = f"{type(exc).__name__}: {exc}"
+
     _transition(manifest, "PLANNED", checkpoint="planning_complete")
     return manifest
 
@@ -1885,31 +1973,29 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
             manifest=manifest,
         )
     if reference_scope:
-        # Two-step regeneration rule (mandatory when removed_apis > 0):
-        # an --update-only pass only regenerates pages for classes in
-        # modified_apis, so reference pages for OTHER, unmodified classes
-        # can retain phantom members that were only removed as a
-        # side-effect of the deleted classes (proven on pdf/java
-        # Rectangle.md, 2026-06-12). Prior to this fix, only
-        # mode=="remediation" ever triggered --rebuild-all; a plain
-        # upstream/combined refresh with real removals silently skipped
-        # it (found live during 3D-PYTHON-REFRESH-001, 2026-08-01).
-        removed_apis_count = 0
-        delta_path = (
-            _repo_root / "knowledge" / family / platform / "merged" / "knowledge_delta.json"
-        )
-        if delta_path.is_file():
-            try:
-                removed_apis_count = len(
-                    json.loads(delta_path.read_text(encoding="utf-8")).get("removed_apis") or []
-                )
-            except (OSError, ValueError):
-                removed_apis_count = 0
-        reference_mode = (
-            ["--rebuild-all", "--confirm-rebuild"]
-            if manifest["mode"] == "remediation" or removed_apis_count > 0
-            else ["--update"]
-        )
+        # Full-regeneration mode, unconditionally (deep-reassessment pass,
+        # 2026-08-24, closes G17 at its root -- see prepare_run's own
+        # full-reference-scope comment for the complete rationale). History:
+        # originally --update-only by default, upgraded to --rebuild-all
+        # only when removed_apis > 0 (the "two-step regeneration rule": an
+        # --update-only pass only regenerates classes in modified_apis, so
+        # unrelated pages could retain phantom members left over from a
+        # deleted class -- proven on pdf/java Rectangle.md, 2026-06-12) or in
+        # remediation mode. Both of those triggers were themselves DELTA-
+        # dependent -- exactly the structural gap this pass closes: a real,
+        # un-propagated knowledge advance produces NO removed_apis/modified_apis
+        # signal in the current cycle's delta, so the old conditional would
+        # never have fired for it either. --rebuild-all is now the standard,
+        # every-run mode for every manifest mode; its own meaningful-change
+        # guard (unchanged, already proven) and auto_updatable:false/
+        # manually-curated protections (unchanged) are the real, remaining
+        # safety net -- not a conditional on what a single cycle's delta
+        # happened to contain. prepare_run's own full-reference-scope pinning
+        # is what makes this actually reach every candidate, not just this
+        # mode-flag change alone (batch_reference.py's own scoped_paths
+        # filter would otherwise silently exclude anything outside scope.json
+        # regardless of which mode flag is passed here).
+        reference_mode = ["--rebuild-all", "--confirm-rebuild"]
         _assert_pinned_scope(manifest)
         _require_command(
             [
@@ -2442,8 +2528,43 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "total_candidates": coverage_report["total_candidates"],
             "missing_page_count": coverage_report["missing_page_count"],
         }
+        # Before/after comparison (completes G17's fix, deep-reassessment
+        # pass, 2026-08-24 -- direct user instruction: "keep note of what was
+        # there before, and later compare the newly generated pages to make
+        # sure everything existing as well new API references are there").
+        # prepare_run() captured content_coverage_before using this exact
+        # same detector/mode, so the two are directly comparable.
+        # newly_covered: had no page before this run, has one now -- the
+        #   positive confirmation the user asked for ("new API references
+        #   are there").
+        # newly_missing: HAD a page before this run, has none now -- a real
+        #   regression (something disappeared during a run whose whole
+        #   purpose is full, non-destructive regeneration). Recorded
+        #   advisory-only, matching every other check in this block and this
+        #   mission's own non-goal of not changing repo-wide gating
+        #   strictness (§22 decision 4) -- post_refresh_verify's own Check 3b
+        #   (incorrectly-retired pages) is the existing BLOCKING defense for
+        #   the closely-related "still-valid class marked draft:true" case;
+        #   this catches the different, cheaper-to-miss failure mode of a
+        #   page file disappearing outright.
+        # still_missing: had no page before, still has none after -- a
+        #   pre-existing gap this run's generation did not close (e.g.
+        #   filtered out upstream by kind/visibility) -- worth surfacing, not
+        #   itself evidence of a bug in this run.
+        before = manifest.get("content_coverage_before")
+        if before is not None:
+            before_missing = set(before.get("missing_classes", []))
+            after_missing = set(coverage_report.get("missing_classes", []))
+            manifest["content_coverage_comparison"] = {
+                "newly_covered": sorted(before_missing - after_missing),
+                "newly_missing": sorted(after_missing - before_missing),
+                "still_missing": sorted(before_missing & after_missing),
+            }
+        else:
+            manifest["content_coverage_comparison"] = None
     except (Exception, SystemExit) as exc:  # noqa: BLE001 -- advisory only, see docstring above
         manifest["content_coverage_summary"] = None
+        manifest["content_coverage_comparison"] = None
         # SystemExit's own str() is just the bare exit code (e.g. "1") --
         # batch_reference.run()'s real message already went to stdout via
         # print(), so name the exception type too for a self-contained record.

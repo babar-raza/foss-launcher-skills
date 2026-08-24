@@ -967,6 +967,171 @@ class TestKnowledgeDeltaIsReal:
         assert refresh_run._knowledge_delta_is_real(delta_path) is False
 
 
+class TestFullReferenceScopeResolution:
+    """G17 deep-reassessment pass (2026-08-24): prepare_run's scope
+    resolution for upstream/combined mode must union in the FULL,
+    delta-independent reference-page candidate set (batch_reference.py's own
+    --rebuild-all dry-run), not just the PIA-scored HIGH/MEDIUM prose subset
+    -- closing the structural gap where a real knowledge advance whose
+    content generation is skipped for one cycle becomes permanently
+    invisible to every later cycle's own narrower knowledge_delta.json.
+    Remediation mode's explicit, operator-pinned scope must stay exactly
+    unbroadened (negative control)."""
+
+    @staticmethod
+    def _write_api_surface_and_pages(tmp_path: Path) -> None:
+        knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+        knowledge_dir.mkdir(parents=True, exist_ok=True)
+        # kind must be C#'s real tree-sitter node type ("class_declaration"),
+        # matching _passes_platform_scope's platform-specific kind allowlist
+        # -- the same fixture shape already proven in
+        # test_verify_run_writes_content_coverage_summary above.
+        (knowledge_dir / "api_surface.json").write_text(json.dumps([
+            {"name": "HasPage", "kind": "class_declaration", "methods": [], "properties": [],
+             "visibility": "public", "reachable": True, "file": "HasPage.cs"},
+            {"name": "MissingPage", "kind": "class_declaration", "methods": [], "properties": [],
+             "visibility": "public", "reachable": True, "file": "MissingPage.cs"},
+        ]), encoding="utf-8")
+        (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+        (knowledge_dir / "knowledge_delta.json").write_text("{}", encoding="utf-8")
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "net"
+        ref_dir.mkdir(parents=True, exist_ok=True)
+        (ref_dir / "HasPage.md").write_text(
+            "---\nauto_updatable: true\n---\n# HasPage\n", encoding="utf-8"
+        )
+
+    def test_upstream_scope_includes_full_reference_candidate_set(self, tmp_path: Path):
+        self._write_api_surface_and_pages(tmp_path)
+        manifest = refresh_run.create_run(
+            "pdf", "net", mode="upstream", run_id="RUN-FULLREF-UPSTREAM", session_id="session-1",
+        )
+        planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-FULLREF-UPSTREAM/planning/pdf/net"
+        planning.mkdir(parents=True)
+        (planning / "page_impact.json").write_text(json.dumps({"pages": []}), encoding="utf-8")
+
+        prepared = refresh_run.prepare_run(manifest)
+
+        scope_paths = prepared["scope"]["paths"]
+        # MissingPage has no page at all -- must be pinned into scope so a
+        # future apply_run() actually generates it, closing G17's exact gap.
+        assert "content/reference.aspose.org/en/pdf/net/MissingPage.md" in scope_paths
+        # HasPage already has a page -- rebuild_all's dry-run correctly
+        # reports it as "eligible for rebuild" too (the meaningful-change
+        # guard, unchanged, is what keeps this from being a real rewrite at
+        # apply time -- pinning it into scope is not itself a content change).
+        assert "content/reference.aspose.org/en/pdf/net/HasPage.md" in scope_paths
+
+    def test_combined_scope_includes_full_reference_candidate_set(self, tmp_path: Path):
+        """Same union must apply to combined mode, not just pure upstream."""
+        self._write_api_surface_and_pages(tmp_path)
+        explicit = tmp_path / "scope.json"
+        explicit.write_text(json.dumps(
+            {"paths": ["content/docs.aspose.org/en/pdf/net/known-defect.md"]}
+        ), encoding="utf-8")
+        (tmp_path / "content/docs.aspose.org/en/pdf/net/known-defect.md").parent.mkdir(
+            parents=True, exist_ok=True
+        )
+        (tmp_path / "content/docs.aspose.org/en/pdf/net/known-defect.md").write_text(
+            "page\n", encoding="utf-8"
+        )
+        manifest = refresh_run.create_run(
+            "pdf", "net", mode="combined", scope_manifest="scope.json",
+            run_id="RUN-FULLREF-COMBINED", session_id="session-1",
+        )
+        planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-FULLREF-COMBINED/planning/pdf/net"
+        planning.mkdir(parents=True)
+        (planning / "page_impact.json").write_text(json.dumps({"pages": []}), encoding="utf-8")
+
+        prepared = refresh_run.prepare_run(manifest)
+
+        scope_paths = prepared["scope"]["paths"]
+        assert "content/docs.aspose.org/en/pdf/net/known-defect.md" in scope_paths
+        assert "content/reference.aspose.org/en/pdf/net/MissingPage.md" in scope_paths
+        assert "content/reference.aspose.org/en/pdf/net/HasPage.md" in scope_paths
+
+    def test_remediation_mode_scope_stays_unbroadened(self, tmp_path: Path):
+        """Negative control: remediation mode's explicit, operator-pinned
+        scope must NEVER be broadened by the full reference-candidate set --
+        only upstream/combined mode gets that union. Proven by seeding an
+        api_surface.json with a class that has no reference page yet (which
+        WOULD appear in scope if the wrong branch fired) and asserting it is
+        absent from the resolved scope."""
+        self._write_api_surface_and_pages(tmp_path)
+        explicit = "content/docs.aspose.org/en/pdf/net/known-defect.md"
+        prepared = _write_scope_manifest_and_plan(
+            tmp_path, [explicit], "RUN-REMEDIATION-NOBROADEN"
+        )
+
+        assert prepared["scope"]["paths"] == [explicit]
+        assert "content/reference.aspose.org/en/pdf/net/MissingPage.md" not in prepared["scope"]["paths"]
+        assert "content/reference.aspose.org/en/pdf/net/HasPage.md" not in prepared["scope"]["paths"]
+
+
+def test_apply_run_reference_scope_always_uses_rebuild_all_confirm_rebuild(tmp_path: Path):
+    """G17 deep-reassessment pass: apply_run's reference-scope call must
+    ALWAYS pass --rebuild-all --confirm-rebuild, for every manifest mode --
+    never falling back to --update. --update is delta-scoped (modified_apis
+    only in knowledge_delta.json) and would silently exclude any class whose
+    real knowledge-model addition was never propagated by a prior cycle --
+    the exact G17 gap. The OLD code's conditional gave 'upstream' mode
+    --update whenever removed_apis_count == 0 (the common case) -- this is
+    the scenario that would have silently regressed without this test."""
+    knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    knowledge_dir.mkdir(parents=True, exist_ok=True)
+    (knowledge_dir / "api_surface.json").write_text(json.dumps([
+        {"name": "HasPage", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "HasPage.cs"},
+    ]), encoding="utf-8")
+    (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+    (knowledge_dir / "knowledge_delta.json").write_text("{}", encoding="utf-8")
+    ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "net"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    (ref_dir / "HasPage.md").write_text(
+        "---\nauto_updatable: true\n---\n# HasPage\n", encoding="utf-8"
+    )
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-APPLY-REBUILDALL", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-APPLY-REBUILDALL/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(json.dumps({"pages": []}), encoding="utf-8")
+    prepared = refresh_run.prepare_run(manifest)
+    assert "content/reference.aspose.org/en/pdf/net/HasPage.md" in prepared["scope"]["paths"]
+
+    recorded_calls: list = []
+
+    def capturing_runner(args: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        str_args = [str(a) for a in args]
+        if any("batch_reference.py" in a for a in str_args):
+            recorded_calls.append(str_args)
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-APPLY-REBUILDALL"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-APPLY-REBUILDALL",
+                    "page_path": "content/reference.aspose.org/en/pdf/net/HasPage.md",
+                    "disposition": "REFERENCE_UNCHANGED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=capturing_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(prepared)
+
+    assert result["state"] == "VALIDATING"
+    assert len(recorded_calls) == 1
+    call = recorded_calls[0]
+    assert "--rebuild-all" in call
+    assert "--confirm-rebuild" in call
+    assert "--update" not in call
+
+
 def test_upstream_scope_still_zero_when_pia_finds_nothing_affected(tmp_path: Path):
     """Negative control: a real PIA report with ONLY LOW_IMPACT/NOT_AFFECTED
     pages must still correctly raise -- the fix above must not become a
@@ -2002,6 +2167,128 @@ def test_verify_run_writes_content_coverage_summary(tmp_path: Path):
     real_repo_root = Path(__file__).resolve().parents[3]
     real_report_path = real_repo_root / "reports" / "content_coverage" / "pdf-net.json"
     assert not real_report_path.is_file()
+
+
+def test_prepare_run_captures_content_coverage_before_snapshot(tmp_path: Path):
+    """Completes G17's fix (deep-reassessment pass, 2026-08-24) per direct
+    user instruction: the refresh-product skill must "keep note of what was
+    there before" -- prepare_run() must capture a content-coverage baseline
+    (manifest["content_coverage_before"]) before this run's own apply_run()
+    writes anything, using the identical detector/mode verify_run()'s own
+    "after" scan uses, so the two are directly comparable."""
+    TestFullReferenceScopeResolution._write_api_surface_and_pages(tmp_path)
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-COVERAGE-BEFORE", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-COVERAGE-BEFORE/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(json.dumps({"pages": []}), encoding="utf-8")
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared.get("content_coverage_before_error") is None
+    before = prepared["content_coverage_before"]
+    assert before["total_candidates"] == 2
+    assert before["missing_page_count"] == 1
+    assert before["missing_classes"] == ["MissingPage"]
+
+
+def test_verify_run_computes_content_coverage_comparison_against_before_snapshot(
+    tmp_path: Path,
+):
+    """Completes G17's fix: verify_run() must diff its own "after" scan
+    against manifest["content_coverage_before"] (captured by prepare_run())
+    to directly answer the user's ask -- "compare the newly generated pages
+    to make sure everything existing as well new API references are there".
+    newly_covered proves new/previously-missing references are now present;
+    newly_missing flags the real regression case (had a page before this
+    run, has none now); still_missing flags a pre-existing gap this run's
+    generation did not close."""
+    knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    (knowledge_dir / "api_surface.json").write_text(json.dumps([
+        {"name": "Alpha", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "Alpha.cs"},
+        {"name": "Beta", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "Beta.cs"},
+        {"name": "Gamma", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "Gamma.cs"},
+        {"name": "Delta", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "Delta.cs"},
+    ]), encoding="utf-8")
+    (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+    ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "net"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    # Alpha and Beta have real pages on disk right now (Beta simulates a
+    # page this run just generated); Gamma and Delta have none.
+    (ref_dir / "Alpha.md").write_text("---\nauto_updatable: true\n---\n# Alpha\n", encoding="utf-8")
+    (ref_dir / "Beta.md").write_text("---\nauto_updatable: true\n---\n# Beta\n", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-COVERAGE-COMPARE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    # Simulate prepare_run()'s own "before" snapshot directly: Beta and Delta
+    # were missing before this run started; Alpha and Gamma were not.
+    manifest["content_coverage_before"] = {
+        "total_candidates": 4,
+        "missing_page_count": 2,
+        "missing_classes": ["Beta", "Delta"],
+    }
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest.get("content_coverage_error") is None
+    comparison = manifest["content_coverage_comparison"]
+    # Beta: missing before, has a page now -- new API reference confirmed present.
+    assert comparison["newly_covered"] == ["Beta"]
+    # Gamma: NOT missing before (per the simulated baseline), has no page
+    # now -- the real-regression signal: something that existed vanished.
+    assert comparison["newly_missing"] == ["Gamma"]
+    # Delta: missing before and still missing now -- a pre-existing gap,
+    # not something this run broke.
+    assert comparison["still_missing"] == ["Delta"]
+
+
+def test_verify_run_content_coverage_comparison_is_none_without_before_snapshot(
+    tmp_path: Path,
+):
+    """Negative control: a run whose manifest was never planned via
+    prepare_run() (or ran in a mode/era before this fix) has no
+    content_coverage_before at all -- verify_run() must degrade to
+    content_coverage_comparison=None rather than raising."""
+    knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    (knowledge_dir / "api_surface.json").write_text("[]", encoding="utf-8")
+    (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-COVERAGE-NOBASELINE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest.get("content_coverage_before") is None
+    assert manifest["content_coverage_comparison"] is None
 
 
 def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):

@@ -52,6 +52,39 @@ candidate set against current truth without fabricating an upstream delta. Missi
 baseline, model/clone mismatch, mixed-run evidence, incomplete scope reconciliation,
 in-scope HEAD movement, or an altered scoped file blocks the run.
 
+**Reference pages always regenerate from the full, current knowledge model — not just
+this cycle's delta** (deep-reassessment pass, 2026-08-24, closes G17). `knowledge_delta.json`
+is cycle-scoped: it only diffs the immediately preceding `merged/` snapshot against the
+current one, so a real knowledge advance whose content generation is skipped for one
+cycle (a different lane's own workflow, an interrupted run, human error) becomes
+permanently invisible to every later cycle's own narrower delta — confirmed live for
+pdf/java, where a real ~121-class Structured Document Model addition was correctly
+scouted but never got a single reference page. For `upstream`/`combined` mode,
+`prepare_run()` pins the *entire*, delta-independent reference-page candidate set
+(`batch_reference.py`'s own `--rebuild-all` dry-run — both missing and existing-eligible
+classes) into the run's scope, and `apply_run()` always invokes `batch_reference.py`
+with `--rebuild-all --confirm-rebuild` for the reference surface, for every mode — never
+the old delta-scoped `--update`. This is safe: the reference surface is entirely
+mechanically generated (no hand-authored-content risk), and the existing meaningful-change
+guard plus `auto_updatable:false`/manually-curated protections mean pinning the full
+candidate set into scope does not mean every existing page gets rewritten — only
+genuinely different ones do, at apply time. `remediation` mode's explicit,
+operator-pinned scope is never broadened by this union.
+
+**Before/after content-coverage verification is automatic, not a separate step.**
+`prepare_run()` captures a coverage baseline (`manifest["content_coverage_before"]` —
+which classes in `api_surface.json` currently have no reference page) before this run's
+own `apply_run()` writes anything. `verify_run()` re-scans after applying
+(`manifest["content_coverage_summary"]`) and diffs the two into
+`manifest["content_coverage_comparison"]`: `newly_covered` (previously missing, now has a
+page — confirms new API references were actually generated), `newly_missing` (had a page
+before this run, has none now — a real regression signal), and `still_missing` (missing
+both before and after — a pre-existing gap this run's generation did not close). This is
+advisory, recorded in the manifest for every run, not a new blocking gate (per this
+mission's own non-goal of not changing repo-wide validator strictness) —
+`post_refresh_verify.py`'s existing Check 3b (incorrectly-retired pages) remains the
+blocking defense for the closely related "still-valid class marked draft:true" case.
+
 Use `recover` only for an uncommitted failed or rejected run. It restores each
 run-owned path from the pinned base only when the current bytes still match the
 validated receipt output (or were already restored by an interrupted recovery),

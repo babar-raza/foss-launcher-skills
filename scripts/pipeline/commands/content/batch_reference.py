@@ -2069,6 +2069,20 @@ def run(family: str, platform: str, kind_arg: str = "all",
             # caller reads these two new keys.
             "to_generate_names": sorted(e.get("name", "") for e in to_generate),
             "to_update_names": sorted(e.get("name", "") for e in to_update),
+            # Full-reference-scope resolution (deep-reassessment pass, 2026-08-24
+            # -- G17/S-84 full-coverage regeneration): repo-relative page PATHS
+            # (not just names), so refresh_run.py's prepare_run() can pin the
+            # COMPLETE, delta-independent reference-page candidate set into
+            # scope.json, the same path format scope.json already uses
+            # everywhere else (_canonical_reference_path).
+            "to_generate_paths": sorted(
+                _canonical_reference_path(output_dir / f"{_entry_slug(e)}.md")
+                for e in to_generate
+            ),
+            "to_update_paths": sorted(
+                _canonical_reference_path(output_dir / f"{_entry_slug(e)}.md")
+                for e in to_update
+            ),
         }
         return result
 
