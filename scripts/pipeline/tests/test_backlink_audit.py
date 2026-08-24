@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from commands.ops.backlink_audit import (
     audit_file, run_audit, build_report,
     STATUS_COMPLIANT, STATUS_WRONG_ANCHOR_TEXT, STATUS_DUPLICATE_LINK,
-    STATUS_DUPLICATE_SUBDOMAIN, STATUS_MISSING,
+    STATUS_DUPLICATE_SUBDOMAIN, STATUS_MISSING, STATUS_WRONG_TARGET,
 )
 
 FAMILIES_MAP = {"pdf": "Aspose.PDF", "slides": "Aspose.Slides"}
@@ -132,6 +132,95 @@ class TestAuditFileDuplicates:
             pytest.skip("live fixture page not present in this checkout")
         rec = audit_file(fp, repo_root, target_map)
         assert rec.status == STATUS_COMPLIANT
+
+
+class TestAuditFileDeepAuthorityWiring:
+    """BL-AUDIT-DEEP-WIRE (2026-08-24): the CLI's --deep/--authority flags
+    were parsed but never threaded into audit_file()'s resolve_backlink()
+    call, so any reference.aspose.org page correctly deep-linked to its
+    exact class URL (via backlink_backfill.py --deep, or pre-existing) was
+    misclassified WRONG_TARGET -- confirmed live: 471 of 497 WRONG_TARGET
+    results on a post-backfill reference.aspose.org audit were pages just
+    written with a correct, deliberate deep link."""
+
+    def _authority(self, source_file: str, target_path: str) -> dict:
+        return {
+            "authority": {
+                source_file: {
+                    "allowed_for_generation": True,
+                    "target_subdomain": "reference",
+                    "target_path": target_path,
+                },
+            },
+        }
+
+    def test_deep_link_wrong_target_without_wiring_baseline(self, tmp_path):
+        """Baseline reproducing the bug: omitting exact_deep_match_enabled/
+        authority (the pre-fix call shape) resolves only the shallow family
+        target, so a page correctly holding the deep class URL and nothing
+        else audits WRONG_TARGET."""
+        fp = _write_kb_page(
+            tmp_path, "content/reference.aspose.org/en/3d/java/EntityRendererFeatures.md",
+            "## See Also\n\n"
+            "- [Aspose.3D for Java — Enterprise API Reference]"
+            "(https://reference.aspose.com/3d/java/com.aspose.threed/entityrendererfeatures/)\n",
+        )
+        target_map = {
+            "targets": {
+                "reference.aspose.com": {
+                    "families": {"3d": {"url": "https://reference.aspose.com/3d/", "http_status": 200}},
+                    "platforms": {"3d/java": {"url": "https://reference.aspose.com/3d/java/", "http_status": 200}},
+                },
+            },
+            "all_urls": {},
+        }
+        rec = audit_file(fp, tmp_path, target_map)
+        assert rec.status == STATUS_WRONG_TARGET
+
+    def test_deep_link_compliant_when_wired(self, tmp_path):
+        """With exact_deep_match_enabled=True and a matching authority
+        record, the same page must audit COMPLIANT -- proving the CLI's
+        --deep flag now actually reaches resolve_backlink()."""
+        rel = "content/reference.aspose.org/en/3d/java/EntityRendererFeatures.md"
+        fp = _write_kb_page(
+            tmp_path, rel,
+            "## See Also\n\n"
+            "- [Aspose.3D for Java — Enterprise API Reference]"
+            "(https://reference.aspose.com/3d/java/com.aspose.threed/entityrendererfeatures/)\n",
+        )
+        target_map = {"targets": {}, "all_urls": {}}
+        authority = self._authority(
+            rel, "3d/java/com.aspose.threed/entityrendererfeatures",
+        )
+        rec = audit_file(
+            fp, tmp_path, target_map,
+            exact_deep_match_enabled=True, authority=authority,
+        )
+        assert rec.status == STATUS_COMPLIANT
+
+    def test_omitting_deep_params_preserves_prior_behavior(self, tmp_path):
+        """Negative control: omitting exact_deep_match_enabled/authority
+        (the default call shape used by every other existing caller) must
+        behave exactly as before this fix -- shallow resolution only, even
+        when an authority record exists that COULD have matched."""
+        rel = "content/reference.aspose.org/en/3d/java/EntityRendererFeatures.md"
+        fp = _write_kb_page(
+            tmp_path, rel,
+            "## See Also\n\n"
+            "- [Aspose.3D for Java — Enterprise API Reference]"
+            "(https://reference.aspose.com/3d/java/com.aspose.threed/entityrendererfeatures/)\n",
+        )
+        target_map = {
+            "targets": {
+                "reference.aspose.com": {
+                    "families": {"3d": {"url": "https://reference.aspose.com/3d/", "http_status": 200}},
+                    "platforms": {"3d/java": {"url": "https://reference.aspose.com/3d/java/", "http_status": 200}},
+                },
+            },
+            "all_urls": {},
+        }
+        rec = audit_file(fp, tmp_path, target_map)
+        assert rec.status == STATUS_WRONG_TARGET
 
 
 class TestRunAuditTallying:

@@ -184,6 +184,8 @@ def audit_file(
     canonical_overrides: dict | None = None,
     families_map: dict | None = None,
     platforms_map: dict | None = None,
+    exact_deep_match_enabled: bool = False,
+    authority: dict | None = None,
 ) -> AuditRecord:
     """Audit a single file and return an AuditRecord.
 
@@ -192,6 +194,18 @@ def audit_file(
     WRONG_ANCHOR_TEXT detection. Optional -- omitting either (the prior
     call shape) disables anchor-text checking but keeps every other status
     exactly as before, matching classify_compliance()'s own opt-in contract.
+
+    exact_deep_match_enabled/authority: (BL-AUDIT-DEEP-WIRE, 2026-08-24) the
+    CLI's --deep/--authority flags were parsed but never actually threaded
+    into resolve_backlink() -- this function always resolved against the
+    shallow family/platform target only, so any reference.aspose.org page
+    correctly deep-linked to its exact class URL (by backlink_backfill.py
+    --deep, or pre-existing) was misclassified WRONG_TARGET (confirmed live:
+    471 of 497 WRONG_TARGET results on a post-backfill reference.aspose.org
+    audit were pages just written with a correct, deliberate deep link).
+    Threading these through (matching backlink_backfill.py's own
+    resolve_backlink() call) fixes it; omitting both preserves the exact
+    prior (shallow-only) resolution for every existing caller.
     """
     rel = file_path.relative_to(repo_root).as_posix()
 
@@ -227,6 +241,9 @@ def audit_file(
         source_subdomain=subdomain or "",
         target_map=target_map,
         canonical_overrides=canonical_overrides,
+        exact_deep_match_enabled=exact_deep_match_enabled,
+        authority=authority,
+        source_file=rel,
     )
 
     # Read body text and count qualifying links
@@ -322,6 +339,8 @@ def run_audit(
     family_filter: str | None = None,
     platform_filter: str | None = None,
     canonical_overrides: dict | None = None,
+    exact_deep_match_enabled: bool = False,
+    authority: dict | None = None,
 ) -> tuple[list[AuditRecord], AuditTotals]:
     """Run audit across all matching content files. Returns (records, totals)."""
     files = walk_content(repo_root, subdomains, family_filter, platform_filter)
@@ -339,6 +358,7 @@ def run_audit(
             rec = audit_file(
                 fpath, repo_root, target_map, canonical_overrides=canonical_overrides,
                 families_map=families_map, platforms_map=platforms_map,
+                exact_deep_match_enabled=exact_deep_match_enabled, authority=authority,
             )
         except Exception as exc:
             rel = fpath.relative_to(repo_root).as_posix()
@@ -607,6 +627,20 @@ def main() -> int:
         json_out = reports_dir / f"backlink_audit_{ts}.json"
         md_out = reports_dir / f"backlink_audit_{ts}.md"
 
+    # Load deep authority if --deep (BL-AUDIT-DEEP-WIRE, 2026-08-24: mirrors
+    # backlink_backfill.py's own --deep loading -- previously args.deep/
+    # args.authority were parsed but never used anywhere in this file).
+    authority_data = None
+    if args.deep:
+        authority_path = (Path(args.authority) if args.authority
+                          else repo_root / "data" / "backlinks" / "workspace" / "backlink_authority.json")
+        if authority_path.exists():
+            authority_data = json.loads(authority_path.read_text(encoding="utf-8"))
+            print(f"  --deep: loaded authority from {authority_path} "
+                  f"({len(authority_data.get('authority', {}))} records)", file=sys.stderr)
+        else:
+            print(f"WARNING: --deep but authority not found: {authority_path}", file=sys.stderr)
+
     # Run audit
     print(f"Running backlink audit (generator v{SCRIPT_VERSION})...", file=sys.stderr)
     records, totals = run_audit(
@@ -616,6 +650,8 @@ def main() -> int:
         family_filter=args.family,
         platform_filter=args.platform,
         canonical_overrides=canonical_overrides,
+        exact_deep_match_enabled=bool(args.deep and authority_data),
+        authority=authority_data,
     )
 
     # Build and write report
