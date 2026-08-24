@@ -42,7 +42,12 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    Log: `WARN: knowledge_delta.json not found; falling back to stale_detect scan for affected pages.`
 
 4. **Find affected pages** (dual-path logic: citation-match + PIA-match):
-   - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog, reference)
+   - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog,
+     reference, **and products** — `content/products.aspose.org/en/{family}/{platform}/_index.md`,
+     the single per-product landing page; always include it in the scan even though it carries no
+     `evidence:` block (citation-match cannot apply to it, but it must still be reached by PIA-match
+     or a manual pass — this is the product's front door and must never be silently skipped just
+     because the enumeration forgot it, mission-plan-the-end-to-end-vast-hejlsberg.md Task 21)
    - Read each page's `evidence:` frontmatter
    - **Citation-match path**: A page is affected if its `claims` or `apis` arrays reference any changed/removed item
    - **PIA-match path**: Load `reports/refresh_review/{family}/{platform}/page_impact.json` if present.
