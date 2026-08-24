@@ -5,7 +5,7 @@
 <dependency>
   <groupId>org.aspose</groupId>
   <artifactId>aspose-pdf-foss</artifactId>
-  <version>26.6.0</version>
+  <version>26.8.0</version>
 </dependency>
 ```
 

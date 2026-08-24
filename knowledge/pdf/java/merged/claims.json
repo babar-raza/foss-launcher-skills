@@ -196051,9 +196051,9 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-55b962",
+    "claim_id": "CLM-pdf-683847",
     "kind": "install",
-    "text": "Current version is 26.6.0",
+    "text": "Current version is 26.8.0",
     "confidence": 1.0,
     "claim_source": "scout",
     "evidence": [],

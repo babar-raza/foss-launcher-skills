@@ -1,6 +1,6 @@
 # Promote Report: pdf/java
-Date: 2026-08-21T14:25:19.411563+00:00
-Scout SHA: 3324fc12216845361cc619e8ab2b14ccb9513533
+Date: 2026-08-23T12:08:44.203426+00:00
+Scout SHA: 099e70a8b309fdd6ce349607dd589dfde96f2989
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics

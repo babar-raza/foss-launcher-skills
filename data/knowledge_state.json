@@ -726,137 +726,137 @@
   },
   "pdf/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-21T14:25:19.373291+00:00",
-      "repo_sha": "3324fc12216845361cc619e8ab2b14ccb9513533",
-      "run_id": "promote-20260821T142519Z",
+      "accepted_at": "2026-08-23T12:08:44.162171+00:00",
+      "repo_sha": "099e70a8b309fdd6ce349607dd589dfde96f2989",
+      "run_id": "promote-20260823T120844Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSArray.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.142839Z"
+        "recorded_at": "2026-08-23T12:08:49.817272Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBase.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.152856Z"
+        "recorded_at": "2026-08-23T12:08:49.824725Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBoolean.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.162283Z"
+        "recorded_at": "2026-08-23T12:08:49.830400Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSCloner.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.171397Z"
+        "recorded_at": "2026-08-23T12:08:49.836306Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSDictionary.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.180968Z"
+        "recorded_at": "2026-08-23T12:08:49.842410Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFilter.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.192350Z"
+        "recorded_at": "2026-08-23T12:08:49.849082Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFloat.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.202567Z"
+        "recorded_at": "2026-08-23T12:08:49.856094Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSInteger.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.212413Z"
+        "recorded_at": "2026-08-23T12:08:49.862427Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSName.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.223066Z"
+        "recorded_at": "2026-08-23T12:08:49.875331Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSNull.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.232872Z"
+        "recorded_at": "2026-08-23T12:08:49.881590Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectKey.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.242234Z"
+        "recorded_at": "2026-08-23T12:08:49.888496Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectReference.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.251656Z"
+        "recorded_at": "2026-08-23T12:08:49.894606Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSStream.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.261311Z"
+        "recorded_at": "2026-08-23T12:08:49.903227Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSString.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:25.275652Z"
+        "recorded_at": "2026-08-23T12:08:49.914749Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\ICOSVisitor.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:30.346598Z"
+        "recorded_at": "2026-08-23T12:08:53.472281Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetGray.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.328558Z"
+        "recorded_at": "2026-08-23T12:09:00.644509Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetGrayStroke.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.338660Z"
+        "recorded_at": "2026-08-23T12:09:00.655896Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetHorizontalTextScaling.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.349996Z"
+        "recorded_at": "2026-08-23T12:09:00.667229Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineCap.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.361072Z"
+        "recorded_at": "2026-08-23T12:09:00.678096Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineJoin.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.371559Z"
+        "recorded_at": "2026-08-23T12:09:00.687650Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetLineWidth.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.381828Z"
+        "recorded_at": "2026-08-23T12:09:00.696791Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetMiterLimit.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.391947Z"
+        "recorded_at": "2026-08-23T12:09:00.708362Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetRGBColor.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.454118Z"
+        "recorded_at": "2026-08-23T12:09:00.752154Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetRGBColorStroke.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.466046Z"
+        "recorded_at": "2026-08-23T12:09:00.764050Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetSpacingMoveToNextLineShowText.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.477752Z"
+        "recorded_at": "2026-08-23T12:09:00.777091Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextLeading.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.490252Z"
+        "recorded_at": "2026-08-23T12:09:00.786848Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextMatrix.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.501279Z"
+        "recorded_at": "2026-08-23T12:09:00.798139Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextRenderingMode.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.513099Z"
+        "recorded_at": "2026-08-23T12:09:00.809952Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetTextRise.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T14:25:39.527842Z"
+        "recorded_at": "2026-08-23T12:09:00.821208Z"
       }
     },
     "family": "pdf",
     "platform": "java",
     "truth_audit": {
       "fail_count": 0,
-      "recorded_at": "2026-08-13T13:22:11.765994Z",
-      "report_path": "reports\\audit\\pdf-java-truth-20260813.md",
+      "recorded_at": "2026-08-24T03:06:59.928113Z",
+      "report_path": "reports\\audit\\pdf-java-truth-20260824.md",
       "verdict": "PASS",
-      "warn_count": 59
+      "warn_count": 25
     }
   },
   "pdf/net": {

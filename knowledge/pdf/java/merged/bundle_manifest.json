@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "bundle_id": "b2043771-cdb9-4c4a-9b7a-f96a4ddf1eb0",
+  "bundle_id": "49995d7a-5ff7-4a40-8c88-ffb24a9ca259",
   "family": "pdf",
   "platform": "java",
-  "repo_sha": "3324fc12216845361cc619e8ab2b14ccb9513533",
-  "generated_at": "2026-08-21T14:25:18.673929+00:00",
+  "repo_sha": "099e70a8b309fdd6ce349607dd589dfde96f2989",
+  "generated_at": "2026-08-23T12:08:43.452944+00:00",
   "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "d117d5bae3ba38d66903133861db8ecc0da7ae0fa633f7dcebb6340ba23cb2c5",
+      "sha256": "9d903875a7cb883bf234f7b3c25443674aed6d81b03d34f20b44d9cc8b58e66c",
       "bytes": 1215
     },
     "api_surface.json": {
@@ -17,7 +17,7 @@
       "bytes": 9042463
     },
     "api_surface.md": {
-      "sha256": "cd1f688abecbfff1cc89fff9808210a940f27821bb109b42ff07db61eca42d02",
+      "sha256": "bd861138ba4a60b5d1c35c271ff8b62e1760335635822e4a31d1bdd42364792a",
       "bytes": 933424
     },
     "formats.json": {
@@ -25,11 +25,11 @@
       "bytes": 5873
     },
     "formats.md": {
-      "sha256": "dd84021d0595a83c82da3a316ae3e4097ed0dc9120e7fba74adb07454a91e315",
+      "sha256": "811767bd4e51aa141b0db614e9a8197cc9951c7171d5baf03e32b4672a885720",
       "bytes": 659
     },
     "claims.json": {
-      "sha256": "7a49e34c298b419557d2cf85e070f1b0814249e5b3f3ec520b320f08d205684e",
+      "sha256": "02340ea9e3bd668de5f773102319fcc82ec66e55a188f47ffcfe53ff5d8eee4c",
       "bytes": 6020425
     },
     "limitations.md": {
@@ -37,11 +37,11 @@
       "bytes": 310
     },
     "install.md": {
-      "sha256": "a41c4ed6a2a23b23a23cb423060c669fc9a20ce95deb1ec12dfc1831b833671f",
+      "sha256": "5c8e7de19655e921c0297050f80c5d528b5f271257d58e126b2b96a35c8b49ab",
       "bytes": 243
     },
     "merge_report.md": {
-      "sha256": "0ec2d418a1e95e3c4990a190802a29de8f0f5f476a257db366b8082096c6badf",
+      "sha256": "545f5ff0397b05a47f1733eddc2481039d1a4aebac330366e9b77a62fe53a377",
       "bytes": 516
     },
     "snippets/snippet_001.java": {
@@ -449,6 +449,6 @@
       "bytes": 59415
     }
   },
-  "promote_run_id": "promote-20260821T142520Z",
+  "promote_run_id": "promote-20260823T120844Z",
   "status": "COMPLETE"
 }
