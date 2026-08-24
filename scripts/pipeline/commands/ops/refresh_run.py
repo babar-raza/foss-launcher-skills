@@ -1925,11 +1925,27 @@ def _head_scope_conflicts(manifest: dict[str, Any]) -> list[str]:
         _save_manifest(manifest)
         return []
     try:
-        changed = _git("diff", "--name-only", f"{prior}..{current}", "--", *paths)
+        # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+        # Task 14): the previous version passed every scoped path as a
+        # separate argv entry ("--", *paths) -- fine for a small,
+        # PIA-scored prose scope, but the G17 full-reference-scope fix now
+        # routinely pins 1000+ paths into scope for upstream/combined mode,
+        # and Windows CreateProcess has a real command-line length ceiling
+        # (~32KB) that a 1200-path argv blows past outright
+        # (FileNotFoundError: [WinError 206] the filename or extension is
+        # too long -- not a git error at all, a process-creation failure
+        # before git even runs). This is a COMMIT-to-COMMIT diff (both refs
+        # already exist, no working-tree involvement), so -- unlike
+        # prepare_run's own working-tree-vs-commit diff, which genuinely
+        # scales with total dirty-file count -- computing it unscoped and
+        # filtering in Python costs nothing extra: git already walks the
+        # full tree either way; only the argv changes.
+        changed_all = _git("diff", "--name-only", f"{prior}..{current}")
     except RefreshRunError:
         return paths
+    changed_set = {p for p in changed_all.splitlines() if p.strip()}
     _save_manifest(manifest)
-    return [p for p in changed.splitlines() if p.strip()]
+    return [p for p in paths if p in changed_set]
 
 
 def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -2247,27 +2263,19 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "--receipts",
             str(run_root / "receipts"),
         ],
-        "triage_confirm": [
-            python,
-            str(_repo_root / "scripts/pipeline/lib/triage_confirm.py"),
-            family,
-            platform,
-            "--files",
-            *scope_paths,
-            "--json",
-        ],
-        "seo_stability": [
-            python,
-            str(
-                _repo_root
-                / "scripts/pipeline/commands/content/seo_stability_check.py"
-            ),
-            *scope_paths,
-            "--base",
-            manifest["base_commit_sha"],
-            "--intentional-renames",
-            ",".join(manifest.get("intentional_renames") or []),
-        ],
+        # triage_confirm and seo_stability moved to scoped_commands below
+        # (found live 2026-08-24, mission-plan-the-end-to-end-vast-hejlsberg.md
+        # Task 14): both used to embed *scope_paths directly here, fine for a
+        # small PIA-scored prose scope, but the G17 full-reference-scope fix
+        # now routinely pins 1000+ paths into scope for upstream/combined
+        # mode -- an inline argv of that size blows past Windows
+        # CreateProcess's real command-line-length ceiling (~32KB) with a
+        # process-creation failure, not a git/tool error
+        # (FileNotFoundError: [WinError 206] the filename or extension is
+        # too long), exactly the same class of bug _head_scope_conflicts()
+        # just hit and was fixed for. scoped_commands' existing chunking loop
+        # already solves this for content_audit/link_validation; both are
+        # relocated there rather than duplicating a second chunking mechanism.
         # MT030-2026-08-13: ADVISORY_VALIDATION_FIELDS member -- runs through the
         # same uniform loop below (recorded, logged, durable-stamped via
         # truth_audit.py's own knowledge_state wiring) but excluded from the
@@ -2340,20 +2348,55 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
         }
 
     scoped_commands = {
-        "content_audit": [
-            python,
-            str(_repo_root / "scripts/pipeline/commands/content/audit.py"),
-            "--files",
-        ],
-        "link_validation": [
-            python,
-            str(_repo_root / "scripts/pipeline/commands/ops/link_validator.py"),
-            "--files",
-        ],
+        "content_audit": (
+            [
+                python,
+                str(_repo_root / "scripts/pipeline/commands/content/audit.py"),
+                "--files",
+            ],
+            [],
+        ),
+        "link_validation": (
+            [
+                python,
+                str(_repo_root / "scripts/pipeline/commands/ops/link_validator.py"),
+                "--files",
+            ],
+            [],
+        ),
+        "triage_confirm": (
+            [
+                python,
+                str(_repo_root / "scripts/pipeline/lib/triage_confirm.py"),
+                family,
+                platform,
+                "--files",
+            ],
+            ["--json"],
+        ),
+        "seo_stability": (
+            [
+                python,
+                str(
+                    _repo_root
+                    / "scripts/pipeline/commands/content/seo_stability_check.py"
+                ),
+            ],
+            [
+                "--base",
+                manifest["base_commit_sha"],
+                "--intentional-renames",
+                ",".join(manifest.get("intentional_renames") or []),
+            ],
+        ),
     }
     # Keep Windows command lines bounded while still validating the exact run
-    # scope. The aggregate is FAIL > UNKNOWN > PASS.
-    for field, prefix in scoped_commands.items():
+    # scope. The aggregate is FAIL > UNKNOWN > PASS. prefix/suffix (rather than
+    # a flat prefix) accommodate validators whose own CLI expects trailing
+    # flags after the file list (triage_confirm's --json, seo_stability's
+    # --base/--intentional-renames) as well as the simpler --files-then-done
+    # shape (content_audit, link_validation).
+    for field, (prefix, suffix) in scoped_commands.items():
         chunk_results: list[str] = []
         stdout_chunks: list[str] = []
         stderr_chunks: list[str] = []
@@ -2361,7 +2404,7 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
         chunk_details: list[dict[str, Any]] = []
         for offset in range(0, len(scope_paths), 40):
             chunk = scope_paths[offset:offset + 40]
-            chunk_args = [*prefix, *chunk]
+            chunk_args = [*prefix, *chunk, *suffix]
             result, started_at, completed_at, exception_text = (
                 _validation_call(chunk_args)
             )

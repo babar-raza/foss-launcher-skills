@@ -3198,10 +3198,137 @@ def test_seo_stability_is_independent_of_aggregate_verifier(tmp_path: Path):
         ).read_text(encoding="utf-8")
     )
     assert detail["details"]["seo_stability"].get("derived_from") is None
+    # seo_stability now runs through scoped_commands' chunking loop (found
+    # live 2026-08-24, Task 14: G17's full-reference-scope fix can pin
+    # 1000+ paths into scope, overflowing Windows' argv-length ceiling for
+    # an inline *scope_paths invocation) -- its own command is split across
+    # "command_prefix" (constant per chunk) and "chunks" (per-chunk detail),
+    # not a single flat "command" list.
     assert any(
         value.endswith("seo_stability_check.py")
-        for value in detail["details"]["seo_stability"]["command"]
+        for value in detail["details"]["seo_stability"]["command_prefix"]
     )
+
+
+def test_verify_run_chunks_every_scoped_validator_for_a_large_scope(tmp_path: Path):
+    """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, the real upstream E2E proof run): the G17 full-reference-scope
+    fix routinely pins 1000+ paths into scope for upstream/combined mode.
+    triage_confirm and seo_stability used to embed *scope_paths directly in
+    their own single-invocation command list -- fine for a small PIA-scored
+    prose scope, but a real crash (FileNotFoundError: [WinError 206] the
+    filename or extension is too long -- Windows CreateProcess's real
+    command-line-length ceiling, not a git/tool error) the moment scope
+    exceeds a few hundred paths. Both were moved into scoped_commands'
+    existing 40-per-chunk mechanism (already used by content_audit/
+    link_validation). This is the load-bearing regression test: a scope
+    of 85 paths must produce 3 chunks (40+40+5) for every scoped validator,
+    never one call carrying all 85 paths at once."""
+    scope_paths = [
+        f"content/reference.aspose.org/en/pdf/net/Class{i:03d}.md" for i in range(85)
+    ]
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-CHUNK-LARGE-SCOPE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = scope_paths
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    scoped_scripts = (
+        "audit.py", "link_validator.py", "triage_confirm.py", "seo_stability_check.py",
+    )
+    max_paths_per_call: dict[str, int] = {}
+
+    def capturing_runner(args: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        str_args = [str(a) for a in args]
+        for script in scoped_scripts:
+            if any(a.endswith(script) for a in str_args):
+                path_count = sum(1 for a in str_args if a in scope_paths)
+                max_paths_per_call[script] = max(max_paths_per_call.get(script, 0), path_count)
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=capturing_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    refresh_run.verify_run(manifest)
+
+    assert set(max_paths_per_call) == set(scoped_scripts)
+    for script, max_count in max_paths_per_call.items():
+        assert max_count <= 40, f"{script} received {max_count} paths in one call, expected <=40"
+    # Confirm the full scope really was covered across chunks, not silently
+    # truncated to the first chunk only.
+    detail = json.loads(
+        (
+            tmp_path
+            / "reports/refresh_runs/pdf/net/RUN-CHUNK-LARGE-SCOPE/validation.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert len(detail["details"]["seo_stability"]["chunks"]) == 3
+    assert sum(c["page_count"] for c in detail["details"]["seo_stability"]["chunks"]) == 85
+    assert len(detail["details"]["triage_confirm"]["chunks"]) == 3
+    assert sum(c["page_count"] for c in detail["details"]["triage_confirm"]["chunks"]) == 85
+
+
+def test_head_scope_conflicts_never_embeds_scope_paths_as_argv(tmp_path: Path):
+    """Companion regression test for the same G17-scale finding: apply_run's
+    (and verify_run's) own _head_scope_conflicts() used to call
+    `git diff --name-only <prior>..<current> -- <every scope path>` --
+    the exact same Windows argv-length crash for a 1000+-path scope. Fixed
+    to compute the commit-to-commit diff unscoped and filter in Python.
+    This test moves HEAD (so the check actually runs its git-diff branch,
+    not the current==prior fast path) and asserts the git diff call never
+    receives any scope path as an argv token, for a scope far larger than
+    the old code could have handled."""
+    scope_paths = [
+        f"content/reference.aspose.org/en/pdf/net/Class{i:03d}.md" for i in range(600)
+    ]
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-HEADCONFLICT-LARGE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = scope_paths
+    refresh_run._transition(manifest, "PLANNED")
+
+    diff_call_argv_lengths: list[int] = []
+    moved_head = "c" * 40
+
+    def moved_head_runner(args: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, moved_head + "\n", "")
+        if args[:3] == ["git", "diff", "--name-only"]:
+            diff_call_argv_lengths.append(len(args))
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=moved_head_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    conflicts = refresh_run._head_scope_conflicts(manifest)
+
+    assert diff_call_argv_lengths, "expected the git diff --name-only branch to actually run"
+    # ["git", "diff", "--name-only", "<prior>..<current>"] -- exactly 4 argv
+    # tokens regardless of scope size, never scope_paths appended.
+    assert diff_call_argv_lengths == [4]
+    assert conflicts == []
 
 
 def test_oracle_command_scoped_to_run_receipts(tmp_path: Path):
