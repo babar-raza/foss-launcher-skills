@@ -16,7 +16,7 @@ _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
-from content_discovery import LOCALE_RE, _is_draft  # noqa: E402  (R-4: was knowledge_core)
+from content_discovery import LOCALE_CODES, LOCALE_RE, _is_draft  # noqa: E402  (R-4: was knowledge_core)
 from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)
 from commands.knowledge.promote import compute_extractor_config_sha  # noqa: E402
 
@@ -27,6 +27,19 @@ _SITE_PATTERNS = (
     "reference.aspose.org/en/{family}/{platform}",
     "blog.aspose.org/{family}/{platform}",
 )
+
+# Task 11d (mission-plan-the-end-to-end-vast-hejlsberg.md, §9.8, closes G8/sizes F7):
+# directory-locale sites encode locale as a top-level path segment (content/{site}/{locale}/...,
+# mirroring the "en" tree exactly); blog encodes locale as a filename suffix instead
+# (index.{locale}.md alongside index.md in the same directory) -- same distinction
+# body_refresh.py's _DIR_LOCALE_SITES/_KNOWN_CONTENT_SITES already draw for the same reason.
+_DIR_LOCALE_SITE_NAMES = (
+    "docs.aspose.org",
+    "kb.aspose.org",
+    "products.aspose.org",
+    "reference.aspose.org",
+)
+_FILENAME_LOCALE_SITE_NAME = "blog.aspose.org"
 
 
 def discover_content_files(content_root: Path, family: str, platform: str) -> list[Path]:
@@ -41,6 +54,134 @@ def discover_content_files(content_root: Path, family: str, platform: str) -> li
                     continue
                 files.append(path)
     return files
+
+
+def discover_locale_content_files(
+    content_root: Path, family: str, platform: str
+) -> dict[str, list[Path]]:
+    """Discover locale (non-English) content files for a product, grouped by surface.
+
+    Detection-only counterpart to discover_content_files(): same site topology,
+    inverted locale filter. Never invoked by the default (English-scoped) path --
+    only by --include-locales / scan_product_locales(). Draft pages are still
+    excluded (matches discover_content_files' own exclusion; a retired page's
+    staleness isn't actionable either way).
+    """
+    by_surface: dict[str, list[Path]] = {}
+
+    for site in _DIR_LOCALE_SITE_NAMES:
+        surface = site.split(".", 1)[0]
+        site_dir = content_root / site
+        surface_files: list[Path] = []
+        if site_dir.is_dir():
+            for locale_dir in sorted(site_dir.iterdir()):
+                if not locale_dir.is_dir() or locale_dir.name == "en":
+                    continue
+                if locale_dir.name not in LOCALE_CODES:
+                    continue
+                product_root = locale_dir / family / platform
+                if not product_root.exists():
+                    continue
+                for path in sorted(product_root.rglob("*.md")):
+                    if _is_draft(path):
+                        continue
+                    surface_files.append(path)
+        by_surface[surface] = surface_files
+
+    blog_files: list[Path] = []
+    blog_root = content_root / _FILENAME_LOCALE_SITE_NAME / family / platform
+    if blog_root.is_dir():
+        for path in sorted(blog_root.rglob("*.md")):
+            if not LOCALE_RE.search(path.name):
+                continue
+            if _is_draft(path):
+                continue
+            blog_files.append(path)
+    by_surface["blog"] = blog_files
+
+    return by_surface
+
+
+def scan_product_locales(
+    family: str,
+    platform: str,
+    *,
+    content_root: Path = Path("content"),
+    knowledge_root: Path = Path("knowledge"),
+    report_root: Path = Path("reports/locale_staleness"),
+    force: bool = False,
+) -> dict:
+    """Size locale-evidence staleness for a product (detection only, §9.8/G8/F7).
+
+    Compares each locale file's evidence.model_sha against the current knowledge
+    baseline's repo_sha -- the identical, single comparison scan_product() already
+    applies to English content (line ~97 above), just widened in scope to locale
+    content, which no existing staleness check covers (G8). This function never
+    mutates content, never blocks anything, and is not a remediation step -- its
+    sole purpose is to give every launched product an accurate, current locale-
+    staleness count for the first time, so a future dedicated remediation mission
+    can be sized correctly instead of discovered product-by-product (§22 scope
+    decision: full remediation is explicitly out of this mission's scope).
+
+    Performance note (found live, 2026-08-24, sizing pdf/java for real: a single
+    full scan took ~35s for its ~12,300-file locale corpus, dominated by per-file
+    frontmatter parses): this is cheap enough for a standalone, occasional CLI
+    invocation but too expensive to re-run unconditionally on every verify_run()
+    call, which can fire repeatedly across retries for the same run (observed
+    directly during this mission's own Task 12 attempts). Since locale staleness
+    can only change when the knowledge baseline's repo_sha advances (the sole
+    comparison target) or when a locale file is actually re-stamped, the cheap,
+    correct cache key is repo_sha: a previously-written report for this exact
+    repo_sha is reused as-is unless force=True. Known, accepted limitation: a
+    deliberate locale remediation pass that re-stamps some files WITHOUT the
+    baseline's repo_sha also advancing would not be reflected until force=True
+    is passed -- acceptable because no remediation is in this mission's scope
+    (§22); the verify_run() call site below always passes force=False.
+    """
+    knowledge = Knowledge(family, platform, knowledge_root=knowledge_root)
+    if not knowledge.available:
+        raise FileNotFoundError(
+            f"No knowledge model available at {knowledge_root / family / platform / 'merged'}"
+        )
+
+    if not force:
+        cached_path = report_root / f"{family}-{platform}.json"
+        if cached_path.is_file():
+            try:
+                cached = json.loads(cached_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                cached = None
+            if cached is not None and cached.get("knowledge_repo_sha") == knowledge.repo_sha:
+                return cached
+
+    by_surface = discover_locale_content_files(content_root, family, platform)
+    surfaces: dict[str, dict] = {}
+    total_files = 0
+    total_stale = 0
+    for surface in sorted(by_surface):
+        stale_files: list[str] = []
+        for path in by_surface[surface]:
+            frontmatter = parse_frontmatter(path)
+            evidence = frontmatter.get("evidence")
+            model_sha = evidence.get("model_sha", "") if isinstance(evidence, dict) else ""
+            if not model_sha or model_sha != knowledge.repo_sha:
+                stale_files.append(str(path))
+        surfaces[surface] = {
+            "total": len(by_surface[surface]),
+            "stale": len(stale_files),
+            "files": stale_files,
+        }
+        total_files += len(by_surface[surface])
+        total_stale += len(stale_files)
+
+    return {
+        "family": family,
+        "platform": platform,
+        "knowledge_repo_sha": knowledge.repo_sha,
+        "total_locale_files": total_files,
+        "total_stale": total_stale,
+        "surfaces": surfaces,
+    }
 
 
 def scan_product(
@@ -204,6 +345,16 @@ def main(argv: list[str] | None = None) -> int:
         "--claim-delta", action="store_true",
         help="Only mark stale if cited claims were actually removed from knowledge",
     )
+    parser.add_argument(
+        "--include-locales", action="store_true",
+        help=(
+            "Additionally size locale (non-English) evidence staleness and write "
+            "reports/locale_staleness/{family}-{platform}.json (Task 11d, closes "
+            "G8/sizes F7). Detection only: never blocks, never remediates, and "
+            "never changes this command's exit code or its default (English-"
+            "scoped) output -- purely additive."
+        ),
+    )
     args = parser.parse_args(argv)
 
     report = scan_product(
@@ -221,6 +372,31 @@ def main(argv: list[str] | None = None) -> int:
 
     sys.stdout.buffer.write(output.encode("utf-8"))
     sys.stdout.buffer.write(b"\n")
+
+    if args.include_locales:
+        # An explicit CLI invocation is an operator asking for a current count --
+        # always do the real scan (force=True), never silently serve a cached
+        # figure from an earlier repo_sha or an earlier run. verify_run()'s own
+        # automated advisory call (refresh_run.py) uses force=False instead, since
+        # it can fire repeatedly per run and a same-repo_sha cache hit is correct
+        # there (see scan_product_locales' own docstring for the full rationale).
+        locale_report = scan_product_locales(
+            args.family,
+            args.platform,
+            content_root=args.content_root,
+            knowledge_root=args.knowledge_root,
+            force=True,
+        )
+        locale_output_path = Path("reports/locale_staleness") / f"{args.family}-{args.platform}.json"
+        locale_output_path.parent.mkdir(parents=True, exist_ok=True)
+        locale_output_path.write_text(
+            json.dumps(locale_report, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+        sys.stderr.write(
+            f"Locale staleness report written to {locale_output_path} "
+            f"({locale_report['total_stale']}/{locale_report['total_locale_files']} stale)\n"
+        )
+
     return 1 if report["stale_pages"] else 0
 
 

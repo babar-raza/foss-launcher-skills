@@ -46,6 +46,7 @@ from lib.schema_validators import (  # noqa: E402
 from lib.provenance import is_manually_curated, read_provenance  # noqa: E402
 from lib.reference_filter import index_generator_version_is_stale  # noqa: E402
 from commands.ops import page_impact_matrix  # noqa: E402
+from commands.knowledge import stale_detect  # noqa: E402
 
 SCHEMA_VERSION = 3
 MODES = frozenset({"upstream", "remediation", "combined"})
@@ -2369,6 +2370,36 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001 -- advisory only, see docstring above
         manifest.setdefault("output_digests", {})["page_impact_matrix"] = None
         manifest["page_impact_matrix_error"] = str(exc)
+
+    # Locale evidence-staleness sizing (§9.8, Task 11d, closes G8/sizes F7):
+    # advisory-only, additive, same placement rationale as the matrix call above
+    # (never blocks a run whose real validators already passed). force=False is
+    # deliberate here (unlike the CLI's own explicit --include-locales call,
+    # which always forces a fresh scan): verify_run() can fire repeatedly across
+    # retries for the same run, and a full corpus scan measured live at ~35s for
+    # pdf/java's ~12,300-file locale footprint alone -- reusing a same-repo_sha
+    # cached report (see scan_product_locales' own docstring) keeps this cheap
+    # for the common case without ever serving a stale count once the knowledge
+    # baseline actually advances. Never remediates anything -- detection only.
+    try:
+        locale_report = stale_detect.scan_product_locales(
+            family, platform,
+            content_root=_repo_root / "content",
+            knowledge_root=_repo_root / "knowledge",
+            report_root=_repo_root / "reports" / "locale_staleness",
+            force=False,
+        )
+        report_path = _repo_root / "reports" / "locale_staleness" / f"{family}-{platform}.json"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(locale_report, indent=2, ensure_ascii=False), encoding="utf-8")
+        manifest["locale_staleness_summary"] = {
+            "knowledge_repo_sha": locale_report["knowledge_repo_sha"],
+            "total_locale_files": locale_report["total_locale_files"],
+            "total_stale": locale_report["total_stale"],
+        }
+    except Exception as exc:  # noqa: BLE001 -- advisory only, see docstring above
+        manifest["locale_staleness_summary"] = None
+        manifest["locale_staleness_error"] = str(exc)
     _save_manifest(manifest)  # persist the digest even when state is already READY_TO_COMMIT (re-verify)
 
     if manifest["state"] == "VALIDATING":

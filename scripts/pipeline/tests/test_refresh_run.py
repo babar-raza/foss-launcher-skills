@@ -1867,6 +1867,81 @@ def test_verify_run_writes_page_impact_matrix_and_records_digest(tmp_path: Path)
     assert not real_matrix_path.is_file()
 
 
+def test_verify_run_writes_locale_staleness_summary(tmp_path: Path):
+    """Task 11d (§9.8, closes G8/sizes F7): verify_run() must additionally size
+    locale evidence-staleness as an advisory step (same placement/advisory
+    pattern as the Page-Impact Matrix just above), recording a compact summary
+    in manifest["locale_staleness_summary"] and writing the full report under
+    reports/locale_staleness/{family}-{platform}.json -- both under this test's
+    own isolated tmp_path repo_root, never the real checkout."""
+    # The autouse _isolate fixture already creates knowledge/pdf/net/merged/model.yaml
+    # with repo_sha=MODEL_SHA -- Knowledge.available also requires api_surface.json/
+    # claims.json to exist alongside it, so add those (empty is sufficient).
+    knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    (knowledge_dir / "api_surface.json").write_text("[]", encoding="utf-8")
+    (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+    stale_locale_page = tmp_path / "content/docs.aspose.org/fr/pdf/net/page.md"
+    stale_locale_page.parent.mkdir(parents=True, exist_ok=True)
+    stale_locale_page.write_text(
+        "---\ntitle: Test\nevidence:\n  model_sha: old_sha\n---\n\nBody.\n", encoding="utf-8",
+    )
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-LOCALE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest.get("locale_staleness_error") is None
+    summary = manifest["locale_staleness_summary"]
+    assert summary["knowledge_repo_sha"] == MODEL_SHA
+    assert summary["total_locale_files"] == 1
+    assert summary["total_stale"] == 1
+    report_path = tmp_path / "reports" / "locale_staleness" / "pdf-net.json"
+    assert report_path.is_file()
+    real_repo_root = Path(__file__).resolve().parents[3]
+    real_report_path = real_repo_root / "reports" / "locale_staleness" / "pdf-net.json"
+    assert not real_report_path.is_file()
+
+
+def test_verify_run_locale_staleness_failure_is_advisory_only(tmp_path: Path):
+    """The autouse fixture provides only model.yaml, not api_surface.json/claims.json
+    -- Knowledge(...).available is False in this state (unlike the dedicated positive
+    test above, which adds both). verify_run()'s own _model_state() check only reads
+    model.yaml directly and is unaffected -- this failure is specific to the new
+    locale-staleness step's own Knowledge(...) call, and must not block the run."""
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-LOCALE-ERR", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest["locale_staleness_summary"] is None
+    assert manifest["locale_staleness_error"]
+
+
 def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):
     """MT030-2026-08-13: ADVISORY_VALIDATION_FIELDS must be recorded in the
     manifest but must NEVER block READY_TO_COMMIT, even on a truth_audit FAIL --
