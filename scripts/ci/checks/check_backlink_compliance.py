@@ -42,6 +42,8 @@ _REPO_ROOT = _SCRIPT_DIR.parents[2]  # scripts/ci/checks -> repo root
 
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
+import json
+
 from lib.backlink_targets import load_target_map, load_canonical_overrides  # noqa: E402
 from commands.ops.backlink_audit import (  # noqa: E402
     audit_file,
@@ -103,6 +105,7 @@ def check_file(
     platforms_map: dict,
     *,
     scan_mode: bool = False,
+    authority: dict | None = None,
 ) -> list[Finding]:
     rel = path.resolve().relative_to(repo_root.resolve()).as_posix() if path.is_relative_to(repo_root) else str(path)
 
@@ -114,6 +117,7 @@ def check_file(
             path, repo_root, target_map,
             canonical_overrides=canonical_overrides,
             families_map=families_map, platforms_map=platforms_map,
+            exact_deep_match_enabled=bool(authority), authority=authority,
         )
     except Exception as exc:
         return [Finding(rel, "AUDIT_ERROR", f"Could not audit file: {exc}", "FAIL")]
@@ -179,6 +183,23 @@ def main(argv: list[str] | None = None) -> int:
     canonical_overrides = load_canonical_overrides(repo_root)
     families_map, platforms_map = _load_display_maps(repo_root)
 
+    # BL-GATE-DEEP-WIRE (2026-08-24): this gate must never falsely block a
+    # page that carries a legitimate, pre-approved Layer 3 deep link (e.g.
+    # reference.aspose.org's exact class-name matches) -- without consulting
+    # backlink_authority.json, audit_file() only ever resolves the shallow
+    # family/platform target, so a correct deep link reads as WRONG_TARGET.
+    # Loaded unconditionally (no --deep flag here, unlike the audit/backfill
+    # CLIs) because this gate's job is exclusively to catch real regressions;
+    # a false positive here blocks a commit outright, so the deep index --
+    # already pre-verified, safe to trust -- is always consulted when present.
+    authority_path = repo_root / "data" / "backlinks" / "workspace" / "backlink_authority.json"
+    authority: dict | None = None
+    if authority_path.exists():
+        try:
+            authority = json.loads(authority_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            print(f"WARNING: could not load deep authority index: {exc}", file=sys.stderr)
+
     all_findings: list[Finding] = []
     for path in content_files:
         full_path = path if path.is_absolute() else (repo_root / path)
@@ -187,6 +208,7 @@ def main(argv: list[str] | None = None) -> int:
         findings = check_file(
             full_path, repo_root, target_map, canonical_overrides,
             families_map, platforms_map, scan_mode=args.scan,
+            authority=authority,
         )
         all_findings.extend(findings)
         for f in findings:

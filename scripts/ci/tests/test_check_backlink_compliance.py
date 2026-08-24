@@ -169,6 +169,40 @@ class TestCheckerEndToEnd:
         result = _run_checker([], tmp_path)
         assert result.returncode == 2
 
+    def test_deep_linked_reference_page_not_falsely_blocked(self, tmp_path):
+        """BL-GATE-DEEP-WIRE (2026-08-24): before this fix, check_file()
+        called audit_file() without exact_deep_match_enabled/authority, so a
+        reference.aspose.org page correctly holding only its exact-class
+        deep link (no shallow family/platform fallback) read as WRONG_TARGET
+        and blocked the commit outright -- confirmed live: this exact shape
+        blocked committing the TC15 Stage 2 reference.aspose.org backfill
+        (768 legitimately deep-linked pages) until fixed. This gate must
+        recognize a pre-approved Layer 3 deep-authority match as compliant."""
+        _init_repo(tmp_path)
+        _write_fixture_data(tmp_path)
+        rel = "content/reference.aspose.org/en/3d/java/EntityRendererFeatures.md"
+        _write_kb_page(
+            tmp_path, rel,
+            "## See Also\n\n"
+            "- [Aspose.3D for Java — Enterprise API Reference]"
+            "(https://reference.aspose.com/3d/java/com.aspose.threed/entityrendererfeatures/)\n",
+        )
+        authority_dir = tmp_path / "data" / "backlinks" / "workspace"
+        authority_dir.mkdir(parents=True, exist_ok=True)
+        (authority_dir / "backlink_authority.json").write_text(json.dumps({
+            "authority": {
+                rel: {
+                    "allowed_for_generation": True,
+                    "target_subdomain": "reference",
+                    "target_path": "3d/java/com.aspose.threed/entityrendererfeatures",
+                },
+            },
+        }), encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+
+        result = _run_checker([rel], tmp_path)
+        assert result.returncode == 0, result.stdout
+
     def test_files_from_flag_reads_file_list(self, tmp_path):
         """Matches audit.py's own --files-from convention, used for large
         commits to avoid OS argument-list-too-long errors."""
