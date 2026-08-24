@@ -127,7 +127,18 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - Rewrite affected paragraphs using current claims from `claims.json`
    - Update code blocks if API surface changed (use snippets from `knowledge/{family}/{platform}/snippets/`)
    - Update `evidence:` frontmatter: remove orphaned claim IDs, add new ones
-   - Update `model_sha` in evidence frontmatter to current value
+   - Update `model_sha` in evidence frontmatter to current value. **Do not also touch
+     `model_version`** unless the knowledge baseline's own scouted version string genuinely
+     changed (Task 23, mission-plan-the-end-to-end-vast-hejlsberg.md §9.17, closes G15):
+     `model_version` is a knowledge-baseline label ("what version string appeared in the source
+     repo's build file at the exact commit this page's evidence was checked against"), not a live
+     "current release" pointer — the latter is always `data/package_registry.json`, resolved at
+     Hugo build time via the `maven-coord`/`maven-gav` shortcodes, never frontmatter. These two
+     facts are allowed to diverge whenever a release is metadata-only relative to the knowledge
+     baseline (a version-bump-only commit with zero real API/claim change) — conflating them
+     produces a bulk, zero-value relabel (confirmed live, 2026-08-22: 581 pages already correctly
+     reflected an unchanged knowledge baseline; none needed a `model_version` change despite a
+     real Maven Central republish having happened).
    - **Record decision after each page**:
      ```bash
      .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} \

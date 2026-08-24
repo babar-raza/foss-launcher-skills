@@ -856,8 +856,40 @@ docs/blog/kb/products at once):**
    intentionally excludes `reference.aspose.org` (see below).
 4. Re-run with `--dry-run` once more — `files_migrated: 0` confirms nothing was missed.
 
+**C6 metadata-only-release check (Task 23, mission-plan-the-end-to-end-vast-hejlsberg.md §9.17,
+closes G15) — run BEFORE any C6 edit, not after:**
+
+`model_version` is a knowledge-baseline label — "what version string appeared in the source
+repo's build file at the exact commit this page's evidence was checked against" — not a live
+"current release" pointer (that is always `data/package_registry.json`, resolved at Hugo build
+time via the `maven-coord`/`maven-gav` shortcodes, never frontmatter). These are allowed to
+diverge by construction whenever a release is metadata-only relative to the knowledge baseline's
+already-scouted commit (a version-bump-only commit with zero real API/claim change) — the two
+concepts share one field name but are not the same fact, and conflating them produces a bulk,
+zero-value relabel commit (confirmed live, 2026-08-22: 581 pages at the prior version were all
+already correctly reflecting an unchanged knowledge baseline; none needed relabeling).
+
+Before touching any `model_version:` value, check whether this release is metadata-only:
+1. Read `knowledge/{family}/java/merged/knowledge_delta.json` for the CURRENT knowledge baseline
+   (re-run `refresh_knowledge.py {family} java` first if it might be stale relative to the clone
+   cache's current HEAD).
+2. If **every** one of `new_apis`, `removed_apis`, `modified_apis`, `deprecated_apis`,
+   `resurrected_apis`, `new_claims`, `removed_claims`, `modified_claims` is empty, the release is
+   metadata-only relative to the knowledge baseline. Report exactly:
+   ```
+   C6: 0 files require relabeling — release is metadata-only relative to the knowledge baseline
+       (knowledge_delta.json shows zero API/claim changes for {family}/java)
+   ```
+   and **skip the C6 bulk edit entirely** — do not grep for or Read → Edit any `model_version:`
+   occurrence. The rest of Step B4a (C1–C4/shortcode migration) is unaffected by this check — it
+   governs the Maven coordinate itself, a genuinely different fact that DID change (the package was
+   really republished), not the knowledge-baseline label.
+3. If at least one list is non-empty, the release has a real API/claim delta — proceed with the
+   C6 bulk relabel below exactly as written, unchanged.
+
 **C6 remains a separate, always-applicable fix across ALL 5 surfaces** (the shortcode never
-touches frontmatter): grep for stale `model_version:` and fix directly via Read → Edit:
+touches frontmatter), gated on step 3 above: grep for stale `model_version:` and fix directly via
+Read → Edit:
 
 | Check | Grep pattern | Expected fix |
 |-------|-------------|-------------|
@@ -906,6 +938,8 @@ Mechanism: {shortcode migration (data/package_registry.json + maven_shortcode_mi
 maven_shortcode_migrator (if used): N files_migrated, N block_replacements, N inline_replacements
 C1-C4 fallback (if used, English-only): N files (see per-check breakdown below)
 C6 (model_version, English-only, all 5 surfaces): N files
+  {or, when the metadata-only-release check above found zero API/claim changes:}
+  C6: 0 files — release is metadata-only relative to the knowledge baseline, skipped
 
 Sample substitutions:
   content/docs.aspose.org/en/{family}/java/foo.md
