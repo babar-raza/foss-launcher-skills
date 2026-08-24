@@ -102,6 +102,15 @@ _DISPOSITION_TO_ACTION: dict[str, str] = {
 _DELTA_LIST_FIELDS = (
     "new_claims", "removed_claims", "modified_claims",
     "new_apis", "removed_apis", "modified_apis", "resurrected_apis",
+    # Task 15 (§9.10, closes G9) landed a real producer for this field
+    # (refresh_knowledge.py's _write_knowledge_delta) -- a page citing a
+    # newly-deprecated API now correctly appears in its matched-items list
+    # with delta_field: "deprecated_apis", closing this module's own
+    # previously-reserved-but-unproduced placeholder (see _DISPOSITION_TO_ACTION's
+    # comment above). required_action's own disposition-keyed mapping does not
+    # yet derive a "deprecate" action from this signal specifically -- that is
+    # a separate, still-open follow-up, not silently claimed done here.
+    "deprecated_apis",
 )
 
 

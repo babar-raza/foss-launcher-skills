@@ -509,6 +509,149 @@ class TestResurrectionDetection:
 
 
 # ---------------------------------------------------------------------------
+# Task 15 (§9.10, closes G9): deprecated_apis delta classification
+# ---------------------------------------------------------------------------
+
+class TestDeprecatedApisDelta:
+    def test_class_newly_deprecated_is_reported(self, tmp_path):
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": [], "deprecated": True},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == ["ClassA"]
+
+    def test_method_newly_deprecated_reports_owning_class(self, tmp_path):
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "oldMethod", "deprecated": False}], "properties": []},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "oldMethod", "deprecated": True}], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == ["ClassA"]
+
+    def test_already_deprecated_member_not_re_reported(self, tmp_path):
+        """A member deprecated in BOTH old and new snapshots is not a new
+        transition -- must not appear every cycle."""
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "oldMethod", "deprecated": True}], "properties": []},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "oldMethod", "deprecated": True}], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == []
+
+    def test_property_newly_deprecated_reports_owning_class(self, tmp_path):
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": [{"name": "X", "deprecated": False}]},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": [{"name": "X", "deprecated": True}]},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == ["ClassA"]
+
+    def test_no_deprecation_signal_yields_empty_list(self, tmp_path):
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "m"}], "properties": []},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "m"}], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == []
+
+    def test_pre_task15_knowledge_missing_field_defaults_safely(self, tmp_path):
+        """Old, pre-Task-15 knowledge models have no "deprecated" key at all
+        anywhere -- must not crash and must not fabricate a deprecation."""
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "m"}], "properties": []},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [{"name": "m"}, {"name": "n"}], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["deprecated_apis"] == []
+        assert delta["modified_apis"] == ["ClassA"]  # method name-set change still caught normally
+
+
+# ---------------------------------------------------------------------------
 # SR-04 (TC-4): _write_model_field round-trip
 # ---------------------------------------------------------------------------
 

@@ -45,6 +45,7 @@ from extraction.tree_helpers import (
     _node_name,
     child_by_field,
     collect_nodes,
+    deprecated_marker,
     find_child_by_type,
     find_children_by_type,
     is_public,
@@ -2813,6 +2814,7 @@ def extract_api_surface(
                 params = _extract_method_params(mnode, language)
                 ret = _extract_return_type(mnode, language)
                 mdoc = _extract_doc_comment(mnode, language)
+                m_deprecated, m_deprecated_reason = deprecated_marker(mnode, language)
 
                 is_ctor = (mnode.type == "constructor_declaration"
                            or (language == "python" and mname == "__init__")
@@ -2827,6 +2829,8 @@ def extract_api_surface(
                     "doc": mdoc,
                     "line": mnode.start_point[0] + 1,
                     "is_constructor": is_ctor,
+                    "deprecated": m_deprecated,
+                    "deprecated_reason": m_deprecated_reason,
                 }
                 if language == "python" and _is_python_stub_any(mnode):
                     method_entry["stub"] = True
@@ -3070,6 +3074,7 @@ def extract_api_surface(
 
             # RC-W1-004: additive reachability signal (see _compute_reachable).
             reachable = _compute_reachable(cname, fpath, rel)
+            c_deprecated, c_deprecated_reason = deprecated_marker(cnode, language)
 
             cls_record: dict[str, Any] = {
                 "name": cname,
@@ -3082,6 +3087,8 @@ def extract_api_surface(
                 "properties": properties,
                 "visibility": vis,
                 "reachable": reachable,
+                "deprecated": c_deprecated,
+                "deprecated_reason": c_deprecated_reason,
             }
             if "static" in _cls_mods:
                 cls_record["is_static"] = True

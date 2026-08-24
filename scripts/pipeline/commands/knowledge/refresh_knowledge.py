@@ -664,6 +664,30 @@ def _build_erc_member_set(claims: list) -> set:
     return result
 
 
+def _deprecated_member_keys(api_entry: dict) -> set:
+    """Return 'ClassName' (for the class itself) and 'ClassName.MemberName'
+    keys for every element of *api_entry* carrying deprecated: True.
+
+    Task 15 (§9.10, closes G9): api_surface.py now threads a real deprecated
+    signal through class/method/property dicts (Java @Deprecated, C#
+    [Obsolete], and either language's own doc-comment-tag equivalent) --
+    this reads that signal to detect newly-deprecated transitions between two
+    knowledge-model snapshots. Missing keys (older, pre-Task-15 knowledge
+    models) default to False/absent, never fabricated as deprecated.
+    """
+    name = api_entry.get("name", "")
+    keys: set = set()
+    if api_entry.get("deprecated"):
+        keys.add(name)
+    for member in api_entry.get("methods", []):
+        if member.get("deprecated") and member.get("name"):
+            keys.add(f"{name}.{member['name']}")
+    for member in api_entry.get("properties", []):
+        if member.get("deprecated") and member.get("name"):
+            keys.add(f"{name}.{member['name']}")
+    return keys
+
+
 def _write_knowledge_delta(
     family: str,
     platform: str,
@@ -726,6 +750,24 @@ def _write_knowledge_delta(
     # Merge api_surface changes + ERC coverage changes (no duplicates)
     modified_apis = sorted(set(api_surface_modified) | set(erc_changed_classes))
 
+    # Task 15 (§9.10, closes G9): classes with a newly-deprecated class/method/
+    # property (deprecated: False/absent -> True this cycle) get their own
+    # additive signal, separate from modified_apis -- a deprecation is not a
+    # name-set change (the member is still present, just discouraged), so it
+    # would never appear in modified_apis at all otherwise. Only NEWLY
+    # deprecated members count; a member that was already deprecated in the
+    # prior snapshot and still is now is not re-reported every cycle.
+    old_deprecated_keys: set = set()
+    for entry in old_apis:
+        if isinstance(entry, dict):
+            old_deprecated_keys |= _deprecated_member_keys(entry)
+    new_deprecated_keys: set = set()
+    for entry in new_apis:
+        if isinstance(entry, dict):
+            new_deprecated_keys |= _deprecated_member_keys(entry)
+    newly_deprecated_keys = new_deprecated_keys - old_deprecated_keys
+    deprecated_apis = sorted({key.split(".")[0] for key in newly_deprecated_keys})
+
     # Detect resurrected APIs: classes in new_apis that were listed as removed
     # in the previous refresh cycle's delta (Fix B — healing sprint 2026-04-15).
     resurrected_apis: list[str] = []
@@ -751,6 +793,7 @@ def _write_knowledge_delta(
         "new_apis": added_apis,
         "removed_apis": removed_apis,
         "modified_apis": modified_apis,
+        "deprecated_apis": deprecated_apis,
         "resurrected_apis": resurrected_apis,
     }
 

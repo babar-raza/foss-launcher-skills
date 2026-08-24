@@ -364,6 +364,48 @@ def is_public(node, language: str) -> bool:
     return True
 
 
+_CSHARP_OBSOLETE_ATTR_NAMES = ("Obsolete", "ObsoleteAttribute")
+
+
+def deprecated_marker(node, language: str) -> tuple[bool, str]:
+    """Return (is_deprecated, reason) from a REAL code-level deprecation marker
+    on *node*'s own declaration (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 15, §9.10, closes G9): Java's ``@Deprecated`` annotation, C#'s
+    ``[Obsolete(...)]`` attribute.
+
+    This is distinct from, and complementary to, a Javadoc ``@deprecated``
+    comment TAG or an XML-doc ``/// <summary>`` mentioning deprecation --
+    those live inside doc COMMENTS and are captured separately by
+    scout_enrichers/_javadoc.py / _xml_doc.py (which also set/OR this same
+    ``deprecated`` signal true when they find one, since either source is a
+    real, valid deprecation signal in each language's own convention). *reason*
+    is only ever populated here for C# (the attribute argument IS the reason
+    string, e.g. ``[Obsolete("Use Bar instead")]``); Java's ``@Deprecated``
+    annotation carries no free-text reason of its own -- Java's reason, when
+    present, comes exclusively from the Javadoc ``@deprecated`` tag instead.
+    """
+    if language == "java":
+        for ch in node.children:
+            if ch.type in ("modifiers", "modifier"):
+                if re.search(r"@Deprecated\b", node_text(ch)):
+                    return True, ""
+        return False, ""
+
+    if language == "csharp":
+        for ch in node.children:
+            if ch.type != "attribute_list":
+                continue
+            for attr in find_children_by_type(ch, "attribute"):
+                ident = find_child_by_type(attr, "identifier")
+                if ident is None or node_text(ident) not in _CSHARP_OBSOLETE_ATTR_NAMES:
+                    continue
+                reason_match = re.search(r'"([^"]*)"', node_text(attr))
+                return True, (reason_match.group(1) if reason_match else "")
+        return False, ""
+
+    return False, ""
+
+
 def visibility_tier(node, language: str, *, has_docstring: bool = False,
                      in_module_all: bool = False) -> str:
     """Return visibility tier for a node that already passed is_public().
