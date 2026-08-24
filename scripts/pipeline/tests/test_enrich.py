@@ -29,6 +29,7 @@ from enrich import (
     _build_member_doc_facts,
     _build_member_doc_prompt,
     _build_prompt,
+    _prune_stale_carried_forward_claims,
     _DEDUP_OVERLAP_THRESHOLD,
     _MIN_CONFIDENCE,
     _CLAIM_KINDS,
@@ -1126,4 +1127,139 @@ class TestPipelineStateManifest:
         assert "run_stats_summary" in enrich_step
         assert "batches" in enrich_step["run_stats_summary"]
         assert "rejected" in enrich_step["run_stats_summary"]
+
+
+# ---------------------------------------------------------------------------
+# _prune_stale_carried_forward_claims — Task 18 (mission-plan-the-end-to-end-
+# vast-hejlsberg.md §9.13, closes G11)
+# ---------------------------------------------------------------------------
+
+_API_SURFACE_FOR_PRUNE_TESTS = [
+    {
+        "name": "Workbook",
+        "methods": [{"name": "Save"}, {"name": "Load"}],
+        "properties": [{"name": "Worksheets"}],
+    },
+]
+
+
+class TestPruneStaleCarriedForwardClaims:
+    def test_claim_for_existing_member_survives(self):
+        claim = {"text": "Workbook.Save writes the file to disk.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == [claim]
+
+    def test_claim_for_removed_member_is_pruned(self):
+        """The class still exists, but this specific member no longer does
+        (e.g. renamed/removed since the claim was originally enriched)."""
+        claim = {"text": "Workbook.OldRemovedMethod does something obsolete.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == []
+
+    def test_claim_for_removed_class_is_pruned(self):
+        claim = {"text": "GoneClass.SomeMethod used to do something.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == []
+
+    def test_claim_for_existing_property_survives(self):
+        claim = {"text": "Workbook.Worksheets is a collection of sheets.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == [claim]
+
+    def test_non_member_doc_claim_never_pruned(self):
+        """Capability-mode claims (no claim_source, or a different one)
+        describe broader product behavior, not one specific member --
+        pruning on this basis would be an unjustified overreach, even if the
+        text happens to look like a dotted identifier prefix."""
+        claim = {"text": "GoneClass.SomeMethod is mentioned in passing.", "kind": "api"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == [claim]
+
+    def test_malformed_prefix_member_doc_claim_never_pruned(self):
+        """A member-doc claim whose text doesn't parse against the anchor
+        pattern at all has nothing to validate against -- must not be
+        dropped based on an assumption (mirrors _assign_ids' own documented
+        malformed-prefix edge case)."""
+        claim = {"text": "This description forgot the required prefix.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _prune_stale_carried_forward_claims([claim], _API_SURFACE_FOR_PRUNE_TESTS)
+        assert result == [claim]
+
+    def test_mixed_batch_prunes_only_the_stale_ones(self):
+        survivor = {"text": "Workbook.Save writes the file.",
+                    "kind": "api", "claim_source": "llm_member_doc"}
+        stale = {"text": "Workbook.RemovedMethod is gone now.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        capability = {"text": "The library supports large files.", "kind": "api"}
+        result = _prune_stale_carried_forward_claims(
+            [survivor, stale, capability], _API_SURFACE_FOR_PRUNE_TESTS
+        )
+        assert result == [survivor, capability]
+
+    def test_empty_claims_list(self):
+        assert _prune_stale_carried_forward_claims([], _API_SURFACE_FOR_PRUNE_TESTS) == []
+
+    def test_non_dict_claim_passed_through_unchanged(self):
+        claims = [{"text": "Workbook.Save writes the file.", "kind": "api",
+                   "claim_source": "llm_member_doc"}, "not-a-dict"]
+        result = _prune_stale_carried_forward_claims(claims, _API_SURFACE_FOR_PRUNE_TESTS)
+        assert "not-a-dict" in result
+
+
+class TestEnrichPrunesCarriedForwardOnLoad:
+    """Integration: enrich()'s own existing_enriched-loading step must apply
+    the pruning pass before existing_enriched is used anywhere downstream
+    (dedup, all_batched_claims, --no-llm/--rehash-only preservation paths)."""
+
+    def test_no_llm_preserves_only_pruned_claims(self, tmp_path):
+        base = tmp_path / "knowledge" / "cells" / "python"
+        scout_dir = base / "scout"
+        scout_dir.mkdir(parents=True)
+        (scout_dir / "api_surface.json").write_text(
+            json.dumps(_API_SURFACE_FOR_PRUNE_TESTS), encoding="utf-8"
+        )
+        (scout_dir / "claims.json").write_text("[]", encoding="utf-8")
+        (scout_dir / "enriched_claims.json").write_text(json.dumps({
+            "claims": [
+                {"claim_id": "ERC-cells-python-aaa", "text": "Workbook.Save writes the file.",
+                 "kind": "api", "claim_source": "llm_member_doc"},
+                {"claim_id": "ERC-cells-python-bbb", "text": "Workbook.RemovedMethod is stale.",
+                 "kind": "api", "claim_source": "llm_member_doc"},
+            ]
+        }), encoding="utf-8")
+
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"),
+               no_llm=True, reports_root=str(tmp_path / "reports"))
+
+        written = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        ids = [c["claim_id"] for c in written["claims"]]
+        assert ids == ["ERC-cells-python-aaa"]  # the stale one was pruned on load
+
+    def test_no_llm_true_no_op_leaves_file_byte_identical(self, tmp_path):
+        """When pruning removes nothing, --no-llm's preservation stays a true
+        no-op -- no timestamp/hash churn for no real reason."""
+        base = tmp_path / "knowledge" / "cells" / "python"
+        scout_dir = base / "scout"
+        scout_dir.mkdir(parents=True)
+        (scout_dir / "api_surface.json").write_text(
+            json.dumps(_API_SURFACE_FOR_PRUNE_TESTS), encoding="utf-8"
+        )
+        (scout_dir / "claims.json").write_text("[]", encoding="utf-8")
+        original = json.dumps({
+            "generated_at": "2020-01-01T00:00:00+00:00",
+            "claims": [
+                {"claim_id": "ERC-cells-python-aaa", "text": "Workbook.Save writes the file.",
+                 "kind": "api", "claim_source": "llm_member_doc"},
+            ],
+        })
+        (scout_dir / "enriched_claims.json").write_text(original, encoding="utf-8")
+
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"),
+               no_llm=True, reports_root=str(tmp_path / "reports"))
+
+        assert (scout_dir / "enriched_claims.json").read_text(encoding="utf-8") == original
 

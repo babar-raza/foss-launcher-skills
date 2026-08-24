@@ -963,6 +963,64 @@ def _assign_ids(claims: list, family: str, platform: str) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Task 18 (mission-plan-the-end-to-end-vast-hejlsberg.md §9.13, closes G11):
+# prune stale carried-forward member-doc claims
+# ---------------------------------------------------------------------------
+
+def _prune_stale_carried_forward_claims(claims: list, api_surface: list) -> list:
+    """Drop carried-forward llm_member_doc claims whose target class/member
+    no longer exists in the CURRENT api_surface.json.
+
+    Root cause this fixes (G11): enrich.py's own carry-forward step
+    (`all_batched_claims = list(existing_enriched)`) starts every run from
+    the entire previous enriched_claims.json and never re-validates carried-
+    forward claims against the current api_surface -- promote.py's own
+    staleness gate only checks a whole-file config hash, which stays "fresh"
+    even when one specific carried-forward claim describes a since-renamed
+    or since-removed member. Mirrors the fix already applied to the sibling
+    evidence.apis field's identical bug (evidence/writer.py, found live on
+    3d/python's reference _index.md after Token/TokenType were removed from
+    api_surface.json -- the old union-only merge kept citing them
+    indefinitely since nothing ever re-derives them to trigger a natural
+    drop). Same remedy here: validate against the current, authoritative
+    source instead of trusting a prior snapshot forever.
+
+    Scope, deliberately narrow (matches the same claim_source gate Task 16's
+    _MEMBER_DOC_ANCHOR_RE-based logic already uses): only llm_member_doc
+    claims have a single, well-defined "ClassName.MemberName" target to
+    validate -- general capability-mode claims describe broader product
+    behavior, not one specific member, and pruning those on this same basis
+    would be a real, unjustified overreach beyond this task's own scope. A
+    member-doc claim whose text doesn't parse against the anchor pattern at
+    all (malformed LLM output, the same edge case _assign_ids already
+    documents) is left untouched -- nothing to validate against, and
+    dropping data based on an assumption would be worse than keeping it.
+    """
+    class_by_name = {c["name"]: c for c in api_surface if isinstance(c, dict) and "name" in c}
+    result = []
+    for claim in claims:
+        if not isinstance(claim, dict) or claim.get("claim_source") != "llm_member_doc":
+            result.append(claim)
+            continue
+        match = _MEMBER_DOC_ANCHOR_RE.match(claim.get("text", ""))
+        if not match:
+            result.append(claim)
+            continue
+        class_name, member_name = match.group(1), match.group(2)
+        cls = class_by_name.get(class_name)
+        if cls is None:
+            continue  # target class renamed/removed -- prune
+        member_names = (
+            {m.get("name") for m in cls.get("methods", [])}
+            | {p.get("name") for p in cls.get("properties", [])}
+        )
+        if member_name not in member_names:
+            continue  # target member renamed/removed -- prune
+        result.append(claim)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # FIX-10: Post-enrichment source verification
 # ---------------------------------------------------------------------------
 
@@ -1131,6 +1189,23 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         except (json.JSONDecodeError, OSError) as exc:
             log.warning("Could not parse existing enriched_claims.json: %s — treating as empty", exc)
 
+    # Task 18 (§9.13, closes G11): prune carried-forward member-doc claims
+    # whose target class/member no longer exists in the CURRENT api_surface
+    # (just loaded above), instead of trusting the whole prior snapshot
+    # forever. Placed here, before any downstream use of existing_enriched
+    # (dedup, all_batched_claims, --rehash-only, --no-llm preservation),
+    # so every one of those paths benefits automatically.
+    if existing_enriched:
+        pruned_count = len(existing_enriched)
+        existing_enriched = _prune_stale_carried_forward_claims(existing_enriched, api_surface)
+        pruned_count -= len(existing_enriched)
+        if pruned_count:
+            log.info(
+                "Pruned %d stale carried-forward member-doc claim(s) whose "
+                "target no longer exists in the current api_surface.json",
+                pruned_count,
+            )
+
     # Detect low-docstring repos and activate compensating measures
     doc_coverage = _docstring_coverage(api_surface)
     low_docstring = doc_coverage < _LOW_DOCSTRING_THRESHOLD
@@ -1149,6 +1224,17 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                 len(existing_enriched)
             )
             run_stats["preserved_existing"] = True
+            # Task 18 (§9.13): "preserving" must still reflect this run's own
+            # pruning of stale carried-forward claims (done above, before this
+            # branch) -- otherwise --no-llm, a common cheap re-run path, would
+            # leave a pruned claim on disk forever, silently defeating the fix
+            # for every product refreshed this way. Only actually re-writes
+            # the file when pruning genuinely removed something, so a true
+            # no-op run stays a true no-op (no timestamp/hash churn for no
+            # real reason).
+            if pruned_count:
+                _write_output(out_path, existing_enriched, family, platform,
+                              "none (--no-llm, pruned)", api_surface)
             run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
             run_stats["cache_hits"] = llm_cache.hits
             run_stats["cache_misses"] = llm_cache.misses
