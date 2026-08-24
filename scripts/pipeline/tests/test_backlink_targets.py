@@ -546,6 +546,50 @@ class TestClassifyCompliance:
         )
         assert status == COMPLIANT
 
+    def test_cross_subdomain_fallback_own_wording_not_checked_against_chosen(self):
+        """BL-ANCHOR-SCOPE-FIX (2026-08-24): reproduces the exact live defect
+        confirmed on 36 docs.aspose.org/cells/go pages -- a correctly-worded
+        cross-subdomain fallback link (products.aspose.com, its own
+        legitimate wording) appearing BEFORE the actual chosen target
+        (docs.aspose.com, also correctly worded) in existing_urls used to be
+        checked against the chosen target's expected_anchor_text and fail,
+        even though neither link's wording is actually wrong."""
+        status = classify_compliance(
+            2,
+            ["https://products.aspose.com/cells/", "https://docs.aspose.com/cells/"],
+            "https://docs.aspose.com/cells/",
+            family="cells",
+            platform="go",
+            chosen_target_type="family",
+            chosen_target_subdomain="docs.aspose.com",
+            existing_links=[
+                ("Aspose.Cells — Enterprise Product Family", "https://products.aspose.com/cells/"),
+                ("Aspose.Cells — Enterprise Documentation", "https://docs.aspose.com/cells/"),
+            ],
+            expected_anchor_text="Aspose.Cells — Enterprise Documentation",
+        )
+        assert status == COMPLIANT
+
+    def test_chosen_target_wrong_anchor_still_caught_alongside_fallback(self):
+        """Positive control for the fix above: when the CHOSEN target's own
+        wording really is wrong, WRONG_ANCHOR_TEXT must still fire, even
+        with a correctly-worded cross-subdomain fallback also present."""
+        status = classify_compliance(
+            2,
+            ["https://products.aspose.com/cells/", "https://docs.aspose.com/cells/"],
+            "https://docs.aspose.com/cells/",
+            family="cells",
+            platform="go",
+            chosen_target_type="family",
+            chosen_target_subdomain="docs.aspose.com",
+            existing_links=[
+                ("Aspose.Cells — Enterprise Product Family", "https://products.aspose.com/cells/"),
+                ("wrong wording here", "https://docs.aspose.com/cells/"),
+            ],
+            expected_anchor_text="Aspose.Cells — Enterprise Documentation",
+        )
+        assert status == WRONG_ANCHOR_TEXT
+
     def test_duplicate_link_confirmed_live_kb_case(self):
         """Reproduces the exact live defect confirmed on 64 kb.aspose.org
         pages: both the family-level AND platform-level "See Also" links

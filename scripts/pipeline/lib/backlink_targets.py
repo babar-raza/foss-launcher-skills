@@ -1074,21 +1074,40 @@ def classify_compliance(
         if len(set(hosts)) < len(hosts):
             return DUPLICATE_SUBDOMAIN
 
+    # TC2 (2026-08-21), narrowed by BL-ANCHOR-SCOPE-FIX (2026-08-24):
+    # WRONG_ANCHOR_TEXT -- correct URL, but the anchor text doesn't match the
+    # governed registry wording. expected_anchor_text is computed by the
+    # caller specifically FOR chosen_target_url, so it must only ever be
+    # checked against THAT exact URL's own anchor text when present -- never
+    # against a different, merely-acceptable cross-subdomain fallback URL.
+    # Checked before the general acceptable-match loop below (not folded
+    # into it) so that when chosen_target_url is genuinely present, its own
+    # wording is always validated regardless of where it falls in
+    # existing_urls -- an early return on some OTHER acceptable URL must not
+    # skip checking the actual chosen link's anchor text. Confirmed live: a
+    # docs.aspose.org page with both products.aspose.com/cells/ (correctly
+    # worded "Enterprise Product Family") and the actual chosen
+    # docs.aspose.com/cells/ target (correctly worded "Enterprise
+    # Documentation") was misclassified WRONG_ANCHOR_TEXT because the old
+    # single loop hit products.aspose.com/cells/ first and checked its
+    # anchor text against docs.aspose.com's expected wording. Only checked
+    # when both existing_links and expected_anchor_text are supplied
+    # (keyword-only, opt-in -- omitting either preserves the exact prior
+    # URL-only behavior for every existing caller).
+    if (existing_links is not None and expected_anchor_text is not None
+            and chosen_target_url is not None):
+        chosen_norm = _norm(chosen_target_url)
+        if any(_norm(u) == chosen_norm for u in existing_urls):
+            matching_anchor_texts = {
+                anchor for anchor, link_url in existing_links
+                if _norm(link_url) == chosen_norm
+            }
+            if matching_anchor_texts and expected_anchor_text not in matching_anchor_texts:
+                return WRONG_ANCHOR_TEXT
+
     # 1 or 2 links — COMPLIANT if any existing URL is in acceptable set
     for url in existing_urls:
         if _norm(url) in acceptable:
-            # TC2 (2026-08-21): WRONG_ANCHOR_TEXT -- correct URL, but the
-            # anchor text doesn't match the governed registry wording. Only
-            # checked when both existing_links and expected_anchor_text are
-            # supplied (keyword-only, opt-in -- omitting either preserves
-            # the exact prior URL-only behavior for every existing caller).
-            if existing_links is not None and expected_anchor_text is not None:
-                matching_anchor_texts = {
-                    anchor for anchor, link_url in existing_links
-                    if _norm(link_url) == _norm(url)
-                }
-                if matching_anchor_texts and expected_anchor_text not in matching_anchor_texts:
-                    return WRONG_ANCHOR_TEXT
             return COMPLIANT
 
     # Parent-path coverage rule: if any existing URL is a URL-prefix of the chosen
