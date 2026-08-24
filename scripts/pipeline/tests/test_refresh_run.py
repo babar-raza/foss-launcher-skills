@@ -1940,6 +1940,68 @@ def test_verify_run_locale_staleness_failure_is_advisory_only(tmp_path: Path):
     assert manifest["state"] == "READY_TO_COMMIT"
     assert manifest["locale_staleness_summary"] is None
     assert manifest["locale_staleness_error"]
+    # content_coverage_audit's own advisory step sits right after this one and
+    # hits the identical missing-api_surface.json state -- but through
+    # batch_reference.run()'s sys.exit(1), not a plain exception. Confirms
+    # the (Exception, SystemExit) catch fix: a bare `except Exception` would
+    # have let this propagate uncaught, crashing verify_run() entirely
+    # instead of degrading gracefully (found live wiring this in).
+    assert manifest["content_coverage_summary"] is None
+    assert manifest["content_coverage_error"]
+    assert "SystemExit" in manifest["content_coverage_error"]
+
+
+def test_verify_run_writes_content_coverage_summary(tmp_path: Path):
+    """Content-coverage audit (found live 2026-08-24, closes the "a real
+    knowledge advance whose content generation was never triggered stays
+    permanently invisible" gap): verify_run() must record a compact summary
+    in manifest["content_coverage_summary"] and write the full report under
+    reports/content_coverage/{family}-{platform}.json, mirroring the locale-
+    staleness step immediately above it."""
+    knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    # kind must be C#'s real tree-sitter node type ("class_declaration"), not
+    # e.g. Python's "class_definition" -- _passes_platform_scope's kind
+    # allowlist is platform-specific (found live: an earlier version of this
+    # fixture used the wrong kind string and silently produced 0 candidates).
+    (knowledge_dir / "api_surface.json").write_text(json.dumps([
+        {"name": "HasPage", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "HasPage.cs"},
+        {"name": "MissingPage", "kind": "class_declaration", "methods": [], "properties": [],
+         "visibility": "public", "reachable": True, "file": "MissingPage.cs"},
+    ]), encoding="utf-8")
+    (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+    ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "net"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    (ref_dir / "HasPage.md").write_text("---\nauto_updatable: true\n---\n# HasPage\n", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-COVERAGE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["state"] == "READY_TO_COMMIT"
+    assert manifest.get("content_coverage_error") is None
+    summary = manifest["content_coverage_summary"]
+    assert summary["total_candidates"] == 2
+    assert summary["missing_page_count"] == 1
+    report_path = tmp_path / "reports" / "content_coverage" / "pdf-net.json"
+    assert report_path.is_file()
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["missing_classes"] == ["MissingPage"]
+    real_repo_root = Path(__file__).resolve().parents[3]
+    real_report_path = real_repo_root / "reports" / "content_coverage" / "pdf-net.json"
+    assert not real_report_path.is_file()
 
 
 def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):

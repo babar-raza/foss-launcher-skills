@@ -1682,6 +1682,23 @@ scripts:
     change_impact: null
     notes: "S-117 backing script (mission-plan-the-end-to-end-vast-hejlsberg.md Task 7, closes G2): deliberate sibling of repo_patrol.py's cmd_sweep -- that watches the upstream FOSS repo axis, this watches the our-own-pipeline-code axis. Compute-only diff via promote()'s merged_dir_override staging path (never promote_atomic()'s atomic swap -- real merged/ is never touched); classifies NONE/METADATA_ONLY/CONTENT_AFFECTING via page_impact_assess.py's scoring; separates genuine upstream drift (clone HEAD vs last-scouted repo_sha) from the mechanism axis rather than conflating them. Never invokes /refresh-product itself -- detection only, matching change-sweep's own convention."
 
+  - path: scripts/pipeline/commands/diagnostics/content_coverage_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_content_coverage_audit.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md, deep-reassessment pass): knowledge_delta.json is cycle-scoped (base_sha->current_sha, exactly one refresh's worth), so a real knowledge advance whose content generation was never triggered for THAT cycle becomes permanently invisible to every later cycle's own delta -- confirmed for pdf/java, where knowledge_delta.prev.json shows 121 new_apis (a Structured Document Model subsystem) that the CURRENT knowledge_delta.json shows zero of, because that cycle's own predecessor already included them. Cumulative, delta-independent detector: calls batch_reference.run(..., dry_run=True) (the single source of truth for candidate selection, no logic duplicated here) and reports classes with no reference page. Detection only, never writes content. Wired advisory-only into refresh_run.py's verify_run() (manifest[\"content_coverage_summary\"]), same placement/try-except pattern as locale staleness (Task 11d) -- note the except clause deliberately catches SystemExit alongside Exception, since batch_reference.run() signals its own missing-precondition errors via sys.exit(1), which does not inherit from Exception (found live wiring this in: an early version let that propagate uncaught)."
+
   - path: scripts/pipeline/lib/path_utils.py
     kind: library
     lifecycle: active

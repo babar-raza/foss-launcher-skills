@@ -47,6 +47,8 @@ from lib.provenance import is_manually_curated, read_provenance  # noqa: E402
 from lib.reference_filter import index_generator_version_is_stale  # noqa: E402
 from commands.ops import page_impact_matrix  # noqa: E402
 from commands.knowledge import stale_detect  # noqa: E402
+from commands.content import batch_reference  # noqa: E402
+from commands.diagnostics import content_coverage_audit  # noqa: E402
 
 SCHEMA_VERSION = 3
 MODES = frozenset({"upstream", "remediation", "combined"})
@@ -126,6 +128,12 @@ def configure(
     # live: an early version of this wiring did exactly that).
     freshness_guard.configure(repo_root=_repo_root)
     page_impact_matrix.configure(repo_root=_repo_root)
+    # content_coverage_audit.scan_product() calls batch_reference.run(), which
+    # reads batch_reference's OWN module-level KNOWLEDGE_ROOT/CONTENT_ROOT --
+    # same FRESH-001 lockstep requirement, one level removed (Task: content
+    # coverage audit, 2026-08-24, closes the "content generation never
+    # triggered for a real knowledge advance" gap found live for pdf/java).
+    batch_reference.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -2400,6 +2408,46 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001 -- advisory only, see docstring above
         manifest["locale_staleness_summary"] = None
         manifest["locale_staleness_error"] = str(exc)
+
+    # Content-coverage audit (found live 2026-08-24, deep-reassessment pass):
+    # a cumulative, delta-independent detector for api_surface.json classes
+    # with no reference page -- closes a real structural gap where a genuine
+    # knowledge advance (e.g. pdf/java's ~121-class Structured Document Model
+    # addition) was correctly captured by ONE refresh cycle but never
+    # consumed by content generation, becoming permanently invisible to every
+    # LATER cycle's own (necessarily narrower, point-in-time) delta. See
+    # content_coverage_audit.py's own module docstring for the full account.
+    # Cheap (~0.6s measured live for pdf/java's 1157-class corpus -- a plain
+    # file-existence check per candidate, not a content parse) so no caching
+    # is needed here unlike locale staleness above. Advisory only, same
+    # placement/try-except pattern as every other step in this block --
+    # never blocks a run whose real validators already passed.
+    #
+    # Catches SystemExit alongside Exception (a deliberate, narrow addition,
+    # not BaseException -- KeyboardInterrupt etc. must still propagate):
+    # batch_reference.run() signals its own missing-precondition errors (e.g.
+    # no api_surface.json yet) via sys.exit(1), a CLI-style convention that
+    # raises SystemExit, which does NOT inherit from Exception. A bare
+    # `except Exception` here would let that propagate uncaught, crashing
+    # this entire advisory step instead of degrading gracefully -- found live
+    # while wiring this in (test fixtures without api_surface.json are a
+    # normal, expected state elsewhere in verify_run()'s own test suite, not
+    # a real error).
+    try:
+        coverage_report = content_coverage_audit.scan_product(family, platform)
+        content_coverage_audit.write_report(
+            coverage_report, report_root=_repo_root / "reports" / "content_coverage"
+        )
+        manifest["content_coverage_summary"] = {
+            "total_candidates": coverage_report["total_candidates"],
+            "missing_page_count": coverage_report["missing_page_count"],
+        }
+    except (Exception, SystemExit) as exc:  # noqa: BLE001 -- advisory only, see docstring above
+        manifest["content_coverage_summary"] = None
+        # SystemExit's own str() is just the bare exit code (e.g. "1") --
+        # batch_reference.run()'s real message already went to stdout via
+        # print(), so name the exception type too for a self-contained record.
+        manifest["content_coverage_error"] = f"{type(exc).__name__}: {exc}"
     _save_manifest(manifest)  # persist the digest even when state is already READY_TO_COMMIT (re-verify)
 
     if manifest["state"] == "VALIDATING":

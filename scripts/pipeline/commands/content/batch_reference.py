@@ -2059,7 +2059,17 @@ def run(family: str, platform: str, kind_arg: str = "all",
             print(f"  WOULD GENERATE: {e.get('name')} ({e.get('kind')})")
         for e in to_update:
             print(f"  WOULD UPDATE: {e.get('name')} ({e.get('kind')})")
-        result = {"generated": 0, "updated": 0, "skipped": len(to_skip), "errors": 0, "dry_run": True}
+        result = {
+            "generated": 0, "updated": 0, "skipped": len(to_skip), "errors": 0, "dry_run": True,
+            # Content-coverage audit (found live 2026-08-24, deepreassess pass,
+            # mission-plan-the-end-to-end-vast-hejlsberg.md): the class-level
+            # detail behind the counts above, so a caller (e.g.
+            # content_coverage_audit.py) can report WHICH classes have no
+            # page yet, not just how many -- purely additive, no existing
+            # caller reads these two new keys.
+            "to_generate_names": sorted(e.get("name", "") for e in to_generate),
+            "to_update_names": sorted(e.get("name", "") for e in to_update),
+        }
         return result
 
     generated = []
