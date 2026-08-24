@@ -1665,6 +1665,23 @@ scripts:
     change_impact: null
     notes: "S-93/S-94: repo discovery scan, change sweep, combined reporting, discovery health gate; subcommands: scan, sweep, report, gate (MT021: gate is the deterministic exit-0/1/2 precondition for S-95 triage)"
 
+  - path: scripts/pipeline/commands/diagnostics/mechanism_sweep.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: mechanism-sweep
+    test_targets:
+      - scripts/pipeline/tests/test_mechanism_sweep.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "S-117 backing script (mission-plan-the-end-to-end-vast-hejlsberg.md Task 7, closes G2): deliberate sibling of repo_patrol.py's cmd_sweep -- that watches the upstream FOSS repo axis, this watches the our-own-pipeline-code axis. Compute-only diff via promote()'s merged_dir_override staging path (never promote_atomic()'s atomic swap -- real merged/ is never touched); classifies NONE/METADATA_ONLY/CONTENT_AFFECTING via page_impact_assess.py's scoring; separates genuine upstream drift (clone HEAD vs last-scouted repo_sha) from the mechanism axis rather than conflating them. Never invokes /refresh-product itself -- detection only, matching change-sweep's own convention."
+
   - path: scripts/pipeline/lib/path_utils.py
     kind: library
     lifecycle: active
