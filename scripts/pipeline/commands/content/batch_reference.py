@@ -139,6 +139,29 @@ KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content" / "reference.aspose.org" / "en"
 
 
+def _safe_print(message: str) -> None:
+    """print(), but never let a display encoding problem escalate into
+    losing an entire batch run.
+
+    Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, the real upstream E2E proof run for pdf/java): several call
+    sites in this module print dynamic text that can embed arbitrary
+    generated content -- an exception message, a class/member name, a
+    reused snippet -- and generated method-signature tables use
+    "->"-as-arrow (U+2192), among other non-ASCII characters. A plain
+    ``print()`` of that text raises UnicodeEncodeError on a non-UTF-8
+    console (cp1252 on Windows), and when it happens inside the per-entry
+    error handler whose whole purpose is fault isolation (one bad page
+    must never abort the other 1000+), the encoding failure itself becomes
+    the thing that aborts the batch. Falls back to an ASCII-safe
+    (backslash-escaped) rendering rather than losing the message entirely.
+    """
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        print(message.encode("ascii", errors="backslashreplace").decode("ascii"))
+
+
 def configure(
     repo_root: Path | None = None,
     knowledge_root: Path | None = None,
@@ -1919,7 +1942,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
             else:
                 print("--plan: no 'reference' section found in plan; ignoring.")
         except (FileNotFoundError, ValueError) as exc:
-            print(f"WARN: --plan failed to load {plan_path}: {exc}")
+            _safe_print(f"WARN: --plan failed to load {plan_path}: {exc}")
 
     # Build a normalized slug index of existing pages for deduplication.
     # This prevents creating e.g. "MsgReader.md" when "msg-reader.md" or
@@ -2385,7 +2408,12 @@ def run(family: str, platform: str, kind_arg: str = "all",
             else:
                 generated.append(entry)
         except Exception as exc:
-            print(f"  ERROR: {name} — {exc}")
+            # See _safe_print's own docstring: this except clause exists so
+            # ONE page's failure (e.g. a re-grounding rejection from
+            # _record_reference_attempt) never aborts the whole batch --
+            # a plain print() of the exception text defeated that (found
+            # live 2026-08-24, Task 14, mission-plan-the-end-to-end-vast-hejlsberg.md).
+            _safe_print(f"  ERROR: {name} — {exc}")
             errors.append((entry, str(exc)))
 
     # Summary
@@ -2431,7 +2459,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         print("")
         print("Error pages (manual review required):")
         for e, msg in errors:
-            print(f"  - {e.get('name')}  ({msg})")
+            _safe_print(f"  - {e.get('name')}  ({msg})")
 
     # Write generation manifest for denominator reconciliation (L-12 gate)
     _write_generation_manifest(
@@ -2504,7 +2532,7 @@ def _write_freshness_manifest_if_enabled(
             print(f"\nFreshness manifest write skipped/failed: {note}")
     except Exception as exc:
         LOG.warning("Freshness manifest write failed: %s", exc)
-        print(f"\nFreshness manifest write failed: {exc}")
+        _safe_print(f"\nFreshness manifest write failed: {exc}")
 
 
 def _write_generation_manifest(

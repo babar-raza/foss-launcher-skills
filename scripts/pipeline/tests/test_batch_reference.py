@@ -2192,6 +2192,67 @@ def test_within_batch_dedup_defensive(tmp_path, capsys):
     assert len(md_files) == 1, f"Expected exactly 1 foo*.md page, found {len(md_files)}: {md_files}"
 
 
+def test_per_entry_error_print_survives_unencodable_exception_text(
+    tmp_path, monkeypatch,
+):
+    """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, the real upstream E2E proof run for pdf/java): the per-entry
+    `except Exception` block exists so ONE page's failure (e.g. a
+    re-grounding rejection) never aborts the whole batch -- but a real run
+    crashed anyway: the failing entry's exception message embedded a
+    generated method-signature table using "->"-as-arrow (U+2192), which a
+    non-UTF-8 Windows console (cp1252) cannot encode, so the error-logging
+    print() itself raised UnicodeEncodeError, escalating a single page's
+    failure into losing the entire 1157-page run. This test simulates a
+    cp1252-only stdout (print() raises UnicodeEncodeError for non-ASCII
+    text, exactly once, mirroring the real console) and confirms run()
+    completes, records the error, and falls back to an ASCII-safe message
+    instead of propagating the encoding failure."""
+    entries = [
+        {
+            "name": "Widget",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "fake.net",
+            "description": "A widget.",
+            "methods": [],
+            "properties": [],
+        },
+    ]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+
+    def _raise_unencodable(*_args, **_kwargs):
+        raise ValueError("bad → arrow in a generated table")
+
+    monkeypatch.setattr(_br, "attach_evidence", _raise_unencodable)
+
+    printed: list[str] = []
+    real_print = print
+
+    def _cp1252_like_print(message):
+        try:
+            message.encode("cp1252")
+        except UnicodeEncodeError as exc:
+            raise UnicodeEncodeError(
+                exc.encoding, exc.object, exc.start, exc.end, exc.reason
+            ) from None
+        printed.append(message)
+        real_print(message)
+
+    monkeypatch.setattr(_br, "print", _cp1252_like_print, raising=False)
+
+    result = run("fake", "net")
+
+    assert result["errors"] == 1, f"Expected 1 error, got {result}"
+    # The ASCII-safe fallback message must have actually been printed --
+    # confirms the except block's own print() didn't just silently swallow
+    # the UnicodeEncodeError, it recovered and logged something readable.
+    assert any("Widget" in line and "arrow" in line for line in printed), printed
+    assert all(
+        c.isascii() for line in printed for c in line
+    ), f"Fallback message must be pure ASCII: {printed}"
+
+
 def test_pdf_net_id_regression(tmp_path):
     """Regression: Id (Aspose.Pdf) + ID (Aspose.Pdf.Operators) with Id.md pre-existing.
 
