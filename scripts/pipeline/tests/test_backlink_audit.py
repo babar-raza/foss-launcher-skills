@@ -115,11 +115,14 @@ class TestAuditFileDuplicates:
         assert rec.status == STATUS_DUPLICATE_SUBDOMAIN
 
     def test_real_live_kb_pdf_cpp_duplicate_case(self):
-        """End-to-end against the REAL repo content and target map -- the
-        exact live defect this mission has tracked throughout (TC4's
-        original finding, still present in content pending TC15's backfill).
-        Confirms the audit tool detects it against real data, not just a
-        constructed fixture."""
+        """End-to-end against the REAL repo content and target map. This page
+        was TC4's original live DUPLICATE_LINK example (a family bullet never
+        removed when a platform bullet was appended); TC15 Stage 2's
+        kb.aspose.org backfill (commit 0385b0e781, 2026-08-24) healed it to a
+        single correct link, so it now must audit COMPLIANT. Kept as a live
+        regression guard against the fix reverting -- test_duplicate_link_detected
+        above is the constructed-fixture coverage for the detection logic
+        itself and stays independent of live content state."""
         from lib.backlink_targets import load_target_map
         repo_root = Path(__file__).resolve().parents[3]
         target_map = load_target_map(repo_root)
@@ -128,7 +131,7 @@ class TestAuditFileDuplicates:
             import pytest
             pytest.skip("live fixture page not present in this checkout")
         rec = audit_file(fp, repo_root, target_map)
-        assert rec.status == STATUS_DUPLICATE_LINK
+        assert rec.status == STATUS_COMPLIANT
 
 
 class TestRunAuditTallying:

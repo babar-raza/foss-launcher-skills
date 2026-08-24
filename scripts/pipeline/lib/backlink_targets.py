@@ -1016,6 +1016,20 @@ def classify_compliance(
     # own family URL.
     if chosen_target_subdomain and family:
         acceptable.add(_norm(f"https://{chosen_target_subdomain}/{family}/"))
+
+    # BL-DUP-CLASSIFIER-FIX (2026-08-24): snapshot the SAME-SUBDOMAIN-only
+    # acceptable set (chosen target + its own family fallback) before the
+    # cross-subdomain fallbacks below are added. DUPLICATE_LINK must only
+    # ever compare candidates for the SAME governed backlink slot -- i.e.
+    # two URLs that both live on chosen_target_subdomain. The cross-subdomain
+    # entries added next (products/docs/reference.aspose.com family pages)
+    # exist only so a single existing link on one of those hosts can still
+    # count as an acceptable stand-in when chosen_target_subdomain's own link
+    # is absent -- they are independent, legitimate references to different
+    # aspose.com properties, not redundant copies of the governed link, and
+    # must never feed duplicate-counting.
+    same_subdomain_acceptable = set(acceptable)
+
     if family and chosen_target_subdomain != "blog.aspose.com":
         # Products family/platform are acceptable fallbacks for non-blog page types.
         # Blog pages must use blog.aspose.com — products.aspose.com is WRONG_TARGET for blog.
@@ -1026,15 +1040,22 @@ def classify_compliance(
         acceptable.add(_norm(f"https://docs.aspose.com/{family}/"))
         acceptable.add(_norm(f"https://reference.aspose.com/{family}/"))
 
-    # TC2 (2026-08-21): DUPLICATE_LINK -- 2 distinct acceptable URLs present at
-    # once (e.g. both the family-level AND platform-level link, the exact
-    # defect confirmed live on 64 kb.aspose.org pages: a family "See Also"
-    # bullet never removed when a platform-specific one was later appended).
+    # TC2 (2026-08-21), narrowed by BL-DUP-CLASSIFIER-FIX (2026-08-24):
+    # DUPLICATE_LINK -- 2 distinct SAME-SUBDOMAIN acceptable URLs present at
+    # once (e.g. both the family-level AND platform-level link, BOTH on
+    # chosen_target_subdomain -- the exact defect confirmed live on 64
+    # kb.aspose.org pages: a family "See Also" bullet never removed when a
+    # platform-specific one was later appended). Scoped to
+    # same_subdomain_acceptable rather than the full cross-subdomain
+    # acceptable set -- reusing the full set here previously misclassified a
+    # page with one correct same-subdomain link plus one unrelated,
+    # legitimate cross-subdomain reference as a duplicate (confirmed live on
+    # cells/go, pdf/net, words/net, and 13 kb.aspose.org pages overall).
     # Must run BEFORE the single-match COMPLIANT check below, since that
     # check would otherwise return COMPLIANT on the first acceptable URL it
     # finds and never notice a second, redundant one.
     distinct_acceptable_matches = {
-        _norm(url) for url in existing_urls if _norm(url) in acceptable
+        _norm(url) for url in existing_urls if _norm(url) in same_subdomain_acceptable
     }
     if len(distinct_acceptable_matches) > 1:
         return DUPLICATE_LINK
