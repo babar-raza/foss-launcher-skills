@@ -652,6 +652,155 @@ class TestDeprecatedApisDelta:
 
 
 # ---------------------------------------------------------------------------
+# Task 17 (§9.12, closes the other half of G10): claim_text_changes and
+# api_signature_changes -- additive fields alongside the existing plain-
+# string-list delta fields, carrying real text/signature data instead of
+# just opaque IDs.
+# ---------------------------------------------------------------------------
+
+class TestClaimTextChangesDelta:
+    def test_modified_claim_carries_old_and_new_text(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-1", "text": "old wording of the same fact."},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-1", "text": "new wording of the same fact."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["modified_claims"] == ["CLM-1"]  # existing field unchanged in shape
+        assert delta["claim_text_changes"]["CLM-1"] == {
+            "old_text": "old wording of the same fact.",
+            "new_text": "new wording of the same fact.",
+        }
+
+    def test_new_claim_has_old_text_none(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new", "text": "a brand new fact."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["claim_text_changes"]["CLM-new"] == {
+            "old_text": None, "new_text": "a brand new fact.",
+        }
+
+    def test_removed_claim_has_new_text_none(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-gone", "text": "a fact that is now gone."},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["claim_text_changes"]["CLM-gone"] == {
+            "old_text": "a fact that is now gone.", "new_text": None,
+        }
+
+    def test_unchanged_claim_has_no_text_changes_entry(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        stable = json.dumps([{"claim_id": "CLM-stable", "text": "unchanged fact."}])
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(stable, encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(stable, encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["claim_text_changes"] == {}
+
+
+class TestApiSignatureChangesDelta:
+    def test_modified_api_carries_added_and_removed_members(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA",
+             "methods": [{"name": "oldMethod"}],
+             "properties": [{"name": "OldProp"}]},
+        ]), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA",
+             "methods": [{"name": "newMethod"}],
+             "properties": [{"name": "OldProp"}, {"name": "NewProp"}]},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["modified_apis"] == ["ClassA"]  # existing field unchanged in shape
+        assert delta["api_signature_changes"]["ClassA"] == {
+            "added_methods": ["newMethod"],
+            "removed_methods": ["oldMethod"],
+            "added_properties": ["NewProp"],
+            "removed_properties": [],
+        }
+
+    def test_erc_only_modified_class_has_no_signature_change_entry(self, tmp_path):
+        """A class whose modified_apis membership comes only from ERC member-
+        doc coverage changes (no real method/property name-set change) must
+        not get a fabricated, empty signature_changes entry."""
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        api_surface = json.dumps([
+            {"name": "ClassB", "methods": [{"name": "m"}], "properties": []},
+        ])
+        (bak / "api_surface.json").write_text(api_surface, encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(api_surface, encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "ERC-test-net-1", "kind": "api", "text": "ClassB.m does something."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["modified_apis"] == ["ClassB"]  # ERC-coverage-only membership
+        assert delta["api_signature_changes"] == {}
+
+
+# ---------------------------------------------------------------------------
 # SR-04 (TC-4): _write_model_field round-trip
 # ---------------------------------------------------------------------------
 

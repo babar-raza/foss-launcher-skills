@@ -35,6 +35,8 @@ def _make_delta(
     new_claims=None,
     removed_claims=None,
     modified_claims=None,
+    claim_text_changes=None,
+    api_signature_changes=None,
     base_sha="abc123",
     current_sha="def456",
 ):
@@ -50,6 +52,8 @@ def _make_delta(
         "new_claims": new_claims or [],
         "removed_claims": removed_claims or [],
         "modified_claims": modified_claims or [],
+        "claim_text_changes": claim_text_changes or {},
+        "api_signature_changes": api_signature_changes or {},
     }
     (merged / "knowledge_delta.json").write_text(json.dumps(delta), encoding="utf-8")
     sd.configure(knowledge_root=str(tmp_path / "knowledge"), reports_root=str(tmp_path / "reports"))
@@ -159,3 +163,144 @@ def test_output_written_to_expected_path(tmp_path):
         loaded = json.load(f)
     assert len(loaded) == len(changes)
     assert loaded[0]["change_type"] == sd.API_ADDED
+
+
+# ── Task 17 (§9.12, closes the other half of G10): real-text classification ──
+
+
+def test_modified_claim_with_behavior_keyword_in_text_classified(tmp_path):
+    """Before Task 17, sub-classification matched keywords against the
+    opaque claim_id string (never containing real words) -- always falling
+    through to CLAIM_MODIFIED. With claim_text_changes providing the real
+    text, a genuine behavior-change keyword is now detected."""
+    _make_delta(
+        tmp_path, "pdf", "net",
+        modified_claims=["CLM-pdf-abc123"],
+        claim_text_changes={
+            "CLM-pdf-abc123": {
+                "old_text": "Document.Save writes the file.",
+                "new_text": "Document.Save now returns a different result on failure.",
+            }
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 1
+    assert changes[0]["change_type"] == sd.BEHAVIOR_CHANGED
+    assert changes[0]["new_text"] == "Document.Save now returns a different result on failure."
+    assert changes[0]["old_text"] == "Document.Save writes the file."
+
+
+def test_modified_claim_with_limitation_keyword_in_text_classified(tmp_path):
+    _make_delta(
+        tmp_path, "pdf", "net",
+        modified_claims=["CLM-pdf-def456"],
+        claim_text_changes={
+            "CLM-pdf-def456": {
+                "old_text": "Document.Encrypt supports AES256.",
+                "new_text": "Document.Encrypt does not support AES128 in this release.",
+            }
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["change_type"] == sd.LIMITATION_CHANGED
+
+
+def test_modified_claim_with_feature_keyword_in_text_classified(tmp_path):
+    """_FEATURE_KEYWORDS was defined but never referenced before Task 17 --
+    this is the first test exercising FEATURE_CHANGED at all."""
+    _make_delta(
+        tmp_path, "pdf", "net",
+        modified_claims=["CLM-pdf-ghi789"],
+        claim_text_changes={
+            "CLM-pdf-ghi789": {
+                "old_text": "PdfConverter cannot export to XPS.",
+                "new_text": "PdfConverter can export to XPS and DOCX.",
+            }
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["change_type"] == sd.FEATURE_CHANGED
+
+
+def test_modified_claim_with_no_keyword_falls_back_to_claim_modified(tmp_path):
+    _make_delta(
+        tmp_path, "pdf", "net",
+        modified_claims=["CLM-pdf-jkl012"],
+        claim_text_changes={
+            "CLM-pdf-jkl012": {
+                "old_text": "Document.PageCount is an integer property.",
+                "new_text": "Document.PageCount is a positive integer property.",
+            }
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["change_type"] == sd.CLAIM_MODIFIED
+
+
+def test_modified_claim_without_text_changes_entry_falls_back_to_id_matching(tmp_path):
+    """A knowledge_delta.json written before Task 17 (no claim_text_changes
+    field at all, or missing an entry for this specific claim_id) must not
+    crash -- falls back to the pre-Task-17 claim_id-based (non-)match,
+    exactly the previous behavior."""
+    _make_delta(tmp_path, "pdf", "net", modified_claims=["CLM-pdf-nokeyword"])
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 1
+    assert changes[0]["change_type"] == sd.CLAIM_MODIFIED
+    assert "old_text" not in changes[0]
+    assert "new_text" not in changes[0]
+
+
+def test_removed_claim_with_text_change_includes_old_text_only(tmp_path):
+    _make_delta(
+        tmp_path, "pdf", "net",
+        removed_claims=["CLM-pdf-removed1"],
+        claim_text_changes={
+            "CLM-pdf-removed1": {"old_text": "Document.LegacyExport writes an old format.", "new_text": None}
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["old_text"] == "Document.LegacyExport writes an old format."
+    assert changes[0]["new_text"] is None
+
+
+def test_new_claim_with_text_change_includes_new_text_only(tmp_path):
+    _make_delta(
+        tmp_path, "pdf", "net",
+        new_claims=["CLM-pdf-added1"],
+        claim_text_changes={
+            "CLM-pdf-added1": {"old_text": None, "new_text": "Document.NewMethod does something new."}
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["old_text"] is None
+    assert changes[0]["new_text"] == "Document.NewMethod does something new."
+
+
+def test_modified_api_with_signature_change_includes_summary(tmp_path):
+    _make_delta(
+        tmp_path, "pdf", "net",
+        modified_apis=["TextFragment"],
+        api_signature_changes={
+            "TextFragment": {
+                "added_methods": ["GetBounds"],
+                "removed_methods": [],
+                "added_properties": [],
+                "removed_properties": ["LegacyColor"],
+            }
+        },
+    )
+    changes = sd.run("pdf", "net")
+    assert changes[0]["signature_summary"] == {
+        "added_methods": ["GetBounds"],
+        "removed_methods": [],
+        "added_properties": [],
+        "removed_properties": ["LegacyColor"],
+    }
+
+
+def test_modified_api_without_signature_change_has_no_summary_key(tmp_path):
+    """An ERC-doc-coverage-only modified_apis entry has no real signature
+    diff -- must not fabricate an empty summary."""
+    _make_delta(tmp_path, "pdf", "net", modified_apis=["DocCoverageOnlyClass"])
+    changes = sd.run("pdf", "net")
+    assert "signature_summary" not in changes[0]

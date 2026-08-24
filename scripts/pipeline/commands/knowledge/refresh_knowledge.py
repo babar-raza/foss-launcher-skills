@@ -716,6 +716,29 @@ def _write_knowledge_delta(
         )
     ]
 
+    # Task 17 (§9.12, closes the other half of G10): carry the real claim TEXT
+    # alongside each new/removed/modified claim id, not just the opaque id
+    # string. Before this, semantic_diff.py's _classify_claim_change and
+    # body_impact.py's keyword tokenizer both had no choice but to pattern-
+    # match against the claim_id itself (e.g. "CLM-pdf-a1b2c3") -- which can
+    # never contain a real word like "deprecated"/"not supported", so the
+    # keyword-based BEHAVIOR_CHANGED/LIMITATION_CHANGED/FEATURE_CHANGED
+    # sub-classification was dead code in practice, always falling through to
+    # the generic CLAIM_MODIFIED bucket. Keyed by claim_id for O(1) lookup;
+    # additive (a new top-level field), so modified_claims/new_claims/
+    # removed_claims themselves keep their existing plain-string-list shape
+    # unchanged -- no existing consumer of those three fields is affected.
+    claim_text_changes: dict[str, dict] = {}
+    for cid in added_claims:
+        claim_text_changes[cid] = {"old_text": None, "new_text": new_by_id[cid].get("text", "")}
+    for cid in removed_claims:
+        claim_text_changes[cid] = {"old_text": old_by_id[cid].get("text", ""), "new_text": None}
+    for cid in modified_claims:
+        claim_text_changes[cid] = {
+            "old_text": old_by_id[cid].get("text", ""),
+            "new_text": new_by_id[cid].get("text", ""),
+        }
+
     # Build API dicts keyed by class name
     old_api_by_name = {e["name"]: e for e in old_apis if isinstance(e, dict) and "name" in e}
     new_api_by_name = {e["name"]: e for e in new_apis if isinstance(e, dict) and "name" in e}
@@ -736,6 +759,24 @@ def _write_knowledge_delta(
             != {p.get("name") for p in old_api_by_name[name].get("properties", [])}
         )
     )
+
+    # Task 17 (§9.12): a short, structured signature-diff summary for each
+    # name-set-changed class -- alongside modified_apis, not a replacement
+    # for it. Only api_surface_modified (a real method/property name-set
+    # change) gets one; erc_changed_classes (doc-coverage only, no signature
+    # change) correctly does not.
+    api_signature_changes: dict[str, dict] = {}
+    for name in api_surface_modified:
+        old_methods = {m.get("name") for m in old_api_by_name[name].get("methods", [])}
+        new_methods = {m.get("name") for m in new_api_by_name[name].get("methods", [])}
+        old_props = {p.get("name") for p in old_api_by_name[name].get("properties", [])}
+        new_props = {p.get("name") for p in new_api_by_name[name].get("properties", [])}
+        api_signature_changes[name] = {
+            "added_methods": sorted(new_methods - old_methods),
+            "removed_methods": sorted(old_methods - new_methods),
+            "added_properties": sorted(new_props - old_props),
+            "removed_properties": sorted(old_props - new_props),
+        }
 
     # Classes whose ERC member descriptions changed (e.g. after --mode member-doc run).
     # When enrich.py adds new ClassName.MemberName api-kind claims, those classes should
@@ -795,6 +836,8 @@ def _write_knowledge_delta(
         "modified_apis": modified_apis,
         "deprecated_apis": deprecated_apis,
         "resurrected_apis": resurrected_apis,
+        "claim_text_changes": claim_text_changes,
+        "api_signature_changes": api_signature_changes,
     }
 
     # Atomic write via temp file + rename

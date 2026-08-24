@@ -360,3 +360,114 @@ def test_definite_match_wins_over_highly_likely_for_same_section(tmp_path):
     assert len(overview_entries) == 1
     assert overview_entries[0]["impact_level"] == bi.IL_DEFINITE
     assert overview_entries[0]["change_id"] == "CHG-pdf-net-0002"
+
+
+# ── Task 17 (§9.12, closes the other half of G10): claim-text-based keyword
+# matching, replacing the opaque-claim_id tokenizer for symbol_kind="claim" ──
+
+
+def _make_claim_change(claim_id: str, new_text: str | None = None, old_text: str | None = None,
+                        change_type: str = "CLAIM_MODIFIED", change_id: str = "CHG-pdf-net-0001") -> dict:
+    change = _make_change(claim_id, change_type=change_type,
+                           content_impact="BODY_UPDATE", change_id=change_id)
+    change["symbol_kind"] = "claim"
+    if new_text is not None:
+        change["new_text"] = new_text
+    if old_text is not None:
+        change["old_text"] = old_text
+    return change
+
+
+def test_claim_kind_keyword_match_uses_real_text_not_opaque_id(tmp_path):
+    """Before Task 17, symbol="CLM-pdf-abc123" tokenized to fragments that
+    could never match real page prose -- a claim-kind change could only ever
+    reach DEFINITE (exact detected_symbols citation) or nothing at all. With
+    real claim text available, a genuine prose mention is now caught too."""
+    changes = [_make_claim_change(
+        "CLM-pdf-abc123",
+        new_text="PdfConverter now supports exporting to Markdown.",
+    )]
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [{
+            "section_id": "overview", "heading": "## Overview",
+            "start_line": 0, "end_line": 10,
+            "claims": [{
+                "sentence": "The PdfConverter class handles format conversion.",
+                "line_number": 5, "detected_symbols": [], "detected_formats": [],
+                "detected_features": [], "detected_versions": [], "claim_type": "FEATURE_CLAIM",
+            }],
+        }],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+    impacts = bi.run("pdf", "net")
+    levels = [s["impact_level"] for imp in impacts for s in imp["affected_sections"]]
+    assert bi.IL_HIGHLY_LIKELY in levels or bi.IL_DEFINITE in levels
+
+
+def test_claim_kind_without_text_falls_back_to_symbol_and_never_matches_generic_prose(tmp_path):
+    """A claim-kind change with no old_text/new_text at all (older, pre-
+    Task-17 knowledge_delta.json) falls back to tokenizing the opaque
+    claim_id -- exactly the pre-Task-17 behavior, never crashing."""
+    changes = [_make_claim_change("CLM-pdf-abc123")]  # no text at all
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [{
+            "section_id": "overview", "heading": "## Overview",
+            "start_line": 0, "end_line": 10,
+            "claims": [{
+                "sentence": "This section discusses general conversion topics.",
+                "line_number": 5, "detected_symbols": [], "detected_formats": [],
+                "detected_features": [], "detected_versions": [], "claim_type": "FEATURE_CLAIM",
+            }],
+        }],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+    impacts = bi.run("pdf", "net")
+    # No exact symbol, no keyword derivable from an opaque hash ID -> unaffected.
+    assert impacts == [] or all(
+        s["impact_level"] not in (bi.IL_DEFINITE, bi.IL_HIGHLY_LIKELY)
+        for imp in impacts for s in imp["affected_sections"]
+    )
+
+
+class TestClaimTextTokensPrecision:
+    """Direct unit tests for _claim_text_tokens' precision profile: it must
+    extract distinctive identifier-like fragments (CamelCase/capitalized
+    mentions), never generic lowercase English prose words -- otherwise
+    _keyword_in_section would over-match almost any section's prose, turning
+    a HIGHLY_LIKELY signal into an almost-always-true one."""
+
+    def test_generic_prose_words_are_not_extracted(self):
+        tokens = bi._claim_text_tokens(
+            "this method will return the result when called with a valid path"
+        )
+        assert tokens == []
+
+    def test_camelcase_identifier_is_extracted(self):
+        tokens = bi._claim_text_tokens("PdfConverter now supports Markdown export.")
+        # "Pdf" itself is only 3 chars -- correctly excluded by the same >=4
+        # length floor the symbol tokenizer already applies; "Converter" (9
+        # chars) survives the CamelCase split.
+        assert "converter" in tokens
+        assert "markdown" in tokens
+
+    def test_short_words_excluded_even_if_capitalized(self):
+        tokens = bi._claim_text_tokens("Db is a short class name.")
+        assert "db" not in tokens  # below the 4-char floor, same as symbol tokenizer
+
+    def test_keyword_in_section_does_not_match_unrelated_generic_sentence(self):
+        """A claim about one topic must not spuriously match a section whose
+        only overlap is common English words."""
+        change = _make_claim_change(
+            "CLM-pdf-x", new_text="the library will now return a better result for this case"
+        )
+        section = {
+            "claims": [{"sentence": "This document explains how to install the library."}]
+        }
+        assert bi._keyword_in_section(change, section) is False
+
+    def test_keyword_in_section_matches_real_identifier_mention(self):
+        change = _make_claim_change("CLM-pdf-x", new_text="PdfConverter supports Markdown export.")
+        section = {"claims": [{"sentence": "Use the PdfConverter class to transform documents."}]}
+        assert bi._keyword_in_section(change, section) is True

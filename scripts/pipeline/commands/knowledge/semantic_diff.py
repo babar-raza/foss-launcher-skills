@@ -9,13 +9,18 @@ CLI:
     PYTHONPATH=scripts/pipeline python -m commands.knowledge.semantic_diff pdf net \
         --output reports/refresh_review/pdf/net/semantic_changes.json
 
-Knowledge-delta schema (C-001: arrays are plain strings, not objects):
+Knowledge-delta schema (C-001: the *_apis/*_claims arrays are plain strings,
+not objects -- Task 17 (§9.12) added two new, additive lookup dicts alongside
+them rather than changing that shape):
     {
       "base_sha": "...", "current_sha": "...",
       "new_apis": ["ClassName"], "removed_apis": ["ClassName"],
       "modified_apis": ["ClassName"], "resurrected_apis": ["ClassName"],
       "new_claims": ["CLM-..."], "removed_claims": ["CLM-..."],
-      "modified_claims": ["CLM-..."]
+      "modified_claims": ["CLM-..."],
+      "claim_text_changes": {"CLM-...": {"old_text": "...|null", "new_text": "...|null"}},
+      "api_signature_changes": {"ClassName": {"added_methods": [...], "removed_methods": [...],
+                                               "added_properties": [...], "removed_properties": [...]}}
     }
 """
 
@@ -146,7 +151,7 @@ def _classify_api_change(class_name: str, delta: dict) -> dict:
 
     confidence = 0.95 if visibility == USER_VISIBLE else 0.60
 
-    return {
+    result = {
         "change_type": change_type,
         "symbol": class_name,
         "symbol_kind": "class",
@@ -154,6 +159,14 @@ def _classify_api_change(class_name: str, delta: dict) -> dict:
         "content_impact": content_impact,
         "confidence": confidence,
     }
+    # Task 17 (§9.12): expose the structured signature diff for review/matrix
+    # consumers (refresh_knowledge.py's _write_knowledge_delta, Task 17) --
+    # only present for a real method/property name-set change, not every
+    # modified_apis entry (e.g. an ERC-doc-coverage-only change has none).
+    sig_change = (delta.get("api_signature_changes", {}) or {}).get(class_name)
+    if sig_change:
+        result["signature_summary"] = sig_change
+    return result
 
 
 _CLM_FEATURE_PATTERN = re.compile(r"CLM-[a-z]+-[a-f0-9]+")
@@ -163,12 +176,29 @@ _FEATURE_KEYWORDS = ("support", "can ", "allow", "enabl", "convert", "export", "
 
 
 def _classify_claim_change(claim_id: str, delta: dict) -> dict:
-    """Produce a typed change object for a claim change."""
+    """Produce a typed change object for a claim change.
+
+    Task 17 (§9.12, closes the other half of G10): sub-classification now
+    matches keywords against the claim's real TEXT (delta["claim_text_changes"],
+    written by refresh_knowledge.py's _write_knowledge_delta, Task 17) instead
+    of the opaque claim_id string -- a hash like "CLM-pdf-a1b2c3" can never
+    contain a word like "deprecated" or "not supported", so this branch was
+    previously dead code in practice, always falling through to the generic
+    CLAIM_MODIFIED bucket. Also wires up _FEATURE_KEYWORDS (defined since this
+    module's introduction but never referenced anywhere before this fix) as a
+    third sub-classification, producing FEATURE_CHANGED for the first time.
+    Falls back to the old ID-based (non-)match, never crashing, for a
+    knowledge_delta.json written before this field existed (older, pre-Task-17
+    knowledge models) -- classification is simply less precise there, exactly
+    the pre-existing behavior.
+    """
     removed = delta.get("removed_claims", [])
     added = delta.get("new_claims", [])
     modified = delta.get("modified_claims", [])
+    text_changes = delta.get("claim_text_changes", {}) or {}
 
-    claim_id_lower = claim_id.lower()
+    entry = text_changes.get(claim_id, {})
+    reference_text = (entry.get("new_text") or entry.get("old_text") or claim_id).lower()
 
     if claim_id in removed:
         change_type = FEATURE_REMOVED
@@ -177,11 +207,15 @@ def _classify_claim_change(claim_id: str, delta: dict) -> dict:
         change_type = FEATURE_ADDED
         content_impact = BODY_UPDATE
     elif claim_id in modified:
-        # Heuristic sub-classification from claim_id context
-        if any(k in claim_id_lower for k in _BEHAVIOR_KEYWORDS):
+        # Sub-classification from the claim's real text (falls back to the
+        # claim_id string itself when no knowledge_delta.json text entry
+        # exists -- matches this branch's pre-Task-17 behavior exactly).
+        if any(k in reference_text for k in _BEHAVIOR_KEYWORDS):
             change_type = BEHAVIOR_CHANGED
-        elif any(k in claim_id_lower for k in _LIMITATION_KEYWORDS):
+        elif any(k in reference_text for k in _LIMITATION_KEYWORDS):
             change_type = LIMITATION_CHANGED
+        elif any(k in reference_text for k in _FEATURE_KEYWORDS):
+            change_type = FEATURE_CHANGED
         else:
             change_type = CLAIM_MODIFIED
         content_impact = BODY_UPDATE
@@ -189,7 +223,7 @@ def _classify_claim_change(claim_id: str, delta: dict) -> dict:
         change_type = CLAIM_MODIFIED
         content_impact = REVIEW_ONLY
 
-    return {
+    result = {
         "change_type": change_type,
         "symbol": claim_id,
         "symbol_kind": "claim",
@@ -197,6 +231,10 @@ def _classify_claim_change(claim_id: str, delta: dict) -> dict:
         "content_impact": content_impact,
         "confidence": 0.80,
     }
+    if entry:
+        result["old_text"] = entry.get("old_text")
+        result["new_text"] = entry.get("new_text")
+    return result
 
 
 def _build_changes(family: str, platform: str, delta: dict) -> list[dict]:

@@ -133,15 +133,59 @@ def _symbol_in_section(symbol: str, section: dict) -> bool:
     return False
 
 
+_IDENTIFIER_WORD_RE = re.compile(r"\b[A-Za-z][A-Za-z0-9]*\b")
+
+
+def _claim_text_tokens(text: str) -> list[str]:
+    """Extract identifier-like tokens from real claim TEXT for keyword
+    matching (Task 17, §9.12, closes the other half of G10).
+
+    Mirrors the API-symbol tokenizer's own precision profile below --
+    distinctive identifier fragments (CamelCase/PascalCase mentions embedded
+    in prose, e.g. "PdfDocument" in "PdfDocument.compress() reduces size"),
+    not a naive split on every word. A claim's full sentence is prose, not an
+    identifier -- extracting every word >=4 chars would match generic English
+    filler words ("with", "from", "this") against nearly any section's
+    prose, turning this HIGHLY_LIKELY signal into an almost-always-true one.
+    Restricting to capitalized/CamelCase tokens keeps the same precision
+    profile the symbol tokenizer already has, while still being a real
+    improvement over the pre-Task-17 behavior of tokenizing the opaque
+    claim_id itself (which could never match real page text at all).
+    """
+    tokens: list[str] = []
+    for word in _IDENTIFIER_WORD_RE.findall(text):
+        if len(word) < 4:
+            continue
+        if word[0].isupper() or any(c.isupper() for c in word[1:]):
+            camel_parts = re.sub(r"([A-Z])", r" \1", word).split()
+            tokens.extend(p.lower() for p in camel_parts if len(p) >= 4)
+    return tokens
+
+
 def _keyword_in_section(change: dict, section: dict) -> bool:
     """Return True if change-related keyword appears in section claims."""
-    symbol = change.get("symbol", "")
-    # Split on dots, underscores AND CamelCase word boundaries
-    # e.g. DocumentConverter → ["Document", "Converter"]
-    camel_parts = re.sub(r"([A-Z])", r" \1", symbol).split()
-    dot_parts = re.split(r"[._]", symbol)
-    all_parts = camel_parts + dot_parts
-    tokens = [t.lower() for t in all_parts if len(t) >= 4]
+    if change.get("symbol_kind") == "claim":
+        # Task 17 (§9.12): tokenize the claim's real TEXT (now available via
+        # semantic_diff.py's own Task 17 fix -- old_text/new_text), not the
+        # opaque claim_id -- "CLM-pdf-a1b2c3" can never genuinely match real
+        # page prose. Falls back to the symbol (pre-Task-17 behavior,
+        # unchanged) only when no text is available (older knowledge_delta.json
+        # written before this field existed).
+        reference_text = change.get("new_text") or change.get("old_text")
+        tokens = _claim_text_tokens(reference_text) if reference_text else None
+        if not tokens:
+            symbol = change.get("symbol", "")
+            camel_parts = re.sub(r"([A-Z])", r" \1", symbol).split()
+            dot_parts = re.split(r"[._]", symbol)
+            tokens = [t.lower() for t in camel_parts + dot_parts if len(t) >= 4]
+    else:
+        symbol = change.get("symbol", "")
+        # Split on dots, underscores AND CamelCase word boundaries
+        # e.g. DocumentConverter → ["Document", "Converter"]
+        camel_parts = re.sub(r"([A-Z])", r" \1", symbol).split()
+        dot_parts = re.split(r"[._]", symbol)
+        all_parts = camel_parts + dot_parts
+        tokens = [t.lower() for t in all_parts if len(t) >= 4]
 
     for claim in section.get("claims", []):
         sentence = claim.get("sentence", "").lower()
