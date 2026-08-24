@@ -471,3 +471,40 @@ class TestClaimTextTokensPrecision:
         change = _make_claim_change("CLM-pdf-x", new_text="PdfConverter supports Markdown export.")
         section = {"claims": [{"sentence": "Use the PdfConverter class to transform documents."}]}
         assert bi._keyword_in_section(change, section) is True
+
+
+# ── Task 19 (§9.14, closes G12): format changes reach general body-prose
+# review, not only format_table_handler.py's narrow table path ──────────────
+
+
+def test_format_change_produces_impact_via_general_review_pipeline(tmp_path):
+    """End-to-end: a semantic_changes.json entry with symbol_kind="format"
+    (as semantic_diff.py's Task 19 fix now produces) is picked up by
+    body_impact.py's existing DEFINITE/HIGHLY_LIKELY matching -- exactly
+    like an API or claim change already was, closing G12's "format changes
+    reach only one narrow consumer" gap."""
+    changes = [{
+        "change_id": "CHG-pdf-net-0001", "change_type": "FORMAT_ADDED",
+        "symbol": "DOCX", "symbol_kind": "format",
+        "public_impact": "USER_VISIBLE", "content_impact": "BODY_UPDATE",
+        "confidence": 0.90, "family": "pdf", "platform": "net",
+        "base_sha": "abc", "current_sha": "def", "evidence_paths": [],
+        "format_ext": "docx",
+    }]
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [{
+            "section_id": "supported-formats", "heading": "## Supported Formats",
+            "start_line": 0, "end_line": 10,
+            "claims": [{
+                "sentence": "This library exports files in DOCX and other formats.",
+                "line_number": 5, "detected_symbols": ["DOCX"], "detected_formats": ["DOCX"],
+                "detected_features": [], "detected_versions": [], "claim_type": "FORMAT_CLAIM",
+            }],
+        }],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+    impacts = bi.run("pdf", "net")
+    assert len(impacts) == 1
+    sections = impacts[0]["affected_sections"]
+    assert any(s["impact_level"] == bi.IL_DEFINITE for s in sections)

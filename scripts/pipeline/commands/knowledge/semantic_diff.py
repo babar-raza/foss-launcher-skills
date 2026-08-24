@@ -2,6 +2,9 @@
 semantic_diff.py — S-104: Convert knowledge_delta.json into typed semantic change objects.
 
 Input:  knowledge/{family}/{platform}/merged/knowledge_delta.json
+        knowledge/{family}/{platform}/merged/format_delta.json (optional --
+        Task 19, §9.14: format-support changes, produced by
+        refresh_knowledge.py's _write_format_delta, TC-02)
 Output: reports/refresh_review/{family}/{platform}/semantic_changes.json
 
 CLI:
@@ -57,6 +60,11 @@ BEHAVIOR_CHANGED = "BEHAVIOR_CHANGED"
 LIMITATION_CHANGED = "LIMITATION_CHANGED"
 CLAIM_MODIFIED = "CLAIM_MODIFIED"
 
+# Format-support change types (Task 19, §9.14, closes G12)
+FORMAT_ADDED = "FORMAT_ADDED"
+FORMAT_REMOVED = "FORMAT_REMOVED"
+FORMAT_DIRECTION_CHANGED = "FORMAT_DIRECTION_CHANGED"
+
 # Public impact
 USER_VISIBLE = "USER_VISIBLE"
 INTERNAL_ONLY = "INTERNAL_ONLY"
@@ -97,6 +105,25 @@ def _read_delta(family: str, platform: str) -> dict:
         )
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def _read_format_delta(family: str, platform: str) -> dict:
+    """Read format_delta.json for the given product (Task 19, §9.14, closes
+    G12). Unlike _read_delta, absence is tolerated -- not every product has
+    ever had a format-support change, and older knowledge models may predate
+    this file (TC-02) entirely; returns {} rather than raising, so a run with
+    no format changes (the common case) behaves identically to before this
+    integration existed.
+    """
+    path = Path(_cfg_knowledge_root) / family / platform / "merged" / "format_delta.json"
+    if not path.exists():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, OSError):
+        return {}
 
 
 _INTERNAL_PATTERNS = re.compile(
@@ -237,6 +264,43 @@ def _classify_claim_change(claim_id: str, delta: dict) -> dict:
     return result
 
 
+def _classify_format_change(entry: dict, change_type: str) -> dict:
+    """Produce a typed change object for a format-support change (Task 19,
+    §9.14, closes G12).
+
+    format_delta.json (refresh_knowledge.py's _write_format_delta, TC-02) was
+    previously read by exactly one narrow consumer -- format_table_handler.py,
+    which only ever updates a page's format-support TABLE. Format changes
+    never reached this general classification pass at all (zero references,
+    confirmed by grep before this fix), so they were invisible to
+    body_impact.py's general body-prose review and to any Page-Impact Matrix
+    row -- a real format addition/removal/direction-change could sit
+    undetected in body prose outside the table (e.g. "does not support DOCX
+    export" prose in a developer guide) indefinitely.
+
+    Format support is inherently user-visible (it's a documented capability,
+    never an internal implementation detail), so public_impact is always
+    USER_VISIBLE, unlike API/claim changes which need heuristic
+    classification for that field.
+    """
+    name = entry.get("name", "")
+    confidence = 0.90 if change_type in (FORMAT_ADDED, FORMAT_REMOVED) else 0.85
+    result = {
+        "change_type": change_type,
+        "symbol": name,
+        "symbol_kind": "format",
+        "public_impact": USER_VISIBLE,
+        "content_impact": BODY_UPDATE,
+        "confidence": confidence,
+    }
+    if entry.get("ext"):
+        result["format_ext"] = entry["ext"]
+    if change_type == FORMAT_DIRECTION_CHANGED:
+        result["old_support"] = entry.get("old_support")
+        result["new_support"] = entry.get("new_support")
+    return result
+
+
 def _build_changes(family: str, platform: str, delta: dict) -> list[dict]:
     """Convert raw delta arrays into typed change objects."""
     changes = []
@@ -276,6 +340,18 @@ def _build_changes(family: str, platform: str, delta: dict) -> list[dict]:
         changes.append(_make_change(_classify_claim_change(clm, delta)))
     for clm in delta.get("modified_claims", []):
         changes.append(_make_change(_classify_claim_change(clm, delta)))
+
+    # Format-support changes (Task 19, §9.14, closes G12) -- read from the
+    # separate format_delta.json, not knowledge_delta.json; absence is
+    # normal and tolerated (_read_format_delta returns {} rather than
+    # raising), so a product with no format changes is entirely unaffected.
+    format_delta = _read_format_delta(family, platform)
+    for entry in format_delta.get("formats_removed", []):
+        changes.append(_make_change(_classify_format_change(entry, FORMAT_REMOVED)))
+    for entry in format_delta.get("formats_added", []):
+        changes.append(_make_change(_classify_format_change(entry, FORMAT_ADDED)))
+    for entry in format_delta.get("formats_direction_changed", []):
+        changes.append(_make_change(_classify_format_change(entry, FORMAT_DIRECTION_CHANGED)))
 
     return changes
 

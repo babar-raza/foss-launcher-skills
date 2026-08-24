@@ -60,6 +60,21 @@ def _make_delta(
     return delta
 
 
+def _write_format_delta(
+    tmp_path: Path, family: str, platform: str,
+    formats_added=None, formats_removed=None, formats_direction_changed=None,
+) -> None:
+    """Write format_delta.json alongside a knowledge_delta.json already
+    written by _make_delta (Task 19, §9.14)."""
+    merged = tmp_path / "knowledge" / family / platform / "merged"
+    (merged / "format_delta.json").write_text(json.dumps({
+        "base_sha": "abc123", "current_sha": "def456",
+        "formats_added": formats_added or [],
+        "formats_removed": formats_removed or [],
+        "formats_direction_changed": formats_direction_changed or [],
+    }), encoding="utf-8")
+
+
 # ── Tests ─────────────────────────────────────────────────────────────────
 
 
@@ -304,3 +319,79 @@ def test_modified_api_without_signature_change_has_no_summary_key(tmp_path):
     _make_delta(tmp_path, "pdf", "net", modified_apis=["DocCoverageOnlyClass"])
     changes = sd.run("pdf", "net")
     assert "signature_summary" not in changes[0]
+
+
+# ── Task 19 (§9.14, closes G12): format_delta.json integration ──────────────
+
+
+def test_format_added_produces_change(tmp_path):
+    _make_delta(tmp_path, "pdf", "net")
+    _write_format_delta(tmp_path, "pdf", "net", formats_added=[
+        {"name": "XPS", "ext": "xps", "support": "both", "description": "XML Paper Specification"},
+    ])
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 1
+    c = changes[0]
+    assert c["change_type"] == sd.FORMAT_ADDED
+    assert c["symbol"] == "XPS"
+    assert c["symbol_kind"] == "format"
+    assert c["public_impact"] == sd.USER_VISIBLE
+    assert c["content_impact"] == sd.BODY_UPDATE
+    assert c["format_ext"] == "xps"
+
+
+def test_format_removed_produces_change(tmp_path):
+    _make_delta(tmp_path, "pdf", "net")
+    _write_format_delta(tmp_path, "pdf", "net", formats_removed=[
+        {"name": "PCL", "ext": "pcl", "support": "export"},
+    ])
+    changes = sd.run("pdf", "net")
+    assert changes[0]["change_type"] == sd.FORMAT_REMOVED
+    assert changes[0]["symbol"] == "PCL"
+
+
+def test_format_direction_changed_includes_old_and_new_support(tmp_path):
+    _make_delta(tmp_path, "pdf", "net")
+    _write_format_delta(tmp_path, "pdf", "net", formats_direction_changed=[
+        {"name": "DOCX", "old_support": "export", "new_support": "both"},
+    ])
+    changes = sd.run("pdf", "net")
+    c = changes[0]
+    assert c["change_type"] == sd.FORMAT_DIRECTION_CHANGED
+    assert c["old_support"] == "export"
+    assert c["new_support"] == "both"
+
+
+def test_all_three_format_change_kinds_together(tmp_path):
+    _make_delta(tmp_path, "pdf", "net")
+    _write_format_delta(
+        tmp_path, "pdf", "net",
+        formats_added=[{"name": "XPS", "ext": "xps", "support": "both"}],
+        formats_removed=[{"name": "PCL", "ext": "pcl", "support": "export"}],
+        formats_direction_changed=[{"name": "DOCX", "old_support": "export", "new_support": "both"}],
+    )
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 3
+    types = {c["change_type"] for c in changes}
+    assert types == {sd.FORMAT_ADDED, sd.FORMAT_REMOVED, sd.FORMAT_DIRECTION_CHANGED}
+
+
+def test_no_format_delta_file_is_not_an_error(tmp_path):
+    """The common case (a product with no format changes, or an older
+    knowledge model predating format_delta.json entirely) must not raise --
+    only knowledge_delta.json is a hard requirement."""
+    _make_delta(tmp_path, "pdf", "net", new_apis=["SomeClass"])
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 1
+    assert changes[0]["change_type"] == sd.API_ADDED
+
+
+def test_format_changes_mixed_with_api_and_claim_changes(tmp_path):
+    _make_delta(tmp_path, "pdf", "net", new_apis=["NewClass"], removed_claims=["CLM-x"])
+    _write_format_delta(tmp_path, "pdf", "net", formats_added=[
+        {"name": "XPS", "ext": "xps", "support": "both"},
+    ])
+    changes = sd.run("pdf", "net")
+    assert len(changes) == 3
+    kinds = {c["symbol_kind"] for c in changes}
+    assert kinds == {"class", "claim", "format"}
