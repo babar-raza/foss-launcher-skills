@@ -91,6 +91,44 @@ class TestExtractIdentifiers:
         assert "knowledge-bootstrap" in ids
         assert not any(x.startswith("S-") for x in ids)
 
+    # --- Regression: data-file dependency cells must not fabricate slugs ---
+    # Found live 2026-08-25 (TC12 backlink-governance-redesign proof
+    # exercise): the old unscoped r"/([\w-]+)" matched ANY slash anywhere in
+    # the cell, so a data-file path documented as a non-skill dependency
+    # (explicitly "not a hard requirement" in the DAR table's own prose)
+    # produced fabricated "skill" identifiers from its path segments --
+    # making the DAR gate permanently unsatisfiable for every downstream
+    # skill carrying such a row, since no real skill run is ever tagged with
+    # those fabricated names.
+
+    def test_data_file_cell_extracts_nothing(self):
+        ids = cdp._extract_identifiers("`data/package_registry.json`")
+        assert ids == []
+
+    def test_multi_segment_data_file_cell_extracts_nothing(self):
+        # Real S-84 DAR row text -- previously produced ["handoff", "fact-pack"]
+        ids = cdp._extract_identifiers(
+            "`reports/handoff/{mission_id}/fact-pack.json`"
+        )
+        assert ids == []
+
+    def test_data_file_cell_alongside_real_prose_extracts_nothing(self):
+        # A data-file cell followed by unrelated prose containing more
+        # slashes (e.g. a second path or a fraction) must not leak either.
+        cell = (
+            "`data/diagram_capability_dependencies.json` read by "
+            "plan_run()/ingest_candidate() (see docs/reference/foo.md)"
+        )
+        ids = cdp._extract_identifiers(cell)
+        assert ids == []
+
+    def test_genuine_slash_command_still_extracted_alongside_prose(self):
+        # Sanity check: a real command reference embedded in longer prose
+        # (backtick immediately followed by slash) is unaffected by the fix.
+        cell = "See `/knowledge-bootstrap` for details, run before anything else"
+        ids = cdp._extract_identifiers(cell)
+        assert "knowledge-bootstrap" in ids
+
 
 # ---------------------------------------------------------------------------
 # _get_prerequisites
@@ -122,6 +160,25 @@ class TestGetPrerequisites:
     def test_skill_with_no_dar_entry_returns_empty(self):
         groups = cdp._get_prerequisites(self.rows, "commit")
         assert groups == []
+
+    def test_data_file_dependency_row_produces_no_phantom_group(self):
+        # Regression for the S-84 live bug: a downstream skill with ONE
+        # genuine `/knowledge-bootstrap` upstream row and ONE data-file
+        # dependency row must end up with exactly one prerequisite group
+        # (from the real skill row) -- the data-file row must not add a
+        # second, unsatisfiable group.
+        agents_md = """\
+## §6a Downstream Activation Rules (DAR)
+
+| Downstream skill | Required upstream | Trigger condition |
+|-----------------|------------------|------------------|
+| `/refresh-product` (S-84) | `/knowledge-bootstrap` | Always |
+| `/refresh-product` (S-84) | `reports/handoff/{mission_id}/fact-pack.json` | Data-file dependency, not a skill-form one; not a hard requirement |
+"""
+        rows = cdp._parse_dar_table(agents_md)
+        groups = cdp._get_prerequisites(rows, "refresh-product")
+        assert len(groups) == 1
+        assert groups[0] == ["knowledge-bootstrap"]
 
 
 # ---------------------------------------------------------------------------
@@ -252,6 +309,39 @@ class TestCheck:
         self._configure(tmp_path, agents_content="# AGENTS.md\n\nNo DAR table here.\n")
         result = cdp.check("page-draft")
         assert result == 0
+
+    # --- Regression: real S-84 live bug reproduction ---
+    # Found live 2026-08-25 (TC12 backlink-governance-redesign proof
+    # exercise): `skill_context.py begin --skill S-84` unconditionally failed
+    # with "MISSING (any one satisfies): fact-pack | handoff" for a fresh
+    # session that HAD already satisfied the real `/knowledge-bootstrap`
+    # prerequisite -- no skill named "fact-pack" or "handoff" exists to
+    # invoke, so this made S-84's DAR gate permanently unsatisfiable.
+
+    _REFRESH_PRODUCT_DAR_MD = """\
+## §6a Downstream Activation Rules (DAR)
+
+| Downstream skill | Required upstream | Trigger condition |
+|-----------------|------------------|------------------|
+| `/refresh-product` (S-84) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
+| `/refresh-product` (S-84) | `reports/handoff/{mission_id}/fact-pack.json` | A data-file dependency, not a skill-form one; not a hard requirement |
+"""
+
+    def test_refresh_product_exits_0_after_knowledge_bootstrap_only(self, tmp_path):
+        # The real-world reproduction: only knowledge-bootstrap has run this
+        # session (no fact-pack, no handoff -- neither is a real skill).
+        # Before the fix this incorrectly exited 1.
+        runs_dir = self._configure(tmp_path, agents_content=self._REFRESH_PRODUCT_DAR_MD)
+        _make_run_record(runs_dir, ["knowledge-bootstrap"], run_id="run-kb")
+        result = cdp.check("S-84")
+        assert result == 0
+
+    def test_refresh_product_exits_1_when_knowledge_bootstrap_missing(self, tmp_path):
+        # Sanity check: the real prerequisite is still enforced -- the fix
+        # only removes the fabricated one, not real DAR enforcement.
+        self._configure(tmp_path, agents_content=self._REFRESH_PRODUCT_DAR_MD)
+        result = cdp.check("S-84")
+        assert result == 1
 
 
 # ---------------------------------------------------------------------------
