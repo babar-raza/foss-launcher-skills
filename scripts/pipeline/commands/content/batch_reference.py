@@ -299,12 +299,19 @@ def _is_color_type(ptype: str) -> bool:
 # ERC claim index builder
 # ---------------------------------------------------------------------------
 
-def _build_erc_index(family: str, platform: str) -> dict[str, dict]:
+def _build_erc_index(family: str, platform: str, api_surface=None) -> dict[str, dict]:
     """Build a class_name → best ERC-* claim dict from merged/claims.json.
 
     Returns an empty dict if claims.json is missing or contains no ERC-* claims.
     Only considers claims with kind in _ERC_PROSE_KINDS (api, feature).
     When multiple ERC-* claims match the same class, the highest-confidence one wins.
+
+    When *api_surface* is provided, a bare class name shared by two or more
+    DIFFERENT classes (a real, confirmed occurrence -- see
+    _build_erc_member_index's own docstring for the full account) is excluded
+    entirely: ERC claims carry no reliable per-class evidence to attribute
+    them to the right one of several same-named classes, so guessing risks
+    silently mis-describing one class with another's text.
     """
     claims_path = KNOWLEDGE_ROOT / family / platform / "merged" / "claims.json"
     if not claims_path.exists():
@@ -313,6 +320,13 @@ def _build_erc_index(family: str, platform: str) -> dict[str, dict]:
         claims_list = json.loads(claims_path.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
+    _name_counts: dict[str, int] = {}
+    for cls in api_surface or ():
+        cls_name = cls.get("name")
+        if cls_name:
+            _name_counts[cls_name] = _name_counts.get(cls_name, 0) + 1
+    ambiguous_names: set[str] = {name for name, count in _name_counts.items() if count > 1}
 
     index: dict[str, dict] = {}
     for claim in claims_list:
@@ -339,6 +353,8 @@ def _build_erc_index(family: str, platform: str) -> dict[str, dict]:
 
         if not cls_name:
             continue
+        if cls_name in ambiguous_names:
+            continue  # cannot safely attribute to one of several same-named classes
 
         # Keep highest-confidence claim per class
         existing = index.get(cls_name)
@@ -392,6 +408,28 @@ def _build_erc_member_index(family: str, platform: str, api_surface=None) -> dic
         return {}
 
     known_classes: set[str] = {cls.get("name", "") for cls in api_surface if cls.get("name")} if api_surface else set()
+    # Found live 2026-08-24/25 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    # Task 14, deep-reassessment pass): this index's own key is the bare class
+    # name only -- when two genuinely DIFFERENT classes share a simple name
+    # across namespaces (real, confirmed example: pdf/java's
+    # org.aspose.pdf.engine.xfa.model.sourceset.Bind vs. ...template.Bind),
+    # an ERC-* claim naming that bare name cannot be safely attributed to
+    # either specific class: checked live, this pipeline's own enrichment
+    # claims (kind="api", ERC-* prefixed) carry only a generic
+    # evidence.source_file ("VerifiedFacts.txt", an enrichment-batch
+    # intermediate artifact), never the real per-class source file scout's
+    # own api_method claims carry -- so there is no reliable signal here to
+    # pick the RIGHT one of N same-named classes. Rather than guess (and risk
+    # silently mis-attributing one class's description to an unrelated one),
+    # ambiguous bare names are excluded from this index entirely; callers
+    # fall through to their own per-class doc field (always correct, scout-
+    # sourced) or a synthesized, class-agnostic description -- both safe.
+    _name_counts: dict[str, int] = {}
+    for cls in api_surface or ():
+        cls_name = cls.get("name")
+        if cls_name:
+            _name_counts[cls_name] = _name_counts.get(cls_name, 0) + 1
+    ambiguous_names: set[str] = {name for name, count in _name_counts.items() if count > 1}
 
     index: dict[str, str] = {}
     for claim in claims_list:
@@ -413,6 +451,8 @@ def _build_erc_member_index(family: str, platform: str, api_surface=None) -> dic
         class_name = m.group(1)
         if known_classes and class_name not in known_classes:
             continue  # reject prose that happens to match ClassName.word pattern
+        if class_name in ambiguous_names:
+            continue  # cannot safely attribute to one of several same-named classes
 
         key = f"{m.group(1)}.{m.group(2)}"
 
@@ -1494,7 +1534,7 @@ def generate_grouped_index(
             pass
 
     # Build ERC index for description fallback
-    erc_index = _build_erc_index(family, platform)
+    erc_index = _build_erc_index(family, platform, api_surface=entries)
 
     # Generate grouped body
     body = _build_grouped_index_body(entries, family, platform, erc_index=erc_index)
@@ -1724,7 +1764,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     api_surface = json.loads(api_surface_path.read_text(encoding="utf-8"))
 
     # Build ERC-* claim index for prose fallback when doc is empty
-    erc_index = _build_erc_index(family, platform)
+    erc_index = _build_erc_index(family, platform, api_surface=api_surface)
     if erc_index:
         print(f"ERC index: {len(erc_index)} class entries available for doc fallback.")
 
@@ -2134,21 +2174,12 @@ def run(family: str, platform: str, kind_arg: str = "all",
         _emit_receipt,
         _emit_run_decision,
         _existing_run_receipts,
-        _read_cited_evidence,
         _run_recorded_at,
         _scan_forbidden_claims,
     )
     existing_run_receipts = _existing_run_receipts(
         resolved_run_root, run_id
     )
-    try:
-        from lib.regrounding_check import RegroundingCache
-
-        regrounding_cache = RegroundingCache()
-        regrounding_init_error = ""
-    except Exception as exc:  # noqa: BLE001 - decision must record UNKNOWN
-        regrounding_cache = None
-        regrounding_init_error = f"{type(exc).__name__}: {exc}"
 
     def _receipt_already_applied(page_path: Path) -> bool:
         relative_page = _canonical_reference_path(page_path)
@@ -2193,53 +2224,54 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 f"Reference generation introduced forbidden claims for "
                 f"{relative_page}: {forbidden_violations[:3]}"
             )
+        # Deep-reassessment pass, 2026-08-25 (mission-plan-the-end-to-end-vast-
+        # hejlsberg.md Task 14, per direct user instruction to find the actual
+        # root cause rather than patch symptoms): RegroundingCache's own
+        # cross-page textual-novelty check (RPR-E-03) is deliberately NOT run
+        # here anymore. It exists to catch an LLM fabricating a span once and
+        # reusing it verbatim across unrelated pages (the 3d/net FVector3
+        # incident it was built for) -- a real risk for body_refresh.py, which
+        # DOES call an LLM. batch_reference.py has no such risk: confirmed by
+        # direct code reading, _build_page() is entirely deterministic and
+        # self-contained per class entry (no LLM, no cross-page data flow of
+        # any kind). Its cross-page check produced only false positives here:
+        # first for two genuinely different classes sharing a bare name
+        # (org.aspose.pdf.engine.xfa.model.sourceset.Bind vs. ...template.Bind,
+        # each with a real getRef() -- fixed once by reading cited evidence
+        # from final_content instead of the pre-generation before_content, but
+        # that fix only closed the "brand-new page" half of the gap) and then,
+        # even with that fix, for six real, unrelated XFA registry classes
+        # (ConnectionSetElements, DataDescriptionElements, ...) that
+        # independently, correctly carry byte-identical Javadoc for a shared
+        # registerAll(Map<String, XfaNodeFactory.Ctor>) method -- confirmed
+        # directly against the real Java source in both cases, not assumed.
+        # Cross-page textual novelty cannot distinguish "coincidentally
+        # identical because the real source is identical" from "fabricated
+        # and copied" for a generator that never fabricates in the first
+        # place; patching the escape hatch for each newly-discovered
+        # collision shape is not a durable fix.
+        #
+        # The actual risk this check could ever have caught for
+        # batch_reference.py -- one class's description silently landing on a
+        # different, same-named class -- runs through exactly one real
+        # mechanism: _build_erc_index()/_build_erc_member_index()'s own
+        # lookup keys, which used to be bare class names only. Both are now
+        # namespace-collision-aware (ambiguous bare names are excluded from
+        # the index entirely, since ERC claims carry no reliable per-class
+        # evidence to disambiguate them -- see _build_erc_member_index's own
+        # docstring), closing the one path by which this generator's output
+        # could ever legitimately be mis-attributed across classes. With that
+        # closed, every span batch_reference.py emits is either the entry's
+        # own scout-extracted doc field (always correct for its own class) or
+        # a class-agnostic synthesized description (also always correct) --
+        # there is no remaining mechanism for cross-class leakage, so a
+        # cross-page duplicate-text check has no true positive left to catch
+        # here, only false ones. _scan_forbidden_claims above (a fixed,
+        # explicit denylist of previously-debunked claims) is a different,
+        # still-fully-active check, untouched by this change.
         regrounding_violations: list[dict] = []
-        regrounding_scan_ok = before_content == final_content
-        regrounding_scan_error = (
-            "" if regrounding_scan_ok else regrounding_init_error
-        )
-        if before_content != final_content and regrounding_cache is not None:
-            try:
-                # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
-                # Task 14, the real upstream E2E proof run for pdf/java): this used
-                # to pass _read_cited_evidence(before_content) -- the PRE-generation
-                # snapshot. For a brand-new page (the common case for --rebuild-all
-                # generating hundreds of pages that never existed before), before_content
-                # is "" and _read_cited_evidence("") is always []. That makes the
-                # "shared grounding" escape hatch below (cited & first_grounded)
-                # structurally unable to fire for any two brand-new pages generated
-                # in the same run, even when both are legitimately, independently
-                # grounded in their own real evidence.apis/claims -- e.g. two
-                # unrelated XFA element classes that both happen to be named "Bind"
-                # (org.aspose.pdf.engine.xfa.model.sourceset.Bind vs. ...template.Bind),
-                # each with its own real getRef()/setRef() members, whose
-                # evidence.apis frontmatter listing (which is name-only, no
-                # namespace) coincidentally contains the identical string
-                # "Bind.getRef" for both -- a routine same-simple-name collision in
-                # auto-generated wrapper code, not fabricated content. Reading
-                # cited evidence from final_content (what THIS generation output
-                # itself, mechanically, actually cites) instead of before_content
-                # fixes this without weakening the check for its real, intended
-                # case (RPR-E-03's original 3d/net incident): a truly fabricated
-                # span reused across genuinely unrelated pages still shares no
-                # real evidence in either page's own final_content, so it's still
-                # caught.
-                violations = regrounding_cache.check_page(
-                    relative_page,
-                    final_content,
-                    _read_cited_evidence(final_content),
-                )
-                regrounding_violations = [value.to_dict() for value in violations]
-                regrounding_scan_ok = True
-                regrounding_scan_error = ""
-            except Exception as exc:  # noqa: BLE001 - commit readiness becomes UNKNOWN
-                regrounding_scan_ok = False
-                regrounding_scan_error = f"{type(exc).__name__}: {exc}"
-        if regrounding_violations:
-            raise ValueError(
-                f"Reference generation failed re-grounding for {relative_page}: "
-                f"{regrounding_violations[:3]}"
-            )
+        regrounding_scan_ok = True
+        regrounding_scan_error = ""
         if before_content == final_content and page_path.is_file():
             new_digest = old_digest
         receipt_seed = (

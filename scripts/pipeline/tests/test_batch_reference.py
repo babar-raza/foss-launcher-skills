@@ -2254,7 +2254,7 @@ def test_per_entry_error_print_survives_unencodable_exception_text(
 
 
 def test_regrounding_check_uses_final_content_not_before_content(tmp_path):
-    """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    """Found live 2026-08-24/25 (mission-plan-the-end-to-end-vast-hejlsberg.md
     Task 14, the real upstream E2E proof run for pdf/java): two genuinely
     DIFFERENT classes that happen to share the same simple name across
     different namespaces (real example: org.aspose.pdf.engine.xfa.model.
@@ -2263,15 +2263,25 @@ def test_regrounding_check_uses_final_content_not_before_content(tmp_path):
     wrongly REJECTED by the re-grounding safety gate during --rebuild-all,
     because evidence.apis is name-only (no namespace), so both classes'
     frontmatter legitimately, coincidentally contains the identical bullet
-    "- Bind.getRef" -- and the gate's "shared grounding" escape hatch read
-    cited evidence from `before_content` (empty for a brand-new page, which
-    --rebuild-all generates hundreds of per run) instead of `final_content`
-    (which correctly, independently lists each class's own real evidence),
-    so the escape hatch could never fire for two brand-new same-named
-    classes. Root cause fixed by reading cited evidence from final_content.
-    This is the load-bearing regression test: both classes must generate
-    successfully in ONE run (the same regrounding_cache instance sees both),
-    not just 1 of 2."""
+    "- Bind.getRef". A first fix (reading the gate's "shared grounding"
+    escape hatch from final_content instead of the always-empty-for-new-
+    pages before_content) closed this specific case, but a DEEPER pass
+    (deep-reassessment, Task 14) found the same false-positive class
+    recurring for a genuinely different collision shape (six real, unrelated
+    XFA registry classes independently sharing one real, identical
+    registerAll() method) that no escape-hatch patch could generally close --
+    cross-page textual novelty cannot distinguish "coincidentally identical
+    because the real source is identical" from "fabricated and copied" for a
+    generator (batch_reference.py) that is provably deterministic and never
+    fabricates in the first place. The durable fix removes the cross-page
+    check from batch_reference.py's own call path entirely (unchanged,
+    still fully active for body_refresh.py's real LLM-fabrication risk -- see
+    test_body_refresh.py's own regrounding coverage) and closes the one real
+    mechanism that could ever cause cross-class leakage in this generator
+    (_build_erc_index/_build_erc_member_index's bare-name-only lookup keys,
+    now ambiguous-name-aware). This test now proves the same load-bearing
+    property under the new design: both same-named classes must still
+    generate successfully in one run, not just 1 of 2."""
     entries = [
         {
             "name": "Bind",
@@ -2306,6 +2316,161 @@ def test_regrounding_check_uses_final_content_not_before_content(tmp_path):
     assert result["generated"] == 2, f"Expected both same-named classes to generate, got {result}"
     assert (content_dir / "Bind-SourceSet.md").exists()
     assert (content_dir / "Bind-Template.md").exists()
+
+
+def test_shared_method_across_differently_named_classes_generates_cleanly(tmp_path):
+    """Found live 2026-08-25 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, deep-reassessment pass): even after fixing the same-bare-name
+    collision above, the re-grounding gate still wrongly rejected pages for
+    six real, unrelated pdf/java XFA registry classes (ConnectionSetElements,
+    DataDescriptionElements, DatasetsElements, LocaleSetElements,
+    SourceSetElements, XfaTemplateElements) that -- unlike "Bind" -- do NOT
+    share a class name at all; they independently, correctly implement an
+    identical registerAll(Map<String, XfaNodeFactory.Ctor>) method with
+    byte-identical Javadoc, confirmed directly against the real Java source.
+    No escape-hatch based on shared cited-evidence IDs can ever exempt this
+    (each class's own citation is a different, correct string, e.g.
+    "ConnectionSetElements.registerAll" vs. "DataDescriptionElements.
+    registerAll") -- proving the cross-page check itself was the wrong tool
+    for this deterministic generator, not just under-escaped. This test
+    reproduces the shape with two differently-named classes sharing one
+    identical method+doc and confirms both generate successfully now that
+    batch_reference.py no longer runs the cross-page check at all."""
+    entries = [
+        {
+            "name": "AlphaRegistry",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf.Engine.Xfa.Model.Alpha",
+            "description": "Registry of typed element constructors for the alpha grammar.",
+            "methods": [
+                {
+                    "name": "registerAll",
+                    "params": [{"name": "reg", "type": "Map<String, Ctor>"}],
+                    "return_type": "void",
+                    "doc": "Registers all typed element constructors.",
+                },
+            ],
+            "properties": [],
+        },
+        {
+            "name": "BetaRegistry",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf.Engine.Xfa.Model.Beta",
+            "description": "Registry of typed element constructors for the beta grammar.",
+            "methods": [
+                {
+                    "name": "registerAll",
+                    "params": [{"name": "reg", "type": "Map<String, Ctor>"}],
+                    "return_type": "void",
+                    "doc": "Registers all typed element constructors.",
+                },
+            ],
+            "properties": [],
+        },
+    ]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+
+    result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+
+    assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+    assert result["generated"] == 2, f"Expected both classes to generate, got {result}"
+    assert (content_dir / "AlphaRegistry.md").exists()
+    assert (content_dir / "BetaRegistry.md").exists()
+
+
+class TestErcIndexAmbiguousNameExclusion:
+    """Found live 2026-08-25 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, deep-reassessment pass): _build_erc_index and
+    _build_erc_member_index both used to key purely by bare class name --
+    when two DIFFERENT classes share a simple name across namespaces, an
+    ERC-* claim naming that bare name could not be safely attributed to
+    either one (checked live: this pipeline's own enrichment claims carry
+    only a generic "VerifiedFacts.txt" evidence.source_file, never the real
+    per-class source file scout's own claims carry). Rather than guess and
+    risk silently mis-describing one class with another's text, ambiguous
+    bare names are now excluded from both indexes entirely."""
+
+    def test_member_index_excludes_ambiguous_bare_name(self, tmp_path):
+        merged = tmp_path / "knowledge" / "fake" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(json.dumps([
+            {
+                "claim_id": "ERC-fake-net-0001",
+                "text": "`Bind.getRef` returns the reference target for the sourceset schema.",
+                "kind": "api",
+                "confidence": 0.9,
+            },
+        ]), encoding="utf-8")
+        api_surface = [
+            {"name": "Bind", "canonical_namespace": "Fake.Net.SourceSet"},
+            {"name": "Bind", "canonical_namespace": "Fake.Net.Template"},
+        ]
+        _br.configure(repo_root=tmp_path)
+
+        index = _br._build_erc_member_index("fake", "net", api_surface=api_surface)
+
+        assert "Bind.getRef" not in index
+
+    def test_member_index_keeps_unambiguous_bare_name(self, tmp_path):
+        merged = tmp_path / "knowledge" / "fake" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(json.dumps([
+            {
+                "claim_id": "ERC-fake-net-0001",
+                "text": "`Workbook.Save` writes the workbook to disk in the given format.",
+                "kind": "api",
+                "confidence": 0.9,
+            },
+        ]), encoding="utf-8")
+        api_surface = [{"name": "Workbook", "canonical_namespace": "Fake.Net"}]
+        _br.configure(repo_root=tmp_path)
+
+        index = _br._build_erc_member_index("fake", "net", api_surface=api_surface)
+
+        assert "Workbook.Save" in index
+
+    def test_class_index_excludes_ambiguous_bare_name(self, tmp_path):
+        merged = tmp_path / "knowledge" / "fake" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(json.dumps([
+            {
+                "claim_id": "ERC-fake-net-0002",
+                "text": "**Bind** binds a template field to a data node.",
+                "kind": "api",
+                "confidence": 0.9,
+            },
+        ]), encoding="utf-8")
+        api_surface = [
+            {"name": "Bind", "canonical_namespace": "Fake.Net.SourceSet"},
+            {"name": "Bind", "canonical_namespace": "Fake.Net.Template"},
+        ]
+        _br.configure(repo_root=tmp_path)
+
+        index = _br._build_erc_index("fake", "net", api_surface=api_surface)
+
+        assert "Bind" not in index
+
+    def test_class_index_keeps_unambiguous_bare_name(self, tmp_path):
+        merged = tmp_path / "knowledge" / "fake" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(json.dumps([
+            {
+                "claim_id": "ERC-fake-net-0002",
+                "text": "**Workbook** represents an in-memory spreadsheet document.",
+                "kind": "api",
+                "confidence": 0.9,
+            },
+        ]), encoding="utf-8")
+        api_surface = [{"name": "Workbook", "canonical_namespace": "Fake.Net"}]
+        _br.configure(repo_root=tmp_path)
+
+        index = _br._build_erc_index("fake", "net", api_surface=api_surface)
+
+        assert "Workbook" in index
 
 
 def test_pdf_net_id_regression(tmp_path):
