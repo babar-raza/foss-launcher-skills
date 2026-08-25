@@ -1844,6 +1844,183 @@ def test_apply_run_backlink_reconciliation_reports_page_errors(tmp_path: Path):
         refresh_run.apply_run(manifest)
 
 
+# ---------------------------------------------------------------------------
+# TC-CONTENTHASH-01 (found live 2026-08-25, TC12 backlink-governance-redesign
+# real end-to-end proof exercise -- a genuine refresh-product remediation run
+# against a real fixture product, through the real CLI, ending in a real
+# `git commit`): none of apply_run()'s three writers (body_refresh.py,
+# batch_reference.py, backlink_backfill.py) update `provenance.content_hash`
+# themselves. The pre-commit hook's own content_hash normalization step
+# (provenance_normalize_hash.py, universal -- fires on every commit whose
+# stored content_hash no longer matches the body) mutates a committed file's
+# bytes strictly AFTER apply_run() has already pinned every hash
+# bind_commit()'s OCC guard (_assert_scope_ownership) will later accept.
+# This unconditionally rejected the resulting commit -- "Scoped working
+# files changed outside a validated run checkpoint" -- confirmed live on a
+# real refresh-product run (tc12-proof-02) even though the ONLY additional
+# change was the pre-commit hook's own expected, routine fix. TC12's own
+# test suite never caught this because it calls apply_run() directly and
+# never runs a real `git commit` through the real pre-commit hook chain.
+# ---------------------------------------------------------------------------
+
+def test_apply_run_normalizes_content_hash_for_occ_guard(tmp_path: Path):
+    """apply_run() must self-normalize content_hash on every path it
+    touched (scoped or extra-allowed) as its own last step, so a later,
+    routine pre-commit-hook content_hash fix is a true no-op and
+    bind_commit()'s OCC guard already recognizes the final committed
+    bytes."""
+    broken = "content/kb.aspose.org/en/pdf/net/faq.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [broken], "RUN-CONTENTHASH")
+
+    stale_hash = "0" * 32  # deliberately wrong -- never matches any real body
+    corrected_text = (
+        "---\ntitle: Test\nprovenance:\n"
+        f"  content_hash: {stale_hash}\n---\ncorrected body\n"
+    )
+    page = tmp_path / broken
+
+    def runner(args: list[str], **_: object):
+        str_args = [str(a) for a in args]
+        if any("body_refresh.py" in a for a in str_args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CONTENTHASH"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-CONTENTHASH",
+                    "page_path": broken,
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if "backlink_backfill.py" in " ".join(str_args):
+            # Simulate the real tool: rewrites the body for real, but --
+            # like the real backlink_backfill.py -- never touches
+            # content_hash, leaving it stale relative to the new body.
+            page.write_text(corrected_text, encoding="utf-8")
+            out_path = Path(str_args[str_args.index("--output") + 1])
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps({
+                "generated_at": "2026-07-25T00:00:00+00:00",
+                "generator": "test-stub", "dry_run": False,
+                "total_candidates": 1, "total_modified": 1,
+                "total_skipped": 0, "total_errors": 0,
+                "changes": [{
+                    "file": broken, "subdomain": "kb.aspose.org",
+                    "family": "pdf", "platform": "net", "page_type": "kb-article",
+                    "target_url": "https://kb.aspose.com/pdf/net/",
+                    "action": "md_see_also", "before_snippet": "", "after_snippet": "",
+                    "skipped": False, "skip_reason": "", "dry_run": False,
+                    "warning_messages": [],
+                }],
+                "errors": [], "rollback_commands": [],
+            }), encoding="utf-8")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+
+    from lib.provenance import compute_content_hash, read_provenance
+
+    prov = read_provenance(page)
+    actual_hash = compute_content_hash(page)
+    # The bug: without the fix, prov["content_hash"] stays == stale_hash.
+    assert prov["content_hash"] == actual_hash
+    assert prov["content_hash"] != stale_hash
+
+    # The OCC guard must already recognize the final (post-normalization)
+    # bytes, not just the pre-normalization ones apply_run() first recorded.
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CONTENTHASH"
+    extra_hashes = json.loads(
+        (run_root / "extra_allowed_hashes.json").read_text(encoding="utf-8")
+    )
+    final_hash = "sha256:" + hashlib.sha256(page.read_bytes()).hexdigest()
+    assert final_hash in extra_hashes[broken]
+
+
+def test_apply_run_normalizes_crlf_for_occ_guard(tmp_path: Path):
+    """Regression for the CRLF/LF root cause found in the same live proof
+    exercise: this repo's own `.gitattributes` forces `content/** text
+    eol=lf`, so git always commits content pages with LF endings regardless
+    of what's on disk -- but `_path_hash()` hashes raw disk bytes. A writer
+    that leaves CRLF on disk (confirmed live: a real committed
+    content/kb.aspose.org page's working-tree bytes hashed differently from
+    `git cat-file --filters` at that same commit for byte-identical text)
+    makes apply_run()'s own registered hash permanently unable to match
+    what bind_commit() will ever see once git normalizes on commit.
+    apply_run() must normalize CRLF->LF on every touched path itself,
+    matching what git will do anyway, so the two hashes agree."""
+    broken = "content/kb.aspose.org/en/pdf/net/faq.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [broken], "RUN-CRLF")
+
+    # Simulate the real tool writing CRLF line endings (confirmed live:
+    # Windows-authored content commonly does), never normalized by any
+    # writer in this chain.
+    corrected_text = "---\r\ntitle: Test\r\n---\r\ncorrected body\r\nsecond line\r\n"
+    page = tmp_path / broken
+
+    def runner(args: list[str], **_: object):
+        str_args = [str(a) for a in args]
+        if any("body_refresh.py" in a for a in str_args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CRLF"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-CRLF",
+                    "page_path": broken,
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if "backlink_backfill.py" in " ".join(str_args):
+            with open(page, "wb") as f:
+                f.write(corrected_text.encode("utf-8"))
+            out_path = Path(str_args[str_args.index("--output") + 1])
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps({
+                "generated_at": "2026-07-25T00:00:00+00:00",
+                "generator": "test-stub", "dry_run": False,
+                "total_candidates": 1, "total_modified": 1,
+                "total_skipped": 0, "total_errors": 0,
+                "changes": [{
+                    "file": broken, "subdomain": "kb.aspose.org",
+                    "family": "pdf", "platform": "net", "page_type": "kb-article",
+                    "target_url": "https://kb.aspose.com/pdf/net/",
+                    "action": "md_see_also", "before_snippet": "", "after_snippet": "",
+                    "skipped": False, "skip_reason": "", "dry_run": False,
+                    "warning_messages": [],
+                }],
+                "errors": [], "rollback_commands": [],
+            }), encoding="utf-8")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+
+    final_bytes = page.read_bytes()
+    # The bug: without the fix, final_bytes still contains b"\r\n".
+    assert b"\r\n" not in final_bytes
+    assert final_bytes == corrected_text.replace("\r\n", "\n").encode("utf-8")
+
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CRLF"
+    extra_hashes = json.loads(
+        (run_root / "extra_allowed_hashes.json").read_text(encoding="utf-8")
+    )
+    final_hash = "sha256:" + hashlib.sha256(final_bytes).hexdigest()
+    assert final_hash in extra_hashes[broken]
+
+
 def _write_index_provenance(
     tmp_path: Path, family: str, platform: str, *,
     index_generator_version: int | None = None,

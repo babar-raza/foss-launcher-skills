@@ -49,6 +49,7 @@ from commands.ops import page_impact_matrix  # noqa: E402
 from commands.knowledge import stale_detect  # noqa: E402
 from commands.content import batch_reference  # noqa: E402
 from commands.diagnostics import content_coverage_audit  # noqa: E402
+from commands.diagnostics import provenance_normalize_hash  # noqa: E402
 
 SCHEMA_VERSION = 3
 MODES = frozenset({"upstream", "remediation", "combined"})
@@ -2182,6 +2183,78 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
             continue
         change_rel = change["file"]
         _record_extra_allowed_hash(run_root, change_rel, _path_hash(change_rel))
+
+    # TC-CONTENTHASH-01 (found live 2026-08-25, TC12 backlink-governance-
+    # redesign end-to-end proof exercise): content_hash normalization is a
+    # universal pre-commit hook step (provenance_normalize_hash.py's own
+    # docstring: "Designed to be called ... from the pre-commit hook") that
+    # fires on EVERY commit whose stored `provenance.content_hash` no longer
+    # matches the file's actual body -- but none of this function's three
+    # writers (body_refresh.py, batch_reference.py, backlink_backfill.py)
+    # ever update content_hash themselves. That normalization mutates a
+    # committed file's bytes strictly AFTER apply_run() has already pinned
+    # every hash bind_commit()'s OCC guard (_assert_scope_ownership) will
+    # later accept, so the resulting commit was unconditionally rejected --
+    # "Scoped working files changed outside a validated run checkpoint" --
+    # even though the only additional change was the pre-commit hook's own
+    # expected, routine fix. Confirmed live on a real refresh-product
+    # remediation run (tc12-proof-02): a kb.aspose.org page whose backlink
+    # was correctly repaired by this exact step above still failed
+    # bind-commit for this reason. TC12's own test suite never caught this
+    # because it calls apply_run() directly and never runs a real `git
+    # commit` through the real pre-commit hook chain.
+    #
+    # A second, related root cause found in the same live proof exercise
+    # (same class of bug, same fix location): `.gitattributes` forces
+    # `content/** text eol=lf`, so git always commits content pages with LF
+    # line endings, regardless of what's actually on disk -- but nothing in
+    # this function's write path normalizes line endings before hashing.
+    # A writer (or an editor, or a prior pipeline step) that leaves CRLF
+    # bytes on disk makes `_path_hash()` (raw `path.read_bytes()`) diverge
+    # from what `git cat-file --filters` (what bind_commit()'s own final
+    # content check reads) will ever produce for the SAME logical content --
+    # confirmed live: a real committed content/kb.aspose.org page's working-
+    # tree bytes (3768 bytes, CRLF) hashed differently from `git cat-file
+    # --filters` at that same commit (3630 bytes, LF-only) for byte-for-byte
+    # identical text; simple `\r\n` -> `\n` normalization made the two
+    # exactly equal (verified independently, sha256 match). Left unfixed,
+    # bind_commit()'s hash_mismatches check ("Bound commit content does not
+    # match run decisions") fails for any touched page whose on-disk bytes
+    # happen to carry CRLF at commit time -- independent of, and in addition
+    # to, the content_hash issue above.
+    #
+    # Fixed here, once, for every writer at once (rather than teaching each
+    # writer to self-maintain content_hash and line endings): for every path
+    # this run touched -- scope_paths (whether or not actually rewritten; a
+    # no-op result for an unchanged page is harmless) union every path the
+    # index/backlink steps registered as an extra allowed hash -- normalize
+    # content_hash, normalize CRLF to LF (matching this repo's own
+    # `content/** text eol=lf` attribute; every path this state machine ever
+    # writes is under content/, so this is safe unconditionally), then
+    # re-register each path's now-final hash, so both the pre-commit hook's
+    # later content_hash pass AND bind_commit()'s own committed-bytes check
+    # become true no-ops. Best-effort: a normalization failure on one path
+    # must not block the run -- the pre-commit hook remains the
+    # authoritative fallback safety net for content_hash specifically.
+    touched_paths = set(scope_paths) | set(
+        _load_extra_allowed_hashes(run_root).keys()
+    )
+    for touched_rel in sorted(touched_paths):
+        touched_abs = _repo_root / touched_rel
+        if not touched_abs.is_file():
+            continue
+        try:
+            provenance_normalize_hash.normalize_file(touched_abs, apply=True)
+        except Exception:  # noqa: BLE001 -- best-effort, see comment above
+            pass
+        try:
+            raw_bytes = touched_abs.read_bytes()
+            normalized_bytes = raw_bytes.replace(b"\r\n", b"\n")
+            if normalized_bytes != raw_bytes:
+                touched_abs.write_bytes(normalized_bytes)
+        except OSError:  # noqa: BLE001 -- best-effort, see comment above
+            pass
+        _record_extra_allowed_hash(run_root, touched_rel, _path_hash(touched_rel))
 
     manifest["receipt_refs"] = [
         path.relative_to(_repo_root).as_posix() for path in receipts
