@@ -6447,7 +6447,7 @@
   {
     "name": "TeXOptions",
     "kind": "class_definition",
-    "doc": "r\"\"\"Configuration for a TeX processing job.",
+    "doc": "Configuration for a TeX processing job.",
     "file": "src/aspose_tex/presentation/__init__.py",
     "line": 45,
     "bases": [],

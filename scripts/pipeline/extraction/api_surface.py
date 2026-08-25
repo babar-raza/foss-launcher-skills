@@ -631,6 +631,26 @@ def _extract_rustdoc_comment(node) -> str:
     return ""
 
 
+_STRING_PREFIX_RE = re.compile(r'^[a-zA-Z]{1,2}(?=["\'])')
+
+
+def _strip_string_prefix_and_quotes(text: str) -> str:
+    """Strip a Python string-literal prefix (r/R/u/U, b/f combinations) and
+    surrounding quote/whitespace characters from raw docstring source text.
+
+    RC-tex-python-04 (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL): plain
+    .strip("\\"' \\n\\r") cannot remove a leading raw-string prefix (e.g.
+    r\"\"\"...\"\"\") because the prefix character itself is not in the strip
+    set, so it blocks .strip() from ever reaching the quote marks that
+    follow -- the prefix and all quote characters then leak into the
+    extracted doc field verbatim and flow into every downstream consumer.
+    """
+    match = _STRING_PREFIX_RE.match(text)
+    if match:
+        text = text[match.end():]
+    return text.strip("\"' \n\r")
+
+
 def _extract_doc_comment(node, language: str) -> str:
     """Extract the first sentence of a doc comment preceding *node*."""
     style = _DOC_COMMENT_STYLES.get(language, "javadoc")
@@ -649,12 +669,12 @@ def _extract_doc_comment(node, language: str) -> str:
                     if child.children:
                         s = child.children[0]
                         if s.type in ("string", "concatenated_string"):
-                            raw = node_text(s).strip("\"' \n\r")
+                            raw = _strip_string_prefix_and_quotes(node_text(s))
                             return _first_sentence(raw)
                     break  # first named statement isn't a docstring
                 elif child.type in ("string", "concatenated_string"):
                     # Other versions expose the docstring as a bare string node
-                    raw = node_text(child).strip("\"' \n\r")
+                    raw = _strip_string_prefix_and_quotes(node_text(child))
                     return _first_sentence(raw)
                 else:
                     break  # first named child is not a docstring

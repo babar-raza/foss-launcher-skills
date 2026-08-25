@@ -67,7 +67,12 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - Map each removed/modified claim to the paragraph(s) that reference it
    - For removed claims: mark paragraph for rewrite or removal
    - For modified claims: identify specific sentences that need updating
-   - For API changes (renamed/removed methods): find code blocks and prose mentioning old names
+   - For API changes (renamed/removed methods): find code blocks and prose mentioning old names.
+     Before citing any *new* class/method name introduced by this update, check its
+     `exported_via_package_init` / `public_import_module` fields in `api_surface.json` — see
+     `skills/new-docs-page.md`'s "Python import paths" note (RC-tex-python-03,
+     MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL). Do not carry forward or introduce a
+     citation for an internal-only entity without the `# internal API` disclaimer.
    - For added claims: identify if any existing section should incorporate new information
 
    **Blog post strategy** (pages under `content/blog.aspose.org/`):
