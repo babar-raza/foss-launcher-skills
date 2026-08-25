@@ -742,6 +742,180 @@ class TestClaimTextChangesDelta:
         assert delta["claim_text_changes"] == {}
 
 
+class TestReidentifiedClaimsReconciliation:
+    """A claim-ID reassignment (e.g. Task 16's anchor-stable IDs) must not be
+    misreported as a real removal+addition when the claim's TEXT is
+    unchanged -- found live 2026-08-25 as the root cause of a catastrophic
+    content-deletion bug: an unreconciled re-ID storm makes semantic_diff.py
+    classify every "removed" claim as FEATURE_REMOVED, which body_impact.py
+    maps to UT_REMOVAL (delete the section), even though nothing about the
+    claim's real content changed."""
+
+    def test_pure_reid_excluded_from_removed_and_new_claims(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-old-1", "text": "Widget.paint() renders the control."},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new-1", "text": "Widget.paint() renders the control."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["removed_claims"] == []
+        assert delta["new_claims"] == []
+        assert delta["reidentified_claims"] == {"CLM-old-1": "CLM-new-1"}
+        # A reidentified claim is not a text change either -- it never reaches
+        # claim_text_changes, so no downstream consumer can mistake it for one.
+        assert "CLM-old-1" not in delta["claim_text_changes"]
+        assert "CLM-new-1" not in delta["claim_text_changes"]
+
+    def test_genuine_removal_with_no_text_match_still_reported(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-gone", "text": "This capability no longer exists anywhere."},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["removed_claims"] == ["CLM-gone"]
+        assert delta["reidentified_claims"] == {}
+
+    def test_genuine_addition_with_no_prior_text_still_reported(self, tmp_path):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-brand-new", "text": "A genuinely new capability."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["new_claims"] == ["CLM-brand-new"]
+        assert delta["reidentified_claims"] == {}
+
+    def test_duplicate_identical_text_pairs_one_to_one(self, tmp_path):
+        """Two old claims and two new claims share identical text (e.g. two
+        overloads with boilerplate doc text) -- both must reconcile, not just
+        one, and neither should spill into removed_claims/new_claims."""
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        text = "Registers a handler for this event."
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-old-a", "text": text},
+            {"claim_id": "CLM-old-b", "text": text},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new-a", "text": text},
+            {"claim_id": "CLM-new-b", "text": text},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["removed_claims"] == []
+        assert delta["new_claims"] == []
+        assert set(delta["reidentified_claims"].keys()) == {"CLM-old-a", "CLM-old-b"}
+        assert set(delta["reidentified_claims"].values()) == {"CLM-new-a", "CLM-new-b"}
+
+    def test_partial_overlap_of_duplicate_text_reconciles_only_the_surplus_pairs(self, tmp_path):
+        """3 old claims share identical text; only 2 remain (2 new claims,
+        same text). 2 must reconcile as re-IDs; 1 is a genuine removal."""
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        text = "Shared boilerplate description."
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-old-a", "text": text},
+            {"claim_id": "CLM-old-b", "text": text},
+            {"claim_id": "CLM-old-c", "text": text},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new-a", "text": text},
+            {"claim_id": "CLM-new-b", "text": text},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert len(delta["reidentified_claims"]) == 2
+        assert len(delta["removed_claims"]) == 1
+        assert delta["new_claims"] == []
+
+    def test_reidentified_claim_still_counted_in_summary_log(self, tmp_path, capsys):
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-old-1", "text": "Unchanged fact, new id only."},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new-1", "text": "Unchanged fact, new id only."},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        out = capsys.readouterr().out
+        assert "reidentified" in out
+
+    def test_empty_text_claims_never_falsely_reconcile(self, tmp_path):
+        """Two different claims that both happen to have empty/missing text
+        must never be treated as the same re-identified claim."""
+        import json
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-old-empty", "text": ""},
+        ]), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "claims.json").write_text(json.dumps([
+            {"claim_id": "CLM-new-empty", "text": ""},
+        ]), encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+
+        assert delta["removed_claims"] == ["CLM-old-empty"]
+        assert delta["new_claims"] == ["CLM-new-empty"]
+        assert delta["reidentified_claims"] == {}
+
+
 class TestApiSignatureChangesDelta:
     def test_modified_api_carries_added_and_removed_members(self, tmp_path):
         import json

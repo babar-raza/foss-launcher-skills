@@ -706,8 +706,8 @@ def _write_knowledge_delta(
     old_by_id = {c["claim_id"]: c for c in old_claims if isinstance(c, dict) and "claim_id" in c}
     new_by_id = {c["claim_id"]: c for c in new_claims if isinstance(c, dict) and "claim_id" in c}
 
-    added_claims = [cid for cid in new_by_id if cid not in old_by_id]
-    removed_claims = [cid for cid in old_by_id if cid not in new_by_id]
+    raw_added_claims = [cid for cid in new_by_id if cid not in old_by_id]
+    raw_removed_claims = [cid for cid in old_by_id if cid not in new_by_id]
     modified_claims = [
         cid for cid in new_by_id
         if cid in old_by_id and (
@@ -715,6 +715,46 @@ def _write_knowledge_delta(
             or new_by_id[cid].get("confidence") != old_by_id[cid].get("confidence")
         )
     ]
+
+    # Re-identification reconciliation (found live 2026-08-25, a residual gap in
+    # G10 neither Task 16 nor Task 17 closed): a claim-ID reassignment (e.g.
+    # Task 16's anchor-stable IDs for scout-derived member claims) makes a pure
+    # raw claim_id set-difference report a claim as BOTH removed (old id) and
+    # added (new id) even when its text is byte-identical -- nothing about the
+    # claim actually changed, only its identifier. Left unreconciled, this is
+    # catastrophic: semantic_diff.py's _classify_claim_change maps every
+    # removed_claims entry to FEATURE_REMOVED unconditionally, and
+    # body_impact.py maps FEATURE_REMOVED to UT_REMOVAL (delete the section) --
+    # so a mass re-ID storm (measured live on pdf/java's first post-Task-16
+    # re-scout: 11942 of 11945 raw "removed" claims had exact-text matches
+    # among raw "added" claims) causes body_refresh.py to delete real, unchanged
+    # content across every citing page. Reconcile by exact text match before
+    # these lists reach any content-impact consumer; a claim that merely
+    # changed ID is recorded separately (reidentified_claims) for evidence-
+    # citation bookkeeping (stale_detect.py's orphaned_claims check is
+    # independent of this list -- it compares a page's cited ID directly
+    # against the current claims.json, so it still correctly flags the old ID
+    # as needing a citation refresh regardless of this reconciliation).
+    new_texts_by_content: dict[str, list[str]] = {}
+    for cid in raw_added_claims:
+        text = new_by_id[cid].get("text") or ""
+        if text:
+            new_texts_by_content.setdefault(text, []).append(cid)
+
+    reidentified_claims: dict[str, str] = {}
+    removed_claims: list[str] = []
+    for cid in raw_removed_claims:
+        text = old_by_id[cid].get("text") or ""
+        candidates = new_texts_by_content.get(text) if text else None
+        if candidates:
+            reidentified_claims[cid] = candidates.pop(0)
+            if not candidates:
+                del new_texts_by_content[text]
+        else:
+            removed_claims.append(cid)
+
+    reidentified_new_ids = set(reidentified_claims.values())
+    added_claims = [cid for cid in raw_added_claims if cid not in reidentified_new_ids]
 
     # Task 17 (§9.12, closes the other half of G10): carry the real claim TEXT
     # alongside each new/removed/modified claim id, not just the opaque id
@@ -838,6 +878,7 @@ def _write_knowledge_delta(
         "resurrected_apis": resurrected_apis,
         "claim_text_changes": claim_text_changes,
         "api_signature_changes": api_signature_changes,
+        "reidentified_claims": reidentified_claims,
     }
 
     # Atomic write via temp file + rename
@@ -849,7 +890,10 @@ def _write_knowledge_delta(
         print(
             f"  {family}/{platform}: knowledge_delta.json written "
             f"(+{len(added_claims)} claims, -{len(removed_claims)} claims, "
-            f"~{len(modified_claims)} modified, +{len(added_apis)} apis, -{len(removed_apis)} apis)"
+            f"~{len(modified_claims)} modified, +{len(added_apis)} apis, -{len(removed_apis)} apis"
+            + (f", {len(reidentified_claims)} reidentified (ID-only churn, excluded above)"
+               if reidentified_claims else "")
+            + ")"
         )
     except Exception as exc:
         print(f"  {family}/{platform}: WARN — could not write knowledge_delta.json: {exc}")
