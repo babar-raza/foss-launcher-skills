@@ -2253,6 +2253,61 @@ def test_per_entry_error_print_survives_unencodable_exception_text(
     ), f"Fallback message must be pure ASCII: {printed}"
 
 
+def test_regrounding_check_uses_final_content_not_before_content(tmp_path):
+    """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    Task 14, the real upstream E2E proof run for pdf/java): two genuinely
+    DIFFERENT classes that happen to share the same simple name across
+    different namespaces (real example: org.aspose.pdf.engine.xfa.model.
+    sourceset.Bind vs. ...template.Bind, both real, auto-generated XFA
+    wrapper classes with their own genuine getRef() method) were both
+    wrongly REJECTED by the re-grounding safety gate during --rebuild-all,
+    because evidence.apis is name-only (no namespace), so both classes'
+    frontmatter legitimately, coincidentally contains the identical bullet
+    "- Bind.getRef" -- and the gate's "shared grounding" escape hatch read
+    cited evidence from `before_content` (empty for a brand-new page, which
+    --rebuild-all generates hundreds of per run) instead of `final_content`
+    (which correctly, independently lists each class's own real evidence),
+    so the escape hatch could never fire for two brand-new same-named
+    classes. Root cause fixed by reading cited evidence from final_content.
+    This is the load-bearing regression test: both classes must generate
+    successfully in ONE run (the same regrounding_cache instance sees both),
+    not just 1 of 2."""
+    entries = [
+        {
+            "name": "Bind",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf.Engine.Xfa.Model.SourceSet",
+            "description": "Typed XFA template element bind (sourceset).",
+            "methods": [
+                {"name": "getRef", "params": [], "return_type": "String", "doc": ""},
+            ],
+            "properties": [],
+        },
+        {
+            "name": "Bind",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf.Engine.Xfa.Model.Template",
+            "description": "Typed XFA template element bind (template).",
+            "methods": [
+                {"name": "getRef", "params": [], "return_type": "String", "doc": ""},
+            ],
+            "properties": [],
+        },
+    ]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+
+    result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+
+    assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+    assert result["generated"] == 2, f"Expected both same-named classes to generate, got {result}"
+    assert (content_dir / "Bind-SourceSet.md").exists()
+    assert (content_dir / "Bind-Template.md").exists()
+
+
 def test_pdf_net_id_regression(tmp_path):
     """Regression: Id (Aspose.Pdf) + ID (Aspose.Pdf.Operators) with Id.md pre-existing.
 

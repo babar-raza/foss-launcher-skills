@@ -2200,10 +2200,34 @@ def run(family: str, platform: str, kind_arg: str = "all",
         )
         if before_content != final_content and regrounding_cache is not None:
             try:
+                # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+                # Task 14, the real upstream E2E proof run for pdf/java): this used
+                # to pass _read_cited_evidence(before_content) -- the PRE-generation
+                # snapshot. For a brand-new page (the common case for --rebuild-all
+                # generating hundreds of pages that never existed before), before_content
+                # is "" and _read_cited_evidence("") is always []. That makes the
+                # "shared grounding" escape hatch below (cited & first_grounded)
+                # structurally unable to fire for any two brand-new pages generated
+                # in the same run, even when both are legitimately, independently
+                # grounded in their own real evidence.apis/claims -- e.g. two
+                # unrelated XFA element classes that both happen to be named "Bind"
+                # (org.aspose.pdf.engine.xfa.model.sourceset.Bind vs. ...template.Bind),
+                # each with its own real getRef()/setRef() members, whose
+                # evidence.apis frontmatter listing (which is name-only, no
+                # namespace) coincidentally contains the identical string
+                # "Bind.getRef" for both -- a routine same-simple-name collision in
+                # auto-generated wrapper code, not fabricated content. Reading
+                # cited evidence from final_content (what THIS generation output
+                # itself, mechanically, actually cites) instead of before_content
+                # fixes this without weakening the check for its real, intended
+                # case (RPR-E-03's original 3d/net incident): a truly fabricated
+                # span reused across genuinely unrelated pages still shares no
+                # real evidence in either page's own final_content, so it's still
+                # caught.
                 violations = regrounding_cache.check_page(
                     relative_page,
                     final_content,
-                    _read_cited_evidence(before_content),
+                    _read_cited_evidence(final_content),
                 )
                 regrounding_violations = [value.to_dict() for value in violations]
                 regrounding_scan_ok = True

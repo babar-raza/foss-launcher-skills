@@ -362,9 +362,27 @@ def triage_confirm(
                 confidence = max(confidence, 0.9)
 
     # --- Signal 3: page slug references a class not in current api_surface ---
-    slug = page_path.stem  # e.g. "Workbook" from "Workbook.md"
+    # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    # Task 14): reference pages for a class name that collides with another
+    # class in a different namespace get a disambiguation suffix appended by
+    # batch_reference.py's _entry_slug() -- "Bind-Template.md" for a real
+    # class named "Bind" -- and page_path.stem then never equals the bare
+    # class name, so this check flagged every disambiguated page as stale
+    # unconditionally (68 false positives on pdf/java alone, a product with
+    # many same-simple-named XFA element classes across sub-schemas).
+    # _sanitize_slug() only replaces path-unsafe characters (dots, colons,
+    # slashes, etc.) with underscores, never with a hyphen, so a slug's
+    # hyphen is reliably the base-name/suffix separator this repo's own
+    # disambiguation convention introduces, not a hyphen from the class name
+    # itself (vanishingly rare for a Java/C#/Python/Rust class name, and this
+    # signal already only fires for PascalCase-looking slugs). Try the exact
+    # slug first (unchanged behavior for the common, non-colliding case);
+    # only fall back to stripping the trailing "-suffix" segment when the
+    # exact match fails.
+    slug = page_path.stem  # e.g. "Workbook" from "Workbook.md", "Bind" from disambiguated "Bind-Template.md"
     if current_api_names and slug and slug[0].isupper():
-        if slug not in current_api_names:
+        base_slug = slug.rsplit("-", 1)[0] if "-" in slug else slug
+        if slug not in current_api_names and base_slug not in current_api_names:
             reasons.append(f"page slug '{slug}' not found in current api_surface")
             confidence = max(confidence, 0.8)
 

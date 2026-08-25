@@ -413,6 +413,36 @@ class TestLayer2Detection:
         # No slug signal; may be stale for other reasons but not this one
         assert not any("slug" in r for r in result["reasons"])
 
+    def test_disambiguated_slug_in_api_surface_no_slug_signal(self, tmp_path):
+        """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+        Task 14): batch_reference.py's _entry_slug() appends a disambiguation
+        suffix ("-Template") for classes whose simple name collides with
+        another class in a different namespace -- page_path.stem for such a
+        page is "Bind-Template", never the bare class name "Bind", so this
+        signal previously flagged every disambiguated page as stale
+        unconditionally (68 false positives on pdf/java alone)."""
+        page = _page(tmp_path, "Bind-Template.md", "The Bind class binds a value.")
+        knowledge = {
+            "api_surface": [{"name": "Bind"}],
+            "delta": {},
+        }
+        result = triage_confirm(page, knowledge)
+        assert not any("slug" in r for r in result["reasons"])
+
+    def test_genuinely_missing_disambiguated_style_slug_still_triggers_stale(self, tmp_path):
+        """Negative control: a slug that merely LOOKS disambiguated (has a
+        hyphen) must still be flagged stale when neither the full slug nor
+        its pre-hyphen base name is a real current class -- the fix must not
+        become a blanket bypass for any hyphenated slug."""
+        page = _page(tmp_path, "TotallyGone-Template.md", "This class was removed.")
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}],
+            "delta": {},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("TotallyGone-Template" in r for r in result["reasons"])
+
     def test_removed_claim_id_in_body_triggers_stale(self, tmp_path):
         page = _page(tmp_path, "Page.md", "See CLM-cells-001 for details on this feature.")
         knowledge = {

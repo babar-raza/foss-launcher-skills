@@ -566,7 +566,7 @@
     },
     "scripts/pipeline/tests/test_post_refresh_verify.py": {
       "T1": 0,
-      "T2": 2,
+      "T2": 6,
       "T3": 0,
       "T4": 0
     },
@@ -793,13 +793,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-24T17:15:56Z",
+  "generated_at": "2026-08-24T17:47:12Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 944,
+    "T2": 948,
     "T3": 108,
     "T4": 15
   }

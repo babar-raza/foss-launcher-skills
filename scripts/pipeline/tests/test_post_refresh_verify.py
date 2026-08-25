@@ -723,6 +723,68 @@ class TestVerifyCheck9TriageConfirm:
         assert not any("Check 9" in f for f in failures)
         assert any("Check 9" in u for u in unknowns)
 
+    def test_large_scope_chunks_instead_of_one_giant_argv(self, tmp_path, monkeypatch):
+        """Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+        Task 14, the real upstream E2E proof run for pdf/java): a run_scope of
+        1000+ paths (routine for the G17 full-reference-scope fix) used to be
+        inlined whole as "--files <every path>", overflowing Windows
+        CreateProcess's real command-line-length ceiling
+        (FileNotFoundError: [WinError 206] the filename or extension is too
+        long) -- surfacing as a fabricated Check 9 UNKNOWN instead of the real
+        verdict. Fixed by chunking run_scope the same way refresh_run.py's own
+        verify_run() already does for its own triage_confirm/seo_stability
+        calls. This proves: (a) an 85-path scope is split into 3 chunks of
+        <=40 paths each (never one call with all 85), (b) stale counts from
+        multiple chunks are correctly summed into one aggregate FAIL.
+
+        Monkeypatches the 4 run-loading helpers directly (no configure() seam
+        exists for them) rather than building a full schema-valid 85-page
+        receipt/decision fixture -- this test is scoped to Check 9's own
+        chunking behavior, already covered end-to-end for the 1-page case by
+        test_run_bound_check_9_receives_exact_scope above."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        run_scope = [f"content/docs.aspose.org/en/pdf/net/page{i}.md" for i in range(85)]
+        fake_run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-LARGE-SCOPE"
+        fake_run_root.mkdir(parents=True)
+
+        monkeypatch.setattr(
+            post_refresh_verify, "_load_bound_run",
+            lambda family, platform, run_id: {
+                "manifest": {
+                    "scope": {"paths": run_scope},
+                    "base_commit_sha": "a" * 40,
+                },
+                "run_root": fake_run_root,
+            },
+        )
+        monkeypatch.setattr(post_refresh_verify, "_load_run_decisions", lambda *a, **kw: [])
+        monkeypatch.setattr(post_refresh_verify, "_validate_run_receipts", lambda *a, **kw: None)
+        monkeypatch.setattr(post_refresh_verify, "_validate_bound_run_evidence", lambda *a, **kw: None)
+
+        calls: list[list[str]] = []
+
+        def fake_run(args, **_kwargs):
+            calls.append(list(args))
+            chunk_files = [a for a in args if a in run_scope]
+            # Third chunk (the 5 leftover pages) reports 1 stale page; the
+            # other two chunks are clean -- the aggregate must still be 1.
+            if any(f.endswith("page84.md") for f in chunk_files):
+                return MagicMock(returncode=1, stdout=json.dumps({"stale_count": 1}))
+            return MagicMock(returncode=0, stdout=json.dumps({"stale_count": 0}))
+
+        self._configure_with_real_script_path(tmp_path, subprocess_run=fake_run)
+
+        passed, failures = post_refresh_verify.verify("pdf", "net", run_id="RUN-LARGE-SCOPE")
+
+        assert len(calls) == 3, f"Expected 3 chunked calls for 85 paths, got {len(calls)}"
+        for call in calls:
+            chunk_files = [a for a in call if a in run_scope]
+            assert len(chunk_files) <= 40, f"Expected <=40 paths per call, got {len(chunk_files)}"
+        assert sum(len([a for a in call if a in run_scope]) for call in calls) == 85
+        c9_failures = [f for f in failures if "Check 9" in f]
+        assert len(c9_failures) == 1
+        assert "1 stale page" in c9_failures[0]
+
 
 # ---------------------------------------------------------------------------
 # verify() — check 3: stale reference pages (API class absent)

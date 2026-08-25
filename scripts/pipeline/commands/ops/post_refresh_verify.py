@@ -1701,51 +1701,81 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     # scan into --verify. Non-zero exit from the real triage_confirm CLI blocks commit.
     triage_confirm_script = REPO_ROOT / "scripts" / "pipeline" / "lib" / "triage_confirm.py"
     if triage_confirm_script.is_file():
+        # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+        # Task 14, the real upstream E2E proof run for pdf/java): run_scope can
+        # now legitimately carry 1000+ paths (the G17 full-reference-scope fix),
+        # and inlining every path as a literal "--files" argv token overflows
+        # Windows CreateProcess's real command-line-length ceiling with
+        # FileNotFoundError: [WinError 206] the filename or extension is too
+        # long -- not a triage_confirm.py error at all, a process-creation
+        # failure before it even runs, surfacing here as an UNKNOWN (RPR-J-06)
+        # rather than the real PASS/FAIL verdict. refresh_run.py's own
+        # verify_run() hit and fixed the identical class of bug for its own
+        # triage_confirm/seo_stability calls via scoped_commands' 40-per-chunk
+        # loop; this call site needed the same treatment separately since it's
+        # a different script's own, independent invocation.
+        _CHUNK_SIZE = 40
+        scope_chunks: list[list[str] | None] = (
+            [run_scope[i:i + _CHUNK_SIZE] for i in range(0, len(run_scope), _CHUNK_SIZE)]
+            if run_scope
+            else [None]
+        )
         try:
             _run = _cfg_subprocess_run if _cfg_subprocess_run is not None else subprocess.run
-            triage_args = [
-                sys.executable,
-                str(triage_confirm_script),
-                family,
-                platform,
-            ]
-            if run_scope is not None:
-                triage_args.extend(["--files", *run_scope])
-            triage_args.append("--json")
-            result = _run(
-                triage_args,
-                capture_output=True,
-                text=True,
-                timeout=120,
-                cwd=str(REPO_ROOT),
-            )
-            if result.returncode == 2:
-                # Knowledge artifacts absent — treat as non-blocking SKIP, not FAIL,
-                # consistent with Check 8's SKIP-when-absent behavior elsewhere in
-                # this function; a product with no knowledge bootstrap yet has
-                # nothing for triage_confirm to meaningfully check.
-                print(f"  Check 9: SKIP — triage_confirm.py exit 2 (knowledge artifacts absent for {family}/{platform})")
-            elif result.returncode == 1:
-                try:
-                    report = json.loads(result.stdout)
-                    stale_count = report.get("stale_count", 0)
-                except json.JSONDecodeError:
-                    stale_count = "?"
+            chunk_returncodes: list[int] = []
+            total_stale_count = 0
+            stale_count_known = True
+            for chunk in scope_chunks:
+                triage_args = [
+                    sys.executable,
+                    str(triage_confirm_script),
+                    family,
+                    platform,
+                ]
+                if chunk is not None:
+                    triage_args.extend(["--files", *chunk])
+                triage_args.append("--json")
+                result = _run(
+                    triage_args,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    cwd=str(REPO_ROOT),
+                )
+                chunk_returncodes.append(result.returncode)
+                if result.returncode == 1:
+                    try:
+                        report = json.loads(result.stdout)
+                        total_stale_count += report.get("stale_count", 0)
+                    except json.JSONDecodeError:
+                        stale_count_known = False
+            # Aggregate across chunks: FAIL (any chunk found stale pages) >
+            # UNKNOWN (any chunk returned an undocumented code) > SKIP (every
+            # chunk says knowledge absent) > PASS.
+            if any(rc == 1 for rc in chunk_returncodes):
+                stale_count = total_stale_count if stale_count_known else "?"
                 failures.append(
                     f"Check 9: triage_confirm reports {stale_count} stale page(s) "
                     f"(Layer 2 body-prose scan) — re-run the relevant content update "
                     f"step before committing."
                 )
-            elif result.returncode == 0:
-                print("  Check 9: PASS — triage_confirm Layer 2 scan found 0 stale pages")
-            else:
+            elif any(rc not in (0, 1, 2) for rc in chunk_returncodes):
                 # RPR-J-06: an exit code outside the documented 0/1/2 contract is a
                 # contract violation by the tool, not proof of stale prose -- we
                 # genuinely don't know the content state, so UNKNOWN, not a
                 # fabricated "stale pages found" FAIL.
-                msg = f"Check 9: triage_confirm.py returned an undocumented exit code ({result.returncode})"
+                bad = next(rc for rc in chunk_returncodes if rc not in (0, 1, 2))
+                msg = f"Check 9: triage_confirm.py returned an undocumented exit code ({bad})"
                 unknowns.append(msg)
                 print(f"  Check 9: UNKNOWN (RPR-J-06) — {msg}")
+            elif all(rc == 2 for rc in chunk_returncodes):
+                # Knowledge artifacts absent — treat as non-blocking SKIP, not FAIL,
+                # consistent with Check 8's SKIP-when-absent behavior elsewhere in
+                # this function; a product with no knowledge bootstrap yet has
+                # nothing for triage_confirm to meaningfully check.
+                print(f"  Check 9: SKIP — triage_confirm.py exit 2 (knowledge artifacts absent for {family}/{platform})")
+            else:
+                print("  Check 9: PASS — triage_confirm Layer 2 scan found 0 stale pages")
         except subprocess.TimeoutExpired:
             msg = "Check 9: triage_confirm.py timed out — could not verify"
             unknowns.append(msg)
