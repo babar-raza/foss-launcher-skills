@@ -298,6 +298,18 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # subclasses, a routine, correct pairing for in-memory I/O examples.
         # Found live 2026-08-24, pdf/java's developer-guide/io.md.
         "ByteArrayInputStream", "ByteArrayOutputStream",
+        # java.awt/java.awt.image stdlib types referenced by real
+        # graphics/rendering-related classes (BlendComposite, GraphicsState,
+        # PdfPageRenderer, PdfViewer, XImage) whose method signatures
+        # genuinely take or return these JDK types -- not aspose-pdf API
+        # classes, so absent from api_surface.json by design. Found live
+        # 2026-08-25, pdf/java's Task 14 upstream proof run (mission-plan-
+        # the-end-to-end-vast-hejlsberg.md): `CompositeContext` is
+        # `BlendComposite.createContext()`'s real return type (implements
+        # `java.awt.Composite`); `BasicStroke`/`BufferedImage` are standard
+        # AWT/AWT-image types used correctly in prose describing rendering
+        # output.
+        "CompositeContext", "BasicStroke", "BufferedImage",
     }
     content_tokens = {
         "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",

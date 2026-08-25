@@ -1525,6 +1525,154 @@ def test_abandon_succeeds_on_non_refresh_run_error_during_restore(tmp_path: Path
     assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
 
 
+def test_abandon_deletes_a_generated_page_absent_from_the_pinned_base(tmp_path: Path):
+    """RPR-ABANDON-002 (found live 2026-08-25, pdf/java's Task 14 upstream
+    proof run): a GENERATED-disposition page (e.g. G17's full-reference-scope
+    rebuild creating a brand-new reference page) has no initial_hash entry
+    corresponding to real base-commit bytes -- initial_hashes records
+    "MISSING" for it (the same sentinel _path_hash returns for a nonexistent
+    file). Restoring to baseline for such a page means DELETING it, not
+    fetching a non-existent blob via `git cat-file` against the pinned base
+    commit (which always fails for a path absent from that commit) -- the
+    pre-fix code raised RefreshRunError unconditionally here, and because
+    that raise happened mid-validation-loop, abandon_run's own outer
+    try/except (which must never let abandon get stuck) degraded the WHOLE
+    restore to 0/0, discarding even other rows already validated -- exactly
+    the "silently reported 0/0" symptom hit live twice on two separate
+    abandoned runs this same session, both after a real G17 full rebuild had
+    generated hundreds of new pages."""
+    page_path = "content/reference.aspose.org/en/pdf/net/NewClass.md"
+    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-GENERATED",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [page_path]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(
+        tmp_path, manifest, dispositions={page_path: "GENERATED"},
+    )
+    # Override the fixture's own placeholder-content bookkeeping: a truly
+    # GENERATED page never existed at scope-pin time, so its initial_hashes
+    # entry is "MISSING" (the same sentinel _path_hash returns for an absent
+    # file), not the hash of whatever placeholder body _write_run_evidence
+    # had to write to compute a receipt at all.
+    run_root = (
+        tmp_path / "reports/refresh_runs" / manifest["family"]
+        / manifest["platform"] / manifest["run_id"]
+    )
+    scope_path = run_root / "scope.json"
+    scope = json.loads(scope_path.read_text(encoding="utf-8"))
+    scope["initial_hashes"][page_path] = "MISSING"
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    manifest["output_digests"]["scope"] = refresh_run._file_digest(scope_path)
+    refresh_run._save_manifest(manifest)
+    refresh_run._transition(manifest, "VALIDATING")
+
+    assert (tmp_path / page_path).is_file()
+
+    abandoned = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-GENERATED",
+        reason="giving up, page should be deleted not restored",
+        session_id="session-1",
+    )
+    assert abandoned["state"] == "ABANDONED"
+    assert "restore_error" not in abandoned["recovery"]
+    assert abandoned["recovery"]["restored_paths"] == [page_path]
+    assert not (tmp_path / page_path).exists()
+    assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
+
+
+def test_abandon_with_mixed_generated_and_preexisting_pages_restores_both(
+    tmp_path: Path,
+):
+    """A single abandon must correctly handle a GENERATED page (delete) and
+    a genuinely pre-existing page (restore-to-content) together in the same
+    run -- the realistic G17 shape (a full rebuild mixes new and updated
+    pages in one scope), and a regression guard against a fix that only
+    handles the loop's first or last row correctly."""
+    generated_path = "content/reference.aspose.org/en/pdf/net/NewClass.md"
+    existing_path = "content/reference.aspose.org/en/pdf/net/OldClass.md"
+    base_payload_holder: dict[str, bytes] = {}
+
+    def mixed_runner(args: list[str], **_: object) -> subprocess.CompletedProcess:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if args[:3] == ["git", "cat-file", "--filters"]:
+            return subprocess.CompletedProcess(
+                args, 0, base_payload_holder["existing"], b"",
+            )
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(repo_root=tmp_path, command_runner=mixed_runner)
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-MIXED",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [generated_path, existing_path]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(
+        tmp_path,
+        manifest,
+        dispositions={generated_path: "GENERATED", existing_path: "BODY_UPDATED"},
+    )
+    # Capture the exact bytes _write_run_evidence actually wrote for the
+    # pre-existing page (its own placeholder-content write is subject to
+    # the same platform newline-translation behavior real writers are --
+    # reading it back, rather than re-encoding a literal string, keeps the
+    # mocked `git cat-file --filters` response byte-identical to what
+    # initial_hashes[existing_path] was actually computed from).
+    base_payload_holder["existing"] = (tmp_path / existing_path).read_bytes()
+    run_root = (
+        tmp_path / "reports/refresh_runs" / manifest["family"]
+        / manifest["platform"] / manifest["run_id"]
+    )
+    scope_path = run_root / "scope.json"
+    scope = json.loads(scope_path.read_text(encoding="utf-8"))
+    scope["initial_hashes"][generated_path] = "MISSING"
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    manifest["output_digests"]["scope"] = refresh_run._file_digest(scope_path)
+    refresh_run._save_manifest(manifest)
+    _replace_synthetic_output(
+        tmp_path, manifest, page_path=existing_path,
+        content="---\ntitle: Test\n---\n\nUpdated body.\n",
+    )
+    refresh_run._transition(manifest, "VALIDATING")
+
+    abandoned = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-MIXED",
+        reason="giving up on a mixed generated+existing scope",
+        session_id="session-1",
+    )
+    assert abandoned["state"] == "ABANDONED"
+    assert "restore_error" not in abandoned["recovery"]
+    assert sorted(abandoned["recovery"]["restored_paths"]) == sorted(
+        [generated_path, existing_path]
+    )
+    assert not (tmp_path / generated_path).exists()
+    assert (tmp_path / existing_path).read_text(encoding="utf-8") == (
+        "---\ntitle: Test\n---\n\nGrounded body.\n"
+    )
+
+
 def test_owner_mismatch_blocks_mutation():
     refresh_run.create_run(
         "pdf",

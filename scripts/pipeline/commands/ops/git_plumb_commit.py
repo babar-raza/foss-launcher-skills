@@ -624,19 +624,37 @@ def _verify_index_isolation(
     return None
 
 
+_REAL_INDEX_SNAPSHOT_CHUNK_SIZE = 300
+
+
 def _real_index_snapshot(files: list[str], *, repo_root: Path) -> str:
     """Real .git/index state for exactly the paths in `files` (a direct,
     non-shell `git` call -- the lower-risk resolution path). Used as one half
     of plumb_commit()'s postcondition: if this differs before vs. after the
     Tier 1 check window, some git command touched the real index during a
-    pass that is supposed to only ever touch the isolated temp index."""
+    pass that is supposed to only ever touch the isolated temp index.
+
+    Chunked at _REAL_INDEX_SNAPSHOT_CHUNK_SIZE (found live 2026-08-25, pdf/java's
+    Task 14 upstream proof run, mission-plan-the-end-to-end-vast-hejlsberg.md --
+    the same Windows CreateProcess argv-length ceiling (~32KB) already fixed 3
+    times elsewhere in this repo's refresh pipeline had never been exercised
+    here before, since no prior commit through this tool carried a --files list
+    anywhere near this large). A single `git ls-files --stage -- <all files>`
+    call for a 1000+-file scope reliably overflows the ceiling on Windows;
+    chunking and concatenating results is behaviorally identical to one call
+    (this is a pure lookup, not a mutation) and produces the same sorted output
+    a caller comparing pre/post snapshots for equality only cares about."""
     if not files:
         return ""
-    result = _COMMAND_RUNNER(
-        ["git", "ls-files", "--stage", "--", *files],
-        cwd=str(repo_root), capture_output=True, text=True,
-    )
-    return "\n".join(sorted(result.stdout.splitlines()))
+    lines: list[str] = []
+    for i in range(0, len(files), _REAL_INDEX_SNAPSHOT_CHUNK_SIZE):
+        chunk = files[i:i + _REAL_INDEX_SNAPSHOT_CHUNK_SIZE]
+        result = _COMMAND_RUNNER(
+            ["git", "ls-files", "--stage", "--", *chunk],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        lines.extend(result.stdout.splitlines())
+    return "\n".join(sorted(lines))
 
 
 def _real_content_snapshot(files: list[str], *, repo_root: Path) -> "dict[str, str | None]":

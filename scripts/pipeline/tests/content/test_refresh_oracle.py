@@ -207,6 +207,25 @@ def test_byte_array_stream_subclasses_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_awt_graphics_stdlib_types_are_allowed(tmp_path):
+    """java.awt/java.awt.image stdlib types referenced by real
+    graphics/rendering classes are not aspose-pdf API classes and are
+    absent from api_surface.json by design. Found live 2026-08-25, pdf/java's
+    Task 14 upstream proof run: `CompositeContext` is
+    `BlendComposite.createContext()`'s real return type;
+    `BasicStroke`/`BufferedImage` are standard AWT/AWT-image types."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`createContext(...)` returns a `CompositeContext`. Stroke shapes with "
+        "`BasicStroke` and render into a `BufferedImage`.\n",
+    )
+    api_surface = {"BlendComposite", "GraphicsState"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_pdf_content_stream_operator_codes_are_allowed(tmp_path):
     """PDF content-stream operator codes (ISO 32000-1 SS A.2) are raw format
     syntax tokens explaining the spec itself, never Java class names.

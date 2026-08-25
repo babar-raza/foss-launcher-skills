@@ -44,6 +44,44 @@ def _init_repo_with_remote(tmp_path: Path) -> tuple[Path, Path]:
     return work, bare
 
 
+def test_real_index_snapshot_chunks_large_file_lists(tmp_path):
+    """_real_index_snapshot's `git ls-files --stage -- *files` call overflows
+    Windows' ~32KB CreateProcess argv ceiling for a scope in the hundreds of
+    files -- found live 2026-08-25, pdf/java's Task 14 upstream proof run
+    (1157 files), the same class of bug already fixed 3 times elsewhere in
+    this repo's refresh pipeline but never exercised in THIS tool before,
+    since no prior commit through it carried a --files list anywhere near
+    this large. Uses 700 tracked files (comfortably more than one
+    _REAL_INDEX_SNAPSHOT_CHUNK_SIZE=300 chunk) to prove chunking doesn't
+    change correctness, not to reproduce the literal Windows ceiling (which
+    needs thousands of long paths to hit reliably in a fast unit test)."""
+    work, _ = _init_repo_with_remote(tmp_path)
+    names = [f"f{i:04d}.txt" for i in range(700)]
+    for name in names:
+        (work / name).write_text(name, encoding="utf-8")
+    _git(work, "add", *names[:400])
+    _git(work, "add", *names[400:])
+    _git(work, "commit", "-q", "-m", "add 700 files")
+
+    chunked = gpc._real_index_snapshot(names, repo_root=work)
+
+    # ground truth: the real index's full stage listing (git ls-files --stage
+    # with no pathspec at all lists every tracked path, no argv-length risk).
+    full = subprocess.run(
+        ["git", "ls-files", "--stage"], cwd=str(work), capture_output=True, text=True, check=False,
+    )
+    expected = "\n".join(sorted(
+        line for line in full.stdout.splitlines() if "seed.txt" not in line
+    ))
+    assert chunked == expected
+    assert chunked.count("\n") == 699  # 700 entries -> 699 newlines
+
+
+def test_real_index_snapshot_empty_files_returns_empty(tmp_path):
+    work, _ = _init_repo_with_remote(tmp_path)
+    assert gpc._real_index_snapshot([], repo_root=work) == ""
+
+
 @pytest.fixture(autouse=True)
 def _isolate_override_manager(tmp_path):
     """override_manager.find_valid_token_for_path reads module-level

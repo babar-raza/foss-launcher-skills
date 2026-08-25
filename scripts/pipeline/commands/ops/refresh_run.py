@@ -2811,10 +2811,11 @@ def _restore_scope_to_baseline(
     )
     initial_hashes = dict(scope.get("initial_hashes") or {})
     restore_payloads: dict[str, bytes] = {}
+    delete_paths: list[str] = []
     already_restored: list[str] = []
     for row in decision_rows:
         page_path = str(row["page_path"])
-        initial_hash = initial_hashes.get(page_path)
+        initial_hash = initial_hashes.get(page_path, "MISSING")
         receipt_path = run_root / Path(row["receipt_ref"])
         receipt_doc = yaml.safe_load(
             receipt_path.read_text(encoding="utf-8")
@@ -2831,6 +2832,24 @@ def _restore_scope_to_baseline(
                 "Recovery refused because a scoped path no longer matches "
                 f"the run output or pinned input: {page_path}"
             )
+        if initial_hash == "MISSING":
+            # RPR-ABANDON-002 (found live 2026-08-25, pdf/java's Task 14
+            # upstream proof run, mission-plan-the-end-to-end-vast-hejlsberg.md):
+            # a GENERATED-disposition page (e.g. G17's full-reference-scope
+            # rebuild creating a brand-new reference page) never existed at
+            # the pinned base commit, so "restore to baseline" means DELETE,
+            # not fetch a non-existent base blob -- `git cat-file` against a
+            # path absent from base_commit_sha always fails, which previously
+            # raised here unconditionally, and since that raise happened
+            # inside this same validation loop (before any write), every
+            # OTHER already-validated row in this same restore call was
+            # silently discarded too (abandon_run()'s own outer try/except
+            # degrades any exception from this function to a blanket 0/0,
+            # by design -- see its own comment) -- reproduced live twice this
+            # session on two separate abandoned runs, both after a real,
+            # full G17 rebuild had generated hundreds of new pages.
+            delete_paths.append(page_path)
+            continue
         result = _command_runner(
             [
                 "git",
@@ -2867,7 +2886,14 @@ def _restore_scope_to_baseline(
                 f"Recovery write verification failed for {page_path}"
             )
 
-    return sorted(restore_payloads), sorted(already_restored)
+    for page_path in delete_paths:
+        (_repo_root / page_path).unlink(missing_ok=True)
+        if _path_hash(page_path) != "MISSING":
+            raise RefreshRunError(
+                f"Recovery delete verification failed for {page_path}"
+            )
+
+    return sorted(set(restore_payloads) | set(delete_paths)), sorted(already_restored)
 
 
 def abandon_run(
