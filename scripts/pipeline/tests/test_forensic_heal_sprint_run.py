@@ -7,6 +7,7 @@ sibling reaches IMPLEMENTED.
 """
 from __future__ import annotations
 
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -250,3 +251,49 @@ def test_history_ledger_is_append_only_across_two_closes(tmp_path):
     )
     row_count_after_second = len(ledger_path.read_text(encoding="utf-8").splitlines())
     assert row_count_after_second == row_count_after_first + 1
+
+
+# ---------------------------------------------------------------------------
+# _load_prior_dispositions
+# ---------------------------------------------------------------------------
+
+
+def test_load_prior_dispositions_accepts_flat_map(tmp_path):
+    """A hand-authored or already-flat file works as-is."""
+    p = tmp_path / "prior.json"
+    p.write_text(json.dumps({"A-03": "BLOCKER"}), encoding="utf-8")
+    assert fhsr._load_prior_dispositions(p) == {"A-03": "BLOCKER"}
+
+
+def test_load_prior_dispositions_unwraps_this_cli_own_output_shape(tmp_path):
+    """RC-tex-python-08 regression: the natural workflow is to save this CLI's own
+    adversarial-review output and pass it straight back in as the next run's
+    --prior-dispositions-file -- that nested {"dispositions": {...}} shape must be
+    transparently unwrapped to the flat {probe_id: disposition} map
+    run_adversarial_review() actually expects, not silently produce an empty lookup."""
+    p = tmp_path / "prior-output.json"
+    p.write_text(json.dumps({
+        "dispositions": {
+            "A-03": {"probe_id": "A-03", "disposition": "BLOCKER", "detail": "orphans found"},
+            "A-09": {"probe_id": "A-09", "disposition": "DISPROVEN_WITH_EVIDENCE", "detail": "clean"},
+        },
+        "any_blocker": True,
+        "independence_verified": True,
+    }), encoding="utf-8")
+    assert fhsr._load_prior_dispositions(p) == {"A-03": "BLOCKER", "A-09": "DISPROVEN_WITH_EVIDENCE"}
+
+
+def test_load_prior_dispositions_round_trip_produces_repaired(tmp_path):
+    """End-to-end proof the fix actually closes the bug: feeding a real prior CLI
+    output back in as --prior-dispositions-file (via the same code path main() uses)
+    must flip a since-fixed BLOCKER to REPAIRED, not silently stay DISPROVEN_WITH_EVIDENCE."""
+    prior_output = tmp_path / "round1.json"
+    prior_output.write_text(json.dumps({
+        "dispositions": {"A-03": {"probe_id": "A-03", "disposition": "BLOCKER", "detail": "orphans found"}},
+        "any_blocker": True, "independence_verified": True,
+    }), encoding="utf-8")
+
+    bundle = _clean_adversarial_bundle()  # A-03 is clean in this bundle
+    prior = fhsr._load_prior_dispositions(prior_output)
+    result = fhsr.adversarial_review(bundle, sealing_session_id="sess-a", reviewer_session_id="sess-b", prior_dispositions=prior)
+    assert result["dispositions"]["A-03"]["disposition"] == "REPAIRED"

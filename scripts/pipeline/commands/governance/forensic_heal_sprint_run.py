@@ -140,6 +140,27 @@ def pilot_check(chain: dict) -> dict:
     return pilot_chain.resolve_pilot_chain(chain)
 
 
+def _load_prior_dispositions(path: "str | Path") -> "dict[str, str]":
+    """Load a --prior-dispositions-file, accepting either shape:
+
+    - flat {probe_id: disposition} -- adversarial_probes.run_adversarial_review()'s own
+      internal contract, and what a hand-authored file would naturally contain
+    - {"dispositions": {probe_id: {"disposition": ..., ...}, ...}} -- this CLI's OWN
+      `adversarial-review` output shape (adversarial-review-output.json)
+
+    RC-tex-python-08 (MT037 Batch 1 close): the natural, expected workflow is "save this
+    run's output, pass it back in as the next run's --prior-dispositions-file" -- but doing
+    that literally with the CLI's own nested output previously silently produced an
+    all-.get()-misses empty lookup (no error, no crash), permanently losing the REPAIRED
+    disposition this parameter exists to produce. Found live re-running MT037 Batch 1's
+    adversarial review with its own prior adversarial-review-output.json.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(data, dict) and "dispositions" in data:
+        return {pid: entry["disposition"] for pid, entry in data["dispositions"].items()}
+    return data
+
+
 def adversarial_review(
     evidence_bundle: dict, *, sealing_session_id: str, reviewer_session_id: "str | None" = None,
     prior_dispositions: "dict[str, str] | None" = None,
@@ -310,7 +331,7 @@ def main(argv: "list[str] | None" = None) -> int:
             evidence_bundle = json.loads(Path(args.evidence_file).read_text(encoding="utf-8"))
             prior = None
             if args.prior_dispositions_file:
-                prior = json.loads(Path(args.prior_dispositions_file).read_text(encoding="utf-8"))
+                prior = _load_prior_dispositions(args.prior_dispositions_file)
             result = adversarial_review(
                 evidence_bundle, sealing_session_id=args.sealing_session_id,
                 reviewer_session_id=args.reviewer_session_id, prior_dispositions=prior,
