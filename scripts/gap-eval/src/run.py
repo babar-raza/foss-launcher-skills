@@ -112,6 +112,40 @@ def _load_profile(family: str, platform: str) -> dict:
         return _parse_minimal_yaml(path)
 
 
+def _missing_profile_finding(family: str, platform: str) -> dict:
+    """Build a blocking-severity finding for a missing profile.
+
+    RC-tex-python-04 / Phase A (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL
+    blind-spot audit): a missing profile used to silently fall back to
+    "minimal defaults" with only a log-level warning -- the run could still
+    report a clean-sounding PUBLICATION READY verdict even though most Tier 1
+    checks (package-name detection, wrong-package/format-completeness
+    scoping) are degraded or skipped in this mode. Emitting a real,
+    "S"-severity finding here (rather than just logging) makes the degraded
+    state visible in the report and caps compute_verdict() at CONDITIONAL
+    instead of being silently indistinguishable from a real PUBLICATION
+    READY result.
+    """
+    from state import make_finding_id  # type: ignore  # local import matches run()'s own pattern
+
+    profile_path = _profile_path(family, platform)
+    return {
+        "id": make_finding_id(family, platform, "missing-profile-degraded-mode",
+                               str(profile_path), 0, ""),
+        "type": "missing-profile-degraded-mode",
+        "severity": "S",
+        "tier_resolved_by": 1,
+        "file": f"knowledge/{family}/{platform}",
+        "description": (
+            f"No profile found at {profile_path} -- this run used minimal defaults. "
+            "Package-name detection, wrong-package scoping, and format-completeness "
+            "checks are degraded or skipped in this mode. Author a real profile before "
+            "trusting this run's verdict."
+        ),
+        "status": "open",
+    }
+
+
 def _parse_minimal_yaml(path: Path) -> dict:
     """Parse top-level scalar keys only. Sufficient for reading package names."""
     result: dict = {}
@@ -1601,6 +1635,7 @@ def run_gap_eval(
         raise FileNotFoundError(f"Clone cache not found: {clone_path}")
 
     profile = _load_profile(family, platform)
+    profile_missing = not _profile_path(family, platform).exists()
     api_data = _load_api_surface(family, platform)
     api_names = _build_api_name_set(api_data)
     if not api_names:
@@ -1625,6 +1660,8 @@ def run_gap_eval(
 
     # Stage 1: Clone cache baseline
     raw_findings: list[dict] = []
+    if profile_missing:
+        raw_findings.append(_missing_profile_finding(family, platform))
     raw_findings.extend(stage1_baseline(family, platform, clone_path, profile, make_finding_id))
 
     # Safety: if Stage 1 detected a package name mismatch, override profile
