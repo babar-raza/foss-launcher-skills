@@ -1001,27 +1001,42 @@ def _scrub_wrong_section_links(body: str, section_header: str, wrong_domain: str
     return body[:content_start] + new_section + body[section_end:], count
 
 
-def backfill_markdown(
-    file_path: Path,
+def _compute_markdown_backlink_insertion(
+    body: str,
     target_url: str,
     family: str,
     platform: str | None,
     subdomain: str,
-    page_type: str,
     families_map: dict,
     platforms_map: dict,
     *,
-    dry_run: bool = True,
     target_type: str | None = None,
-) -> BackfillChange:
-    """Insert backlink into a Markdown page (docs/kb/reference/blog).
+) -> tuple[str, str, list[str], bool, str]:
+    """Pure, no I/O. TC13 (2026-08-26, backlink-governance-redesign): the
+    entire body-mutation logic of backfill_markdown() — idempotency
+    detection, near-duplicate hard-block, max-link guard, stale-family-
+    bullet replace, duplicate-subdomain cleanup — extracted so
+    batch_reference.py's _build_page()/generate_grouped_index() (in-process,
+    hot path generating 1000+ pages per --rebuild-all run) and
+    backfill_markdown() (file-I/O wrapper below, used by the CLI and every
+    skill's subprocess call site) share ONE implementation, not two that
+    could silently drift — exactly the two/three-ungoverned-write-path
+    pattern this mission exists to close (see the TC13 redesign in the
+    governing plan for the full audit that found batch_reference.py's own,
+    independent, ungoverned insertion mechanism).
 
-    target_type: "platform" or "family" — controls anchor text generation.
+    Returns (before_body, after_body, warnings, skipped, skip_reason).
+    Both are the FULL (untruncated) body text — before_body is the body
+    immediately before this specific mutation (which may itself already
+    reflect an earlier, in-function mutation, e.g. blog.aspose.org's
+    wrong-section scrub runs before the max-link guard — this mirrors
+    backfill_markdown()'s own original before/after semantics exactly, do
+    not "simplify" to always-the-original-input without re-checking every
+    return site against a real diff). after_body equals before_body when
+    skipped, except two skip cases (max-link, near-duplicate hard-block)
+    which report an empty after_body — again matching prior behavior
+    exactly, not a new choice made during this extraction.
     """
-    rel = file_path.relative_to(_REPO_ROOT).as_posix()
-    raw = file_path.read_text(encoding="utf-8")
-    fm, body = _split_frontmatter(raw)
-
     # TC4 (2026-08-21): computed early so it's available both for the
     # already-duplicated cleanup path below AND the fresh-insertion path
     # further down (same value either way).
@@ -1050,19 +1065,11 @@ def backfill_markdown(
         if family_url_to_replace and family_url_to_replace.rstrip("/") in body:
             new_body = _remove_stale_family_bullet(body, section_header, family_url_to_replace)
             if new_body != body:
-                if not dry_run:
-                    new_raw = fm + new_body
-                    file_path.write_text(new_raw, encoding="utf-8")
-                return BackfillChange(
-                    file=rel, subdomain=subdomain, family=family, platform=platform,
-                    page_type=page_type, target_url=target_url,
-                    action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
-                    before_snippet=body[:200], after_snippet=new_body[:200],
-                    dry_run=dry_run,
-                    warning_messages=[
-                        f"REPLACED_FAMILY_LINK: removed stale existing family-level bullet "
-                        f"({family_url_to_replace}) -- platform-level link was already present"
-                    ],
+                return (
+                    body, new_body,
+                    [f"REPLACED_FAMILY_LINK: removed stale existing family-level bullet "
+                     f"({family_url_to_replace}) -- platform-level link was already present"],
+                    False, "",
                 )
         # TC10 (2026-08-21): the target link is already present, but some
         # OTHER bullet on the same aspose.com host is also still in the
@@ -1087,27 +1094,13 @@ def backfill_markdown(
                     new_body, section_header, entry, subdomain,
                 )
             if new_body != body:
-                if not dry_run:
-                    new_raw = fm + new_body
-                    file_path.write_text(new_raw, encoding="utf-8")
-                return BackfillChange(
-                    file=rel, subdomain=subdomain, family=family, platform=platform,
-                    page_type=page_type, target_url=target_url,
-                    action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
-                    before_snippet=body[:200], after_snippet=new_body[:200],
-                    dry_run=dry_run,
-                    warning_messages=[
-                        f"REMOVED_DUPLICATE_SUBDOMAIN_LINK: removed {len(other_same_host)} other "
-                        f"{target_host} bullet(s) -- target link was already present"
-                    ],
+                return (
+                    body, new_body,
+                    [f"REMOVED_DUPLICATE_SUBDOMAIN_LINK: removed {len(other_same_host)} other "
+                     f"{target_host} bullet(s) -- target link was already present"],
+                    False, "",
                 )
-        return BackfillChange(
-            file=rel, subdomain=subdomain, family=family, platform=platform,
-            page_type=page_type, target_url=target_url,
-            action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
-            before_snippet=body[:200], after_snippet=body[:200],
-            skipped=True, skip_reason="Already contains target URL (idempotent)", dry_run=dry_run,
-        )
+        return (body, body, [], True, "Already contains target URL (idempotent)")
 
     # Phase 6.3: For blog posts, scrub stale wrong-section products.aspose.com links
     # before the max-link guard. Without this, blog posts at the max qualifying
@@ -1125,13 +1118,7 @@ def backfill_markdown(
     # Max-link guard
     link_count, _ = count_qualifying_com_links(body)
     if link_count >= _max_qualifying_links():
-        return BackfillChange(
-            file=rel, subdomain=subdomain, family=family, platform=platform,
-            page_type=page_type, target_url=target_url,
-            action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
-            before_snippet=body[:200], after_snippet="",
-            skipped=True, skip_reason=f"Already at max links ({link_count})", dry_run=dry_run,
-        )
+        return (body, "", [], True, f"Already at max links ({link_count})")
 
     # section_header/entry/family_url_to_replace were already computed above
     # (TC4/TC10, 2026-08-21) -- reused here for the fresh-insertion path's
@@ -1141,15 +1128,7 @@ def backfill_markdown(
     # Hard-block at high similarity — prevents duplicate anchor text with different URL.
     _nd_score = _near_dup_max_score(body, entry)
     if _nd_score >= _NEAR_DUPLICATE_HARD_BLOCK_THRESHOLD:
-        action = "md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources"
-        return BackfillChange(
-            file=rel, subdomain=subdomain, family=family, platform=platform,
-            page_type=page_type, target_url=target_url,
-            action=action, before_snippet=body[:200], after_snippet="",
-            skipped=True,
-            skip_reason=f"NEAR_DUPLICATE_HARD_BLOCK: sim={_nd_score:.3f}",
-            dry_run=dry_run,
-        )
+        return (body, "", [], True, f"NEAR_DUPLICATE_HARD_BLOCK: sim={_nd_score:.3f}")
     dups = _detect_near_duplicate(body, entry)
     if dups:
         warnings_acc.append(
@@ -1190,17 +1169,47 @@ def backfill_markdown(
     if prose_errors:
         warnings_acc.extend(prose_errors)
 
-    if not dry_run:
-        new_raw = fm + new_body
-        file_path.write_text(new_raw, encoding="utf-8")
+    return (body, new_body, warnings_acc, False, "")
 
+
+def backfill_markdown(
+    file_path: Path,
+    target_url: str,
+    family: str,
+    platform: str | None,
+    subdomain: str,
+    page_type: str,
+    families_map: dict,
+    platforms_map: dict,
+    *,
+    dry_run: bool = True,
+    target_type: str | None = None,
+) -> BackfillChange:
+    """Insert backlink into a Markdown page (docs/kb/reference/blog).
+
+    Thin file-I/O wrapper around _compute_markdown_backlink_insertion()
+    (TC13, 2026-08-26) -- all body-mutation logic lives there so
+    batch_reference.py's in-process callers share it exactly, not a
+    re-derivation of it.
+
+    target_type: "platform" or "family" — controls anchor text generation.
+    """
+    rel = file_path.relative_to(_REPO_ROOT).as_posix()
+    raw = file_path.read_text(encoding="utf-8")
+    fm, body = _split_frontmatter(raw)
+    before_body, after_body, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+        body, target_url, family, platform, subdomain, families_map, platforms_map,
+        target_type=target_type,
+    )
+    if not skipped and not dry_run:
+        file_path.write_text(fm + after_body, encoding="utf-8")
     return BackfillChange(
         file=rel, subdomain=subdomain, family=family, platform=platform,
         page_type=page_type, target_url=target_url,
         action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
-        before_snippet=body[:200], after_snippet=new_body[:200],
-        dry_run=dry_run,
-        warning_messages=warnings_acc,
+        before_snippet=before_body[:200], after_snippet=after_body[:200],
+        skipped=skipped, skip_reason=skip_reason, dry_run=dry_run,
+        warning_messages=warnings,
     )
 
 

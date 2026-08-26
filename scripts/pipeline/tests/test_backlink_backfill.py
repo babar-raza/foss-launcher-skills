@@ -2096,3 +2096,75 @@ class TestRunBackfillOuterLoopAnchorText:
         assert manifest.total_modified == 0
         assert manifest.changes[0]["skipped"]
         assert manifest.changes[0]["skip_reason"] == "Already COMPLIANT"
+
+
+# ---------------------------------------------------------------------------
+# TC13 (2026-08-26): _compute_markdown_backlink_insertion() -- the pure core
+# extracted from backfill_markdown() so batch_reference.py's in-process
+# callers share exactly the same idempotency/near-duplicate/max-link/
+# replace-stale-bullet logic, not a re-derivation of it. backfill_markdown()
+# itself is already covered end-to-end by every test above (via real file
+# I/O); these tests call the pure function directly to prove it is
+# independently usable with no I/O, and that its 5-tuple return shape
+# (before_body, after_body, warnings, skipped, skip_reason) matches
+# backfill_markdown()'s own pre-extraction return-value semantics exactly.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import _compute_markdown_backlink_insertion  # noqa: E402
+
+
+class TestComputeMarkdownBacklinkInsertion:
+    def test_fresh_insertion_returns_new_body_not_skipped(self):
+        body = "\n## Overview\n\nSome text.\n"
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://products.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is False
+        assert skip_reason == ""
+        assert before == body
+        assert "products.aspose.com/words/python/" in after
+        assert after != body
+
+    def test_idempotent_already_present_returns_after_equal_before(self):
+        body = (
+            "\n## See Also\n\n"
+            "- [Aspose.Words for Python — Enterprise Product Family]"
+            "(https://products.aspose.com/words/python/)\n"
+        )
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://products.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is True
+        assert skip_reason == "Already contains target URL (idempotent)"
+        assert before == body
+        assert after == body
+
+    def test_max_link_guard_returns_empty_after_body(self):
+        """Matches backfill_markdown()'s pre-extraction behavior exactly:
+        the max-link-guard skip reports an EMPTY after_body, not body --
+        a real, deliberate distinction from the idempotent-skip case above,
+        confirmed by direct diff against backfill_markdown()'s original
+        BackfillChange construction before this function was extracted."""
+        body = (
+            "\n## See Also\n\n"
+            "- [A](https://products.aspose.com/words/)\n"
+            "- [B](https://docs.aspose.com/words/)\n"
+        )
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://reference.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is True
+        assert "max links" in skip_reason
+        assert before == body
+        assert after == ""
+
+    def test_no_io_no_file_path_needed(self):
+        """The whole point of the extraction: callable with a bare string,
+        no Path/file_path argument at all."""
+        import inspect
+        params = inspect.signature(_compute_markdown_backlink_insertion).parameters
+        assert "file_path" not in params
+        assert "dry_run" not in params

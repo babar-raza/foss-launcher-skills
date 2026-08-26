@@ -909,6 +909,35 @@ def count_qualifying_com_links(body_text: str) -> tuple[int, list[str]]:
     return len(cleaned), cleaned
 
 
+def detect_backlink_downgrade(before_body: str, after_body: str) -> str | None:
+    """Pure, no I/O. TC13 (2026-08-26, backlink-governance-redesign): returns
+    a reason string if after_body has ZERO qualifying aspose.com links while
+    before_body had >=1 -- the exact shape of a real, live incident
+    (commit ea05b9d8c8, "Task 14 upstream E2E proof run"): a full
+    batch_reference.py --rebuild-all regeneration silently stripped 247
+    reference.aspose.org/pdf/java pages' previously-correct backlinks
+    because resolve_backlink() returned no target during that specific
+    run, and nothing detected the drop before the page was written.
+
+    Returns None for the normal "never had one"/"still has one" cases, and
+    deliberately does NOT flag a WRONG_TARGET/WRONG_ANCHOR_TEXT-shaped
+    regression (link count unchanged, content wrong) -- that is
+    classify_compliance()'s job on the next audit pass, not this guard's;
+    this guard exists specifically to block a full-regen writer from
+    silently going from "has a link" to "has none", which classify_compliance()
+    cannot prevent (it only ever runs after the fact, against whatever
+    landed on disk).
+    """
+    before_count, _ = count_qualifying_com_links(before_body)
+    if before_count == 0:
+        return None
+    after_count, _ = count_qualifying_com_links(after_body)
+    if after_count == 0:
+        return (f"BACKLINK_DOWNGRADE: page had {before_count} qualifying "
+                f"aspose.com link(s) before regeneration, 0 after")
+    return None
+
+
 # TC2 (2026-08-21): markdown-link-aware extraction, giving (anchor_text, url)
 # pairs instead of bare URLs -- needed to detect WRONG_ANCHOR_TEXT, which
 # count_qualifying_com_links() structurally cannot see (it only ever

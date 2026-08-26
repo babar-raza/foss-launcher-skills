@@ -54,6 +54,7 @@ from lib.backlink_targets import (
     classify_page_type,
     resolve_backlink,
     count_qualifying_com_links,
+    detect_backlink_downgrade,
     classify_compliance,
     classify_kb_anchor_status,
     load_target_map,
@@ -423,6 +424,44 @@ class TestCountQualifyingLinks:
         count, urls = count_qualifying_com_links(text)
         assert count == 1
         assert any("kb.aspose.com" in u for u in urls)
+
+
+# ── detect_backlink_downgrade tests (TC13, 2026-08-26) ───────────────────────
+
+class TestDetectBacklinkDowngrade:
+    """Reproduces the exact live incident (commit ea05b9d8c8, "Task 14
+    upstream E2E proof run"): a full batch_reference.py --rebuild-all
+    regeneration silently stripped 247 reference.aspose.org/pdf/java pages'
+    previously-correct backlinks. This is the structural guard that catches
+    that shape before a page is ever written, not after."""
+
+    def test_link_stripped_to_zero_is_downgrade(self):
+        before = "See Also\n\n- [Aspose.PDF for Java](https://reference.aspose.com/pdf/java/com.aspose.pdf/setgray/)\n"
+        after = "No See Also section at all.\n"
+        reason = detect_backlink_downgrade(before, after)
+        assert reason is not None
+        assert "BACKLINK_DOWNGRADE" in reason
+
+    def test_link_preserved_is_not_downgrade(self):
+        before = "- [X](https://reference.aspose.com/pdf/java/x/)\n"
+        after = "- [X](https://reference.aspose.com/pdf/java/x/)\n"
+        assert detect_backlink_downgrade(before, after) is None
+
+    def test_never_had_a_link_is_not_downgrade(self):
+        assert detect_backlink_downgrade("No links here.", "Still no links.") is None
+
+    def test_wrong_target_same_count_is_not_a_downgrade(self):
+        """A count-preserving WRONG_TARGET/WRONG_ANCHOR_TEXT regression is
+        classify_compliance()'s concern on the next audit pass, not this
+        guard's -- this guard only fires on a drop to zero."""
+        before = "- [X](https://reference.aspose.com/pdf/java/right/)\n"
+        after = "- [X](https://reference.aspose.com/pdf/java/wrong/)\n"
+        assert detect_backlink_downgrade(before, after) is None
+
+    def test_link_added_is_not_downgrade(self):
+        assert detect_backlink_downgrade(
+            "No links.", "- [X](https://reference.aspose.com/pdf/java/x/)\n"
+        ) is None
 
 
 # ── classify_compliance tests ─────────────────────────────────────────────────
