@@ -79,6 +79,7 @@ def _ensure_loaded():
         structure,
         type_accuracy,
         member_validity,
+        module_compilability,
         version_claim_check,
         capability_claim_check,
         encoding_check,

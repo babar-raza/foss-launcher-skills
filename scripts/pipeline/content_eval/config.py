@@ -41,6 +41,7 @@ ALL_EVALUATORS = [
     "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL
     "generic_description_check",  # TC-GDF-001: detect generic fallback descriptions in _index.md
     "duplicate_content",  # RC-W1-005 (MT026 blind-spot audit): whole-page duplicate/alias-collision detection
+    "module_compilability",  # RC-tex-python-05 (MT037 blind-spot audit): verify cited API modules actually compile
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -96,6 +97,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     # code_prose_alignment: graduated to DEFAULT (TC-PROMOTE-001, 2026-06-13)
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — index placeholder detection
     "duplicate_content",  # RC-W1-005: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
+    "module_compilability",  # RC-tex-python-05: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
 })
 
 # Default evaluators (fast, deterministic, production-ready)
