@@ -106,6 +106,7 @@ class PageType(str, Enum):
     # Blog
     BLOG_POST            = "blog-post"
     BLOG_ARCHIVE         = "blog-archive"
+    BLOG_PLATFORM_INDEX  = "blog-platform-index"
     # Out of scope / skip
     SUBDOMAIN_ROOT       = "subdomain-root"
     BLOG_UTILITY         = "blog-utility"
@@ -402,6 +403,17 @@ def classify_page_type(
             return PageType.BLOG_ARCHIVE, None, None, subdomain
         if dc == 0:
             return PageType.BLOG_UTILITY, None, None, subdomain
+        # TC13 (2026-08-26): platform-level blog index page
+        # (content/blog.aspose.org/{family}/{platform}/_index.md, e.g.
+        # words/python/_index.md), created by new-blog-index.md -- this
+        # branch was previously missing entirely, so this page shape fell
+        # through to UNKNOWN_PATTERN, which IS in OUT_OF_SCOPE_TYPES: the
+        # page was structurally invisible to backlink_audit.py, not merely
+        # unimplemented in the creation skill. No family-level blog index
+        # exists anywhere in the tree today (new-blog-index.md only ever
+        # creates the platform-level file), so no dc==1 branch is added.
+        if dc == 2 and filename == "_index.md":
+            return PageType.BLOG_PLATFORM_INDEX, family, platform, subdomain
         if dc == 3 and filename == "index.md":
             return PageType.BLOG_POST, family, platform, subdomain
         return PageType.UNKNOWN_PATTERN, family, platform, subdomain

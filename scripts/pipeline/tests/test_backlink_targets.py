@@ -256,6 +256,39 @@ class TestClassifyPageType:
         pt, fam, plat, sd = classify_page_type(fpath, repo)
         assert pt == PageType.BLOG_ARCHIVE
 
+    def test_blog_platform_index(self, tmp_path):
+        """TC13 (2026-08-26): regression for the confirmed live blind spot --
+        a platform-level blog index (created by new-blog-index.md, e.g.
+        content/blog.aspose.org/words/python/_index.md) previously fell
+        through to UNKNOWN_PATTERN, which IS in OUT_OF_SCOPE_TYPES, making
+        this page shape structurally invisible to backlink_audit.py."""
+        repo = make_repo(tmp_path)
+        fpath = repo / "content/blog.aspose.org/words/net/_index.md"
+        pt, fam, plat, sd = classify_page_type(fpath, repo)
+        assert pt == PageType.BLOG_PLATFORM_INDEX
+        assert fam == "words"
+        assert plat == "net"
+        assert sd == "blog.aspose.org"
+
+    def test_blog_platform_index_not_out_of_scope(self):
+        """The whole point of the fix: this PageType must never be silently
+        absorbed by OUT_OF_SCOPE_TYPES the way UNKNOWN_PATTERN was."""
+        from commands.ops.backlink_backfill import OUT_OF_SCOPE_TYPES as _bf_oos
+        from commands.ops.backlink_audit import OUT_OF_SCOPE_TYPES as _audit_oos
+        assert PageType.BLOG_PLATFORM_INDEX not in _bf_oos
+        assert PageType.BLOG_PLATFORM_INDEX not in _audit_oos
+
+    def test_blog_platform_index_resolves_to_blog_com_root(self, tmp_path):
+        """resolve_backlink() needs zero code changes for this fix -- its
+        existing blog ancestor-chain walk (family/platform -> family ->
+        root) already produces the right target the moment
+        classify_page_type() extracts family/platform correctly."""
+        make_target_map(tmp_path)
+        tm = load_target_map(tmp_path)
+        url, ttype, subdomain, reason = resolve_backlink("words", "net", "blog.aspose.org", tm)
+        assert url is not None
+        assert "blog.aspose.com" in url
+
     def test_locale_file_skipped(self, tmp_path):
         repo = make_repo(tmp_path)
         fpath = repo / "content/docs.aspose.org/en/words/net/getting-started/installation.de.md"
