@@ -180,9 +180,18 @@ NO_VERIFIED_FALLBACK            = "NO_VERIFIED_FALLBACK"
 SKIPPED_CLOSER_VERIFIED_PARENT  = "SKIPPED_CLOSER_VERIFIED_PARENT"
 UNVERIFIED_CHILD_TARGET_BLOCKED = "UNVERIFIED_CHILD_TARGET_BLOCKED"
 
-# A5-L6: Source-type policy statuses
-STRUCTURAL_PAGE_SKIP = "STRUCTURAL_PAGE_SKIP"   # auto_updatable: false, no slot
-DEFERRED_NO_TARGETS  = "DEFERRED_NO_TARGETS"    # DOCS_ARTICLE/BLOG_POST: no deep targets available
+# A5-L6 Source-type policy statuses (STRUCTURAL_PAGE_SKIP, DEFERRED_NO_TARGETS)
+# removed TC13 (2026-08-26): both were dead code, referenced nowhere in
+# scripts/ outside their own definition (confirmed by repo-wide grep before
+# removal). A page-type-level bulk exemption was never a legitimate design
+# here: the closest real "structural" candidate in this codebase -- the
+# family/platform index pages this same TC13 pass added backlink coverage
+# for -- is explicitly IN scope for a backlink, not exempt from one. The
+# one legitimate opt-out path is the existing per-page `backlink_scope:
+# exempt` frontmatter field (see _check_backlink_exemption() in
+# backlink_backfill.py) -- explicit, reasoned, time-bounded, and already
+# wired in; it cannot accidentally blanket-exempt an entire page type the
+# way reviving a type-level skip status would.
 
 # A4: Variant authority audit statuses
 EXACT_PLATFORM_VERIFIED              = "EXACT_PLATFORM_VERIFIED"
