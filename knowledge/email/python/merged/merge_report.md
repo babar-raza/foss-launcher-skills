@@ -1,17 +1,17 @@
 # Promote Report: email/python
-Date: 2026-07-12T14:38:29.880990+00:00
-Scout SHA: c336fa7c1d6b90c6155ecf25a261477640c2b1b6
+Date: 2026-08-24T05:29:56.024923+00:00
+Scout SHA: 10a906b48c0c11005c4d93b524e4431901c9717c
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
 | Scout claims | 303 |
-| Enriched claims (S-37) | 0 |
+| Enriched claims (S-37) | 302 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 303 |
+| Total claims | 605 |
 | Classes | 32 |
 | Forbidden claims | 0 |
-| Snippets | 21 |
+| Snippets | 24 |
 
 All claims have `provenance: scout | enriched | supplemental` — no FL dependency.

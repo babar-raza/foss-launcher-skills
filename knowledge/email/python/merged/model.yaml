@@ -1,21 +1,33 @@
+bundle_generated_at: '2026-08-24T05:29:55.974102+00:00'
+bundle_id: c01a39a0-2f34-4f31-8bcb-ee4e8fb8b2a7
+config_sha: a1fb6a852b9b8451
+enrichment_status: full
+extractor_hash: ead95357567108d3
 family: email
+generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 0505eb7efcd498a0214917579ac223f5e63400f052413b31ee4b6dbcd049e33f
+  extractor_config_sha: a1fb6a852b9b8451
+  products_json_entry_sha: 8ba7ee39bc88a2757a6c8764adaa0ac621a2375783829d73642d09e79e4bcbbd
+  scout_api_surface_sha: ef3668c9c29e1509795434d8f179030932a964b66d4094ab480e3aef74ced7a7
+  scout_claims_sha: 51296d934de255dd124cd82b675b2b0341904ba8a1e37a3db26583970f4a10f3
+license: MIT
 platform: python
 product_name: aspose-email-foss
-version: '26.3'
-license: MIT
+promoted_at: '2026-08-24T05:29:56.008833+00:00'
+repo_sha: 10a906b48c0c11005c4d93b524e4431901c9717c
 repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python.git
-repo_sha: c336fa7c1d6b90c6155ecf25a261477640c2b1b6
-config_sha: a1fb6a852b9b8451
+schema_version: 2
+source: scout_and_enriched
 stale_since: null
-promoted_at: '2026-07-12T14:38:29.873029+00:00'
-source: scout_only
-enrichment_status: scout-only
-has_conflicts: false
 stats:
-  scout_claims: 303
-  enriched_claims: 0
-  supplemental_claims: 0
-  total_claims: 303
   class_count: 30
+  enriched_claims: 302
   forbidden_count: 0
-  snippet_count: 21
+  scout_claims: 303
+  snippet_count: 24
+  supplemental_claims: 0
+  total_claims: 605
+version: '26.3'
