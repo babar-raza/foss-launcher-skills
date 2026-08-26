@@ -437,7 +437,24 @@
     "file": "snippet_019.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 29,
+    "source_line": 109,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.from_file"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 118,
     "classes_used": [
       "MapiMessage",
       "PropertyId"
@@ -452,16 +469,17 @@
       "MapiMessage.to_email_message"
     ],
     "formats_referenced": [
+      "eml",
       "msg"
     ],
     "provenance": "scout"
   },
   {
-    "id": "snippet_020",
-    "file": "snippet_020.py",
+    "id": "snippet_021",
+    "file": "snippet_021.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 92,
+    "source_line": 141,
     "classes_used": [
       "MapiMessage"
     ],
@@ -476,11 +494,11 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_021",
-    "file": "snippet_021.py",
+    "id": "snippet_022",
+    "file": "snippet_022.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 104,
+    "source_line": 156,
     "classes_used": [
       "MapiMessage"
     ],
@@ -491,6 +509,49 @@
     "formats_referenced": [
       "eml",
       "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 174,
+    "classes_used": [
+      "MsgReader"
+    ],
+    "methods_used": [
+      "MsgReader.from_file",
+      "MsgReader.iter_recipient_storages"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 193,
+    "classes_used": [
+      "CFBDocument",
+      "CFBReader",
+      "CFBStorage",
+      "CFBStream",
+      "CFBWriter"
+    ],
+    "methods_used": [
+      "CFBReader.get_stream_data",
+      "CFBReader.resolve_path",
+      "CFBStorage.add_stream",
+      "CFBWriter.to_bytes"
+    ],
+    "formats_referenced": [
+      "cfb"
     ],
     "provenance": "scout"
   }
