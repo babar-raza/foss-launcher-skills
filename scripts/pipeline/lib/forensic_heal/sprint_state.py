@@ -13,10 +13,10 @@ that loads real cards and calls these.
 from __future__ import annotations
 
 # Ordinal progress ordering (schema 5f's "advancing" statuses only). Exception states
-# (REWORK_REQUIRED, BLOCKED_LOCAL, BLOCKED_EXTERNAL) are NOT part of this linear order -- a
-# card in one of them forces the whole aggregate to that exception state directly,
-# regardless of how far other cards have progressed. SUPERSEDED/OUT_OF_SCOPE cards are
-# excluded from the aggregate entirely (no longer part of active progress).
+# (REWORK_REQUIRED, BLOCKED_LOCAL, BLOCKED_EXTERNAL, PAUSED) are NOT part of this linear
+# order -- a card in one of them forces the whole aggregate to that exception state
+# directly, regardless of how far other cards have progressed. SUPERSEDED/OUT_OF_SCOPE
+# cards are excluded from the aggregate entirely (no longer part of active progress).
 _PROGRESS_ORDER: "tuple[str, ...]" = (
     "TODO", "READY", "IN_PROGRESS", "IMPLEMENTED", "FOCUSED_VERIFIED",
     "INTEGRATION_VERIFIED", "END_TO_END_VERIFIED", "PILOT_PROVEN",
@@ -24,11 +24,16 @@ _PROGRESS_ORDER: "tuple[str, ...]" = (
 )
 _PROGRESS_RANK = {status: i for i, status in enumerate(_PROGRESS_ORDER)}
 _EXCLUDED_FROM_AGGREGATE: "frozenset[str]" = frozenset({"SUPERSEDED", "OUT_OF_SCOPE"})
-_EXCEPTION_STATUSES: "frozenset[str]" = frozenset({"REWORK_REQUIRED", "BLOCKED_LOCAL", "BLOCKED_EXTERNAL"})
+# PAUSED groups with the other exception statuses here (matching schema_validators.py's
+# own _TASKCARD_NON_PROGRESS_STATUSES grouping), not with SUPERSEDED/OUT_OF_SCOPE: a
+# paused card is still in scope and needs a resume decision, so the aggregate must
+# surface it rather than silently pretending the card doesn't exist.
+_EXCEPTION_STATUSES: "frozenset[str]" = frozenset({"REWORK_REQUIRED", "BLOCKED_LOCAL", "BLOCKED_EXTERNAL", "PAUSED"})
 # Reported in this order when more than one exception type is present in scope --
 # BLOCKED_EXTERNAL first, since it is the least locally-resolvable and should dominate the
 # operator's attention over a REWORK_REQUIRED card that just needs another local pass.
-_EXCEPTION_PRIORITY: "tuple[str, ...]" = ("BLOCKED_EXTERNAL", "BLOCKED_LOCAL", "REWORK_REQUIRED")
+# PAUSED is last: it is a deliberate, freely-resumable hold, not an actual blocker.
+_EXCEPTION_PRIORITY: "tuple[str, ...]" = ("BLOCKED_EXTERNAL", "BLOCKED_LOCAL", "REWORK_REQUIRED", "PAUSED")
 
 # Taskcard `layer` values that must reach IMPLEMENTED before content-layer work begins.
 # "data" (root_cause_model.LAYERS' remaining value) is deliberately excluded -- a data-layer
