@@ -282,8 +282,8 @@
     "value": "12",
     "file": "src/Options/SaveFormat.cs",
     "line": 8,
-    "direction": "enum_only",
-    "functional": false
+    "direction": "export",
+    "functional": true
   },
   {
     "format": "Aps",
@@ -356,6 +356,14 @@
     "direction": "export"
   },
   {
+    "format": "Eot",
+    "enum": "",
+    "value": "",
+    "file": "src/Text/EotWriter.cs",
+    "line": 14,
+    "direction": "export"
+  },
+  {
     "format": "Md",
     "enum": "",
     "value": "",
@@ -424,7 +432,7 @@
     "enum": "",
     "value": "",
     "file": "src/Devices/SvgDevice.cs",
-    "line": 12,
+    "line": 20,
     "direction": "export"
   },
   {
@@ -433,6 +441,14 @@
     "value": "",
     "file": "src/Devices/TextDevice.cs",
     "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Thumbnail",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/ThumbnailDevice.cs",
+    "line": 10,
     "direction": "export"
   },
   {
@@ -472,7 +488,7 @@
     "enum": "",
     "value": "",
     "file": "src/IO/Filters/JpegDecoder.cs",
-    "line": 22,
+    "line": 27,
     "direction": "import"
   },
   {
@@ -480,7 +496,7 @@
     "enum": "",
     "value": "",
     "file": "src/IO/Filters/JpxDecoder.cs",
-    "line": 1220,
+    "line": 1276,
     "direction": "import"
   },
   {
@@ -540,11 +556,27 @@
     "direction": "export"
   },
   {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/PdfToMarkdown/MarkdownRenderer.cs",
+    "line": 19,
+    "direction": "export"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/PdfToMarkdown/MarkdownSaveOptions.cs",
+    "line": 8,
+    "direction": "export"
+  },
+  {
     "format": "TTF",
     "enum": "FontTypes",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 826,
+    "line": 854,
     "direction": "detect"
   },
   {
@@ -552,7 +584,7 @@
     "enum": "FontTypes",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 826,
+    "line": 854,
     "direction": "detect"
   },
   {
@@ -560,7 +592,7 @@
     "enum": "FontType",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 833,
+    "line": 861,
     "direction": "detect"
   },
   {
@@ -568,7 +600,7 @@
     "enum": "FontType",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 833,
+    "line": 861,
     "direction": "detect"
   },
   {
@@ -576,7 +608,7 @@
     "enum": "FontType",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 833,
+    "line": 861,
     "direction": "detect"
   },
   {
@@ -584,7 +616,119 @@
     "enum": "FontType",
     "value": "",
     "file": "src/Text/FontRepository.cs",
-    "line": 833,
+    "line": 861,
     "direction": "detect"
+  },
+  {
+    "format": "BMP",
+    "enum": "",
+    "value": "",
+    "file": "src/Security/Asn1Reader.cs",
+    "line": 202,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/Annotations/Annotation.cs",
+    "line": 976,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/Collections/PageCollection.cs",
+    "line": 63,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/HtmlToPdfConverter.Positioned.cs",
+    "line": 73,
+    "direction": "import"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/HtmlToPdfConverter.Positioned.cs",
+    "line": 761,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/Converters/HtmlToPdfConverter.cs",
+    "line": 1070,
+    "direction": "import"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/Devices/TiffDevice.cs",
+    "line": 466,
+    "direction": "export"
+  },
+  {
+    "format": "Ttf",
+    "enum": "",
+    "value": "",
+    "file": "src/Document.FlowLayout.cs",
+    "line": 1907,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "src/Document.Save.cs",
+    "line": 273,
+    "direction": "export"
+  },
+  {
+    "format": "Json",
+    "enum": "",
+    "value": "",
+    "file": "src/Facades/Form.cs",
+    "line": 1185,
+    "direction": "export"
+  },
+  {
+    "format": "Json",
+    "enum": "",
+    "value": "",
+    "file": "src/Facades/Form.cs",
+    "line": 1208,
+    "direction": "import"
+  },
+  {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "src/Facades/PdfFileSignature.cs",
+    "line": 22,
+    "direction": "import"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/Image.cs",
+    "line": 97,
+    "direction": "import"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/Image.cs",
+    "line": 102,
+    "direction": "import"
   }
 ]

@@ -1781,7 +1781,9 @@
     "methods_used": [
       "Color.Parse"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "pdf"
+    ],
     "provenance": "scout"
   },
   {
@@ -1789,7 +1791,7 @@
     "file": "snippet_076.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "ColorSpace_SavedAndRestored",
-    "source_line": 239,
+    "source_line": 242,
     "classes_used": [
       "Color",
       "ColorSpace",
@@ -1808,7 +1810,7 @@
     "file": "snippet_077.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "DashPattern_d_SetsArrayAndPhase",
-    "source_line": 252,
+    "source_line": 255,
     "classes_used": [
       "Dash",
       "Pattern"
@@ -1822,7 +1824,7 @@
     "file": "snippet_078.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "DashPattern_EmptyArray_SolidLine",
-    "source_line": 263,
+    "source_line": 266,
     "classes_used": [
       "Dash",
       "Line",
@@ -1837,7 +1839,7 @@
     "file": "snippet_079.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "DashPattern_SavedAndRestored",
-    "source_line": 274,
+    "source_line": 277,
     "classes_used": [
       "Dash",
       "Pattern",
@@ -1852,7 +1854,7 @@
     "file": "snippet_080.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "BT_SetsInTextObject",
-    "source_line": 287,
+    "source_line": 290,
     "classes_used": [
       "BT",
       "ET",
@@ -1861,6 +1863,7 @@
     "methods_used": [],
     "formats_referenced": [
       "null",
+      "obj",
       "tex",
       "text"
     ],
@@ -1871,7 +1874,7 @@
     "file": "snippet_081.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "ET_ClearsInTextObject",
-    "source_line": 304,
+    "source_line": 307,
     "classes_used": [
       "BT",
       "ET",
@@ -1880,6 +1883,7 @@
     "methods_used": [],
     "formats_referenced": [
       "null",
+      "obj",
       "tex",
       "text"
     ],
@@ -1890,7 +1894,7 @@
     "file": "snippet_082.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "BT_ResetsTextMatricesToIdentity",
-    "source_line": 321,
+    "source_line": 324,
     "classes_used": [
       "BT",
       "ET",
@@ -1911,7 +1915,7 @@
     "file": "snippet_083.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_S_FiresEvent",
-    "source_line": 337,
+    "source_line": 340,
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [
@@ -1924,7 +1928,7 @@
     "file": "snippet_084.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_f_FiresEvent",
-    "source_line": 351,
+    "source_line": 354,
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [
@@ -1937,7 +1941,7 @@
     "file": "snippet_085.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_B_FiresEvent",
-    "source_line": 365,
+    "source_line": 368,
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [
@@ -1950,7 +1954,7 @@
     "file": "snippet_086.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_n_FiresEvent",
-    "source_line": 379,
+    "source_line": 382,
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [
@@ -1963,7 +1967,7 @@
     "file": "snippet_087.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_AllPaintingOperators_Fire",
-    "source_line": 393,
+    "source_line": 396,
     "classes_used": [
       "Operator"
     ],
@@ -1978,7 +1982,7 @@
     "file": "snippet_088.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathPainted_IncludesGraphicsState",
-    "source_line": 410,
+    "source_line": 413,
     "classes_used": [
       "Graph",
       "GraphicsState",
@@ -1995,7 +1999,7 @@
     "file": "snippet_089.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "PathOperators_TrackedViaOnOperator",
-    "source_line": 424,
+    "source_line": 427,
     "classes_used": [
       "Operator",
       "PathOp"
@@ -2011,7 +2015,7 @@
     "file": "snippet_090.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "CurveTo_v_y_TrackedViaOnOperator",
-    "source_line": 442,
+    "source_line": 445,
     "classes_used": [
       "Curve",
       "CurveTo",
@@ -2028,7 +2032,7 @@
     "file": "snippet_091.cs",
     "source_file": "tests/Content/ContentStreamParserAdvancedTests.cs",
     "source_function": "ClippingOperators_TrackedViaOnOperator",
-    "source_line": 457,
+    "source_line": 460,
     "classes_used": [
       "Clip",
       "Operator"
@@ -2217,7 +2221,9 @@
     "formats_referenced": [
       "doc",
       "pdf",
-      "svg"
+      "svg",
+      "tex",
+      "text"
     ],
     "provenance": "scout"
   },
@@ -2226,7 +2232,7 @@
     "file": "snippet_099.cs",
     "source_file": "tests/Content/ExtGStateTests.cs",
     "source_function": "SvgDevice_WithBlendMode_IncludesMixBlendMode",
-    "source_line": 151,
+    "source_line": 152,
     "classes_used": [
       "BT",
       "BlendMode",
@@ -2254,7 +2260,7 @@
     "file": "snippet_100.cs",
     "source_file": "tests/Content/ExtGStateTests.cs",
     "source_function": "SvgDevice_FullOpacity_NoOpacityAttribute",
-    "source_line": 165,
+    "source_line": 166,
     "classes_used": [
       "BT",
       "Do",
