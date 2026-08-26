@@ -1544,6 +1544,75 @@ class TestRebuildAll:
             f"got:\n{written[:300]}"
         )
 
+    def test_rebuild_all_blocks_backlink_downgrade(self, tmp_path):
+        """TC13 (2026-08-26): reproduces the exact live incident (commit
+        ea05b9d8c8, "Task 14 upstream E2E proof run") directly at the run()
+        level -- a --rebuild-all regeneration whose resolve_backlink() call
+        fails to find a target for a page that previously HAD a correct
+        backlink must refuse to overwrite it, not silently strip the link.
+        Before this fix, this exact scenario would have written the page
+        with no See Also section at all."""
+        merged, page_dir = self._make_setup(tmp_path, ["Alpha"])
+        original_link = "https://reference.aspose.com/fake/net/x/setgray/"
+        (page_dir / "Alpha.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n"
+            "# Alpha\n\nSome body text.\n\n"
+            f"## See Also\n\n- [Aspose.Fake for .NET — Enterprise API Reference]({original_link})\n",
+            encoding="utf-8",
+        )
+        # Simulate resolve_backlink() failing for this run (e.g. a transient
+        # target-map gap, or the same class of issue that caused the live
+        # incident) -- BLOCKED_TARGET, exactly like the real function
+        # returns when it finds no safe target. Uses the configure() seam
+        # (AGENTS.md §16), not monkeypatch.setattr on the imported function
+        # directly -- re-passing repo_root=tmp_path preserves the autouse
+        # _isolate_paths fixture's isolation, since configure() resets any
+        # omitted arg to its production default.
+        _br.configure(repo_root=tmp_path, resolve_backlink_fn=lambda *a, **k: (None, None, None, None))
+        try:
+            result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        finally:
+            _br.configure(repo_root=tmp_path)
+
+        written = (page_dir / "Alpha.md").read_text(encoding="utf-8")
+        assert original_link in written, (
+            "the page's pre-existing backlink must survive a failed "
+            "resolve_backlink() during rebuild, not be silently stripped -- "
+            f"got:\n{written}"
+        )
+        assert result["errors"] == 1, (
+            f"the blocked downgrade must be surfaced as an error, not a "
+            f"silent success; got errors={result['errors']}, updated={result['updated']}"
+        )
+        assert result["updated"] == 0
+
+    def test_rebuild_all_allows_write_when_backlink_preserved(self, tmp_path):
+        """Negative control for the guard above: a normal rebuild where
+        resolve_backlink() succeeds must still write through -- the guard
+        must not become a blanket block on every rebuild."""
+        merged, page_dir = self._make_setup(tmp_path, ["Beta"])
+        (page_dir / "Beta.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n# Beta\n\nOld body.\n",
+            encoding="utf-8",
+        )
+        _br.configure(
+            repo_root=tmp_path,
+            resolve_backlink_fn=lambda *a, **k: (
+                "https://reference.aspose.com/fake/net/x/beta/", "platform",
+                "reference.aspose.com", None,
+            ),
+        )
+        try:
+            result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        finally:
+            _br.configure(repo_root=tmp_path)
+        assert result["errors"] == 0
+        assert result["updated"] == 1
+        written = (page_dir / "Beta.md").read_text(encoding="utf-8")
+        assert "reference.aspose.com/fake/net/x/beta/" in written
+
 
 # ---------------------------------------------------------------------------
 # configure() seam (MP-SR03 / TC-04)
@@ -1583,6 +1652,22 @@ class TestConfigureSeam:
         _br_local.configure()  # reset
         assert _br_local.KNOWLEDGE_ROOT == default_root / "knowledge"
 
+    def test_configure_resolve_backlink_fn_overrides_and_resets(self):
+        """TC13 (2026-08-26): configure(resolve_backlink_fn=...) is the
+        sanctioned seam for overriding backlink resolution in tests --
+        added specifically so monkeypatch.setattr on the imported
+        resolve_backlink function (a T2 monkeypatch-lint violation,
+        AGENTS.md §16) is never needed."""
+        import batch_reference as _br_local
+        from lib.backlink_targets import resolve_backlink as _real_resolve_backlink
+        sentinel = lambda *a, **k: ("https://example.aspose.com/x/", "platform", "x.aspose.com", None)
+        _br_local.configure(resolve_backlink_fn=sentinel)
+        try:
+            assert _br_local._resolve_backlink_fn is sentinel
+        finally:
+            _br_local.configure()  # reset
+        assert _br_local._resolve_backlink_fn is _real_resolve_backlink
+
     def test_configure_seam_enables_run_without_patching(self, tmp_path):
         """run() works correctly when roots are set via configure() instead of patch.object."""
         import batch_reference as _br_local
@@ -1601,55 +1686,73 @@ class TestConfigureSeam:
 
 
 # ---------------------------------------------------------------------------
-# TC-BL-008: _get_family_display anchor text tests
+# TC-BL-008 / TC13 (2026-08-26): anchor text tests, migrated from
+# _get_family_display() (removed -- it was _build_page()'s own independent,
+# hand-rolled anchor-text builder) to _expected_anchor_text(), the governed
+# source of truth _build_page() now calls via the shared
+# _compute_markdown_backlink_insertion() chokepoint. Same semantic
+# guarantees the original TC-BL-008 tests asserted, now proven against the
+# function classify_compliance()'s WRONG_ANCHOR_TEXT check itself validates
+# against -- not a re-derivation of it.
 # ---------------------------------------------------------------------------
 
-class TestGetFamilyDisplay:
-    """TC-BL-008: Verify anchor text respects target_type from resolve_backlink."""
+class TestExpectedAnchorTextForReferencePages:
+    """Verify the governed anchor-text source respects target_type the same
+    way _build_page()'s removed hand-rolled builder did."""
 
-    def test_family_rtype_omits_platform(self, tmp_path):
+    @staticmethod
+    def _maps():
+        from commands.ops.backlink_backfill import _load_display_maps
+        return _load_display_maps(Path(__file__).resolve().parents[3])
+
+    def _anchor(self, family, platform, target_type):
+        from commands.ops.backlink_backfill import _expected_anchor_text
+        families_map, platforms_map = self._maps()
+        return _expected_anchor_text(
+            f"https://reference.aspose.com/{family}/{platform or ''}/x/",
+            family, platform, families_map, platforms_map,
+            target_type=target_type, source_subdomain="reference.aspose.org",
+        )
+
+    def test_family_rtype_omits_platform(self):
         """When target_type='family', anchor text must be family-only."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("cells", "java", target_type="family")
+        result = self._anchor("cells", "java", "family")
         assert "for" not in result
         assert "Cells" in result
 
-    def test_platform_rtype_includes_platform(self, tmp_path):
-        """When target_type='platform', anchor text includes 'for Platform'."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("cells", "java", target_type="platform")
+    def test_platform_rtype_includes_platform(self):
+        """When target_type='platform', anchor text includes 'for Java'."""
+        result = self._anchor("cells", "java", "platform")
         assert "for Java" in result
 
-    def test_none_rtype_with_platform_includes_platform(self, tmp_path):
-        """When target_type is None but platform is set, includes platform (defensive)."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("cells", "java", target_type=None)
+    def test_none_rtype_with_platform_includes_platform(self):
+        """When target_type is None but platform is set, includes platform."""
+        result = self._anchor("cells", "java", None)
         assert "for Java" in result
 
-    def test_no_platform_always_family_only(self, tmp_path):
+    def test_no_platform_always_family_only(self):
         """When platform is empty/None, always family-only regardless of target_type."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("cells", "", target_type="platform")
+        result = self._anchor("cells", None, "platform")
         assert "for" not in result
         assert "Cells" in result
 
-    def test_platform_rtype_net_display(self, tmp_path):
-        """Platform display correctly maps 'net' to '.NET'."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("words", "net", target_type="platform")
-        assert result.endswith("for .NET")
+    def test_platform_rtype_net_display(self):
+        """Platform display correctly maps 'net' to '.NET' -- reads the real
+        metrics_taxonomy.yaml, not a hardcoded plat_map missing entries."""
+        result = self._anchor("words", "net", "platform")
+        assert "for .NET" in result
 
-    def test_family_rtype_exception_fallback(self, tmp_path):
+    def test_family_rtype_various_families(self):
         """Family rtype with valid data returns family-only."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("slides", "python", target_type="family")
+        result = self._anchor("slides", "python", "family")
         assert "for" not in result
         assert "Slides" in result
 
-    def test_unknown_rtype_includes_platform(self, tmp_path):
-        """Unknown rtype value with platform set falls through to platform branch."""
-        from batch_reference import _get_family_display
-        result = _get_family_display("pdf", "java", target_type="unknown_value")
+    def test_unknown_rtype_includes_platform(self):
+        """Unrecognized target_type value with platform set still includes
+        platform (only 'family' is special-cased, matching the original
+        _get_family_display() contract)."""
+        result = self._anchor("pdf", "java", "unknown_value")
         assert "for Java" in result
 
 
@@ -1689,6 +1792,76 @@ class TestGetCanonicalOverrides:
         call_site = source[source.index("TC-BL-007"):]
         call_site = call_site[:call_site.index("resolve_backlink(") + 400]
         assert "canonical_overrides=_get_canonical_overrides()" in call_site
+
+
+# ---------------------------------------------------------------------------
+# TC13 (2026-08-26): deep-authority wiring assertions -- the 5th and final
+# call site this mission found missing exact_deep_match_enabled/authority/
+# source_file (after backlink_audit.py's CLI, the pre-commit backlink-
+# compliance gate, and refresh_run.py's TC12 writer step, all fixed earlier
+# the same day). Without this, a freshly-generated reference.aspose.org
+# class page only ever gets a family-level fallback even when a correct,
+# pre-approved exact-class deep link already exists for it.
+# ---------------------------------------------------------------------------
+
+class TestDeepAuthorityWiredIntoReferenceGenerators:
+    _CALL_SIGNATURE = "chosen_url, _rtype, _rsubdomain, _fallback = _resolve_backlink_fn("
+
+    def _resolve_backlink_call_sites(self) -> list[str]:
+        """Both _build_page() and generate_grouped_index() share the
+        identical assignment pattern for their resolve_backlink() call
+        (routed through the _resolve_backlink_fn configure() seam, not the
+        imported function directly, so tests can override it without
+        monkeypatching) -- this is unambiguous (unlike searching for the
+        bare function name, which also matches inside this fix's own
+        explanatory prose comments, e.g. "never called resolve_backlink()
+        at all")."""
+        import inspect
+        import batch_reference as _br_mod
+        source = inspect.getsource(_br_mod)
+        sites = []
+        start = 0
+        while True:
+            idx = source.find(self._CALL_SIGNATURE, start)
+            if idx == -1:
+                break
+            sites.append(source[idx:idx + 500])
+            start = idx + len(self._CALL_SIGNATURE)
+        return sites
+
+    def test_two_resolve_backlink_call_sites_exist(self):
+        """_build_page() and generate_grouped_index() each call
+        resolve_backlink() with this signature -- exactly 2, not 1 (a
+        third call site elsewhere would mean a new ungoverned path snuck
+        back in) and not 0 (a refactor that silently dropped one)."""
+        assert len(self._resolve_backlink_call_sites()) == 2
+
+    def test_both_call_sites_pass_deep_authority_kwargs(self):
+        sites = self._resolve_backlink_call_sites()
+        for site in sites:
+            assert "exact_deep_match_enabled=bool(_authority)" in site
+            assert "authority=_authority" in site
+            assert "source_file=_source_file" in site
+
+    def test_build_page_and_grouped_index_share_the_same_writer(self):
+        """The whole point of TC13: both call sites must route through
+        _compute_markdown_backlink_insertion(), not two independent
+        hand-rolled "## See Also" constructions."""
+        import inspect
+        import batch_reference as _br_mod
+        source = inspect.getsource(_br_mod)
+        assert source.count("_compute_markdown_backlink_insertion(") >= 2
+        # The old, independently-implemented anchor-text builder's
+        # definition must be gone entirely, not just unused (a stray
+        # mention in an explanatory comment, e.g. this fix's own removal
+        # note, is fine and expected).
+        assert "def _get_family_display" not in source
+
+    def test_get_backlink_authority_caches_after_first_call(self):
+        from batch_reference import _get_backlink_authority
+        first = _get_backlink_authority()
+        second = _get_backlink_authority()
+        assert first is second
 
 
 # ---------------------------------------------------------------------------

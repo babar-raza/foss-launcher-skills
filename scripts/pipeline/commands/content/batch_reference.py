@@ -65,7 +65,10 @@ from evidence.runner import attach_evidence  # noqa: E402
 from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError, _normalize_body  # noqa: E402
 from lib.backlink_targets import (  # noqa: E402
     load_target_map, resolve_backlink, target_map_age_days, STALE_WARN_DAYS,
-    load_canonical_overrides,
+    load_canonical_overrides, detect_backlink_downgrade,
+)
+from commands.ops.backlink_backfill import (  # noqa: E402
+    _compute_markdown_backlink_insertion, _load_display_maps,
 )
 from lib.reference_filter import (  # noqa: E402
     _passes_platform_scope,
@@ -106,6 +109,56 @@ def _get_backlink_target_map() -> dict | None:
     return _backlink_target_map or None
 
 
+_backlink_authority: dict | None = None
+_backlink_authority_loaded: bool = False
+
+
+def _get_backlink_authority() -> dict | None:
+    """Load and cache backlink_authority.json (TC13, 2026-08-26). Consulted
+    unconditionally (no --deep-style opt-in flag here, matching
+    check_backlink_compliance.py's same reasoning): without it,
+    resolve_backlink() has no access to the pre-approved deep-authority
+    index for reference.aspose.org class pages, so a page whose exact-class
+    deep target requires Layer 3 matching -- most of them, per this
+    mission's own 1,271-record census -- resolves only a generic
+    family-level fallback (or BLOCKED_TARGET) at generation time, even
+    though a correct, pre-approved deep link exists. This is the same
+    missing-wiring bug this mission found and fixed 4 times earlier the
+    same day, in backlink_audit.py's CLI, the pre-commit backlink-
+    compliance gate, and refresh_run.py's TC12 writer step -- this is the
+    5th and (for this mission's own call-site audit) final instance.
+    """
+    global _backlink_authority, _backlink_authority_loaded
+    if not _backlink_authority_loaded:
+        _backlink_authority_loaded = True
+        authority_path = (
+            _DEFAULT_REPO_ROOT / "data" / "backlinks" / "workspace" / "backlink_authority.json"
+        )
+        if authority_path.exists():
+            try:
+                _backlink_authority = json.loads(authority_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                LOG.warning("backlink: could not load deep authority index: %s", exc)
+                _backlink_authority = None
+    return _backlink_authority
+
+
+_backlink_display_maps: tuple[dict, dict] | None = None
+
+
+def _get_backlink_display_maps() -> tuple[dict, dict]:
+    """Load+cache families.json + metrics_taxonomy.yaml platform display
+    names ONCE per process (TC13, 2026-08-26) -- avoids re-parsing both
+    files on every page across a 1000+-page --rebuild-all run, and reuses
+    the SAME display-name source _expected_anchor_text() validates
+    against, replacing _get_family_display()'s own narrower, independently
+    hardcoded plat_map (net/python/java/cpp/nodejs/ruby/go/android only)."""
+    global _backlink_display_maps
+    if _backlink_display_maps is None:
+        _backlink_display_maps = _load_display_maps(_DEFAULT_REPO_ROOT)
+    return _backlink_display_maps
+
+
 _canonical_overrides: dict | None = None
 
 
@@ -137,6 +190,7 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content" / "reference.aspose.org" / "en"
+_resolve_backlink_fn = resolve_backlink
 
 
 def _safe_print(message: str) -> None:
@@ -166,14 +220,22 @@ def configure(
     repo_root: Path | None = None,
     knowledge_root: Path | None = None,
     content_root: Path | None = None,
+    resolve_backlink_fn=None,
 ) -> None:
     """Set module-level root paths. Call with no args to reset defaults.
 
     Tests call ``batch_reference.configure(repo_root=tmp_path)`` (or pass
     knowledge_root / content_root directly) instead of monkeypatching globals.
     Omitted args fall back to values derived from repo_root or built-in defaults.
+
+    resolve_backlink_fn (TC13, 2026-08-26): configure() seam for the
+    backlink-resolution callable _build_page()/generate_grouped_index()
+    call, matching this repo's own established pattern (AGENTS.md §16) --
+    tests override behavior via configure() instead of monkeypatching an
+    imported module function directly (a T2 monkeypatch-lint violation).
+    Omit to reset to the real resolve_backlink().
     """
-    global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT
+    global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, _resolve_backlink_fn
     root = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = root
     KNOWLEDGE_ROOT = knowledge_root if knowledge_root is not None else root / "knowledge"
@@ -181,6 +243,7 @@ def configure(
         content_root if content_root is not None
         else root / "content" / "reference.aspose.org" / "en"
     )
+    _resolve_backlink_fn = resolve_backlink_fn if resolve_backlink_fn is not None else resolve_backlink
     # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
     # with this module's own configure() -- it is a separate module with its own
     # REPO_ROOT/KNOWLEDGE_ROOT globals, and the freshness gate below must see the
@@ -656,6 +719,7 @@ def _build_page(
     model_sha: str = "",
     model_version: str = "",
     content_created_at: str | None = None,
+    page_path: Path | None = None,
 ) -> str:
     """Build a template-based skeleton reference page from an api_surface entry.
 
@@ -666,6 +730,15 @@ def _build_page(
     When *member_erc_index* is provided, property/method table description cells
     are populated from ERC api-kind claim descriptions when the api_surface doc
     field is empty. This fills in descriptions for FOSS repos without docstrings.
+
+    page_path (TC13, 2026-08-26): the eventual repo-relative write path for
+    this page, e.g. content/reference.aspose.org/en/pdf/java/SetGray.md --
+    passed so the backlink block below can pass source_file= to
+    resolve_backlink() for deep-authority (Layer 3 exact-class) lookup.
+    Optional and best-effort: when omitted (e.g. a caller building a page
+    preview without a real destination yet), backlink resolution still
+    runs, just without deep-authority matching -- family/platform-level
+    resolution only, matching this function's pre-TC13 behavior exactly.
     """
     name = entry.get("name", "")
     doc = (entry.get("doc") or "").strip()
@@ -958,22 +1031,58 @@ def _build_page(
             lines.append(f"| {sig} | {mdoc} |")
         lines.append("")
 
-    # TC-BL-007: Append See Also section with reciprocal aspose.com backlink
+    # TC-BL-007 / TC13 (2026-08-26): Append See Also section with reciprocal
+    # aspose.com backlink -- now routed through the SAME governed chokepoint
+    # backlink_backfill.py's writer uses (idempotent dedup, near-duplicate
+    # hard-block, max-link guard, stale-bullet replacement), rather than a
+    # hand-rolled, independently-implemented "## See Also" construction with
+    # its own anchor-text logic (_get_family_display(), now removed) that
+    # could silently drift from _expected_anchor_text() -- the same source
+    # of truth classify_compliance()'s WRONG_ANCHOR_TEXT check validates
+    # against. This is the actual code path launch-product uses to generate
+    # the bulk of reference.aspose.org, not an edge case; see the TC13
+    # redesign in the governing plan for the full audit that found this.
+    #
+    # exact_deep_match_enabled/authority/source_file: consults the deep-
+    # authority index unconditionally (5th and final call site this mission
+    # found missing this wiring the same day, after backlink_audit.py's
+    # CLI, the pre-commit backlink-compliance gate, and refresh_run.py's
+    # TC12 writer step) -- without it, a freshly-generated reference.aspose.org
+    # class page would only ever get a generic family-level fallback (or
+    # BLOCKED_TARGET) even when a correct, pre-approved exact-class deep
+    # link already exists for it.
+    #
+    # Passing the whole joined `lines` (frontmatter included) as `body` is a
+    # deliberate, reviewed simplification, not an oversight: this
+    # function's frontmatter template (built above) never contains an
+    # aspose.com URL (evidence.model_sha is a git SHA, not a URL), so the
+    # near-duplicate/max-link scan operating slightly more broadly than
+    # strictly necessary is harmless here. A cleaner long-term shape would
+    # split frontmatter from body before this call; not required for
+    # correctness.
     _tm = _get_backlink_target_map()
     if _tm:
         try:
-            chosen_url, _rtype, _rsubdomain, _fallback = resolve_backlink(
+            _authority = _get_backlink_authority()
+            _source_file = _canonical_reference_path(page_path) if page_path is not None else None
+            chosen_url, _rtype, _rsubdomain, _fallback = _resolve_backlink_fn(
                 family, platform, "reference.aspose.org", _tm,
                 canonical_overrides=_get_canonical_overrides(),
+                exact_deep_match_enabled=bool(_authority),
+                authority=_authority,
+                source_file=_source_file,
             )
             if chosen_url:
-                lines.append("## See Also")
-                lines.append("")
-                lines.append(
-                    f"- [{_get_family_display(family, platform, target_type=_rtype)} — Enterprise API Reference]"
-                    f"({chosen_url})"
+                _families_map, _platforms_map = _get_backlink_display_maps()
+                _body_so_far = "\n".join(lines)
+                _before, _after, _warnings, _skipped, _skip_reason = _compute_markdown_backlink_insertion(
+                    _body_so_far, chosen_url, family, platform, "reference.aspose.org",
+                    _families_map, _platforms_map, target_type=_rtype,
                 )
-                lines.append("")
+                if _after != _body_so_far:
+                    lines = _after.split("\n")
+                for _w in _warnings:
+                    LOG.warning("backlink: %s — %s/%s", _w, family, platform)
             else:
                 LOG.warning("backlink: BLOCKED_TARGET for %s/%s — See Also omitted", family, platform)
         except Exception as exc:
@@ -1008,29 +1117,11 @@ def _build_page(
     return "\n".join(lines_out)
 
 
-def _get_family_display(family: str, platform: str, target_type: str | None = None) -> str:
-    """Return display name for the See Also link anchor text.
-
-    target_type: "platform" or "family" from resolve_backlink().
-    When "family", anchor omits platform suffix (TC-BL-008).
-    """
-    try:
-        fam_map_path = _DEFAULT_REPO_ROOT / "data" / "families.json"
-        if fam_map_path.exists():
-            import json as _json
-            fmap = _json.loads(fam_map_path.read_text(encoding="utf-8"))
-            fam_title = fmap.get(family, f"Aspose.{family.title()}")
-        else:
-            fam_title = f"Aspose.{family.title()}"
-        # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
-        if target_type == "family" or not platform:
-            return fam_title
-        plat_map = {"net": ".NET", "python": "Python", "java": "Java", "cpp": "C++",
-                    "nodejs": "Node.js", "ruby": "Ruby", "go": "Go", "android": "Android"}
-        plat_title = plat_map.get(platform, platform.title())
-        return f"{fam_title} for {plat_title}"
-    except Exception:
-        return f"Aspose.{family.title()}"
+# _get_family_display() removed TC13 (2026-08-26): it was _build_page()'s
+# own, independently hand-rolled anchor-text builder (used by nothing else
+# after this change), with a narrower hardcoded plat_map than the governed
+# _expected_anchor_text()/_get_backlink_display_maps() source of truth now
+# used instead -- see the TC13 redesign in the governing plan.
 
 
 # ---------------------------------------------------------------------------
@@ -1596,10 +1687,39 @@ def generate_grouped_index(
     # Compose full page
     full_content = f"---\n{fm_text}\n---\n\n{intro}\n{body}"
 
-    # Add See Also section
-    full_content += f"\n## See Also\n\n"
-    full_content += f"- [Aspose.{family.capitalize()} — Enterprise API Reference]"
-    full_content += f"(https://reference.aspose.com/{family}/)\n"
+    # TC13 (2026-08-26): See Also section, now routed through the same
+    # governed chokepoint _build_page() uses -- this hardcoded block was a
+    # THIRD, independently-implemented backlink insertion (never called
+    # resolve_backlink() at all, always family-level even for a
+    # platform-level index page, hardcoded `family.capitalize()` instead of
+    # the governed families.json display name). See the TC13 redesign in
+    # the governing plan for the full audit that found this.
+    _tm = _get_backlink_target_map()
+    if _tm:
+        try:
+            _authority = _get_backlink_authority()
+            _source_file = _canonical_reference_path(index_path)
+            chosen_url, _rtype, _rsubdomain, _fallback = _resolve_backlink_fn(
+                family, platform, "reference.aspose.org", _tm,
+                canonical_overrides=_get_canonical_overrides(),
+                exact_deep_match_enabled=bool(_authority),
+                authority=_authority,
+                source_file=_source_file,
+            )
+            if chosen_url:
+                _families_map, _platforms_map = _get_backlink_display_maps()
+                _before, _after, _warnings, _skipped, _skip_reason = _compute_markdown_backlink_insertion(
+                    full_content, chosen_url, family, platform, "reference.aspose.org",
+                    _families_map, _platforms_map, target_type=_rtype,
+                )
+                if _after != full_content:
+                    full_content = _after
+                for _w in _warnings:
+                    LOG.warning("backlink: %s — %s/%s (index)", _w, family, platform)
+            else:
+                LOG.warning("backlink: BLOCKED_TARGET for %s/%s (index) — See Also omitted", family, platform)
+        except Exception as exc:
+            LOG.warning("backlink: See Also generation failed for %s/%s (index): %s", family, platform, exc)
 
     if dry_run:
         preview = "\n".join(full_content.splitlines()[:40])
@@ -2387,7 +2507,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
                                    model_sha=model_sha, model_version=model_version,
-                                   content_created_at=_run_recorded_at(resolved_run_root))
+                                   content_created_at=_run_recorded_at(resolved_run_root),
+                                   page_path=page_path)
             # Timestamp-only churn guard: in --rebuild-all mode, skip pages where
             # the only differences from the existing file are pure timestamp fields
             # (content_created_at, graded_at, grade, graded_content_hash, content_hash).
@@ -2449,6 +2570,29 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 verdict="BODY_UPDATED" if is_update else "GENERATED",
                 reason="GENERATED_FROM_PINNED_KNOWLEDGE",
             )
+            # TC13 (2026-08-26): structural no-downgrade guard for backlink
+            # presence, mirroring no_downgrade_guard.py's existing grade-
+            # regression philosophy but for link presence -- confirmed live
+            # (commit ea05b9d8c8, "Task 14 upstream E2E proof run"): a
+            # --rebuild-all regeneration through this exact write path
+            # silently stripped 247 reference.aspose.org/pdf/java pages'
+            # previously-correct backlinks because resolve_backlink()
+            # returned no target during that specific run, and nothing
+            # detected the drop before the page was written. Raises into
+            # the existing per-entry except-clause below (same pattern the
+            # Task 14 incident's own ERROR-isolation fix already
+            # established) rather than silently regenerating over a known-
+            # good link -- the correct recovery is a deliberate
+            # backlink_backfill.py reconciliation pass, not this writer
+            # papering over its own resolve_backlink() failure.
+            _downgrade_reason = detect_backlink_downgrade(before_content, final_content)
+            if _downgrade_reason:
+                raise RuntimeError(
+                    f"{_downgrade_reason} for "
+                    f"{_canonical_reference_path(page_path)} -- refusing write "
+                    f"(would silently strip an existing backlink); run "
+                    f"backlink_backfill.py --deep --write to reconcile instead"
+                )
             safe_content_write(
                 page_path, final_content, mechanism="batch-reference"
             )
