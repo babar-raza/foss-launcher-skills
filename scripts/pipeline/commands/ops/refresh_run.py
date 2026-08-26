@@ -2146,12 +2146,39 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
     # writer emits no page_decisions.jsonl row, so every file it actually
     # modifies must be registered via _record_extra_allowed_hash() or the
     # later OCC guard in verify_run() would block on its own deliberate write.
+    #
+    # TC15-F1 (found live 2026-08-26, backlink-governance-redesign deep
+    # reassessment): --deep was missing here -- the fourth call site found
+    # this session with the same gap (after backlink_audit.py's CLI and the
+    # pre-commit backlink-compliance gate). Without it, resolve_backlink()
+    # has no access to the pre-approved deep-authority index
+    # (backlink_authority.json's exact-class-name AUTO_APPROVE_EXACT
+    # records), so a reference.aspose.org class page with no simple
+    # same-section family-level target on reference.aspose.com resolves
+    # BLOCKED_TARGET and is silently SKIPPED, not repaired. Confirmed live,
+    # not theoretical: commit ea05b9d8c8 ("Task 14 upstream E2E proof run")
+    # ran a real batch_reference.py --rebuild-all regeneration of
+    # reference.aspose.org/pdf/java through this exact apply_run() path,
+    # which stripped 247 pages' previously-correct deep-authority backlinks
+    # during regeneration -- this step then ran immediately afterward, in
+    # the same commit, specifically to catch and repair exactly that kind
+    # of drift, and (without --deep) silently let all 247 through as
+    # BLOCKED_TARGET instead. Reproduced directly: `backlink_backfill.py
+    # --family pdf --platform java` (no --deep, matching this call exactly)
+    # dry-runs to 0 modified / 1194 BLOCKED_TARGET; the identical call with
+    # --deep dry-runs to 247 modified, matching the live regression count
+    # precisely. Always passed unconditionally (no per-subdomain branch),
+    # matching check_backlink_compliance.py's same reasoning: the deep index
+    # is pre-approved/safe to consult, and a refresh run silently failing to
+    # repair a real backlink is worse than the deep index being consulted
+    # for subdomains that don't need it (a no-op there).
     backlink_manifest_path = run_root / "backlink_reconciliation.json"
     _require_command(
         [
             python,
             str(_repo_root / "scripts/pipeline/commands/ops/backlink_backfill.py"),
             "--write",
+            "--deep",
             "--family", family,
             "--platform", platform,
             "--output", str(backlink_manifest_path),

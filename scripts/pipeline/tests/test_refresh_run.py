@@ -1948,6 +1948,63 @@ def test_apply_run_reconciles_backlink_outside_reference_subdomain(tmp_path: Pat
     assert expected_hash in extra_hashes[broken]
 
 
+def test_apply_run_backlink_reconciliation_passes_deep_flag(tmp_path: Path):
+    """TC15-F1 (found live 2026-08-26): apply_run()'s backlink_backfill.py
+    invocation must pass --deep. Without it, resolve_backlink() has no
+    access to the pre-approved deep-authority index, so a
+    reference.aspose.org class page with no simple same-section
+    family-level target resolves BLOCKED_TARGET and is silently skipped
+    instead of repaired -- confirmed live: commit ea05b9d8c8 ran a real
+    batch_reference.py --rebuild-all regeneration of
+    reference.aspose.org/pdf/java through this exact apply_run() path,
+    stripping 247 pages' backlinks; this reconciliation step ran
+    immediately afterward in the same commit specifically to catch that
+    drift, and (without --deep) silently let all 247 through as
+    BLOCKED_TARGET instead of repairing them. Reproduced directly:
+    `backlink_backfill.py --family pdf --platform java` (no --deep)
+    dry-runs to 0 modified / 1194 BLOCKED_TARGET; the identical call with
+    --deep dry-runs to 247 modified, matching the live regression count."""
+    broken = "content/docs.aspose.org/en/pdf/net/getting-started.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [broken], "RUN-BACKLINK-DEEP")
+    invoked_args: list[str] = []
+
+    def runner(args: list[str], **_: object):
+        str_args = [str(a) for a in args]
+        if any("body_refresh.py" in a for a in str_args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-BACKLINK-DEEP"
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-BACKLINK-DEEP",
+                    "page_path": broken,
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if "backlink_backfill.py" in " ".join(str_args):
+            invoked_args.extend(str_args)
+            out_path = Path(str_args[str_args.index("--output") + 1])
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps({
+                "generated_at": "2026-07-25T00:00:00+00:00",
+                "generator": "test-stub", "dry_run": False,
+                "total_candidates": 0, "total_modified": 0,
+                "total_skipped": 0, "total_errors": 0,
+                "changes": [], "errors": [], "rollback_commands": [],
+            }), encoding="utf-8")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+    assert "--deep" in invoked_args
+
+
 def test_apply_run_backlink_reconciliation_reports_page_errors(tmp_path: Path):
     """Negative control: backlink_backfill.py's own CLI always exits 0 even
     when manifest.errors is non-empty (confirmed live) -- apply_run() must
