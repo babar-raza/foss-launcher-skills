@@ -1,6 +1,6 @@
 [
   {
-    "claim_id": "CLM-cells-864713",
+    "claim_id": "CLM-cells-4577fc58",
     "kind": "api_method",
     "text": "ChartLoader.loadCharts(filePath) -> Promise<ChartInfo[]>",
     "confidence": 1.0,
@@ -14,7 +14,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e26abd",
+    "claim_id": "CLM-cells-d36a3906",
     "kind": "api_method",
     "text": "ChartLoader.x property of type : number",
     "confidence": 1.0,
@@ -28,7 +28,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-686e6b",
+    "claim_id": "CLM-cells-1aceb443",
     "kind": "api_method",
     "text": "ChartLoader.y property of type : number",
     "confidence": 1.0,
@@ -42,7 +42,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-12b06f",
+    "claim_id": "CLM-cells-aba1e4d1",
     "kind": "api_method",
     "text": "ChartLoader.width property of type : number",
     "confidence": 1.0,
@@ -56,7 +56,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ddd67b",
+    "claim_id": "CLM-cells-645b1bc9",
     "kind": "api_method",
     "text": "ChartLoader.height property of type : number",
     "confidence": 1.0,
@@ -70,7 +70,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-061321",
+    "claim_id": "CLM-cells-d74df9a8",
     "kind": "api_method",
     "text": "ChartLoader.name property of type : string",
     "confidence": 1.0,
@@ -84,7 +84,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-de8baf",
+    "claim_id": "CLM-cells-04af3f17",
     "kind": "api_method",
     "text": "ChartLoader.values property of type : number[]",
     "confidence": 1.0,
@@ -98,7 +98,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-81a3f9",
+    "claim_id": "CLM-cells-34401430",
     "kind": "api_method",
     "text": "ChartLoader.categories property of type : string[]",
     "confidence": 1.0,
@@ -126,7 +126,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bf2a75",
+    "claim_id": "CLM-cells-0e531088",
     "kind": "api_method",
     "text": "ConditionalFormat.addArea(range) -> ",
     "confidence": 1.0,
@@ -140,7 +140,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e53557",
+    "claim_id": "CLM-cells-bba03edb",
     "kind": "api_method",
     "text": "ConditionalFormat.getRanges() -> CellRange[]",
     "confidence": 1.0,
@@ -154,7 +154,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ff90d9",
+    "claim_id": "CLM-cells-af7fdfcc",
     "kind": "api_method",
     "text": "ConditionalFormat.addRule(rule) -> ",
     "confidence": 1.0,
@@ -168,7 +168,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6cbd5e",
+    "claim_id": "CLM-cells-111dd046",
     "kind": "api_method",
     "text": "ConditionalFormat.getRules() -> ConditionalFormatRule[]",
     "confidence": 1.0,
@@ -182,7 +182,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-489810",
+    "claim_id": "CLM-cells-35e7e2f0",
     "kind": "api_method",
     "text": "ConditionalFormat.toXml() -> string",
     "confidence": 1.0,
@@ -210,7 +210,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3e9d61",
+    "claim_id": "CLM-cells-220bcb51",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.add() -> ConditionalFormat",
     "confidence": 1.0,
@@ -224,7 +224,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bc9909",
+    "claim_id": "CLM-cells-1c183555",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.get(index) -> ConditionalFormat | undefined",
     "confidence": 1.0,
@@ -238,7 +238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5447ae",
+    "claim_id": "CLM-cells-7bda1758",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.remove(index) -> ",
     "confidence": 1.0,
@@ -252,7 +252,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f5a59d",
+    "claim_id": "CLM-cells-e28fe6c8",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.clear() -> ",
     "confidence": 1.0,
@@ -266,7 +266,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7484b7",
+    "claim_id": "CLM-cells-473ea277",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.count property of type number",
     "confidence": 1.0,
@@ -280,7 +280,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1e3b06",
+    "claim_id": "CLM-cells-273ad4a4",
     "kind": "api_method",
     "text": "ConditionalFormatCollection.toXml() -> string",
     "confidence": 1.0,
@@ -308,7 +308,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6d3816",
+    "claim_id": "CLM-cells-a123bffd",
     "kind": "api_method",
     "text": "HtmlExporter.constructor(workbook) -> ",
     "confidence": 1.0,
@@ -322,7 +322,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-84be4e",
+    "claim_id": "CLM-cells-f904d176",
     "kind": "api_method",
     "text": "HtmlExporter.saveAsHtmlFrameset(filePath, htmlDir, fileName) -> ",
     "confidence": 1.0,
@@ -336,7 +336,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-eeaebb",
+    "claim_id": "CLM-cells-bcc24e83",
     "kind": "api_method",
     "text": "HtmlExporter.worksheetToHtmlForExcel(worksheet) -> string",
     "confidence": 1.0,
@@ -364,7 +364,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-95cf58",
+    "claim_id": "CLM-cells-b21e257b",
     "kind": "api_method",
     "text": "HtmlReader.tagName property of type : string",
     "confidence": 1.0,
@@ -378,7 +378,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-694a69",
+    "claim_id": "CLM-cells-d004e81a",
     "kind": "api_method",
     "text": "HtmlReader.isStartTag property of type : boolean",
     "confidence": 1.0,
@@ -392,7 +392,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c3fdb7",
+    "claim_id": "CLM-cells-9f17a81f",
     "kind": "api_method",
     "text": "HtmlReader.isEndTag property of type : boolean",
     "confidence": 1.0,
@@ -406,7 +406,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fc7b69",
+    "claim_id": "CLM-cells-ef657d49",
     "kind": "api_method",
     "text": "HtmlReader.isSelfClosing property of type : boolean",
     "confidence": 1.0,
@@ -420,7 +420,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-01f059",
+    "claim_id": "CLM-cells-7f1f9f15",
     "kind": "api_method",
     "text": "HtmlReader.text property of type : string",
     "confidence": 1.0,
@@ -434,7 +434,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8fc05d",
+    "claim_id": "CLM-cells-c55f8c07",
     "kind": "api_method",
     "text": "HtmlReader.constructor(html) -> ",
     "confidence": 1.0,
@@ -448,7 +448,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a5279e",
+    "claim_id": "CLM-cells-ae12d669",
     "kind": "api_method",
     "text": "HtmlReader.read() -> boolean",
     "confidence": 1.0,
@@ -462,7 +462,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fb04d0",
+    "claim_id": "CLM-cells-4d54357c",
     "kind": "api_method",
     "text": "HtmlReader.getAttribute(name) -> string | null",
     "confidence": 1.0,
@@ -476,7 +476,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-034e1e",
+    "claim_id": "CLM-cells-fada9f5c",
     "kind": "api_method",
     "text": "HtmlReader.getOuterHtml() -> string",
     "confidence": 1.0,
@@ -490,7 +490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c83b85",
+    "claim_id": "CLM-cells-317d3a0d",
     "kind": "api_method",
     "text": "HtmlReader.getInnerHtml() -> string",
     "confidence": 1.0,
@@ -504,7 +504,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-90c2ab",
+    "claim_id": "CLM-cells-3f874cb6",
     "kind": "api_method",
     "text": "HtmlReader.querySelectorAll(selector) -> HtmlReader[]",
     "confidence": 1.0,
@@ -518,7 +518,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-228542",
+    "claim_id": "CLM-cells-fcac402f",
     "kind": "api_method",
     "text": "HtmlReader.querySelector(selector) -> HtmlReader | null",
     "confidence": 1.0,
@@ -532,7 +532,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4b802a",
+    "claim_id": "CLM-cells-ba3cd178",
     "kind": "api_method",
     "text": "HtmlReader.getFullElement() -> string",
     "confidence": 1.0,
@@ -546,7 +546,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8d3478",
+    "claim_id": "CLM-cells-231428ec",
     "kind": "api_method",
     "text": "HtmlReader.getElementsByTagName(tagName) -> HtmlReader[]",
     "confidence": 1.0,
@@ -560,7 +560,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-aedb32",
+    "claim_id": "CLM-cells-3ef5a5c3",
     "kind": "api_method",
     "text": "HtmlReader.textContent property of type string",
     "confidence": 1.0,
@@ -588,7 +588,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-74f6c6",
+    "claim_id": "CLM-cells-cf3d8c53",
     "kind": "api_method",
     "text": "HtmlWriter.fromWorkbook(workbook, options) -> string",
     "confidence": 1.0,
@@ -602,7 +602,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cd2845",
+    "claim_id": "CLM-cells-65731582",
     "kind": "api_method",
     "text": "HtmlWriter.fromWorksheet(worksheet, options) -> string",
     "confidence": 1.0,
@@ -686,7 +686,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4f07a",
+    "claim_id": "CLM-cells-16719ef7",
     "kind": "api_method",
     "text": "AutoFilter.constructor(range) -> ",
     "confidence": 1.0,
@@ -700,7 +700,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2bb6b5",
+    "claim_id": "CLM-cells-2c831c66",
     "kind": "api_method",
     "text": "AutoFilter.range property of type string",
     "confidence": 1.0,
@@ -714,7 +714,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0e1cb2",
+    "claim_id": "CLM-cells-a0989877",
     "kind": "api_method",
     "text": "AutoFilter.columns property of type FilterColumn[]",
     "confidence": 1.0,
@@ -728,7 +728,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-923a7c",
+    "claim_id": "CLM-cells-d90606c7",
     "kind": "api_method",
     "text": "AutoFilter.addFilterColumn(col, filters, blank) -> ",
     "confidence": 1.0,
@@ -742,7 +742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ed15e3",
+    "claim_id": "CLM-cells-9d6a4936",
     "kind": "api_method",
     "text": "AutoFilter.removeFilterColumn(col) -> ",
     "confidence": 1.0,
@@ -756,7 +756,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-98834d",
+    "claim_id": "CLM-cells-107c39d2",
     "kind": "api_method",
     "text": "AutoFilter.clear() -> ",
     "confidence": 1.0,
@@ -770,7 +770,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f7555d",
+    "claim_id": "CLM-cells-3721bb79",
     "kind": "api_method",
     "text": "AutoFilter.toXml() -> string",
     "confidence": 1.0,
@@ -798,7 +798,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1f943a",
+    "claim_id": "CLM-cells-ede51cd7",
     "kind": "api_method",
     "text": "Cell.sharedStringMap property of type : Map<string, number>",
     "confidence": 1.0,
@@ -812,7 +812,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-657e07",
+    "claim_id": "CLM-cells-34fb3841",
     "kind": "api_method",
     "text": "Cell.setSharedStrings(strings) -> ",
     "confidence": 1.0,
@@ -826,7 +826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-13df40",
+    "claim_id": "CLM-cells-2c1aca32",
     "kind": "api_method",
     "text": "Cell.constructor(row, col, value) -> ",
     "confidence": 1.0,
@@ -840,7 +840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e3a256",
+    "claim_id": "CLM-cells-48521929",
     "kind": "api_method",
     "text": "Cell.row property of type ",
     "confidence": 1.0,
@@ -854,7 +854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f66b2e",
+    "claim_id": "CLM-cells-0df3a453",
     "kind": "api_method",
     "text": "Cell.col property of type ",
     "confidence": 1.0,
@@ -868,7 +868,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-935922",
+    "claim_id": "CLM-cells-817a5ed6",
     "kind": "api_method",
     "text": "Cell.ref property of type ",
     "confidence": 1.0,
@@ -882,7 +882,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cc5297",
+    "claim_id": "CLM-cells-a786b4d4",
     "kind": "api_method",
     "text": "Cell.value property of type CellValue",
     "confidence": 1.0,
@@ -896,7 +896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-52b40d",
+    "claim_id": "CLM-cells-911182d1",
     "kind": "api_method",
     "text": "Cell.putValue(value) -> ",
     "confidence": 1.0,
@@ -910,7 +910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3a412d",
+    "claim_id": "CLM-cells-e66de98d",
     "kind": "api_method",
     "text": "Cell.formula property of type string | undefined",
     "confidence": 1.0,
@@ -924,7 +924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-91aa7f",
+    "claim_id": "CLM-cells-8178759b",
     "kind": "api_method",
     "text": "Cell.setFormula(formula) -> ",
     "confidence": 1.0,
@@ -938,7 +938,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e196dc",
+    "claim_id": "CLM-cells-434d16e2",
     "kind": "api_method",
     "text": "Cell.style property of type Style | undefined",
     "confidence": 1.0,
@@ -952,7 +952,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2e1cf2",
+    "claim_id": "CLM-cells-577ca531",
     "kind": "api_method",
     "text": "Cell.setStyle(style) -> ",
     "confidence": 1.0,
@@ -966,7 +966,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0aea08",
+    "claim_id": "CLM-cells-01cb19f4",
     "kind": "api_method",
     "text": "Cell.setStyleIndex(index) -> ",
     "confidence": 1.0,
@@ -980,7 +980,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ce28f5",
+    "claim_id": "CLM-cells-74927c89",
     "kind": "api_method",
     "text": "Cell.styleIndex property of type number | undefined",
     "confidence": 1.0,
@@ -994,7 +994,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c94ebd",
+    "claim_id": "CLM-cells-c9b8f9f5",
     "kind": "api_method",
     "text": "Cell.hyperlink property of type string | undefined",
     "confidence": 1.0,
@@ -1008,7 +1008,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d3ef37",
+    "claim_id": "CLM-cells-c7081e3c",
     "kind": "api_method",
     "text": "Cell.setHyperlink(url) -> ",
     "confidence": 1.0,
@@ -1022,7 +1022,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b5de23",
+    "claim_id": "CLM-cells-0f9d119f",
     "kind": "api_method",
     "text": "Cell.toXml() -> string",
     "confidence": 1.0,
@@ -1050,7 +1050,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4d5235",
+    "claim_id": "CLM-cells-cdacc4bf",
     "kind": "api_method",
     "text": "Cells.get(key) -> Cell | undefined",
     "confidence": 1.0,
@@ -1064,7 +1064,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-203fea",
+    "claim_id": "CLM-cells-22efa0e9",
     "kind": "api_method",
     "text": "Cells.set(key, cell) -> ",
     "confidence": 1.0,
@@ -1078,7 +1078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a59e9f",
+    "claim_id": "CLM-cells-42f352ed",
     "kind": "api_method",
     "text": "Cells.getOrCreate(row, col) -> Cell",
     "confidence": 1.0,
@@ -1092,7 +1092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2581e5",
+    "claim_id": "CLM-cells-2e8080fd",
     "kind": "api_method",
     "text": "Cells.count property of type ",
     "confidence": 1.0,
@@ -1120,7 +1120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-96bda8",
+    "claim_id": "CLM-cells-98979923",
     "kind": "api_method",
     "text": "Cells.values() -> ",
     "confidence": 1.0,
@@ -1134,7 +1134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c65a8e",
+    "claim_id": "CLM-cells-7a3a8e40",
     "kind": "api_method",
     "text": "Cells.toXml() -> string",
     "confidence": 1.0,
@@ -1176,7 +1176,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4bf5d4",
+    "claim_id": "CLM-cells-71c8c220",
     "kind": "api_method",
     "text": "Chart.chartType property of type : ChartType",
     "confidence": 1.0,
@@ -1190,7 +1190,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-86d917",
+    "claim_id": "CLM-cells-7a9bdb9f",
     "kind": "api_method",
     "text": "Chart.title property of type : string",
     "confidence": 1.0,
@@ -1204,7 +1204,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-405aff",
+    "claim_id": "CLM-cells-3da6d002",
     "kind": "api_method",
     "text": "Chart.series property of type : ChartSeries[]",
     "confidence": 1.0,
@@ -1218,7 +1218,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0b5ff6",
+    "claim_id": "CLM-cells-d39840b6",
     "kind": "api_method",
     "text": "Chart.legendPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -1232,7 +1232,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d95694",
+    "claim_id": "CLM-cells-f8b3d012",
     "kind": "api_method",
     "text": "Chart.categoryAxisPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -1246,7 +1246,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ae2afe",
+    "claim_id": "CLM-cells-5dea3f0f",
     "kind": "api_method",
     "text": "Chart.valueAxisPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -1260,7 +1260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a22f3d",
+    "claim_id": "CLM-cells-22cbb318",
     "kind": "api_method",
     "text": "Chart.plotArea property of type : { x: number; y: number; width: number; height: number }",
     "confidence": 1.0,
@@ -1274,7 +1274,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fc6700",
+    "claim_id": "CLM-cells-f293f533",
     "kind": "api_method",
     "text": "Chart.x property of type : number",
     "confidence": 1.0,
@@ -1288,7 +1288,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a91fb3",
+    "claim_id": "CLM-cells-685e6341",
     "kind": "api_method",
     "text": "Chart.y property of type : number",
     "confidence": 1.0,
@@ -1302,7 +1302,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f6befa",
+    "claim_id": "CLM-cells-cf2a1a4b",
     "kind": "api_method",
     "text": "Chart.width property of type : number",
     "confidence": 1.0,
@@ -1316,7 +1316,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fd9cfc",
+    "claim_id": "CLM-cells-1470768b",
     "kind": "api_method",
     "text": "Chart.height property of type : number",
     "confidence": 1.0,
@@ -1330,7 +1330,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-96662c",
+    "claim_id": "CLM-cells-34c1eda1",
     "kind": "api_method",
     "text": "Chart.fromRow property of type : number",
     "confidence": 1.0,
@@ -1344,7 +1344,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7bec77",
+    "claim_id": "CLM-cells-c59bce19",
     "kind": "api_method",
     "text": "Chart.fromCol property of type : number",
     "confidence": 1.0,
@@ -1358,7 +1358,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-31fe65",
+    "claim_id": "CLM-cells-fb5f3ada",
     "kind": "api_method",
     "text": "Chart.toRow property of type : number",
     "confidence": 1.0,
@@ -1372,7 +1372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ac8478",
+    "claim_id": "CLM-cells-e79ef20a",
     "kind": "api_method",
     "text": "Chart.toCol property of type : number",
     "confidence": 1.0,
@@ -1386,7 +1386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-32636c",
+    "claim_id": "CLM-cells-9dbfccc6",
     "kind": "api_method",
     "text": "Chart.fromRowOff property of type : number",
     "confidence": 1.0,
@@ -1400,7 +1400,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-43edbe",
+    "claim_id": "CLM-cells-41782091",
     "kind": "api_method",
     "text": "Chart.fromColOff property of type : number",
     "confidence": 1.0,
@@ -1414,7 +1414,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-42dc8c",
+    "claim_id": "CLM-cells-c26255a8",
     "kind": "api_method",
     "text": "Chart.toRowOff property of type : number",
     "confidence": 1.0,
@@ -1428,7 +1428,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3e5332",
+    "claim_id": "CLM-cells-8b7db771",
     "kind": "api_method",
     "text": "Chart.toColOff property of type : number",
     "confidence": 1.0,
@@ -1442,7 +1442,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3203ee",
+    "claim_id": "CLM-cells-4f3a452f",
     "kind": "api_method",
     "text": "Chart.originalX property of type : number",
     "confidence": 1.0,
@@ -1456,7 +1456,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d81175",
+    "claim_id": "CLM-cells-5662f71c",
     "kind": "api_method",
     "text": "Chart.originalY property of type : number",
     "confidence": 1.0,
@@ -1470,7 +1470,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4e675d",
+    "claim_id": "CLM-cells-107452c6",
     "kind": "api_method",
     "text": "Chart.sheetIndex property of type : number",
     "confidence": 1.0,
@@ -1484,7 +1484,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c87b01",
+    "claim_id": "CLM-cells-7db0ff37",
     "kind": "api_method",
     "text": "Chart.type property of type : string",
     "confidence": 1.0,
@@ -1498,7 +1498,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-368b54",
+    "claim_id": "CLM-cells-291fe48d",
     "kind": "api_method",
     "text": "Chart.name property of type : string",
     "confidence": 1.0,
@@ -1512,7 +1512,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a0b9c4",
+    "claim_id": "CLM-cells-81bc229a",
     "kind": "api_method",
     "text": "Chart.originalChartXml property of type : string",
     "confidence": 1.0,
@@ -1526,7 +1526,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bbdecf",
+    "claim_id": "CLM-cells-18b5963f",
     "kind": "api_method",
     "text": "Chart.originalStyleXml property of type : string",
     "confidence": 1.0,
@@ -1540,7 +1540,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-277302",
+    "claim_id": "CLM-cells-a36db465",
     "kind": "api_method",
     "text": "Chart.originalColorsXml property of type : string",
     "confidence": 1.0,
@@ -1554,7 +1554,63 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f6634d",
+    "claim_id": "CLM-cells-fc6700",
+    "kind": "api_method",
+    "text": "Chart.x property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/chart.ts",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a91fb3",
+    "kind": "api_method",
+    "text": "Chart.y property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/chart.ts",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f6befa",
+    "kind": "api_method",
+    "text": "Chart.width property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/chart.ts",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-fd9cfc",
+    "kind": "api_method",
+    "text": "Chart.height property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/chart.ts",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f038d060",
     "kind": "api_method",
     "text": "Chart.dataRange property of type : string",
     "confidence": 1.0,
@@ -1568,7 +1624,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3432be",
+    "claim_id": "CLM-cells-2d6ee9e2",
     "kind": "api_method",
     "text": "Chart.dataIsVertical property of type : boolean",
     "confidence": 1.0,
@@ -1582,7 +1638,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-63d3c1",
+    "claim_id": "CLM-cells-4e63dcc3",
     "kind": "api_method",
     "text": "Chart.constructor(type, sheetIndex) -> ",
     "confidence": 1.0,
@@ -1596,7 +1652,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5b3997",
+    "claim_id": "CLM-cells-b5e71f84",
     "kind": "api_method",
     "text": "Chart.setPosition(topRow, leftColumn, bottomRow, rightColumn) -> Chart",
     "confidence": 1.0,
@@ -1610,7 +1666,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dea442",
+    "claim_id": "CLM-cells-a31d04e5",
     "kind": "api_method",
     "text": "Chart.setPositionWithOffset(topRow, top, leftColumn, left, height, width) -> Chart",
     "confidence": 1.0,
@@ -1624,7 +1680,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8ed281",
+    "claim_id": "CLM-cells-b494e2c4",
     "kind": "api_method",
     "text": "Chart.setDataRange(dataRange, isVertical) -> Chart",
     "confidence": 1.0,
@@ -1638,7 +1694,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-28e3ae",
+    "claim_id": "CLM-cells-94fd2472",
     "kind": "api_method",
     "text": "Chart.setWorksheet(worksheet) -> void",
     "confidence": 1.0,
@@ -1652,7 +1708,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-61764a",
+    "claim_id": "CLM-cells-9a204fd0",
     "kind": "api_method",
     "text": "Chart.setTitle(title) -> Chart",
     "confidence": 1.0,
@@ -1666,7 +1722,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a2279f",
+    "claim_id": "CLM-cells-93dc8ae1",
     "kind": "api_method",
     "text": "Chart.setLegendPosition(position) -> Chart",
     "confidence": 1.0,
@@ -1694,7 +1750,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f09adf",
+    "claim_id": "CLM-cells-d70f7d9b",
     "kind": "api_method",
     "text": "ChartCollection.constructor(sheetIndex, worksheet) -> ",
     "confidence": 1.0,
@@ -1708,7 +1764,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1629b7",
+    "claim_id": "CLM-cells-559ce897",
     "kind": "api_method",
     "text": "ChartCollection.setWorksheet(worksheet) -> void",
     "confidence": 1.0,
@@ -1722,7 +1778,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-39391e",
+    "claim_id": "CLM-cells-65998a26",
     "kind": "api_method",
     "text": "ChartCollection.length property of type number",
     "confidence": 1.0,
@@ -1736,7 +1792,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-588077",
+    "claim_id": "CLM-cells-338cff5f",
     "kind": "api_method",
     "text": "ChartCollection.count property of type number",
     "confidence": 1.0,
@@ -1750,7 +1806,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0dd9fd",
+    "claim_id": "CLM-cells-65b6332b",
     "kind": "api_method",
     "text": "ChartCollection.get(index) -> Chart | undefined",
     "confidence": 1.0,
@@ -1764,7 +1820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-067f44",
+    "claim_id": "CLM-cells-f8398a81",
     "kind": "api_method",
     "text": "ChartCollection.getByName(name) -> Chart | undefined",
     "confidence": 1.0,
@@ -1778,7 +1834,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5626c2",
+    "claim_id": "CLM-cells-bf37868f",
     "kind": "api_method",
     "text": "ChartCollection.add(type, topRow, leftColumn, bottomRow, rightColumn) -> number",
     "confidence": 1.0,
@@ -1792,7 +1848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-62e725",
+    "claim_id": "CLM-cells-9b771c7b",
     "kind": "api_method",
     "text": "ChartCollection.addWithDataRange(type, dataRange, isVertical, topRow, leftColumn, rightRow, bottomColumn) -> number",
     "confidence": 1.0,
@@ -1806,7 +1862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0c2ebe",
+    "claim_id": "CLM-cells-aa8623fa",
     "kind": "api_method",
     "text": "ChartCollection.addWithOffset(type, topRow, top, leftColumn, left, height, width) -> number",
     "confidence": 1.0,
@@ -1820,7 +1876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ad3273",
+    "claim_id": "CLM-cells-c46216f4",
     "kind": "api_method",
     "text": "ChartCollection.removeAt(index) -> void",
     "confidence": 1.0,
@@ -1834,7 +1890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a67222",
+    "claim_id": "CLM-cells-e12fb89c",
     "kind": "api_method",
     "text": "ChartCollection.clear() -> void",
     "confidence": 1.0,
@@ -1848,7 +1904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-51ac1f",
+    "claim_id": "CLM-cells-4045ae17",
     "kind": "api_method",
     "text": "ChartCollection.toArray() -> Chart[]",
     "confidence": 1.0,
@@ -1862,7 +1918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-08ce88",
+    "claim_id": "CLM-cells-a6277d0e",
     "kind": "api_method",
     "text": "ChartCollection.getChartInfos() -> Chart[]",
     "confidence": 1.0,
@@ -1890,7 +1946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8436cf",
+    "claim_id": "CLM-cells-0a630614",
     "kind": "api_method",
     "text": "Comment.constructor(row, col, text, author) -> ",
     "confidence": 1.0,
@@ -1932,7 +1988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-be2c12",
+    "claim_id": "CLM-cells-bcde33d4",
     "kind": "api_method",
     "text": "Comment.ref property of type string",
     "confidence": 1.0,
@@ -1974,7 +2030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-99ca42",
+    "claim_id": "CLM-cells-75b727a8",
     "kind": "api_method",
     "text": "Comment.width property of type number",
     "confidence": 1.0,
@@ -1988,7 +2044,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c2f523",
+    "claim_id": "CLM-cells-9fbf4ed8",
     "kind": "api_method",
     "text": "Comment.height property of type number",
     "confidence": 1.0,
@@ -2002,7 +2058,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-668bdc",
+    "claim_id": "CLM-cells-cb0c3928",
     "kind": "api_method",
     "text": "Comment.toXml() -> string",
     "confidence": 1.0,
@@ -2030,7 +2086,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-987b9d",
+    "claim_id": "CLM-cells-e31c5fd6",
     "kind": "api_method",
     "text": "CommentCollection.add(row, col, text, author) -> Comment",
     "confidence": 1.0,
@@ -2044,7 +2100,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d52262",
+    "claim_id": "CLM-cells-e902238e",
     "kind": "api_method",
     "text": "CommentCollection.get(index) -> Comment | undefined",
     "confidence": 1.0,
@@ -2058,7 +2114,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ef5675",
+    "claim_id": "CLM-cells-2e14dd4d",
     "kind": "api_method",
     "text": "CommentCollection.getByCell(row, col) -> Comment | undefined",
     "confidence": 1.0,
@@ -2072,7 +2128,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-80fd12",
+    "claim_id": "CLM-cells-11e7c8c1",
     "kind": "api_method",
     "text": "CommentCollection.remove(index) -> ",
     "confidence": 1.0,
@@ -2086,7 +2142,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5e7410",
+    "claim_id": "CLM-cells-41989581",
     "kind": "api_method",
     "text": "CommentCollection.clear() -> ",
     "confidence": 1.0,
@@ -2100,7 +2156,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f9972c",
+    "claim_id": "CLM-cells-1bdea7e0",
     "kind": "api_method",
     "text": "CommentCollection.count property of type number",
     "confidence": 1.0,
@@ -2114,7 +2170,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-04d707",
+    "claim_id": "CLM-cells-195139d6",
     "kind": "api_method",
     "text": "CommentCollection.toXml() -> string",
     "confidence": 1.0,
@@ -2142,7 +2198,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2445ae",
+    "claim_id": "CLM-cells-d210a24b",
     "kind": "api_method",
     "text": "DataRelationship.worksheetRels(sheetIndex) -> string",
     "confidence": 1.0,
@@ -2156,7 +2212,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-777e58",
+    "claim_id": "CLM-cells-73573725",
     "kind": "api_method",
     "text": "DataRelationship.drawingRels() -> string",
     "confidence": 1.0,
@@ -2170,7 +2226,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a0882c",
+    "claim_id": "CLM-cells-c0c5f291",
     "kind": "api_method",
     "text": "DataRelationship.drawingsRels(shapesArray) -> string",
     "confidence": 1.0,
@@ -2184,7 +2240,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3e2c85",
+    "claim_id": "CLM-cells-0d8f7cf3",
     "kind": "api_method",
     "text": "DataRelationship.length property of type : number",
     "confidence": 1.0,
@@ -2212,7 +2268,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-93fd44",
+    "claim_id": "CLM-cells-83db233a",
     "kind": "api_method",
     "text": "ExpDrawing.generateDrawingXml(shapes, sheetImages, imageMap) -> string",
     "confidence": 1.0,
@@ -2226,7 +2282,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cd980d",
+    "claim_id": "CLM-cells-32825412",
     "kind": "api_method",
     "text": "ExpDrawing.generateUniqueId() -> string",
     "confidence": 1.0,
@@ -2240,7 +2296,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-470d23",
+    "claim_id": "CLM-cells-34ff8fac",
     "kind": "api_method",
     "text": "ExpDrawing.generateGuid() -> string",
     "confidence": 1.0,
@@ -2254,7 +2310,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a8e5e4",
+    "claim_id": "CLM-cells-8efaff56",
     "kind": "api_method",
     "text": "ExpDrawing.shapeToDrawingXml(shape, index) -> string",
     "confidence": 1.0,
@@ -2268,7 +2324,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fa13c5",
+    "claim_id": "CLM-cells-29d4eabd",
     "kind": "api_method",
     "text": "ExpDrawing.getDrawingShapeType(type) -> string",
     "confidence": 1.0,
@@ -2282,7 +2338,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b53e78",
+    "claim_id": "CLM-cells-2e25e4e5",
     "kind": "api_method",
     "text": "ExpDrawing.colorToScheme(color) -> string",
     "confidence": 1.0,
@@ -2296,7 +2352,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ae02b0",
+    "claim_id": "CLM-cells-c93f403f",
     "kind": "api_method",
     "text": "ExpDrawing.schemeToColor(schemeColor) -> string",
     "confidence": 1.0,
@@ -2310,7 +2366,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-72ad51",
+    "claim_id": "CLM-cells-f0561c5f",
     "kind": "api_method",
     "text": "ExpDrawing.shapeFillToXml(fill, fallbackColor) -> string",
     "confidence": 1.0,
@@ -2324,7 +2380,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-11d0f6",
+    "claim_id": "CLM-cells-929256b2",
     "kind": "api_method",
     "text": "ExpDrawing.isConnectorShape(shape) -> shape is AllConnectorShapeInfo",
     "confidence": 1.0,
@@ -2352,7 +2408,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-79b6d3",
+    "claim_id": "CLM-cells-4ccc107f",
     "kind": "api_method",
     "text": "ChartArea.x property of type : number",
     "confidence": 1.0,
@@ -2366,7 +2422,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-68389e",
+    "claim_id": "CLM-cells-b8d1f1d1",
     "kind": "api_method",
     "text": "ChartArea.y property of type : number",
     "confidence": 1.0,
@@ -2380,7 +2436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-99c5a7",
+    "claim_id": "CLM-cells-ba0d6728",
     "kind": "api_method",
     "text": "ChartArea.width property of type : number",
     "confidence": 1.0,
@@ -2394,7 +2450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9ff472",
+    "claim_id": "CLM-cells-437d9c84",
     "kind": "api_method",
     "text": "ChartArea.height property of type : number",
     "confidence": 1.0,
@@ -2422,7 +2478,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e2dfa1",
+    "claim_id": "CLM-cells-2cb26ba1",
     "kind": "api_method",
     "text": "PlotArea.x property of type : number",
     "confidence": 1.0,
@@ -2436,7 +2492,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-138836",
+    "claim_id": "CLM-cells-93e64b5d",
     "kind": "api_method",
     "text": "PlotArea.y property of type : number",
     "confidence": 1.0,
@@ -2450,7 +2506,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-341453",
+    "claim_id": "CLM-cells-f0366243",
     "kind": "api_method",
     "text": "PlotArea.width property of type : number",
     "confidence": 1.0,
@@ -2464,7 +2520,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-afba54",
+    "claim_id": "CLM-cells-ecd89867",
     "kind": "api_method",
     "text": "PlotArea.height property of type : number",
     "confidence": 1.0,
@@ -2492,7 +2548,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-af0caf",
+    "claim_id": "CLM-cells-01a04a50",
     "kind": "api_method",
     "text": "SeriesInfo.name property of type : string",
     "confidence": 1.0,
@@ -2506,7 +2562,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-86ba47",
+    "claim_id": "CLM-cells-3208cd59",
     "kind": "api_method",
     "text": "SeriesInfo.color property of type : string",
     "confidence": 1.0,
@@ -2520,7 +2576,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dead27",
+    "claim_id": "CLM-cells-a5610af0",
     "kind": "api_method",
     "text": "SeriesInfo.values property of type : number[]",
     "confidence": 1.0,
@@ -2548,7 +2604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3a7d19",
+    "claim_id": "CLM-cells-fb7d2f14",
     "kind": "api_method",
     "text": "LegendInfo.position property of type : \"right\" | \"left\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -2562,7 +2618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-541a21",
+    "claim_id": "CLM-cells-f155725f",
     "kind": "api_method",
     "text": "LegendInfo.series property of type : SeriesInfo[]",
     "confidence": 1.0,
@@ -2590,7 +2646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-175682",
+    "claim_id": "CLM-cells-f7a670fc",
     "kind": "api_method",
     "text": "AxisInfo.position property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -2604,7 +2660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4d6cc7",
+    "claim_id": "CLM-cells-df2f193b",
     "kind": "api_method",
     "text": "AxisInfo.labels property of type : string[]",
     "confidence": 1.0,
@@ -2618,7 +2674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dfbb3e",
+    "claim_id": "CLM-cells-86b967d0",
     "kind": "api_method",
     "text": "AxisInfo.labelPositions property of type : number[]",
     "confidence": 1.0,
@@ -2632,7 +2688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3e0c2e",
+    "claim_id": "CLM-cells-c32d0f31",
     "kind": "api_method",
     "text": "AxisInfo.tickPositions property of type : number[]",
     "confidence": 1.0,
@@ -2646,7 +2702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-73e0e3",
+    "claim_id": "CLM-cells-821f289e",
     "kind": "api_method",
     "text": "AxisInfo.title property of type : string",
     "confidence": 1.0,
@@ -2660,7 +2716,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6ceeb3",
+    "claim_id": "CLM-cells-6f1d9781",
     "kind": "api_method",
     "text": "AxisInfo.minValue property of type : number",
     "confidence": 1.0,
@@ -2674,7 +2730,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-72e340",
+    "claim_id": "CLM-cells-4ccc8065",
     "kind": "api_method",
     "text": "AxisInfo.maxValue property of type : number",
     "confidence": 1.0,
@@ -2688,7 +2744,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9795b8",
+    "claim_id": "CLM-cells-1bde5122",
     "kind": "api_method",
     "text": "AxisInfo.isPercentage property of type : boolean",
     "confidence": 1.0,
@@ -2716,7 +2772,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ce0c39",
+    "claim_id": "CLM-cells-be4a0cf9",
     "kind": "api_method",
     "text": "ChartRenderer.renderChart(chart, worksheet) -> string",
     "confidence": 1.0,
@@ -2744,7 +2800,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-95d24e",
+    "claim_id": "CLM-cells-be120e58",
     "kind": "api_method",
     "text": "HtmlParseOptions.trimWhitespace property of type : boolean",
     "confidence": 1.0,
@@ -2758,7 +2814,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-37d62a",
+    "claim_id": "CLM-cells-4361f8a2",
     "kind": "api_method",
     "text": "HtmlParseOptions.useFirstRowAsHeader property of type : boolean",
     "confidence": 1.0,
@@ -2786,7 +2842,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-af7cc4",
+    "claim_id": "CLM-cells-3e7fd0a6",
     "kind": "api_method",
     "text": "ShapeAnchor.fromCol property of type : number",
     "confidence": 1.0,
@@ -2800,7 +2856,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2e38ec",
+    "claim_id": "CLM-cells-ddada149",
     "kind": "api_method",
     "text": "ShapeAnchor.fromColOff property of type : number",
     "confidence": 1.0,
@@ -2814,7 +2870,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e8f1b2",
+    "claim_id": "CLM-cells-3ae0b075",
     "kind": "api_method",
     "text": "ShapeAnchor.fromRow property of type : number",
     "confidence": 1.0,
@@ -2828,7 +2884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5665e6",
+    "claim_id": "CLM-cells-598a28c0",
     "kind": "api_method",
     "text": "ShapeAnchor.fromRowOff property of type : number",
     "confidence": 1.0,
@@ -2842,7 +2898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e0939c",
+    "claim_id": "CLM-cells-f0a4244f",
     "kind": "api_method",
     "text": "ShapeAnchor.toCol property of type : number",
     "confidence": 1.0,
@@ -2856,7 +2912,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e6d99c",
+    "claim_id": "CLM-cells-2d19eced",
     "kind": "api_method",
     "text": "ShapeAnchor.toColOff property of type : number",
     "confidence": 1.0,
@@ -2870,7 +2926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ad1d97",
+    "claim_id": "CLM-cells-4af7159e",
     "kind": "api_method",
     "text": "ShapeAnchor.toRow property of type : number",
     "confidence": 1.0,
@@ -2884,7 +2940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b8c196",
+    "claim_id": "CLM-cells-136f588d",
     "kind": "api_method",
     "text": "ShapeAnchor.toRowOff property of type : number",
     "confidence": 1.0,
@@ -2898,7 +2954,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d485a9",
+    "claim_id": "CLM-cells-39bb27e5",
     "kind": "api_method",
     "text": "ShapeAnchor.xfrmX property of type : number",
     "confidence": 1.0,
@@ -2912,7 +2968,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0b43e1",
+    "claim_id": "CLM-cells-91f534eb",
     "kind": "api_method",
     "text": "ShapeAnchor.xfrmY property of type : number",
     "confidence": 1.0,
@@ -2940,7 +2996,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f7b9e7",
+    "claim_id": "CLM-cells-857e21b0",
     "kind": "api_method",
     "text": "HtmlDocument.name property of type : string",
     "confidence": 1.0,
@@ -2954,7 +3010,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4f555e",
+    "claim_id": "CLM-cells-837c7436",
     "kind": "api_method",
     "text": "HtmlDocument.html property of type : string",
     "confidence": 1.0,
@@ -2968,7 +3024,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ea5158",
+    "claim_id": "CLM-cells-863b99f2",
     "kind": "api_method",
     "text": "HtmlDocument.cssClasses property of type : Map<string, CellStyle>",
     "confidence": 1.0,
@@ -2982,7 +3038,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e8943f",
+    "claim_id": "CLM-cells-040deaa2",
     "kind": "api_method",
     "text": "HtmlDocument.filePath property of type : string",
     "confidence": 1.0,
@@ -2996,7 +3052,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-431b42",
+    "claim_id": "CLM-cells-35e022d4",
     "kind": "api_method",
     "text": "HtmlDocument.load(filePath) -> Promise<HtmlDocument>",
     "confidence": 1.0,
@@ -3010,7 +3066,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-064b23",
+    "claim_id": "CLM-cells-c7ea2e6f",
     "kind": "api_method",
     "text": "HtmlDocument.loadOriginalAnchors(filePath) -> Promise<void>",
     "confidence": 1.0,
@@ -3024,7 +3080,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-272961",
+    "claim_id": "CLM-cells-e6bf0eff",
     "kind": "api_method",
     "text": "HtmlDocument.getOriginalAnchor(name) -> ShapeAnchor | undefined",
     "confidence": 1.0,
@@ -3038,7 +3094,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f3a4ef",
+    "claim_id": "CLM-cells-cccd0194",
     "kind": "api_method",
     "text": "HtmlDocument.style property of type : string",
     "confidence": 1.0,
@@ -3052,7 +3108,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-396c05",
+    "claim_id": "CLM-cells-aa15500c",
     "kind": "api_method",
     "text": "HtmlDocument.color property of type : string",
     "confidence": 1.0,
@@ -3066,7 +3122,35 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a39938",
+    "claim_id": "CLM-cells-f3a4ef",
+    "kind": "api_method",
+    "text": "HtmlDocument.style property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlDocument.ts",
+        "line": 252
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-396c05",
+    "kind": "api_method",
+    "text": "HtmlDocument.color property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlDocument.ts",
+        "line": 252
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-9724a59b",
     "kind": "api_method",
     "text": "HtmlDocument.parse(html) -> HtmlDocument",
     "confidence": 1.0,
@@ -3080,7 +3164,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-013acd",
+    "claim_id": "CLM-cells-2902220f",
     "kind": "api_method",
     "text": "HtmlDocument.tables property of type HtmlTable[]",
     "confidence": 1.0,
@@ -3108,7 +3192,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-be84b8",
+    "claim_id": "CLM-cells-a62791bc",
     "kind": "api_method",
     "text": "HtmlDocument.toWorkbook(options) -> Workbook",
     "confidence": 1.0,
@@ -3122,7 +3206,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-500910",
+    "claim_id": "CLM-cells-6c4dc5d7",
     "kind": "api_method",
     "text": "HtmlDocument.toExcel(filePath, options) -> ",
     "confidence": 1.0,
@@ -3136,7 +3220,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e9c5d3",
+    "claim_id": "CLM-cells-1787a789",
     "kind": "api_method",
     "text": "HtmlDocument.images property of type : ImageInfo[]",
     "confidence": 1.0,
@@ -3150,7 +3234,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5f211e",
+    "claim_id": "CLM-cells-b5998c35",
     "kind": "api_method",
     "text": "HtmlDocument.shapes property of type : any[]",
     "confidence": 1.0,
@@ -3178,7 +3262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6598f5",
+    "claim_id": "CLM-cells-0d066255",
     "kind": "api_method",
     "text": "HtmlSaveOptions.includeStyles property of type : boolean",
     "confidence": 1.0,
@@ -3192,7 +3276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6b1f00",
+    "claim_id": "CLM-cells-75d89f1c",
     "kind": "api_method",
     "text": "HtmlSaveOptions.borderCollapse property of type : boolean",
     "confidence": 1.0,
@@ -3220,7 +3304,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-917cb9",
+    "claim_id": "CLM-cells-c6499151",
     "kind": "api_method",
     "text": "CellStyle.align property of type : string",
     "confidence": 1.0,
@@ -3234,7 +3318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-643f50",
+    "claim_id": "CLM-cells-3ae9a63c",
     "kind": "api_method",
     "text": "CellStyle.valign property of type : string",
     "confidence": 1.0,
@@ -3248,7 +3332,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-73c93c",
+    "claim_id": "CLM-cells-ea3cabca",
     "kind": "api_method",
     "text": "CellStyle.bgcolor property of type : string",
     "confidence": 1.0,
@@ -3262,7 +3346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1e3ee1",
+    "claim_id": "CLM-cells-c7c3c3fa",
     "kind": "api_method",
     "text": "CellStyle.color property of type : string",
     "confidence": 1.0,
@@ -3276,7 +3360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-010d31",
+    "claim_id": "CLM-cells-6d759cc1",
     "kind": "api_method",
     "text": "CellStyle.font property of type : {\r\n    name?: string;\r\n    size?: number;\r\n    bold?: boolean;\r\n    italic?: boolean;\r\n  }",
     "confidence": 1.0,
@@ -3290,7 +3374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6616da",
+    "claim_id": "CLM-cells-fdce45c8",
     "kind": "api_method",
     "text": "CellStyle.name property of type : string",
     "confidence": 1.0,
@@ -3304,7 +3388,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f2d96b",
+    "claim_id": "CLM-cells-dc63e6b6",
     "kind": "api_method",
     "text": "CellStyle.size property of type : number",
     "confidence": 1.0,
@@ -3318,7 +3402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-99bf34",
+    "claim_id": "CLM-cells-84d79fd0",
     "kind": "api_method",
     "text": "CellStyle.bold property of type : boolean",
     "confidence": 1.0,
@@ -3332,7 +3416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1823e8",
+    "claim_id": "CLM-cells-8bb063f8",
     "kind": "api_method",
     "text": "CellStyle.italic property of type : boolean",
     "confidence": 1.0,
@@ -3346,7 +3430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9b1e23",
+    "claim_id": "CLM-cells-5d60485d",
     "kind": "api_method",
     "text": "CellStyle.border property of type : {\r\n    left?: { style?: string; color?: string };\r\n    right?: { style?: string; color?: string };\r\n    top?: { style?: string; color?: string };\r\n    bottom?: { style?: string; color?: string };\r\n  }",
     "confidence": 1.0,
@@ -3360,7 +3444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d590cd",
+    "claim_id": "CLM-cells-84e44886",
     "kind": "api_method",
     "text": "CellStyle.left property of type : { style?: string; color?: string }",
     "confidence": 1.0,
@@ -3374,7 +3458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ac4345",
+    "claim_id": "CLM-cells-0226d7d7",
     "kind": "api_method",
     "text": "CellStyle.style property of type : string",
     "confidence": 1.0,
@@ -3388,7 +3472,21 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4052fe",
+    "claim_id": "CLM-cells-1e3ee1",
+    "kind": "api_method",
+    "text": "CellStyle.color property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlTable.ts",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ce5184ca",
     "kind": "api_method",
     "text": "CellStyle.right property of type : { style?: string; color?: string }",
     "confidence": 1.0,
@@ -3402,7 +3500,21 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6d2fc0",
+    "claim_id": "CLM-cells-ac4345",
+    "kind": "api_method",
+    "text": "CellStyle.style property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlTable.ts",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ac683597",
     "kind": "api_method",
     "text": "CellStyle.top property of type : { style?: string; color?: string }",
     "confidence": 1.0,
@@ -3416,7 +3528,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d15e42",
+    "claim_id": "CLM-cells-8e07a1a2",
     "kind": "api_method",
     "text": "CellStyle.bottom property of type : { style?: string; color?: string }",
     "confidence": 1.0,
@@ -3430,7 +3542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c9a6fa",
+    "claim_id": "CLM-cells-f33c177c",
     "kind": "api_method",
     "text": "CellStyle.numberFormat property of type : string",
     "confidence": 1.0,
@@ -3458,7 +3570,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-89f9f8",
+    "claim_id": "CLM-cells-beafbbed",
     "kind": "api_method",
     "text": "PictureInfo.row property of type : number",
     "confidence": 1.0,
@@ -3472,7 +3584,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-470878",
+    "claim_id": "CLM-cells-880d4ae4",
     "kind": "api_method",
     "text": "PictureInfo.col property of type : number",
     "confidence": 1.0,
@@ -3486,7 +3598,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1ceef7",
+    "claim_id": "CLM-cells-22420341",
     "kind": "api_method",
     "text": "PictureInfo.name property of type : string",
     "confidence": 1.0,
@@ -3500,7 +3612,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1de5fe",
+    "claim_id": "CLM-cells-1b219ca0",
     "kind": "api_method",
     "text": "PictureInfo.src property of type : string",
     "confidence": 1.0,
@@ -3514,7 +3626,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7711fb",
+    "claim_id": "CLM-cells-d243c692",
     "kind": "api_method",
     "text": "PictureInfo.width property of type : number",
     "confidence": 1.0,
@@ -3528,7 +3640,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-33b626",
+    "claim_id": "CLM-cells-3d2b65df",
     "kind": "api_method",
     "text": "PictureInfo.height property of type : number",
     "confidence": 1.0,
@@ -3542,7 +3654,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e7782f",
+    "claim_id": "CLM-cells-94ed8e22",
     "kind": "api_method",
     "text": "PictureInfo.marginLeft property of type : number",
     "confidence": 1.0,
@@ -3556,7 +3668,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5b3311",
+    "claim_id": "CLM-cells-5ba78348",
     "kind": "api_method",
     "text": "PictureInfo.marginTop property of type : number",
     "confidence": 1.0,
@@ -3570,7 +3682,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2b4640",
+    "claim_id": "CLM-cells-99959931",
     "kind": "api_method",
     "text": "PictureInfo.zIndex property of type : number",
     "confidence": 1.0,
@@ -3598,7 +3710,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-69acb2",
+    "claim_id": "CLM-cells-1749fb85",
     "kind": "api_method",
     "text": "HtmlTable.cols property of type : number",
     "confidence": 1.0,
@@ -3612,7 +3724,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-35e90c",
+    "claim_id": "CLM-cells-11e35820",
     "kind": "api_method",
     "text": "HtmlTable.count property of type : number",
     "confidence": 1.0,
@@ -3626,7 +3738,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a01020",
+    "claim_id": "CLM-cells-e12b3b79",
     "kind": "api_method",
     "text": "HtmlTable.height property of type : number",
     "confidence": 1.0,
@@ -3640,7 +3752,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1e3969",
+    "claim_id": "CLM-cells-fbf4f410",
     "kind": "api_method",
     "text": "HtmlTable.constructor(caption) -> ",
     "confidence": 1.0,
@@ -3654,7 +3766,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-97cdeb",
+    "claim_id": "CLM-cells-46059269",
     "kind": "api_method",
     "text": "HtmlTable.setCssClasses(classes) -> ",
     "confidence": 1.0,
@@ -3668,7 +3780,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bc8e91",
+    "claim_id": "CLM-cells-244e849b",
     "kind": "api_method",
     "text": "HtmlTable.caption property of type string | undefined",
     "confidence": 1.0,
@@ -3682,7 +3794,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c6b716",
+    "claim_id": "CLM-cells-33700bb4",
     "kind": "api_method",
     "text": "HtmlTable.headers property of type string[]",
     "confidence": 1.0,
@@ -3696,7 +3808,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-edf13a",
+    "claim_id": "CLM-cells-54002367",
     "kind": "api_method",
     "text": "HtmlTable.rows property of type string[][]",
     "confidence": 1.0,
@@ -3710,7 +3822,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6cebf1",
+    "claim_id": "CLM-cells-caf0fe02",
     "kind": "api_method",
     "text": "HtmlTable.colWidths property of type number[]",
     "confidence": 1.0,
@@ -3724,7 +3836,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d20849",
+    "claim_id": "CLM-cells-00c332c9",
     "kind": "api_method",
     "text": "HtmlTable.rowHeights property of type number[]",
     "confidence": 1.0,
@@ -3738,7 +3850,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-daee54",
+    "claim_id": "CLM-cells-915d654e",
     "kind": "api_method",
     "text": "HtmlTable.hiddenRows property of type boolean[]",
     "confidence": 1.0,
@@ -3752,7 +3864,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0ed2f2",
+    "claim_id": "CLM-cells-4c18a933",
     "kind": "api_method",
     "text": "HtmlTable.pictures property of type PictureInfo[]",
     "confidence": 1.0,
@@ -3766,7 +3878,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-297d73",
+    "claim_id": "CLM-cells-773954c6",
     "kind": "api_method",
     "text": "HtmlTable.getCellStyle(row, col) -> CellStyle | undefined",
     "confidence": 1.0,
@@ -3780,7 +3892,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f96f7d",
+    "claim_id": "CLM-cells-57801b24",
     "kind": "api_method",
     "text": "HtmlTable.addHeader(header) -> void",
     "confidence": 1.0,
@@ -3794,7 +3906,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-036bbe",
+    "claim_id": "CLM-cells-4d31ffe5",
     "kind": "api_method",
     "text": "HtmlTable.addRow(row) -> void",
     "confidence": 1.0,
@@ -3808,7 +3920,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bbf572",
+    "claim_id": "CLM-cells-5b12bfef",
     "kind": "api_method",
     "text": "HtmlTable.parseAll(html, cssClasses) -> HtmlTable[]",
     "confidence": 1.0,
@@ -3822,7 +3934,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8f1340",
+    "claim_id": "CLM-cells-4934601c",
     "kind": "api_method",
     "text": "HtmlTable.toWorksheet(worksheet, options) -> ",
     "confidence": 1.0,
@@ -3836,7 +3948,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-abce53",
+    "claim_id": "CLM-cells-563e9c6c",
     "kind": "api_method",
     "text": "HtmlTable.parse(html, cssClasses) -> HtmlTable",
     "confidence": 1.0,
@@ -3850,7 +3962,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-08005a",
+    "claim_id": "CLM-cells-a26a4b5f",
     "kind": "api_method",
     "text": "HtmlTable.style property of type : string",
     "confidence": 1.0,
@@ -3864,7 +3976,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3eece4",
+    "claim_id": "CLM-cells-a5a8c55c",
     "kind": "api_method",
     "text": "HtmlTable.color property of type : string",
     "confidence": 1.0,
@@ -3878,7 +3990,35 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-95a91b",
+    "claim_id": "CLM-cells-08005a",
+    "kind": "api_method",
+    "text": "HtmlTable.style property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlTable.ts",
+        "line": 700
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-3eece4",
+    "kind": "api_method",
+    "text": "HtmlTable.color property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/html/htmlTable.ts",
+        "line": 700
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-066a4aeb",
     "kind": "api_method",
     "text": "HtmlTable.mergeTables(tables) -> HtmlTable",
     "confidence": 1.0,
@@ -3892,7 +4032,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dd1bb1",
+    "claim_id": "CLM-cells-9d45e6a4",
     "kind": "api_method",
     "text": "HtmlTable.toHtml(options) -> string",
     "confidence": 1.0,
@@ -3920,7 +4060,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-be2892",
+    "claim_id": "CLM-cells-1bc28757",
     "kind": "api_method",
     "text": "Hyperlink.constructor(row, col, address, display, tooltip) -> ",
     "confidence": 1.0,
@@ -3934,7 +4074,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-800220",
+    "claim_id": "CLM-cells-f75ebd70",
     "kind": "api_method",
     "text": "Hyperlink.row property of type number",
     "confidence": 1.0,
@@ -3948,7 +4088,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0529fc",
+    "claim_id": "CLM-cells-c44e63ec",
     "kind": "api_method",
     "text": "Hyperlink.col property of type number",
     "confidence": 1.0,
@@ -3962,7 +4102,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2cb32c",
+    "claim_id": "CLM-cells-9152cad0",
     "kind": "api_method",
     "text": "Hyperlink.ref property of type string",
     "confidence": 1.0,
@@ -4046,7 +4186,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c5fb38",
+    "claim_id": "CLM-cells-e4cec92a",
     "kind": "api_method",
     "text": "Hyperlink.toXml() -> string",
     "confidence": 1.0,
@@ -4074,7 +4214,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-683208",
+    "claim_id": "CLM-cells-58488a26",
     "kind": "api_method",
     "text": "HyperlinkCollection.add(row, col, address, display, tooltip) -> Hyperlink",
     "confidence": 1.0,
@@ -4088,7 +4228,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6c9c90",
+    "claim_id": "CLM-cells-efbd6568",
     "kind": "api_method",
     "text": "HyperlinkCollection.get(index) -> Hyperlink | undefined",
     "confidence": 1.0,
@@ -4102,7 +4242,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-94f3b2",
+    "claim_id": "CLM-cells-89b3c232",
     "kind": "api_method",
     "text": "HyperlinkCollection.getByCell(row, col) -> Hyperlink | undefined",
     "confidence": 1.0,
@@ -4116,7 +4256,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fa9e5a",
+    "claim_id": "CLM-cells-a1ef1a84",
     "kind": "api_method",
     "text": "HyperlinkCollection.remove(index) -> ",
     "confidence": 1.0,
@@ -4130,7 +4270,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cdf82e",
+    "claim_id": "CLM-cells-f23caa0e",
     "kind": "api_method",
     "text": "HyperlinkCollection.clear() -> ",
     "confidence": 1.0,
@@ -4144,7 +4284,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a0c8bc",
+    "claim_id": "CLM-cells-53d42ea6",
     "kind": "api_method",
     "text": "HyperlinkCollection.count property of type number",
     "confidence": 1.0,
@@ -4158,7 +4298,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d07c98",
+    "claim_id": "CLM-cells-5d6ed041",
     "kind": "api_method",
     "text": "HyperlinkCollection.toXml() -> string",
     "confidence": 1.0,
@@ -4186,7 +4326,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-21482c",
+    "claim_id": "CLM-cells-a7f7d452",
     "kind": "api_method",
     "text": "ImpDrawing.loadWorksheetDrawing(zip, shapes, sheetPath) -> ",
     "confidence": 1.0,
@@ -4200,7 +4340,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6027ac",
+    "claim_id": "CLM-cells-bb585b69",
     "kind": "api_method",
     "text": "ImpDrawing.position property of type : number",
     "confidence": 1.0,
@@ -4214,7 +4354,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3ecf0a",
+    "claim_id": "CLM-cells-f6b0baea",
     "kind": "api_method",
     "text": "ImpDrawing.color property of type : string",
     "confidence": 1.0,
@@ -4228,7 +4368,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-77d57d",
+    "claim_id": "CLM-cells-3dfe7eaa",
     "kind": "api_method",
     "text": "ImpDrawing.isSchemeColor property of type : boolean",
     "confidence": 1.0,
@@ -4242,7 +4382,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c2ecf1",
+    "claim_id": "CLM-cells-09b6aab3",
     "kind": "api_method",
     "text": "ImpDrawing.lumMod property of type : number",
     "confidence": 1.0,
@@ -4256,7 +4396,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9cccd0",
+    "claim_id": "CLM-cells-a2f1af24",
     "kind": "api_method",
     "text": "ImpDrawing.lumOff property of type : number",
     "confidence": 1.0,
@@ -4284,7 +4424,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e48089",
+    "claim_id": "CLM-cells-496c1de2",
     "kind": "api_method",
     "text": "Style.font property of type : Font",
     "confidence": 1.0,
@@ -4298,7 +4438,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-eb4627",
+    "claim_id": "CLM-cells-75efdf7a",
     "kind": "api_method",
     "text": "Style.fill property of type : Fill",
     "confidence": 1.0,
@@ -4312,7 +4452,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f531ec",
+    "claim_id": "CLM-cells-1eb3ee77",
     "kind": "api_method",
     "text": "Style.border property of type : Border",
     "confidence": 1.0,
@@ -4326,7 +4466,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-adc8fc",
+    "claim_id": "CLM-cells-95e46fe0",
     "kind": "api_method",
     "text": "Style.alignment property of type : Alignment",
     "confidence": 1.0,
@@ -4340,7 +4480,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ac2208",
+    "claim_id": "CLM-cells-893b5a6b",
     "kind": "api_method",
     "text": "Style.numberFormat property of type : string",
     "confidence": 1.0,
@@ -4354,7 +4494,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0eaa11",
+    "claim_id": "CLM-cells-88ba77f3",
     "kind": "api_method",
     "text": "Style.protection property of type : Protection",
     "confidence": 1.0,
@@ -4368,7 +4508,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e36be8",
+    "claim_id": "CLM-cells-55a99c38",
     "kind": "api_method",
     "text": "Style.constructor() -> ",
     "confidence": 1.0,
@@ -4382,7 +4522,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-66538d",
+    "claim_id": "CLM-cells-71350e97",
     "kind": "api_method",
     "text": "Style.getFont() -> Font",
     "confidence": 1.0,
@@ -4396,7 +4536,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-621236",
+    "claim_id": "CLM-cells-63e65cd0",
     "kind": "api_method",
     "text": "Style.setFont(font) -> ",
     "confidence": 1.0,
@@ -4410,7 +4550,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f3329f",
+    "claim_id": "CLM-cells-32785d9e",
     "kind": "api_method",
     "text": "Style.getFill() -> Fill",
     "confidence": 1.0,
@@ -4424,7 +4564,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-afaca7",
+    "claim_id": "CLM-cells-ed5b977b",
     "kind": "api_method",
     "text": "Style.setFill(fill) -> ",
     "confidence": 1.0,
@@ -4438,7 +4578,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cfc5d7",
+    "claim_id": "CLM-cells-183ae586",
     "kind": "api_method",
     "text": "Style.getBorder() -> Border",
     "confidence": 1.0,
@@ -4452,7 +4592,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f1077e",
+    "claim_id": "CLM-cells-4acf5b14",
     "kind": "api_method",
     "text": "Style.setBorder(border) -> ",
     "confidence": 1.0,
@@ -4466,7 +4606,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-45fd99",
+    "claim_id": "CLM-cells-34671b94",
     "kind": "api_method",
     "text": "Style.getAlignment() -> Alignment",
     "confidence": 1.0,
@@ -4480,7 +4620,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-28a857",
+    "claim_id": "CLM-cells-9ad7422d",
     "kind": "api_method",
     "text": "Style.setAlignment(alignment) -> ",
     "confidence": 1.0,
@@ -4494,7 +4634,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d0fa55",
+    "claim_id": "CLM-cells-7bda97cd",
     "kind": "api_method",
     "text": "Style.setNumberFormat(format) -> ",
     "confidence": 1.0,
@@ -4508,7 +4648,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8b977a",
+    "claim_id": "CLM-cells-f2083f69",
     "kind": "api_method",
     "text": "Style.getNumberFormat() -> string | undefined",
     "confidence": 1.0,
@@ -4522,7 +4662,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-818eff",
+    "claim_id": "CLM-cells-f8ae02e5",
     "kind": "api_method",
     "text": "Style.setProtection(protection) -> ",
     "confidence": 1.0,
@@ -4536,7 +4676,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-687c1c",
+    "claim_id": "CLM-cells-8c6818d3",
     "kind": "api_method",
     "text": "Style.isBold() -> boolean",
     "confidence": 1.0,
@@ -4550,7 +4690,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f12cf5",
+    "claim_id": "CLM-cells-af014adf",
     "kind": "api_method",
     "text": "Style.setBold(bold) -> ",
     "confidence": 1.0,
@@ -4564,7 +4704,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7fc9a7",
+    "claim_id": "CLM-cells-815a8ad0",
     "kind": "api_method",
     "text": "Style.isItalic() -> boolean",
     "confidence": 1.0,
@@ -4578,7 +4718,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fa3783",
+    "claim_id": "CLM-cells-521e5b1e",
     "kind": "api_method",
     "text": "Style.setItalic(italic) -> ",
     "confidence": 1.0,
@@ -4592,7 +4732,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d90953",
+    "claim_id": "CLM-cells-2f07ee08",
     "kind": "api_method",
     "text": "Style.getFontName() -> string",
     "confidence": 1.0,
@@ -4606,7 +4746,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5ca036",
+    "claim_id": "CLM-cells-9ebc34ab",
     "kind": "api_method",
     "text": "Style.setFontName(name) -> ",
     "confidence": 1.0,
@@ -4620,7 +4760,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f517e1",
+    "claim_id": "CLM-cells-08af2868",
     "kind": "api_method",
     "text": "Style.getFontSize() -> number",
     "confidence": 1.0,
@@ -4634,7 +4774,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-95a43d",
+    "claim_id": "CLM-cells-a08f2939",
     "kind": "api_method",
     "text": "Style.setFontSize(size) -> ",
     "confidence": 1.0,
@@ -4648,7 +4788,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-46b3ac",
+    "claim_id": "CLM-cells-06612481",
     "kind": "api_method",
     "text": "Style.getFontColor() -> string | undefined",
     "confidence": 1.0,
@@ -4662,7 +4802,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b5ed1b",
+    "claim_id": "CLM-cells-c45db0c0",
     "kind": "api_method",
     "text": "Style.setFontColor(color) -> ",
     "confidence": 1.0,
@@ -4676,7 +4816,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4c3f12",
+    "claim_id": "CLM-cells-270fd71f",
     "kind": "api_method",
     "text": "Style.getForegroundColor() -> string | undefined",
     "confidence": 1.0,
@@ -4690,7 +4830,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9cadbc",
+    "claim_id": "CLM-cells-8073f7a4",
     "kind": "api_method",
     "text": "Style.setForegroundColor(color) -> ",
     "confidence": 1.0,
@@ -4704,7 +4844,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2c2164",
+    "claim_id": "CLM-cells-58614de1",
     "kind": "api_method",
     "text": "Style.getBackgroundColor() -> string | undefined",
     "confidence": 1.0,
@@ -4718,7 +4858,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-42b055",
+    "claim_id": "CLM-cells-0ffbe349",
     "kind": "api_method",
     "text": "Style.setBackgroundColor(color) -> ",
     "confidence": 1.0,
@@ -4732,7 +4872,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2320f0",
+    "claim_id": "CLM-cells-a148663e",
     "kind": "api_method",
     "text": "Style.getHorizontalAlignment() -> string",
     "confidence": 1.0,
@@ -4746,7 +4886,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5560d0",
+    "claim_id": "CLM-cells-b09db5f9",
     "kind": "api_method",
     "text": "Style.setHorizontalAlignment(alignment) -> ",
     "confidence": 1.0,
@@ -4760,7 +4900,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2ca529",
+    "claim_id": "CLM-cells-c93c4aa3",
     "kind": "api_method",
     "text": "Style.getVerticalAlignment() -> string",
     "confidence": 1.0,
@@ -4774,7 +4914,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-58fa2b",
+    "claim_id": "CLM-cells-479d9621",
     "kind": "api_method",
     "text": "Style.setVerticalAlignment(alignment) -> ",
     "confidence": 1.0,
@@ -4788,7 +4928,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d35427",
+    "claim_id": "CLM-cells-916c6682",
     "kind": "api_method",
     "text": "Style.isWrapText() -> boolean",
     "confidence": 1.0,
@@ -4802,7 +4942,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0c89bb",
+    "claim_id": "CLM-cells-79772994",
     "kind": "api_method",
     "text": "Style.setWrapText(wrapText) -> ",
     "confidence": 1.0,
@@ -4816,7 +4956,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9cdadb",
+    "claim_id": "CLM-cells-543fb0ac",
     "kind": "api_method",
     "text": "Style.isLocked() -> boolean",
     "confidence": 1.0,
@@ -4830,7 +4970,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-93ff3c",
+    "claim_id": "CLM-cells-1726e28d",
     "kind": "api_method",
     "text": "Style.setLocked(locked) -> ",
     "confidence": 1.0,
@@ -4844,7 +4984,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-acfe66",
+    "claim_id": "CLM-cells-190a95f8",
     "kind": "api_method",
     "text": "Style.isHidden() -> boolean",
     "confidence": 1.0,
@@ -4858,7 +4998,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-129eaa",
+    "claim_id": "CLM-cells-cd0369ff",
     "kind": "api_method",
     "text": "Style.setHidden(hidden) -> ",
     "confidence": 1.0,
@@ -4872,7 +5012,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7dd77b",
+    "claim_id": "CLM-cells-12ae83b8",
     "kind": "api_method",
     "text": "Style.toXml() -> string",
     "confidence": 1.0,
@@ -4914,7 +5054,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5972e3",
+    "claim_id": "CLM-cells-5aa0d237",
     "kind": "api_method",
     "text": "CellCoordinates.row property of type : number",
     "confidence": 1.0,
@@ -4928,7 +5068,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1bc43c",
+    "claim_id": "CLM-cells-5ef3499a",
     "kind": "api_method",
     "text": "CellCoordinates.col property of type : number",
     "confidence": 1.0,
@@ -4956,7 +5096,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-916874",
+    "claim_id": "CLM-cells-ba72ba73",
     "kind": "api_method",
     "text": "CellRange.startRow property of type : number",
     "confidence": 1.0,
@@ -4970,7 +5110,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1b7982",
+    "claim_id": "CLM-cells-56071e50",
     "kind": "api_method",
     "text": "CellRange.startCol property of type : number",
     "confidence": 1.0,
@@ -4984,7 +5124,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8a3719",
+    "claim_id": "CLM-cells-6eb0ecbd",
     "kind": "api_method",
     "text": "CellRange.endRow property of type : number",
     "confidence": 1.0,
@@ -4998,7 +5138,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-99d323",
+    "claim_id": "CLM-cells-b542bcc0",
     "kind": "api_method",
     "text": "CellRange.endCol property of type : number",
     "confidence": 1.0,
@@ -5026,6 +5166,90 @@
     "provenance": "scout"
   },
   {
+    "claim_id": "CLM-cells-e48089",
+    "kind": "api_method",
+    "text": "Style.font property of type : Font",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-eb4627",
+    "kind": "api_method",
+    "text": "Style.fill property of type : Fill",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f531ec",
+    "kind": "api_method",
+    "text": "Style.border property of type : Border",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-adc8fc",
+    "kind": "api_method",
+    "text": "Style.alignment property of type : Alignment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ac2208",
+    "kind": "api_method",
+    "text": "Style.numberFormat property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-0eaa11",
+    "kind": "api_method",
+    "text": "Style.protection property of type : Protection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
     "claim_id": "CLM-cells-84a0d2",
     "kind": "api_class",
     "text": "Class Style defined in aspose_cells/types.ts",
@@ -5040,7 +5264,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-37d84f",
+    "claim_id": "CLM-cells-9fced123",
     "kind": "api_method",
     "text": "Font.name property of type : string",
     "confidence": 1.0,
@@ -5054,7 +5278,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e4e376",
+    "claim_id": "CLM-cells-c4b2516f",
     "kind": "api_method",
     "text": "Font.size property of type : number",
     "confidence": 1.0,
@@ -5068,7 +5292,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c13313",
+    "claim_id": "CLM-cells-63407878",
     "kind": "api_method",
     "text": "Font.bold property of type : boolean",
     "confidence": 1.0,
@@ -5082,7 +5306,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bb0ec5",
+    "claim_id": "CLM-cells-0c8613d8",
     "kind": "api_method",
     "text": "Font.italic property of type : boolean",
     "confidence": 1.0,
@@ -5096,7 +5320,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0555a9",
+    "claim_id": "CLM-cells-6dcf94aa",
     "kind": "api_method",
     "text": "Font.underline property of type : boolean",
     "confidence": 1.0,
@@ -5110,7 +5334,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e56c3e",
+    "claim_id": "CLM-cells-07596687",
     "kind": "api_method",
     "text": "Font.color property of type : string",
     "confidence": 1.0,
@@ -5124,7 +5348,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c8fef2",
+    "claim_id": "CLM-cells-e7fa1e6b",
     "kind": "api_method",
     "text": "Font.strikeout property of type : boolean",
     "confidence": 1.0,
@@ -5152,7 +5376,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7c4664",
+    "claim_id": "CLM-cells-8da3d664",
     "kind": "api_method",
     "text": "Fill.patternType property of type :\r\n    | \"none\"\r\n    | \"solid\"\r\n    | \"gray125\"\r\n    | \"darkGray\"\r\n    | \"mediumGray\"\r\n    | \"lightGray\"",
     "confidence": 1.0,
@@ -5166,7 +5390,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-aa90f6",
+    "claim_id": "CLM-cells-7aaa3b26",
     "kind": "api_method",
     "text": "Fill.fgColor property of type : string",
     "confidence": 1.0,
@@ -5180,7 +5404,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-411af6",
+    "claim_id": "CLM-cells-d15adde8",
     "kind": "api_method",
     "text": "Fill.bgColor property of type : string",
     "confidence": 1.0,
@@ -5208,7 +5432,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f57a43",
+    "claim_id": "CLM-cells-562479c2",
     "kind": "api_method",
     "text": "Border.left property of type : BorderLine",
     "confidence": 1.0,
@@ -5222,7 +5446,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-029716",
+    "claim_id": "CLM-cells-408a1ce9",
     "kind": "api_method",
     "text": "Border.right property of type : BorderLine",
     "confidence": 1.0,
@@ -5236,7 +5460,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-519786",
+    "claim_id": "CLM-cells-6589f113",
     "kind": "api_method",
     "text": "Border.top property of type : BorderLine",
     "confidence": 1.0,
@@ -5250,7 +5474,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8cca28",
+    "claim_id": "CLM-cells-109805ff",
     "kind": "api_method",
     "text": "Border.bottom property of type : BorderLine",
     "confidence": 1.0,
@@ -5278,7 +5502,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-33ecce",
+    "claim_id": "CLM-cells-84d84765",
     "kind": "api_method",
     "text": "BorderLine.style property of type : \"thin\" | \"medium\" | \"thick\" | \"dashed\" | \"dotted\"",
     "confidence": 1.0,
@@ -5292,7 +5516,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f41640",
+    "claim_id": "CLM-cells-27553d22",
     "kind": "api_method",
     "text": "BorderLine.color property of type : string",
     "confidence": 1.0,
@@ -5320,7 +5544,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f0b7eb",
+    "claim_id": "CLM-cells-f1120608",
     "kind": "api_method",
     "text": "Alignment.horizontal property of type :\r\n    | \"general\"\r\n    | \"left\"\r\n    | \"center\"\r\n    | \"right\"\r\n    | \"fill\"\r\n    | \"justify\"\r\n    | \"centerContinuous\"",
     "confidence": 1.0,
@@ -5334,7 +5558,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c23526",
+    "claim_id": "CLM-cells-4abdd4ab",
     "kind": "api_method",
     "text": "Alignment.vertical property of type : \"top\" | \"center\" | \"bottom\" | \"justify\"",
     "confidence": 1.0,
@@ -5348,7 +5572,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a732fd",
+    "claim_id": "CLM-cells-79f100fe",
     "kind": "api_method",
     "text": "Alignment.wrapText property of type : boolean",
     "confidence": 1.0,
@@ -5376,7 +5600,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9c4276",
+    "claim_id": "CLM-cells-fe863c00",
     "kind": "api_method",
     "text": "Protection.locked property of type : boolean",
     "confidence": 1.0,
@@ -5390,7 +5614,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d46d88",
+    "claim_id": "CLM-cells-e03a38ee",
     "kind": "api_method",
     "text": "Protection.hidden property of type : boolean",
     "confidence": 1.0,
@@ -5418,7 +5642,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-84bc50",
+    "claim_id": "CLM-cells-51e8a3a6",
     "kind": "api_method",
     "text": "DataValidation.type property of type :\r\n    | \"any\"\r\n    | \"whole\"\r\n    | \"decimal\"\r\n    | \"list\"\r\n    | \"date\"\r\n    | \"time\"\r\n    | \"textLength\"\r\n    | \"custom\"",
     "confidence": 1.0,
@@ -5432,7 +5656,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-af3556",
+    "claim_id": "CLM-cells-59718018",
     "kind": "api_method",
     "text": "DataValidation.operator property of type :\r\n    | \"between\"\r\n    | \"notBetween\"\r\n    | \"equal\"\r\n    | \"notEqual\"\r\n    | \"greaterThan\"\r\n    | \"lessThan\"\r\n    | \"greaterThanOrEqual\"\r\n    | \"lessThanOrEqual\"",
     "confidence": 1.0,
@@ -5446,7 +5670,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c6f87e",
+    "claim_id": "CLM-cells-17909a7d",
     "kind": "api_method",
     "text": "DataValidation.formula1 property of type : string",
     "confidence": 1.0,
@@ -5460,7 +5684,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2d7afb",
+    "claim_id": "CLM-cells-4792d9a4",
     "kind": "api_method",
     "text": "DataValidation.formula2 property of type : string",
     "confidence": 1.0,
@@ -5474,7 +5698,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-19d6f1",
+    "claim_id": "CLM-cells-ba838913",
     "kind": "api_method",
     "text": "DataValidation.allowBlank property of type : boolean",
     "confidence": 1.0,
@@ -5488,7 +5712,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-362cd8",
+    "claim_id": "CLM-cells-585485c8",
     "kind": "api_method",
     "text": "DataValidation.showDropDown property of type : boolean",
     "confidence": 1.0,
@@ -5502,7 +5726,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-53da5a",
+    "claim_id": "CLM-cells-b8e11908",
     "kind": "api_method",
     "text": "DataValidation.showInputMessage property of type : boolean",
     "confidence": 1.0,
@@ -5516,7 +5740,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3476fc",
+    "claim_id": "CLM-cells-5c3f0a02",
     "kind": "api_method",
     "text": "DataValidation.inputTitle property of type : string",
     "confidence": 1.0,
@@ -5530,7 +5754,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-84c59e",
+    "claim_id": "CLM-cells-0cb042bc",
     "kind": "api_method",
     "text": "DataValidation.inputMessage property of type : string",
     "confidence": 1.0,
@@ -5544,7 +5768,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-896930",
+    "claim_id": "CLM-cells-04f95841",
     "kind": "api_method",
     "text": "DataValidation.errorTitle property of type : string",
     "confidence": 1.0,
@@ -5558,7 +5782,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ec0feb",
+    "claim_id": "CLM-cells-6aaea56e",
     "kind": "api_method",
     "text": "DataValidation.errorMessage property of type : string",
     "confidence": 1.0,
@@ -5572,7 +5796,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1839cd",
+    "claim_id": "CLM-cells-204d10b8",
     "kind": "api_method",
     "text": "DataValidation.errorStyle property of type : \"stop\" | \"warning\" | \"information\"",
     "confidence": 1.0,
@@ -5600,7 +5824,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8efb22",
+    "claim_id": "CLM-cells-31e9f894",
     "kind": "api_method",
     "text": "Comment.author property of type : string",
     "confidence": 1.0,
@@ -5614,7 +5838,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-86c73a",
+    "claim_id": "CLM-cells-9c9dc994",
     "kind": "api_method",
     "text": "Comment.text property of type : string",
     "confidence": 1.0,
@@ -5628,7 +5852,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6979ec",
+    "claim_id": "CLM-cells-f6a07053",
     "kind": "api_method",
     "text": "Comment.row property of type : number",
     "confidence": 1.0,
@@ -5642,7 +5866,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c2212e",
+    "claim_id": "CLM-cells-b2caa2f0",
     "kind": "api_method",
     "text": "Comment.col property of type : number",
     "confidence": 1.0,
@@ -5670,7 +5894,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e1cdcf",
+    "claim_id": "CLM-cells-ceb5f921",
     "kind": "api_method",
     "text": "Hyperlink.address property of type : string",
     "confidence": 1.0,
@@ -5684,7 +5908,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b3ef39",
+    "claim_id": "CLM-cells-a531dfd5",
     "kind": "api_method",
     "text": "Hyperlink.display property of type : string",
     "confidence": 1.0,
@@ -5698,7 +5922,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c7fed9",
+    "claim_id": "CLM-cells-82e829bf",
     "kind": "api_method",
     "text": "Hyperlink.tooltip property of type : string",
     "confidence": 1.0,
@@ -5712,7 +5936,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d9cc6a",
+    "claim_id": "CLM-cells-96b99651",
     "kind": "api_method",
     "text": "Hyperlink.type property of type : \"url\" | \"file\" | \"email\" | \"internal\"",
     "confidence": 1.0,
@@ -5726,7 +5950,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fc3a3f",
+    "claim_id": "CLM-cells-bf9b83f3",
     "kind": "api_method",
     "text": "Hyperlink.target property of type : string",
     "confidence": 1.0,
@@ -5754,7 +5978,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-93d1ae",
+    "claim_id": "CLM-cells-f599d2fa",
     "kind": "api_method",
     "text": "FilterColumn.col property of type : number",
     "confidence": 1.0,
@@ -5768,7 +5992,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-498c33",
+    "claim_id": "CLM-cells-9f764fc8",
     "kind": "api_method",
     "text": "FilterColumn.filters property of type : (string | number)[]",
     "confidence": 1.0,
@@ -5782,7 +6006,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-69d688",
+    "claim_id": "CLM-cells-9785313d",
     "kind": "api_method",
     "text": "FilterColumn.blank property of type : boolean",
     "confidence": 1.0,
@@ -5810,7 +6034,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0986d2",
+    "claim_id": "CLM-cells-941cba1f",
     "kind": "api_method",
     "text": "ConditionalFormatRule.type property of type : \"cellValue\" | \"expression\" | \"colorScale\" | \"iconSet\" | \"dataBar\"",
     "confidence": 1.0,
@@ -5824,7 +6048,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4d1d1",
+    "claim_id": "CLM-cells-adce6b55",
     "kind": "api_method",
     "text": "ConditionalFormatRule.formula1 property of type : string",
     "confidence": 1.0,
@@ -5838,7 +6062,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-34d15f",
+    "claim_id": "CLM-cells-c5b3c332",
     "kind": "api_method",
     "text": "ConditionalFormatRule.formula2 property of type : string",
     "confidence": 1.0,
@@ -5852,7 +6076,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cfecb6",
+    "claim_id": "CLM-cells-ae1601ab",
     "kind": "api_method",
     "text": "ConditionalFormatRule.operator property of type :\r\n    | \"between\"\r\n    | \"notBetween\"\r\n    | \"equal\"\r\n    | \"notEqual\"\r\n    | \"greaterThan\"\r\n    | \"lessThan\"\r\n    | \"greaterThanOrEqual\"\r\n    | \"lessThanOrEqual\"",
     "confidence": 1.0,
@@ -5866,7 +6090,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-91cdbc",
+    "claim_id": "CLM-cells-efad1993",
     "kind": "api_method",
     "text": "ConditionalFormatRule.style property of type : Style",
     "confidence": 1.0,
@@ -5880,7 +6104,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8207cc",
+    "claim_id": "CLM-cells-149b0905",
     "kind": "api_method",
     "text": "ConditionalFormatRule.colorScale property of type : ColorScaleRule",
     "confidence": 1.0,
@@ -5894,7 +6118,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fc8790",
+    "claim_id": "CLM-cells-9c61967c",
     "kind": "api_method",
     "text": "ConditionalFormatRule.iconSet property of type : IconSetRule",
     "confidence": 1.0,
@@ -5908,7 +6132,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c16e56",
+    "claim_id": "CLM-cells-8f9bf5bb",
     "kind": "api_method",
     "text": "ConditionalFormatRule.dataBar property of type : DataBarRule",
     "confidence": 1.0,
@@ -5936,7 +6160,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dbeeaf",
+    "claim_id": "CLM-cells-11c48155",
     "kind": "api_method",
     "text": "ColorScaleRule.minColor property of type : string",
     "confidence": 1.0,
@@ -5950,7 +6174,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c641ae",
+    "claim_id": "CLM-cells-fb9fc353",
     "kind": "api_method",
     "text": "ColorScaleRule.midColor property of type : string",
     "confidence": 1.0,
@@ -5964,7 +6188,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5ec82c",
+    "claim_id": "CLM-cells-472ed72d",
     "kind": "api_method",
     "text": "ColorScaleRule.maxColor property of type : string",
     "confidence": 1.0,
@@ -5992,7 +6216,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-23514e",
+    "claim_id": "CLM-cells-40013aaf",
     "kind": "api_method",
     "text": "IconSetRule.iconSet property of type :\r\n    | \"arrows3\"\r\n    | \"arrows4\"\r\n    | \"arrows5\"\r\n    | \"flags3\"\r\n    | \"trafficLights3\"\r\n    | \"trafficLights4\"\r\n    | \"redToGreen\"\r\n    | \"symbols3\"\r\n    | \"symbols4\"\r\n    | \"rating3\"\r\n    | \"rating4\"\r\n    | \"rating5\"",
     "confidence": 1.0,
@@ -6006,7 +6230,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f4f434",
+    "claim_id": "CLM-cells-c966b2e9",
     "kind": "api_method",
     "text": "IconSetRule.reverse property of type : boolean",
     "confidence": 1.0,
@@ -6034,7 +6258,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-075c33",
+    "claim_id": "CLM-cells-7eb74633",
     "kind": "api_method",
     "text": "DataBarRule.color property of type : string",
     "confidence": 1.0,
@@ -6048,7 +6272,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d0c116",
+    "claim_id": "CLM-cells-4a206e8d",
     "kind": "api_method",
     "text": "DataBarRule.minValue property of type : number",
     "confidence": 1.0,
@@ -6062,7 +6286,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f3e35d",
+    "claim_id": "CLM-cells-5a7e45bb",
     "kind": "api_method",
     "text": "DataBarRule.maxValue property of type : number",
     "confidence": 1.0,
@@ -6076,7 +6300,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-acadc5",
+    "claim_id": "CLM-cells-47bf2142",
     "kind": "api_method",
     "text": "DataBarRule.direction property of type : \"leftToRight\" | \"rightToLeft\"",
     "confidence": 1.0,
@@ -6132,7 +6356,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-917651",
+    "claim_id": "CLM-cells-418d2a07",
     "kind": "api_method",
     "text": "ShapeFill.type property of type : \"solid\" | \"gradient\" | \"none\"",
     "confidence": 1.0,
@@ -6146,7 +6370,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c1ebf6",
+    "claim_id": "CLM-cells-b6bf1117",
     "kind": "api_method",
     "text": "ShapeFill.color property of type : string",
     "confidence": 1.0,
@@ -6160,7 +6384,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cb2f35",
+    "claim_id": "CLM-cells-bd02b505",
     "kind": "api_method",
     "text": "ShapeFill.isSchemeColor property of type : boolean",
     "confidence": 1.0,
@@ -6174,7 +6398,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8f3df1",
+    "claim_id": "CLM-cells-09f2e1db",
     "kind": "api_method",
     "text": "ShapeFill.gradientStops property of type : Array<{\r\n    position: number;\r\n    color: string;\r\n    isSchemeColor?: boolean;\r\n    lumMod?: number;\r\n    lumOff?: number;\r\n  }>",
     "confidence": 1.0,
@@ -6188,7 +6412,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d88567",
+    "claim_id": "CLM-cells-8ff08ead",
     "kind": "api_method",
     "text": "ShapeFill.position property of type : number",
     "confidence": 1.0,
@@ -6202,7 +6426,35 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e9b580",
+    "claim_id": "CLM-cells-c1ebf6",
+    "kind": "api_method",
+    "text": "ShapeFill.color property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 195
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-cb2f35",
+    "kind": "api_method",
+    "text": "ShapeFill.isSchemeColor property of type : boolean",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/types.ts",
+        "line": 196
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-982ff8ee",
     "kind": "api_method",
     "text": "ShapeFill.lumMod property of type : number",
     "confidence": 1.0,
@@ -6216,7 +6468,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-75527a",
+    "claim_id": "CLM-cells-6549dd96",
     "kind": "api_method",
     "text": "ShapeFill.lumOff property of type : number",
     "confidence": 1.0,
@@ -6230,7 +6482,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d375d4",
+    "claim_id": "CLM-cells-00ba6c8b",
     "kind": "api_method",
     "text": "ShapeFill.gradientAngle property of type : number",
     "confidence": 1.0,
@@ -6258,7 +6510,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ba8cdf",
+    "claim_id": "CLM-cells-4f0d03c8",
     "kind": "api_method",
     "text": "ShapeInfo.name property of type : string",
     "confidence": 1.0,
@@ -6272,7 +6524,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4be65d",
+    "claim_id": "CLM-cells-16c037ee",
     "kind": "api_method",
     "text": "ShapeInfo.type property of type : string",
     "confidence": 1.0,
@@ -6286,7 +6538,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6a86ad",
+    "claim_id": "CLM-cells-e133706f",
     "kind": "api_method",
     "text": "ShapeInfo.fromCol property of type : number",
     "confidence": 1.0,
@@ -6300,7 +6552,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ecef27",
+    "claim_id": "CLM-cells-cf14bfc9",
     "kind": "api_method",
     "text": "ShapeInfo.fromColOff property of type : number",
     "confidence": 1.0,
@@ -6314,7 +6566,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-421281",
+    "claim_id": "CLM-cells-c2017b44",
     "kind": "api_method",
     "text": "ShapeInfo.fromRow property of type : number",
     "confidence": 1.0,
@@ -6328,7 +6580,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6d8a42",
+    "claim_id": "CLM-cells-84b49cda",
     "kind": "api_method",
     "text": "ShapeInfo.fromRowOff property of type : number",
     "confidence": 1.0,
@@ -6342,7 +6594,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-55b4d8",
+    "claim_id": "CLM-cells-09d51dbe",
     "kind": "api_method",
     "text": "ShapeInfo.toCol property of type : number",
     "confidence": 1.0,
@@ -6356,7 +6608,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9091eb",
+    "claim_id": "CLM-cells-baa367e6",
     "kind": "api_method",
     "text": "ShapeInfo.toColOff property of type : number",
     "confidence": 1.0,
@@ -6370,7 +6622,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2d6267",
+    "claim_id": "CLM-cells-bf1976c2",
     "kind": "api_method",
     "text": "ShapeInfo.toRow property of type : number",
     "confidence": 1.0,
@@ -6384,7 +6636,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b58ae6",
+    "claim_id": "CLM-cells-5a9fecfd",
     "kind": "api_method",
     "text": "ShapeInfo.toRowOff property of type : number",
     "confidence": 1.0,
@@ -6398,7 +6650,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2ff5c8",
+    "claim_id": "CLM-cells-886031ff",
     "kind": "api_method",
     "text": "ShapeInfo.fill property of type : ShapeFill",
     "confidence": 1.0,
@@ -6412,7 +6664,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b2cd8a",
+    "claim_id": "CLM-cells-aca6790f",
     "kind": "api_method",
     "text": "ShapeInfo.lineColor property of type : string",
     "confidence": 1.0,
@@ -6426,7 +6678,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8b6029",
+    "claim_id": "CLM-cells-776309c4",
     "kind": "api_method",
     "text": "ShapeInfo.lineWidth property of type : number",
     "confidence": 1.0,
@@ -6440,7 +6692,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-765bd0",
+    "claim_id": "CLM-cells-319a8b5e",
     "kind": "api_method",
     "text": "ShapeInfo.flipV property of type : boolean",
     "confidence": 1.0,
@@ -6454,7 +6706,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-54bb0a",
+    "claim_id": "CLM-cells-95d70c5d",
     "kind": "api_method",
     "text": "ShapeInfo.flipH property of type : boolean",
     "confidence": 1.0,
@@ -6468,7 +6720,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-64a7bc",
+    "claim_id": "CLM-cells-51ef22fb",
     "kind": "api_method",
     "text": "ShapeInfo.rotation property of type : number",
     "confidence": 1.0,
@@ -6482,7 +6734,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6b8bbc",
+    "claim_id": "CLM-cells-19230419",
     "kind": "api_method",
     "text": "ShapeInfo.x property of type : number",
     "confidence": 1.0,
@@ -6496,7 +6748,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a7d77e",
+    "claim_id": "CLM-cells-4014609a",
     "kind": "api_method",
     "text": "ShapeInfo.y property of type : number",
     "confidence": 1.0,
@@ -6510,7 +6762,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-870157",
+    "claim_id": "CLM-cells-d8517b19",
     "kind": "api_method",
     "text": "ShapeInfo.width property of type : number",
     "confidence": 1.0,
@@ -6524,7 +6776,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-be2fe8",
+    "claim_id": "CLM-cells-57a3f68b",
     "kind": "api_method",
     "text": "ShapeInfo.height property of type : number",
     "confidence": 1.0,
@@ -6538,7 +6790,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7d57c3",
+    "claim_id": "CLM-cells-afbfd838",
     "kind": "api_method",
     "text": "ShapeInfo.cx property of type : number",
     "confidence": 1.0,
@@ -6552,7 +6804,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-36d73f",
+    "claim_id": "CLM-cells-d9afb4ad",
     "kind": "api_method",
     "text": "ShapeInfo.cy property of type : number",
     "confidence": 1.0,
@@ -6566,7 +6818,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c20c45",
+    "claim_id": "CLM-cells-1faa8147",
     "kind": "api_method",
     "text": "ShapeInfo.xfrmX property of type : number",
     "confidence": 1.0,
@@ -6580,7 +6832,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-81294a",
+    "claim_id": "CLM-cells-1735193a",
     "kind": "api_method",
     "text": "ShapeInfo.xfrmY property of type : number",
     "confidence": 1.0,
@@ -6594,7 +6846,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e43818",
+    "claim_id": "CLM-cells-a1557849",
     "kind": "api_method",
     "text": "ShapeInfo.picCx property of type : number",
     "confidence": 1.0,
@@ -6608,7 +6860,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-07ec09",
+    "claim_id": "CLM-cells-7f78a51a",
     "kind": "api_method",
     "text": "ShapeInfo.picCy property of type : number",
     "confidence": 1.0,
@@ -6692,7 +6944,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f87e66",
+    "claim_id": "CLM-cells-79e6b6e4",
     "kind": "api_method",
     "text": "StraightConnectorShapeInfo.type property of type : StraightConnectorShapeType",
     "confidence": 1.0,
@@ -6706,7 +6958,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f500f7",
+    "claim_id": "CLM-cells-8fc85c70",
     "kind": "api_method",
     "text": "StraightConnectorShapeInfo.hasArrowStart property of type : boolean",
     "confidence": 1.0,
@@ -6720,7 +6972,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-354607",
+    "claim_id": "CLM-cells-d2eb49c2",
     "kind": "api_method",
     "text": "StraightConnectorShapeInfo.hasArrowEnd property of type : boolean",
     "confidence": 1.0,
@@ -6748,7 +7000,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0834c6",
+    "claim_id": "CLM-cells-62d90031",
     "kind": "api_method",
     "text": "BentConnectorShapeInfo.type property of type : BentConnectorShapeType",
     "confidence": 1.0,
@@ -6762,7 +7014,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b0e25b",
+    "claim_id": "CLM-cells-4e2f9797",
     "kind": "api_method",
     "text": "BentConnectorShapeInfo.hasArrowStart property of type : boolean",
     "confidence": 1.0,
@@ -6776,7 +7028,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-84e704",
+    "claim_id": "CLM-cells-d5e4bd05",
     "kind": "api_method",
     "text": "BentConnectorShapeInfo.hasArrowEnd property of type : boolean",
     "confidence": 1.0,
@@ -6804,7 +7056,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cffc9f",
+    "claim_id": "CLM-cells-9335ad7a",
     "kind": "api_method",
     "text": "CurvedConnectorShapeInfo.type property of type : CurvedConnectorShapeType",
     "confidence": 1.0,
@@ -6818,7 +7070,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-645f30",
+    "claim_id": "CLM-cells-098718b1",
     "kind": "api_method",
     "text": "CurvedConnectorShapeInfo.hasArrowStart property of type : boolean",
     "confidence": 1.0,
@@ -6832,7 +7084,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a9e1e6",
+    "claim_id": "CLM-cells-6e4c9871",
     "kind": "api_method",
     "text": "CurvedConnectorShapeInfo.hasArrowEnd property of type : boolean",
     "confidence": 1.0,
@@ -6860,7 +7112,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-da0d92",
+    "claim_id": "CLM-cells-a3215696",
     "kind": "api_method",
     "text": "LineShapeInfo.type property of type : LineShapeType",
     "confidence": 1.0,
@@ -6874,7 +7126,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-81d089",
+    "claim_id": "CLM-cells-a42acaa4",
     "kind": "api_method",
     "text": "LineShapeInfo.hasArrowStart property of type : boolean",
     "confidence": 1.0,
@@ -6888,7 +7140,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ba6ad1",
+    "claim_id": "CLM-cells-f37fdffe",
     "kind": "api_method",
     "text": "LineShapeInfo.hasArrowEnd property of type : boolean",
     "confidence": 1.0,
@@ -6944,7 +7196,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e5a847",
+    "claim_id": "CLM-cells-5f4728e4",
     "kind": "api_method",
     "text": "RectangleShapeInfo.type property of type : RectangleShapeType",
     "confidence": 1.0,
@@ -6986,7 +7238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2a7fb6",
+    "claim_id": "CLM-cells-1a826a72",
     "kind": "api_method",
     "text": "EllipseShapeInfo.type property of type : EllipseShapeType",
     "confidence": 1.0,
@@ -7056,7 +7308,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-98845c",
+    "claim_id": "CLM-cells-7ad76b9e",
     "kind": "api_method",
     "text": "TriangleShapeInfo.type property of type : TriangleShapeType",
     "confidence": 1.0,
@@ -7084,7 +7336,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d7728c",
+    "claim_id": "CLM-cells-92b3f505",
     "kind": "api_method",
     "text": "QuadrilateralShapeInfo.type property of type : QuadrilateralShapeType",
     "confidence": 1.0,
@@ -7112,7 +7364,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-76dbd0",
+    "claim_id": "CLM-cells-870f0c33",
     "kind": "api_method",
     "text": "PolygonShapeInfo.type property of type : PolygonShapeType",
     "confidence": 1.0,
@@ -7154,7 +7406,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a8a06c",
+    "claim_id": "CLM-cells-b8831250",
     "kind": "api_method",
     "text": "ArrowShapeInfo.type property of type : ArrowShapeType",
     "confidence": 1.0,
@@ -7196,7 +7448,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dac7ec",
+    "claim_id": "CLM-cells-e613a8b9",
     "kind": "api_method",
     "text": "StarShapeInfo.type property of type : StarShapeType",
     "confidence": 1.0,
@@ -7238,7 +7490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-46804e",
+    "claim_id": "CLM-cells-b292ba80",
     "kind": "api_method",
     "text": "RectangleVariantShapeInfo.type property of type : RectangleVariantShapeType",
     "confidence": 1.0,
@@ -7280,7 +7532,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-39d75f",
+    "claim_id": "CLM-cells-489a1579",
     "kind": "api_method",
     "text": "CircleVariantShapeInfo.type property of type : CircleVariantShapeType",
     "confidence": 1.0,
@@ -7322,7 +7574,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-863045",
+    "claim_id": "CLM-cells-530f80b8",
     "kind": "api_method",
     "text": "BraceShapeInfo.type property of type : BraceShapeType",
     "confidence": 1.0,
@@ -7364,7 +7616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-572ad6",
+    "claim_id": "CLM-cells-cf316d48",
     "kind": "api_method",
     "text": "MathSymbolShapeInfo.type property of type : MathSymbolShapeType",
     "confidence": 1.0,
@@ -7406,7 +7658,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ea9bb7",
+    "claim_id": "CLM-cells-ce2cd524",
     "kind": "api_method",
     "text": "SpecialShapeInfo.type property of type : SpecialShapeType",
     "confidence": 1.0,
@@ -7448,7 +7700,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bdb03e",
+    "claim_id": "CLM-cells-9be72dbe",
     "kind": "api_method",
     "text": "SealShapeInfo.type property of type : SealShapeType",
     "confidence": 1.0,
@@ -7490,7 +7742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8bf481",
+    "claim_id": "CLM-cells-fdf1fce3",
     "kind": "api_method",
     "text": "Shape3DInfo.type property of type : Shape3DType",
     "confidence": 1.0,
@@ -7532,7 +7784,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d3145f",
+    "claim_id": "CLM-cells-33b0722f",
     "kind": "api_method",
     "text": "BasicShapeInfoType.type property of type : BasicShapeSubType",
     "confidence": 1.0,
@@ -7574,7 +7826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7f55d0",
+    "claim_id": "CLM-cells-71e644ef",
     "kind": "api_method",
     "text": "ChartSeries.name property of type : string",
     "confidence": 1.0,
@@ -7588,7 +7840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1d51ab",
+    "claim_id": "CLM-cells-c3ba17f9",
     "kind": "api_method",
     "text": "ChartSeries.values property of type : number[]",
     "confidence": 1.0,
@@ -7602,7 +7854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8e6ef0",
+    "claim_id": "CLM-cells-4e7d2cfb",
     "kind": "api_method",
     "text": "ChartSeries.categories property of type : string[]",
     "confidence": 1.0,
@@ -7630,7 +7882,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-75123f",
+    "claim_id": "CLM-cells-9142a18f",
     "kind": "api_method",
     "text": "ChartInfo.chartType property of type : ChartType",
     "confidence": 1.0,
@@ -7644,7 +7896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d08bb8",
+    "claim_id": "CLM-cells-868c030a",
     "kind": "api_method",
     "text": "ChartInfo.title property of type : string",
     "confidence": 1.0,
@@ -7658,7 +7910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-acca09",
+    "claim_id": "CLM-cells-6e185a52",
     "kind": "api_method",
     "text": "ChartInfo.series property of type : ChartSeries[]",
     "confidence": 1.0,
@@ -7672,7 +7924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4d7f01",
+    "claim_id": "CLM-cells-4332e7a1",
     "kind": "api_method",
     "text": "ChartInfo.legendPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -7686,7 +7938,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-152936",
+    "claim_id": "CLM-cells-f76b1d11",
     "kind": "api_method",
     "text": "ChartInfo.categoryAxisPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -7700,7 +7952,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6b9ac7",
+    "claim_id": "CLM-cells-626c0e5c",
     "kind": "api_method",
     "text": "ChartInfo.valueAxisPosition property of type : \"left\" | \"right\" | \"top\" | \"bottom\"",
     "confidence": 1.0,
@@ -7714,7 +7966,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d50302",
+    "claim_id": "CLM-cells-089e86a2",
     "kind": "api_method",
     "text": "ChartInfo.plotArea property of type : {\r\n    x: number;\r\n    y: number;\r\n    width: number;\r\n    height: number;\r\n  }",
     "confidence": 1.0,
@@ -7728,7 +7980,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ada064",
+    "claim_id": "CLM-cells-36329bab",
     "kind": "api_method",
     "text": "ChartInfo.x property of type : number",
     "confidence": 1.0,
@@ -7742,7 +7994,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ad17e3",
+    "claim_id": "CLM-cells-42def105",
     "kind": "api_method",
     "text": "ChartInfo.y property of type : number",
     "confidence": 1.0,
@@ -7756,7 +8008,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2c687f",
+    "claim_id": "CLM-cells-4310774b",
     "kind": "api_method",
     "text": "ChartInfo.width property of type : number",
     "confidence": 1.0,
@@ -7770,7 +8022,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d336ef",
+    "claim_id": "CLM-cells-7a772887",
     "kind": "api_method",
     "text": "ChartInfo.height property of type : number",
     "confidence": 1.0,
@@ -7784,7 +8036,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-88400c",
+    "claim_id": "CLM-cells-f31329fb",
     "kind": "api_method",
     "text": "ChartInfo.fromRowOff property of type : number",
     "confidence": 1.0,
@@ -7798,7 +8050,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3c7e75",
+    "claim_id": "CLM-cells-be94f8a0",
     "kind": "api_method",
     "text": "ChartInfo.fromColOff property of type : number",
     "confidence": 1.0,
@@ -7812,7 +8064,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4b1ea",
+    "claim_id": "CLM-cells-8ddca0f6",
     "kind": "api_method",
     "text": "ChartInfo.toRowOff property of type : number",
     "confidence": 1.0,
@@ -7826,7 +8078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-531957",
+    "claim_id": "CLM-cells-2f0473c3",
     "kind": "api_method",
     "text": "ChartInfo.toColOff property of type : number",
     "confidence": 1.0,
@@ -7840,7 +8092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b65079",
+    "claim_id": "CLM-cells-852484eb",
     "kind": "api_method",
     "text": "ChartInfo.originalX property of type : number",
     "confidence": 1.0,
@@ -7854,7 +8106,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b0a78d",
+    "claim_id": "CLM-cells-af852532",
     "kind": "api_method",
     "text": "ChartInfo.originalY property of type : number",
     "confidence": 1.0,
@@ -7868,7 +8120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4c7a14",
+    "claim_id": "CLM-cells-8dd3508c",
     "kind": "api_method",
     "text": "ChartInfo.sheetIndex property of type : number",
     "confidence": 1.0,
@@ -7882,7 +8134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0c9526",
+    "claim_id": "CLM-cells-83c4b19d",
     "kind": "api_method",
     "text": "ChartInfo.originalChartXml property of type : string",
     "confidence": 1.0,
@@ -7896,7 +8148,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-709961",
+    "claim_id": "CLM-cells-002d6461",
     "kind": "api_method",
     "text": "ChartInfo.originalStyleXml property of type : string",
     "confidence": 1.0,
@@ -7910,7 +8162,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2c8d33",
+    "claim_id": "CLM-cells-b0d6d2c0",
     "kind": "api_method",
     "text": "ChartInfo.originalColorsXml property of type : string",
     "confidence": 1.0,
@@ -7952,7 +8204,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5aeffe",
+    "claim_id": "CLM-cells-2e9dda63",
     "kind": "api_method",
     "text": "ImageInfo.name property of type : string",
     "confidence": 1.0,
@@ -7966,7 +8218,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7cb8b7",
+    "claim_id": "CLM-cells-0e3c3e77",
     "kind": "api_method",
     "text": "ImageInfo.data property of type : Buffer",
     "confidence": 1.0,
@@ -7980,7 +8232,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-655f47",
+    "claim_id": "CLM-cells-df8d9911",
     "kind": "api_method",
     "text": "ImageInfo.width property of type : number",
     "confidence": 1.0,
@@ -7994,7 +8246,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4c94f",
+    "claim_id": "CLM-cells-3a68e5bc",
     "kind": "api_method",
     "text": "ImageInfo.height property of type : number",
     "confidence": 1.0,
@@ -8008,7 +8260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c6a997",
+    "claim_id": "CLM-cells-4e47ce1d",
     "kind": "api_method",
     "text": "ImageInfo.ext property of type : string",
     "confidence": 1.0,
@@ -8036,7 +8288,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3d510d",
+    "claim_id": "CLM-cells-da72fd03",
     "kind": "api_method",
     "text": "PictureShapeInfo.type property of type : \"picture\"",
     "confidence": 1.0,
@@ -8050,7 +8302,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b4349a",
+    "claim_id": "CLM-cells-97cf39fa",
     "kind": "api_method",
     "text": "PictureShapeInfo.imageIndex property of type : number",
     "confidence": 1.0,
@@ -8092,6 +8344,34 @@
     "provenance": "scout"
   },
   {
+    "claim_id": "CLM-cells-5972e3",
+    "kind": "api_method",
+    "text": "CellCoordinates.row property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1bc43c",
+    "kind": "api_method",
+    "text": "CellCoordinates.col property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
     "claim_id": "CLM-cells-f139e6",
     "kind": "api_class",
     "text": "Class CellCoordinates defined in aspose_cells/util.ts",
@@ -8101,6 +8381,62 @@
       {
         "file": "aspose_cells/util.ts",
         "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-916874",
+    "kind": "api_method",
+    "text": "CellRange.startRow property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1b7982",
+    "kind": "api_method",
+    "text": "CellRange.startCol property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-8a3719",
+    "kind": "api_method",
+    "text": "CellRange.endRow property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-99d323",
+    "kind": "api_method",
+    "text": "CellRange.endCol property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/util.ts",
+        "line": 18
       }
     ],
     "provenance": "scout"
@@ -8540,7 +8876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-81a818",
+    "claim_id": "CLM-cells-bce23564",
     "kind": "api_method",
     "text": "DataValidation.addArea(range) -> ",
     "confidence": 1.0,
@@ -8554,7 +8890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-107a8c",
+    "claim_id": "CLM-cells-fb980a6f",
     "kind": "api_method",
     "text": "DataValidation.getRanges() -> CellRange[]",
     "confidence": 1.0,
@@ -8568,7 +8904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-563c72",
+    "claim_id": "CLM-cells-845d9a06",
     "kind": "api_method",
     "text": "DataValidation.toXml() -> string",
     "confidence": 1.0,
@@ -8596,7 +8932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-95c9d9",
+    "claim_id": "CLM-cells-06e19be0",
     "kind": "api_method",
     "text": "DataValidationCollection.add() -> DataValidation",
     "confidence": 1.0,
@@ -8610,7 +8946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-576884",
+    "claim_id": "CLM-cells-07559cb9",
     "kind": "api_method",
     "text": "DataValidationCollection.get(index) -> DataValidation | undefined",
     "confidence": 1.0,
@@ -8624,7 +8960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cf2621",
+    "claim_id": "CLM-cells-6cc9d4fc",
     "kind": "api_method",
     "text": "DataValidationCollection.count property of type number",
     "confidence": 1.0,
@@ -8638,7 +8974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-55caaf",
+    "claim_id": "CLM-cells-722116cc",
     "kind": "api_method",
     "text": "DataValidationCollection.remove(index) -> ",
     "confidence": 1.0,
@@ -8652,7 +8988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-746c2c",
+    "claim_id": "CLM-cells-c801445a",
     "kind": "api_method",
     "text": "DataValidationCollection.clear() -> ",
     "confidence": 1.0,
@@ -8666,7 +9002,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2c930f",
+    "claim_id": "CLM-cells-d908e25a",
     "kind": "api_method",
     "text": "DataValidationCollection.toXml() -> string",
     "confidence": 1.0,
@@ -8694,7 +9030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2e1cc9",
+    "claim_id": "CLM-cells-14d8a7ce",
     "kind": "api_method",
     "text": "Workbook.constructor(createDefault) -> ",
     "confidence": 1.0,
@@ -8708,7 +9044,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e407f3",
+    "claim_id": "CLM-cells-c0ea5e23",
     "kind": "api_method",
     "text": "Workbook.load(filePath, password) -> Promise<Workbook>",
     "confidence": 1.0,
@@ -8722,7 +9058,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b8ea90",
+    "claim_id": "CLM-cells-03ec3235",
     "kind": "api_method",
     "text": "Workbook.worksheets property of type WorksheetCollection",
     "confidence": 1.0,
@@ -8736,7 +9072,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4793d",
+    "claim_id": "CLM-cells-eef0d0d0",
     "kind": "api_method",
     "text": "Workbook.sharedStrings property of type string[]",
     "confidence": 1.0,
@@ -8750,7 +9086,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-957959",
+    "claim_id": "CLM-cells-94b08339",
     "kind": "api_method",
     "text": "Workbook.isProtected property of type boolean",
     "confidence": 1.0,
@@ -8764,7 +9100,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-65dd1d",
+    "claim_id": "CLM-cells-9417b925",
     "kind": "api_method",
     "text": "Workbook.charts property of type ChartInfo[]",
     "confidence": 1.0,
@@ -8778,7 +9114,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-27b863",
+    "claim_id": "CLM-cells-1b3d47ea",
     "kind": "api_method",
     "text": "Workbook.images property of type ImageInfo[]",
     "confidence": 1.0,
@@ -8792,7 +9128,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e6b8fa",
+    "claim_id": "CLM-cells-8008d428",
     "kind": "api_method",
     "text": "Workbook.activeTab property of type number",
     "confidence": 1.0,
@@ -8806,7 +9142,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c97f0e",
+    "claim_id": "CLM-cells-e96a50da",
     "kind": "api_method",
     "text": "Workbook.getNumFmt(numFmtId) -> string",
     "confidence": 1.0,
@@ -8820,7 +9156,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a507df",
+    "claim_id": "CLM-cells-1b684c28",
     "kind": "api_method",
     "text": "Workbook.protect(protect, password) -> ",
     "confidence": 1.0,
@@ -8834,7 +9170,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-360686",
+    "claim_id": "CLM-cells-9d6d2c91",
     "kind": "api_method",
     "text": "Workbook.save(filePath, options) -> ",
     "confidence": 1.0,
@@ -8848,7 +9184,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c0ab7f",
+    "claim_id": "CLM-cells-d40a3e47",
     "kind": "api_method",
     "text": "Workbook.password property of type : string",
     "confidence": 1.0,
@@ -8862,7 +9198,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cd7f7f",
+    "claim_id": "CLM-cells-aeacb082",
     "kind": "api_method",
     "text": "Workbook.saveFormat property of type : SaveFormat",
     "confidence": 1.0,
@@ -8876,7 +9212,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f92e78",
+    "claim_id": "CLM-cells-e2f0939f",
     "kind": "api_method",
     "text": "Workbook.toHtml() -> string",
     "confidence": 1.0,
@@ -8890,7 +9226,35 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8c4af6",
+    "claim_id": "CLM-cells-c0ab7f",
+    "kind": "api_method",
+    "text": "Workbook.password property of type : string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 439
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-cd7f7f",
+    "kind": "api_method",
+    "text": "Workbook.saveFormat property of type : SaveFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 439
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-bf58da88",
     "kind": "api_method",
     "text": "Workbook.col property of type : number",
     "confidence": 1.0,
@@ -8904,7 +9268,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5c7086",
+    "claim_id": "CLM-cells-b295651f",
     "kind": "api_method",
     "text": "Workbook.colOff property of type : number",
     "confidence": 1.0,
@@ -8918,7 +9282,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f0ad8e",
+    "claim_id": "CLM-cells-4a2e8585",
     "kind": "api_method",
     "text": "Workbook.row property of type : number",
     "confidence": 1.0,
@@ -8932,7 +9296,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-25a29a",
+    "claim_id": "CLM-cells-c2fe9911",
     "kind": "api_method",
     "text": "Workbook.rowOff property of type : number",
     "confidence": 1.0,
@@ -8946,7 +9310,63 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f1b811",
+    "claim_id": "CLM-cells-8c4af6",
+    "kind": "api_method",
+    "text": "Workbook.col property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 925
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-5c7086",
+    "kind": "api_method",
+    "text": "Workbook.colOff property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 925
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f0ad8e",
+    "kind": "api_method",
+    "text": "Workbook.row property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 925
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-25a29a",
+    "kind": "api_method",
+    "text": "Workbook.rowOff property of type : number",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_cells/workbook.ts",
+        "line": 925
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f24a6540",
     "kind": "api_method",
     "text": "Workbook.id property of type : number",
     "confidence": 1.0,
@@ -8960,7 +9380,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bfe93a",
+    "claim_id": "CLM-cells-6efe6a7b",
     "kind": "api_method",
     "text": "Workbook.code property of type : string",
     "confidence": 1.0,
@@ -8974,7 +9394,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1a7b4a",
+    "claim_id": "CLM-cells-80889a04",
     "kind": "api_method",
     "text": "Workbook.fontId property of type : number",
     "confidence": 1.0,
@@ -8988,7 +9408,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-17aea9",
+    "claim_id": "CLM-cells-b9a7fbf2",
     "kind": "api_method",
     "text": "Workbook.fillId property of type : number",
     "confidence": 1.0,
@@ -9002,7 +9422,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-935525",
+    "claim_id": "CLM-cells-c665a7ab",
     "kind": "api_method",
     "text": "Workbook.borderId property of type : number",
     "confidence": 1.0,
@@ -9016,7 +9436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5564ec",
+    "claim_id": "CLM-cells-091032ca",
     "kind": "api_method",
     "text": "Workbook.numFmtId property of type : number",
     "confidence": 1.0,
@@ -9030,7 +9450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b29db5",
+    "claim_id": "CLM-cells-d58e3963",
     "kind": "api_method",
     "text": "Workbook.style property of type : Style",
     "confidence": 1.0,
@@ -9044,7 +9464,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d5984f",
+    "claim_id": "CLM-cells-d77772d6",
     "kind": "api_method",
     "text": "Workbook.toCsv() -> string",
     "confidence": 1.0,
@@ -9058,7 +9478,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-16cf6e",
+    "claim_id": "CLM-cells-4ab9fb87",
     "kind": "api_method",
     "text": "Workbook.toJson() -> string",
     "confidence": 1.0,
@@ -9072,7 +9492,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-256ec1",
+    "claim_id": "CLM-cells-9569465e",
     "kind": "api_method",
     "text": "Workbook.sheetName property of type : string",
     "confidence": 1.0,
@@ -9086,7 +9506,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-52efdb",
+    "claim_id": "CLM-cells-03ab66a0",
     "kind": "api_method",
     "text": "Workbook.cells property of type : { [key: string]: CellValue }",
     "confidence": 1.0,
@@ -9100,7 +9520,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-627d5b",
+    "claim_id": "CLM-cells-4c849bcd",
     "kind": "api_method",
     "text": "Workbook.toMarkdown() -> string",
     "confidence": 1.0,
@@ -9128,7 +9548,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9afcf6",
+    "claim_id": "CLM-cells-2fa3d4aa",
     "kind": "api_method",
     "text": "Worksheet.cell property of type : string",
     "confidence": 1.0,
@@ -9142,7 +9562,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5e0637",
+    "claim_id": "CLM-cells-7f3b81a3",
     "kind": "api_method",
     "text": "Worksheet.link property of type : Hyperlink",
     "confidence": 1.0,
@@ -9156,7 +9576,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c6cd29",
+    "claim_id": "CLM-cells-163b9dce",
     "kind": "api_method",
     "text": "Worksheet.startRow property of type : number",
     "confidence": 1.0,
@@ -9170,7 +9590,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d4fa69",
+    "claim_id": "CLM-cells-53023261",
     "kind": "api_method",
     "text": "Worksheet.startCol property of type : number",
     "confidence": 1.0,
@@ -9184,7 +9604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1bc6fd",
+    "claim_id": "CLM-cells-6c352b80",
     "kind": "api_method",
     "text": "Worksheet.endRow property of type : number",
     "confidence": 1.0,
@@ -9198,7 +9618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ecc571",
+    "claim_id": "CLM-cells-dbd2a9fe",
     "kind": "api_method",
     "text": "Worksheet.endCol property of type : number",
     "confidence": 1.0,
@@ -9212,7 +9632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-195260",
+    "claim_id": "CLM-cells-7c9f48c7",
     "kind": "api_method",
     "text": "Worksheet.range property of type : string",
     "confidence": 1.0,
@@ -9226,7 +9646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f866d4",
+    "claim_id": "CLM-cells-9717b049",
     "kind": "api_method",
     "text": "Worksheet.rules property of type : ConditionalFormatRule[]",
     "confidence": 1.0,
@@ -9240,7 +9660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-770f93",
+    "claim_id": "CLM-cells-7ea0e493",
     "kind": "api_method",
     "text": "Worksheet.constructor(name, index) -> ",
     "confidence": 1.0,
@@ -9254,7 +9674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-daa50f",
+    "claim_id": "CLM-cells-edd9d7f7",
     "kind": "api_method",
     "text": "Worksheet.name property of type string",
     "confidence": 1.0,
@@ -9268,7 +9688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-68f8c4",
+    "claim_id": "CLM-cells-5813250e",
     "kind": "api_method",
     "text": "Worksheet.index property of type number",
     "confidence": 1.0,
@@ -9282,7 +9702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8dd578",
+    "claim_id": "CLM-cells-7ffe810f",
     "kind": "api_method",
     "text": "Worksheet.cells property of type ",
     "confidence": 1.0,
@@ -9296,7 +9716,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9be218",
+    "claim_id": "CLM-cells-8709ef7f",
     "kind": "api_method",
     "text": "Worksheet.getCell(row, col) -> Cell | undefined",
     "confidence": 1.0,
@@ -9310,7 +9730,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2d33a7",
+    "claim_id": "CLM-cells-adfe5529",
     "kind": "api_method",
     "text": "Worksheet.getCellByRef(ref) -> Cell | undefined",
     "confidence": 1.0,
@@ -9324,7 +9744,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3f3232",
+    "claim_id": "CLM-cells-23dcf523",
     "kind": "api_method",
     "text": "Worksheet.getCell2(key) -> Cell",
     "confidence": 1.0,
@@ -9338,7 +9758,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e40254",
+    "claim_id": "CLM-cells-62aafced",
     "kind": "api_method",
     "text": "Worksheet.putValue(key, value) -> Cell",
     "confidence": 1.0,
@@ -9352,7 +9772,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-551b93",
+    "claim_id": "CLM-cells-fe3c3a66",
     "kind": "api_method",
     "text": "Worksheet.value property of type CellValue | undefined",
     "confidence": 1.0,
@@ -9366,7 +9786,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ffeef0",
+    "claim_id": "CLM-cells-80c1a0b9",
     "kind": "api_method",
     "text": "Worksheet.addDataValidation(validation, range) -> ",
     "confidence": 1.0,
@@ -9380,7 +9800,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4d3c26",
+    "claim_id": "CLM-cells-34f20b16",
     "kind": "api_method",
     "text": "Worksheet.dataValidations property of type ",
     "confidence": 1.0,
@@ -9394,7 +9814,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f80910",
+    "claim_id": "CLM-cells-0ee1715a",
     "kind": "api_method",
     "text": "Worksheet.addComment(comment) -> ",
     "confidence": 1.0,
@@ -9408,7 +9828,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e2fc24",
+    "claim_id": "CLM-cells-6f796617",
     "kind": "api_method",
     "text": "Worksheet.comments property of type ",
     "confidence": 1.0,
@@ -9422,7 +9842,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2f110b",
+    "claim_id": "CLM-cells-bb3eb5d6",
     "kind": "api_method",
     "text": "Worksheet.addHyperlink(cellRef, hyperlink) -> ",
     "confidence": 1.0,
@@ -9436,7 +9856,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ee2c69",
+    "claim_id": "CLM-cells-3e00d920",
     "kind": "api_method",
     "text": "Worksheet.hyperlinks property of type ",
     "confidence": 1.0,
@@ -9450,7 +9870,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3a10b2",
+    "claim_id": "CLM-cells-5bc382c7",
     "kind": "api_method",
     "text": "Worksheet.setAutoFilter(range) -> ",
     "confidence": 1.0,
@@ -9464,7 +9884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c53630",
+    "claim_id": "CLM-cells-9cbe400e",
     "kind": "api_method",
     "text": "Worksheet.autoFilter property of type ",
     "confidence": 1.0,
@@ -9478,7 +9898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-19b537",
+    "claim_id": "CLM-cells-768d9715",
     "kind": "api_method",
     "text": "Worksheet.removeAutoFilter() -> ",
     "confidence": 1.0,
@@ -9492,7 +9912,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1d5a9b",
+    "claim_id": "CLM-cells-f8e97b63",
     "kind": "api_method",
     "text": "Worksheet.addConditionalFormat(range, rules) -> ",
     "confidence": 1.0,
@@ -9506,7 +9926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d29fe6",
+    "claim_id": "CLM-cells-e3a99f64",
     "kind": "api_method",
     "text": "Worksheet.conditionalFormats property of type ",
     "confidence": 1.0,
@@ -9520,7 +9940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c5ab25",
+    "claim_id": "CLM-cells-bb20a63d",
     "kind": "api_method",
     "text": "Worksheet.mergeCells(range) -> ",
     "confidence": 1.0,
@@ -9534,7 +9954,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c61d59",
+    "claim_id": "CLM-cells-d442fa35",
     "kind": "api_method",
     "text": "Worksheet.unmergeCells(range) -> ",
     "confidence": 1.0,
@@ -9548,7 +9968,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-09a7dc",
+    "claim_id": "CLM-cells-253f6c91",
     "kind": "api_method",
     "text": "Worksheet.mergedCells property of type ",
     "confidence": 1.0,
@@ -9562,7 +9982,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-521843",
+    "claim_id": "CLM-cells-64533940",
     "kind": "api_method",
     "text": "Worksheet.setColumnWidth(column, width) -> ",
     "confidence": 1.0,
@@ -9576,7 +9996,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2a5575",
+    "claim_id": "CLM-cells-394753ed",
     "kind": "api_method",
     "text": "Worksheet.getColumnWidth(column) -> number | undefined",
     "confidence": 1.0,
@@ -9590,7 +10010,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7a038e",
+    "claim_id": "CLM-cells-9ddb6c14",
     "kind": "api_method",
     "text": "Worksheet.setRowHeight(row, height) -> ",
     "confidence": 1.0,
@@ -9604,7 +10024,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1a4be3",
+    "claim_id": "CLM-cells-79728902",
     "kind": "api_method",
     "text": "Worksheet.getRowHeight(row) -> number | undefined",
     "confidence": 1.0,
@@ -9618,7 +10038,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-38e46f",
+    "claim_id": "CLM-cells-a6a6687a",
     "kind": "api_method",
     "text": "Worksheet.setRowHidden(row, hidden) -> ",
     "confidence": 1.0,
@@ -9632,7 +10052,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-20eb2c",
+    "claim_id": "CLM-cells-3eb8cf5a",
     "kind": "api_method",
     "text": "Worksheet.isRowHidden(row) -> boolean",
     "confidence": 1.0,
@@ -9646,7 +10066,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1e8031",
+    "claim_id": "CLM-cells-36bca2ab",
     "kind": "api_method",
     "text": "Worksheet.defaultColumnWidth property of type ",
     "confidence": 1.0,
@@ -9660,7 +10080,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b24791",
+    "claim_id": "CLM-cells-461ddda9",
     "kind": "api_method",
     "text": "Worksheet.defaultRowHeight property of type ",
     "confidence": 1.0,
@@ -9674,7 +10094,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a6fac2",
+    "claim_id": "CLM-cells-3adc2c51",
     "kind": "api_method",
     "text": "Worksheet.setCellStyle(cellRef, style) -> ",
     "confidence": 1.0,
@@ -9688,7 +10108,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cd8ea7",
+    "claim_id": "CLM-cells-050737df",
     "kind": "api_method",
     "text": "Worksheet.addShape(shape) -> ",
     "confidence": 1.0,
@@ -9702,7 +10122,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-49356c",
+    "claim_id": "CLM-cells-2c5fdb52",
     "kind": "api_method",
     "text": "Worksheet.shapes property of type ShapeInfo[]",
     "confidence": 1.0,
@@ -9716,7 +10136,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-40c071",
+    "claim_id": "CLM-cells-becf06ac",
     "kind": "api_method",
     "text": "Worksheet.charts property of type ChartCollection",
     "confidence": 1.0,
@@ -9730,7 +10150,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0c515b",
+    "claim_id": "CLM-cells-7edfee03",
     "kind": "api_method",
     "text": "Worksheet.addImage(image) -> ",
     "confidence": 1.0,
@@ -9744,7 +10164,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2b86d8",
+    "claim_id": "CLM-cells-0509ef92",
     "kind": "api_method",
     "text": "Worksheet.images property of type ImageInfo[]",
     "confidence": 1.0,
@@ -9758,7 +10178,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3a9b4c",
+    "claim_id": "CLM-cells-e9110450",
     "kind": "api_method",
     "text": "Worksheet.toXml(drawingIndex) -> string",
     "confidence": 1.0,
@@ -9772,7 +10192,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-018f37",
+    "claim_id": "CLM-cells-3df049db",
     "kind": "api_method",
     "text": "Worksheet.getXml(drawingIndex) -> string",
     "confidence": 1.0,
@@ -9800,7 +10220,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9ee164",
+    "claim_id": "CLM-cells-5282d4a4",
     "kind": "api_method",
     "text": "WorksheetCollection.constructor(createDefault) -> ",
     "confidence": 1.0,
@@ -9828,7 +10248,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4c9e2f",
+    "claim_id": "CLM-cells-f67ab8a6",
     "kind": "api_method",
     "text": "WorksheetCollection.worksheets property of type Worksheet[]",
     "confidence": 1.0,
@@ -9842,7 +10262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5b286f",
+    "claim_id": "CLM-cells-cada963f",
     "kind": "api_method",
     "text": "WorksheetCollection.length property of type number",
     "confidence": 1.0,
@@ -9856,7 +10276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-636b1d",
+    "claim_id": "CLM-cells-dbf7d894",
     "kind": "api_method",
     "text": "WorksheetCollection.worksheetCount property of type number",
     "confidence": 1.0,
@@ -9870,7 +10290,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8c0a81",
+    "claim_id": "CLM-cells-aa81ddfc",
     "kind": "api_method",
     "text": "WorksheetCollection.worksheet property of type Worksheet",
     "confidence": 1.0,
@@ -9884,7 +10304,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7ce096",
+    "claim_id": "CLM-cells-d5cb4a27",
     "kind": "api_method",
     "text": "WorksheetCollection.styles property of type Map<number, Style>",
     "confidence": 1.0,
@@ -9898,7 +10318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-386a7d",
+    "claim_id": "CLM-cells-4e334310",
     "kind": "api_method",
     "text": "WorksheetCollection.get(index) -> Worksheet | undefined",
     "confidence": 1.0,
@@ -9912,7 +10332,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-24575d",
+    "claim_id": "CLM-cells-091d1a56",
     "kind": "api_method",
     "text": "WorksheetCollection.getByName(name) -> Worksheet | undefined",
     "confidence": 1.0,
@@ -9926,7 +10346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cb7124",
+    "claim_id": "CLM-cells-a2f4b0d0",
     "kind": "api_method",
     "text": "WorksheetCollection.map(callback) -> T[]",
     "confidence": 1.0,
@@ -9940,7 +10360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a008e1",
+    "claim_id": "CLM-cells-d25cc7fc",
     "kind": "api_method",
     "text": "WorksheetCollection.filter(callback) -> Worksheet[]",
     "confidence": 1.0,
@@ -9954,7 +10374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-475704",
+    "claim_id": "CLM-cells-5e0342f9",
     "kind": "api_method",
     "text": "WorksheetCollection.forEach(callback) -> void",
     "confidence": 1.0,
@@ -9968,7 +10388,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-772397",
+    "claim_id": "CLM-cells-a8f5511a",
     "kind": "api_method",
     "text": "WorksheetCollection.find(callback) -> Worksheet | undefined",
     "confidence": 1.0,
@@ -9982,7 +10402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ab366f",
+    "claim_id": "CLM-cells-aced6da5",
     "kind": "api_method",
     "text": "WorksheetCollection.indexOf(searchElement, fromIndex) -> number",
     "confidence": 1.0,
@@ -9996,7 +10416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4ea015",
+    "claim_id": "CLM-cells-30ced56a",
     "kind": "api_method",
     "text": "WorksheetCollection.addWorksheet(name) -> Worksheet",
     "confidence": 1.0,
@@ -10010,7 +10430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b80746",
+    "claim_id": "CLM-cells-c720851e",
     "kind": "api_method",
     "text": "WorksheetCollection.removeWorksheet(index) -> boolean",
     "confidence": 1.0,
@@ -10024,7 +10444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1ea8f0",
+    "claim_id": "CLM-cells-97ba1d6e",
     "kind": "api_method",
     "text": "WorksheetCollection.moveWorksheet(fromIndex, toIndex) -> boolean",
     "confidence": 1.0,
@@ -10038,7 +10458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b57c3f",
+    "claim_id": "CLM-cells-afc2695f",
     "kind": "api_method",
     "text": "WorksheetCollection.getStyle(index) -> Style | undefined",
     "confidence": 1.0,
@@ -10052,7 +10472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f32365",
+    "claim_id": "CLM-cells-b06db2f8",
     "kind": "api_method",
     "text": "WorksheetCollection.setStyle(index, style) -> void",
     "confidence": 1.0,
@@ -10066,7 +10486,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5ddc41",
+    "claim_id": "CLM-cells-a4b2996c",
     "kind": "api_method",
     "text": "WorksheetCollection.clear() -> void",
     "confidence": 1.0,
@@ -10080,7 +10500,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a811fe",
+    "claim_id": "CLM-cells-7c734ebe",
     "kind": "api_method",
     "text": "WorksheetCollection.getNumFmt(numFmtId) -> string",
     "confidence": 1.0,
@@ -10108,7 +10528,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3ee718",
+    "claim_id": "CLM-cells-f9950bbd",
     "kind": "api_method",
     "text": "DOMParser.constructor() -> ",
     "confidence": 1.0,
@@ -10122,7 +10542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-acb0c5",
+    "claim_id": "CLM-cells-2aedeaf4",
     "kind": "api_method",
     "text": "DOMParser.parseFromString(xml, type) -> Document",
     "confidence": 1.0,

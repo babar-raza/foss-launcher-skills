@@ -473,7 +473,7 @@
     "file": "snippet_025.ts",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 27,
+    "source_line": 114,
     "classes_used": [
       "Cell",
       "Font",
@@ -496,7 +496,7 @@
     "file": "snippet_026.ts",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 58,
+    "source_line": 143,
     "classes_used": [
       "Cell",
       "Workbook"
@@ -507,6 +507,25 @@
       "Workbook.save"
     ],
     "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 161,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.load",
+      "Workbook.save"
+    ],
+    "formats_referenced": [
+      "html",
       "xlsx"
     ],
     "provenance": "scout"

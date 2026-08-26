@@ -19,6 +19,8 @@
         "doc": "",
         "line": 11,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartLoader.ts"
       }
     ],
@@ -89,6 +91,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chartLoader",
     "class_import": "aspose_cells.chartLoader.ChartLoader"
   },
@@ -112,6 +116,8 @@
         "doc": "",
         "line": 8,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -121,6 +127,8 @@
         "doc": "Returns the ranges.",
         "line": 12,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts",
         "doc_source": "name_inference"
       },
@@ -136,6 +144,8 @@
         "doc": "",
         "line": 16,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -145,6 +155,8 @@
         "doc": "Returns the rules.",
         "line": 20,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts",
         "doc_source": "name_inference"
       },
@@ -155,12 +167,16 @@
         "doc": "",
         "line": 24,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.conditionalformat",
     "class_import": "aspose_cells.conditionalformat.ConditionalFormat"
   },
@@ -179,6 +195,8 @@
         "doc": "",
         "line": 54,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -193,6 +211,8 @@
         "doc": "",
         "line": 60,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -207,6 +227,8 @@
         "doc": "",
         "line": 64,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -216,6 +238,8 @@
         "doc": "",
         "line": 68,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       },
       {
@@ -225,6 +249,8 @@
         "doc": "",
         "line": 76,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/conditionalformat.ts"
       }
     ],
@@ -242,6 +268,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.conditionalformat",
     "class_import": "aspose_cells.conditionalformat.ConditionalFormatCollection"
   },
@@ -265,6 +293,8 @@
         "doc": "",
         "line": 13,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlExporter.ts"
       },
       {
@@ -287,6 +317,8 @@
         "doc": "",
         "line": 18,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlExporter.ts"
       },
       {
@@ -301,12 +333,16 @@
         "doc": "",
         "line": 584,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlExporter.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlExporter",
     "class_import": "aspose_cells.html.htmlExporter.HtmlExporter"
   },
@@ -330,6 +366,8 @@
         "doc": "",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       },
       {
@@ -339,6 +377,8 @@
         "doc": "",
         "line": 21,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       },
       {
@@ -353,6 +393,8 @@
         "doc": "",
         "line": 121,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       },
       {
@@ -362,6 +404,8 @@
         "doc": "Returns the outer html.",
         "line": 127,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
@@ -372,6 +416,8 @@
         "doc": "Returns the inner html.",
         "line": 134,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
@@ -387,6 +433,8 @@
         "doc": "",
         "line": 147,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       },
       {
@@ -401,6 +449,8 @@
         "doc": "",
         "line": 162,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       },
       {
@@ -410,6 +460,8 @@
         "doc": "Returns the full element.",
         "line": 167,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
@@ -425,6 +477,8 @@
         "doc": "",
         "line": 209,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlReader.ts"
       }
     ],
@@ -487,6 +541,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlReader",
     "class_import": "aspose_cells.html.htmlReader.HtmlReader"
   },
@@ -514,6 +570,8 @@
         "doc": "",
         "line": 6,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlWriter.ts"
       },
       {
@@ -532,12 +590,16 @@
         "doc": "",
         "line": 26,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlWriter.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlWriter",
     "class_import": "aspose_cells.html.htmlWriter.HtmlWriter"
   },
@@ -645,6 +707,8 @@
         "doc": "",
         "line": 8,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/autofilter.ts"
       },
       {
@@ -667,6 +731,8 @@
         "doc": "",
         "line": 24,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/autofilter.ts"
       },
       {
@@ -681,6 +747,8 @@
         "doc": "",
         "line": 28,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/autofilter.ts"
       },
       {
@@ -690,6 +758,8 @@
         "doc": "",
         "line": 35,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/autofilter.ts"
       },
       {
@@ -699,6 +769,8 @@
         "doc": "",
         "line": 39,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/autofilter.ts"
       }
     ],
@@ -726,6 +798,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.autofilter",
     "class_import": "aspose_cells.autofilter.AutoFilter"
   },
@@ -749,6 +823,8 @@
         "doc": "Sets the shared strings value.",
         "line": 12,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -772,6 +848,8 @@
         "doc": "",
         "line": 24,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -786,6 +864,8 @@
         "doc": "",
         "line": 50,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -800,6 +880,8 @@
         "doc": "Sets the formula value.",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -815,6 +897,8 @@
         "doc": "Sets the style value.",
         "line": 76,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -830,6 +914,8 @@
         "doc": "Sets the style index value.",
         "line": 81,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -845,6 +931,8 @@
         "doc": "Sets the hyperlink value.",
         "line": 93,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -855,6 +943,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       }
     ],
@@ -951,6 +1041,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.cell",
     "class_import": "aspose_cells.cell.Cell"
   },
@@ -974,6 +1066,8 @@
         "doc": "",
         "line": 144,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -992,6 +1086,8 @@
         "doc": "",
         "line": 148,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -1010,6 +1106,8 @@
         "doc": "",
         "line": 153,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -1019,6 +1117,8 @@
         "doc": "",
         "line": 167,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -1028,6 +1128,8 @@
         "doc": "",
         "line": 173,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       },
       {
@@ -1037,6 +1139,8 @@
         "doc": "",
         "line": 177,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/cell.ts"
       }
     ],
@@ -1054,6 +1158,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.cell",
     "class_import": "aspose_cells.cell.Cells"
   },
@@ -1099,6 +1205,8 @@
         "doc": "",
         "line": 36,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts"
       },
       {
@@ -1125,6 +1233,8 @@
         "doc": "Sets the position value.",
         "line": 41,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1160,6 +1270,8 @@
         "doc": "Sets the position with offset value.",
         "line": 49,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1179,6 +1291,8 @@
         "doc": "Sets the data range value.",
         "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1194,6 +1308,8 @@
         "doc": "Sets the worksheet value.",
         "line": 67,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1209,6 +1325,8 @@
         "doc": "Sets the title value.",
         "line": 128,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1224,6 +1342,8 @@
         "doc": "Sets the legend position value.",
         "line": 133,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       }
@@ -1529,6 +1649,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chart",
     "class_import": "aspose_cells.chart.Chart"
   },
@@ -1556,6 +1678,8 @@
         "doc": "",
         "line": 10,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1570,6 +1694,8 @@
         "doc": "Sets the worksheet value.",
         "line": 15,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts",
         "doc_source": "name_inference"
       },
@@ -1585,6 +1711,8 @@
         "doc": "",
         "line": 29,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1599,6 +1727,8 @@
         "doc": "",
         "line": 33,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1629,6 +1759,8 @@
         "doc": "",
         "line": 37,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1667,6 +1799,8 @@
         "doc": "",
         "line": 51,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1705,6 +1839,8 @@
         "doc": "",
         "line": 77,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1719,6 +1855,8 @@
         "doc": "",
         "line": 96,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1728,6 +1866,8 @@
         "doc": "",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1737,6 +1877,8 @@
         "doc": "",
         "line": 106,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts"
       },
       {
@@ -1746,6 +1888,8 @@
         "doc": "Returns the chart infos.",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/chartCollection.ts",
         "doc_source": "name_inference"
       }
@@ -1774,6 +1918,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chartCollection",
     "class_import": "aspose_cells.chartCollection.ChartCollection"
   },
@@ -1809,6 +1955,8 @@
         "doc": "",
         "line": 12,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1818,6 +1966,8 @@
         "doc": "",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       }
     ],
@@ -1895,6 +2045,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.comment",
     "class_import": "aspose_cells.comment.Comment"
   },
@@ -1930,6 +2082,8 @@
         "doc": "",
         "line": 73,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1944,6 +2098,8 @@
         "doc": "",
         "line": 79,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1962,6 +2118,8 @@
         "doc": "",
         "line": 83,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1976,6 +2134,8 @@
         "doc": "",
         "line": 87,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1985,6 +2145,8 @@
         "doc": "",
         "line": 91,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       },
       {
@@ -1994,6 +2156,8 @@
         "doc": "",
         "line": 99,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/comment.ts"
       }
     ],
@@ -2011,6 +2175,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.comment",
     "class_import": "aspose_cells.comment.CommentCollection"
   },
@@ -2034,6 +2200,8 @@
         "doc": "",
         "line": 2,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/dataRelationship.ts"
       },
       {
@@ -2043,6 +2211,8 @@
         "doc": "",
         "line": 6,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/dataRelationship.ts"
       },
       {
@@ -2057,6 +2227,8 @@
         "doc": "",
         "line": 10,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/dataRelationship.ts"
       }
     ],
@@ -2073,6 +2245,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.dataRelationship",
     "class_import": "aspose_cells.dataRelationship.DataRelationship"
   },
@@ -2104,6 +2278,8 @@
         "doc": "",
         "line": 5,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2113,6 +2289,8 @@
         "doc": "",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2122,6 +2300,8 @@
         "doc": "",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2140,6 +2320,8 @@
         "doc": "",
         "line": 96,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2154,6 +2336,8 @@
         "doc": "",
         "line": 148,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2168,6 +2352,8 @@
         "doc": "",
         "line": 264,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2182,6 +2368,8 @@
         "doc": "",
         "line": 279,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2200,6 +2388,8 @@
         "doc": "",
         "line": 291,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       },
       {
@@ -2214,12 +2404,16 @@
         "doc": "",
         "line": 341,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/expDrawing.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.expDrawing",
     "class_import": "aspose_cells.expDrawing.ExpDrawing"
   },
@@ -2271,6 +2465,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.ChartArea"
   },
@@ -2322,6 +2518,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.PlotArea"
   },
@@ -2364,6 +2562,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.SeriesInfo"
   },
@@ -2397,6 +2597,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.LegendInfo"
   },
@@ -2484,6 +2686,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.AxisInfo"
   },
@@ -2511,12 +2715,16 @@
         "doc": "",
         "line": 51,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/chartRenderer.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
     "class_import": "aspose_cells.html.chartRenderer.ChartRenderer"
   },
@@ -2550,6 +2758,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
     "class_import": "aspose_cells.html.htmlDocument.HtmlParseOptions"
   },
@@ -2655,6 +2865,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
     "class_import": "aspose_cells.html.htmlDocument.ShapeAnchor"
   },
@@ -2678,6 +2890,8 @@
         "doc": "",
         "line": 36,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       },
       {
@@ -2692,6 +2906,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       },
       {
@@ -2706,6 +2922,8 @@
         "doc": "",
         "line": 154,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       },
       {
@@ -2720,6 +2938,8 @@
         "doc": "",
         "line": 326,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       },
       {
@@ -2734,6 +2954,8 @@
         "doc": "",
         "line": 341,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       },
       {
@@ -2752,6 +2974,8 @@
         "doc": "",
         "line": 366,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlDocument.ts"
       }
     ],
@@ -2869,6 +3093,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
     "class_import": "aspose_cells.html.htmlDocument.HtmlDocument"
   },
@@ -2902,6 +3128,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
     "class_import": "aspose_cells.html.htmlTable.HtmlSaveOptions"
   },
@@ -3124,6 +3352,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
     "class_import": "aspose_cells.html.htmlTable.CellStyle"
   },
@@ -3220,6 +3450,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
     "class_import": "aspose_cells.html.htmlTable.PictureInfo"
   },
@@ -3243,6 +3475,8 @@
         "doc": "",
         "line": 73,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3257,6 +3491,8 @@
         "doc": "Sets the css classes value.",
         "line": 77,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts",
         "doc_source": "name_inference"
       },
@@ -3276,6 +3512,8 @@
         "doc": "",
         "line": 109,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3290,6 +3528,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3304,6 +3544,8 @@
         "doc": "",
         "line": 117,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3322,6 +3564,8 @@
         "doc": "",
         "line": 121,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3340,6 +3584,8 @@
         "doc": "",
         "line": 137,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3358,6 +3604,8 @@
         "doc": "",
         "line": 372,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3372,6 +3620,8 @@
         "doc": "",
         "line": 724,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       },
       {
@@ -3386,6 +3636,8 @@
         "doc": "",
         "line": 763,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/html/htmlTable.ts"
       }
     ],
@@ -3526,6 +3778,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
     "class_import": "aspose_cells.html.htmlTable.HtmlTable"
   },
@@ -3565,6 +3819,8 @@
         "doc": "",
         "line": 13,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3574,6 +3830,8 @@
         "doc": "",
         "line": 75,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       }
     ],
@@ -3661,6 +3919,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.hyperlink",
     "class_import": "aspose_cells.hyperlink.Hyperlink"
   },
@@ -3700,6 +3960,8 @@
         "doc": "",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3714,6 +3976,8 @@
         "doc": "",
         "line": 90,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3732,6 +3996,8 @@
         "doc": "",
         "line": 94,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3746,6 +4012,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3755,6 +4023,8 @@
         "doc": "",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       },
       {
@@ -3764,6 +4034,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/hyperlink.ts"
       }
     ],
@@ -3781,6 +4053,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.hyperlink",
     "class_import": "aspose_cells.hyperlink.HyperlinkCollection"
   },
@@ -3812,6 +4086,8 @@
         "doc": "",
         "line": 6,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/impDrawing.ts"
       }
     ],
@@ -3864,6 +4140,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.impDrawing",
     "class_import": "aspose_cells.impDrawing.ImpDrawing"
   },
@@ -3884,6 +4162,8 @@
         "doc": "",
         "line": 11,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts"
       },
       {
@@ -3893,6 +4173,8 @@
         "doc": "Returns the font.",
         "line": 13,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3908,6 +4190,8 @@
         "doc": "Sets the font value.",
         "line": 20,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3918,6 +4202,8 @@
         "doc": "Returns the fill.",
         "line": 25,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3933,6 +4219,8 @@
         "doc": "Sets the fill value.",
         "line": 32,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3943,6 +4231,8 @@
         "doc": "Returns the border.",
         "line": 37,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3958,6 +4248,8 @@
         "doc": "Sets the border value.",
         "line": 44,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3968,6 +4260,8 @@
         "doc": "Returns the alignment.",
         "line": 49,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3983,6 +4277,8 @@
         "doc": "Sets the alignment value.",
         "line": 56,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -3998,6 +4294,8 @@
         "doc": "Sets the number format value.",
         "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4008,6 +4306,8 @@
         "doc": "Returns the number format.",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4023,6 +4323,8 @@
         "doc": "Sets the protection value.",
         "line": 70,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4033,6 +4335,8 @@
         "doc": "Returns true if bold is set.",
         "line": 75,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4048,6 +4352,8 @@
         "doc": "Sets the bold value.",
         "line": 79,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4058,6 +4364,8 @@
         "doc": "Returns true if italic is set.",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4073,6 +4381,8 @@
         "doc": "Sets the italic value.",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4083,6 +4393,8 @@
         "doc": "Returns the font name.",
         "line": 93,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4098,6 +4410,8 @@
         "doc": "Sets the font name value.",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4108,6 +4422,8 @@
         "doc": "Returns the font size.",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4123,6 +4439,8 @@
         "doc": "Sets the font size value.",
         "line": 106,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4133,6 +4451,8 @@
         "doc": "Returns the font color.",
         "line": 111,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4148,6 +4468,8 @@
         "doc": "Sets the font color value.",
         "line": 115,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4158,6 +4480,8 @@
         "doc": "Returns the foreground color.",
         "line": 120,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4173,6 +4497,8 @@
         "doc": "Sets the foreground color value.",
         "line": 124,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4183,6 +4509,8 @@
         "doc": "Returns the background color.",
         "line": 130,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4198,6 +4526,8 @@
         "doc": "Sets the background color value.",
         "line": 134,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4208,6 +4538,8 @@
         "doc": "Returns the horizontal alignment.",
         "line": 139,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4223,6 +4555,8 @@
         "doc": "Sets the horizontal alignment value.",
         "line": 143,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4233,6 +4567,8 @@
         "doc": "Returns the vertical alignment.",
         "line": 148,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4248,6 +4584,8 @@
         "doc": "Sets the vertical alignment value.",
         "line": 152,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4258,6 +4596,8 @@
         "doc": "Returns true if wrap text is set.",
         "line": 157,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4273,6 +4613,8 @@
         "doc": "Sets the wrap text value.",
         "line": 161,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4283,6 +4625,8 @@
         "doc": "Returns true if locked is set.",
         "line": 166,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4298,6 +4642,8 @@
         "doc": "Sets the locked value.",
         "line": 170,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4308,6 +4654,8 @@
         "doc": "Returns true if hidden is set.",
         "line": 175,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4323,6 +4671,8 @@
         "doc": "Sets the hidden value.",
         "line": 179,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
@@ -4333,6 +4683,8 @@
         "doc": "",
         "line": 191,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/style.ts"
       }
     ],
@@ -4394,6 +4746,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.style",
     "class_import": "aspose_cells.style.Style"
   },
@@ -4408,6 +4762,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CellValue"
   },
@@ -4441,6 +4797,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CellCoordinates"
   },
@@ -4492,6 +4850,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CellRange"
   },
@@ -4561,6 +4921,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Style"
   },
@@ -4639,6 +5001,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Font"
   },
@@ -4681,6 +5045,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Fill"
   },
@@ -4732,6 +5098,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Border"
   },
@@ -4765,6 +5133,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BorderLine"
   },
@@ -4807,6 +5177,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Alignment"
   },
@@ -4840,6 +5212,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Protection"
   },
@@ -4963,6 +5337,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.DataValidation"
   },
@@ -5014,6 +5390,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Comment"
   },
@@ -5074,6 +5452,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Hyperlink"
   },
@@ -5116,6 +5496,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.FilterColumn"
   },
@@ -5203,6 +5585,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ConditionalFormatRule"
   },
@@ -5245,6 +5629,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ColorScaleRule"
   },
@@ -5278,6 +5664,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.IconSetRule"
   },
@@ -5329,6 +5717,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.DataBarRule"
   },
@@ -5343,6 +5733,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "XLSX",
@@ -5379,6 +5771,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AES",
@@ -5490,6 +5884,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ShapeFill"
   },
@@ -5739,6 +6135,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ShapeInfo"
   },
@@ -5753,6 +6151,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.StraightConnectorShapeType"
   },
@@ -5767,6 +6167,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BentConnectorShapeType"
   },
@@ -5781,6 +6183,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CurvedConnectorShapeType"
   },
@@ -5795,6 +6199,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.LineShapeType"
   },
@@ -5837,6 +6243,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.StraightConnectorShapeInfo"
   },
@@ -5879,6 +6287,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BentConnectorShapeInfo"
   },
@@ -5921,6 +6331,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CurvedConnectorShapeInfo"
   },
@@ -5963,6 +6375,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.LineShapeInfo"
   },
@@ -5977,6 +6391,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.AllConnectorShapeInfo"
   },
@@ -5991,6 +6407,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.RectangleShapeType"
   },
@@ -6015,6 +6433,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.RectangleShapeInfo"
   },
@@ -6029,6 +6449,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.EllipseShapeType"
   },
@@ -6053,6 +6475,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.EllipseShapeInfo"
   },
@@ -6067,6 +6491,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.TriangleShapeType"
   },
@@ -6081,6 +6507,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.QuadrilateralShapeType"
   },
@@ -6095,6 +6523,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.PolygonShapeType"
   },
@@ -6119,6 +6549,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.TriangleShapeInfo"
   },
@@ -6143,6 +6575,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.QuadrilateralShapeInfo"
   },
@@ -6167,6 +6601,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.PolygonShapeInfo"
   },
@@ -6181,6 +6617,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ArrowShapeType"
   },
@@ -6205,6 +6643,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ArrowShapeInfo"
   },
@@ -6219,6 +6659,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.StarShapeType"
   },
@@ -6243,6 +6685,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.StarShapeInfo"
   },
@@ -6257,6 +6701,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.RectangleVariantShapeType"
   },
@@ -6281,6 +6727,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.RectangleVariantShapeInfo"
   },
@@ -6295,6 +6743,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CircleVariantShapeType"
   },
@@ -6319,6 +6769,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.CircleVariantShapeInfo"
   },
@@ -6333,6 +6785,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BraceShapeType"
   },
@@ -6357,6 +6811,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BraceShapeInfo"
   },
@@ -6371,6 +6827,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.MathSymbolShapeType"
   },
@@ -6395,6 +6853,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.MathSymbolShapeInfo"
   },
@@ -6409,6 +6869,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.SpecialShapeType"
   },
@@ -6433,6 +6895,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.SpecialShapeInfo"
   },
@@ -6447,6 +6911,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.SealShapeType"
   },
@@ -6471,6 +6937,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.SealShapeInfo"
   },
@@ -6485,6 +6953,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Shape3DType"
   },
@@ -6509,6 +6979,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.Shape3DInfo"
   },
@@ -6523,6 +6995,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BasicShapeSubType"
   },
@@ -6547,6 +7021,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.BasicShapeInfoType"
   },
@@ -6561,6 +7037,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ChartType"
   },
@@ -6603,6 +7081,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ChartSeries"
   },
@@ -6807,6 +7287,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ChartInfo"
   },
@@ -6821,6 +7303,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.AllShapeInfo"
   },
@@ -6881,6 +7365,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.ImageInfo"
   },
@@ -6914,6 +7400,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
     "class_import": "aspose_cells.types.PictureShapeInfo"
   },
@@ -6928,6 +7416,8 @@
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
     "class_import": "aspose_cells.util.CellValue"
   },
@@ -6961,6 +7451,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
     "class_import": "aspose_cells.util.CellCoordinates"
   },
@@ -7012,6 +7504,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
     "class_import": "aspose_cells.util.CellRange"
   },
@@ -7372,6 +7866,8 @@
         "doc": "",
         "line": 115,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       },
       {
@@ -7381,6 +7877,8 @@
         "doc": "Returns the ranges.",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts",
         "doc_source": "name_inference"
       },
@@ -7391,6 +7889,8 @@
         "doc": "",
         "line": 123,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       }
     ],
@@ -7518,6 +8018,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.validation",
     "class_import": "aspose_cells.validation.DataValidation"
   },
@@ -7536,6 +8038,8 @@
         "doc": "",
         "line": 162,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       },
       {
@@ -7550,6 +8054,8 @@
         "doc": "",
         "line": 168,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       },
       {
@@ -7564,6 +8070,8 @@
         "doc": "",
         "line": 176,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       },
       {
@@ -7573,6 +8081,8 @@
         "doc": "",
         "line": 180,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       },
       {
@@ -7582,6 +8092,8 @@
         "doc": "",
         "line": 184,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/validation.ts"
       }
     ],
@@ -7599,6 +8111,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.validation",
     "class_import": "aspose_cells.validation.DataValidationCollection"
   },
@@ -7622,6 +8136,8 @@
         "doc": "",
         "line": 48,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7640,6 +8156,8 @@
         "doc": "",
         "line": 52,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7654,6 +8172,8 @@
         "doc": "",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7672,6 +8192,8 @@
         "doc": "",
         "line": 385,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7690,6 +8212,8 @@
         "doc": "",
         "line": 390,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7699,6 +8223,8 @@
         "doc": "",
         "line": 433,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7708,6 +8234,8 @@
         "doc": "",
         "line": 1330,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7717,6 +8245,8 @@
         "doc": "",
         "line": 1361,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       },
       {
@@ -7726,6 +8256,8 @@
         "doc": "",
         "line": 1376,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/workbook.ts"
       }
     ],
@@ -7982,6 +8514,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.workbook",
     "class_import": "aspose_cells.workbook.Workbook"
   },
@@ -8009,6 +8543,8 @@
         "doc": "",
         "line": 44,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8027,6 +8563,8 @@
         "doc": "",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8041,6 +8579,8 @@
         "doc": "",
         "line": 70,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8055,6 +8595,8 @@
         "doc": "",
         "line": 74,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8073,6 +8615,8 @@
         "doc": "",
         "line": 82,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8091,6 +8635,8 @@
         "doc": "",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8105,6 +8651,8 @@
         "doc": "",
         "line": 105,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8123,6 +8671,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8137,6 +8687,8 @@
         "doc": "Sets the auto filter value.",
         "line": 121,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts",
         "doc_source": "name_inference"
       },
@@ -8147,6 +8699,8 @@
         "doc": "",
         "line": 135,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8165,6 +8719,8 @@
         "doc": "",
         "line": 139,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8179,6 +8735,8 @@
         "doc": "",
         "line": 147,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8193,6 +8751,8 @@
         "doc": "",
         "line": 151,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8211,6 +8771,8 @@
         "doc": "Sets the column width value.",
         "line": 160,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts",
         "doc_source": "name_inference"
       },
@@ -8226,6 +8788,8 @@
         "doc": "",
         "line": 164,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8244,6 +8808,8 @@
         "doc": "Sets the row height value.",
         "line": 168,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts",
         "doc_source": "name_inference"
       },
@@ -8259,6 +8825,8 @@
         "doc": "",
         "line": 172,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8277,6 +8845,8 @@
         "doc": "Sets the row hidden value.",
         "line": 176,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts",
         "doc_source": "name_inference"
       },
@@ -8292,6 +8862,8 @@
         "doc": "",
         "line": 184,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8310,6 +8882,8 @@
         "doc": "Sets the cell style value.",
         "line": 204,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts",
         "doc_source": "name_inference"
       },
@@ -8325,6 +8899,8 @@
         "doc": "",
         "line": 210,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8339,6 +8915,8 @@
         "doc": "",
         "line": 222,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8353,6 +8931,8 @@
         "doc": "",
         "line": 230,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       },
       {
@@ -8367,6 +8947,8 @@
         "doc": "",
         "line": 332,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheet.ts"
       }
     ],
@@ -8596,6 +9178,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.worksheet",
     "class_import": "aspose_cells.worksheet.Worksheet"
   },
@@ -8619,6 +9203,8 @@
         "doc": "",
         "line": 8,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8628,6 +9214,8 @@
         "doc": "",
         "line": 14,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8642,6 +9230,8 @@
         "doc": "",
         "line": 40,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8656,6 +9246,8 @@
         "doc": "",
         "line": 44,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8670,6 +9262,8 @@
         "doc": "",
         "line": 48,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8684,6 +9278,8 @@
         "doc": "",
         "line": 52,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8698,6 +9294,8 @@
         "doc": "",
         "line": 56,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8712,6 +9310,8 @@
         "doc": "",
         "line": 60,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8730,6 +9330,8 @@
         "doc": "",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8744,6 +9346,8 @@
         "doc": "",
         "line": 70,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8758,6 +9362,8 @@
         "doc": "",
         "line": 78,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8776,6 +9382,8 @@
         "doc": "",
         "line": 86,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8790,6 +9398,8 @@
         "doc": "",
         "line": 94,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8808,6 +9418,8 @@
         "doc": "Sets the style value.",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts",
         "doc_source": "name_inference"
       },
@@ -8818,6 +9430,8 @@
         "doc": "",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       },
       {
@@ -8832,6 +9446,8 @@
         "doc": "",
         "line": 106,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/worksheetCollection.ts"
       }
     ],
@@ -8889,6 +9505,8 @@
     ],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.worksheetCollection",
     "class_import": "aspose_cells.worksheetCollection.WorksheetCollection"
   },
@@ -8907,6 +9525,8 @@
         "doc": "",
         "line": 3,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/xmldom.d.ts"
       },
       {
@@ -8925,12 +9545,16 @@
         "doc": "",
         "line": 4,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose_cells/xmldom.d.ts"
       }
     ],
     "properties": [],
     "visibility": "exported",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.xmldom.d",
     "class_import": "aspose_cells.xmldom.d.DOMParser"
   }
