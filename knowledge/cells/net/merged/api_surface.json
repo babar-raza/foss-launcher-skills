@@ -14,6 +14,8 @@
         "doc": "Adds the specified item.",
         "line": 51,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs"
       },
       {
@@ -28,6 +30,8 @@
         "doc": "Removes the specified item.",
         "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs"
       },
       {
@@ -54,6 +58,8 @@
         "doc": "Removes the specified item.",
         "line": 78,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs"
       }
     ],
@@ -69,6 +75,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ConditionalFormattingCollection"
@@ -88,6 +96,8 @@
         "doc": "Removes the specified item.",
         "line": 452,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatCondition.cs"
       }
     ],
@@ -311,6 +321,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FormatCondition"
@@ -351,6 +363,8 @@
         "doc": "Adds the specified item.",
         "line": 69,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -365,6 +379,8 @@
         "doc": "Adds the specified item.",
         "line": 80,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -391,6 +407,8 @@
         "doc": "Adds the specified item.",
         "line": 93,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -405,6 +423,8 @@
         "doc": "Adds the specified item.",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -419,6 +439,8 @@
         "doc": "Gets the cell area.",
         "line": 125,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -433,6 +455,8 @@
         "doc": "Removes the specified item.",
         "line": 139,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -459,6 +483,8 @@
         "doc": "Removes the specified item.",
         "line": 157,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       },
       {
@@ -473,6 +499,8 @@
         "doc": "Removes the specified item.",
         "line": 173,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
       }
     ],
@@ -496,6 +524,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FormatConditionCollection"
@@ -511,6 +541,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "CellValue",
@@ -602,6 +634,8 @@
         "doc": "Initializes a new instance of the InvalidFileFormatException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/InvalidFileFormatException.cs"
       },
       {
@@ -620,6 +654,8 @@
         "doc": "Initializes a new instance of the InvalidFileFormatException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/InvalidFileFormatException.cs"
       },
       {
@@ -634,6 +670,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -652,12 +690,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.InvalidFileFormatException"
   },
@@ -672,6 +714,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Auto",
@@ -705,6 +749,8 @@
         "doc": "Gets the built in format.",
         "line": 18,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/NumberFormat.cs"
       },
       {
@@ -719,6 +765,8 @@
         "doc": "Performs is built in format.",
         "line": 34,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/NumberFormat.cs"
       },
       {
@@ -733,12 +781,16 @@
         "doc": "Gets the built in format id.",
         "line": 44,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/NumberFormat.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_static": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.NumberFormat"
@@ -754,6 +806,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Xlsx",
@@ -778,6 +832,8 @@
         "doc": "Clears the current state.",
         "line": 65,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilter.cs"
       }
     ],
@@ -809,6 +865,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilter"
@@ -828,6 +886,8 @@
         "doc": "Clears the current state.",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterColorFilter.cs"
       }
     ],
@@ -859,6 +919,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterColorFilter"
@@ -874,6 +936,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Equal",
@@ -931,6 +995,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilter"
@@ -961,6 +1027,8 @@
         "doc": "Adds the specified item.",
         "line": 71,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterCustomFilterCollection.cs"
       },
       {
@@ -975,6 +1043,8 @@
         "doc": "Removes the specified item.",
         "line": 91,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterCustomFilterCollection.cs"
       },
       {
@@ -984,6 +1054,8 @@
         "doc": "Clears the current state.",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterCustomFilterCollection.cs"
       },
       {
@@ -993,6 +1065,8 @@
         "doc": "Returns an enumerator that iterates through the collection.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterCustomFilterCollection.cs"
       }
     ],
@@ -1016,6 +1090,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilterCollection"
@@ -1035,6 +1111,8 @@
         "doc": "Clears the current state.",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterDynamicFilter.cs"
       }
     ],
@@ -1074,6 +1152,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterDynamicFilter"
@@ -1146,6 +1226,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterSortCondition"
@@ -1172,6 +1254,8 @@
         "doc": "Adds the specified item.",
         "line": 53,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterSortConditionCollection.cs"
       },
       {
@@ -1186,6 +1270,8 @@
         "doc": "Removes the specified item.",
         "line": 67,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterSortConditionCollection.cs"
       },
       {
@@ -1195,6 +1281,8 @@
         "doc": "Clears the current state.",
         "line": 80,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterSortConditionCollection.cs"
       },
       {
@@ -1204,6 +1292,8 @@
         "doc": "Returns an enumerator that iterates through the collection.",
         "line": 89,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterSortConditionCollection.cs"
       }
     ],
@@ -1219,6 +1309,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterSortConditionCollection"
@@ -1238,6 +1330,8 @@
         "doc": "Clears the current state.",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterSortState.cs"
       }
     ],
@@ -1285,6 +1379,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterSortState"
@@ -1304,6 +1400,8 @@
         "doc": "Clears the current state.",
         "line": 115,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/AutoFilterTop10.cs"
       }
     ],
@@ -1351,6 +1449,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.AutoFilterTop10"
@@ -1366,6 +1466,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Unknown",
@@ -1555,6 +1657,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Border"
   },
@@ -1569,6 +1673,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -1698,6 +1804,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Borders"
   },
@@ -1809,6 +1917,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.CalculationProperties"
@@ -1833,6 +1943,8 @@
         "doc": "Sets the cell value to a string.",
         "line": 161,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1847,6 +1959,8 @@
         "doc": "Sets the cell value to an integer.",
         "line": 170,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1861,6 +1975,8 @@
         "doc": "Sets the cell value to a floating-point number.",
         "line": 178,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1875,6 +1991,8 @@
         "doc": "Sets the cell value to a decimal number.",
         "line": 186,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1889,6 +2007,8 @@
         "doc": "Sets the cell value to a boolean.",
         "line": 194,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1903,6 +2023,8 @@
         "doc": "Sets the cell value to a DateTime.",
         "line": 205,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1921,6 +2043,8 @@
         "doc": "Puts a string value into the cell and converts the value when appropriate.",
         "line": 213,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1943,6 +2067,8 @@
         "doc": "Puts a string value into the cell and converts the value when appropriate.",
         "line": 221,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1957,6 +2083,8 @@
         "doc": "Puts an object value into the cell.",
         "line": 270,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1966,6 +2094,8 @@
         "doc": "Gets a detached copy of the cell style.",
         "line": 278,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1980,6 +2110,8 @@
         "doc": "Gets a detached copy of the cell style.",
         "line": 289,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -1994,6 +2126,8 @@
         "doc": "Replaces the cell style with the supplied style object.",
         "line": 303,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -2012,6 +2146,8 @@
         "doc": "Applies the cell style with Aspose-compatible overload shape.",
         "line": 314,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       },
       {
@@ -2030,6 +2166,8 @@
         "doc": "Applies the cell style based on style flags.",
         "line": 330,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cell.cs"
       }
     ],
@@ -2077,6 +2215,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Cell"
   },
@@ -2114,6 +2254,8 @@
         "doc": "Creates the cell area.",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellArea.cs"
       },
       {
@@ -2132,6 +2274,8 @@
         "doc": "Creates the cell area.",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellArea.cs"
       },
       {
@@ -2146,6 +2290,8 @@
         "doc": "Compare two CellArea objects according to their top-left corner.",
         "line": 100,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellArea.cs"
       },
       {
@@ -2155,6 +2301,8 @@
         "doc": "Returns a string represents the current cell area object.",
         "line": 138,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellArea.cs"
       }
     ],
@@ -2194,6 +2342,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.CellArea"
   },
@@ -2208,6 +2358,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "IsUnknown",
@@ -2273,6 +2425,8 @@
         "doc": "Merges a rectangular cell region using zero-based coordinates.",
         "line": 124,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Cells.cs"
       }
     ],
@@ -2312,6 +2466,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Cells"
   },
@@ -2337,6 +2493,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -2355,12 +2513,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.CellsException"
   },
@@ -2440,6 +2602,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Chart"
@@ -2484,6 +2648,8 @@
         "doc": "Adds a new chart of the specified type to the worksheet.",
         "line": 68,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ChartCollection.cs"
       }
     ],
@@ -2499,6 +2665,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ChartCollection"
@@ -2514,6 +2682,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Bar",
@@ -2657,6 +2827,8 @@
         "doc": "Initializes a new instance of the Color class.",
         "line": 20,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Color.cs"
       },
       {
@@ -2683,6 +2855,8 @@
         "doc": "Creates a color from ARGB components.",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Color.cs"
       },
       {
@@ -2697,6 +2871,8 @@
         "doc": "Determines whether the specified value is equal to the current instance.",
         "line": 73,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Color.cs"
       },
       {
@@ -2711,6 +2887,8 @@
         "doc": "Determines whether the specified value is equal to the current instance.",
         "line": 83,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Color.cs"
       },
       {
@@ -2720,6 +2898,8 @@
         "doc": "Returns a hash code for the current instance.",
         "line": 92,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Color.cs"
       }
     ],
@@ -2767,6 +2947,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Color"
   },
@@ -2798,6 +2980,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Column"
@@ -2813,6 +2997,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ColumnCollection"
@@ -2885,6 +3071,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Comment"
@@ -2913,6 +3101,8 @@
         "doc": "Adds an empty comment at the given zero-based cell coordinates and returns it.",
         "line": 96,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CommentCollection.cs"
       },
       {
@@ -2927,6 +3117,8 @@
         "doc": "Adds an empty comment at the given A1-style cell reference and returns it.",
         "line": 126,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CommentCollection.cs"
       },
       {
@@ -2941,6 +3133,8 @@
         "doc": "Removes the comment at the given zero-based index.",
         "line": 140,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CommentCollection.cs"
       },
       {
@@ -2955,6 +3149,8 @@
         "doc": "Removes the comment at the given A1-style cell reference.",
         "line": 153,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CommentCollection.cs"
       }
     ],
@@ -2970,6 +3166,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.CommentCollection"
@@ -3074,6 +3272,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.CoreDocumentProperties"
@@ -3130,6 +3330,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.DefinedName"
@@ -3160,6 +3362,8 @@
         "doc": "Adds the specified item.",
         "line": 54,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/DefinedNameCollection.cs"
       },
       {
@@ -3182,6 +3386,8 @@
         "doc": "Adds the specified item.",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/DefinedNameCollection.cs"
       },
       {
@@ -3196,6 +3402,8 @@
         "doc": "Removes the specified item.",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/DefinedNameCollection.cs"
       },
       {
@@ -3205,6 +3413,8 @@
         "doc": "Returns an enumerator that iterates through the collection.",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/DefinedNameCollection.cs"
       }
     ],
@@ -3220,6 +3430,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.DefinedNameCollection"
@@ -3235,6 +3447,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Warning",
@@ -3348,6 +3562,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.DocumentProperties"
@@ -3436,6 +3652,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ExtendedDocumentProperties"
@@ -3451,6 +3669,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -3543,6 +3763,8 @@
         "doc": "Clears the current state.",
         "line": 115,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterColumn.cs"
       }
     ],
@@ -3606,6 +3828,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FilterColumn"
@@ -3632,6 +3856,8 @@
         "doc": "Adds the specified item.",
         "line": 53,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterColumnCollection.cs"
       },
       {
@@ -3646,6 +3872,8 @@
         "doc": "Removes the specified item.",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterColumnCollection.cs"
       },
       {
@@ -3655,6 +3883,8 @@
         "doc": "Clears the current state.",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterColumnCollection.cs"
       },
       {
@@ -3664,6 +3894,8 @@
         "doc": "Returns an enumerator that iterates through the collection.",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterColumnCollection.cs"
       }
     ],
@@ -3679,6 +3911,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FilterColumnCollection"
@@ -3705,6 +3939,8 @@
         "doc": "Adds the specified item.",
         "line": 53,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterValueCollection.cs"
       },
       {
@@ -3719,6 +3955,8 @@
         "doc": "Removes the specified item.",
         "line": 64,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterValueCollection.cs"
       },
       {
@@ -3728,6 +3966,8 @@
         "doc": "Clears the current state.",
         "line": 77,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterValueCollection.cs"
       },
       {
@@ -3737,6 +3977,8 @@
         "doc": "Returns an enumerator that iterates through the collection.",
         "line": 86,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FilterValueCollection.cs"
       }
     ],
@@ -3752,6 +3994,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FilterValueCollection"
@@ -3776,6 +4020,8 @@
         "doc": "Checks whether this font equals to another font instance.",
         "line": 80,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Font.cs"
       },
       {
@@ -3790,6 +4036,8 @@
         "doc": "Determines whether the specified object is equal to the current font instance.",
         "line": 99,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Font.cs"
       },
       {
@@ -3799,6 +4047,8 @@
         "doc": "Serves as a hash function for a font object.",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Font.cs"
       },
       {
@@ -3808,6 +4058,8 @@
         "doc": "Returns a string that represents the current font object.",
         "line": 126,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Font.cs"
       }
     ],
@@ -3887,6 +4139,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Font"
   },
@@ -3901,6 +4155,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -4008,6 +4264,8 @@
         "doc": "Initializes a new instance of the FormulaException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/FormulaException.cs"
       },
       {
@@ -4022,6 +4280,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -4040,12 +4300,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.FormulaException"
   },
@@ -4060,6 +4324,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "General",
@@ -4112,6 +4378,8 @@
         "doc": "Performs delete.",
         "line": 141,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Hyperlink.cs"
       }
     ],
@@ -4159,6 +4427,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Hyperlink"
   },
@@ -4194,6 +4464,8 @@
         "doc": "Adds a hyperlink anchored at a cell or rectangular range specified by its top-left A1 reference.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
       },
       {
@@ -4224,6 +4496,8 @@
         "doc": "Adds a hyperlink anchored at a cell or rectangular range specified by zero-based coordinates.",
         "line": 125,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
       },
       {
@@ -4254,6 +4528,8 @@
         "doc": "Adds a hyperlink over the specified A1 range and optional display text metadata.",
         "line": 143,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
       },
       {
@@ -4268,6 +4544,8 @@
         "doc": "Removes the hyperlink at the specified zero-based index.",
         "line": 186,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
       },
       {
@@ -4277,6 +4555,8 @@
         "doc": "Removes all hyperlinks from the worksheet.",
         "line": 199,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
       }
     ],
@@ -4300,6 +4580,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.HyperlinkCollection"
   },
@@ -4323,12 +4605,16 @@
         "doc": "Handles a warning raised while loading a workbook.",
         "line": 15,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/IWarningCallback.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.IWarningCallback"
   },
@@ -4343,6 +4629,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Unknown",
@@ -4412,6 +4700,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ListColumn"
@@ -4436,6 +4726,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ListColumnCollection"
@@ -4476,6 +4768,8 @@
         "doc": "Resizes the table to the specified range, rebuilding columns from header cells.",
         "line": 287,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObject.cs"
       },
       {
@@ -4485,6 +4779,8 @@
         "doc": "Shows the autoFilter drop-down buttons on the table header row.",
         "line": 303,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObject.cs"
       },
       {
@@ -4494,6 +4790,8 @@
         "doc": "Hides the autoFilter drop-down buttons from the table header row.",
         "line": 311,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObject.cs"
       },
       {
@@ -4503,6 +4801,8 @@
         "doc": "Removes the table structure, leaving the cell data in place.",
         "line": 319,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObject.cs"
       }
     ],
@@ -4630,6 +4930,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ListObject"
@@ -4672,6 +4974,8 @@
         "doc": "Adds a new table covering the specified zero-based range and returns its index.",
         "line": 70,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObjectCollection.cs"
       },
       {
@@ -4694,6 +4998,8 @@
         "doc": "Adds a new table covering the specified A1-notation cell range and returns its index.",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObjectCollection.cs"
       },
       {
@@ -4708,6 +5014,8 @@
         "doc": "Removes the table at the specified zero-based index, leaving cell data in place.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ListObjectCollection.cs"
       }
     ],
@@ -4723,6 +5031,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ListObjectCollection"
@@ -4763,6 +5073,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.LoadDiagnostics"
@@ -4851,6 +5163,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.LoadIssue"
@@ -4915,6 +5229,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.LoadOptions"
@@ -4930,6 +5246,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Between",
@@ -4982,6 +5300,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Default",
@@ -5019,6 +5339,8 @@
         "doc": "Adds a horizontal page break at the specified zero-based row index.",
         "line": 562,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PageSetup.cs"
       },
       {
@@ -5033,6 +5355,8 @@
         "doc": "Adds a vertical page break at the specified zero-based column index.",
         "line": 575,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PageSetup.cs"
       },
       {
@@ -5042,6 +5366,8 @@
         "doc": "Removes all horizontal page breaks.",
         "line": 588,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PageSetup.cs"
       },
       {
@@ -5051,6 +5377,8 @@
         "doc": "Removes all vertical page breaks.",
         "line": 596,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PageSetup.cs"
       }
     ],
@@ -5322,6 +5650,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.PageSetup"
@@ -5337,6 +5667,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Default",
@@ -5454,6 +5786,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Picture"
@@ -5494,6 +5828,8 @@
         "doc": "Adds a picture to the worksheet from raw image bytes and returns its index.",
         "line": 76,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PictureCollection.cs"
       },
       {
@@ -5524,6 +5860,8 @@
         "doc": "Adds a picture to the worksheet from a stream and returns its index.",
         "line": 92,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PictureCollection.cs"
       },
       {
@@ -5554,6 +5892,8 @@
         "doc": "Adds a picture to the worksheet from a file path and returns its index.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PictureCollection.cs"
       },
       {
@@ -5568,6 +5908,8 @@
         "doc": "Removes the picture at the specified zero-based index.",
         "line": 141,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/PictureCollection.cs"
       }
     ],
@@ -5583,6 +5925,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.PictureCollection"
@@ -5615,6 +5959,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Row"
@@ -5630,6 +5976,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.RowCollection"
@@ -5686,6 +6034,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.SaveOptions"
@@ -5758,6 +6108,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Shape"
@@ -5798,6 +6150,8 @@
         "doc": "Adds a new shape to the worksheet and returns its zero-based index.",
         "line": 72,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ShapeCollection.cs"
       },
       {
@@ -5812,6 +6166,8 @@
         "doc": "Removes the shape at the specified zero-based index.",
         "line": 111,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ShapeCollection.cs"
       }
     ],
@@ -5827,6 +6183,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ShapeCollection"
@@ -5846,6 +6204,8 @@
         "doc": "Initializes a new style with default font and border objects.",
         "line": 32,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Style.cs"
       },
       {
@@ -5860,6 +6220,8 @@
         "doc": "Copies data from another style object.",
         "line": 41,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Style.cs"
       },
       {
@@ -5874,6 +6236,8 @@
         "doc": "Determines whether two style instances are equal.",
         "line": 255,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Style.cs"
       },
       {
@@ -5883,6 +6247,8 @@
         "doc": "Serves as a hash function for a style object.",
         "line": 286,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Style.cs"
       }
     ],
@@ -6042,6 +6408,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Style"
   },
@@ -6067,6 +6435,8 @@
         "doc": "Initializes a new instance of the StyleException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/StyleException.cs"
       },
       {
@@ -6081,6 +6451,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -6099,12 +6471,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.StyleException"
   },
@@ -6381,6 +6757,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.StyleFlag"
   },
@@ -6395,6 +6773,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -6659,6 +7039,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "External",
@@ -6691,6 +7073,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -6758,6 +7142,8 @@
         "doc": "Initializes a new instance of the UnsupportedFeatureException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/UnsupportedFeatureException.cs"
       },
       {
@@ -6772,6 +7158,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -6790,12 +7178,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.UnsupportedFeatureException"
   },
@@ -6819,6 +7211,8 @@
         "doc": "Adds the specified item.",
         "line": 238,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Validation.cs"
       },
       {
@@ -6833,6 +7227,8 @@
         "doc": "Removes the specified item.",
         "line": 247,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Validation.cs"
       }
     ],
@@ -6952,6 +7348,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Validation"
@@ -6967,6 +7365,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Stop",
@@ -7004,6 +7404,8 @@
         "doc": "Adds the specified item.",
         "line": 52,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
       },
       {
@@ -7022,6 +7424,8 @@
         "doc": "Gets the validation in cell.",
         "line": 69,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
       },
       {
@@ -7040,6 +7444,8 @@
         "doc": "Removes the specified item.",
         "line": 96,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
       },
       {
@@ -7054,6 +7460,8 @@
         "doc": "Removes the specified item.",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
       }
     ],
@@ -7069,6 +7477,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.ValidationCollection"
@@ -7084,6 +7494,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AnyValue",
@@ -7132,6 +7544,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Bottom",
@@ -7168,6 +7582,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Visible",
@@ -7261,6 +7677,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WarningInfo"
@@ -7282,6 +7700,8 @@
         "doc": "Initializes a new workbook with one default worksheet.",
         "line": 38,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7296,6 +7716,8 @@
         "doc": "Opens an existing workbook from a file path using default load options.",
         "line": 52,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7310,6 +7732,8 @@
         "doc": "Opens an existing workbook from a stream using default load options.",
         "line": 57,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7328,6 +7752,8 @@
         "doc": "Opens an existing workbook from a file path using explicit load options.",
         "line": 62,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7346,6 +7772,8 @@
         "doc": "Opens an existing workbook from a stream using explicit load options.",
         "line": 76,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7360,6 +7788,8 @@
         "doc": "Saves the workbook to an XLSX file using default save options.",
         "line": 207,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7378,6 +7808,8 @@
         "doc": "Saves the workbook to a file using the specified save format.",
         "line": 215,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7396,6 +7828,8 @@
         "doc": "Saves the workbook to a file using explicit save options.",
         "line": 223,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7414,6 +7848,8 @@
         "doc": "Saves the workbook to a stream using the specified save format.",
         "line": 237,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7432,6 +7868,8 @@
         "doc": "Saves the workbook to a stream using explicit save options.",
         "line": 245,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       },
       {
@@ -7441,6 +7879,8 @@
         "doc": "Releases resources associated with the workbook instance.",
         "line": 267,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Workbook.cs"
       }
     ],
@@ -7496,6 +7936,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Workbook"
   },
@@ -7521,6 +7963,8 @@
         "doc": "Initializes a new instance of the WorkbookLoadException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorkbookLoadException.cs"
       },
       {
@@ -7539,6 +7983,8 @@
         "doc": "Initializes a new instance of the WorkbookLoadException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorkbookLoadException.cs"
       },
       {
@@ -7553,6 +7999,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -7571,12 +8019,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookLoadException"
   },
@@ -7696,6 +8148,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookProperties"
@@ -7760,6 +8214,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookProtection"
@@ -7786,6 +8242,8 @@
         "doc": "Initializes a new instance of the WorkbookSaveException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorkbookSaveException.cs"
       },
       {
@@ -7804,6 +8262,8 @@
         "doc": "Initializes a new instance of the WorkbookSaveException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorkbookSaveException.cs"
       },
       {
@@ -7818,6 +8278,8 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       },
       {
@@ -7836,12 +8298,16 @@
         "doc": "Initializes a new instance of the CellsException class.",
         "line": 22,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/CellsException.cs"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookSaveException"
   },
@@ -7873,6 +8339,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookSettings"
@@ -7993,6 +8461,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorkbookView"
@@ -8012,6 +8482,8 @@
         "doc": "Marks the worksheet as protected using the current protection settings.",
         "line": 383,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Worksheet.cs"
       },
       {
@@ -8021,6 +8493,8 @@
         "doc": "Clears worksheet protection and resets supported protection flags.",
         "line": 391,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/Worksheet.cs"
       }
     ],
@@ -8188,6 +8662,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.Worksheet"
   },
@@ -8208,6 +8684,8 @@
         "doc": "Adds a worksheet using the next generated default name.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorksheetCollection.cs"
       },
       {
@@ -8222,6 +8700,8 @@
         "doc": "Adds a worksheet with the specified name and returns its index.",
         "line": 120,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorksheetCollection.cs"
       },
       {
@@ -8236,6 +8716,8 @@
         "doc": "Removes the worksheet with the specified name.",
         "line": 131,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorksheetCollection.cs"
       },
       {
@@ -8250,6 +8732,8 @@
         "doc": "Removes the worksheet at the specified zero-based index.",
         "line": 145,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorksheetCollection.cs"
       },
       {
@@ -8259,6 +8743,8 @@
         "doc": "Returns an enumerator that iterates through worksheets in workbook order.",
         "line": 179,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/Aspose.Cells_FOSS/WorksheetCollection.cs"
       }
     ],
@@ -8290,6 +8776,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorksheetCollection"
   },
@@ -8433,6 +8921,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
     "class_import": "Aspose.Cells_FOSS.WorksheetProtection"
