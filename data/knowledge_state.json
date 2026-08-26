@@ -201,10 +201,10 @@
   },
   "barcode/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "53f2c3350b8171f2c8275e7b1a178f218695ac45",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-24T06:38:09.562684+00:00",
+      "repo_sha": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+      "run_id": "promote-20260824T063809Z",
+      "sha_source": "model.yaml"
     },
     "family": "barcode",
     "platform": "python"
@@ -241,327 +241,327 @@
   },
   "cells/net": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T09:33:47.295871+00:00",
+      "accepted_at": "2026-08-24T06:32:35.074049+00:00",
       "repo_sha": "6ee32c08a6090a778fab03e66afac731859f93a9",
-      "run_id": "promote-20260814T093347Z",
+      "run_id": "promote-20260824T063235Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\cells\\net\\introducing-cells-foss-net\\index.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:52.243305Z"
+        "recorded_at": "2026-08-24T06:32:37.330177Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\cells\\net\\spreadsheet-management-in-net\\index.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:52.252289Z"
+        "recorded_at": "2026-08-24T06:32:37.339850Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AlignmentValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:48.939542Z"
+        "recorded_at": "2026-08-24T06:32:36.672999Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterColorFilterModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:48.981517Z"
+        "recorded_at": "2026-08-24T06:32:36.681829Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterCustomFilterModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.016121Z"
+        "recorded_at": "2026-08-24T06:32:36.689908Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterDynamicFilterModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.036174Z"
+        "recorded_at": "2026-08-24T06:32:36.695704Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.041482Z"
+        "recorded_at": "2026-08-24T06:32:36.700031Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterSortConditionModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.075613Z"
+        "recorded_at": "2026-08-24T06:32:36.707298Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterSortStateModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.096078Z"
+        "recorded_at": "2026-08-24T06:32:36.714173Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\AutoFilterTop10Model.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.115623Z"
+        "recorded_at": "2026-08-24T06:32:36.720018Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\BorderSideValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.161391Z"
+        "recorded_at": "2026-08-24T06:32:36.729202Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\BorderStyle.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.166177Z"
+        "recorded_at": "2026-08-24T06:32:36.733493Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\BordersValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.184019Z"
+        "recorded_at": "2026-08-24T06:32:36.739919Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CalculationPropertiesModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.204398Z"
+        "recorded_at": "2026-08-24T06:32:36.745961Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CellAddress.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.223766Z"
+        "recorded_at": "2026-08-24T06:32:36.759681Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CellRecord.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.242840Z"
+        "recorded_at": "2026-08-24T06:32:36.765968Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CellValueKind.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.275453Z"
+        "recorded_at": "2026-08-24T06:32:36.773599Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ChartCompanionFile.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.323751Z"
+        "recorded_at": "2026-08-24T06:32:36.783180Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ChartModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.328399Z"
+        "recorded_at": "2026-08-24T06:32:36.788735Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ColorValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.364344Z"
+        "recorded_at": "2026-08-24T06:32:36.797565Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ColumnRangeModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.408418Z"
+        "recorded_at": "2026-08-24T06:32:36.805028Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CommentModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.452660Z"
+        "recorded_at": "2026-08-24T06:32:36.813084Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\CoreDocumentPropertiesModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.492042Z"
+        "recorded_at": "2026-08-24T06:32:36.821867Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DateSerialConverter.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.497124Z"
+        "recorded_at": "2026-08-24T06:32:36.826429Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DateSystem.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.501993Z"
+        "recorded_at": "2026-08-24T06:32:36.831162Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DefinedNameModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.533242Z"
+        "recorded_at": "2026-08-24T06:32:36.838805Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DiagnosticBag.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.539002Z"
+        "recorded_at": "2026-08-24T06:32:36.843023Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DiagnosticEntry.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.543554Z"
+        "recorded_at": "2026-08-24T06:32:36.847692Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\DocumentPropertiesModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.574855Z"
+        "recorded_at": "2026-08-24T06:32:36.863628Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ExtendedDocumentPropertiesModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.593391Z"
+        "recorded_at": "2026-08-24T06:32:36.869089Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\FillPatternKind.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.611624Z"
+        "recorded_at": "2026-08-24T06:32:36.874604Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\FilterColumnModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.646123Z"
+        "recorded_at": "2026-08-24T06:32:36.882688Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\FontValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.704171Z"
+        "recorded_at": "2026-08-24T06:32:36.893647Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\HeaderFooterModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.766266Z"
+        "recorded_at": "2026-08-24T06:32:36.904919Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\HorizontalAlignment.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.771386Z"
+        "recorded_at": "2026-08-24T06:32:36.909715Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\HyperlinkModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.817353Z"
+        "recorded_at": "2026-08-24T06:32:36.919287Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\IPackageReader.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.853311Z"
+        "recorded_at": "2026-08-24T06:32:36.927632Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\IPackageWriter.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.858473Z"
+        "recorded_at": "2026-08-24T06:32:36.932161Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ListColumnModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.905300Z"
+        "recorded_at": "2026-08-24T06:32:36.941845Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ListObjectModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:49.946267Z"
+        "recorded_at": "2026-08-24T06:32:36.957191Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\MergeRegion.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.007229Z"
+        "recorded_at": "2026-08-24T06:32:36.970451Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\MissingPartException.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.012613Z"
+        "recorded_at": "2026-08-24T06:32:36.975045Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\NumberFormatValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.029131Z"
+        "recorded_at": "2026-08-24T06:32:36.981599Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PackageLoadContext.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.048554Z"
+        "recorded_at": "2026-08-24T06:32:36.987416Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PackageModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.054322Z"
+        "recorded_at": "2026-08-24T06:32:36.991720Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PackagePartDescriptor.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.059424Z"
+        "recorded_at": "2026-08-24T06:32:36.995791Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PackageStructureException.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.064688Z"
+        "recorded_at": "2026-08-24T06:32:37.000089Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PackagingConventions.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.069448Z"
+        "recorded_at": "2026-08-24T06:32:37.004619Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PageMarginsModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.074044Z"
+        "recorded_at": "2026-08-24T06:32:37.008954Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PageOrientation.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.078624Z"
+        "recorded_at": "2026-08-24T06:32:37.013212Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PageSetupModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.116644Z"
+        "recorded_at": "2026-08-24T06:32:37.021668Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PictureModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.173108Z"
+        "recorded_at": "2026-08-24T06:32:37.030546Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\PrintOptionsModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.179112Z"
+        "recorded_at": "2026-08-24T06:32:37.035242Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ProtectionValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.184873Z"
+        "recorded_at": "2026-08-24T06:32:37.039798Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\RelationshipDescriptor.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.190192Z"
+        "recorded_at": "2026-08-24T06:32:37.044286Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\RelationshipResolutionException.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.195389Z"
+        "recorded_at": "2026-08-24T06:32:37.051782Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\RowModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.223724Z"
+        "recorded_at": "2026-08-24T06:32:37.060932Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ShapeModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.289642Z"
+        "recorded_at": "2026-08-24T06:32:37.072730Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\SharedStringRepository.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.294405Z"
+        "recorded_at": "2026-08-24T06:32:37.077658Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\SharedStringTableXmlMapper.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.299191Z"
+        "recorded_at": "2026-08-24T06:32:37.082835Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\SheetVisibility.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.304368Z"
+        "recorded_at": "2026-08-24T06:32:37.087823Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\StyleRepository.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.363677Z"
+        "recorded_at": "2026-08-24T06:32:37.100703Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\StyleValue.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.380488Z"
+        "recorded_at": "2026-08-24T06:32:37.111320Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\StylesheetXmlMapper.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.373201Z"
+        "recorded_at": "2026-08-24T06:32:37.106464Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ValidationMessage.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.500121Z"
+        "recorded_at": "2026-08-24T06:32:37.128559Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\ValidationMessageSeverity.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.504581Z"
+        "recorded_at": "2026-08-24T06:32:37.133414Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\VerticalAlignment.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.522471Z"
+        "recorded_at": "2026-08-24T06:32:37.139809Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:50.603618Z"
+        "recorded_at": "2026-08-24T06:32:37.162223Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookPropertiesModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.224981Z"
+        "recorded_at": "2026-08-24T06:32:37.170053Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookProtectionModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.242290Z"
+        "recorded_at": "2026-08-24T06:32:37.177506Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookSettingsModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.269141Z"
+        "recorded_at": "2026-08-24T06:32:37.185696Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookValidator.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.273867Z"
+        "recorded_at": "2026-08-24T06:32:37.190215Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookViewModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.293551Z"
+        "recorded_at": "2026-08-24T06:32:37.196518Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorkbookXmlMapper.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.298013Z"
+        "recorded_at": "2026-08-24T06:32:37.201451Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorksheetModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.334636Z"
+        "recorded_at": "2026-08-24T06:32:37.211222Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorksheetProtectionModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.354560Z"
+        "recorded_at": "2026-08-24T06:32:37.219096Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorksheetViewModel.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.359098Z"
+        "recorded_at": "2026-08-24T06:32:37.224707Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\WorksheetXmlMapper.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.363030Z"
+        "recorded_at": "2026-08-24T06:32:37.229995Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\cells\\net\\XmlParsingException.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T09:33:51.367622Z"
+        "recorded_at": "2026-08-24T06:32:37.235005Z"
       }
     },
     "family": "cells",
@@ -602,10 +602,10 @@
   },
   "cells/typescript": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "cabbb9d8ba2067854f7cb3dcdc4acfeec849747b",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-24T06:11:30.513457+00:00",
+      "repo_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "run_id": "promote-20260824T061130Z",
+      "sha_source": "model.yaml"
     },
     "family": "cells",
     "platform": "typescript"
@@ -632,10 +632,10 @@
   },
   "email/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "c336fa7c1d6b90c6155ecf25a261477640c2b1b6",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-24T05:29:56.008833+00:00",
+      "repo_sha": "10a906b48c0c11005c4d93b524e4431901c9717c",
+      "run_id": "promote-20260824T052956Z",
+      "sha_source": "model.yaml"
     },
     "family": "email",
     "platform": "python"
@@ -651,6 +651,10 @@
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\font\\python\\developer-guide\\vendor.md": {
         "reason": "draft",
         "recorded_at": "2026-08-14T09:34:50.016908Z"
+      },
+      "content\\docs.aspose.org\\en\\font\\python\\developer-guide\\vendor.md": {
+        "reason": "draft",
+        "recorded_at": "2026-08-24T17:12:52.086023Z"
       }
     },
     "family": "font",
@@ -726,71 +730,71 @@
   },
   "pdf/java": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-23T12:08:44.162171+00:00",
+      "accepted_at": "2026-08-24T15:15:31.402548+00:00",
       "repo_sha": "099e70a8b309fdd6ce349607dd589dfde96f2989",
-      "run_id": "promote-20260823T120844Z",
+      "run_id": "promote-20260824T151531Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSArray.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.817272Z"
+        "recorded_at": "2026-08-24T15:15:35.985534Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBase.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.824725Z"
+        "recorded_at": "2026-08-24T15:15:35.994844Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSBoolean.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.830400Z"
+        "recorded_at": "2026-08-24T15:15:36.003733Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSCloner.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.836306Z"
+        "recorded_at": "2026-08-24T15:15:36.010408Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSDictionary.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.842410Z"
+        "recorded_at": "2026-08-24T15:15:36.017429Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFilter.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.849082Z"
+        "recorded_at": "2026-08-24T15:15:36.024534Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSFloat.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.856094Z"
+        "recorded_at": "2026-08-24T15:15:36.031151Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSInteger.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.862427Z"
+        "recorded_at": "2026-08-24T15:15:36.037365Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSName.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.875331Z"
+        "recorded_at": "2026-08-24T15:15:36.044384Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSNull.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.881590Z"
+        "recorded_at": "2026-08-24T15:15:36.050411Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectKey.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.888496Z"
+        "recorded_at": "2026-08-24T15:15:36.061416Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSObjectReference.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.894606Z"
+        "recorded_at": "2026-08-24T15:15:36.071457Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSStream.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.903227Z"
+        "recorded_at": "2026-08-24T15:15:36.082221Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\COSString.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:49.914749Z"
+        "recorded_at": "2026-08-24T15:15:36.092906Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\ICOSVisitor.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-23T12:08:53.472281Z"
+        "recorded_at": "2026-08-24T15:15:36.534407Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\java\\SetGray.md": {
         "reason": "draft",
@@ -853,18 +857,18 @@
     "platform": "java",
     "truth_audit": {
       "fail_count": 0,
-      "recorded_at": "2026-08-24T03:06:59.928113Z",
-      "report_path": "reports\\audit\\pdf-java-truth-20260824.md",
+      "recorded_at": "2026-08-25T06:59:07.137280Z",
+      "report_path": "reports\\audit\\pdf-java-truth-20260825.md",
       "verdict": "PASS",
-      "warn_count": 25
+      "warn_count": 21
     }
   },
   "pdf/net": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-29T16:30:10.285136Z",
-      "repo_sha": "8a3131b9a6f7e97c20214896c615dbee86272459",
-      "run_id": "promote-20260729T163010Z",
-      "sha_source": "scout"
+      "accepted_at": "2026-08-24T06:22:04.123432+00:00",
+      "repo_sha": "663783d18ec1c00efbd9b56a0a6ea20e4671d92b",
+      "run_id": "promote-20260824T062204Z",
+      "sha_source": "model.yaml"
     },
     "family": "pdf",
     "platform": "net"
@@ -1210,75 +1214,75 @@
   },
   "words/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T11:59:57.279251+00:00",
-      "repo_sha": "4473f8cbeef1a65961adc7de304d982ada53a1dd",
-      "run_id": "promote-20260814T115957Z",
+      "accepted_at": "2026-08-24T05:41:03.083408+00:00",
+      "repo_sha": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+      "run_id": "promote-20260824T054103Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\introducing-words-foss-python\\index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.133984Z"
+        "recorded_at": "2026-08-24T05:41:07.766851Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\python-docx-word-converter\\index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.144374Z"
+        "recorded_at": "2026-08-24T05:41:07.788017Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\words-core-management-python\\index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.158203Z"
+        "recorded_at": "2026-08-24T05:41:07.807952Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\core-management.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:00.842055Z"
+        "recorded_at": "2026-08-24T05:41:07.309766Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\docx-reader.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:00.888930Z"
+        "recorded_at": "2026-08-24T05:41:07.361511Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\pdf-writer.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.084407Z"
+        "recorded_at": "2026-08-24T05:41:07.671326Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\getting-started\\installation.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.099440Z"
+        "recorded_at": "2026-08-24T05:41:07.702272Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\faq.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.175605Z"
+        "recorded_at": "2026-08-24T05:41:07.843340Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-convert-converters-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.219828Z"
+        "recorded_at": "2026-08-24T05:41:07.916731Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-export-pdf-writer-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.228101Z"
+        "recorded_at": "2026-08-24T05:41:07.931609Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-and-export-word-documents-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.261174Z"
+        "recorded_at": "2026-08-24T05:41:07.992973Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-doc-reader-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.267664Z"
+        "recorded_at": "2026-08-24T05:41:08.005759Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-docx-reader-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.275253Z"
+        "recorded_at": "2026-08-24T05:41:08.019957Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-work-with-document-management-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.283800Z"
+        "recorded_at": "2026-08-24T05:41:08.035658Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\use-cases.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T12:00:01.317334Z"
+        "recorded_at": "2026-08-24T05:41:08.120370Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\products.aspose.org\\en\\words\\python\\_index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-14T11:59:58.810680Z"
+        "recorded_at": "2026-08-24T05:41:04.520583Z"
       }
     },
     "family": "words",

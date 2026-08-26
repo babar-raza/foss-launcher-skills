@@ -43,7 +43,7 @@
       "api_confidence": "medium",
       "stale": false,
       "class_count": 26,
-      "claim_count": 375
+      "claim_count": 313
     },
     {
       "family": "cells",
@@ -79,7 +79,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 96,
-      "claim_count": 665
+      "claim_count": 666
     },
     {
       "family": "cells",
@@ -106,7 +106,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 101,
-      "claim_count": 740
+      "claim_count": 770
     },
     {
       "family": "email",
@@ -133,7 +133,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 30,
-      "claim_count": 303
+      "claim_count": 605
     },
     {
       "family": "font",
@@ -196,7 +196,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 1115,
-      "claim_count": 15538
+      "claim_count": 15728
     },
     {
       "family": "pdf",
@@ -204,8 +204,8 @@
       "display_name": "Aspose.Pdf for Net",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 836,
-      "claim_count": 8664
+      "class_count": 863,
+      "claim_count": 7717
     },
     {
       "family": "pdf",
@@ -276,8 +276,8 @@
       "display_name": "Aspose.Words for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 188,
-      "claim_count": 2048
+      "class_count": 189,
+      "claim_count": 1268
     }
   ]
 }
