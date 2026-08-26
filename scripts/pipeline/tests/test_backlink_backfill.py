@@ -1430,6 +1430,186 @@ class TestRewriteYamlLiteralBlockScalar:
 
 
 # ---------------------------------------------------------------------------
+# TC15 canary (2026-08-22): _surgical_replace_overview_content() unit tests.
+# Proves the minimal-diff patcher (a) actually produces a minimal diff on
+# both real page shapes seen in production -- cells' plain-scalar content
+# and words' `|-` block-literal content -- and (b) safely signals "don't
+# touch it" (returns None) when the frontmatter structure doesn't match its
+# narrow assumptions, so callers fall back to the proven full-reserialization
+# path instead of guessing.
+# ---------------------------------------------------------------------------
+
+
+class TestSurgicalReplaceOverviewContent:
+    def test_plain_scalar_style_minimal_diff(self):
+        """cells-shaped fixture: content is a single-line plain scalar.
+
+        Only the content: line itself and the new trailing marker line
+        should change -- every other field's line stays byte-identical.
+        """
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "title: Aspose.Cells FOSS\n"
+            "head_description: A very long unwrapped description that spans well past eighty characters on a single physical line, exactly like a real products.aspose.org page.\n"
+            "button:\n"
+            "  enable: true\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: Old sentence ending in the wrong wording, [Aspose.Cells commercial edition](https://products.aspose.com/cells/).\n"
+            "testimonialswrapper:\n"
+            "  enable: true\n"
+            "  title: What Developers Are Saying\n"
+            "provenance:\n"
+            "  auto_updatable: true\n"
+            "---\n"
+        )
+        new_content = (
+            "New sentence. For the enterprise product family, see "
+            "[Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/)."
+        )
+        result = _surgical_replace_overview_content(
+            raw, new_content, inject_url="https://products.aspose.com/cells/"
+        )
+        assert result is not None
+
+        # Every unrelated line must be byte-identical to the original.
+        for line in [
+            "title: Aspose.Cells FOSS",
+            "head_description: A very long unwrapped description that spans well past eighty characters on a single physical line, exactly like a real products.aspose.org page.",
+            "button:",
+            "  enable: true",
+            "overview:",
+            "  enable: true",
+            "testimonialswrapper:",
+            "  enable: true",
+            "  title: What Developers Are Saying",
+            "provenance:",
+            "  auto_updatable: true",
+        ]:
+            assert line in result, f"unrelated line was altered or dropped: {line!r}"
+
+        assert "commercial edition" not in result
+        assert "enterprise_backlink_injected: https://products.aspose.com/cells/" in result
+
+        # Round-trip: re-parsed content/injected-url must match exactly.
+        import yaml
+        fm = result[3:result.find("---", 3)]
+        data = yaml.safe_load(fm)
+        assert data["overview"]["content"] == new_content
+        assert data["enterprise_backlink_injected"] == "https://products.aspose.com/cells/"
+
+    def test_block_literal_style_minimal_diff(self):
+        """words-shaped fixture: content is a `|-` block-literal, two paragraphs.
+
+        Replacement content has no embedded newline, so the patched line
+        legitimately becomes a plain scalar -- but every OTHER field must
+        stay byte-identical, and no unrelated field may gain/lose wrapping.
+        """
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "description: Work with Word documents programmatically\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  title: The Open-Source Word File Format Engine\n"
+            "  content: |-\n"
+            "    First paragraph about the engine.\n"
+            "\n"
+            "    Second paragraph about editions.\n"
+            "testimonialswrapper:\n"
+            "  enable: true\n"
+            "  title: What Developers Are Saying\n"
+            "grade: A\n"
+            "grade_reasons:\n"
+            "- No findings -> grade A\n"
+            "---\n"
+        )
+        new_content = (
+            "First paragraph about the engine. Second paragraph about editions. "
+            "For the enterprise product family, see "
+            "[Aspose.Words — Enterprise Product Family](https://products.aspose.com/words/)."
+        )
+        result = _surgical_replace_overview_content(
+            raw, new_content, inject_url="https://products.aspose.com/words/"
+        )
+        assert result is not None
+
+        for line in [
+            "description: Work with Word documents programmatically",
+            "overview:",
+            "  enable: true",
+            "  title: The Open-Source Word File Format Engine",
+            "testimonialswrapper:",
+            "  enable: true",
+            "  title: What Developers Are Saying",
+            "grade: A",
+            "grade_reasons:",
+            "- No findings -> grade A",
+        ]:
+            assert line in result, f"unrelated line was altered or dropped: {line!r}"
+
+        # The old two-paragraph block-literal form (indented continuation
+        # lines) must be gone -- content is now a single flowed line.
+        assert "    Second paragraph about editions.\n" not in result
+        assert "content: |-" not in result
+        assert "enterprise_backlink_injected: https://products.aspose.com/words/" in result
+
+        import yaml
+        fm = result[3:result.find("---", 3)]
+        data = yaml.safe_load(fm)
+        assert data["overview"]["content"] == new_content
+        assert data["enterprise_backlink_injected"] == "https://products.aspose.com/words/"
+
+    def test_no_overview_block_returns_none(self):
+        """No top-level overview: key at all -- must signal fallback, never guess."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = "---\ntitle: No Overview Here\n---\n"
+        result = _surgical_replace_overview_content(raw, "new content", inject_url=None)
+        assert result is None
+
+    def test_overview_without_content_key_returns_none(self):
+        """overview: block exists but has no content: sub-key -- must signal fallback."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  title: Some Title\n"
+            "---\n"
+        )
+        result = _surgical_replace_overview_content(raw, "new content", inject_url=None)
+        assert result is None
+
+    def test_no_inject_url_omits_marker_line(self):
+        """inject_url=None must not add an enterprise_backlink_injected line."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: Old text.\n"
+            "---\n"
+        )
+        result = _surgical_replace_overview_content(raw, "New text.", inject_url=None)
+        assert result is not None
+        assert "enterprise_backlink_injected" not in result
+
+    def test_body_after_frontmatter_untouched(self):
+        """Markdown body content after the closing --- must survive byte-for-byte."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: Old text.\n"
+            "---\n\n"
+            "Some markdown body text that must not be touched.\n"
+        )
+        result = _surgical_replace_overview_content(raw, "New text.", inject_url=None)
+        assert result is not None
+        assert result.endswith("Some markdown body text that must not be touched.\n")
+
+
+# ---------------------------------------------------------------------------
 # TC1 (2026-08-21): the governed-chokepoint regression test. Reproduces the
 # exact real-world defect: the ungoverned LLM-copy cache
 # (reports/backlinks/products_llm_copy_generation.json) contained stale
@@ -1812,3 +1992,107 @@ class TestInsertionTimeSubdomainDiversity:
             _bbm.configure()
         assert change.skipped
         assert change.skip_reason == "Already contains target URL (idempotent)"
+
+
+# ---------------------------------------------------------------------------
+# TC15 canary (2026-08-22): run_backfill()'s OUTER-LOOP pre-write compliance
+# gate is the actual live cells/_index.md defect, reproduced end-to-end.
+# Found live during the cells+words canary dry-run: the outer loop's own
+# classify_compliance() call (distinct from backfill_products_yaml()'s
+# TC1-fixed write-time validator) never passed existing_links/
+# expected_anchor_text, so a correct-URL/wrong-wording page was classified
+# plain COMPLIANT and permanently skipped before backfill_products_yaml()
+# ever got a chance to run its own, already-correct validator. Confirmed
+# this exact gap had ZERO prior test coverage: run_backfill() itself (as
+# opposed to backfill_products_yaml()/backfill_markdown() in isolation) was
+# never called by any test in this file before this one.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import run_backfill  # noqa: E402
+
+
+class TestRunBackfillOuterLoopAnchorText:
+    def _target_map(self, url: str = "https://products.aspose.com/cells/") -> dict:
+        return {
+            "targets": {
+                "products.aspose.com": {
+                    "families": {"cells": {"url": url, "http_status": 200}},
+                    "platforms": {},
+                },
+            },
+            "all_urls": {},
+        }
+
+    def test_correct_url_wrong_anchor_is_not_silently_skipped(self, tmp_path):
+        """The exact confirmed-live cells/_index.md regression case: URL is
+        correct, wording says 'commercial edition' -- must NOT be classified
+        plain COMPLIANT and skipped. Reproduces the real live defect this
+        entire mission exists to fix, at the run_backfill() orchestration
+        level, not just the lower-level functions it calls."""
+        content_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        content_dir.mkdir(parents=True)
+        (content_dir / "_index.md").write_text(
+            "---\ntitle: Aspose.Cells\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: >-\n"
+            "    Aspose.Cells FOSS is free. For more capabilities, see the\n"
+            "    [Aspose.Cells commercial edition](https://products.aspose.com/cells/).\n"
+            "---\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "families.json").write_text(
+            '{"cells": "Aspose.Cells"}', encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            manifest = run_backfill(
+                tmp_path, self._target_map(),
+                subdomains=["products.aspose.org"], family_filter="cells",
+                dry_run=True,
+            )
+        finally:
+            _bbm.configure()
+
+        assert manifest.total_modified == 1, (
+            f"cells-style wrong-anchor page must be fixed, not skipped -- "
+            f"changes={manifest.changes}"
+        )
+        change = manifest.changes[0]
+        assert not change["skipped"]
+        assert "commercial edition" not in change["after_snippet"].lower()
+
+    def test_correct_url_correct_anchor_still_skipped_as_compliant(self, tmp_path):
+        """Negative control: a genuinely compliant page (correct URL, correct
+        registry-governed wording) must still be skipped -- this fix must not
+        turn into a blanket 'always rewrite' bug."""
+        content_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        content_dir.mkdir(parents=True)
+        (content_dir / "_index.md").write_text(
+            "---\ntitle: Aspose.Cells\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: >-\n"
+            "    Aspose.Cells FOSS is free. For the enterprise product family, see\n"
+            "    [Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/).\n"
+            "---\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "families.json").write_text(
+            '{"cells": "Aspose.Cells"}', encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            manifest = run_backfill(
+                tmp_path, self._target_map(),
+                subdomains=["products.aspose.org"], family_filter="cells",
+                dry_run=True,
+            )
+        finally:
+            _bbm.configure()
+
+        assert manifest.total_modified == 0
+        assert manifest.changes[0]["skipped"]
+        assert manifest.changes[0]["skip_reason"] == "Already COMPLIANT"

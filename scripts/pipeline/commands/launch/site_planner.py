@@ -742,6 +742,16 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "interop":              "pdf-metadata",      # was "metadata-utilities"
         "groupprocessor":       "pdf-metadata",      # was "metadata-utilities"
         "javascriptextensions": "javascript-extensions",  # TC-KBS-001: C# namespace fix
+        # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+        # Task 14, first real re-scout of pdf/java's full XFA package tree
+        # through this validator): these three all-lowercase, single-word
+        # Java package directories under org.aspose.pdf.engine.xfa.model/ and
+        # org.aspose.pdf.engine.linearization/ have no CamelCase boundary for
+        # TC-KBS-002's splitter to find (unlike "JavaScriptExtensions" above),
+        # so they crashed _validate_kb_slugs's Check 1 outright.
+        "connectionset":        "pdf-xfa-connections",     # XFA WSDL/SOAP/XML connection-set model (ConnectionSet, WsdlConnection, SoapAction, ...)
+        "datadescription":      "pdf-xfa-data-description",  # XFA dynamic-form data-schema description model (DataDescription, Dd_group, ...)
+        "linearization":        "pdf-linearization",       # fast-web-view PDF linearization writer/detector (LinearizedPDFWriter, LinearizationDetector, ...)
     },
     "words": {
         # words/net launch (2026-07-23): Aspose.Words.NET has real namespaces

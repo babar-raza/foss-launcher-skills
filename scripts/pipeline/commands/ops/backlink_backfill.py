@@ -55,6 +55,7 @@ from lib.backlink_targets import (
     classify_compliance,
     classify_page_type,
     count_qualifying_com_links,
+    extract_qualifying_com_links,
     get_max_enterprise_links_per_page as _lib_get_max_enterprise_links_per_page,
     load_anchor_registry,
     load_target_map,
@@ -274,8 +275,24 @@ def backfill_products_yaml(
             skipped=True, skip_reason="oscillation_guard", dry_run=dry_run,
         )
 
-    # Idempotency: check if target URL already present in content
-    if target_url.rstrip("/") in current_content:
+    # Idempotency: check if target URL is present WITH the correct governed
+    # anchor text -- not just URL presence. TC15 canary (2026-08-22): found
+    # live that this check previously only tested target_url substring
+    # presence, so a page with the correct URL but wrong wording (the exact
+    # motivating cells defect: "Aspose.Cells commercial edition") was
+    # treated as fully idempotent and returned here, never reaching the
+    # _validate_llm_output()/_apply_overview_template() regeneration logic
+    # below (TC1) that would have correctly rejected and fixed it. This is
+    # the same "3-layer guard" shape TC4 already found once for duplicate
+    # links -- multiple independent gates each need the anchor-aware check,
+    # not just one.
+    _expected_anchor_text_idem = _expected_anchor_text(
+        target_url, family, platform, families_map, platforms_map, target_type
+    )
+    if (
+        target_url.rstrip("/") in current_content
+        and f"[{_expected_anchor_text_idem}](" in current_content
+    ):
         return BackfillChange(
             file=rel, subdomain="products.aspose.org", family=family, platform=platform,
             page_type="products-plugin" if platform else "products-family",
@@ -303,9 +320,7 @@ def backfill_products_yaml(
     # is why the LLM-copy cache's stale "Aspose.Cells commercial edition"
     # text passed straight through onto the live cells page -- the URL was
     # correct, so the wording-blind check never caught it.
-    expected_anchor_text = _expected_anchor_text(
-        target_url, family, platform, families_map, platforms_map, target_type
-    )
+    expected_anchor_text = _expected_anchor_text_idem  # same value, computed once above
 
     # Try to get LLM-generated copy first
     new_content = _get_llm_copy_for_file(rel, current_content, target_url,
@@ -320,23 +335,51 @@ def backfill_products_yaml(
                                                 target_type=target_type)
 
     if not dry_run:
-        # Set oscillation guard in frontmatter (NOT as HTML comment in content)
-        data["enterprise_backlink_injected"] = target_url.rstrip("/") + "/"
-        # Modify data dict with clean content (no HTML comment appended)
-        if "overview" not in data or not isinstance(data.get("overview"), dict):
-            data["overview"] = {}
-        data["overview"]["content"] = new_content
+        injected_url = target_url.rstrip("/") + "/"
 
-        # Round-trip through PyYAML to preserve style
-        new_raw = _rewrite_yaml_file(raw, data, fm_text)
+        # TC15 canary (2026-08-22): try the surgical, minimal-diff patch
+        # first -- touches only the content: field's own line span, leaving
+        # every other field's formatting untouched (see
+        # _surgical_replace_overview_content()'s own docstring for why the
+        # full-reserialization fallback below has a real, confirmed-live
+        # reformatting side effect on unrelated fields). Re-parse the
+        # surgical result and verify BOTH changed values landed exactly as
+        # intended before trusting it -- text splicing is inherently more
+        # fragile than a structured re-dump, so this is a hard safety net,
+        # not an optimization: any mismatch (or exception) falls through to
+        # the proven full-reserialization path unconditionally.
+        new_raw = None
+        surgical = _surgical_replace_overview_content(raw, new_content, inject_url=injected_url)
+        if surgical is not None:
+            try:
+                import yaml as _yaml_verify
+                verify_fm = surgical[3:surgical.find("---", 3)]
+                verify_data = _yaml_verify.safe_load(verify_fm)
+                if (
+                    isinstance(verify_data, dict)
+                    and (verify_data.get("overview") or {}).get("content") == new_content
+                    and verify_data.get("enterprise_backlink_injected") == injected_url
+                ):
+                    new_raw = surgical
+            except Exception:
+                new_raw = None
+
         if new_raw is None:
-            return BackfillChange(
-                file=rel, subdomain="products.aspose.org", family=family, platform=platform,
-                page_type="products-plugin" if platform else "products-family",
-                target_url=target_url, action="yaml_overview",
-                before_snippet=current_content[:200], after_snippet="",
-                skipped=True, skip_reason="YAML round-trip failed", dry_run=dry_run,
-            )
+            # Fallback: full round-trip re-serialization (pre-existing
+            # behavior, proven but reformats unrelated fields' line-wrapping).
+            data["enterprise_backlink_injected"] = injected_url
+            if "overview" not in data or not isinstance(data.get("overview"), dict):
+                data["overview"] = {}
+            data["overview"]["content"] = new_content
+            new_raw = _rewrite_yaml_file(raw, data, fm_text)
+            if new_raw is None:
+                return BackfillChange(
+                    file=rel, subdomain="products.aspose.org", family=family, platform=platform,
+                    page_type="products-plugin" if platform else "products-family",
+                    target_url=target_url, action="yaml_overview",
+                    before_snippet=current_content[:200], after_snippet="",
+                    skipped=True, skip_reason="YAML round-trip failed", dry_run=dry_run,
+                )
         file_path.write_text(new_raw, encoding="utf-8")
 
     return BackfillChange(
@@ -581,6 +624,33 @@ def _validate_llm_output(
     return errors
 
 
+_MD_ASPOSE_COM_LINK_RE = re.compile(
+    r'\[([^\]]+)\]\((https?://[a-z0-9.-]+\.aspose\.com/[^\s)]*)\)',
+    re.IGNORECASE,
+)
+
+
+def _strip_existing_enterprise_sentences(text: str) -> str:
+    """Remove any sentence containing a markdown link to *.aspose.com from a
+    plain-prose block (TC15 canary, 2026-08-22).
+
+    _apply_overview_template() always APPENDS a fresh CTA sentence -- it was
+    never designed to REPLACE one, because before this fix nothing could
+    ever reach it with an existing enterprise link already present (the
+    idempotency check upstream, itself just fixed, always intercepted that
+    case first). Found live: with that idempotency gap closed, a
+    correct-URL/wrong-anchor page (the exact motivating cells defect) would
+    reach here and get the correct sentence APPENDED alongside the old wrong
+    one, instead of replacing it -- both "commercial edition" and the new
+    governed wording ending up live on the same page. Splits on
+    sentence-ending punctuation, drops any sentence containing an
+    aspose.com markdown link, rejoins the rest.
+    """
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    kept = [s for s in sentences if not _MD_ASPOSE_COM_LINK_RE.search(s)]
+    return " ".join(kept).strip()
+
+
 def _apply_overview_template(
     current_content: str,
     target_url: str,
@@ -641,7 +711,13 @@ def _apply_overview_template(
                 f"{anchor} alongside these open-source libraries."
             )
 
-    text = current_content.rstrip()
+    # TC15 canary (2026-08-22): remove any stale existing enterprise-link
+    # sentence before appending the fresh, correct one -- see
+    # _strip_existing_enterprise_sentences()'s own docstring for why this is
+    # necessary now that a correct-URL/wrong-anchor page can reach this
+    # function at all (previously impossible; the idempotency check
+    # upstream always intercepted that case before this fix).
+    text = _strip_existing_enterprise_sentences(current_content.rstrip())
 
     # Phase 4: near-duplicate suppression for YAML overview
     dups = _detect_near_duplicate(text, sentence)
@@ -653,6 +729,123 @@ def _apply_overview_template(
     return text + " " + sentence
 
 
+def _surgical_replace_overview_content(
+    raw: str, new_content: str, *, inject_url: str | None = None,
+) -> str | None:
+    """Replace ONLY the overview.content field's raw text span, leaving
+    every other line of the file byte-identical (TC15 canary, 2026-08-22).
+
+    _rewrite_yaml_file()'s full round-trip (parse -> modify dict -> re-dump
+    the ENTIRE frontmatter) has a real, confirmed-live side effect: PyYAML's
+    `width` parameter applies uniformly to every scalar in the document, so
+    changing one field's value reformats every OTHER field's line-wrapping
+    too (unwrapping some, wrapping others, depending on each field's
+    original style) -- pure diff noise on lines nothing actually changed.
+    This function instead locates the exact line range of the `content:`
+    key under a top-level `overview:` block (handling both plain-scalar
+    wrapped style and `|`/`>` block-scalar style) and replaces just that
+    span, using PyYAML only to correctly serialize/escape the ONE new
+    string value in isolation (never touching any other field's
+    representation). Appends `enterprise_backlink_injected: <inject_url>`
+    as a new line just before the closing `---` when inject_url is given,
+    matching backfill_products_yaml()'s existing oscillation-guard field.
+
+    Returns the patched raw text, or None if the frontmatter's actual
+    structure doesn't match what this targeted patcher safely handles (no
+    `overview:` top-level block, or no `content:` sub-key found in it) --
+    callers MUST fall back to _rewrite_yaml_file() in that case. Never
+    guesses; a structural mismatch always means "don't touch it here."
+    """
+    if not raw.startswith("---"):
+        return None
+    end = raw.find("---", 3)
+    if end == -1:
+        return None
+    fm_text = raw[3:end]
+    body = raw[end:]  # includes the closing "---" and everything after
+
+    fm_lines = fm_text.split("\n")
+
+    # Locate the top-level `overview:` line (column 0, exact key).
+    overview_start = None
+    for i, line in enumerate(fm_lines):
+        if re.match(r'^overview:\s*$', line):
+            overview_start = i
+            break
+    if overview_start is None:
+        return None
+
+    def _block_end(start: int, indent_prefix: str) -> int:
+        """First line index >= start+1 that is NOT blank and does not start
+        with indent_prefix (i.e. dedents back to indent_prefix's own level
+        or above) -- the exclusive end of a nested block starting at start."""
+        j = start + 1
+        while j < len(fm_lines):
+            line = fm_lines[j]
+            if line.strip() == "":
+                j += 1
+                continue
+            if not line.startswith(indent_prefix):
+                return j
+            j += 1
+        return j
+
+    overview_end = _block_end(overview_start, "  ")  # overview's own sub-keys are 2-space indented
+
+    # Within the overview block, find the `content:` sub-key (2-space indent, exact key).
+    content_start = None
+    for i in range(overview_start + 1, overview_end):
+        if re.match(r'^  content:', fm_lines[i]):
+            content_start = i
+            break
+    if content_start is None:
+        return None
+
+    content_end = _block_end(content_start, "    ")  # value continuation lines are 4-space indented
+    content_end = min(content_end, overview_end)
+
+    # Serialize just the new string value in isolation (correct escaping/
+    # quoting for any special characters), then reindent under `content:`.
+    try:
+        import yaml as _yaml
+        fragment = _yaml.dump(
+            {"content": new_content}, Dumper=_LiteralDumper,
+            allow_unicode=True, default_flow_style=False, sort_keys=False, width=10000,
+        )
+    except Exception:
+        return None
+    # fragment is "content: <value>\n" (single line, since new_content here
+    # is always the flowed CTA-appended prose, never containing a literal \n).
+    fragment = fragment.rstrip("\n")
+    if not fragment.startswith("content:"):
+        return None
+    new_content_line = "  " + fragment  # reindent to match the overview: block
+
+    new_fm_lines = fm_lines[:content_start] + [new_content_line] + fm_lines[content_end:]
+    new_fm_text = "\n".join(new_fm_lines)
+
+    if inject_url:
+        marker_line = f"enterprise_backlink_injected: {inject_url.rstrip('/')}/"
+        # Append as a new top-level line at the very end of the frontmatter,
+        # matching backfill_products_yaml()'s existing placement (last key).
+        # rstrip("\n") removes the last line's own newline AND any trailing
+        # blank line(s) before the closing "---" uniformly, then a single
+        # "\n" + marker_line + "\n" re-adds exactly one clean line -- fixes
+        # a real bug (found live 2026-08-22, TC15 canary verification) where
+        # the old `new_fm_text[:-1]` only stripped ONE trailing "\n" without
+        # checking whether a full blank line preceded it, gluing marker_line
+        # directly onto the prior content line with zero separator whenever
+        # no blank line existed (the common case) -- silently caught every
+        # time only because backfill_products_yaml()'s re-parse-and-verify
+        # step rejected the corrupt result and fell back to full
+        # reserialization, never actually exercising the surgical path.
+        new_fm_text = new_fm_text.rstrip("\n") + "\n" + marker_line + "\n"
+
+    # raw[end:] is exactly the closing "---" marker plus everything after it
+    # (body content, if any) -- untouched, byte-for-byte, per the original file.
+    return "---" + new_fm_text + body
+
+
 def _rewrite_yaml_file(raw: str, data: dict, fm_text: str) -> str | None:
     """Rewrite the raw file preserving frontmatter structure.
 
@@ -660,6 +853,28 @@ def _rewrite_yaml_file(raw: str, data: dict, fm_text: str) -> str | None:
     strings.  Plain yaml.dump destroys block scalar styles — converting them
     to single-quoted flow scalars or double-quoted \\n-escaped strings — which
     breaks Hugo rendering of code blocks in product page content fields.
+
+    width=10000 (re-confirmed 2026-08-22, TC15 canary): found live on a real
+    write-mode run (the first time write mode ever actually touched a file
+    on disk this whole mission -- every prior test was dry-run only) that
+    this causes real reformatting noise on files whose OTHER fields were
+    originally hand-wrapped across multiple lines (yaml.dump's `width`
+    applies uniformly to every scalar, not just the one field this function
+    actually changes). Tried width=80 as a fix; round-trip testing proved it
+    semantically safe (folded/plain YAML scalar wrapping is lossless), but
+    it just moved the problem: files with originally-UNWRAPPED long fields
+    (e.g. cells/_index.md's head_description/description/tmessage) then got
+    wrapped for the FIRST time instead, producing equally large diff noise
+    in the opposite direction. There is no single global width value that
+    preserves every page's pre-existing per-field formatting, since that
+    formatting is inconsistent across pages to begin with (likely from
+    different generation processes/times) -- the only fully clean fix would
+    be a surgical text-level patch of just the changed field(s), not a full
+    yaml.dump() re-serialization; that is a real, separate, scoped
+    engineering task, not attempted here. Reverted to the original 10000:
+    of the two imperfect options, this is lower-risk (unchanged prior
+    behavior) and empirically produces the smaller diff on the more common
+    page shape (verified: cells/_index.md, unwrapped-original style).
     """
     try:
         import yaml as _yaml
@@ -1368,6 +1583,7 @@ def run_backfill(
                     ))
                     continue
                 # link_count == 1: check if it already matches acceptable chain
+                existing_links2: list[tuple[str, str]] = []
                 try:
                     if sd == "products.aspose.org":
                         raw_text2 = fpath.read_text(encoding="utf-8")
@@ -1380,17 +1596,39 @@ def run_backfill(
                         data2 = _yaml2.safe_load(fm_text2)
                         ov2 = (data2.get("overview", {}) or {}).get("content", "") or ""
                         _, existing_urls = count_qualifying_com_links(ov2)
+                        existing_links2 = extract_qualifying_com_links(ov2)
                     else:
                         raw_text2 = fpath.read_text(encoding="utf-8")
                         _, body2 = _split_frontmatter(raw_text2)
                         _, existing_urls = count_qualifying_com_links(body2)
+                        existing_links2 = extract_qualifying_com_links(body2)
                 except Exception:
                     existing_urls = []
+                # TC15 canary (2026-08-22): found live that this outer
+                # pre-write compliance gate never checked anchor wording --
+                # only backlink_audit.py's audit_file() got the
+                # existing_links/expected_anchor_text wiring (TC14). A
+                # correct-URL/wrong-wording page (the exact motivating
+                # cells defect: "commercial edition" still live) was
+                # silently classified plain COMPLIANT and permanently
+                # skipped, meaning this engine could never self-heal the
+                # one defect class the whole mission exists to fix.
+                expected_anchor_text2: str | None = None
+                if chosen_url and family:
+                    try:
+                        expected_anchor_text2 = _expected_anchor_text(
+                            chosen_url, family, platform, families_map, platforms_map,
+                            target_type=chosen_type, source_subdomain=sd,
+                        )
+                    except Exception:
+                        expected_anchor_text2 = None
                 compliance = classify_compliance(
                     link_count, existing_urls, chosen_url,
                     family=family, platform=platform,
                     chosen_target_type=chosen_type,
                     chosen_target_subdomain=chosen_sd,
+                    existing_links=existing_links2,
+                    expected_anchor_text=expected_anchor_text2,
                 )
                 if compliance == FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE:
                     # Page has family-level link but platform-level is available.
@@ -1417,7 +1655,7 @@ def run_backfill(
                         ))
                         continue
                     # Fall through to backfill — will replace existing link with deep link
-                # WRONG_TARGET with room to add — fall through to backfill
+                # WRONG_TARGET or WRONG_ANCHOR_TEXT with room to add — fall through to backfill
 
             # Apply backfill
             try:

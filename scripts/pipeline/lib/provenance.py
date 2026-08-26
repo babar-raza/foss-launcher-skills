@@ -321,6 +321,17 @@ def compute_content_hash(filepath: Path) -> str:
 
     Normalization ensures CRLF/LF differences and trailing whitespace do not
     produce different hashes for logically identical content.
+
+    RC-tex-python-07 (MT037 blind-spot audit, adversarial review): whole-frontmatter
+    page types (e.g. products.aspose.org "plugin" layout pages, whose real content --
+    plugin_description, overview, content.block[], etc. -- lives entirely inside the
+    frontmatter YAML with no body markdown at all) always hashed to the same constant
+    value, since only the always-empty body was ever hashed. Real content edits to
+    these pages were structurally undetectable by any content-hash-based staleness
+    or skip check. When the normalized body is empty but a frontmatter block exists,
+    fall back to hashing the frontmatter text itself, so real changes to
+    whole-frontmatter pages are actually detected. Pages with real body content are
+    completely unaffected -- the fallback only activates when body is empty.
     """
     try:
         text = filepath.read_text(encoding="utf-8")
@@ -328,7 +339,10 @@ def compute_content_hash(filepath: Path) -> str:
         return ""
     fm = _FRONTMATTER_RE.match(text)
     body = text[fm.end():] if fm else text
-    return hashlib.sha256(_normalize_body(body).encode("utf-8")).hexdigest()[:32]
+    normalized = _normalize_body(body)
+    if fm and not normalized.strip():
+        normalized = _normalize_body(fm.group(2))
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
 
 
 def is_stale(locale_path: Path, english_path: Path) -> bool:
