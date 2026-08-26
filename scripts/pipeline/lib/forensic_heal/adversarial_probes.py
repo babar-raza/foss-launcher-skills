@@ -17,6 +17,8 @@ requirement made mechanical rather than advisory, per the plan's design.
 """
 from __future__ import annotations
 
+import sprint_state
+
 PROBE_IDS: "tuple[str, ...]" = tuple(f"A-{i:02d}" for i in range(1, 13))
 DISPOSITIONS: "tuple[str, ...]" = ("DISPROVEN_WITH_EVIDENCE", "REPAIRED", "BLOCKER")
 
@@ -113,10 +115,26 @@ def probe_a08_content_hand_patched(evidence: dict) -> dict:
 def probe_a09_wrong_order(evidence: dict) -> dict:
     """For every taskcard with regeneration_required, its content-regen evidence timestamp
     must be strictly after its system-heal evidence timestamp -- content regenerated at or
-    before the system fix landed means the system wasn't actually healed first."""
+    before the system fix landed means the system wasn't actually healed first.
+
+    RC-tex-python-01 (MT037 Batch 1 adversarial review): a taskcard whose root cause is
+    layer='data' is exempt, mirroring sprint_state.SYSTEM_LAYERS/check_system_before_content_
+    gate's own established rule that a data-layer root cause (e.g. a stale JSON config or a
+    one-off content mistake) never gates content regeneration on a system-layer fix -- there
+    is no system fix for this class of root cause to precede. A taskcard with no layer at all
+    fails open (not treated as system-layer), the same convention check_system_before_content_
+    gate already uses for a missing/unrecognized layer. Before this fix, A-09 applied the
+    ordering requirement uniformly regardless of layer, incorrectly flagging legitimate
+    content-only fixes (e.g. TC-tex-python-05, root cause RC-tex-python-06, layer=data) the
+    same way as a genuine unaddressed script-layer gap (e.g. TC-BSA-01, RC-tex-python-01,
+    layer=script, which A-09 correctly continues to flag -- that fix-plan deliberately chose
+    a content-only remediation over fixing the script layer, so the system-layer gap really is
+    still open)."""
     bad = []
     for card in evidence.get("taskcards", []):
         if not card.get("regeneration_required"):
+            continue
+        if card.get("layer") not in sprint_state.SYSTEM_LAYERS:
             continue
         heal_at = card.get("system_heal_evidence_at")
         regen_at = card.get("content_regen_evidence_at")

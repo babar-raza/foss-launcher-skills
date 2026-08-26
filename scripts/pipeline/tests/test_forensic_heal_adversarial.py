@@ -149,12 +149,34 @@ def test_a08_blocks_on_unattributed_content_change():
 
 
 def test_a09_passes_when_regen_happens_after_system_heal():
-    evidence = {"taskcards": [{"task_id": "TC-1", "regeneration_required": True, "system_heal_evidence_at": "2026-08-01T00:00:00Z", "content_regen_evidence_at": "2026-08-02T00:00:00Z"}]}
+    evidence = {"taskcards": [{"task_id": "TC-1", "layer": "script", "regeneration_required": True, "system_heal_evidence_at": "2026-08-01T00:00:00Z", "content_regen_evidence_at": "2026-08-02T00:00:00Z"}]}
     assert ap.probe_a09_wrong_order(evidence)["disposition"] == "DISPROVEN_WITH_EVIDENCE"
 
 
 def test_a09_blocks_when_regen_happens_before_system_heal():
-    evidence = {"taskcards": [{"task_id": "TC-1", "regeneration_required": True, "system_heal_evidence_at": "2026-08-02T00:00:00Z", "content_regen_evidence_at": "2026-08-01T00:00:00Z"}]}
+    evidence = {"taskcards": [{"task_id": "TC-1", "layer": "script", "regeneration_required": True, "system_heal_evidence_at": "2026-08-02T00:00:00Z", "content_regen_evidence_at": "2026-08-01T00:00:00Z"}]}
+    assert ap.probe_a09_wrong_order(evidence)["disposition"] == "BLOCKER"
+
+
+def test_a09_data_layer_root_cause_is_exempt_even_with_no_system_fix():
+    """RC-tex-python-01 (MT037 Batch 1): a content-only fix (layer=data) has no
+    system-layer counterpart to precede it -- must not be flagged, matching
+    sprint_state.SYSTEM_LAYERS' own exemption for data-layer root causes."""
+    evidence = {"taskcards": [{"task_id": "TC-data", "layer": "data", "regeneration_required": True, "system_heal_evidence_at": None, "content_regen_evidence_at": "2026-08-25T08:13:00Z"}]}
+    assert ap.probe_a09_wrong_order(evidence)["disposition"] == "DISPROVEN_WITH_EVIDENCE"
+
+
+def test_a09_missing_layer_fails_open():
+    """Mirrors check_system_before_content_gate's own convention: a taskcard
+    with no layer at all is not treated as system-layer."""
+    evidence = {"taskcards": [{"task_id": "TC-nolayer", "regeneration_required": True, "system_heal_evidence_at": None, "content_regen_evidence_at": "2026-08-25T08:13:00Z"}]}
+    assert ap.probe_a09_wrong_order(evidence)["disposition"] == "DISPROVEN_WITH_EVIDENCE"
+
+
+def test_a09_script_layer_root_cause_with_no_system_fix_still_blocks():
+    """RC-tex-python-01's TC-BSA-01: a genuine open script-layer gap must
+    still be flagged -- the layer exemption is not a blanket carve-out."""
+    evidence = {"taskcards": [{"task_id": "TC-BSA-01", "layer": "script", "regeneration_required": True, "system_heal_evidence_at": None, "content_regen_evidence_at": "2026-08-25T08:08:00Z"}]}
     assert ap.probe_a09_wrong_order(evidence)["disposition"] == "BLOCKER"
 
 
