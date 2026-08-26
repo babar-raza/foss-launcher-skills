@@ -105,12 +105,17 @@ overrides:
   # products.aspose.com/3d/python-net/ returns 200 (verified 2026-07-03).
   # Unlike cells/email/slides/words where /python/ also returns 200 (FOSS landing),
   # 3d/python/ simply does not exist — enterprise product is only at python-net.
+  # RC-OVERRIDE-SCOPE (2026-08-26): docs.aspose.com has ONLY 3d/python-net (confirmed
+  # live -- no competing bare 3d/python key), so docs.aspose.org is added to
+  # source_subdomains -- no ambiguity to paper over, and 11 existing docs.aspose.org
+  # pages already correctly use python-net.
   3d/python:
     target_platform: "python-net"
     http_verified: true
     verification_date: "2026-07-03"
     verification_url: "https://products.aspose.com/3d/python-net/"
     notes: "products.aspose.com/3d/python/ HTTP 404. products.aspose.com/3d/python-net/ HTTP 200 (live verified 2026-07-03, TC-BL-010). Enterprise 3D Python product uses python-net slug."
+    source_subdomains: ["products.aspose.org", "docs.aspose.org"]
 
   # RC-OVERRIDE-SCOPE live incident (2026-08-26): before source_subdomains scoping was
   # enforced, this products.aspose.com-only override was silently cross-applied to
@@ -118,13 +123,20 @@ overrides:
   # correct, pre-existing https://reference.aspose.com/barcode/python-java/ links to the
   # wrong .../barcode/python-net/. reference.aspose.com genuinely publishes BOTH
   # python-java and python-net variants for barcode (confirmed live, both HTTP 200) --
-  # a real binding-implementation ambiguity this products.com-only evidence never covered.
+  # a real binding-implementation ambiguity this products.com-only evidence never covered,
+  # so reference.aspose.org is deliberately NOT added to source_subdomains below.
+  # docs.aspose.org is different: docs.aspose.com has ONLY barcode/python-net (confirmed
+  # live -- no competing bare barcode/python key at all, unlike reference.aspose.com), so
+  # there is no ambiguity to paper over there; docs.aspose.org's existing content already
+  # correctly uses python-net, and removing the leak without adding this explicit scope
+  # would have wrongly flagged 12 already-correct docs.aspose.org pages WRONG_TARGET.
   barcode/python:
     target_platform: "python-net"
     http_verified: true
     verification_date: "2026-07-09"
     verification_url: "https://products.aspose.com/barcode/python-net/"
     notes: "products.aspose.com/barcode/python-net/ HTTP 200 (live verified 2026-07-09). Enterprise barcode Python product uses python-net slug."
+    source_subdomains: ["products.aspose.org", "docs.aspose.org"]
 
   # pdf/python was missing from this file entirely (products.aspose.com.platforms in
   # data/aspose_com_targets.json has no pdf/python or pdf/python-net key at all, unlike
@@ -132,6 +144,17 @@ overrides:
   # live 2026-08-18 via readme-refresh's Enterprise Edition link, which was silently falling
   # back to the bare family page https://products.aspose.com/pdf/ for pdf/python only, while
   # every other Python product below already resolves to its real python-net bridge page.
+  # RC-OVERRIDE-SCOPE (2026-08-26): NOT extended to docs.aspose.org, deliberately, unlike
+  # barcode/3d above. docs.aspose.com's OWN bare "pdf/python" key redirects to
+  # https://docs.aspose.com/pdf/python-java/ (HTTP 200) -- a genuinely different, ALSO-live
+  # candidate, independent of and disagreeing with this override's python-net choice. This
+  # is the same live-published-multiple-variants shape as barcode/reference.aspose.org, not
+  # the barcode/3d-on-docs shape (no competing candidate). 14 docs.aspose.org/pdf/python
+  # pages now correctly show WRONG_TARGET (previously incorrectly COMPLIANT via the leaked
+  # override) -- an honest, correctly-flagged residual, not silently resolved either way.
+  # Needs either real docs.aspose.com variant-authority data (TC7's AMBIGUOUS_PLATFORM_TARGET
+  # machinery, currently only populated for reference.aspose.com) or a human decision, not a
+  # mechanical pick here.
   pdf/python:
     target_platform: "python-net"
     http_verified: true
