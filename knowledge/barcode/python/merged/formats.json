@@ -6,7 +6,7 @@
     "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py",
     "line": 12,
     "direction": "export",
-    "caveat": "NotImplementedError — PdfRenderer.render, Barcode.to_pdf raise NotImplementedError"
+    "caveat": "NotImplementedError — Barcode.to_pdf, PdfRenderer.render raise NotImplementedError"
   },
   {
     "format": "Png",
@@ -47,6 +47,6 @@
     "file": "src/aspose_barcode_foss/result.py",
     "line": 86,
     "direction": "export",
-    "caveat": "NotImplementedError — PdfRenderer.render, Barcode.to_pdf raise NotImplementedError"
+    "caveat": "NotImplementedError — Barcode.to_pdf, PdfRenderer.render raise NotImplementedError"
   }
 ]

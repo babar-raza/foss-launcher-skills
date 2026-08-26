@@ -1,15 +1,15 @@
 # Promote Report: barcode/python
-Date: 2026-07-13T09:24:06.225685+00:00
-Scout SHA: 53f2c3350b8171f2c8275e7b1a178f218695ac45
+Date: 2026-08-24T06:38:09.583484+00:00
+Scout SHA: 06eca5c01e13ed6d59a640f1cf330c1c5a57d151
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
 | Scout claims | 313 |
-| Enriched claims (S-37) | 62 |
+| Enriched claims (S-37) | 0 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 375 |
+| Total claims | 313 |
 | Classes | 146 |
 | Forbidden claims | 6 |
 | Snippets | 100 |

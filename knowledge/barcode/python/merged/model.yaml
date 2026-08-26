@@ -1,21 +1,33 @@
+bundle_generated_at: '2026-08-24T06:38:09.461983+00:00'
+bundle_id: 7f0bf1cf-065e-4a15-8a4d-a7ca81662736
+config_sha: 9eb739354976e8b5
+enrichment_status: scout-only
+extractor_hash: 28da6c8722502343
 family: barcode
+generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: bcbf4a6535412b0706e90c576453f8bfcc6338b32fc2c687e7896c29ad95ce96
+  extractor_config_sha: 9eb739354976e8b5
+  products_json_entry_sha: 2cefe2239a0bc85bd10e5458e607140eb525aa3a4ba28f1fc578e025006aaf67
+  scout_api_surface_sha: 0384193cad819ca4e33110056120874c959f788569026eb67530303a5823398a
+  scout_claims_sha: 1acc096ba598cb1e1f7af7ef38e42494c1ac47649736418c65ed78fe075e8c1c
+license: MIT
 platform: python
 product_name: aspose-barcode-foss
-version: 0.1.0
-license: MIT
+promoted_at: '2026-08-24T06:38:09.562684+00:00'
+repo_sha: 06eca5c01e13ed6d59a640f1cf330c1c5a57d151
 repo_url: https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git
-repo_sha: 53f2c3350b8171f2c8275e7b1a178f218695ac45
-config_sha: 9eb739354976e8b5
+schema_version: 2
+source: scout_only
 stale_since: null
-promoted_at: '2026-07-13T09:24:06.217823+00:00'
-source: scout_and_enriched
-enrichment_status: full
-has_conflicts: false
 stats:
-  scout_claims: 313
-  enriched_claims: 62
-  supplemental_claims: 0
-  total_claims: 375
   class_count: 79
+  enriched_claims: 0
   forbidden_count: 6
+  scout_claims: 313
   snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 313
+version: 0.1.0

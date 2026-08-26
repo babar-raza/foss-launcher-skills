@@ -9,7 +9,8 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "SymbologyRegistry"
+    "return_type": "SymbologyRegistry",
+    "reachable": false
   },
   {
     "name": "build_default_service",
@@ -21,7 +22,8 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "BarcodeService"
+    "return_type": "BarcodeService",
+    "reachable": false
   },
   {
     "name": "SymbologyEncoder",
@@ -48,11 +50,18 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode normalized input data into a logical symbol.",
         "line": 16,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.base",
     "class_import": "_internal.encoders.base.SymbologyEncoder"
   },
   {
@@ -80,11 +89,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode a Code 128 payload.",
         "line": 84,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/code128.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.code128",
     "class_import": "_internal.encoders.code128.Code128Encoder"
   },
   {
@@ -112,11 +148,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode a Code 39 payload into a flat module-row symbol.",
         "line": 60,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/code39.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.code39",
     "class_import": "_internal.encoders.code39.Code39Encoder"
   },
   {
@@ -144,11 +207,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode an EAN-13 payload into a 95-module, 2-row ModuleMatrix.",
         "line": 27,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean13.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.ean13",
     "class_import": "_internal.encoders.ean13.Ean13Encoder"
   },
   {
@@ -176,11 +266,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode an EAN-8 payload into a 67-module, 2-row ModuleMatrix.",
         "line": 26,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/ean8.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.ean8",
     "class_import": "_internal.encoders.ean8.Ean8Encoder"
   },
   {
@@ -208,11 +325,18 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode a QR payload into the final masked N*N module matrix.",
         "line": 43,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/qr.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.qr",
     "class_import": "_internal.encoders.qr.QrEncoder"
   },
   {
@@ -240,11 +364,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode a UPC-A payload into a 95-module, 2-row ModuleMatrix.",
         "line": 33,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/upca.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.upca",
     "class_import": "_internal.encoders.upca.UpcaEncoder"
   },
   {
@@ -272,11 +423,38 @@
         "return_type": "EncodedSymbol",
         "doc": "Encode a UPC-E payload into a 51-module, 2-row ModuleMatrix.",
         "line": 29,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/upce.py"
+      },
+      {
+        "name": "encode",
+        "params": [
+          {
+            "name": "payload",
+            "type": "NormalizedPayload"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "EncodedSymbol",
+        "doc": "Encode normalized input data into a logical symbol.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/encoders/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.encoders.upce",
     "class_import": "_internal.encoders.upce.UpceEncoder"
   },
   {
@@ -291,8 +469,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.BarcodeError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "SymbologyNotFoundError",
@@ -306,8 +489,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.SymbologyNotFoundError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "EncodingError",
@@ -321,8 +509,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.EncodingError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "RenderingError",
@@ -336,8 +529,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.RenderingError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "InvalidInputError",
@@ -351,8 +549,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.InvalidInputError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "UnsupportedFeatureError",
@@ -366,8 +569,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.UnsupportedFeatureError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "UnsupportedCapabilityError",
@@ -381,8 +589,13 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.exceptions",
     "class_import": "_internal.exceptions.UnsupportedCapabilityError",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "RenderedArtifact",
@@ -399,6 +612,7 @@
         "writable": false,
         "doc": "Gets the data.",
         "line": 12,
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
         "doc_source": "name_inference"
       },
       {
@@ -407,6 +621,7 @@
         "writable": false,
         "doc": "Gets the media type.",
         "line": 13,
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
         "doc_source": "name_inference"
       },
       {
@@ -415,10 +630,15 @@
         "writable": false,
         "doc": "Gets the backend.",
         "line": 14,
+        "file": "src/aspose_barcode_foss/_internal/models/artifacts.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.artifacts",
     "class_import": "_internal.models.artifacts.RenderedArtifact"
   },
   {
@@ -436,6 +656,7 @@
         "writable": false,
         "doc": "Gets the gs1 support.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
         "doc_source": "name_inference"
       },
       {
@@ -444,6 +665,7 @@
         "writable": false,
         "doc": "Gets the eci support.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
         "doc_source": "name_inference"
       },
       {
@@ -452,6 +674,7 @@
         "writable": false,
         "doc": "Gets the structured append support.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
         "doc_source": "name_inference"
       },
       {
@@ -460,6 +683,7 @@
         "writable": false,
         "doc": "Gets the binary input support.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
         "doc_source": "name_inference"
       },
       {
@@ -468,10 +692,15 @@
         "writable": false,
         "doc": "Gets the rendering outputs.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/models/capabilities.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.capabilities",
     "class_import": "_internal.models.capabilities.SymbologyCapabilities"
   },
   {
@@ -486,6 +715,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -516,8 +748,10 @@
         "value": "auto()"
       }
     ],
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Code128EncodeMode",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Code39EncodeMode",
@@ -531,6 +765,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "BASE",
@@ -541,8 +778,10 @@
         "value": "auto()"
       }
     ],
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Code39EncodeMode",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "QrEncodeMode",
@@ -556,6 +795,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -578,8 +820,10 @@
         "value": "auto()"
       }
     ],
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.QrEncodeMode",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "QrErrorCorrectionLevel",
@@ -593,6 +837,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "L",
@@ -611,8 +858,10 @@
         "value": "auto()"
       }
     ],
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.QrErrorCorrectionLevel",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "EncodeOptions",
@@ -629,6 +878,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -637,12 +887,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.EncodeOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Code128Options",
@@ -661,6 +917,7 @@
         "writable": false,
         "doc": "Gets the encode mode.",
         "line": 59,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -669,6 +926,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -677,12 +935,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Code128Options",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Code39Options",
@@ -701,6 +965,7 @@
         "writable": false,
         "doc": "Gets the full ascii.",
         "line": 66,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -709,6 +974,7 @@
         "writable": false,
         "doc": "Gets the add check digit.",
         "line": 67,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -717,6 +983,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -725,12 +992,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Code39Options",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "QrOptions",
@@ -749,6 +1022,7 @@
         "writable": false,
         "doc": "Gets the error correction level.",
         "line": 74,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -757,6 +1031,7 @@
         "writable": false,
         "doc": "Gets the version.",
         "line": 75,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -765,6 +1040,7 @@
         "writable": false,
         "doc": "Gets the mask.",
         "line": 76,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -773,6 +1049,7 @@
         "writable": false,
         "doc": "Gets the encoding mode.",
         "line": 77,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -781,6 +1058,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -789,12 +1067,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.QrOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Ean13Options",
@@ -813,6 +1097,7 @@
         "writable": false,
         "doc": "Gets the allow check digit input.",
         "line": 84,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -821,6 +1106,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -829,12 +1115,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Ean13Options",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Ean8Options",
@@ -853,6 +1145,7 @@
         "writable": false,
         "doc": "Gets the allow check digit input.",
         "line": 91,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -861,6 +1154,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -869,12 +1163,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.Ean8Options",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "UpcaOptions",
@@ -893,6 +1193,7 @@
         "writable": false,
         "doc": "Gets the allow check digit input.",
         "line": 98,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -901,6 +1202,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -909,12 +1211,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.UpcaOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "UpceOptions",
@@ -933,6 +1241,7 @@
         "writable": false,
         "doc": "Gets the number system.",
         "line": 105,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -941,6 +1250,7 @@
         "writable": false,
         "doc": "Gets the allow check digit input.",
         "line": 106,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -949,6 +1259,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -957,12 +1268,18 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 52,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.UpceOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "RenderOptions",
@@ -979,6 +1296,7 @@
         "writable": false,
         "doc": "Gets the scale.",
         "line": 113,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -987,6 +1305,7 @@
         "writable": false,
         "doc": "Gets the dpi.",
         "line": 114,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -995,6 +1314,7 @@
         "writable": false,
         "doc": "Gets the module width.",
         "line": 115,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1003,6 +1323,7 @@
         "writable": false,
         "doc": "Gets the module height.",
         "line": 116,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1011,6 +1332,7 @@
         "writable": false,
         "doc": "Gets the quiet zone.",
         "line": 117,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1019,6 +1341,7 @@
         "writable": false,
         "doc": "Gets the foreground color.",
         "line": 118,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1027,6 +1350,7 @@
         "writable": false,
         "doc": "Gets the background color.",
         "line": 119,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1035,6 +1359,7 @@
         "writable": false,
         "doc": "Gets the transparent background.",
         "line": 120,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1043,6 +1368,7 @@
         "writable": false,
         "doc": "Gets the show text.",
         "line": 121,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1051,6 +1377,7 @@
         "writable": false,
         "doc": "Gets the font family.",
         "line": 122,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1059,12 +1386,18 @@
         "writable": false,
         "doc": "Gets the font size.",
         "line": 123,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.RenderOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "ResolvedRenderOptions",
@@ -1081,6 +1414,7 @@
         "writable": false,
         "doc": "Gets the scale.",
         "line": 130,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1089,6 +1423,7 @@
         "writable": false,
         "doc": "Gets the dpi.",
         "line": 131,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1097,6 +1432,7 @@
         "writable": false,
         "doc": "Gets the module width.",
         "line": 132,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1105,6 +1441,7 @@
         "writable": false,
         "doc": "Gets the module height.",
         "line": 133,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1113,6 +1450,7 @@
         "writable": false,
         "doc": "Gets the quiet zone.",
         "line": 134,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1121,6 +1459,7 @@
         "writable": false,
         "doc": "Gets the foreground color.",
         "line": 135,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1129,6 +1468,7 @@
         "writable": false,
         "doc": "Gets the background color.",
         "line": 136,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1137,6 +1477,7 @@
         "writable": false,
         "doc": "Gets the transparent background.",
         "line": 137,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1145,6 +1486,7 @@
         "writable": false,
         "doc": "Gets the show text.",
         "line": 138,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1153,6 +1495,7 @@
         "writable": false,
         "doc": "Gets the font family.",
         "line": 139,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       },
       {
@@ -1161,12 +1504,18 @@
         "writable": false,
         "doc": "Gets the font size.",
         "line": 140,
+        "file": "src/aspose_barcode_foss/_internal/models/options.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.options",
     "class_import": "_internal.models.options.ResolvedRenderOptions",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "NormalizedPayload",
@@ -1183,6 +1532,7 @@
         "writable": false,
         "doc": "Gets the symbology.",
         "line": 26,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1191,6 +1541,7 @@
         "writable": false,
         "doc": "Gets the data.",
         "line": 27,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1199,6 +1550,7 @@
         "writable": false,
         "doc": "Gets the input kind.",
         "line": 28,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1207,6 +1559,7 @@
         "writable": false,
         "doc": "Gets the gs1 message.",
         "line": 29,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1215,6 +1568,7 @@
         "writable": false,
         "doc": "Gets the eci designator.",
         "line": 30,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1223,6 +1577,7 @@
         "writable": false,
         "doc": "Gets the code128 encode mode.",
         "line": 31,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1231,6 +1586,7 @@
         "writable": false,
         "doc": "Gets the code39 encode mode.",
         "line": 32,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1239,6 +1595,7 @@
         "writable": false,
         "doc": "Gets the code39 add check digit.",
         "line": 33,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1247,6 +1604,7 @@
         "writable": false,
         "doc": "Gets the qr error correction level.",
         "line": 34,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1255,6 +1613,7 @@
         "writable": false,
         "doc": "Gets the qr version.",
         "line": 35,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1263,6 +1622,7 @@
         "writable": false,
         "doc": "Gets the qr mask.",
         "line": 36,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1271,6 +1631,7 @@
         "writable": false,
         "doc": "Gets the qr encoding mode.",
         "line": 37,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1279,6 +1640,7 @@
         "writable": false,
         "doc": "Gets the qr eci assignment number.",
         "line": 38,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       },
       {
@@ -1287,10 +1649,15 @@
         "writable": false,
         "doc": "Gets the metadata.",
         "line": 39,
+        "file": "src/aspose_barcode_foss/_internal/models/payloads.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.payloads",
     "class_import": "_internal.models.payloads.NormalizedPayload"
   },
   {
@@ -1316,7 +1683,10 @@
         "return_type": "int",
         "doc": "Return the state of a single module.",
         "line": 44,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py"
       }
     ],
     "properties": [
@@ -1326,6 +1696,7 @@
         "writable": false,
         "doc": "Gets the width.",
         "line": 14,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1334,6 +1705,7 @@
         "writable": false,
         "doc": "Gets the height.",
         "line": 15,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1342,6 +1714,7 @@
         "writable": false,
         "doc": "Gets the modules.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1350,10 +1723,15 @@
         "writable": false,
         "doc": "Gets the row heights x.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.symbols",
     "class_import": "_internal.models.symbols.ModuleMatrix"
   },
   {
@@ -1371,6 +1749,7 @@
         "writable": false,
         "doc": "Gets the symbology.",
         "line": 55,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1379,6 +1758,7 @@
         "writable": false,
         "doc": "Gets the normalized data.",
         "line": 56,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1387,6 +1767,7 @@
         "writable": false,
         "doc": "Gets the display text.",
         "line": 57,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1395,6 +1776,7 @@
         "writable": false,
         "doc": "Gets the input kind.",
         "line": 58,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1403,6 +1785,7 @@
         "writable": false,
         "doc": "Gets the gs1 enabled.",
         "line": 59,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1411,10 +1794,15 @@
         "writable": false,
         "doc": "Gets the eci assignment number.",
         "line": 60,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.symbols",
     "class_import": "_internal.models.symbols.SymbolMetadata"
   },
   {
@@ -1432,6 +1820,7 @@
         "writable": false,
         "doc": "Gets the matrix.",
         "line": 76,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       },
       {
@@ -1440,10 +1829,15 @@
         "writable": false,
         "doc": "Gets the metadata.",
         "line": 77,
+        "file": "src/aspose_barcode_foss/_internal/models/symbols.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.symbols",
     "class_import": "_internal.models.symbols.EncodedSymbol"
   },
   {
@@ -1461,6 +1855,7 @@
         "writable": false,
         "doc": "Gets the text.",
         "line": 25,
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
         "doc_source": "name_inference"
       },
       {
@@ -1469,6 +1864,7 @@
         "writable": false,
         "doc": "Gets the anchor.",
         "line": 26,
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
         "doc_source": "name_inference"
       },
       {
@@ -1477,6 +1873,7 @@
         "writable": false,
         "doc": "Gets the offset x.",
         "line": 27,
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
         "doc_source": "name_inference"
       },
       {
@@ -1485,10 +1882,15 @@
         "writable": false,
         "doc": "Gets the offset y.",
         "line": 28,
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.text",
     "class_import": "_internal.models.text.TextSegment"
   },
   {
@@ -1506,10 +1908,15 @@
         "writable": false,
         "doc": "Gets the segments.",
         "line": 40,
+        "file": "src/aspose_barcode_foss/_internal/models/text.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.models.text",
     "class_import": "_internal.models.text.TextLayout"
   },
   {
@@ -1537,11 +1944,18 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a normalized payload.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.base",
     "class_import": "_internal.parsers.base.InputParser"
   },
   {
@@ -1569,11 +1983,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a Code 128 payload.",
         "line": 32,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/code128.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.code128",
     "class_import": "_internal.parsers.code128.Code128InputParser"
   },
   {
@@ -1601,7 +2042,10 @@
         "return_type": "None",
         "doc": "Store the definition's default mode and emitted symbology name.",
         "line": 23,
-        "is_constructor": true
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/code39.py"
       },
       {
         "name": "parse",
@@ -1618,11 +2062,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a Code 39 payload.",
         "line": 28,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/code39.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.code39",
     "class_import": "_internal.parsers.code39.Code39InputParser"
   },
   {
@@ -1650,11 +2121,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce an EAN-13 payload.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean13.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.ean13",
     "class_import": "_internal.parsers.ean13.Ean13InputParser"
   },
   {
@@ -1682,11 +2180,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce an EAN-8 payload.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/ean8.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.ean8",
     "class_import": "_internal.parsers.ean8.Ean8InputParser"
   },
   {
@@ -1710,7 +2235,10 @@
         "return_type": "None",
         "doc": "Store the emitted symbology name.",
         "line": 50,
-        "is_constructor": true
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/qr.py"
       },
       {
         "name": "parse",
@@ -1727,11 +2255,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a QR payload.",
         "line": 54,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/qr.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.qr",
     "class_import": "_internal.parsers.qr.QrInputParser"
   },
   {
@@ -1759,11 +2314,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a UPC-A payload.",
         "line": 17,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/upca.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.upca",
     "class_import": "_internal.parsers.upca.UpcaInputParser"
   },
   {
@@ -1791,11 +2373,38 @@
         "return_type": "NormalizedPayload",
         "doc": "Validate public input and produce a UPC-E payload.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/upce.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "data",
+            "type": "str | bytes"
+          },
+          {
+            "name": "options",
+            "type": "EncodeOptions | None"
+          }
+        ],
+        "return_type": "NormalizedPayload",
+        "doc": "Validate public input and produce a normalized payload.",
+        "line": 15,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/parsers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.parsers.upce",
     "class_import": "_internal.parsers.upce.UpceInputParser"
   },
   {
@@ -1813,6 +2422,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1821,6 +2431,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1829,6 +2440,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1837,6 +2449,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1845,6 +2458,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1853,6 +2467,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1861,10 +2476,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.base",
     "class_import": "_internal.profiles.base.SymbologyProfile"
   },
   {
@@ -1884,6 +2504,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1892,6 +2513,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1900,6 +2522,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1908,6 +2531,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1916,6 +2540,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1924,6 +2549,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1932,10 +2558,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.code128",
     "class_import": "_internal.profiles.code128.Code128Profile"
   },
   {
@@ -1955,6 +2586,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1963,6 +2595,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1971,6 +2604,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1979,6 +2613,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1987,6 +2622,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -1995,6 +2631,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2003,10 +2640,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.code39",
     "class_import": "_internal.profiles.code39.Code39Profile"
   },
   {
@@ -2026,6 +2668,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2034,6 +2677,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2042,6 +2686,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2050,6 +2695,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2058,6 +2704,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2066,6 +2713,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2074,10 +2722,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.ean13",
     "class_import": "_internal.profiles.ean13.Ean13Profile"
   },
   {
@@ -2097,6 +2750,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2105,6 +2759,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2113,6 +2768,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2121,6 +2777,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2129,6 +2786,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2137,6 +2795,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2145,10 +2804,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.ean8",
     "class_import": "_internal.profiles.ean8.Ean8Profile"
   },
   {
@@ -2168,6 +2832,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2176,6 +2841,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2184,6 +2850,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2192,6 +2859,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2200,6 +2868,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2208,6 +2877,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2216,10 +2886,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.qr",
     "class_import": "_internal.profiles.qr.QrProfile"
   },
   {
@@ -2239,6 +2914,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2247,6 +2923,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2255,6 +2932,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2263,6 +2941,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2271,6 +2950,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2279,6 +2959,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2287,10 +2968,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.upca",
     "class_import": "_internal.profiles.upca.UpcaProfile"
   },
   {
@@ -2310,6 +2996,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 16,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2318,6 +3005,7 @@
         "writable": false,
         "doc": "Gets the status.",
         "line": 17,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2326,6 +3014,7 @@
         "writable": false,
         "doc": "Gets the defaults.",
         "line": 18,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2334,6 +3023,7 @@
         "writable": false,
         "doc": "Gets the capabilities.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2342,6 +3032,7 @@
         "writable": false,
         "doc": "Gets the text policy.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2350,6 +3041,7 @@
         "writable": false,
         "doc": "Gets the spec references.",
         "line": 21,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       },
       {
@@ -2358,10 +3050,15 @@
         "writable": false,
         "doc": "Gets the known limitations.",
         "line": 22,
+        "file": "src/aspose_barcode_foss/_internal/profiles/base.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.profiles.upce",
     "class_import": "_internal.profiles.upce.UpceProfile"
   },
   {
@@ -2379,6 +3076,7 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 31,
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
         "doc_source": "name_inference"
       },
       {
@@ -2387,6 +3085,7 @@
         "writable": false,
         "doc": "Gets the parser.",
         "line": 32,
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
         "doc_source": "name_inference"
       },
       {
@@ -2395,6 +3094,7 @@
         "writable": false,
         "doc": "Gets the encoder.",
         "line": 33,
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
         "doc_source": "name_inference"
       },
       {
@@ -2403,6 +3103,7 @@
         "writable": false,
         "doc": "Gets the profile.",
         "line": 34,
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
         "doc_source": "name_inference"
       },
       {
@@ -2411,10 +3112,15 @@
         "writable": false,
         "doc": "Gets the aliases.",
         "line": 35,
+        "file": "src/aspose_barcode_foss/_internal/registry.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.registry",
     "class_import": "_internal.registry.SymbologyDefinition"
   },
   {
@@ -2431,7 +3137,10 @@
         "return_type": "None",
         "doc": "Initialize an empty registry.",
         "line": 41,
-        "is_constructor": true
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_definition",
@@ -2444,7 +3153,10 @@
         "return_type": "SymbologyDefinition",
         "doc": "Return the definition registered for a symbology name.",
         "line": 46,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_parser",
@@ -2457,7 +3169,10 @@
         "return_type": "InputParser",
         "doc": "Return the input parser registered for a symbology name.",
         "line": 59,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_encoder",
@@ -2470,7 +3185,10 @@
         "return_type": "SymbologyEncoder",
         "doc": "Return the encoder registered for a symbology name.",
         "line": 63,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_profile",
@@ -2483,7 +3201,10 @@
         "return_type": "SymbologyProfile",
         "doc": "Return the profile registered for a symbology name.",
         "line": 67,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_text_policy",
@@ -2496,7 +3217,10 @@
         "return_type": "TextLayoutPolicy",
         "doc": "Return the text layout policy registered for a symbology name.",
         "line": 71,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "register",
@@ -2509,11 +3233,18 @@
         "return_type": "None",
         "doc": "Register a complete symbology definition.",
         "line": 75,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.registry",
     "class_import": "_internal.registry.SymbologyRegistry"
   },
   {
@@ -2532,7 +3263,10 @@
         "return_type": "None",
         "doc": "Initialize an empty registry.",
         "line": 41,
-        "is_constructor": true
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_definition",
@@ -2545,7 +3279,10 @@
         "return_type": "SymbologyDefinition",
         "doc": "Return the definition registered for a symbology name.",
         "line": 46,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_parser",
@@ -2558,7 +3295,10 @@
         "return_type": "InputParser",
         "doc": "Return the input parser registered for a symbology name.",
         "line": 59,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_encoder",
@@ -2571,7 +3311,10 @@
         "return_type": "SymbologyEncoder",
         "doc": "Return the encoder registered for a symbology name.",
         "line": 63,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_profile",
@@ -2584,7 +3327,10 @@
         "return_type": "SymbologyProfile",
         "doc": "Return the profile registered for a symbology name.",
         "line": 67,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "get_text_policy",
@@ -2597,7 +3343,10 @@
         "return_type": "TextLayoutPolicy",
         "doc": "Return the text layout policy registered for a symbology name.",
         "line": 71,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       },
       {
         "name": "register",
@@ -2610,11 +3359,18 @@
         "return_type": "None",
         "doc": "Register a complete symbology definition.",
         "line": 75,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/registry.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.registry",
     "class_import": "_internal.registry.EncoderRegistry"
   },
   {
@@ -2646,13 +3402,21 @@
         "return_type": "RenderedArtifact",
         "doc": "Render an encoded symbol into a backend-specific artifact.",
         "line": 17,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/renderers/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.renderers.base",
     "class_import": "_internal.renderers.base.Renderer",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "PdfRenderer",
@@ -2683,13 +3447,21 @@
         "return_type": "RenderedArtifact",
         "doc": "Render an encoded symbol as PDF.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/renderers/pdf.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.renderers.pdf",
     "class_import": "_internal.renderers.pdf.PdfRenderer",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "PngRenderer",
@@ -2720,13 +3492,21 @@
         "return_type": "RenderedArtifact",
         "doc": "Render an encoded symbol as PNG.",
         "line": 39,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/renderers/png.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.renderers.png",
     "class_import": "_internal.renderers.png.PngRenderer",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "SvgRenderer",
@@ -2757,13 +3537,21 @@
         "return_type": "RenderedArtifact",
         "doc": "Render an encoded symbol as SVG.",
         "line": 49,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/renderers/svg.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.renderers.svg",
     "class_import": "_internal.renderers.svg.SvgRenderer",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "OptionsResolver",
@@ -2784,7 +3572,10 @@
         "return_type": "RenderOptions | None",
         "doc": "Normalize supported option input into a RenderOptions instance.",
         "line": 20,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/resolver.py"
       },
       {
         "name": "merge_options",
@@ -2801,7 +3592,10 @@
         "return_type": "RenderOptions | None",
         "doc": "Merge two unresolved option layers with later values taking priority.",
         "line": 41,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/resolver.py"
       },
       {
         "name": "resolve",
@@ -2818,11 +3612,18 @@
         "return_type": "ResolvedRenderOptions",
         "doc": "Resolve the final render configuration.",
         "line": 56,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/resolver.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.resolver",
     "class_import": "_internal.resolver.OptionsResolver"
   },
   {
@@ -2856,7 +3657,10 @@
         "return_type": "Barcode",
         "doc": "Build a barcode object for the requested symbology.",
         "line": 40,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/service.py"
       }
     ],
     "properties": [
@@ -2866,6 +3670,7 @@
         "writable": true,
         "doc": "Gets or sets the registry.",
         "line": 37,
+        "file": "src/aspose_barcode_foss/_internal/service.py",
         "doc_source": "name_inference"
       },
       {
@@ -2874,10 +3679,15 @@
         "writable": true,
         "doc": "Gets or sets the options resolver.",
         "line": 38,
+        "file": "src/aspose_barcode_foss/_internal/service.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.service",
     "class_import": "_internal.service.BarcodeService"
   },
   {
@@ -2895,7 +3705,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "get_code128_code_set_c_value",
@@ -2912,7 +3723,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "get_code128_code_set_a_value",
@@ -2929,7 +3741,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "get_code128_pattern",
@@ -2946,7 +3759,8 @@
         "type": "int"
       }
     ],
-    "return_type": "str"
+    "return_type": "str",
+    "reachable": false
   },
   {
     "name": "get_code39_pattern",
@@ -2963,7 +3777,8 @@
         "type": "str"
       }
     ],
-    "return_type": "str"
+    "return_type": "str",
+    "reachable": false
   },
   {
     "name": "get_code39_value",
@@ -2980,7 +3795,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "expand_full_ascii",
@@ -2997,7 +3813,8 @@
         "type": "str"
       }
     ],
-    "return_type": "str"
+    "return_type": "str",
+    "reachable": false
   },
   {
     "name": "code39_checksum",
@@ -3014,7 +3831,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "checksum_char",
@@ -3031,7 +3849,8 @@
         "type": "int"
       }
     ],
-    "return_type": "str"
+    "return_type": "str",
+    "reachable": false
   },
   {
     "name": "encode_digit",
@@ -3052,7 +3871,8 @@
         "type": "Literal[\"A\", \"B\", \"C\"]"
       }
     ],
-    "return_type": "tuple[int, ...]"
+    "return_type": "tuple[int, ...]",
+    "reachable": false
   },
   {
     "name": "compute_check_digit",
@@ -3073,7 +3893,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "upce_zero_suppress",
@@ -3090,7 +3911,8 @@
         "type": "str"
       }
     ],
-    "return_type": "str | None"
+    "return_type": "str | None",
+    "reachable": false
   },
   {
     "name": "EciDesignator",
@@ -3107,6 +3929,7 @@
         "writable": false,
         "doc": "Gets the assignment number.",
         "line": 12,
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
         "doc_source": "name_inference"
       },
       {
@@ -3115,10 +3938,15 @@
         "writable": false,
         "doc": "Gets the name.",
         "line": 13,
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.eci",
     "class_import": "_internal.standards.eci.EciDesignator"
   },
   {
@@ -3140,7 +3968,10 @@
         "return_type": "EciDesignator",
         "doc": "Normalize a public ECI value into an internal designator.",
         "line": 19,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py"
       },
       {
         "name": "validate",
@@ -3153,11 +3984,18 @@
         "return_type": "None",
         "doc": "Validate an internal ECI designator.",
         "line": 23,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/standards/eci.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.eci",
     "class_import": "_internal.standards.eci.EciHelper"
   },
   {
@@ -3175,10 +4013,15 @@
         "writable": false,
         "doc": "Gets the value.",
         "line": 12,
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.gs1",
     "class_import": "_internal.standards.gs1.Gs1ApplicationIdentifier"
   },
   {
@@ -3196,6 +4039,7 @@
         "writable": false,
         "doc": "Gets the application identifier.",
         "line": 19,
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
         "doc_source": "name_inference"
       },
       {
@@ -3204,10 +4048,15 @@
         "writable": false,
         "doc": "Gets the data.",
         "line": 20,
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.gs1",
     "class_import": "_internal.standards.gs1.Gs1ElementString"
   },
   {
@@ -3225,10 +4074,15 @@
         "writable": false,
         "doc": "Gets the elements.",
         "line": 27,
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.gs1",
     "class_import": "_internal.standards.gs1.Gs1Message"
   },
   {
@@ -3250,7 +4104,10 @@
         "return_type": "Gs1Message",
         "doc": "Parse a public GS1 string into a structured payload.",
         "line": 33,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py"
       },
       {
         "name": "validate",
@@ -3263,11 +4120,18 @@
         "return_type": "None",
         "doc": "Validate a structured GS1 payload.",
         "line": 37,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/standards/gs1.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.gs1",
     "class_import": "_internal.standards.gs1.Gs1Helper"
   },
   {
@@ -3285,7 +4149,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[tuple[int, int]]"
+    "return_type": "list[tuple[int, int]]",
+    "reachable": false
   },
   {
     "name": "latin1_bytes",
@@ -3302,7 +4167,8 @@
         "type": "str"
       }
     ],
-    "return_type": "list[int]"
+    "return_type": "list[int]",
+    "reachable": false
   },
   {
     "name": "build_data_codewords",
@@ -3331,7 +4197,8 @@
         "type": "int | None"
       }
     ],
-    "return_type": "list[int]"
+    "return_type": "list[int]",
+    "reachable": false
   },
   {
     "name": "gmul",
@@ -3352,7 +4219,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "rs_generator_poly",
@@ -3369,7 +4237,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[int]"
+    "return_type": "list[int]",
+    "reachable": false
   },
   {
     "name": "format_info",
@@ -3390,7 +4259,8 @@
         "type": "int"
       }
     ],
-    "return_type": "str"
+    "return_type": "str",
+    "reachable": false
   },
   {
     "name": "version_info",
@@ -3407,7 +4277,8 @@
         "type": "int"
       }
     ],
-    "return_type": "str | None"
+    "return_type": "str | None",
+    "reachable": false
   },
   {
     "name": "apply_mask",
@@ -3432,7 +4303,8 @@
         "type": "Sequence[Sequence[bool]]"
       }
     ],
-    "return_type": "list[list[int]]"
+    "return_type": "list[list[int]]",
+    "reachable": false
   },
   {
     "name": "penalty_n1",
@@ -3449,7 +4321,8 @@
         "type": "Grid"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "penalty_n2",
@@ -3466,7 +4339,8 @@
         "type": "Grid"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "penalty_n3",
@@ -3483,7 +4357,8 @@
         "type": "Grid"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "penalty_n4",
@@ -3500,7 +4375,8 @@
         "type": "Grid"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "penalty",
@@ -3517,7 +4393,8 @@
         "type": "Grid"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "select_best_mask",
@@ -3534,7 +4411,8 @@
         "type": "Callable[[int], Grid]"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "build_function_patterns",
@@ -3551,7 +4429,8 @@
         "type": "int"
       }
     ],
-    "return_type": "tuple[list[list[int]], list[list[bool]]]"
+    "return_type": "tuple[list[list[int]], list[list[bool]]]",
+    "reachable": false
   },
   {
     "name": "place_data",
@@ -3576,7 +4455,8 @@
         "type": "list[int]"
       }
     ],
-    "return_type": "list[list[int]]"
+    "return_type": "list[list[int]]",
+    "reachable": false
   },
   {
     "name": "write_format_info",
@@ -3601,7 +4481,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[list[int]]"
+    "return_type": "list[list[int]]",
+    "reachable": false
   },
   {
     "name": "write_version_info",
@@ -3622,7 +4503,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[list[int]]"
+    "return_type": "list[list[int]]",
+    "reachable": false
   },
   {
     "name": "assemble",
@@ -3651,7 +4533,8 @@
         "type": "int"
       }
     ],
-    "return_type": "tuple[tuple[int, ...], ...]"
+    "return_type": "tuple[tuple[int, ...], ...]",
+    "reachable": false
   },
   {
     "name": "rs_encode",
@@ -3672,7 +4555,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[int]"
+    "return_type": "list[int]",
+    "reachable": false
   },
   {
     "name": "forced_segments",
@@ -3693,7 +4577,8 @@
         "type": "QrMode"
       }
     ],
-    "return_type": "list[Segment]"
+    "return_type": "list[Segment]",
+    "reachable": false
   },
   {
     "name": "segment_optimal",
@@ -3714,7 +4599,8 @@
         "type": "int"
       }
     ],
-    "return_type": "list[Segment]"
+    "return_type": "list[Segment]",
+    "reachable": false
   },
   {
     "name": "segments_bit_length",
@@ -3739,7 +4625,8 @@
         "type": "int | None"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "encoding_bit_length",
@@ -3768,7 +4655,8 @@
         "type": "int | None"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "QrMode",
@@ -3786,10 +4674,14 @@
         "type": "int",
         "writable": false,
         "doc": "Return the 4-bit mode indicator for this mode.",
-        "line": 51
+        "line": 51,
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NUMERIC",
@@ -3808,6 +4700,7 @@
         "value": "\"kanji\""
       }
     ],
+    "canonical_namespace": "_internal.standards.qr.segments",
     "class_import": "_internal.standards.qr.segments.QrMode"
   },
   {
@@ -3825,6 +4718,7 @@
         "writable": false,
         "doc": "Gets the mode.",
         "line": 186,
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
         "doc_source": "name_inference"
       },
       {
@@ -3833,10 +4727,15 @@
         "writable": false,
         "doc": "Gets the text.",
         "line": 187,
+        "file": "src/aspose_barcode_foss/_internal/standards/qr/segments.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.standards.qr.segments",
     "class_import": "_internal.standards.qr.segments.Segment"
   },
   {
@@ -3858,7 +4757,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "is_numeric",
@@ -3875,7 +4775,8 @@
         "type": "str"
       }
     ],
-    "return_type": "bool"
+    "return_type": "bool",
+    "reachable": false
   },
   {
     "name": "is_alphanumeric",
@@ -3892,7 +4793,8 @@
         "type": "str"
       }
     ],
-    "return_type": "bool"
+    "return_type": "bool",
+    "reachable": false
   },
   {
     "name": "shift_jis_double_byte",
@@ -3909,7 +4811,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int | None"
+    "return_type": "int | None",
+    "reachable": false
   },
   {
     "name": "kanji_value",
@@ -3926,7 +4829,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "numeric_data_bits",
@@ -3943,7 +4847,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "alphanumeric_data_bits",
@@ -3960,7 +4865,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "byte_data_bits",
@@ -3977,7 +4883,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "kanji_data_bits",
@@ -3994,7 +4901,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "emit_segment",
@@ -4019,7 +4927,8 @@
         "type": "int"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "reachable": false
   },
   {
     "name": "segment_data_bits",
@@ -4040,7 +4949,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "segment_total_bits",
@@ -4061,7 +4971,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "emit_eci_header",
@@ -4082,7 +4993,8 @@
         "type": "int"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "reachable": false
   },
   {
     "name": "symbol_size",
@@ -4099,7 +5011,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "data_codewords",
@@ -4120,7 +5033,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "ec_per_block",
@@ -4141,7 +5055,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "block_structure",
@@ -4162,7 +5077,8 @@
         "type": "str"
       }
     ],
-    "return_type": "list[tuple[int, int]]"
+    "return_type": "list[tuple[int, int]]",
+    "reachable": false
   },
   {
     "name": "total_codewords",
@@ -4183,7 +5099,8 @@
         "type": "str"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "byte_count_bits",
@@ -4200,7 +5117,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "remainder_bits",
@@ -4217,7 +5135,8 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "reachable": false
   },
   {
     "name": "TextLayoutPolicy",
@@ -4244,11 +5163,18 @@
         "return_type": "TextLayout",
         "doc": "Create logical text layout for an encoded symbol.",
         "line": 16,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/base.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.base",
     "class_import": "_internal.text.base.TextLayoutPolicy"
   },
   {
@@ -4276,11 +5202,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for Code 128.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/code128.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.code128",
     "class_import": "_internal.text.code128.Code128TextLayoutPolicy"
   },
   {
@@ -4308,11 +5241,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for Code 39.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/code39.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.code39",
     "class_import": "_internal.text.code39.Code39TextLayoutPolicy"
   },
   {
@@ -4340,11 +5280,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for EAN-13.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/ean13.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.ean13",
     "class_import": "_internal.text.ean13.Ean13TextLayoutPolicy"
   },
   {
@@ -4372,11 +5319,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for EAN-8.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/ean8.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.ean8",
     "class_import": "_internal.text.ean8.Ean8TextLayoutPolicy"
   },
   {
@@ -4404,11 +5358,18 @@
         "return_type": "TextLayout",
         "doc": "Return an empty layout; QR Code has no human-readable text line.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/qr.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.qr",
     "class_import": "_internal.text.qr.QrTextLayoutPolicy"
   },
   {
@@ -4436,11 +5397,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for UPC-A.",
         "line": 14,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/upca.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.upca",
     "class_import": "_internal.text.upca.UpcaTextLayoutPolicy"
   },
   {
@@ -4468,11 +5436,18 @@
         "return_type": "TextLayout",
         "doc": "Build text layout for UPC-E.",
         "line": 15,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/_internal/text/upce.py"
       }
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "_internal.text.upce",
     "class_import": "_internal.text.upce.UpceTextLayoutPolicy"
   },
   {
@@ -4503,7 +5478,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "code128",
@@ -4529,7 +5506,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "code39",
@@ -4555,7 +5534,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "code39ext",
@@ -4581,7 +5562,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "ean13",
@@ -4607,7 +5590,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "ean8",
@@ -4633,7 +5618,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "upca",
@@ -4659,7 +5646,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "upce",
@@ -4685,7 +5674,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "qr",
@@ -4711,7 +5702,9 @@
       }
     ],
     "return_type": "Barcode",
-    "exported_via_package_init": true
+    "reachable": true,
+    "exported_via_package_init": true,
+    "public_import_module": ""
   },
   {
     "name": "Barcode",
@@ -4736,7 +5729,10 @@
         "return_type": "RenderedArtifact",
         "doc": "Render the barcode with the provided renderer.",
         "line": 27,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/result.py"
       },
       {
         "name": "to_svg",
@@ -4749,7 +5745,10 @@
         "return_type": "str",
         "doc": "Render the barcode as SVG.",
         "line": 62,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/result.py"
       },
       {
         "name": "to_png",
@@ -4762,7 +5761,10 @@
         "return_type": "bytes",
         "doc": "Render the barcode as PNG.",
         "line": 74,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/result.py"
       },
       {
         "name": "to_pdf",
@@ -4775,7 +5777,10 @@
         "return_type": "bytes",
         "doc": "Render the barcode as PDF when the backend is available.",
         "line": 86,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose_barcode_foss/result.py"
       }
     ],
     "properties": [
@@ -4785,6 +5790,7 @@
         "writable": true,
         "doc": "Gets or sets the symbol.",
         "line": 23,
+        "file": "src/aspose_barcode_foss/result.py",
         "doc_source": "name_inference"
       },
       {
@@ -4793,6 +5799,7 @@
         "writable": true,
         "doc": "Gets or sets the profile.",
         "line": 24,
+        "file": "src/aspose_barcode_foss/result.py",
         "doc_source": "name_inference"
       },
       {
@@ -4801,11 +5808,17 @@
         "writable": true,
         "doc": "Gets or sets the default render options.",
         "line": 25,
+        "file": "src/aspose_barcode_foss/result.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "result",
     "class_import": "result.Barcode",
-    "exported_via_package_init": true
+    "exported_via_package_init": true,
+    "public_import_module": ""
   }
 ]
