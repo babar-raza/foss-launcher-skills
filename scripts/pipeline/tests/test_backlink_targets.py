@@ -943,13 +943,18 @@ class TestPlatformLandingAuthority:
     # Test 7: Canonical override applied when loaded and http_verified: true
     def test_platform_canonical_override_applied_when_loaded(self, tmp_path):
         tm = self.get_map(tmp_path)
-        # Mock override: pdf/go → go-cpp (verified)
+        # Mock override: pdf/go → go-cpp (verified), explicitly scoped to
+        # docs.aspose.org (RC-OVERRIDE-SCOPE, 2026-08-26 -- source_subdomains
+        # is now required to apply an override to a non-products.aspose.org
+        # source; see TestCanonicalOverrideSourceSubdomainScoping below for
+        # the omitted-field default-scope regression coverage).
         overrides = {
             "overrides": {
                 "pdf/go": {
                     "target_platform": "go-cpp",
                     "http_verified": True,
                     "verification_date": "2026-05-26",
+                    "source_subdomains": ["docs.aspose.org"],
                 }
             }
         }
@@ -1040,6 +1045,124 @@ class TestPlatformLandingAuthority:
         status = classify_kb_anchor_status(existing_urls, kb_anchor_mode=CANONICAL_POST_P0_MODE)
         assert status == UPGRADE_CANDIDATE_NOT_YET_FIXED
         assert status != ACCEPTABLE_LEGACY_KB_PRE_P0
+
+
+# ── RC-OVERRIDE-SCOPE (2026-08-26): canonical override source_subdomains ─────
+#
+# Found live during the backlink-governance-redesign mission's TC13
+# continuation: platform_canonical_overrides.yaml's own "Policy decision"
+# comment (2026-07-03, commit bb68a63a22) explicitly claimed "Override scope:
+# products.aspose.org source pages only (resolve_backlink checks subdomain
+# before applying overrides)" -- but resolve_backlink() never actually checked
+# source_subdomain before applying an override; it applied every override to
+# every source subdomain unconditionally, gating only on whether the
+# override's target platform slug happened to ALSO exist (HTTP 200) on
+# whatever preferred_sd the current source resolved to. Confirmed live: the
+# barcode/python override (verified only against products.aspose.com) was
+# silently overriding reference.aspose.org's resolution on 26 real pages,
+# replacing their own correct, pre-existing
+# https://reference.aspose.com/barcode/python-java/ links with the wrong
+# .../barcode/python-net/ -- reference.aspose.com genuinely publishes BOTH
+# variants (a real binding-implementation ambiguity products.aspose.com's
+# simpler product-page structure never surfaces), so the products.com-only
+# evidence was never sufficient to decide reference.aspose.org's case.
+
+class TestCanonicalOverrideSourceSubdomainScoping:
+    def _tm_with_barcode_python_ambiguity(self):
+        """Reproduces the exact live shape: reference.aspose.com has BOTH
+        barcode/python (-> python-java bridge) and barcode/python-net live;
+        products.aspose.com only has barcode/python-net."""
+        return {
+            "targets": {
+                "products.aspose.com": {
+                    "families": {"barcode": {"url": "https://products.aspose.com/barcode/", "http_status": 200}},
+                    "platforms": {
+                        "barcode/python-net": {"url": "https://products.aspose.com/barcode/python-net/", "http_status": 200},
+                    },
+                },
+                "reference.aspose.com": {
+                    "families": {"barcode": {"url": "https://reference.aspose.com/barcode/", "http_status": 200}},
+                    "platforms": {
+                        "barcode/python": {"url": "https://reference.aspose.com/barcode/python-java/", "http_status": 200},
+                        "barcode/python-net": {"url": "https://reference.aspose.com/barcode/python-net/", "http_status": 200},
+                    },
+                },
+            },
+            "all_urls": {},
+        }
+
+    def _products_only_override(self):
+        """Matches every real entry in platform_canonical_overrides.yaml
+        today: http_verified evidence against products.aspose.com only, no
+        source_subdomains field."""
+        return {
+            "overrides": {
+                "barcode/python": {
+                    "target_platform": "python-net",
+                    "http_verified": True,
+                    "verification_date": "2026-07-09",
+                }
+            }
+        }
+
+    def test_override_still_applies_to_its_own_products_source(self):
+        """The override's genuine, intended scope (products.aspose.org
+        resolving its own reciprocal products.aspose.com link) must keep
+        working -- this fix narrows scope, it must not disable the override
+        entirely."""
+        tm = self._tm_with_barcode_python_ambiguity()
+        url, utype, sd, reason = resolve_backlink(
+            "barcode", "python", "products.aspose.org", tm,
+            canonical_overrides=self._products_only_override(),
+        )
+        assert url == "https://products.aspose.com/barcode/python-net/"
+
+    def test_override_no_longer_leaks_into_reference_resolution(self):
+        """The confirmed live bug, reproduced directly: a products.aspose.com-
+        only override must NOT be applied when resolving a
+        reference.aspose.org source -- resolution must fall through to the
+        real, correct reference.aspose.com/barcode/python (python-java) key,
+        not be silently redirected to python-net."""
+        tm = self._tm_with_barcode_python_ambiguity()
+        url, utype, sd, reason = resolve_backlink(
+            "barcode", "python", "reference.aspose.org", tm,
+            canonical_overrides=self._products_only_override(),
+        )
+        assert url == "https://reference.aspose.com/barcode/python-java/"
+        assert url != "https://reference.aspose.com/barcode/python-net/"
+
+    def test_explicit_source_subdomains_extends_scope_deliberately(self):
+        """An override that DOES carry explicit, independent cross-subdomain
+        evidence (the pdf/go shape) must still apply to that additional
+        source subdomain -- the fix adds a real allowlist, not a blanket
+        products.aspose.org-only lockdown."""
+        tm = self._tm_with_barcode_python_ambiguity()
+        override_with_scope = {
+            "overrides": {
+                "barcode/python": {
+                    "target_platform": "python-net",
+                    "http_verified": True,
+                    "verification_date": "2026-07-09",
+                    "source_subdomains": ["products.aspose.org", "reference.aspose.org"],
+                }
+            }
+        }
+        url, utype, sd, reason = resolve_backlink(
+            "barcode", "python", "reference.aspose.org", tm,
+            canonical_overrides=override_with_scope,
+        )
+        assert url == "https://reference.aspose.com/barcode/python-net/"
+
+    def test_omitting_canonical_overrides_entirely_unaffected(self):
+        """Sanity/regression: callers that never pass canonical_overrides=
+        at all (most of the codebase, prior to TC6) must be completely
+        unaffected by this fix -- resolution still falls through to the
+        plain target-map lookup."""
+        tm = self._tm_with_barcode_python_ambiguity()
+        url, utype, sd, reason = resolve_backlink(
+            "barcode", "python", "reference.aspose.org", tm, canonical_overrides=None,
+        )
+        assert url == "https://reference.aspose.com/barcode/python-java/"
 
 
 # ── Phase A3: Best Verified Ancestor Fallback ─────────────────────────────────

@@ -11,12 +11,29 @@
 #       verification_date: "YYYY-MM-DD"
 #       verification_url: "https://..."
 #       notes: "optional explanation"
+#       source_subdomains: ["products.aspose.org", ...]   # OPTIONAL, see below
 #
 # Rules:
 #   - ALL entries require http_verified: true AND verification_date to be applied.
 #   - http_verified: false entries are recorded for documentation but NOT used.
-#   - Override only the platform slug, never the family or subdomain.
+#   - Override only the platform slug, never the family.
 #   - Populate only from live HTTP 200 evidence -- never from assumption.
+#
+# source_subdomains (added 2026-08-26, RC-OVERRIDE-SCOPE, backlink-governance-
+# redesign mission): which aspose.org SOURCE subdomains this override applies
+# to when resolving THEIR backlink. Omit to default to ["products.aspose.org"]
+# only -- this repo's actual, original policy per the "Policy decision" comment
+# below, restated here because the resolver code previously did not enforce it
+# (confirmed live: it applied every override to every source subdomain
+# unconditionally, regardless of this field's absence). Only add an entry here
+# when the override's OWN evidence (verification_url/notes) independently
+# covers that additional source subdomain's target site too -- a
+# products.aspose.com-only HTTP-200 check does not prove the same platform-slug
+# substitution is correct on reference.aspose.com/docs.aspose.com/kb.aspose.com,
+# which may structure their content differently (e.g. reference.aspose.com can
+# publish multiple binding-implementation variants for one aspose.org platform
+# that a simpler products.aspose.com product page never distinguishes -- see
+# barcode/python below, the live incident that surfaced this gap).
 #
 # Sprint: BL-PLAT-P0-2026-05-26
 #
@@ -24,12 +41,16 @@ overrides:
   # pdf/go -> go-cpp: docs.aspose.com/pdf/go/ returns 404; docs.aspose.com/pdf/go-cpp/ returns 200.
   # Also: products.aspose.com/pdf/go/ returns 404 (verified 2026-07-03); go-cpp is the canonical.
   # products.aspose.com/pdf/go-cpp/ returns 200 (verified 2026-07-03, commit bb68a63a22).
+  # The ONE entry in this file with genuine, independent cross-subdomain
+  # evidence (both docs.aspose.com AND products.aspose.com HTTP-verified
+  # separately) -- source_subdomains reflects exactly that, not a default.
   pdf/go:
     target_platform: "go-cpp"
     http_verified: true
     verification_date: "2026-07-03"
     verification_url: "https://products.aspose.com/pdf/go-cpp/"
     notes: "docs.aspose.com/pdf/go/ HTTP 404; docs.aspose.com/pdf/go-cpp/ HTTP 200 (2026-05-26). products.aspose.com/pdf/go/ HTTP 404; products.aspose.com/pdf/go-cpp/ HTTP 200 (2026-07-03, commit bb68a63a22)."
+    source_subdomains: ["products.aspose.org", "docs.aspose.org"]
 
   # Policy decision (commit bb68a63a22, 2026-07-03): For products.aspose.com, all Python API
   # products that use the .NET runtime are exposed under the python-net slug, not python/.
@@ -40,7 +61,11 @@ overrides:
   #   /words/python-net/  -> 200 OK
   # Canonical python/ pages also return 200 but are the FOSS landing pages; enterprise pages
   # are consistently at python-net/ for these four families. Override scope: products.aspose.org
-  # source pages only (resolve_backlink checks subdomain before applying overrides).
+  # source pages only. This claimed resolve_backlink() already enforced that subdomain scope --
+  # confirmed FALSE 2026-08-26 (RC-OVERRIDE-SCOPE): the code applied every override to every
+  # source subdomain unconditionally, with no check at all. Now genuinely enforced via the
+  # source_subdomains field (schema note above) -- every entry below intentionally omits it,
+  # so all default to the products.aspose.org-only scope this comment always claimed.
   cells/python:
     target_platform: "python-net"
     http_verified: true
@@ -87,6 +112,13 @@ overrides:
     verification_url: "https://products.aspose.com/3d/python-net/"
     notes: "products.aspose.com/3d/python/ HTTP 404. products.aspose.com/3d/python-net/ HTTP 200 (live verified 2026-07-03, TC-BL-010). Enterprise 3D Python product uses python-net slug."
 
+  # RC-OVERRIDE-SCOPE live incident (2026-08-26): before source_subdomains scoping was
+  # enforced, this products.aspose.com-only override was silently cross-applied to
+  # reference.aspose.org's resolution too, on 26 real pages -- overriding their own
+  # correct, pre-existing https://reference.aspose.com/barcode/python-java/ links to the
+  # wrong .../barcode/python-net/. reference.aspose.com genuinely publishes BOTH
+  # python-java and python-net variants for barcode (confirmed live, both HTTP 200) --
+  # a real binding-implementation ambiguity this products.com-only evidence never covered.
   barcode/python:
     target_platform: "python-net"
     http_verified: true

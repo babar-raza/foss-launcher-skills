@@ -769,10 +769,43 @@ def resolve_backlink(
                     )
 
         # Check canonical override first (A2 P0 — only http_verified: true entries used)
+        #
+        # RC-OVERRIDE-SCOPE (found live 2026-08-26, backlink-governance-redesign
+        # mission, TC13 continuation): every current entry's http_verified/
+        # verification_url/verification_date evidence is a check against
+        # products.aspose.com ONLY (confirmed by direct read of every entry in
+        # platform_canonical_overrides.yaml) -- the file's own "Policy decision"
+        # comment (2026-07-03, commit bb68a63a22) states this explicitly:
+        # "Override scope: products.aspose.org source pages only (resolve_backlink
+        # checks subdomain before applying overrides)." That claim was false: this
+        # block previously applied every override unconditionally to ANY
+        # source_subdomain, because _lookup_platform() only checks whether the
+        # override's target platform slug HAPPENS to also exist (HTTP 200) on
+        # whatever preferred_sd the current source resolves to -- not whether the
+        # override's own evidence ever covered that target subdomain. Confirmed
+        # live: barcode/python's override (verified only for
+        # products.aspose.com/barcode/python-net/) was silently overriding
+        # reference.aspose.org's resolution too, on 26 real pages, from their own
+        # correct pre-existing https://reference.aspose.com/barcode/python-java/
+        # links to the wrong .../barcode/python-net/ -- reference.aspose.com
+        # genuinely publishes BOTH variants (a real binding-implementation
+        # ambiguity products.aspose.com's simpler product-page structure doesn't
+        # have), so the products.com-only evidence was never sufficient here.
+        # Fixed: gate on an explicit source_subdomains allowlist, defaulting to
+        # ["products.aspose.org"] (matching what every entry's evidence actually
+        # supports) when the field is absent -- fail-closed for legacy entries.
+        # pdf/go is the one entry with genuine cross-subdomain evidence in its own
+        # notes (docs.aspose.com AND products.aspose.com both independently HTTP-
+        # verified) and is the only entry given an explicit, wider
+        # source_subdomains list in the data file for exactly that reason.
         if canonical_overrides:
             override_key = f"{family}/{platform}"
             override = canonical_overrides.get("overrides", {}).get(override_key)
-            if override and override.get("http_verified") is True:
+            allowed_source_subdomains = override.get("source_subdomains") if override else None
+            if allowed_source_subdomains is None:
+                allowed_source_subdomains = ["products.aspose.org"]
+            if (override and override.get("http_verified") is True
+                    and source_subdomain in allowed_source_subdomains):
                 override_platform = override.get("target_platform")
                 if override_platform:
                     url = _lookup_platform(target_map, preferred_sd, family, override_platform)
