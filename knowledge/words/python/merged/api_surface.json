@@ -17,6 +17,8 @@
         "doc": "",
         "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader.py"
       },
       {
@@ -31,6 +33,8 @@
         "doc": "",
         "line": 1265,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader.py"
       },
       {
@@ -40,6 +44,8 @@
         "doc": "",
         "line": 1276,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader.py"
       },
       {
@@ -49,6 +55,8 @@
         "doc": "",
         "line": 79,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -63,6 +71,8 @@
         "doc": "Load .doc from file path.",
         "line": 122,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -77,6 +87,8 @@
         "doc": "Load .doc from stream.",
         "line": 130,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -91,12 +103,16 @@
         "doc": "Load .doc from bytes.",
         "line": 138,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.doc_file_reader",
     "class_import": "words_foss.doc_reader.doc_file_reader.DocFileReader",
     "exported_via_package_init": true,
@@ -117,6 +133,8 @@
         "doc": "",
         "line": 79,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -131,6 +149,8 @@
         "doc": "Load .doc from file path.",
         "line": 122,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -145,6 +165,8 @@
         "doc": "Load .doc from stream.",
         "line": 130,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       },
       {
@@ -159,12 +181,16 @@
         "doc": "Load .doc from bytes.",
         "line": 138,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/doc_file_reader_core.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.doc_file_reader_core",
     "class_import": "words_foss.doc_reader.doc_file_reader_core.DocFileReaderCore"
   },
@@ -186,6 +212,8 @@
         "doc": "",
         "line": 51,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/document_reader.py"
       },
       {
@@ -200,6 +228,8 @@
         "doc": "Load DOCX from file path.",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/document_reader.py"
       },
       {
@@ -214,6 +244,8 @@
         "doc": "Load DOCX from stream.",
         "line": 89,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/document_reader.py"
       },
       {
@@ -228,6 +260,8 @@
         "doc": "Load DOCX from bytes.",
         "line": 94,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/document_reader.py"
       },
       {
@@ -237,12 +271,16 @@
         "doc": "Build a :class:`ldm.Document` from the loaded DOCX.",
         "line": 41,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/mixin.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.document_reader",
     "class_import": "words_foss.docx_reader.document_reader.DocumentReader",
     "exported_via_package_init": true,
@@ -261,6 +299,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.writer",
     "class_import": "words_foss.docx_writer.writer.DocxWriterLossyWarning",
     "exported_via_package_init": true,
@@ -286,6 +326,8 @@
         "doc": "",
         "line": 118,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/writer.py"
       },
       {
@@ -304,6 +346,8 @@
         "doc": "Render ``doc`` and write the resulting ``.docx`` to disk.",
         "line": 257,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/writer.py"
       },
       {
@@ -318,6 +362,8 @@
         "doc": "Render ``doc`` and return the ``.docx`` as raw bytes.",
         "line": 270,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/writer.py"
       }
     ],
@@ -333,6 +379,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.writer",
     "class_import": "words_foss.docx_writer.writer.LdmDocxWriter",
     "exported_via_package_init": true,
@@ -353,6 +401,8 @@
         "doc": "",
         "line": 34,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/markdown_reader.py"
       },
       {
@@ -367,6 +417,8 @@
         "doc": "Load a .md file from *filepath*.",
         "line": 48,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/markdown_reader.py"
       },
       {
@@ -381,6 +433,8 @@
         "doc": "Load from a binary stream.",
         "line": 53,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/markdown_reader.py"
       },
       {
@@ -395,6 +449,8 @@
         "doc": "Load from raw bytes.",
         "line": 57,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/markdown_reader.py"
       },
       {
@@ -404,6 +460,8 @@
         "doc": "Build a light_document_model.Document from the loaded Markdown.",
         "line": 75,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/markdown_reader.py"
       }
     ],
@@ -427,6 +485,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.markdown_reader",
     "class_import": "words_foss.markdown_reader.MarkdownReader"
   },
@@ -547,6 +607,8 @@
         "doc": "",
         "line": 90,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/reader_context.py"
       },
       {
@@ -561,6 +623,8 @@
         "doc": "",
         "line": 174,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/reader_context.py"
       },
       {
@@ -575,6 +639,8 @@
         "doc": "",
         "line": 231,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/reader_context.py"
       },
       {
@@ -589,6 +655,8 @@
         "doc": "",
         "line": 273,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/reader_context.py"
       },
       {
@@ -603,6 +671,8 @@
         "doc": "Embed a real Shape for a local, readable image or an inline base64 data URI;\r\n        otherwise fall back to raw source text.",
         "line": 293,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/reader_context.py"
       }
     ],
@@ -628,6 +698,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.reader_context",
     "class_import": "words_foss.md_import.reader_context.MarkdownReaderContext",
     "exported_via_package_init": true,
@@ -653,6 +725,8 @@
         "doc": "",
         "line": 154,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_writer.py"
       },
       {
@@ -671,6 +745,8 @@
         "doc": "Convert *doc* to Markdown and return the result string.",
         "line": 168,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_writer.py"
       },
       {
@@ -685,6 +761,8 @@
         "doc": "",
         "line": 993,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_writer.py"
       }
     ],
@@ -700,6 +778,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_writer",
     "class_import": "words_foss.md_writer.LdmMarkdownWriter"
   },
@@ -723,6 +803,8 @@
         "doc": "",
         "line": 117,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/writer.py"
       },
       {
@@ -741,6 +823,8 @@
         "doc": "Convert *doc* to PDF and write to *output_path*.",
         "line": 150,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/writer.py"
       }
     ],
@@ -756,6 +840,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.writer",
     "class_import": "words_foss.pdf_writer.writer.LdmPdfWriter",
     "exported_via_package_init": true,
@@ -783,6 +869,8 @@
         "doc": "",
         "line": 17,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/reader_factory.py"
       },
       {
@@ -797,6 +885,8 @@
         "doc": "",
         "line": 19,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/reader_factory.py"
       },
       {
@@ -811,6 +901,8 @@
         "doc": "",
         "line": 21,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/reader_factory.py"
       },
       {
@@ -820,12 +912,16 @@
         "doc": "",
         "line": 23,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/reader_factory.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.reader_factory",
     "class_import": "words_foss.reader_factory.DocumentFormatReader"
   },
@@ -862,6 +958,8 @@
         "doc": "",
         "line": 31,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/rtf_reader.py"
       },
       {
@@ -876,6 +974,8 @@
         "doc": "Load .rtf from file path.",
         "line": 34,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/rtf_reader.py"
       },
       {
@@ -890,6 +990,8 @@
         "doc": "Load .rtf from stream.",
         "line": 38,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/rtf_reader.py"
       },
       {
@@ -904,6 +1006,8 @@
         "doc": "Load .rtf from bytes.",
         "line": 42,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/rtf_reader.py"
       },
       {
@@ -913,12 +1017,16 @@
         "doc": "Build a light_document_model.Document from the loaded RTF file.",
         "line": 58,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/rtf_reader.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.rtf_reader",
     "class_import": "words_foss.rtf_reader.RtfFileReader"
   },
@@ -937,6 +1045,8 @@
         "doc": "",
         "line": 39,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -951,6 +1061,8 @@
         "doc": "Load a .txt file from *filepath*.",
         "line": 43,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -965,6 +1077,8 @@
         "doc": "Load from a binary stream.",
         "line": 47,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -979,6 +1093,8 @@
         "doc": "Load from raw bytes.",
         "line": 51,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -988,6 +1104,8 @@
         "doc": "Build a light_document_model.Document from the loaded text.",
         "line": 75,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       }
     ],
@@ -1003,6 +1121,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.text_reader",
     "class_import": "words_foss.text_reader.TextFileReader"
   },
@@ -1021,6 +1141,8 @@
         "doc": "",
         "line": 106,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -1035,6 +1157,8 @@
         "doc": "Load a .md file from *filepath*.",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -1049,6 +1173,8 @@
         "doc": "Load from a binary stream.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -1063,6 +1189,8 @@
         "doc": "Load from raw bytes.",
         "line": 118,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       },
       {
@@ -1072,6 +1200,8 @@
         "doc": "Build a light_document_model.Document from the loaded Markdown.",
         "line": 150,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/text_reader.py"
       }
     ],
@@ -1095,6 +1225,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.text_reader",
     "class_import": "words_foss.text_reader.MarkdownFileReader"
   },
@@ -1158,6 +1290,8 @@
         "doc": "",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       },
       {
@@ -1172,6 +1306,8 @@
         "doc": "Set the document reader for numbering lookups.",
         "line": 22,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       },
       {
@@ -1181,6 +1317,8 @@
         "doc": "Reset list state for new document.",
         "line": 26,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       },
       {
@@ -1195,6 +1333,8 @@
         "doc": "Get list information for a paragraph.",
         "line": 31,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       },
       {
@@ -1217,6 +1357,8 @@
         "doc": "Format a list item with proper indentation.",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       },
       {
@@ -1226,6 +1368,8 @@
         "doc": "Signal that the current list has been broken (e.g., by a regular paragraph).",
         "line": 89,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/list_handler.py"
       }
     ],
@@ -1241,6 +1385,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.converters.list_handler",
     "class_import": "words_foss.converters.list_handler.ListHandler",
     "exported_via_package_init": true,
@@ -1266,6 +1412,8 @@
         "doc": "",
         "line": 17,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/paragraph.py"
       },
       {
@@ -1280,6 +1428,8 @@
         "doc": "Extract comprehensive information from a paragraph.",
         "line": 20,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/paragraph.py"
       },
       {
@@ -1294,6 +1444,8 @@
         "doc": "Extract formatting information from a run.",
         "line": 81,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/paragraph.py"
       },
       {
@@ -1316,6 +1468,8 @@
         "doc": "Apply Markdown formatting to text.",
         "line": 91,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/paragraph.py"
       }
     ],
@@ -1331,6 +1485,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.converters.paragraph",
     "class_import": "words_foss.converters.paragraph.ParagraphConverter",
     "exported_via_package_init": true,
@@ -1356,6 +1512,8 @@
         "doc": "",
         "line": 17,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/table.py"
       },
       {
@@ -1370,6 +1528,8 @@
         "doc": "Convert a table to Markdown format.",
         "line": 20,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/converters/table.py"
       }
     ],
@@ -1385,6 +1545,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.converters.table",
     "class_import": "words_foss.converters.table.TableConverter",
     "exported_via_package_init": true,
@@ -1427,6 +1589,8 @@
         "doc": "",
         "line": 11,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/fib.py"
       }
     ],
@@ -1490,6 +1654,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.fib",
     "class_import": "words_foss.doc_reader.fib.FibData"
   },
@@ -1595,6 +1761,8 @@
         "doc": "",
         "line": 21,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -1634,6 +1802,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.BlipInfo"
   },
@@ -1669,6 +1839,8 @@
         "doc": "",
         "line": 37,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -1708,6 +1880,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.ShapeCropInfo"
   },
@@ -1739,6 +1913,8 @@
         "doc": "",
         "line": 55,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -1770,6 +1946,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.ShapeLineProps"
   },
@@ -1825,6 +2003,8 @@
         "doc": "",
         "line": 71,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -1904,6 +2084,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.ShapeAnchor"
   },
@@ -1939,6 +2121,8 @@
         "doc": "",
         "line": 469,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -1978,6 +2162,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.ChildAnchorInfo"
   },
@@ -2013,6 +2199,8 @@
         "doc": "",
         "line": 481,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/images.py"
       }
     ],
@@ -2052,6 +2240,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
     "class_import": "words_foss.doc_reader.images.GroupShapeInfo"
   },
@@ -2404,6 +2594,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.lists",
     "class_import": "words_foss.doc_reader.lists.ListLevelData"
   },
@@ -2455,6 +2647,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.lists",
     "class_import": "words_foss.doc_reader.lists.ListDef"
   },
@@ -2525,6 +2719,8 @@
         "doc": "",
         "line": 117,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/properties.py"
       }
     ],
@@ -2788,6 +2984,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
     "class_import": "words_foss.doc_reader.properties.ParaProps"
   },
@@ -2806,6 +3004,8 @@
         "doc": "",
         "line": 167,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/properties.py"
       }
     ],
@@ -3037,6 +3237,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
     "class_import": "words_foss.doc_reader.properties.CharProps"
   },
@@ -3055,6 +3257,8 @@
         "doc": "",
         "line": 933,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/properties.py"
       }
     ],
@@ -3150,6 +3354,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
     "class_import": "words_foss.doc_reader.properties.TableRowProps"
   },
@@ -3396,6 +3602,8 @@
         "doc": "",
         "line": 69,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/doc_reader/styles.py"
       }
     ],
@@ -3467,6 +3675,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.styles",
     "class_import": "words_foss.doc_reader.styles.StyleData"
   },
@@ -3533,6 +3743,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.table_builder",
     "class_import": "words_foss.doc_reader.table_builder.DocTableBuilderMixin"
   },
@@ -3647,6 +3859,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -3693,6 +3907,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/document.py"
       }
     ],
@@ -3716,6 +3932,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.LoadOptions",
     "exported_via_package_init": true,
@@ -3738,6 +3956,8 @@
         "doc": "",
         "line": 127,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/document.py"
       }
     ],
@@ -3769,6 +3989,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.MarkdownLoadOptions",
     "exported_via_package_init": true,
@@ -3787,6 +4009,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "DOC",
@@ -3889,6 +4113,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.RunData",
     "exported_via_package_init": true,
@@ -3987,6 +4213,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.ParagraphData",
     "exported_via_package_init": true,
@@ -4022,6 +4250,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.CellData",
     "exported_via_package_init": true,
@@ -4048,6 +4278,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.RowData",
     "exported_via_package_init": true,
@@ -4074,6 +4306,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.TableData",
     "exported_via_package_init": true,
@@ -4118,6 +4352,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.NumberingLevel",
     "exported_via_package_init": true,
@@ -4162,6 +4398,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.NumberingInfo",
     "exported_via_package_init": true,
@@ -4180,6 +4418,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder._context",
     "class_import": "words_foss.docx_reader.ldm_builder._context.ReaderContext"
   },
@@ -4411,6 +4651,8 @@
         "doc": "",
         "line": 60,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4425,6 +4667,8 @@
         "doc": "",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4439,12 +4683,16 @@
         "doc": "Find the first ``<w:numPr>`` while walking the chain back to root.",
         "line": 81,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
     "class_import": "words_foss.docx_reader.ldm_builder.cascading.StyleChainResolver"
   },
@@ -4468,6 +4716,8 @@
         "doc": "",
         "line": 99,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4482,12 +4732,16 @@
         "doc": "Translate one ``<w:rPr>`` into a value-only :class:`ldm.Font`.",
         "line": 102,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
     "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontBuilder"
   },
@@ -4515,6 +4769,8 @@
         "doc": "",
         "line": 268,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4529,12 +4785,16 @@
         "doc": "Translate one ``<w:pPr>`` into a value-only :class:`ldm.ParagraphFormat`.",
         "line": 272,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
     "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatBuilder"
   },
@@ -4566,6 +4826,8 @@
         "doc": "",
         "line": 416,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4584,6 +4846,8 @@
         "doc": "Compose a Font, walking docDefaults, table style, *style_id* chain, then *rPr*.",
         "line": 426,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4602,12 +4866,16 @@
         "doc": "Merge *override* into *base* using Pydantic ``model_fields_set``.",
         "line": 466,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
     "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontResolver"
   },
@@ -4639,6 +4907,8 @@
         "doc": "",
         "line": 481,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4657,6 +4927,8 @@
         "doc": "Compose a ParagraphFormat through docDefaults → style chain → *pPr*.",
         "line": 491,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       },
       {
@@ -4675,12 +4947,16 @@
         "doc": "Merge *override* into *base* with tab-stop clear-position semantics.",
         "line": 528,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/cascading.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
     "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatResolver"
   },
@@ -4720,6 +4996,8 @@
         "doc": "",
         "line": 73,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/definitions.py"
       },
       {
@@ -4729,12 +5007,16 @@
         "doc": "Return one :class:`ldm.Style` per ``<w:style>`` in ``styles.xml``.",
         "line": 87,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/definitions.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.definitions",
     "class_import": "words_foss.docx_reader.ldm_builder.definitions.StyleBuilder"
   },
@@ -4762,6 +5044,8 @@
         "doc": "",
         "line": 273,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/definitions.py"
       },
       {
@@ -4771,12 +5055,16 @@
         "doc": "Return one :class:`ldm.DocList` per ``<w:num>`` in ``numbering.xml``.",
         "line": 277,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/definitions.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.definitions",
     "class_import": "words_foss.docx_reader.ldm_builder.definitions.ListBuilder"
   },
@@ -4795,12 +5083,16 @@
         "doc": "Build a :class:`ldm.Document` from the loaded DOCX.",
         "line": 41,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/mixin.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.mixin",
     "class_import": "words_foss.docx_reader.ldm_builder.mixin.LdmBuilderMixin",
     "exported_via_package_init": true,
@@ -4826,6 +5118,8 @@
         "doc": "",
         "line": 65,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/paragraphs.py"
       },
       {
@@ -4844,12 +5138,16 @@
         "doc": "Translate one ``<w:r>`` into a Run; *para_style_id* feeds the font cascade.",
         "line": 68,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/paragraphs.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.paragraphs",
     "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.RunBuilder"
   },
@@ -4889,6 +5187,8 @@
         "doc": "",
         "line": 124,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/paragraphs.py"
       },
       {
@@ -4907,6 +5207,8 @@
         "doc": "Translate one ``<w:p>`` into a Paragraph.",
         "line": 138,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/paragraphs.py"
       },
       {
@@ -4921,12 +5223,16 @@
         "doc": "True when *para* closes Word's first body page (form-feed",
         "line": 361,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/paragraphs.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.paragraphs",
     "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.ParagraphBuilder"
   },
@@ -4950,12 +5256,16 @@
         "doc": "Translate one ``<w:sectPr>`` into :class:`ldm.PageSetup`.",
         "line": 74,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/sections.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.sections",
     "class_import": "words_foss.docx_reader.ldm_builder.sections.PageSetupBuilder"
   },
@@ -4991,6 +5301,8 @@
         "doc": "",
         "line": 166,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/sections.py"
       },
       {
@@ -5000,12 +5312,16 @@
         "doc": "Walk the body and split into Sections at every ``<w:sectPr>``.",
         "line": 178,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/sections.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.sections",
     "class_import": "words_foss.docx_reader.ldm_builder.sections.SectionBuilder"
   },
@@ -5055,6 +5371,8 @@
         "doc": "",
         "line": 63,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       },
       {
@@ -5069,12 +5387,16 @@
         "doc": "Translate one ``<w:tbl>`` into :class:`ldm.Table` (rows + cells inclusive).",
         "line": 72,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
     "class_import": "words_foss.docx_reader.ldm_builder.tables.TableBuilder"
   },
@@ -5106,6 +5428,8 @@
         "doc": "",
         "line": 171,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       },
       {
@@ -5124,12 +5448,16 @@
         "doc": "Translate one ``<w:tr>``; *default_paddings* fall through to each cell.",
         "line": 179,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
     "class_import": "words_foss.docx_reader.ldm_builder.tables.RowBuilder"
   },
@@ -5161,6 +5489,8 @@
         "doc": "",
         "line": 225,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       },
       {
@@ -5179,12 +5509,16 @@
         "doc": "Translate one ``<w:tc>``; *default_paddings* inherit from the parent table.",
         "line": 235,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
     "class_import": "words_foss.docx_reader.ldm_builder.tables.CellBuilder"
   },
@@ -5199,6 +5533,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.shapes",
     "class_import": "words_foss.docx_reader.shapes.ShapeParserMixin"
   },
@@ -5304,6 +5640,8 @@
         "doc": "",
         "line": 24,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/bookmarks.py"
       },
       {
@@ -5313,6 +5651,8 @@
         "doc": "",
         "line": 28,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/bookmarks.py"
       },
       {
@@ -5327,6 +5667,8 @@
         "doc": "",
         "line": 33,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/bookmarks.py"
       },
       {
@@ -5341,6 +5683,8 @@
         "doc": "Return the id paired with ``name``'s open marker, or None\r\n        when no start is currently open under that name.",
         "line": 38,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/bookmarks.py"
       },
       {
@@ -5350,12 +5694,16 @@
         "doc": "Return the currently-open ``(name, id)`` pairs and clear them.",
         "line": 43,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/bookmarks.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.bookmarks",
     "class_import": "words_foss.docx_writer.bookmarks.BookmarkState"
   },
@@ -5538,6 +5886,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.drawing",
     "class_import": "words_foss.docx_writer.drawing.ImageEntry"
   },
@@ -5585,6 +5935,8 @@
         "doc": "Emit ``<w:r><w:drawing>…</w:drawing></w:r>`` for ``shape``.",
         "line": 176,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/drawing.py"
       },
       {
@@ -5599,6 +5951,8 @@
         "doc": "Update the cached section margins.",
         "line": 241,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/docx_writer/drawing.py"
       }
     ],
@@ -5669,6 +6023,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.drawing",
     "class_import": "words_foss.docx_writer.drawing.ImageRenderState"
   },
@@ -6579,6 +6935,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "ANY",
@@ -6665,6 +7023,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6674,6 +7034,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6683,6 +7045,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6692,6 +7056,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6701,6 +7067,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6710,6 +7078,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6719,6 +7089,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6728,12 +7100,16 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.NodeCastMixin"
   },
@@ -6805,6 +7181,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Border"
   },
@@ -6840,6 +7218,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Shading"
   },
@@ -6860,6 +7240,8 @@
         "doc": "Serialise back to the 12-char OOXML ``w:val`` string.",
         "line": 178,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -6874,6 +7256,8 @@
         "doc": "Parse the 12-char ``w:val`` attribute.",
         "line": 190,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -6989,6 +7373,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ConditionalStyleMask"
   },
@@ -7042,6 +7428,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TabStop"
   },
@@ -7062,6 +7450,8 @@
         "doc": "",
         "line": 235,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -7084,6 +7474,8 @@
         "doc": "",
         "line": 238,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -7098,6 +7490,8 @@
         "doc": "",
         "line": 242,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -7112,6 +7506,8 @@
         "doc": "",
         "line": 245,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -7126,6 +7522,8 @@
         "doc": "",
         "line": 252,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -7142,6 +7540,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TabStopCollection"
   },
@@ -7447,6 +7847,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Font"
   },
@@ -7779,6 +8181,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ParagraphFormat"
   },
@@ -7921,6 +8325,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.FrameFormat"
   },
@@ -7965,6 +8371,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ListFormat"
   },
@@ -8009,6 +8417,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ListLabel"
   },
@@ -8034,6 +8444,8 @@
         "doc": "Map a MIME content-type string to an ``ImageType`` constant.",
         "line": 476,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -8112,6 +8524,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ImageData"
   },
@@ -8133,6 +8547,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8142,6 +8558,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8151,6 +8569,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8160,6 +8580,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8169,6 +8591,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8178,6 +8602,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8187,6 +8613,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8196,6 +8624,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -8230,6 +8660,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Run"
   },
@@ -8251,6 +8683,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8260,6 +8694,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8269,6 +8705,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8278,6 +8716,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8287,6 +8727,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8296,6 +8738,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8305,6 +8749,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8314,6 +8760,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -8537,6 +8985,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Shape"
   },
@@ -8572,6 +9022,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.FieldStart"
   },
@@ -8607,6 +9059,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.FieldSeparator"
   },
@@ -8651,6 +9105,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.FieldEnd"
   },
@@ -8686,6 +9142,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.BookmarkStart"
   },
@@ -8721,6 +9179,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.BookmarkEnd"
   },
@@ -8742,6 +9202,8 @@
         "doc": "Text plus the paragraph mark, as ``aspose.words`` returns it.",
         "line": 694,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8760,6 +9222,8 @@
         "doc": "Child nodes, optionally filtered by :class:`NodeType`.",
         "line": 698,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8769,6 +9233,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8778,6 +9244,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8787,6 +9255,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8796,6 +9266,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8805,6 +9277,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8814,6 +9288,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8823,6 +9299,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8832,6 +9310,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -8907,6 +9387,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Paragraph"
   },
@@ -8927,6 +9409,8 @@
         "doc": "",
         "line": 749,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8941,6 +9425,8 @@
         "doc": "",
         "line": 753,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -8955,6 +9441,8 @@
         "doc": "",
         "line": 757,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -8989,6 +9477,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.PreferredWidth"
   },
@@ -9132,6 +9622,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.CellFormat"
   },
@@ -9153,6 +9645,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9162,6 +9656,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9171,6 +9667,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9180,6 +9678,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9189,6 +9689,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9198,6 +9700,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9207,6 +9711,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9216,6 +9722,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -9259,6 +9767,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Cell"
   },
@@ -9330,6 +9840,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.RowFormat"
   },
@@ -9351,6 +9863,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9360,6 +9874,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9369,6 +9885,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9378,6 +9896,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9387,6 +9907,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9396,6 +9918,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9405,6 +9929,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9414,6 +9940,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -9457,6 +9985,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Row"
   },
@@ -9478,6 +10008,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9487,6 +10019,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9496,6 +10030,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9505,6 +10041,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9514,6 +10052,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9523,6 +10063,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9532,6 +10074,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -9541,6 +10085,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -9683,6 +10229,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Table"
   },
@@ -9709,6 +10257,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.UnknownNode"
   },
@@ -9744,6 +10294,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TextColumn"
   },
@@ -9806,6 +10358,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TextColumns"
   },
@@ -9985,6 +10539,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.PageSetup"
   },
@@ -10047,6 +10603,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.HeaderFooter"
   },
@@ -10077,6 +10635,8 @@
         "doc": "Child nodes, optionally filtered by :class:`NodeType`.",
         "line": 972,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10086,6 +10646,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10095,6 +10657,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10104,6 +10668,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10113,6 +10679,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10122,6 +10690,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10131,6 +10701,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10140,6 +10712,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10149,6 +10723,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -10190,6 +10766,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Body"
   },
@@ -10211,6 +10789,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10220,6 +10800,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10229,6 +10811,8 @@
         "doc": "",
         "line": 104,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10238,6 +10822,8 @@
         "doc": "",
         "line": 107,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10247,6 +10833,8 @@
         "doc": "",
         "line": 110,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10256,6 +10844,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10265,6 +10855,8 @@
         "doc": "",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10274,6 +10866,8 @@
         "doc": "",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -10317,6 +10911,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Section"
   },
@@ -10379,6 +10975,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TableStyleFormat"
   },
@@ -10441,6 +11039,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.TableStyleProperty"
   },
@@ -10593,6 +11193,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Style"
   },
@@ -10691,6 +11293,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ListLevel"
   },
@@ -10735,6 +11339,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.ListLevelOverride"
   },
@@ -10788,6 +11394,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.DocList"
   },
@@ -10817,6 +11425,8 @@
         "doc": "Child nodes, optionally filtered by :class:`NodeType`.",
         "line": 1117,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10831,6 +11441,8 @@
         "doc": "Look up a list definition by ID.",
         "line": 1217,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10849,6 +11461,8 @@
         "doc": "Resolve the effective ``ListLevel`` for a list-id + level pair,\r\n        applying any ``<w:lvlOverride>`` formatting from the concrete\r\n        ``<w:num>`` element.",
         "line": 1224,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10863,6 +11477,8 @@
         "doc": "Look up a style by its exact name.",
         "line": 1243,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       },
       {
@@ -10877,6 +11493,8 @@
         "doc": "All heading paragraphs up to a given outline level.",
         "line": 1250,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/light_document_model.py"
       }
     ],
@@ -11004,6 +11622,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Document",
     "exported_via_package_init": true,
@@ -11086,6 +11706,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "DOCUMENT",
@@ -11122,6 +11744,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "DOCUMENT",
@@ -11234,6 +11858,52 @@
     "public_import_module": "words_foss.md_import"
   },
   {
+    "name": "ListMarker",
+    "kind": "class_definition",
+    "doc": "Bullet/ordered list marker, mirroring Aspose.Words' ``ListMarker``.",
+    "file": "aspose/words_foss/md_import/blocks.py",
+    "line": 64,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "NONE",
+        "value": "auto()"
+      },
+      {
+        "name": "DASH",
+        "value": "auto()"
+      },
+      {
+        "name": "STAR",
+        "value": "auto()"
+      },
+      {
+        "name": "PLUS",
+        "value": "auto()"
+      },
+      {
+        "name": "DOT",
+        "value": "auto()"
+      },
+      {
+        "name": "PARENTHESIS",
+        "value": "auto()"
+      }
+    ],
+    "canonical_namespace": "words_foss.md_import.blocks",
+    "class_import": "words_foss.md_import.blocks.ListMarker",
+    "exported_via_package_init": true,
+    "public_import_module": "words_foss.md_import"
+  },
+  {
     "name": "Block",
     "kind": "class_definition",
     "doc": "Base class for every node in the Markdown block tree.",
@@ -11253,6 +11923,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11267,6 +11939,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11276,6 +11950,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -11352,6 +12028,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.Block",
     "exported_via_package_init": true,
@@ -11374,6 +12052,8 @@
         "doc": "",
         "line": 131,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11388,6 +12068,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11402,6 +12084,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11411,6 +12095,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -11487,6 +12173,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.DocumentBlock",
     "exported_via_package_init": true,
@@ -11514,6 +12202,8 @@
         "doc": "",
         "line": 140,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11528,6 +12218,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11542,6 +12234,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11551,6 +12245,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -11635,6 +12331,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.TextBlock",
     "exported_via_package_init": true,
@@ -11662,6 +12360,8 @@
         "doc": "",
         "line": 148,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11676,6 +12376,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11690,6 +12392,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11699,6 +12403,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -11783,6 +12489,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.LineBreakBlock",
     "exported_via_package_init": true,
@@ -11805,6 +12513,8 @@
         "doc": "",
         "line": 156,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11819,6 +12529,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11833,6 +12545,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11842,6 +12556,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -11918,6 +12634,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ParagraphBlock",
     "exported_via_package_init": true,
@@ -11949,6 +12667,8 @@
         "doc": "",
         "line": 163,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11963,6 +12683,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11977,6 +12699,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -11986,6 +12710,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12070,6 +12796,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HeadingBlock",
     "exported_via_package_init": true,
@@ -12097,6 +12825,8 @@
         "doc": "",
         "line": 169,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12115,6 +12845,8 @@
         "doc": "",
         "line": 163,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12129,6 +12861,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12143,6 +12877,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12152,6 +12888,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12236,6 +12974,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.AtxHeadingBlock",
     "exported_via_package_init": true,
@@ -12263,6 +13003,8 @@
         "doc": "",
         "line": 174,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12281,6 +13023,8 @@
         "doc": "",
         "line": 163,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12295,6 +13039,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12309,6 +13055,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12318,6 +13066,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12402,6 +13152,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.SetextHeadingBlock",
     "exported_via_package_init": true,
@@ -12424,6 +13176,8 @@
         "doc": "",
         "line": 181,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12438,6 +13192,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12452,6 +13208,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12461,6 +13219,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12537,6 +13297,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.QuoteBlock",
     "exported_via_package_init": true,
@@ -12564,6 +13326,8 @@
         "doc": "",
         "line": 188,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12578,6 +13342,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12592,6 +13358,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12601,6 +13369,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12685,6 +13455,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.IndentedCodeBlock",
     "exported_via_package_init": true,
@@ -12720,6 +13492,8 @@
         "doc": "",
         "line": 196,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12734,6 +13508,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12748,6 +13524,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12757,6 +13535,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12857,6 +13637,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FencedCodeBlock",
     "exported_via_package_init": true,
@@ -12879,6 +13661,8 @@
         "doc": "",
         "line": 206,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12893,6 +13677,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12907,6 +13693,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -12916,6 +13704,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -12992,6 +13782,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HorizontalRuleBlock",
     "exported_via_package_init": true,
@@ -13023,6 +13815,8 @@
         "doc": "",
         "line": 215,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13037,6 +13831,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13051,6 +13847,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13060,6 +13858,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -13152,6 +13952,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ListBlock",
     "exported_via_package_init": true,
@@ -13187,6 +13989,8 @@
         "doc": "",
         "line": 224,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13196,6 +14000,8 @@
         "doc": "0-based nesting depth: how many ancestor list items enclose this one.",
         "line": 230,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13205,6 +14011,8 @@
         "doc": "Returns the list container.",
         "line": 240,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py",
         "doc_source": "name_inference"
       },
@@ -13220,6 +14028,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13234,6 +14044,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13243,6 +14055,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -13343,6 +14157,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ListItemBlock",
     "exported_via_package_init": true,
@@ -13370,6 +14186,8 @@
         "doc": "",
         "line": 246,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13392,6 +14210,8 @@
         "doc": "",
         "line": 224,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13401,6 +14221,8 @@
         "doc": "0-based nesting depth: how many ancestor list items enclose this one.",
         "line": 230,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13410,6 +14232,8 @@
         "doc": "Returns the list container.",
         "line": 240,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py",
         "doc_source": "name_inference"
       },
@@ -13425,6 +14249,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13439,6 +14265,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13448,6 +14276,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -13548,6 +14378,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.BulletListItemBlock",
     "exported_via_package_init": true,
@@ -13579,6 +14411,8 @@
         "doc": "",
         "line": 251,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13601,6 +14435,8 @@
         "doc": "",
         "line": 224,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13610,6 +14446,8 @@
         "doc": "0-based nesting depth: how many ancestor list items enclose this one.",
         "line": 230,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13619,6 +14457,8 @@
         "doc": "Returns the list container.",
         "line": 240,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py",
         "doc_source": "name_inference"
       },
@@ -13634,6 +14474,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13648,6 +14490,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13657,6 +14501,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -13757,6 +14603,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.OrderedListItemBlock",
     "exported_via_package_init": true,
@@ -13784,6 +14632,8 @@
         "doc": "",
         "line": 258,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13798,6 +14648,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13812,6 +14664,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13821,6 +14675,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -13914,6 +14770,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.TableBlock",
     "exported_via_package_init": true,
@@ -13941,6 +14799,8 @@
         "doc": "",
         "line": 270,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13955,6 +14815,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13969,6 +14831,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -13978,6 +14842,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14071,6 +14937,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.RowBlock",
     "exported_via_package_init": true,
@@ -14098,6 +14966,8 @@
         "doc": "",
         "line": 282,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14112,6 +14982,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14126,6 +14998,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14135,6 +15009,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14219,6 +15095,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.CellBlock",
     "exported_via_package_init": true,
@@ -14262,6 +15140,8 @@
         "doc": "",
         "line": 317,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14276,6 +15156,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14290,6 +15172,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14299,6 +15183,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14460,6 +15346,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HtmlTagBlock",
     "exported_via_package_init": true,
@@ -14503,6 +15391,8 @@
         "doc": "",
         "line": 358,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14517,6 +15407,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14531,6 +15423,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14540,6 +15434,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14665,6 +15561,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.LinkTextBlock",
     "exported_via_package_init": true,
@@ -14696,6 +15594,8 @@
         "doc": "",
         "line": 381,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14710,6 +15610,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14724,6 +15626,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14733,6 +15637,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14825,6 +15731,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.AutolinkBlock",
     "exported_via_package_init": true,
@@ -14847,6 +15755,8 @@
         "doc": "",
         "line": 390,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14861,6 +15771,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14875,6 +15787,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14884,6 +15798,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -14960,6 +15876,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.BoldInlineBlock",
     "exported_via_package_init": true,
@@ -14982,6 +15900,8 @@
         "doc": "",
         "line": 397,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -14996,6 +15916,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15010,6 +15932,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15019,6 +15943,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15095,6 +16021,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ItalicInlineBlock",
     "exported_via_package_init": true,
@@ -15117,6 +16045,8 @@
         "doc": "",
         "line": 404,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15131,6 +16061,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15145,6 +16077,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15154,6 +16088,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15230,6 +16166,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.StrikethroughBlock",
     "exported_via_package_init": true,
@@ -15252,6 +16190,8 @@
         "doc": "",
         "line": 411,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15266,6 +16206,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15280,6 +16222,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15289,6 +16233,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15365,6 +16311,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.UnderlineBlock",
     "exported_via_package_init": true,
@@ -15396,6 +16344,8 @@
         "doc": "",
         "line": 418,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15410,6 +16360,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15424,6 +16376,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15433,6 +16387,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15525,6 +16481,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.InlineCodeBlock",
     "exported_via_package_init": true,
@@ -15552,6 +16510,8 @@
         "doc": "",
         "line": 427,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15566,6 +16526,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15580,6 +16542,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15589,6 +16553,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15673,6 +16639,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FootnoteReferenceBlock",
     "exported_via_package_init": true,
@@ -15700,6 +16668,8 @@
         "doc": "",
         "line": 435,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15714,6 +16684,8 @@
         "doc": "",
         "line": 80,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15728,6 +16700,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       },
       {
@@ -15737,6 +16711,8 @@
         "doc": "Walk up the ancestor chain and return the first block whose\r\n        ``type`` is one of *types*, or ``None`` if none matches.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/blocks.py"
       }
     ],
@@ -15821,6 +16797,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FootnoteDefinitionBlock",
     "exported_via_package_init": true,
@@ -15837,6 +16815,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -15867,6 +16847,8 @@
         "doc": "",
         "line": 231,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15881,6 +16863,8 @@
         "doc": "",
         "line": 261,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15890,6 +16874,8 @@
         "doc": "",
         "line": 264,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15899,6 +16885,8 @@
         "doc": "Append a fresh paragraph to the current container without\r\n        moving the cursor there (used by footnote-body management).",
         "line": 267,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15913,6 +16901,8 @@
         "doc": "",
         "line": 277,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15927,6 +16917,8 @@
         "doc": "",
         "line": 292,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15936,6 +16928,8 @@
         "doc": "Insert a paragraph break: finish the current paragraph and move\r\n        the cursor to a fresh one in the same container.",
         "line": 305,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15962,6 +16956,8 @@
         "doc": "Insert an inline image Shape (Aspose.Words' ``DocumentBuilder.InsertImage``).",
         "line": 310,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15971,6 +16967,8 @@
         "doc": "",
         "line": 354,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15980,6 +16978,8 @@
         "doc": "",
         "line": 357,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15989,6 +16989,8 @@
         "doc": "",
         "line": 361,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -15998,6 +17000,8 @@
         "doc": "",
         "line": 366,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16007,6 +17011,8 @@
         "doc": "",
         "line": 369,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16016,6 +17022,8 @@
         "doc": "",
         "line": 376,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16025,6 +17033,8 @@
         "doc": "",
         "line": 396,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16034,6 +17044,8 @@
         "doc": "",
         "line": 405,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16052,6 +17064,8 @@
         "doc": "",
         "line": 419,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16061,6 +17075,8 @@
         "doc": "``DocumentBuilder.InsertHorizontalRule``.",
         "line": 422,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16070,6 +17086,8 @@
         "doc": "",
         "line": 439,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16079,6 +17097,8 @@
         "doc": "Start a footnote body; returns the paragraph the reference to\r\n        it should resume at once the footnote is closed.",
         "line": 464,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16088,6 +17108,8 @@
         "doc": "",
         "line": 474,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16102,6 +17124,8 @@
         "doc": "Return the cursor to *paragraph* after finishing a footnote body.",
         "line": 477,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16116,6 +17140,8 @@
         "doc": "Append every footnote body collected so far to the end of the\r\n        document body, tagging each paragraph with *style_name*.",
         "line": 482,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       },
       {
@@ -16134,6 +17160,8 @@
         "doc": "",
         "line": 503,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/md_import/document_builder.py"
       }
     ],
@@ -16197,6 +17225,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_import.document_builder",
     "class_import": "words_foss.md_import.document_builder.MarkdownDocumentBuilder",
     "exported_via_package_init": true,
@@ -16390,6 +17420,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -16514,6 +17546,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -16602,6 +17636,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NO_IMAGE",
@@ -16670,6 +17706,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AT_LEAST",
@@ -16698,6 +17736,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "CONTINUOUS",
@@ -16734,6 +17774,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "PORTRAIT",
@@ -16758,6 +17800,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "LEFT",
@@ -16814,6 +17858,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AT_LEAST",
@@ -16842,6 +17888,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "BOOK_TITLE",
@@ -18378,6 +19426,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "LEFT",
@@ -18422,6 +19472,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -18462,6 +19514,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "PARAGRAPH",
@@ -18494,6 +19548,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "ARABIC",
@@ -18758,6 +19814,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -18786,6 +19844,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -18814,6 +19874,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "TOP",
@@ -18864,6 +19926,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "INLINE",
@@ -18906,6 +19970,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "ATX",
@@ -18932,6 +19998,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "FENCED",
@@ -19128,6 +20196,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
     "class_import": "words_foss.models.ConversionOptions"
   },
@@ -19206,6 +20276,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
     "class_import": "words_foss.models.RunFormatting"
   },
@@ -19320,6 +20392,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
     "class_import": "words_foss.models.ParagraphInfo"
   },
@@ -19380,6 +20454,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
     "class_import": "words_foss.models.TableCell"
   },
@@ -19413,6 +20489,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
     "class_import": "words_foss.models.TableRow"
   },
@@ -19473,6 +20551,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.numbering_parser",
     "class_import": "words_foss.parsers.numbering_parser.ListLevelInfo"
   },
@@ -19515,6 +20595,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.numbering_parser",
     "class_import": "words_foss.parsers.numbering_parser.ListInfo"
   },
@@ -19533,6 +20615,8 @@
         "doc": "",
         "line": 33,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19547,6 +20631,8 @@
         "doc": "Parse the numbering.xml content.",
         "line": 37,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19561,6 +20647,8 @@
         "doc": "Get information about a specific list.",
         "line": 114,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19579,6 +20667,8 @@
         "doc": "Get information about a specific list level.",
         "line": 118,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19597,6 +20687,8 @@
         "doc": "Check if a list level is ordered (numbered).",
         "line": 125,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19615,6 +20707,8 @@
         "doc": "Get the starting value for a list level.",
         "line": 139,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       },
       {
@@ -19633,12 +20727,16 @@
         "doc": "Get the delimiter for a list level.",
         "line": 144,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/numbering_parser.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.numbering_parser",
     "class_import": "words_foss.parsers.numbering_parser.NumberingParser",
     "exported_via_package_init": true,
@@ -19737,6 +20835,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.style_parser",
     "class_import": "words_foss.parsers.style_parser.ParsedStyle"
   },
@@ -19764,6 +20864,8 @@
         "doc": "Parse a style name into structured information.",
         "line": 35,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/style_parser.py"
       },
       {
@@ -19778,6 +20880,8 @@
         "doc": "Parse a chain of style names (for inherited styles).",
         "line": 108,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/style_parser.py"
       },
       {
@@ -19792,6 +20896,8 @@
         "doc": "Check if style is a Setext-style heading.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/style_parser.py"
       },
       {
@@ -19806,12 +20912,16 @@
         "doc": "Extract individual style names from a comma-separated chain.",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/parsers/style_parser.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "HEADING_PATTERN",
@@ -19858,6 +20968,8 @@
     ],
     "visibility": "conventional",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer._context",
     "class_import": "words_foss.pdf_writer._context.PDFWriterContext"
   },
@@ -20081,6 +21193,8 @@
         "doc": "",
         "line": 121,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/paragraph_renderer.py"
       },
       {
@@ -20099,6 +21213,8 @@
         "doc": "Return the line height in mm for a run of *size_pt* inside *pf*.",
         "line": 130,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/paragraph_renderer.py"
       },
       {
@@ -20117,12 +21233,16 @@
         "doc": "Render a single paragraph into the PDF.",
         "line": 155,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/paragraph_renderer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.paragraph_renderer",
     "class_import": "words_foss.pdf_writer.paragraph_renderer.ParagraphRenderer"
   },
@@ -20146,6 +21266,8 @@
         "doc": "",
         "line": 37,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/run_renderer.py"
       },
       {
@@ -20192,6 +21314,8 @@
         "doc": "Render runs with inline formatting: bold, italic, underline, colors, sizes.",
         "line": 44,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/run_renderer.py"
       },
       {
@@ -20226,12 +21350,16 @@
         "doc": "Render runs with per-run formatting inside an aligned line.",
         "line": 204,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/run_renderer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.run_renderer",
     "class_import": "words_foss.pdf_writer.run_renderer.RunRenderer"
   },
@@ -20255,6 +21383,8 @@
         "doc": "",
         "line": 38,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20269,6 +21399,8 @@
         "doc": "Apply image_compression and jpeg_quality options to raw image bytes.",
         "line": 41,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20287,6 +21419,8 @@
         "doc": "Render a Shape: image first (if any), then text-box paragraphs.",
         "line": 69,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20305,6 +21439,8 @@
         "doc": "Draw the rule the shape stands for across the content width.",
         "line": 81,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20323,6 +21459,8 @@
         "doc": "Embed an image from a Shape into the PDF, scaling to fit page width.",
         "line": 90,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20341,6 +21479,8 @@
         "doc": "Draw ``wrapNone`` images at their anchor coordinates.",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20359,6 +21499,8 @@
         "doc": "Draw anchored (non-inline) shapes that wrap text around them.",
         "line": 140,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20377,6 +21519,8 @@
         "doc": "Draw every absolutely-positioned shape on the current (first) page.",
         "line": 174,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20399,6 +21543,8 @@
         "doc": "Draw positioned shapes carried by *paragraphs* without moving cursor.",
         "line": 186,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20425,6 +21571,8 @@
         "doc": "Draw a positioned shape at its absolute page coordinates.",
         "line": 212,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       },
       {
@@ -20439,12 +21587,16 @@
         "doc": "Approximate the laid-out height of a list of paragraphs in mm.",
         "line": 339,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/shape_renderer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.shape_renderer",
     "class_import": "words_foss.pdf_writer.shape_renderer.ShapeRenderer"
   },
@@ -20468,6 +21620,8 @@
         "doc": "",
         "line": 53,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/table_renderer.py"
       },
       {
@@ -20486,6 +21640,8 @@
         "doc": "Render a complete table.",
         "line": 56,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/table_renderer.py"
       },
       {
@@ -20516,12 +21672,16 @@
         "doc": "",
         "line": 545,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/pdf_writer/table_renderer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.table_renderer",
     "class_import": "words_foss.pdf_writer.table_renderer.TableRenderer"
   },
@@ -20704,6 +21864,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -20738,6 +21900,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "MARKDOWN_SYNTAX",
@@ -20764,6 +21928,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -20794,6 +21960,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -20824,6 +21992,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "EMPTY_LINE",
@@ -20854,6 +22024,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "PDF17",
@@ -20924,6 +22096,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -20950,6 +22124,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AUTO",
@@ -20976,6 +22152,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "USE_NONE",
@@ -21018,6 +22196,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NONE",
@@ -21060,6 +22240,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "EMBED_ALL",
@@ -21090,6 +22272,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NORMAL",
@@ -21118,6 +22302,8 @@
         "doc": "",
         "line": 173,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/saving.py"
       }
     ],
@@ -21173,6 +22359,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
     "class_import": "words_foss.saving.OutlineOptions"
   },
@@ -21191,6 +22379,8 @@
         "doc": "",
         "line": 209,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/saving.py"
       }
     ],
@@ -21334,6 +22524,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
     "class_import": "words_foss.saving.PdfSaveOptions"
   },
@@ -21350,6 +22542,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "ECMA376_2006",
@@ -21380,6 +22574,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NORMAL",
@@ -21414,6 +22610,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "NEVER",
@@ -21451,6 +22649,8 @@
         "doc": "",
         "line": 338,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/saving.py"
       }
     ],
@@ -21498,6 +22698,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
     "class_import": "words_foss.saving.OoxmlSaveOptions"
   },
@@ -21516,6 +22718,8 @@
         "doc": "",
         "line": 373,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "aspose/words_foss/saving.py"
       }
     ],
@@ -21627,6 +22831,8 @@
     ],
     "visibility": "public",
     "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
     "class_import": "words_foss.saving.MarkdownSaveOptions"
   },

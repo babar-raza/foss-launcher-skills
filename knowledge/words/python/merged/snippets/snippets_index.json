@@ -493,7 +493,7 @@
     "file": "snippet_028.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 41,
+    "source_line": 134,
     "classes_used": [
       "Document",
       "SaveFormat"
@@ -513,7 +513,7 @@
     "file": "snippet_029.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 50,
+    "source_line": 143,
     "classes_used": [
       "Document",
       "SaveFormat"
@@ -532,16 +532,18 @@
     "file": "snippet_030.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 59,
+    "source_line": 161,
     "classes_used": [
       "Document",
-      "SaveFormat"
+      "MarkdownSaveOptions",
+      "PdfSaveOptions"
     ],
     "methods_used": [],
     "formats_referenced": [
       "doc",
       "docx",
-      "rtf",
+      "markdown",
+      "pdf",
       "words"
     ],
     "provenance": "scout"
@@ -551,7 +553,7 @@
     "file": "snippet_031.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 68,
+    "source_line": 190,
     "classes_used": [
       "Document"
     ],
@@ -569,7 +571,27 @@
     "file": "snippet_032.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 77,
+    "source_line": 200,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 213,
     "classes_used": [
       "Document",
       "LoadFormat",
@@ -586,25 +608,128 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_033",
-    "file": "snippet_033.py",
+    "id": "snippet_034",
+    "file": "snippet_034.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 92,
+    "source_line": 228,
     "classes_used": [
-      "CompressionLevel",
       "Document",
-      "MarkdownSaveOptions",
-      "OoxmlSaveOptions",
-      "PdfSaveOptions"
+      "MarkdownSaveOptions"
     ],
     "methods_used": [],
     "formats_referenced": [
       "doc",
       "docx",
       "markdown",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 239,
+    "classes_used": [
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
       "ooxml",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 250,
+    "classes_used": [
+      "CompressionLevel",
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 264,
+    "classes_used": [
+      "Document",
+      "SaveFormat",
+      "Shape",
+      "ShapeRenderer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "text",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 287,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "Paragraph"
+    ],
+    "methods_used": [
+      "Paragraph.get_text"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
       "paragraph",
+      "text",
+      "words"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 307,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "SaveFormat",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
       "pdf",
       "words"
     ],

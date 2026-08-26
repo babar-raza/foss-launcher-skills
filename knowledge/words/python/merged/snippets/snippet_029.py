@@ -1,4 +1,4 @@
 import aspose.words_foss as aw
 
-doc = aw.Document("input.docx")
-doc.save("output.pdf", aw.SaveFormat.PDF)
+doc = aw.Document("report.docx")
+doc.save("report.pdf", aw.SaveFormat.PDF)
