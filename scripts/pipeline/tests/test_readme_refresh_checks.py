@@ -1160,6 +1160,68 @@ def test_additional_example_headings_noop_when_no_examples_section():
     assert checks.check_additional_example_headings("# Product\n") == []
 
 
+# --- check_navigation_toc_matches_headings (readme-refresh-forensic-trust-audit-2026-08-25) ----
+
+
+def test_navigation_toc_matches_headings_noop_when_no_navigation_section():
+    text = "# Product\n\n## Installation\n\nInstall it.\n"
+    assert checks.check_navigation_toc_matches_headings(text) == []
+
+
+def test_navigation_toc_matches_headings_flags_missing_entry():
+    # The real, confirmed defect class: a real "## Dependencies" heading with no matching
+    # Navigation bullet (found live on note/python and 8 other products, 9/31).
+    text = (
+        "## Navigation\n\n- [Installation](#installation)\n\n"
+        "## Installation\n\nInstall it.\n\n"
+        "## Dependencies\n\n- `requests`\n"
+    )
+    findings = checks.check_navigation_toc_matches_headings(text)
+    assert findings == [{"heading": "Dependencies", "kind": "missing_from_navigation"}]
+
+
+def test_navigation_toc_matches_headings_flags_orphaned_entry():
+    # A Navigation bullet naming a heading that was renamed/removed and never cleaned up.
+    text = (
+        "## Navigation\n\n- [Installation](#installation)\n- [Old Section](#old-section)\n\n"
+        "## Installation\n\nInstall it.\n"
+    )
+    findings = checks.check_navigation_toc_matches_headings(text)
+    assert findings == [{"heading": "Old Section", "kind": "orphaned_navigation_entry"}]
+
+
+def test_navigation_toc_matches_headings_passes_when_fully_matched():
+    text = (
+        "## Navigation\n\n- [At a Glance](#at-a-glance)\n- [Installation](#installation)\n\n"
+        "## At a Glance\n\nOverview.\n\n"
+        "## Installation\n\nInstall it.\n"
+    )
+    assert checks.check_navigation_toc_matches_headings(text) == []
+
+
+def test_navigation_toc_matches_headings_ignores_h3_subheadings():
+    # Navigation only tracks real ## (H2) sections in this portfolio's convention -- an H3
+    # subsection is never expected to have its own Navigation entry.
+    text = (
+        "## Navigation\n\n- [Installation](#installation)\n\n"
+        "## Installation\n\n### Prerequisites\n\nInstall it.\n"
+    )
+    assert checks.check_navigation_toc_matches_headings(text) == []
+
+
+def test_navigation_toc_matches_headings_flags_both_missing_and_orphaned_together():
+    text = (
+        "## Navigation\n\n- [Old Section](#old-section)\n\n"
+        "## Installation\n\nInstall it.\n"
+    )
+    findings = checks.check_navigation_toc_matches_headings(text)
+    kinds = {(f["heading"], f["kind"]) for f in findings}
+    assert kinds == {
+        ("Installation", "missing_from_navigation"),
+        ("Old Section", "orphaned_navigation_entry"),
+    }
+
+
 # --- check_api_reference_detail_collapsed (2026-08-15, MT045, TC-HARDEN-67) -----------------------
 
 

@@ -584,8 +584,22 @@ def _load_candidate_last_verified(family: str, platform: str) -> "dict | None":
 def _write_candidate_verification_marker(
     family: str, platform: str, text: str, *, run_id: "str | None"
 ) -> None:
+    # readme-refresh-forensic-trust-audit-2026-08-25 (Cluster H, row 36): hash the real
+    # on-disk bytes, not `text` -- `Path.read_text()`'s universal-newline translation means
+    # `text.encode("utf-8")` silently normalizes CRLF to LF before hashing, so the recorded
+    # hash never matched the file's actual bytes on a CRLF-checked-out candidate.
+    new_hash = hashlib.sha256(_candidate_readme_path(family, platform).read_bytes()).hexdigest()
+    if run_id is None:
+        # Cluster H, row 35: an audit-only write (audit_portfolio) does not own a bound run,
+        # but must not clobber a prior bound run's provenance when the content it's
+        # confirming is unchanged -- only reset to None when the content actually changed
+        # (or no prior marker exists), since only then is it true that no bound run has
+        # verified this exact content.
+        existing = _load_candidate_last_verified(family, platform)
+        if existing is not None and existing.get("readme_sha256") == new_hash:
+            run_id = existing.get("verified_by_run_id")
     _write_json(_candidate_last_verified_path(family, platform), {
-        "readme_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "readme_sha256": new_hash,
         "verified_at": _utc(),
         "verified_by_run_id": run_id,
         # readme-refresh-seo-deps-headings-hardening mission (2026-08-19), TC-SDH-05: see
@@ -623,7 +637,7 @@ def _checks_currency_findings(family: str, platform: str) -> list[dict]:
     }]
 
 
-def _candidate_drift_findings(family: str, platform: str, text: str) -> list[dict]:
+def _candidate_drift_findings(family: str, platform: str) -> list[dict]:
     """TC-M56-09: advisory-only, portfolio-visibility signal -- NEVER a hard gate. A candidate
     legitimately differs from its own last-verified marker every time an agent edits it before
     the very next ingest-candidate call in the same, ordinary compose-then-verify workflow;
@@ -631,12 +645,17 @@ def _candidate_drift_findings(family: str, platform: str, text: str) -> list[dic
     of any active editing session: a nonzero finding there means the candidate moved since
     anyone last ran checks on it, regardless of who moved it or why -- exactly the fact that
     was invisible for 3 real products during the MT056 proof pass until an unrelated
-    portfolio-diff happened to expose a side effect of it."""
+    portfolio-diff happened to expose a side effect of it.
+
+    readme-refresh-forensic-trust-audit-2026-08-25 (Cluster H, row 36): compares real
+    on-disk bytes, matching `_write_candidate_verification_marker`'s own hash basis -- hashing
+    a `text` string previously produced a spurious mismatch on any CRLF-checked-out candidate.
+    """
     marker = _load_candidate_last_verified(family, platform)
     if marker is None:
         return []
     recorded_sha = marker.get("readme_sha256")
-    current_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    current_sha = hashlib.sha256(_candidate_readme_path(family, platform).read_bytes()).hexdigest()
     if recorded_sha == current_sha:
         return []
     return [{
@@ -2852,12 +2871,19 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_additional_example_headings(text),
     }
+    # readme-refresh-forensic-trust-audit-2026-08-25, Phase 4 row 22: every real ## heading
+    # must have a matching Navigation entry, and vice versa -- see
+    # check_navigation_toc_matches_headings' own docstring.
+    result["navigation_toc_matches_headings"] = {
+        "hard_gate": True,
+        "findings": checks.check_navigation_toc_matches_headings(text),
+    }
     # TC-M56-09 (2026-08-18): advisory drift-since-last-verified signal, computed here so it
     # fires identically from ingest_candidate, recheck, AND audit_portfolio -- the one shared
     # entry point all three already route through.
     result["candidate_drift_since_last_verified"] = {
         "hard_gate": False,
-        "findings": _candidate_drift_findings(family, platform, text),
+        "findings": _candidate_drift_findings(family, platform),
     }
     # Same mission: checks-module-currency staleness tripwire -- see
     # _checks_currency_findings' own docstring for why "clean" silently rots as checks are added.

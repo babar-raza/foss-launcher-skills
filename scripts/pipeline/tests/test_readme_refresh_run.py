@@ -4,6 +4,7 @@ one instance of each of the three real incident classes this plan's checks exist
 (a dropped real link, an undisclosed BLOCKING command, a hedging/process-narration sentence)
 so this test proves the gates actually fire, not just that the happy path completes.
 """
+import hashlib
 import json
 import os
 import subprocess
@@ -52,6 +53,15 @@ _GOOD_CANDIDATE = """# Test Product
 ## Navigation
 
 - [At a Glance](#at-a-glance)
+- [Key Capabilities](#key-capabilities)
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+- [Documentation & Resources](#documentation--resources)
+- [Scope and Limitations](#scope-and-limitations)
+- [Development and Testing](#development-and-testing)
+- [License](#license)
 
 ## At a Glance
 
@@ -2528,3 +2538,88 @@ def test_configure_candidate_tree_name_real_pipeline_against_alternate_tree_no_c
     rr.ingest_candidate("testfam", "testplat", run_id)  # must not raise -- no repo-presenter/ dir exists anywhere
     manifest = rr.status("testfam", "testplat", run_id)
     assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
+# --- _write_candidate_verification_marker / _candidate_drift_findings ---------------------------
+# readme-refresh-forensic-trust-audit-2026-08-25, Cluster H (rows 35/36): both traced to
+# _write_candidate_verification_marker hashing Path.read_text()'s universal-newline-translated
+# `text` instead of the file's real on-disk bytes (row 36), and audit_portfolio's run_id=None
+# write unconditionally clobbering a prior bound run's provenance even when content is
+# unchanged (row 35).
+
+
+def _write_marker_test_candidate(repo_root, family, platform, raw_bytes):
+    candidate_dir = repo_root / "reports" / rr._DEFAULT_CANDIDATE_TREE_NAME / family / platform
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    (candidate_dir / "readme.md").write_bytes(raw_bytes)
+
+
+def test_write_candidate_verification_marker_hashes_real_bytes_not_newline_translated_text(tmp_path):
+    repo_root = tmp_path / "repo"
+    raw_bytes = b"# Test\r\n\r\nCRLF-checked-out candidate.\r\n"
+    candidate_dir = repo_root / "reports" / rr._DEFAULT_CANDIDATE_TREE_NAME / "testfam" / "testplat"
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    candidate_path = candidate_dir / "readme.md"
+    candidate_path.write_bytes(raw_bytes)
+    rr.configure(repo_root=repo_root)
+
+    # Match every real call site exactly: `text = candidate_path.read_text(encoding="utf-8")`
+    # performs universal-newline translation (CRLF -> LF), unlike a plain bytes.decode().
+    translated_text = candidate_path.read_text(encoding="utf-8")
+    assert translated_text != raw_bytes.decode("utf-8"), "fixture must actually exercise CRLF translation"
+    rr._write_candidate_verification_marker("testfam", "testplat", translated_text, run_id="run-1")
+
+    marker = rr._load_candidate_last_verified("testfam", "testplat")
+    assert marker["readme_sha256"] == hashlib.sha256(raw_bytes).hexdigest()
+    assert marker["readme_sha256"] != hashlib.sha256(translated_text.encode("utf-8")).hexdigest()
+
+
+def test_candidate_drift_findings_no_false_positive_on_crlf_candidate(tmp_path):
+    repo_root = tmp_path / "repo"
+    raw_bytes = b"# Test\r\n\r\nCRLF-checked-out candidate.\r\n"
+    _write_marker_test_candidate(repo_root, "testfam", "testplat", raw_bytes)
+    rr.configure(repo_root=repo_root)
+
+    rr._write_candidate_verification_marker(
+        "testfam", "testplat", raw_bytes.decode("utf-8"), run_id="run-1"
+    )
+    # Content on disk has not changed since the marker was written -- must report no drift,
+    # regardless of CRLF/LF normalization anywhere in the comparison.
+    assert rr._candidate_drift_findings("testfam", "testplat") == []
+
+
+def test_audit_only_marker_write_preserves_prior_run_id_when_content_unchanged(tmp_path):
+    repo_root = tmp_path / "repo"
+    raw_bytes = b"# Test\n\nUnchanged content.\n"
+    _write_marker_test_candidate(repo_root, "testfam", "testplat", raw_bytes)
+    rr.configure(repo_root=repo_root)
+
+    text = raw_bytes.decode("utf-8")
+    rr._write_candidate_verification_marker("testfam", "testplat", text, run_id="ingest-run-1")
+    # An audit_portfolio-style call (run_id=None) re-confirming the SAME content must not
+    # erase the prior bound run's provenance.
+    rr._write_candidate_verification_marker("testfam", "testplat", text, run_id=None)
+
+    marker = rr._load_candidate_last_verified("testfam", "testplat")
+    assert marker["verified_by_run_id"] == "ingest-run-1"
+
+
+def test_audit_only_marker_write_resets_run_id_when_content_changed(tmp_path):
+    repo_root = tmp_path / "repo"
+    raw_bytes = b"# Test\n\nOriginal content.\n"
+    _write_marker_test_candidate(repo_root, "testfam", "testplat", raw_bytes)
+    rr.configure(repo_root=repo_root)
+
+    rr._write_candidate_verification_marker(
+        "testfam", "testplat", raw_bytes.decode("utf-8"), run_id="ingest-run-1"
+    )
+    # Content genuinely changed since that bound run verified it -- no bound run has seen
+    # this new content, so run_id must correctly reset to None, not inherit the stale value.
+    new_bytes = b"# Test\n\nChanged content.\n"
+    _write_marker_test_candidate(repo_root, "testfam", "testplat", new_bytes)
+    rr._write_candidate_verification_marker(
+        "testfam", "testplat", new_bytes.decode("utf-8"), run_id=None
+    )
+
+    marker = rr._load_candidate_last_verified("testfam", "testplat")
+    assert marker["verified_by_run_id"] is None

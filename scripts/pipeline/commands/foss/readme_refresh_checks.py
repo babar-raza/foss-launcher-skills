@@ -4142,6 +4142,52 @@ def check_heading_title_case(readme_text: str) -> list[dict]:
     return findings
 
 
+_NAV_LINK_RE = re.compile(r"^-\s+\[([^\]]+)\]\(#[^)]*\)\s*$", re.MULTILINE)
+_NAV_SECTION_RE = re.compile(r"^##\s+Navigation\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL)
+
+
+def check_navigation_toc_matches_headings(readme_text: str) -> list[dict]:
+    """Hard gate (readme-refresh-forensic-trust-audit-2026-08-25, Phase 4 row 22 -- confirmed
+    on 9/31 products, 29%, via a repo-wide grep run inside one product's own manual review;
+    "the cheapest fix-to-impact ratio in the entire matrix"). No prior check parsed the
+    Navigation section's own linked heading list and diffed it against the document's real
+    `##` headings -- `check_required_sections` only confirms required sections *exist*, never
+    that Navigation *links* to each of them.
+
+    "Navigation" is not itself a required section (`_REQUIRED_SECTIONS`), so a candidate with
+    no "## Navigation" section at all is not this check's concern -- returns `[]`. When a
+    Navigation section does exist, every OTHER real `##` heading must have a matching bullet
+    (`- [Heading Text](#anchor)`, matched on link text, not the anchor slug, since that's the
+    convention already used consistently across the real portfolio), and every Navigation
+    bullet must name a heading that actually exists -- catching both a missing entry (e.g. a
+    "## Dependencies" section added without updating Navigation) and a stale/invented one (a
+    renamed or removed heading whose old Navigation link was never cleaned up).
+
+    Returns a list of `{"heading", "kind": "missing_from_navigation" |
+    "orphaned_navigation_entry"}` findings.
+    """
+    nav_match = _NAV_SECTION_RE.search(readme_text)
+    if not nav_match:
+        return []
+    nav_entries = [m.group(1).strip() for m in _NAV_LINK_RE.finditer(nav_match.group(1))]
+    real_headings = [
+        m.group(1).strip()
+        for m in re.finditer(r"^##\s+(.+?)\s*$", readme_text, re.MULTILINE)
+        if m.group(1).strip() != "Navigation"
+    ]
+    nav_set = set(nav_entries)
+    heading_set = set(real_headings)
+
+    findings: list[dict] = []
+    for heading in real_headings:
+        if heading not in nav_set:
+            findings.append({"heading": heading, "kind": "missing_from_navigation"})
+    for entry in nav_entries:
+        if entry not in heading_set:
+            findings.append({"heading": entry, "kind": "orphaned_navigation_entry"})
+    return findings
+
+
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 
 

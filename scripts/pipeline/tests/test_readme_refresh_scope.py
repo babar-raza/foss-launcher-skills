@@ -638,7 +638,7 @@ def test_record_publication_appends_and_updates(tmp_path):
 def test_candidate_drift_first_ever_check_has_no_marker_and_no_finding(tmp_path):
     repo_root, candidate, manifest = _workflow_repo(tmp_path)
     assert rr._load_candidate_last_verified("testfam", "testplat") is None
-    findings = rr._candidate_drift_findings("testfam", "testplat", candidate.read_text(encoding="utf-8"))
+    findings = rr._candidate_drift_findings("testfam", "testplat")
     assert findings == []
 
 
@@ -646,7 +646,7 @@ def test_candidate_drift_silent_when_unchanged_since_last_verified(tmp_path):
     repo_root, candidate, manifest = _workflow_repo(tmp_path)
     text = candidate.read_text(encoding="utf-8")
     rr._write_candidate_verification_marker("testfam", "testplat", text, run_id="run-1")
-    assert rr._candidate_drift_findings("testfam", "testplat", text) == []
+    assert rr._candidate_drift_findings("testfam", "testplat") == []
 
 
 def test_candidate_drift_fires_on_change_since_last_verified_and_names_the_prior_verification(tmp_path):
@@ -655,7 +655,8 @@ def test_candidate_drift_fires_on_change_since_last_verified_and_names_the_prior
     rr._write_candidate_verification_marker("testfam", "testplat", original, run_id="run-1")
 
     edited = original.replace("MIT.", "Apache.")
-    findings = rr._candidate_drift_findings("testfam", "testplat", edited)
+    candidate.write_text(edited, encoding="utf-8")
+    findings = rr._candidate_drift_findings("testfam", "testplat")
     assert len(findings) == 1
     assert findings[0]["last_verified_by_run_id"] == "run-1"
     assert findings[0]["last_verified_at"] is not None
@@ -669,7 +670,7 @@ def test_candidate_drift_never_a_hard_gate(tmp_path):
     result: dict = {}
     result["candidate_drift_since_last_verified"] = {
         "hard_gate": False,
-        "findings": rr._candidate_drift_findings("testfam", "testplat", candidate.read_text(encoding="utf-8")),
+        "findings": rr._candidate_drift_findings("testfam", "testplat"),
     }
     assert result["candidate_drift_since_last_verified"]["hard_gate"] is False
     assert result["candidate_drift_since_last_verified"]["findings"]
