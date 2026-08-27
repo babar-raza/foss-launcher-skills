@@ -301,6 +301,67 @@ class PlumbCommitPostconditionBreach(PlumbCommitError):
         )
 
 
+class PlumbCommitPushRejected(PlumbCommitError):
+    """Raised when `plumb_commit()`'s push is rejected non-fast-forward and
+    an automatic `reconcile()` attempt (see below) also failed or was
+    disabled -- the caller must resolve by hand.
+
+    Found live 2026-08-26 (pipeline reliability hardening pass,
+    reports/skill-gaps/2026-08-26-pipeline-reliability-hardening.md): this
+    tool has no divergence handling at all -- a push against a `HEAD`
+    already stale relative to `origin/<branch>` simply raises the generic
+    `PlumbCommitError` from `_git()`, with no path forward except an agent
+    hand-building a two-parent merge commit via raw plumbing under live
+    push pressure, which happened twice in one session. `reconcile()` and
+    this exception close that gap: `plumb_commit(..., auto_reconcile=True)`
+    (the default) retries once via `reconcile()` on exactly this failure
+    shape; this exception carries everything needed to retry by hand
+    (`commit_sha`, `tree_sha`, `files`) if the automatic retry itself
+    fails or is disabled.
+    """
+
+    def __init__(self, commit_sha: str, tree_sha: str, files: list[str], detail: str):
+        self.commit_sha = commit_sha
+        self.tree_sha = tree_sha
+        self.files = list(files)
+        self.detail = detail
+        super().__init__(
+            f"Push failed for commit {commit_sha[:12]}: {detail}. The commit "
+            f"object was already built locally (not lost) -- retry by hand via "
+            f"reconcile({commit_sha!r}, {files!r}, ...) after resolving the "
+            f"underlying issue, or re-run plumb_commit() with the same --files "
+            f"to build a fresh commit against the current HEAD."
+        )
+
+
+class PlumbCommitReconcileConflict(PlumbCommitError):
+    """Raised by `reconcile()` when the remote's new tip has ALSO changed one
+    or more of the same files this commit touches -- naively overlaying this
+    commit's own tree entries for those files would silently discard the
+    remote's changes, exactly the class of silent-revert incident
+    `PlumbCommitBlocked`'s stale-file-regression check exists to prevent
+    elsewhere in this tool. `reconcile()` deliberately does not attempt a
+    content-level three-way merge -- it only ever overlays "this commit's
+    own explicit --files list" onto a new tree, which is correct precisely
+    because it is unambiguous when no other party touched those same files
+    in between. When one did, resolution requires understanding the actual
+    conflicting content, which is a human (or a fresh, explicit commit)
+    decision, not something this tool should guess at.
+    """
+
+    def __init__(self, files: list[str], remote_sha: str):
+        self.files = list(files)
+        self.remote_sha = remote_sha
+        super().__init__(
+            f"Refusing to auto-reconcile -- remote tip {remote_sha[:12]} has "
+            f"also changed {len(files)} file(s) this commit touches, so a "
+            f"naive overlay would silently discard the remote's changes: "
+            f"{', '.join(files)}. Re-fetch, inspect the actual content, and "
+            f"reconcile by hand -- this is a real content conflict, not "
+            f"something reconcile() can resolve automatically."
+        )
+
+
 _CREDENTIAL_URL_RE = re.compile(r"://[^/\s:@]+:[^/\s@]+@")
 
 
@@ -756,6 +817,202 @@ def _run_tier1_checks(
     )
 
 
+def _is_non_fast_forward(stderr: str) -> bool:
+    """True if a `git push` failure's stderr looks like a non-fast-forward
+    rejection (the remote branch has advanced past the local push's base)
+    rather than some other push failure (auth, network, protected branch
+    rule, etc.) that reconcile() cannot help with and should not attempt."""
+    lowered = stderr.lower()
+    return "[rejected]" in lowered and (
+        "non-fast-forward" in lowered or "fetch first" in lowered
+    )
+
+
+def reconcile(
+    commit_sha: str,
+    files: list[str],
+    *,
+    repo_root: "Path | None" = None,
+    branch: str = "main",
+    remote: str = "origin",
+    remote_name: "str | None" = None,
+    old_parent_sha: "str | None" = None,
+    push: bool = True,
+) -> dict[str, Any]:
+    """Reconcile a commit already built by `plumb_commit()` (or any commit
+    object) against a remote branch that has advanced since the commit's
+    parent was captured -- i.e. recover from a non-fast-forward push
+    rejection without touching the real `.git/index` or working tree.
+
+    Found live 2026-08-26 (pipeline reliability hardening pass,
+    reports/skill-gaps/2026-08-26-pipeline-reliability-hardening.md):
+    `plumb_commit()` had no divergence handling at all, so this exact
+    situation required an agent to hand-build the procedure below via raw
+    git plumbing, twice, under live push pressure. This formalizes it as a
+    named, tested operation.
+
+    Strategy: build a two-parent merge commit whose TREE is the new remote
+    tip's tree with exactly `files` overlaid from `commit_sha`'s own tree
+    (i.e. "replay this commit's specific file writes on top of the new
+    tip"). This is deliberately NOT a general three-way content merge --
+    it is correct and unambiguous specifically because `commit_sha` came
+    from `plumb_commit()`, which always operates on an explicit, disjoint
+    `--files` list, so "this commit's changes" has one unambiguous meaning.
+    If the remote's new tip ALSO touched any of `files` in the meantime,
+    this overlay would silently discard the remote's changes -- that case
+    is detected and refused (`PlumbCommitReconcileConflict`), never
+    silently resolved.
+
+    old_parent_sha: `commit_sha`'s own parent, i.e. the `HEAD` that was
+        live when the original commit was built. Auto-resolved via
+        `git rev-parse {commit_sha}^` when not given.
+
+    Returns a result dict shaped like `plumb_commit()`'s
+    ({head_sha, tree_sha, commit_sha, pushed, files, reconciled_against}),
+    where `commit_sha` is the NEW merge commit (not the input `commit_sha`)
+    and `reconciled_against` is the remote SHA it was merged onto.
+
+    Raises `PlumbCommitReconcileConflict` if the remote tip touched any of
+    `files` since `old_parent_sha` (real content conflict, resolve by
+    hand), or `PlumbCommitError` for any git operation failure.
+    """
+    root = Path(repo_root) if repo_root is not None else _REPO_ROOT
+    if remote_name is None:
+        remote_name = "origin"
+
+    if old_parent_sha is None:
+        old_parent_sha = _git(["rev-parse", f"{commit_sha}^"], repo_root=root).stdout.strip()
+
+    _git(["fetch", remote, branch], repo_root=root)
+    remote_tip = _git(["rev-parse", "FETCH_HEAD"], repo_root=root).stdout.strip()
+
+    if remote_tip == old_parent_sha:
+        # Nothing actually diverged any further since old_parent_sha (the
+        # race window closed, or the caller invoked reconcile() speculatively)
+        # -- a plain fast-forward push works; no merge commit needed.
+        if push:
+            _git(["push", remote, f"{commit_sha}:refs/heads/{branch}"], repo_root=root)
+            _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
+        _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
+        tree_sha = _git(["rev-parse", f"{commit_sha}^{{tree}}"], repo_root=root).stdout.strip()
+        return {
+            "head_sha": old_parent_sha,
+            "tree_sha": tree_sha,
+            "commit_sha": commit_sha,
+            "pushed": push,
+            "files": list(files),
+            "reconciled_against": remote_tip,
+            "fast_forward": True,
+        }
+
+    # Conflict check: did the remote tip ALSO touch any of `files` since
+    # old_parent_sha? If so, a naive overlay would silently discard those
+    # changes -- refuse rather than guess.
+    diff_out = _git(
+        ["diff", "--name-only", old_parent_sha, remote_tip, "--", *files], repo_root=root,
+    ).stdout
+    conflicting = sorted({line.strip() for line in diff_out.splitlines() if line.strip()})
+    if conflicting:
+        raise PlumbCommitReconcileConflict(conflicting, remote_tip)
+
+    tmp_index_fd, tmp_index_path = tempfile.mkstemp(prefix="git_plumb_reconcile_index_")
+    os.close(tmp_index_fd)
+    os.unlink(tmp_index_path)
+    try:
+        env_index = {**os.environ, "GIT_INDEX_FILE": tmp_index_path}
+
+        def _git_indexed(args: list[str]) -> "subprocess.CompletedProcess":
+            result = _COMMAND_RUNNER(
+                ["git", *args], cwd=str(root), capture_output=True, text=True, env=env_index,
+            )
+            if result.returncode != 0:
+                safe_args = _redact_credentials(" ".join(args))
+                safe_stderr = _redact_credentials(result.stderr)
+                raise PlumbCommitError(
+                    f"git {safe_args} (indexed reconcile) failed: {safe_stderr}"
+                )
+            return result
+
+        # Start from the new remote tip's tree...
+        _git_indexed(["read-tree", remote_tip])
+
+        # ...then overlay exactly `files` from commit_sha's own tree, via
+        # --cacheinfo (mode,sha,path triples) rather than `--index-info` on
+        # stdin: empirically, on this tool's own supported git/platform
+        # combination, `update-index --index-info` silently no-ops with
+        # "Ignoring path X" for a path not already present in the target
+        # index -- reproduced directly (see reports/skill-gaps/
+        # 2026-08-26-pipeline-reliability-hardening.md) -- so it can never
+        # actually ADD a new path to the isolated overlay index, only update
+        # ones already there. `--cacheinfo` has no such issue and is used
+        # here as repeated triples in chunked batches (mirrors
+        # _REAL_INDEX_SNAPSHOT_CHUNK_SIZE's existing argv-length discipline
+        # elsewhere in this file) rather than one subprocess call per file.
+        ls_out = _git(["ls-tree", "-r", commit_sha, "--", *files], repo_root=root).stdout
+        present_paths: set[str] = set()
+        cacheinfo_triples: list[str] = []
+        for line in ls_out.splitlines():
+            if not line.strip():
+                continue
+            meta, path = line.split("\t", 1)
+            mode, _obj_type, obj_sha = meta.split(" ")
+            present_paths.add(path)
+            cacheinfo_triples.append(f"{mode},{obj_sha},{path}")
+        for i in range(0, len(cacheinfo_triples), _REAL_INDEX_SNAPSHOT_CHUNK_SIZE):
+            chunk = cacheinfo_triples[i:i + _REAL_INDEX_SNAPSHOT_CHUNK_SIZE]
+            args: list[str] = ["update-index", "--add"]
+            for triple in chunk:
+                args += ["--cacheinfo", triple]
+            _git_indexed(args)
+
+        # `files` entries that commit_sha's tree does NOT contain were
+        # deletions in the original commit -- remove them from the overlay
+        # tree too, matching commit_sha's own intent exactly.
+        deleted_paths = [f for f in files if f not in present_paths]
+        for i in range(0, len(deleted_paths), _REAL_INDEX_SNAPSHOT_CHUNK_SIZE):
+            chunk = deleted_paths[i:i + _REAL_INDEX_SNAPSHOT_CHUNK_SIZE]
+            if chunk:
+                _git_indexed(["update-index", "--force-remove", "--", *chunk])
+
+        tree_sha = _git_indexed(["write-tree"]).stdout.strip()
+    finally:
+        try:
+            os.unlink(tmp_index_path)
+        except OSError:
+            pass
+
+    original_message = _git(
+        ["log", "-1", "--format=%B", commit_sha], repo_root=root,
+    ).stdout.rstrip("\n")
+    merge_message = (
+        f"{original_message}\n\n"
+        f"Reconciled (non-fast-forward) against {remote}/{branch}@{remote_tip[:12]} "
+        f"via git_plumb_commit.reconcile()."
+    )
+    merge_commit_sha = _git(
+        ["commit-tree", tree_sha, "-p", remote_tip, "-p", commit_sha, "-m", merge_message],
+        repo_root=root,
+    ).stdout.strip()
+
+    _git(["update-ref", f"refs/heads/{branch}", merge_commit_sha], repo_root=root)
+
+    pushed = False
+    if push:
+        _git(["push", remote, f"{merge_commit_sha}:refs/heads/{branch}"], repo_root=root)
+        pushed = True
+        _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", merge_commit_sha], repo_root=root)
+
+    return {
+        "head_sha": old_parent_sha,
+        "tree_sha": tree_sha,
+        "commit_sha": merge_commit_sha,
+        "pushed": pushed,
+        "files": list(files),
+        "reconciled_against": remote_tip,
+        "fast_forward": False,
+    }
+
+
 def plumb_commit(
     files: list[str],
     message: str,
@@ -771,12 +1028,25 @@ def plumb_commit(
     skip_tier1_checks: bool = False,
     strict_isolation: bool = False,
     push: bool = True,
+    auto_reconcile: bool = True,
     ack_gitignored: "list[str] | None" = None,
 ) -> dict[str, Any]:
     """Perform the full isolated git-plumbing commit sequence atomically:
     stale-file regression check -> temp-index build -> Tier 1 checks
     (scripts/pre-commit-audit.sh, against the isolated index) -> write-tree ->
     commit-tree -> push -> local ref sync.
+
+    auto_reconcile: when True (default) and the push is rejected
+        non-fast-forward, retries ONCE via `reconcile()` (see above) --
+        building a proper two-parent merge commit against the current
+        remote tip -- instead of raising immediately. Set False to get the
+        old behavior (raise `PlumbCommitError` on any push failure,
+        including non-fast-forward) when a caller specifically wants to
+        handle divergence itself. If the automatic retry also fails (e.g.
+        a real content conflict via `PlumbCommitReconcileConflict`, or the
+        remote moved again during the retry), raises
+        `PlumbCommitPushRejected` with the original commit's `commit_sha`/
+        `tree_sha` so nothing already built locally is lost.
 
     remote: the PUSH DESTINATION passed to `git push <remote> <refspec>` --
         either a configured remote name (e.g. "origin") or a raw URL (e.g.
@@ -960,10 +1230,57 @@ def plumb_commit(
     _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
 
     pushed = False
+    reconciled_against: "str | None" = None
     if push:
-        _git(["push", remote, f"{commit_sha}:refs/heads/{branch}"], repo_root=root)
-        pushed = True
-        _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
+        push_result = _COMMAND_RUNNER(
+            ["git", "push", remote, f"{commit_sha}:refs/heads/{branch}"],
+            cwd=str(root), capture_output=True, text=True,
+        )
+        if push_result.returncode == 0:
+            pushed = True
+            _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
+        elif auto_reconcile and _is_non_fast_forward(push_result.stderr):
+            try:
+                reconcile_result = reconcile(
+                    commit_sha, files, repo_root=root, branch=branch,
+                    remote=remote, remote_name=remote_name,
+                    old_parent_sha=head_sha, push=True,
+                )
+            except PlumbCommitError as reconcile_exc:
+                raise PlumbCommitPushRejected(
+                    commit_sha, tree_sha, list(files),
+                    f"non-fast-forward push, then reconcile() itself failed: {reconcile_exc}",
+                ) from reconcile_exc
+            # The reconciled (merge) commit is now the real result of this
+            # call -- it superseded commit_sha as HEAD of `branch`.
+            return {
+                "head_sha": head_sha,
+                "tree_sha": reconcile_result["tree_sha"],
+                "commit_sha": reconcile_result["commit_sha"],
+                "pushed": reconcile_result["pushed"],
+                "files": list(files),
+                "gitignore_warnings": gitignore_warnings,
+                "tier1_output": tier1_output,
+                "reconciled_against": reconcile_result["reconciled_against"],
+            }
+        else:
+            safe_args = _redact_credentials(f"push {remote} {commit_sha}:refs/heads/{branch}")
+            safe_stderr = _redact_credentials(push_result.stderr)
+            # Always raise the richer PlumbCommitPushRejected (a PlumbCommitError
+            # subclass, so any existing `except PlumbCommitError:` caller still
+            # matches it via isinstance) -- its commit_sha/tree_sha/files
+            # attributes are useful recovery information regardless of whether
+            # auto_reconcile was disabled outright or was attempted and itself
+            # failed; there is no case where the plain base-class message is
+            # preferable.
+            reason = (
+                f"non-fast-forward push, and auto_reconcile=False so no retry "
+                f"was attempted"
+                if not auto_reconcile and _is_non_fast_forward(push_result.stderr)
+                else f"'git {safe_args}' failed for a reason reconcile() cannot "
+                     f"help with (exit {push_result.returncode}): {safe_stderr}"
+            )
+            raise PlumbCommitPushRejected(commit_sha, tree_sha, list(files), reason)
 
     return {
         "head_sha": head_sha,
@@ -973,6 +1290,7 @@ def plumb_commit(
         "files": list(files),
         "gitignore_warnings": gitignore_warnings,
         "tier1_output": tier1_output,
+        "reconciled_against": reconciled_against,
     }
 
 
@@ -1052,6 +1370,11 @@ def main(argv: "list[str] | None" = None) -> int:
                              "reports/skill-gaps/"
                              "2026-08-20-git-plumb-commit-tier1-mutation-safety.md, "
                              "Phase 2c.")
+    parser.add_argument("--no-auto-reconcile", action="store_true", dest="no_auto_reconcile",
+                        help="Disable the automatic reconcile() retry on a non-fast-forward "
+                             "push rejection (default: retry once via reconcile(), building "
+                             "a two-parent merge commit against the current remote tip). "
+                             "Raises immediately instead if the push is rejected.")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
     parser.add_argument("--ack-gitignored", nargs="+", default=None,
                         help="Paths in --files that are intentionally .gitignore-matched "
@@ -1093,6 +1416,7 @@ def main(argv: "list[str] | None" = None) -> int:
             skip_ledger_check=args.skip_ledger_check,
             skip_tier1_checks=args.skip_tier1_checks,
             strict_isolation=args.strict_isolation, push=not args.no_push,
+            auto_reconcile=not args.no_auto_reconcile,
             ack_gitignored=args.ack_gitignored,
         )
     except PlumbCommitBlocked as exc:
@@ -1105,6 +1429,9 @@ def main(argv: "list[str] | None" = None) -> int:
     print(f"commit_sha={result['commit_sha']}")
     print(f"tree_sha={result['tree_sha']}")
     print(f"pushed={result['pushed']}")
+    if result.get("reconciled_against"):
+        print(f"reconciled_against={result['reconciled_against']} "
+              f"(non-fast-forward push auto-resolved via a merge commit)")
     if result["tier1_output"].strip():
         print("--- Tier 1 output ---")
         print(result["tier1_output"])
