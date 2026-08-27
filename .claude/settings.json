@@ -119,6 +119,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/hooks/check_commit_bash_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_add_bash_hook.sh"
           }
         ]
       },
