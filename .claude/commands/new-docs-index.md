@@ -102,6 +102,18 @@ Default weight for unlisted platforms: 80.
       ## Key capabilities
       {3–6 bullet points derived from model.yaml and claims.json}
 
+      **Public-surface check (RC-tex-python-03, MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL,
+      recurrence of MT028's RC-font-python-01 in a different section type)**: before citing any
+      class or function name here, check its `exported_via_package_init` /
+      `public_import_module` fields in `knowledge/{family}/{platform}/merged/api_surface.json`
+      — see `skills/new-docs-page.md`'s "Python import paths" note for the exact rule. A class
+      merely *existing* in `api_surface.json` does not make it part of the public surface;
+      internal-only entities (leading-underscore module path, not re-exported) must not be
+      listed as a "key capability" without the same `# internal API — may change between
+      releases` disclaimer new-docs-page.md requires, and the section should lead with the
+      product's actual top-level public API (its main entry-point class(es) and primary
+      output/input types), not exclusively with internal implementation detail.
+
       Select your platform to access documentation:
 
       {{< sections cols="4" >}}

@@ -99,6 +99,13 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 6. **Build `content.block[]`** — 4-6 feature blocks, each with:
    - `title_left`: Feature name (from claims with `kind: "capability"`)
    - `content_left`: 3-5 bullet points — every class/method name MUST exist in api_surface.md
+     **AND have `exported_via_package_init: true`** (see `skills/new-docs-page.md`'s "Python
+     import paths" note) — "exists in api_surface.md" alone is not sufficient; an internal
+     class (leading-underscore module path, never re-exported) existing in the extracted
+     surface is not a public capability. Fixed after RC-tex-python-03
+     (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL) found FontManager/FontEncoding/FontMetrics/
+     InputReader — all real but internal-only classes — listed as directly-usable feature
+     bullets with no disclaimer.
    - `title_right`: Use cases / who uses this feature
    - `content_right`: 3-4 bullet points (practical real-world scenarios)
    - **Hard constraint**: Never reference capabilities in `limitations.md` as working
