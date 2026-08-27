@@ -108,7 +108,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "reports/ boundary"
-# Step 0: reports/ boundary — local-only artifacts must never be committed
+# Step 1: reports/ boundary — local-only artifacts must never be committed
 # ---------------------------------------------------------------------------
 # reports/ is gitignored and is a strict local-only boundary. Any staged
 # addition or modification under reports/ is an error (usually caused by
@@ -132,7 +132,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "deletion gate"
-# Step 0b: Staged deletion gate — blocks Tier 0 and Tier 1 without DGR
+# Step 2: Staged deletion gate — blocks Tier 0 and Tier 1 without DGR
 # DELETION_GATE_PHASE=2 = blocking (exit 2); unset or 1 = warn-only (exit 0)
 if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_staged_deletions.py" ]; then
     DELETION_GATE_PHASE=2 "$_HOOK_PYTHON" scripts/ci/checks/check_staged_deletions.py --check-staged
@@ -154,7 +154,7 @@ fi
 
 # ---------------------------------------------------------------------------
 _pc_step_start "forbidden paths"
-# Step 1: Forbidden-path enforcement
+# Step 3: Forbidden-path enforcement
 # ---------------------------------------------------------------------------
 # Check all staged paths in a single Python invocation using --stdin batch mode.
 # This avoids one Python startup per file (~120ms/file) which was ~56 min for
@@ -167,7 +167,7 @@ if [ -n "$_HOOK_PYTHON" ]; then
             "$_HOOK_PYTHON" scripts/pipeline/commands/governance/path_guard.py --stdin | tr -d '\r'
     )
 else
-    echo "[Step 1] SKIP: .venv not found — forbidden-path check skipped." >&2
+    echo "[Step 3] SKIP: .venv not found — forbidden-path check skipped." >&2
 fi
 
 if [ ${#forbidden_staged[@]} -gt 0 ]; then
@@ -194,7 +194,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "filename conventions"
-# Step 1b: Content filename convention check (TC-NEW-01)
+# Step 4: Content filename convention check (TC-NEW-01)
 # ---------------------------------------------------------------------------
 # Blocks commits where any staged content file has an invalid filename:
 #   leading/trailing hyphen, uppercase extension, spaces, double dots, etc.
@@ -214,14 +214,14 @@ if [ -n "$_HOOK_PYTHON" ]; then
         _pc_exit 1
     fi
 else
-    echo "[Step 1b] SKIP: .venv not found — filename check skipped." >&2
+    echo "[Step 4] SKIP: .venv not found — filename check skipped." >&2
 fi
 _pc_step_end "PASS"
 
 
 # ---------------------------------------------------------------------------
 _pc_step_start "API accuracy audit"
-# Step 2: API accuracy audit on staged English content files
+# Step 5: API accuracy audit on staged English content files
 # ---------------------------------------------------------------------------
 # Locale files (/ar/, /fr/, /de/, etc.) are translator output and are not
 # subject to API accuracy audit — only English source pages are checked.
@@ -261,7 +261,7 @@ else
         fi
     else
         rm -f "$_tmpfile"
-        echo "[Step 2] SKIP: .venv not found — audit skipped." >&2
+        echo "[Step 5] SKIP: .venv not found — audit skipped." >&2
         status=0
     fi
     _pc_step_end "PASS"
@@ -271,7 +271,7 @@ fi
 
 # ---------------------------------------------------------------------------
 _pc_step_start "plugin_platform"
-# Step 3: Check plugin_platform canonical values for products pages
+# Step 6: Check plugin_platform canonical values for products pages
 # ---------------------------------------------------------------------------
 if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\.aspose\.org/'; then
     echo "Running plugin_platform canonical-value check..."
@@ -288,14 +288,14 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\
             _pc_exit 1
         fi
     else
-        echo "[Step 3] SKIP: .venv not found — plugin_platform check skipped." >&2
+        echo "[Step 6] SKIP: .venv not found — plugin_platform check skipped." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "frontmatter validation"
-# Step 4: Provenance frontmatter validation on staged English pages
+# Step 7: Provenance frontmatter validation on staged English pages
 # ---------------------------------------------------------------------------
 # Check 2b (validate_frontmatter.py): warn when a non-empty provenance block is
 # present but content_origin is absent. This prevents new pages from entering the
@@ -310,7 +310,7 @@ if [ ${#changed[@]} -gt 0 ]; then
         prov_status=$?
     else
         prov_status=0
-        echo "[Step 4] SKIP: .venv not found — frontmatter check skipped." >&2
+        echo "[Step 7] SKIP: .venv not found — frontmatter check skipped." >&2
     fi
     rm -f "$_tmpfile3"
     if [ $prov_status -ne 0 ]; then
@@ -324,7 +324,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "provenance protection"
-# Step 4b: Provenance protection — warn when auto_updatable: false pages are modified
+# Step 8: Provenance protection — warn when auto_updatable: false pages are modified
 # ---------------------------------------------------------------------------
 # Detects staged modifications to pages that have auto_updatable: false in their
 # committed (HEAD) provenance block.  These pages contain manually curated content
@@ -333,7 +333,7 @@ _pc_step_start "provenance protection"
 # Performance: uses git grep batch scan for large commits (O(1) subprocess).
 _prot_status=0
 if [ -n "$_HOOK_PYTHON" ]; then
-    echo "[Step 4b] Scanning HEAD for provenance-protected pages..."
+    echo "[Step 8] Scanning HEAD for provenance-protected pages..."
     "$_HOOK_PYTHON" scripts/ci/checks/check_protected_overwrites.py --check-staged
     _prot_status=$?
 fi
@@ -347,7 +347,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "content_hash normalization"
-# Step 5: content_hash normalization for staged English content files
+# Step 9: content_hash normalization for staged English content files
 # ---------------------------------------------------------------------------
 # Computes the current body hash for each staged English .md file and updates
 # the stored content_hash in the provenance block if it differs, writing the
@@ -414,7 +414,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "last_mechanism staleness"
-# Step 6: last_mechanism staleness warning
+# Step 10: last_mechanism staleness warning
 # ---------------------------------------------------------------------------
 # For each staged file where the body changed (hash was stale), check whether
 # last_mechanism was also updated.  Warns if the mechanism appears unchanged
@@ -471,7 +471,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "Python placement"
-# Step 7: Python file placement check (staged .py files only)
+# Step 11: Python file placement check (staged .py files only)
 # ---------------------------------------------------------------------------
 # Blocks commits of .py files in forbidden locations (repo root, scripts/ root,
 # scripts/one-shot/). Uses --check-staged so only staged files are examined —
@@ -496,14 +496,14 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
             _pc_exit 1
         fi
     else
-        echo "[Step 7] SKIP: .venv not found — Python placement check skipped." >&2
+        echo "[Step 11] SKIP: .venv not found — Python placement check skipped." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "venv enforcement"
-# Step 7b: Venv enforcement on staged skill files
+# Step 12: Venv enforcement on staged skill files
 # ---------------------------------------------------------------------------
 # Blocks commits where skill bash blocks contain bare `python`, `pip install --user`,
 # or PYTHONPATH=$USER_SITE.  Only checks staged skill files to avoid false positives
@@ -515,7 +515,7 @@ if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agent
     elif [ -f ".venv/bin/python" ]; then
         _venv_py=".venv/bin/python"
     else
-        echo "[Step 7b] WARN: .venv not found — skipping venv enforcement check."
+        echo "[Step 12] WARN: .venv not found — skipping venv enforcement check."
         _venv_py=""
     fi
     if [ -n "$_venv_py" ]; then
@@ -544,7 +544,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "session ledger"
-# Step 8: Session-ledger enforcement (content files only)
+# Step 13: Session-ledger enforcement (content files only)
 # ---------------------------------------------------------------------------
 # When an ACTIVE session pointer exists, verify that every staged content .md
 # file appears in the session ledger's touched_files.  This converts the
@@ -581,7 +581,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "onboarding integrity"
-# Step 9: Onboarding integrity — runs ONLY when an operator doc is staged.
+# Step 14: Onboarding integrity — runs ONLY when an operator doc is staged.
 # Skipped entirely for all other commits (< 1ms gate check, ~2s when triggered).
 # Enforces: AGENTS.md link, CLAUDE.md ref, relative links, venv prefix, structure.
 # Primary gate: CI job 'onboarding-integrity' in ci-eval-consistency.yml (TC-08).
@@ -593,7 +593,7 @@ STAGED_FILES="$(git diff --cached --name-only)"
 ONBOARDING_PATTERN='^(AGENTS\.md|CLAUDE\.md|RUNBOOK\.md|OPERATOR_GUIDE\.md|docs/QUICKSTART\.md|skills/getting-started\.md|skills/session-start\.md)$'
 
 if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
-  echo "[Step 9] Operator doc staged — running onboarding integrity check..."
+  echo "[Step 14] Operator doc staged — running onboarding integrity check..."
 
   # Cross-platform .venv detection
   if [ -f ".venv/Scripts/python" ]; then
@@ -601,19 +601,19 @@ if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
   elif [ -f ".venv/bin/python" ]; then
     venv_python=".venv/bin/python"            # macOS / Linux
   else
-    echo "[Step 9] WARN: .venv not found — skipping onboarding integrity check."
+    echo "[Step 14] WARN: .venv not found — skipping onboarding integrity check."
     echo "         Run the bootstrap step in docs/QUICKSTART.md §2 to enable this gate."
     venv_python=""
   fi
 
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/checks/check_onboarding_integrity.py; then
-      echo "[Step 9] WARNING: onboarding integrity check failed. Fix issues above when convenient."
+      echo "[Step 14] WARNING: onboarding integrity check failed. Fix issues above when convenient."
       echo "  Downgraded from blocking 2026-08-08 (CI rules audit): this is a documented local"
       echo "  redundancy layer for the 'onboarding-integrity' CI job in ci-eval-consistency.yml"
       echo "  (TC-08), which remains the primary, still-blocking gate — no protection is lost."
     else
-      echo "[Step 9] PASS"
+      echo "[Step 14] PASS"
     fi
   fi
 fi
@@ -621,7 +621,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "root docs truth"
-# Step 9b: root-docs truth gate — runs ONLY when one of the seven root operator/
+# Step 15: root-docs truth gate — runs ONLY when one of the seven root operator/
 # governance docs is staged. Imports the SAME deterministic check functions the
 # /root-docs-refresh skill (S-121) uses (root_docs_checks.py) — the manual refresh
 # tool and this automated gate can never disagree, by construction. Only HARD_GATE
@@ -635,18 +635,18 @@ _pc_step_start "root docs truth"
 # ---------------------------------------------------------------------------
 ROOT_DOCS_PATTERN='^(OPERATOR_GUIDE\.md|RUNBOOK\.md|CODEX\.md|GRADE_CONTRACT\.md|LAYMAN_SYSTEM_STATUS_REVIEW\.md|TASK_BACKLOG_20260521\.md)$'
 if echo "$STAGED_FILES" | grep -qE "$ROOT_DOCS_PATTERN"; then
-  echo "[Step 9b] Root operator/governance doc staged — running root-docs truth check..."
+  echo "[Step 15] Root operator/governance doc staged — running root-docs truth check..."
   if [ -f ".venv/Scripts/python" ]; then
     venv_python=".venv/Scripts/python"
   elif [ -f ".venv/bin/python" ]; then
     venv_python=".venv/bin/python"
   else
-    echo "[Step 9b] WARN: .venv not found — skipping root-docs truth check."
+    echo "[Step 15] WARN: .venv not found — skipping root-docs truth check."
     venv_python=""
   fi
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/checks/check_root_docs_truth.py --staged; then
-      echo "[Step 9b] BLOCKED: root-docs truth check failed. Fix issues above before committing."
+      echo "[Step 15] BLOCKED: root-docs truth check failed. Fix issues above before committing."
       echo "  Auto-fix path: /root-docs-refresh (S-121)."
       echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment):"
       echo "  check_root_docs_truth.py has zero CI references anywhere in this repo — this"
@@ -656,7 +656,7 @@ if echo "$STAGED_FILES" | grep -qE "$ROOT_DOCS_PATTERN"; then
       _pc_step_end "FAIL"
       _pc_exit 1
     else
-      echo "[Step 9b] PASS"
+      echo "[Step 15] PASS"
     fi
   fi
 fi
@@ -664,7 +664,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "graded_at reversion"
-# Step 10: graded_at-only reversion
+# Step 16: graded_at-only reversion
 # Auto-revert staged .md files where the only diff from HEAD is graded_at:.
 # Calls check_graded_at_only.py (which uses the venv python -- not bare python).
 # Blocking (exit 1): PARSE_FAILURE signals an unreadable diff (Case D).
@@ -730,7 +730,7 @@ if [ ${#changed[@]} -gt 0 ]; then
         )
         rm -f "$_tmpfile10"
         if grep -q '^PARSE_FAILURE:' "$_ga_stderr" 2>/dev/null; then
-            echo "[Step 10] ERROR: graded_at-only check had parse failures:"
+            echo "[Step 16] ERROR: graded_at-only check had parse failures:"
             grep '^PARSE_FAILURE:' "$_ga_stderr" | sed 's/^PARSE_FAILURE:/  /'
             rm -f "$_ga_stderr"
             _pc_step_end "FAIL"
@@ -739,13 +739,13 @@ if [ ${#changed[@]} -gt 0 ]; then
         rm -f "$_ga_stderr"
         if [ ${#revert_candidates[@]} -gt 0 ]; then
             if [ -n "${PC_AUDIT_NO_MUTATE:-}" ]; then
-                echo "[Step 10] FINDING: ${#revert_candidates[@]} graded_at-only staged file(s) found"
+                echo "[Step 16] FINDING: ${#revert_candidates[@]} graded_at-only staged file(s) found"
                 echo "  (check-only mode -- NOT reverting; these would be dropped from a real commit):"
                 for _f in "${revert_candidates[@]}"; do
                     echo "  $_f"
                 done
             else
-                echo "[Step 10] Auto-reverting graded_at-only staged files:"
+                echo "[Step 16] Auto-reverting graded_at-only staged files:"
                 _reverted_count=0
                 for _f in "${revert_candidates[@]}"; do
                     _unstaged=$(git diff --name-only -- "$_f" 2>/dev/null)
@@ -760,7 +760,7 @@ if [ ${#changed[@]} -gt 0 ]; then
                         _reverted_count=$((_reverted_count + 1))
                     fi
                 done
-                echo "[Step 10] Reverted ${_reverted_count} of ${#revert_candidates[@]} graded_at-only file(s)."
+                echo "[Step 16] Reverted ${_reverted_count} of ${#revert_candidates[@]} graded_at-only file(s)."
             fi
         fi
     fi
@@ -769,7 +769,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "monkeypatch lint"
-# Step 11: Monkeypatch lint — block T1/T2 violations in staged test files
+# Step 17: Monkeypatch lint — block T1/T2 violations in staged test files
 # ---------------------------------------------------------------------------
 # Checks for T1/T2 monkeypatch violations (AGENTS.md §16 tiered policy).
 # Blocking mode: T1/T2 violations fail the commit. T3/T4 are informational.
@@ -782,11 +782,11 @@ if [ ${#staged_test_files[@]} -gt 0 ]; then
         _lint_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_monkeypatch_lint.py --strict --tier 1,2 --compare-baseline scripts/ci/monkeypatch_baseline.json -- "${staged_test_files[@]}" 2>&1)
         _lint_exit=$?
         if [ -n "$_lint_out" ]; then
-            echo "$_lint_out" | sed 's/^/[Step 11] /' >&2
+            echo "$_lint_out" | sed 's/^/[Step 17] /' >&2
         fi
         if [ $_lint_exit -ne 0 ]; then
-            echo "[Step 11] BLOCKED: T1/T2 monkeypatch violations in staged test files." >&2
-            echo "[Step 11] Remediate with configure() seams. See AGENTS.md §16." >&2
+            echo "[Step 17] BLOCKED: T1/T2 monkeypatch violations in staged test files." >&2
+            echo "[Step 17] Remediate with configure() seams. See AGENTS.md §16." >&2
             _pc_step_end "FAIL"
             _pc_exit 1
         fi
@@ -796,7 +796,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "Go code block vet"
-# Step 12: Go code blocks — strict vet of ```go fences in staged Go content
+# Step 18: Go code blocks — strict vet of ```go fences in staged Go content
 # ---------------------------------------------------------------------------
 # Enforcing mode: blocks commit on go vet failure. If Go is not on PATH the
 # checker returns exit 2 and the commit is blocked — install Go to proceed.
@@ -816,7 +816,7 @@ if [ ${#staged_go_content[@]} -gt 0 ]; then
             _go_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_go_code_blocks.py "$_go_content_dir" 2>&1)
             _go_exit=$?
             if [ -n "$_go_out" ]; then
-                echo "$_go_out" | sed 's/^/[Step 12] /' >&2
+                echo "$_go_out" | sed 's/^/[Step 18] /' >&2
             fi
             if [ "$_go_exit" -ne 0 ]; then
                 _pc_step_end "FAIL"
@@ -829,7 +829,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "encoding guard"
-# Step 13: Content encoding — reject U+FFFD replacement characters in staged content
+# Step 19: Content encoding — reject U+FFFD replacement characters in staged content
 # Guard prevents encoding corruption (e.g., charset misdetection in LLM responses)
 # from reaching the live site. Scans staged content/*.md files for EF BF BD bytes.
 # ---------------------------------------------------------------------------
@@ -851,7 +851,7 @@ if [ ${#staged_content_md[@]} -gt 0 ]; then
             if [ $_batch_code -ne 0 ]; then _enc_exit=1; fi
         done
         if [ -n "$_enc_out" ]; then
-            echo "$_enc_out" | sed 's/^/[Step 13] /' >&2
+            echo "$_enc_out" | sed 's/^/[Step 19] /' >&2
         fi
         if [ $_enc_exit -ne 0 ]; then
             _pc_step_end "FAIL"
@@ -863,7 +863,7 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "KB slug quality"
-# Step 14: KB how-to slug quality gate (TC-KBS-007)
+# Step 20: KB how-to slug quality gate (TC-KBS-007)
 # Checks staged content/kb.aspose.org/**/how-to-*.md filenames for defects:
 #   C1 — single-token noun > 12 chars (CamelCase namespace leak)
 #   C2 — verb-noun duplication (e.g. how-to-extract-text-extraction-*)
@@ -881,7 +881,7 @@ if [ ${#staged_kb_howto[@]} -gt 0 ]; then
             "${staged_kb_howto[@]}" 2>&1)
         _kb_exit=$?
         if [ -n "$_kb_out" ]; then
-            echo "$_kb_out" | sed 's/^/[Step 14] /'
+            echo "$_kb_out" | sed 's/^/[Step 20] /'
         fi
         if [ $_kb_exit -ne 0 ]; then
             echo ""
@@ -892,11 +892,11 @@ if [ ${#staged_kb_howto[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 14] SKIP: .venv not found or check_kb_slug_quality.py missing." >&2
+        echo "[Step 20] SKIP: .venv not found or check_kb_slug_quality.py missing." >&2
     fi
 fi
 _pc_step_start "Blog post standards"
-# Step 15: Blog post standards gate (check_blog_post_standards.py)
+# Step 21: Blog post standards gate (check_blog_post_standards.py)
 # Checks staged blog.aspose.org post frontmatter for tag leakage, category
 # format, Related Resources section, and platform target registration.
 staged_blog_posts=()
@@ -908,10 +908,10 @@ if [ ${#staged_blog_posts[@]} -gt 0 ]; then
         _blog_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_blog_post_standards.py             "${staged_blog_posts[@]}" 2>&1)
         _blog_exit=$?
         if [ -n "$_blog_out" ]; then
-            echo "$_blog_out" | sed 's/^/[Step 15] /'
+            echo "$_blog_out" | sed 's/^/[Step 21] /'
         fi
         if [ $_blog_exit -ne 0 ]; then
-            echo "[Step 15] BLOCKED: standards check failed (see above). Fix before committing."
+            echo "[Step 21] BLOCKED: standards check failed (see above). Fix before committing."
             echo "  Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment):"
             echo "  check_blog_post_standards.py has zero CI references anywhere in this repo —"
             echo "  the 2026-08-08 downgrade left this defect class with no enforcement at all."
@@ -922,9 +922,21 @@ if [ ${#staged_blog_posts[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
-# Step 16: Docs developer-guide slug quality gate (SQ-08 / D1 check)
+# ---------------------------------------------------------------------------
+_pc_step_start "docs developer-guide slug quality"
+# Step 22: Docs developer-guide slug quality gate (SQ-08 / D1 check)
 # Checks staged docs developer-guide pages for concatenated CamelCase slugs
 # (e.g., "javascriptextensions" instead of "javascript-extensions").
+#
+# TC-STEPNUM-01 (2026-08-26): this check previously had no _pc_step_start of
+# its own -- it ran silently inside the preceding "Blog post standards" step's
+# slot but still called _pc_step_end unconditionally at line ~949 below. That
+# extra _pc_step_end with no matching _pc_step_start pushed one more entry
+# onto _PC_RESULTS/_PC_TIMES than _PC_NAMES ever received, silently shifting
+# every step's displayed PASS/FAIL/timing in the final summary table by one
+# position for the remainder of the run (labels stayed correct since they
+# come from _PC_NAMES; only the result/timing columns were wrong). Live since
+# a439199f8f added this check. Fixed by giving it its own tracked step.
 staged_docs_guide=()
 while IFS= read -r _dgline; do staged_docs_guide+=("$_dgline"); done < <(
     git diff --cached --name-only --diff-filter=ACR \
@@ -936,21 +948,21 @@ if [ ${#staged_docs_guide[@]} -gt 0 ]; then
             "${staged_docs_guide[@]}" 2>&1)
         _docs_slug_exit=$?
         if [ -n "$_docs_slug_out" ]; then
-            echo "$_docs_slug_out" | sed 's/^/[Step 16] /'
+            echo "$_docs_slug_out" | sed 's/^/[Step 22] /'
         fi
         if [ $_docs_slug_exit -ne 0 ]; then
             _pc_step_end "FAIL"
             _pc_exit 1
         fi
     else
-        echo "[Step 16] SKIP: .venv not found or check_docs_slug_quality.py missing." >&2
+        echo "[Step 22] SKIP: .venv not found or check_docs_slug_quality.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "code fence blank lines"
-# Step 16.5: CODE_BLOCK_BLANK_LINES check on staged products pages (GAP-CSSP-R04/R05)
+# Step 23: CODE_BLOCK_BLANK_LINES check on staged products pages (GAP-CSSP-R04/R05)
 # Blocks commits that stage products.aspose.org _index.md files with blank lines
 # inside code fences (layout: plugin pages). EN pages: ERROR (blocking).
 # Locale pages with short snippets: ERROR (blocking). Long snippets: WARN (non-blocking).
@@ -962,7 +974,7 @@ while IFS= read -r _pline; do staged_products_pages+=("$_pline"); done < <(
 )
 if [ ${#staged_products_pages[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/content/validate_plugin_structure.py" ]; then
-        echo "[Step 16.5] Checking CODE_BLOCK_BLANK_LINES on ${#staged_products_pages[@]} staged products page(s)..."
+        echo "[Step 23] Checking CODE_BLOCK_BLANK_LINES on ${#staged_products_pages[@]} staged products page(s)..."
         PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
             scripts/pipeline/commands/content/validate_plugin_structure.py \
             --files "${staged_products_pages[@]}"
@@ -978,14 +990,14 @@ if [ ${#staged_products_pages[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 16.5] SKIP: .venv not found or validate_plugin_structure.py missing." >&2
+        echo "[Step 23] SKIP: .venv not found or validate_plugin_structure.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "enterprise link syntax"
-# Step 17: Enterprise markdown link syntax gate (TC-BL-011).
+# Step 24: Enterprise markdown link syntax gate (TC-BL-011).
 # Validates that all staged content files have syntactically correct markdown
 # link syntax for *.aspose.com enterprise URLs — specifically that every
 # link opener ](https:// has a matching closing ).
@@ -998,12 +1010,12 @@ while IFS= read -r _clf; do staged_content_files+=("$_clf"); done < <(
 )
 if [ ${#staged_content_files[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_enterprise_link_syntax.py" ]; then
-        echo "[Step 17] Checking enterprise link syntax in ${#staged_content_files[@]} staged content file(s)..."
+        echo "[Step 24] Checking enterprise link syntax in ${#staged_content_files[@]} staged content file(s)..."
         _ent_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_enterprise_link_syntax.py \
             "${staged_content_files[@]}" 2>&1)
         _ent_exit=$?
         if [ $_ent_exit -ne 0 ]; then
-            echo "$_ent_out" | sed 's/^/[Step 17] /'
+            echo "$_ent_out" | sed 's/^/[Step 24] /'
             echo ""
             echo "BLOCKED: Broken enterprise markdown link syntax detected (see above)."
             echo "  Fix: ensure every [text](https://...) link has a closing ) after the URL."
@@ -1012,14 +1024,14 @@ if [ ${#staged_content_files[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 17] SKIP: .venv not found or check_enterprise_link_syntax.py missing." >&2
+        echo "[Step 24] SKIP: .venv not found or check_enterprise_link_syntax.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "frontmatter YAML parse"
-# Step 18: Frontmatter YAML parse gate — ALL locales (check_frontmatter_yaml.py)
+# Step 25: Frontmatter YAML parse gate — ALL locales (check_frontmatter_yaml.py)
 # Steps 2/4/5 validate staged ENGLISH files only; locale files previously had
 # no frontmatter gate, which let the 2026-07-12 wave-3 locale commits land
 # unparseable YAML on main and break the Hugo site builds (docs run
@@ -1047,7 +1059,7 @@ if [ ${#staged_all_content_md[@]} -gt 0 ]; then
             fi
         done
         if [ $_fm_exit -ne 0 ]; then
-            echo "$_fm_out" | sed 's/^/[Step 18] /'
+            echo "$_fm_out" | sed 's/^/[Step 25] /'
             echo ""
             echo "BLOCKED: Staged content file(s) have unparseable YAML frontmatter (see above)."
             echo "  These files would abort the Hugo site build. Fix the frontmatter YAML"
@@ -1056,14 +1068,14 @@ if [ ${#staged_all_content_md[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 18] SKIP: .venv not found or check_frontmatter_yaml.py missing." >&2
+        echo "[Step 25] SKIP: .venv not found or check_frontmatter_yaml.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "translation regression"
-# Step 19: Translation-regression gate — check_translation_regression.py
+# Step 26: Translation-regression gate — check_translation_regression.py
 # Blocks commits that regress a translated locale description back to English
 # or stage translation-prompt leak text (the silently-parseable wave-3
 # corruption classes; Step 18 only catches UNPARSEABLE frontmatter).
@@ -1092,7 +1104,7 @@ if [ ${#staged_locale_md[@]} -gt 0 ]; then
             fi
         done
         if [ $_tr_exit -ne 0 ]; then
-            echo "$_tr_out" | sed 's/^/[Step 19] /'
+            echo "$_tr_out" | sed 's/^/[Step 26] /'
             echo ""
             echo "BLOCKED: Staged locale file(s) regress translated content (see above)."
             echo "  R1: a previously-translated description became English — restore the"
@@ -1102,14 +1114,14 @@ if [ ${#staged_locale_md[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 19] SKIP: .venv not found or check_translation_regression.py missing." >&2
+        echo "[Step 26] SKIP: .venv not found or check_translation_regression.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "evidence churn"
-# Step 20: Evidence-only mass-churn gate — check_evidence_churn.py
+# Step 27: Evidence-only mass-churn gate — check_evidence_churn.py
 # Blocks bulk commits where many staged content .md files change only the
 # `evidence:` frontmatter block (model_sha/model_version/claims/apis/
 # sections re-stamp) with no body content change and no other frontmatter
@@ -1124,14 +1136,14 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_evidence_churn.py" ];
     _ec_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_evidence_churn.py --mode staged --commit-msg "$_ec_commit_msg" 2>&1)
     _ec_exit=$?
     if [ -n "$_ec_out" ]; then
-        echo "$_ec_out" | sed 's/^/[Step 20] /'
+        echo "$_ec_out" | sed 's/^/[Step 27] /'
     fi
     if [ $_ec_exit -ne 0 ]; then
         _pc_step_end "FAIL"
         _pc_exit 1
     fi
 else
-    echo "[Step 20] SKIP: .venv not found or check_evidence_churn.py missing." >&2
+    echo "[Step 27] SKIP: .venv not found or check_evidence_churn.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1152,14 +1164,14 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_grade_churn.py" ]; th
     _gc_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_grade_churn.py --mode staged --commit-msg "$_gc_commit_msg" 2>&1)
     _gc_exit=$?
     if [ -n "$_gc_out" ]; then
-        echo "$_gc_out" | sed 's/^/[Step 20b] /'
+        echo "$_gc_out" | sed 's/^/[Step 28] /'
     fi
     if [ $_gc_exit -ne 0 ]; then
         _pc_step_end "FAIL"
         _pc_exit 1
     fi
 else
-    echo "[Step 20b] SKIP: .venv not found or check_grade_churn.py missing." >&2
+    echo "[Step 28] SKIP: .venv not found or check_grade_churn.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1190,7 +1202,7 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/governance/check_gr
         _gd_exit=$?
         rm -f "$_gd_tmpfile"
         if [ -n "$_gd_out" ]; then
-            echo "$_gd_out" | sed 's/^/[Step 21] /'
+            echo "$_gd_out" | sed 's/^/[Step 29] /'
         fi
         if [ $_gd_exit -ne 0 ]; then
             # Governed override: accept a pending override token that covers
@@ -1201,9 +1213,9 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/governance/check_gr
             # override, therefore permitted" — that was a silent fail-open.
             # Unverifiable = block, same direction as every other gate here.
             if [ ! -s "$_gd_blocked_list" ]; then
-                echo "[Step 21] BLOCKED: check_grade_downgrade.py exited non-zero but" >&2
-                echo "[Step 21] wrote no blocked-file list — cannot verify which files" >&2
-                echo "[Step 21] are safe to override. Treating as unverifiable, not permitted." >&2
+                echo "[Step 29] BLOCKED: check_grade_downgrade.py exited non-zero but" >&2
+                echo "[Step 29] wrote no blocked-file list — cannot verify which files" >&2
+                echo "[Step 29] are safe to override. Treating as unverifiable, not permitted." >&2
                 rm -f "$_gd_blocked_list"
                 _pc_step_end "FAIL"
                 _pc_exit 1
@@ -1219,21 +1231,21 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/governance/check_gr
             done < "$_gd_blocked_list"
             rm -f "$_gd_blocked_list"
             if [ $_gd_override_ok -eq 1 ]; then
-                echo "[Step 21] Grade downgrade permitted by pending override token(s)." >&2
+                echo "[Step 29] Grade downgrade permitted by pending override token(s)." >&2
             else
-                echo "[Step 21] BLOCKED: staged content downgrades a published grade." >&2
-                echo "[Step 21] Fix the content, or create a governed override:" >&2
-                echo "[Step 21]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+                echo "[Step 29] BLOCKED: staged content downgrades a published grade." >&2
+                echo "[Step 29] Fix the content, or create a governed override:" >&2
+                echo "[Step 29]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
                 _pc_step_end "FAIL"
                 _pc_exit 1
             fi
         fi
         rm -f "$_gd_blocked_list"
     else
-        echo "[Step 21] No staged modified content files — skipping."
+        echo "[Step 29] No staged modified content files — skipping."
     fi
 else
-    echo "[Step 21] SKIP: .venv not found or check_grade_downgrade.py missing." >&2
+    echo "[Step 29] SKIP: .venv not found or check_grade_downgrade.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1255,14 +1267,14 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_stale_refresh_gate.py
         "$_HOOK_PYTHON" scripts/ci/checks/check_stale_refresh_gate.py 2>&1)
     _sr_exit=$?
     if [ -n "$_sr_out" ]; then
-        echo "$_sr_out" | sed 's/^/[Step 22] /'
+        echo "$_sr_out" | sed 's/^/[Step 30] /'
     fi
     if [ $_sr_exit -ne 0 ]; then
         _pc_step_end "FAIL"
         _pc_exit 1
     fi
 else
-    echo "[Step 22] SKIP: .venv not found or check_stale_refresh_gate.py missing." >&2
+    echo "[Step 30] SKIP: .venv not found or check_stale_refresh_gate.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1282,13 +1294,13 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_contract_claims.py" ]
     if [ ${#_cc_files[@]} -gt 0 ]; then
         _cc_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_contract_claims.py --paths "${_cc_files[@]}" 2>&1)
         if [ -n "$_cc_out" ]; then
-            echo "$_cc_out" | sed 's/^/[Step 23] /'
+            echo "$_cc_out" | sed 's/^/[Step 31] /'
         fi
     else
-        echo "[Step 23] No staged skill/registry files — skipping."
+        echo "[Step 31] No staged skill/registry files — skipping."
     fi
 else
-    echo "[Step 23] SKIP: .venv not found or check_contract_claims.py missing." >&2
+    echo "[Step 31] SKIP: .venv not found or check_contract_claims.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1318,7 +1330,7 @@ if [ ${#staged_ref_index[@]} -gt 0 ]; then
             scripts/ci/checks/check_reference_index_structure.py 2>&1)
         _ref_exit=$?
         if [ -n "$_ref_out" ]; then
-            echo "$_ref_out" | sed 's/^/[Step 24] /'
+            echo "$_ref_out" | sed 's/^/[Step 32] /'
         fi
         if [ $_ref_exit -ne 0 ]; then
             echo ""
@@ -1328,14 +1340,14 @@ if [ ${#staged_ref_index[@]} -gt 0 ]; then
             _pc_exit 1
         fi
     else
-        echo "[Step 24] SKIP: .venv not found or check_reference_index_structure.py missing." >&2
+        echo "[Step 32] SKIP: .venv not found or check_reference_index_structure.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"
 
 _pc_step_start "skill-mirror parity"
 # ---------------------------------------------------------------------------
-# Step 25: skill/mirror parity gate. sync_skills.py (--check/--report) only
+# Step 33: skill/mirror parity gate. sync_skills.py (--check/--report) only
 # detects drift between canonical skills/*.md and its 3 provider mirrors
 # (.claude/commands/, .agents/skills/, .kilocode/skills/); it has zero write
 # capability. CI (skill-governance.yml) already runs that check on every
@@ -1358,13 +1370,13 @@ if [ ${#staged_skill_files[@]} -gt 0 ]; then
         _smp_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
             scripts/ci/checks/check_skill_mirror_parity.py --staged-files "${staged_skill_files[@]}" 2>&1)
         _smp_exit=$?
-        echo "$_smp_out" | sed 's/^/[Step 25] /'
+        echo "$_smp_out" | sed 's/^/[Step 33] /'
         if [ $_smp_exit -ne 0 ]; then
             _pc_step_end "FAIL"
             _pc_exit 1
         fi
     else
-        echo "[Step 25] SKIP: .venv not found or check_skill_mirror_parity.py missing." >&2
+        echo "[Step 33] SKIP: .venv not found or check_skill_mirror_parity.py missing." >&2
     fi
     # TC-CIR-04 (2026-08-10 CI reliability reassessment): skills/registry.json
     # currency. Previously checked ONLY in skill-governance.yml, which fails
@@ -1377,16 +1389,16 @@ if [ ${#staged_skill_files[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_skill_registry_json.py" ]; then
         _srj_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_skill_registry_json.py 2>&1)
         _srj_exit=$?
-        echo "$_srj_out" | sed 's/^/[Step 25b] /'
+        echo "$_srj_out" | sed 's/^/[Step 33] /'
         if [ $_srj_exit -ne 0 ]; then
             _pc_step_end "FAIL"
             _pc_exit 1
         fi
     else
-        echo "[Step 25b] SKIP: .venv not found or check_skill_registry_json.py missing." >&2
+        echo "[Step 33] SKIP: .venv not found or check_skill_registry_json.py missing." >&2
     fi
 else
-    echo "[Step 25] No staged skill/mirror files — skipping."
+    echo "[Step 33] No staged skill/mirror files — skipping."
 fi
 _pc_step_end "PASS"
 
@@ -1450,22 +1462,22 @@ if [ ${#staged_non_content_files[@]} -gt 0 ]; then
                 done <<< "$_sfr_files"
             fi
             if [ $_sfr_override_ok -eq 1 ]; then
-                echo "[Step 30] Stale-file regression permitted by pending override token(s)." >&2
+                echo "[Step 34] Stale-file regression permitted by pending override token(s)." >&2
             else
-                echo "$_sfr_out" | sed 's/^/[Step 30] /'
-                echo "[Step 30] BLOCKED: staged content looks like a silent revert of a more" >&2
-                echo "[Step 30] recent commit. Re-read the current file and reapply your change" >&2
-                echo "[Step 30] on top of it, or if this revert is intentional, create a governed" >&2
-                echo "[Step 30]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+                echo "$_sfr_out" | sed 's/^/[Step 34] /'
+                echo "[Step 34] BLOCKED: staged content looks like a silent revert of a more" >&2
+                echo "[Step 34] recent commit. Re-read the current file and reapply your change" >&2
+                echo "[Step 34] on top of it, or if this revert is intentional, create a governed" >&2
+                echo "[Step 34]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
                 _pc_step_end "FAIL"
                 _pc_exit 1
             fi
         fi
     else
-        echo "[Step 30] SKIP: .venv not found or check_stale_file_regression.py missing." >&2
+        echo "[Step 34] SKIP: .venv not found or check_stale_file_regression.py missing." >&2
     fi
 else
-    echo "[Step 30] No staged non-content files — skipping."
+    echo "[Step 34] No staged non-content files — skipping."
 fi
 _pc_step_end "PASS"
 
@@ -1499,15 +1511,15 @@ if [ ${#staged_media_files[@]} -gt 0 ]; then
             "$_HOOK_PYTHON" scripts/ci/checks/check_media_asset_size.py 2>&1)
         _mas_exit=$?
         if [ $_mas_exit -ne 0 ]; then
-            echo "$_mas_out" | sed 's/^/[Step 31] /' >&2
+            echo "$_mas_out" | sed 's/^/[Step 35] /' >&2
             _pc_step_end "FAIL"
             _pc_exit 1
         fi
     else
-        echo "[Step 31] SKIP: .venv not found or check_media_asset_size.py missing." >&2
+        echo "[Step 35] SKIP: .venv not found or check_media_asset_size.py missing." >&2
     fi
 else
-    echo "[Step 31] No staged static/media/ files — skipping."
+    echo "[Step 35] No staged static/media/ files — skipping."
 fi
 _pc_step_end "PASS"
 
@@ -1531,14 +1543,14 @@ if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_backlog_reconciliatio
         "$_HOOK_PYTHON" scripts/ci/checks/check_backlog_reconciliation_gate.py 2>&1)
     _brg_exit=$?
     if [ -n "$_brg_out" ]; then
-        echo "$_brg_out" | sed 's/^/[Step 32] /'
+        echo "$_brg_out" | sed 's/^/[Step 36] /'
     fi
     if [ $_brg_exit -ne 0 ]; then
         _pc_step_end "FAIL"
         _pc_exit 1
     fi
 else
-    echo "[Step 32] SKIP: .venv not found or check_backlog_reconciliation_gate.py missing." >&2
+    echo "[Step 36] SKIP: .venv not found or check_backlog_reconciliation_gate.py missing." >&2
 fi
 _pc_step_end "PASS"
 
@@ -1576,7 +1588,7 @@ elif [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_backlink_compliance
     fi
     _pc_step_end "PASS"
 else
-    echo "[Step 33] SKIP: .venv not found or check_backlink_compliance.py missing." >&2
+    echo "[Step 37] SKIP: .venv not found or check_backlink_compliance.py missing." >&2
     _pc_step_end "SKIP"
 fi
 
