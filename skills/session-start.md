@@ -49,11 +49,33 @@ any user request.
       echo "   Recovery: bash scripts/install-hooks.sh"
     fi
     ```
-    Warning only — does not block the session, matching the venv-health check
-    directly above it. A missing hook install is a real risk (every local
-    Tier 1 gate this repo relies on silently does nothing without it) but
-    session-start's role is to surface it loudly, not to auto-repair without
-    the operator's awareness.
+    Warning only — does not block the session. A missing hook install is a
+    real risk (every local Tier 1 gate this repo relies on silently does
+    nothing without it) but session-start's role is to surface it loudly,
+    not to auto-repair without the operator's awareness.
+4c. Verify the active `.venv` Python matches `.python-version` (2026-08-26
+    pipeline reliability hardening, reports/skill-gaps/
+    2026-08-26-pipeline-reliability-hardening.md): `pre-commit-audit.sh`'s
+    own Step 0 already warns on this mismatch, but only at commit time,
+    easy to miss in a wall of hook output — surfacing it once, loudly, at
+    session start is cheaper than discovering it 46 commits later. Same
+    warning-only posture as 4b: this repo's CI pins Python via
+    `actions/setup-python@v5` reading `.python-version`, so a local
+    mismatch is a real, confirmed risk of silent local/CI divergence, but
+    session-start does not auto-rebuild the venv without the operator's
+    awareness.
+    ```bash
+    if [ -f .python-version ] && [ -f .venv/Scripts/python -o -f .venv/bin/python ]; then
+      pinned=$(cat .python-version | tr -d '[:space:]')
+      active=$(.venv/Scripts/python --version 2>/dev/null || .venv/bin/python --version 2>/dev/null)
+      active_mm=$(echo "$active" | grep -oE '[0-9]+\.[0-9]+' | head -1)
+      if [ -n "$active_mm" ] && [ "$active_mm" != "$pinned" ]; then
+        echo "⚠️  Warning: active .venv Python is ${active_mm}, repo pins ${pinned} (.python-version)."
+        echo "   Behavior may diverge from CI silently."
+        echo "   Recovery: rm -rf .venv && .venv/Scripts/python -m venv .venv && .venv/Scripts/pip install -r scripts/ci/requirements.txt"
+      fi
+    fi
+    ```
 5. Initialize the session ledger (captures dirty-file snapshot for `/commit` scoping):
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
