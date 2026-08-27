@@ -226,6 +226,11 @@ _LITERAL_AND_BUILTIN_TOKENS = {
     "OSError", "IOError", "ZeroDivisionError", "OverflowError",
     "MemoryError", "NameError", "PermissionError", "TimeoutError",
     "ConnectionError", "ArithmeticError", "LookupError",
+    # Found live 2026-08-27, barcode/python: correct Python-version-compat
+    # prose ("If you see `SyntaxError` or import failures, verify your
+    # Python version") produced a false INVALID_SYMBOL finding -- the set
+    # above was not exhaustive over Python's builtin exception hierarchy.
+    "SyntaxError",
 }
 
 # RPR-ST089-02: a token made ENTIRELY of hex digit characters (0-9, A-F), in

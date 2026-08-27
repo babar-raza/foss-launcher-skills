@@ -59,6 +59,24 @@ _pc_step_end() {
 
 _pc_print_summary() {
     echo ""
+    if [ "${#_PC_NAMES[@]}" -ne "${#_PC_RESULTS[@]}" ]; then
+        # Found live 2026-08-27 (KB slug quality, Step 20): a block whose only
+        # _pc_step_end call sits inside a conditional that isn't always reached
+        # silently desyncs _PC_RESULTS from _PC_NAMES -- every step label/result
+        # pairing from that point on is then WRONG (a later step's FAIL gets
+        # displayed under an earlier step's name), with no other symptom. This
+        # is the second independent instance of this bug class found in this
+        # script (the first: "docs developer-guide slug quality", fixed
+        # 2026-08-26) -- loud, permanent detection beats trying to statically
+        # prove every block's branch coverage is complete.
+        echo "INTERNAL ERROR: pre-commit-audit.sh step-tracking desynchronized" >&2
+        echo "  _PC_NAMES has ${#_PC_NAMES[@]} entries but _PC_RESULTS has ${#_PC_RESULTS[@]}." >&2
+        echo "  Some _pc_step_start call is missing a reachable _pc_step_end (or a step_end" >&2
+        echo "  fired without its own step_start). Every step label/result pairing in the" >&2
+        echo "  summary below this point is UNTRUSTWORTHY -- do not act on it. This is a bug" >&2
+        echo "  in pre-commit-audit.sh itself; find the unbalanced block and fix it there." >&2
+        echo "" >&2
+    fi
     echo "=== Pre-commit Summary ==="
     local _pass=0 _skip=0 _warn=0 _fail=0
     for i in "${!_PC_NAMES[@]}"; do
@@ -895,6 +913,9 @@ if [ ${#staged_kb_howto[@]} -gt 0 ]; then
         echo "[Step 20] SKIP: .venv not found or check_kb_slug_quality.py missing." >&2
     fi
 fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
 _pc_step_start "Blog post standards"
 # Step 21: Blog post standards gate (check_blog_post_standards.py)
 # Checks staged blog.aspose.org post frontmatter for tag leakage, category

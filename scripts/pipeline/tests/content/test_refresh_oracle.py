@@ -144,14 +144,17 @@ def test_python_builtins_and_literals_are_allowed(tmp_path):
     boolean literals, and common builtin exception names are never API
     symbols regardless of family/platform. Found live 2026-08-18,
     cells/python: correct error-handling and formula prose produced false
-    INVALID_SYMBOL findings on `None`, `False`, `AttributeError`, etc."""
+    INVALID_SYMBOL findings on `None`, `False`, `AttributeError`, etc.
+    Extended live 2026-08-27, barcode/python: `SyntaxError` (Python-version
+    compatibility prose) was missing from the same allowlist."""
     page = _make_page(
         tmp_path,
         "content/page.md",
         "---\ntitle: Test\n---\n\n"
         "If the value is `None`, skip it. Use `=IF(A1,TRUE,FALSE)` for the "
         "formula. This raises `AttributeError` or `FileNotFoundError` on "
-        "failure.\n",
+        "failure. If you see `SyntaxError` or import failures, verify your "
+        "Python version.\n",
     )
     api_surface = {"Workbook", "Worksheet"}
     findings = ro._validate_api_symbols(str(page), api_surface)
