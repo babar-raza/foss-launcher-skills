@@ -316,6 +316,9 @@ def _normalize_body(body: str) -> str:
     return "\n".join(line.rstrip() for line in body.replace("\r\n", "\n").splitlines())
 
 
+_CONTENT_HASH_LINE_RE = re.compile(r"^[ \t]*content_hash:[^\n]*\n?", re.MULTILINE)
+
+
 def compute_content_hash(filepath: Path) -> str:
     """Return first 32 hex chars of SHA-256 of the normalized page body (after frontmatter).
 
@@ -332,6 +335,16 @@ def compute_content_hash(filepath: Path) -> str:
     fall back to hashing the frontmatter text itself, so real changes to
     whole-frontmatter pages are actually detected. Pages with real body content are
     completely unaffected -- the fallback only activates when body is empty.
+
+    Found live 2026-08-27 committing a whole-frontmatter products.aspose.org page:
+    the frontmatter-fallback text captured by _FRONTMATTER_RE includes the page's
+    OWN `content_hash:` line, so hashing it verbatim is self-referential -- writing
+    a new hash changes the frontmatter text, which changes the computed hash again,
+    which never converges (every `provenance_normalize_hash.py --apply` run reports
+    the file freshly "stale" no matter how many times it's re-run). Strip the
+    content_hash line itself from the fallback-hashed text so the fixed point
+    actually exists. Only affects the whole-frontmatter fallback path -- pages with
+    real body content hash the body only and were never affected.
     """
     try:
         text = filepath.read_text(encoding="utf-8")
@@ -341,7 +354,8 @@ def compute_content_hash(filepath: Path) -> str:
     body = text[fm.end():] if fm else text
     normalized = _normalize_body(body)
     if fm and not normalized.strip():
-        normalized = _normalize_body(fm.group(2))
+        fm_text_no_hash = _CONTENT_HASH_LINE_RE.sub("", fm.group(2))
+        normalized = _normalize_body(fm_text_no_hash)
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
 
 

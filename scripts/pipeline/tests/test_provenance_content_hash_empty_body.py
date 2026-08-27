@@ -139,3 +139,79 @@ class TestEmptyBodyContentHash:
         finally:
             page_a.unlink()
             page_b.unlink()
+
+
+class TestContentHashSelfReferenceConvergence:
+    """Found live 2026-08-27 committing a real products.aspose.org page: the
+    whole-frontmatter fallback (above) hashes `fm.group(2)` verbatim, which
+    includes the page's OWN `content_hash:` line -- self-referential. Writing
+    a freshly-computed hash into the frontmatter changes the frontmatter text,
+    which changes the computed hash again on the next check, forever. Every
+    `provenance_normalize_hash.py --apply` run reported the file freshly
+    "stale" no matter how many times it was re-run, permanently blocking any
+    whole-frontmatter page's commit once it needed a genuine content_hash
+    update. Fixed by stripping the content_hash line itself before hashing.
+    """
+
+    def test_writing_the_computed_hash_back_produces_a_stable_fixed_point(self):
+        """The exact regression: compute a hash, write it into the file's own
+        content_hash field, then recompute -- the second computation must
+        equal the first (a real fixed point), not a third, different value."""
+        page = _tmp_md("""\
+            ---
+            layout: plugin
+            plugin_description: Some real content that needs a hash.
+            provenance:
+              content_hash: 00000000000000000000000000000000
+            ---
+        """)
+        try:
+            first = compute_content_hash(page)
+            # Simulate provenance_normalize_hash.py --apply writing `first`
+            # into the file's own content_hash field.
+            text = page.read_text(encoding="utf-8")
+            text = text.replace(
+                "content_hash: 00000000000000000000000000000000",
+                f"content_hash: {first}",
+            )
+            page.write_text(text, encoding="utf-8")
+
+            second = compute_content_hash(page)
+            assert second == first, (
+                f"Hash changed after writing itself back into the file "
+                f"({first!r} -> {second!r}) -- self-referential, no fixed point."
+            )
+
+            # A third computation (nothing changed since the second write)
+            # must also match -- true convergence, not accidental one-step luck.
+            third = compute_content_hash(page)
+            assert third == second
+        finally:
+            page.unlink()
+
+    def test_two_different_content_hash_seed_values_converge_to_the_same_result(self):
+        """Regardless of what stale content_hash value is already sitting in
+        the file when compute_content_hash runs, the fallback must ignore it
+        -- two files differing ONLY in their pre-existing (soon-to-be-
+        overwritten) content_hash value must hash identically."""
+        page_a = _tmp_md("""\
+            ---
+            layout: plugin
+            plugin_description: Same real content.
+            provenance:
+              content_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            ---
+        """)
+        page_b = _tmp_md("""\
+            ---
+            layout: plugin
+            plugin_description: Same real content.
+            provenance:
+              content_hash: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+            ---
+        """)
+        try:
+            assert compute_content_hash(page_a) == compute_content_hash(page_b)
+        finally:
+            page_a.unlink()
+            page_b.unlink()
