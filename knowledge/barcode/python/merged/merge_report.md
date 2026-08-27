@@ -1,5 +1,5 @@
 # Promote Report: barcode/python
-Date: 2026-08-24T06:38:09.583484+00:00
+Date: 2026-08-26T13:21:19.383860+00:00
 Scout SHA: 06eca5c01e13ed6d59a640f1cf330c1c5a57d151
 Source: scout-only (standalone pipeline, no FL dependency)
 

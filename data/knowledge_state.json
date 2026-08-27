@@ -201,13 +201,20 @@
   },
   "barcode/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-24T06:38:09.562684+00:00",
+      "accepted_at": "2026-08-26T13:21:19.357847+00:00",
       "repo_sha": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
-      "run_id": "promote-20260824T063809Z",
+      "run_id": "promote-20260826T132119Z",
       "sha_source": "model.yaml"
     },
     "family": "barcode",
-    "platform": "python"
+    "platform": "python",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-27T17:41:54.989943Z",
+      "report_path": "reports\\audit\\barcode-python-truth-20260827.md",
+      "verdict": "PASS",
+      "warn_count": 0
+    }
   },
   "cells/cpp": {
     "accepted_baseline": {

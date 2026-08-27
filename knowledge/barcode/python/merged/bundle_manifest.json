@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "bundle_id": "7f0bf1cf-065e-4a15-8a4d-a7ca81662736",
+  "bundle_id": "3e239639-e26c-41a7-a604-6819a790c976",
   "family": "barcode",
   "platform": "python",
   "repo_sha": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
-  "generated_at": "2026-08-24T06:38:09.461983+00:00",
+  "generated_at": "2026-08-26T13:21:19.201681+00:00",
   "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "1e7648768e928aa2f7884d9dfb7ec5ef0d635762ae92030fbbdcfc8fa2511b25",
+      "sha256": "8e777c3f5a57970482e91ff54a54b181c2d0a331d011d3c57fbc0fb7e8232c01",
       "bytes": 1224
     },
     "api_surface.json": {
@@ -17,15 +17,15 @@
       "bytes": 165754
     },
     "api_surface.md": {
-      "sha256": "b515274e0190665cec14c0a2befcf222fcbaa4d30189fa6f75f35ce8a1a4dad8",
+      "sha256": "a0d7827c24209fd5d78325fad095dfb7e6b7d5b5c490d23d52b415b89fb69e63",
       "bytes": 18757
     },
     "formats.json": {
-      "sha256": "91690ce02aba08aacaab42b4d8683d6c1e8fb6ac32a0e6feeefafe6f143d5109",
+      "sha256": "b886182ac98370e8ba072011424a7efe3313f5135cfb9fa1b9e54ec0edc111b0",
       "bytes": 1232
     },
     "formats.md": {
-      "sha256": "ba57a00bc7813af8f6c734fe870faedc558bdfab706e17d227062b29f92c6a05",
+      "sha256": "a68de0b7d18dcc026833c876d2ffb1390176bd1acb707a49cc05126301e917bc",
       "bytes": 315
     },
     "claims.json": {
@@ -41,7 +41,7 @@
       "bytes": 185
     },
     "merge_report.md": {
-      "sha256": "f16d9b0652dab5d0d6408d977d338247141bf96efff576e821489f7740bd6dcf",
+      "sha256": "ab4491a05538d8ee28996b240f1a4aa932199fb771b8a3fd85fd776318a7c60b",
       "bytes": 514
     },
     "snippets/snippet_001.py": {
@@ -449,6 +449,6 @@
       "bytes": 38088
     }
   },
-  "promote_run_id": "promote-20260824T063809Z",
+  "promote_run_id": "promote-20260826T132119Z",
   "status": "COMPLETE"
 }
