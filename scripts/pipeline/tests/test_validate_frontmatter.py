@@ -462,17 +462,42 @@ class TestBlogEvidence:
             shutil.rmtree(tmpdir)
 
     def test_manual_remediation_bypasses_claims_apis_check(self):
-        """Files with content_origin: manual-remediation are exempt from claims/apis check."""
+        """Files with content_origin: manual-remediation are exempt from claims/apis check.
+
+        Found live 2026-08-27: this assertion originally filtered to only
+        `check == "blog_evidence"` errors, so it never noticed that the SAME
+        fixture also tripped a separate `provenance_validity` error --
+        `_VALID_CONTENT_ORIGINS` had never been updated to include
+        "manual-remediation" even though `_check_blog_evidence()` (this exact
+        check) already special-cases it. S-72 (evidence-repair)'s documented
+        Safe-Escape path (its own skill contract) sets exactly this value plus
+        `last_mechanism: evidence-attach` -- meaning the sanctioned escape
+        hatch this test claims to verify could never actually pass full
+        validation, undetected because this test's own scoping was too
+        narrow. Asserting zero errors of ANY kind is the real contract.
+        """
         tmpdir, p = _blog_file(_BLOG_MANUAL_REMEDIATION)
         try:
             errors = check_file(p)
-            # Should have no blog_evidence errors about claims or apis
-            claims_api_errs = [
-                e for e in errors
-                if e.check == "blog_evidence" and ("claims" in e.detail or "apis" in e.detail)
-            ]
-            assert claims_api_errs == [], (
-                f"manual-remediation should bypass claims/apis check, got: {claims_api_errs}"
+            assert errors == [], f"manual-remediation must produce zero errors, got: {errors}"
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_s72_safe_escape_contract_exact_values_pass(self):
+        """S-72 (evidence-repair)'s own documented Safe-Escape contract (Step 10/12)
+        sets content_origin: manual-remediation AND last_mechanism: evidence-attach
+        together -- verify that EXACT pairing passes with zero errors, not just
+        content_origin in isolation (see test_manual_remediation_bypasses_claims_apis_check's
+        docstring for the live incident this closes)."""
+        fixture = _BLOG_MANUAL_REMEDIATION.replace(
+            "last_mechanism: agent-edit", "last_mechanism: evidence-attach",
+        )
+        tmpdir, p = _blog_file(fixture)
+        try:
+            errors = check_file(p)
+            assert errors == [], (
+                f"S-72's exact Safe-Escape frontmatter (content_origin: manual-remediation, "
+                f"last_mechanism: evidence-attach) must produce zero errors, got: {errors}"
             )
         finally:
             shutil.rmtree(tmpdir)

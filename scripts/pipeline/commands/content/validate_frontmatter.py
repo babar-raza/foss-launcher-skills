@@ -63,12 +63,29 @@ _VALID_MECHANISMS = frozenset({
     "fixer", "content-fixer", "metadata-fixer",
     "skill", "agent-edit", "human-edit", "manual-edit-skill",
     "page-update", "page-enhance", "heal-page", "family-sync",
+    # S-72 (evidence-repair)'s Safe-Escape path sets this exact value (its own
+    # skill contract, Step 10/12) -- omitted here until 2026-08-27, meaning
+    # S-72's documented Safe-Escape could never actually pass this check.
+    # _check_blog_evidence() (below) already special-cases the paired
+    # content_origin value ("manual-remediation"); this list had simply never
+    # been updated to match.
+    "evidence-attach",
     "unknown",
 })
 
 # Valid content_origin values
 _VALID_CONTENT_ORIGINS = frozenset({
     "skill-generated", "agent-drafted", "human-authored", "family-sync", "unknown",
+    # S-72 (evidence-repair)'s Safe-Escape path (Step 12) and AGENTS.md §7
+    # ("Files with content_origin: manual-remediation are temporarily exempt")
+    # both treat this as a real, sanctioned state; _check_blog_evidence()
+    # below already reads it (line ~244) -- this allowlist just never caught
+    # up. Found live 2026-08-27 fixing barcode/python's evidence-refresh
+    # backlog: two blog posts legitimately safe-escaped (no claims.json entry
+    # traceable to their public-API-focused prose) and failed this generic
+    # provenance-validity check despite passing the specific one meant for
+    # exactly this case.
+    "manual-remediation",
 })
 
 # Window (days) within which a page is considered "recently graded" for the
