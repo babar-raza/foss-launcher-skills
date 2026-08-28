@@ -41,7 +41,7 @@ Environment:
     GITHUB_TOKEN  Fallback only. The aspose-*-foss orgs reject fine-grained PATs with
                   a lifetime over 366 days, so this variable 403s here (ST-058).
     ASPOSE_ORG    Comma-separated GitHub organisations to scan
-                  (default: all 25 aspose-{family}-foss orgs).
+                  (default: all 26 aspose-{family}-foss orgs).
 """
 from __future__ import annotations
 
@@ -98,6 +98,7 @@ _DEFAULT_ORGS = [
     "aspose-font-foss",
     "aspose-gis-foss",
     "aspose-html-foss",
+    "aspose-imaging-foss",
     "aspose-medical-foss",
     "aspose-note-foss",
     "aspose-ocr-foss",

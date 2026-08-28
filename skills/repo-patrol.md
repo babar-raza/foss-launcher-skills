@@ -13,12 +13,12 @@ verified: '2026-08-05'
 
 ## Purpose
 
-Scan all 25 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.
+Scan all 26 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.
 
 ## When to use
 
 Run at the start of a session or weekly to check for new FOSS repositories that have been
-added to the 25 Aspose GitHub organisations.
+added to the 26 Aspose GitHub organisations.
 
 ## Credentials (ST-058 — read this before debugging an apparent "hang")
 

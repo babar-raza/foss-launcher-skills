@@ -600,7 +600,7 @@
       "id": "S-93",
       "slug": "repo-patrol",
       "name": "Repo Patrol -- Scan and Diff",
-      "description": "Scan all 25 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.",
+      "description": "Scan all 26 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.",
       "internal": false,
       "canonical_path": "skills/repo-patrol.md"
     },

@@ -28,7 +28,7 @@ Environment:
     GH_TOKEN       GitHub classic PAT — preferred credential for scan.
     GITHUB_TOKEN   Fallback only. The aspose-*-foss orgs reject fine-grained PATs
                    with a lifetime over 366 days, so this variable 403s here (ST-058).
-    ASPOSE_ORG     Comma-separated GitHub organisations (overrides default 25).
+    ASPOSE_ORG     Comma-separated GitHub organisations (overrides default 26).
 
 Output:
     reports/discovery/patrol_report.json

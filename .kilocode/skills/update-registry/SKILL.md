@@ -45,7 +45,9 @@ memory; the only persisted record of discovery results is this file.
 2. `requests>=2.28` installed (`pip show requests`)
 3. `GH_TOKEN` set to a **classic** PAT, or passed via `--token` (required for live GitHub
    scan; not required for `--local-only`). `GITHUB_TOKEN` holds a fine-grained PAT that all
-   25 `aspose-*-foss` orgs reject with HTTP 403 (>366-day-lifetime policy, ST-058) — it is
+   25 of the 26 `aspose-*-foss` orgs reject with HTTP 403 (>366-day-lifetime policy, ST-058;
+   `aspose-imaging-foss`, created 2026-08-26, still accepted it on 2026-08-28 — its org policy
+   is evidently not applied yet, so do not rely on that) — it is
    only a last-resort fallback in the resolution order.
 
    Exit codes: 0 = registry written; 1 = `--reconcile` found a MISSING/STALE signal;
