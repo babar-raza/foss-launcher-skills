@@ -52,6 +52,7 @@ if _LIB_DIR not in sys.path:
 
 import argparse
 import glob
+import hashlib
 import json
 import re
 from typing import Any
@@ -316,7 +317,20 @@ def _discover_pages(family: str, platform: str) -> list[str]:
 def run_file(page_path: str, output_dir: str) -> dict:
     """Parse a single file and write claim_map.json to output_dir."""
     claim_map = parse_page(page_path)
-    slug = page_path.replace("/", "_").replace("\\", "_").replace(":", "")
+    # Truncate + hash-suffix the slug (mirrors refresh_oracle.py's
+    # _emit_verdict, the established precedent for this exact problem): a
+    # long content page path under output_dir's own deeply-nested run
+    # directory can push the full file path over Windows' 260-char MAX_PATH,
+    # crashing open() with a FileNotFoundError that looks like a missing
+    # directory (mkdir below succeeds fine -- the final open() is what
+    # fails). The filename itself is never read back (body_impact.py globs
+    # `*.claim_map.json` and keys results by the `page_path` field inside
+    # each file, not the filename), so truncation is safe. Found live
+    # 2026-08-28, cells/typescript.
+    normalized_path = page_path.replace("\\", "/")
+    digest = hashlib.sha1(normalized_path.encode("utf-8")).hexdigest()[:10]
+    slug_base = page_path.replace("/", "_").replace("\\", "_").replace(":", "")[:80]
+    slug = f"{slug_base}_{digest}"
     out = Path(output_dir) / f"{slug}.claim_map.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:

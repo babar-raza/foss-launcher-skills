@@ -174,3 +174,35 @@ Install `Aspose.PDF` using NuGet for .NET 6.
     assert "sections" in loaded
     total = sum(len(s["claims"]) for s in loaded["sections"])
     assert total >= 1
+
+
+def test_claim_map_filename_is_truncated_and_hash_suffixed(tmp_path):
+    """Found live 2026-08-28, cells/typescript: a long content page path
+    under a deeply-nested run output directory pushed the full claim_map
+    file path over Windows' 260-char MAX_PATH, crashing open() with a
+    FileNotFoundError that looked like a missing-directory bug (mkdir had
+    already succeeded). The slug must be truncated (mirrors refresh_oracle.py's
+    _emit_verdict) regardless of how long the input page_path is, with a
+    hash suffix so two truncated-to-the-same-prefix pages still get distinct
+    filenames."""
+    # Flat (not nested) so the real fixture path itself stays well under
+    # Windows' 260-char MAX_PATH on any machine/CI runner -- only the
+    # page_path STRING passed to run_file (and thus fed into slug
+    # generation) needs to exceed 80 chars to exercise the truncation path.
+    long_name = "a-very-long-descriptive-page-slug-that-exceeds-eighty-characters-on-its-own"
+    p = tmp_path / f"{long_name}.md"
+    p.write_text("---\ntitle: Test\n---\n\nBody.\n", encoding="utf-8")
+    assert len(str(p)) > 80
+    out_dir = str(tmp_path / "claim_maps")
+    cp.run_file(str(p), out_dir)
+    files = list(Path(out_dir).glob("*.claim_map.json"))
+    assert len(files) == 1
+    # slug_base (before "_{10-char digest}.claim_map.json") must be capped
+    # at 80 chars regardless of how long the source page_path string is --
+    # the fixed-size digest+suffix means the total filename length is then
+    # bounded too (80 + 1 + 10 + len(".claim_map.json") = 107), unlike the
+    # unbounded-by-construction original.
+    slug = files[0].name.removesuffix(".claim_map.json")
+    slug_base, _, digest = slug.rpartition("_")
+    assert len(slug_base) <= 80
+    assert len(digest) == 10
