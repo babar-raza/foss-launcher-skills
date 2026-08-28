@@ -996,8 +996,19 @@ def detect_backlink_downgrade(before_body: str, after_body: str) -> str | None:
 # pairs instead of bare URLs -- needed to detect WRONG_ANCHOR_TEXT, which
 # count_qualifying_com_links() structurally cannot see (it only ever
 # extracted the URL half of a link, by design, for its original purpose).
+# The anchor-text class deliberately excludes '[', ']', and newlines (not
+# just ']') -- found live 2026-08-28 auditing reference.aspose.org/pdf/net
+# pages: a `[^\]]+` class allows a stray, unpaired '[' elsewhere in the body
+# (e.g. half-open interval notation like "the substring [fromInd, toInd)" in
+# a method-table description) to be swallowed into the match, which then
+# hunts across newlines/table rows for the next ']' -- landing on a real
+# link's own closing bracket far downstream and extracting ~1400 chars of
+# unrelated table prose as "anchor text" instead of the real, correct
+# anchor. Real anchor text in this codebase's generated content is always a
+# single line with no literal brackets, so excluding both bracket
+# characters and '\n' from the class is a safe, non-lossy restriction.
 MD_ASPOSE_COM_LINK_RE = re.compile(
-    r'\[([^\]]+)\]\((https?://[a-z0-9.-]+\.aspose\.com/[^\s\)]*)\)',
+    r'\[([^\[\]\n]+)\]\((https?://[a-z0-9.-]+\.aspose\.com/[^\s\)]*)\)',
     re.IGNORECASE,
 )
 

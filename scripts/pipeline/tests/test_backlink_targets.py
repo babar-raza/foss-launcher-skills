@@ -54,6 +54,7 @@ from lib.backlink_targets import (
     classify_page_type,
     resolve_backlink,
     count_qualifying_com_links,
+    extract_qualifying_com_links,
     detect_backlink_downgrade,
     classify_compliance,
     classify_kb_anchor_status,
@@ -447,6 +448,51 @@ class TestCountQualifyingLinks:
         text = "For support, visit the [Aspose Forum](https://forum.aspose.com/c/cells) here."
         count, _ = count_qualifying_com_links(text)
         assert count == 0
+
+
+# ── extract_qualifying_com_links tests ───────────────────────────────────────
+
+class TestExtractQualifyingComLinks:
+
+    def test_extracts_anchor_text_and_url(self):
+        text = "See [Aspose.Words](https://products.aspose.com/words/net/) for details."
+        pairs = extract_qualifying_com_links(text)
+        assert pairs == [("Aspose.Words", "https://products.aspose.com/words/net/")]
+
+    def test_unpaired_bracket_before_real_link_does_not_swallow_prose(self):
+        """Reproduces a live defect found running check_backlink_compliance.py
+        against reference.aspose.org/pdf/net pages: an unrelated method-table
+        description using half-open interval notation ("the substring
+        [fromInd, toInd)") has a literal '[' with no matching ']' anywhere on
+        its own line. The old pattern (`[^\\]]+`, greedy but only excluding
+        ']') happily crossed table rows and newlines from that stray '[' all
+        the way to the REAL link's own ']', extracting a ~1400-char blob of
+        table prose as the "anchor text" instead of the real ~46-char anchor
+        -- which then spuriously failed WRONG_ANCHOR_TEXT against a page whose
+        actual anchor wording was already correct (confirmed live on
+        FreeTextAnnotation.md and TextFragment.md, 2026-08-28)."""
+        text = (
+            "| `SetTextStyle(fromInd: int, toInd: int)` | Apply style to the "
+            "substring [fromInd, toInd). |\n"
+            "\n## See Also\n\n"
+            "- [Aspose.PDF for .NET — Enterprise API Reference]"
+            "(https://reference.aspose.com/pdf/net/aspose.pdf.annotations/freetextannotation/)\n"
+        )
+        pairs = extract_qualifying_com_links(text)
+        assert pairs == [
+            (
+                "Aspose.PDF for .NET — Enterprise API Reference",
+                "https://reference.aspose.com/pdf/net/aspose.pdf.annotations/freetextannotation/",
+            )
+        ]
+
+    def test_anchor_text_does_not_cross_newlines(self):
+        """A '[' with no ']' on the same line must never let the match
+        continue hunting on a later line -- real anchor text in this
+        codebase's generated content is always single-line."""
+        text = "range [0, 10)\nmore text\n[Real Anchor](https://products.aspose.com/cells/)"
+        pairs = extract_qualifying_com_links(text)
+        assert pairs == [("Real Anchor", "https://products.aspose.com/cells/")]
 
     def test_forum_not_counted_alongside_real_link(self):
         """forum link mixed with a real enterprise link — only real link counts."""
