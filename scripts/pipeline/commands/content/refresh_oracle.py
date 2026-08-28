@@ -315,6 +315,23 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # AWT/AWT-image types used correctly in prose describing rendering
         # output.
         "CompositeContext", "BasicStroke", "BufferedImage",
+        # Python stdlib email.message.EmailMessage -- MapiMessage's own
+        # from_email_message()/to_email_message() methods genuinely take and
+        # return this stdlib type for MSG<->EML interop, so it's a correct
+        # reference in prose/code describing those methods, not an
+        # aspose-email-foss API class (absent from api_surface.json by
+        # design, same reasoning as the JDK AWT types above). Found live
+        # 2026-08-28, email/python's MapiMessage.md reference page.
+        "EmailMessage",
+        # TypeScript/DOM standard lib.dom.d.ts Document interface --
+        # DOMParser.parseFromString()'s own real return type, not an
+        # aspose-cells-foss API class. Same accepted precision/recall
+        # tradeoff as every other entry in this set: a hypothetical Aspose
+        # product with its own real "Document" class would also have that
+        # citation skipped, same as already-accepted "Stream"/"Exception"/
+        # "List" above. Found live 2026-08-28, cells/typescript's
+        # DOMParser.md reference page.
+        "Document",
     }
     content_tokens = {
         "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",

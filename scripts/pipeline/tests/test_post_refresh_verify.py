@@ -919,6 +919,36 @@ class TestCheck3bIncorrectlyRetiredPages:
         passed, _ = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
         assert passed
 
+    def test_collision_name_retired_page_is_not_flagged(self, tmp_path):
+        """Found live 2026-08-28, cells/typescript: batch_reference.py's own
+        namespace-disambiguation permanently retires the old undisambiguated
+        page when a name collides between a class_declaration and an
+        interface_declaration in different source files (e.g. TypeScript's
+        `class Style` and `interface Style`) -- replaced by new, separately
+        named pages. That retirement is correct and permanent, not a
+        forgot-to-un-retire mistake, so it must not be flagged."""
+        api_path = tmp_path / "api_surface.json"
+        api_path.write_text(json.dumps([
+            {"name": "Style", "kind": "class_declaration", "file": "style.ts"},
+            {"name": "Style", "kind": "interface_declaration", "file": "types.ts"},
+            {"name": "Workbook", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+
+        ref_root = tmp_path / "ref"
+        ref_root.mkdir()
+        (ref_root / "Style.md").write_text(
+            "---\ntitle: Style\ndraft: true\nretired_at: '2026-08-28'\n---\nBody.\n",
+            encoding="utf-8",
+        )
+        (ref_root / "Workbook.md").write_text(
+            "---\ntitle: Workbook\n---\nBody.\n",
+            encoding="utf-8",
+        )
+
+        passed, failures = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
+        assert passed, f"Style.md's collision-driven retirement should not be flagged: {failures}"
+        assert failures == []
+
 
 # ---------------------------------------------------------------------------
 # Check 6: check_coverage_completeness

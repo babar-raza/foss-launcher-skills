@@ -751,6 +751,22 @@ def check_incorrectly_retired_pages(
         for e in api_list
         if isinstance(e, dict) and "name" in e and e["name"].lower() not in internal_names
     }
+    # Exclude collision names: batch_reference.py's own namespace-disambiguation
+    # (e.g. a TypeScript `class Style` and `interface Style` in different source
+    # files sharing one name) permanently retires the OLD undisambiguated page
+    # in favor of new, separately-named replacement pages -- that retirement is
+    # correct and intentional, not "forgot to un-retire when the class came
+    # back." Without this exclusion, every such collision is a false positive
+    # here forever (the plain-named page must stay draft:true; there is no
+    # "correct" un-retired state for it to reach). Found live 2026-08-28,
+    # cells/typescript: Style/DataValidation/CellCoordinates/CellRange each
+    # have both a class_declaration and an interface_declaration entry.
+    _name_counts: dict[str, int] = {}
+    for e in api_list:
+        if isinstance(e, dict) and "name" in e:
+            _n = e["name"].lower()
+            _name_counts[_n] = _name_counts.get(_n, 0) + 1
+    collision_names: set[str] = {n for n, c in _name_counts.items() if c > 1}
 
     if not ref_root.is_dir() or not valid_api_names:
         return True, []
@@ -761,6 +777,8 @@ def check_incorrectly_retired_pages(
         if class_name in ("_index",):
             continue
         if class_name not in valid_api_names:
+            continue
+        if class_name in collision_names:
             continue
         # Check if this public-API page is incorrectly retired
         try:

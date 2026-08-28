@@ -229,6 +229,42 @@ def test_awt_graphics_stdlib_types_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_python_stdlib_email_message_is_allowed(tmp_path):
+    """Python stdlib email.message.EmailMessage referenced by
+    MapiMessage.from_email_message()/to_email_message()'s own real
+    signatures is not an aspose-email-foss API class and is absent from
+    api_surface.json by design. Found live 2026-08-28, email/python's
+    MapiMessage.md reference page."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`to_email_message()` converts a `MapiMessage` into a standard Python "
+        "`EmailMessage` object.\n",
+    )
+    api_surface = {"MapiMessage", "MapiMessage.to_email_message"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_typescript_dom_document_is_allowed(tmp_path):
+    """TypeScript/DOM standard lib.dom.d.ts Document interface, returned by
+    DOMParser.parseFromString()'s own real signature, is not an
+    aspose-cells-foss API class and is absent from api_surface.json by
+    design. Found live 2026-08-28, cells/typescript's DOMParser.md
+    reference page."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`parseFromString(xml, type)` returns a `Document` object for "
+        "further manipulation.\n",
+    )
+    api_surface = {"DOMParser", "DOMParser.parseFromString"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_pdf_content_stream_operator_codes_are_allowed(tmp_path):
     """PDF content-stream operator codes (ISO 32000-1 SS A.2) are raw format
     syntax tokens explaining the spec itself, never Java class names.
