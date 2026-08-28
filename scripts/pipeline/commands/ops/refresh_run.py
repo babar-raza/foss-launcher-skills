@@ -3176,8 +3176,23 @@ def bind_commit(
         # already-authorized file) have no decision row by design; treat
         # them as expected too, mirroring _allowed_commit_paths above
         # (confirmed live 2026-08-14, 3d/java).
+        #
+        # Intersect with changed_paths rather than adding every registered
+        # path unconditionally: apply_run()'s own final normalization pass
+        # (content_hash/CRLF cleanup) re-registers EVERY path already in
+        # this sidecar with its current hash "whether or not actually
+        # rewritten -- a no-op result for an unchanged page is harmless" (see
+        # that pass's own comment) -- so the sidecar legitimately contains
+        # paths that were considered/authorized but never actually changed.
+        # Requiring every registered path to also appear in the commit's
+        # real diff turns that documented, harmless no-op into a false
+        # "missing" failure here. Found live 2026-08-28, cells/typescript:
+        # 4 docs/kb pages that backlink-reconciliation scanned (registering
+        # their unchanged hash) but genuinely left untouched.
+        _changed_casefold = {p.casefold() for p in changed_paths}
         expected_changed.update(
-            _load_extra_allowed_hashes(_run_root(family, platform, run_id)).keys()
+            p for p in _load_extra_allowed_hashes(_run_root(family, platform, run_id))
+            if p.casefold() in _changed_casefold
         )
         missing_changed_set, unexpected_changed_set = _casefold_path_diff(
             expected_changed, changed_paths

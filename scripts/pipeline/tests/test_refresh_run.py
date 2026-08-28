@@ -4129,6 +4129,136 @@ def test_bind_commit_rejects_changed_not_affected_page(tmp_path: Path):
         )
 
 
+def test_bind_commit_tolerates_extra_allowed_hash_for_a_genuinely_unchanged_page(
+    tmp_path: Path,
+):
+    """Found live 2026-08-28, cells/typescript: apply_run()'s own final
+    normalization pass re-registers EVERY already-registered extra_allowed
+    path with its current hash "whether or not actually rewritten -- a no-op
+    result for an unchanged page is harmless" (see that pass's own comment).
+    A page that backlink-reconciliation (or any other stage) scanned and
+    registered but genuinely left untouched must not be rejected as
+    'missing' from the commit's real diff just because it sits in the
+    extra_allowed_hashes sidecar -- that sidecar only proves the write was
+    AUTHORIZED if it happened, not that it DID happen."""
+    commit_sha = "c" * 40
+    scoped_page = "content/docs.aspose.org/en/pdf/net/page.md"
+    untouched_page = "content/docs.aspose.org/en/pdf/net/untouched.md"
+
+    def commit_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\n"
+                "Refresh-Run: RUN-EXTRA-NOOP\n"
+                f"Refresh-Base: {HEAD_SHA}\n"
+                f"Refresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            # Only the scoped page actually changed -- untouched_page is
+            # deliberately absent, matching a genuinely no-op registration.
+            output = scoped_page
+        elif args[:3] == ["git", "cat-file", "--filters"]:
+            # Matches _write_run_evidence's own default scoped-page content
+            # exactly -- the wrapper below appends the trailing "\n" every
+            # branch relies on, so this literal must NOT include one itself.
+            return subprocess.CompletedProcess(
+                args, 0, "---\ntitle: Test\n---\n\nGrounded body.\n", ""
+            )
+        else:
+            output = ""
+        return subprocess.CompletedProcess(args, 0, output + "\n", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-EXTRA-NOOP",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [scoped_page]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["validation"] = {
+        field: "PASS" for field in refresh_run.VALIDATION_FIELDS
+    }
+    _write_run_evidence(
+        tmp_path,
+        manifest,
+        dispositions={scoped_page: "BODY_UPDATED"},
+        include_validation=True,
+    )
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-EXTRA-NOOP"
+    # _write_run_evidence's own page.write_text() uses platform-default
+    # newline translation (CRLF on Windows); rewrite with newline="" so the
+    # on-disk bytes are bare-LF everywhere, matching both the receipt hash
+    # and this test's cat-file literal consistently (mirrors
+    # test_bind_commit_tolerates_out_of_scope_additive_generated_page).
+    scoped_content = "---\ntitle: Test\n---\n\nGrounded body.\n"
+    scoped_disk = tmp_path / scoped_page
+    scoped_disk.write_text(scoped_content, encoding="utf-8", newline="")
+    scoped_receipt_path = run_root / "receipts" / "RCP-001.yaml"
+    scoped_doc = yaml.safe_load(scoped_receipt_path.read_text(encoding="utf-8"))
+    scoped_hash = refresh_run._path_hash(scoped_page)
+    scoped_doc["content_refresh_receipt"]["new_hash"] = scoped_hash
+    scoped_receipt_path.write_text(
+        yaml.safe_dump(scoped_doc, sort_keys=False), encoding="utf-8"
+    )
+    decisions_path = run_root / "page_decisions.jsonl"
+    rows = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    for row in rows:
+        if row["page_path"] == scoped_page:
+            row["body_hash_after"] = _normalized_body_hash(scoped_content)
+            row["frontmatter_hash_after"] = _frontmatter_hash(scoped_content)
+            row["receipt_digest"] = refresh_run._file_digest(scoped_receipt_path)
+    decisions_path.write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+    receipts = sorted((run_root / "receipts").glob("*.yaml"))
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(decisions_path)
+    manifest["output_digests"]["receipts"] = "sha256:" + hashlib.sha256(
+        "\n".join(f"{p.name}:{refresh_run._file_digest(p)}" for p in receipts).encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+    # Simulate apply_run()'s final normalization pass: untouched_page was
+    # scanned (e.g. by backlink-reconciliation) and its CURRENT, unchanged
+    # hash re-registered -- it was never actually rewritten and has no
+    # decision row of its own.
+    untouched_disk = tmp_path / untouched_page
+    untouched_disk.parent.mkdir(parents=True, exist_ok=True)
+    untouched_disk.write_text("---\ntitle: Untouched\n---\n\nBody.\n", encoding="utf-8", newline="")
+    refresh_run._record_extra_allowed_hash(
+        run_root, untouched_page, refresh_run._path_hash(untouched_page)
+    )
+    refresh_run._transition(manifest, "VALIDATING")
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+
+    result = refresh_run.bind_commit(
+        "pdf",
+        "net",
+        "RUN-EXTRA-NOOP",
+        commit_sha,
+        session_id="session-1",
+    )
+    assert result["state"] == "COMMITTED"
+    assert result["commit_sha"] == commit_sha
+
+
 def test_bind_commit_rejects_substituted_in_scope_output(tmp_path: Path):
     commit_sha = "c" * 40
     page_path = "content/docs.aspose.org/en/pdf/net/page.md"
