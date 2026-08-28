@@ -2122,6 +2122,35 @@ def run(family: str, platform: str, kind_arg: str = "all",
             return existing
         return None
 
+    def _resolve_page_path(entry: dict) -> Path:
+        """Return the path an update/rebuild for *entry* must write to.
+
+        Found live 2026-08-28 (note/python, 3d/net): the canonical
+        ``output_dir / f"{_entry_slug(entry)}.md"`` path is always freshly
+        derived from the CURRENT class name, ignoring any already-tracked
+        page for that same class under a legacy casing/separator (e.g.
+        note/python's reference pages are tracked as ``attachedfile.md``,
+        while every current class name -- and this function -- derives
+        ``AttachedFile.md``). ``Path.exists()`` on a case-insensitive
+        filesystem (Windows) silently treats the two as the same file, so
+        classification into to_update/to_skip still worked there, but
+        writing to the freshly-derived path renamed the tracked file's
+        casing as a side effect of what should have been a same-name
+        update. On a case-SENSITIVE filesystem (Linux -- what actually
+        serves the site and runs CI), the same write would create a
+        genuinely NEW page under the new casing while leaving the
+        legacy-cased original orphaned: a real, silent duplicate-page
+        defect, invisible in every local (Windows) test run.
+        _existing_normalized (built from a real directory listing, so it
+        always reflects the actual on-disk casing) already exists for
+        exactly this kind of lookup -- reuse it here rather than deriving
+        fresh every time an entry is being updated, not newly generated.
+        """
+        existing = _has_slug_duplicate(entry)
+        if existing is not None:
+            return existing
+        return output_dir / f"{_entry_slug(entry)}.md"
+
     # Determine which pages to generate/update vs skip
     to_generate = []   # pages that don't exist yet (always created)
     to_update = []     # pages that exist and are in modified_apis (--update mode only)
@@ -2146,7 +2175,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     if update:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_entry_slug(entry)}.md"
+            page_path = _resolve_page_path(entry)
             if not page_path.exists():
                 # Phase B backstop: catch cross-run case collisions Phase A could not resolve
                 _dup = _has_slug_duplicate(entry)
@@ -2178,7 +2207,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         # Does not require knowledge_delta.json.
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_entry_slug(entry)}.md"
+            page_path = _resolve_page_path(entry)
             if not page_path.exists():
                 # Phase B backstop: catch cross-run case collisions Phase A could not resolve
                 _dup = _has_slug_duplicate(entry)
@@ -2205,7 +2234,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     else:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_entry_slug(entry)}.md"
+            page_path = _resolve_page_path(entry)
             if page_path.exists():
                 _skip(entry, "EXISTING_PAGE_NO_UPDATE_MODE")
             else:
@@ -2259,11 +2288,11 @@ def run(family: str, platform: str, kind_arg: str = "all",
             # scope.json, the same path format scope.json already uses
             # everywhere else (_canonical_reference_path).
             "to_generate_paths": sorted(
-                _canonical_reference_path(output_dir / f"{_entry_slug(e)}.md")
+                _canonical_reference_path(_resolve_page_path(e))
                 for e in to_generate
             ),
             "to_update_paths": sorted(
-                _canonical_reference_path(output_dir / f"{_entry_slug(e)}.md")
+                _canonical_reference_path(_resolve_page_path(e))
                 for e in to_update
             ),
         }
@@ -2445,7 +2474,22 @@ def run(family: str, platform: str, kind_arg: str = "all",
         )
 
     for entry in to_skip:
-        page_path = output_dir / f"{_entry_slug(entry)}.md"
+        reason = skip_reasons.get(_entry_slug(entry), "UNCLASSIFIED_SKIP")
+        # SLUG_DUPLICATE is the one skip reason where _resolve_page_path()
+        # would deliberately resolve to a DIFFERENT class's existing page
+        # (the whole point of the Phase B backstop) -- every other reason
+        # (AUTO_UPDATABLE_FALSE, MANUALLY_CURATED, NOT_IN_KNOWLEDGE_DELTA,
+        # EXISTING_PAGE_NO_UPDATE_MODE) only ever fires for this SAME
+        # entry's own existing page, found via _resolve_page_path() during
+        # classification above. Recording a SLUG_DUPLICATE skip against the
+        # canonical (still-nonexistent, for this entry) path -- not the
+        # colliding page's real content -- is deliberate: this entry never
+        # had a page of its own to report on.
+        page_path = (
+            output_dir / f"{_entry_slug(entry)}.md"
+            if reason == "SLUG_DUPLICATE"
+            else _resolve_page_path(entry)
+        )
         if _receipt_already_applied(page_path):
             continue
         content = page_path.read_text(encoding="utf-8") if page_path.is_file() else ""
@@ -2454,7 +2498,6 @@ def run(family: str, platform: str, kind_arg: str = "all",
             if page_path.is_file()
             else None
         )
-        reason = skip_reasons.get(_entry_slug(entry), "UNCLASSIFIED_SKIP")
         blocked = reason in {
             "AUTO_UPDATABLE_FALSE",
             "MANUALLY_CURATED",
@@ -2479,7 +2522,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         action = "Rebuilding" if is_rebuild else ("Updating" if is_update else "Generating")
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
-            page_path = output_dir / f"{_entry_slug(entry)}.md"
+            page_path = _resolve_page_path(entry)
             if _receipt_already_applied(page_path):
                 receipt = existing_run_receipts[
                     _canonical_reference_path(page_path)

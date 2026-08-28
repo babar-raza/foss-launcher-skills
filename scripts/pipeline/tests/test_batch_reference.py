@@ -1413,6 +1413,43 @@ class TestRebuildAll:
         assert result["skipped"] == 1, f"Protected page should be skipped; got {result['skipped']}"
         assert result["updated"] == 1, f"Safe page should be rebuilt; got {result['updated']}"
 
+    def test_rebuild_all_preserves_legacy_cased_existing_filename(self, tmp_path):
+        """Regression test for a confirmed bug (2026-08-28, note/python +
+        3d/net): the page-path resolution for an update/rebuild candidate
+        was always freshly derived from the CURRENT class name
+        (_entry_slug), ignoring any already-tracked page for that same
+        class under a legacy casing (note/python's reference pages are
+        tracked as e.g. "attachedfile.md" while the class is "AttachedFile"
+        -- every other product already uses matching PascalCase). On a
+        case-insensitive filesystem (Windows, this test's own machine) this
+        silently RENAMES the tracked file's casing as a side effect of what
+        should be a same-name update -- confirmed live via a real
+        directory listing showing "AttachedFile.md" where
+        "attachedfile.md" used to be. On a case-SENSITIVE filesystem
+        (Linux, what actually serves the site and runs CI), the same
+        write would create a genuinely NEW page under the new casing and
+        orphan the legacy one: a real, silent duplicate-page defect,
+        invisible in every local Windows test run. This test catches the
+        Windows-visible symptom (a directory-listing rename) as a
+        reliable proxy for the underlying cross-platform defect."""
+        merged, page_dir = self._make_setup(tmp_path, ["AttachedFile"])
+        (page_dir / "attachedfile.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n# Original\n",
+            encoding="utf-8",
+        )
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        assert result["updated"] == 1, f"Expected 1 rebuilt; got {result['updated']}"
+        assert result["generated"] == 0, (
+            "Must be classified as an update to the existing page, not a new "
+            f"generation; got generated={result['generated']}"
+        )
+        on_disk = sorted(p.name for p in page_dir.glob("*.md"))
+        assert on_disk == ["attachedfile.md"], (
+            "The existing page's real, tracked casing must be preserved on "
+            f"rebuild -- got {on_disk}"
+        )
+
     def test_rebuild_all_generates_missing_pages(self, tmp_path):
         """--rebuild-all generates pages that don't exist yet (same as default mode)."""
         merged, page_dir = self._make_setup(tmp_path, ["Existing", "New"])
