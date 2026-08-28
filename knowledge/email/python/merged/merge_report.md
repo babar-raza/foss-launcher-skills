@@ -1,5 +1,5 @@
 # Promote Report: email/python
-Date: 2026-08-24T05:29:56.024923+00:00
+Date: 2026-08-28T04:48:47.655841+00:00
 Scout SHA: 10a906b48c0c11005c4d93b524e4431901c9717c
 Source: scout-only (standalone pipeline, no FL dependency)
 

@@ -1,6 +1,6 @@
 [
   {
-    "claim_id": "CLM-email-895aab",
+    "claim_id": "CLM-email-895aab26",
     "kind": "api_method",
     "text": "Header.sector_size property of type int",
     "confidence": 1.0,
@@ -14,7 +14,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-43023b",
+    "claim_id": "CLM-email-43023bf2",
     "kind": "api_method",
     "text": "Header.mini_sector_size property of type int",
     "confidence": 1.0,
@@ -28,7 +28,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-bcbb33",
+    "claim_id": "CLM-email-bcbb3302",
     "kind": "api_method",
     "text": "Header.header_signature field of type bytes",
     "confidence": 1.0,
@@ -42,7 +42,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-805d26",
+    "claim_id": "CLM-email-805d264d",
     "kind": "api_method",
     "text": "Header.header_clsid field of type bytes",
     "confidence": 1.0,
@@ -56,7 +56,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-26cd4c",
+    "claim_id": "CLM-email-26cd4c6e",
     "kind": "api_method",
     "text": "Header.minor_version field of type int",
     "confidence": 1.0,
@@ -70,7 +70,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e0b241",
+    "claim_id": "CLM-email-e0b241b9",
     "kind": "api_method",
     "text": "Header.major_version field of type int",
     "confidence": 1.0,
@@ -84,7 +84,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8a4164",
+    "claim_id": "CLM-email-8a4164bd",
     "kind": "api_method",
     "text": "Header.byte_order field of type int",
     "confidence": 1.0,
@@ -98,7 +98,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-283a42",
+    "claim_id": "CLM-email-283a42c9",
     "kind": "api_method",
     "text": "Header.sector_shift field of type int",
     "confidence": 1.0,
@@ -112,7 +112,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ebf540",
+    "claim_id": "CLM-email-ebf5402d",
     "kind": "api_method",
     "text": "Header.mini_sector_shift field of type int",
     "confidence": 1.0,
@@ -126,7 +126,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6fa094",
+    "claim_id": "CLM-email-6fa094ba",
     "kind": "api_method",
     "text": "Header.reserved field of type bytes",
     "confidence": 1.0,
@@ -140,7 +140,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-42d94c",
+    "claim_id": "CLM-email-42d94c8f",
     "kind": "api_method",
     "text": "Header.number_of_directory_sectors field of type int",
     "confidence": 1.0,
@@ -154,7 +154,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-af6908",
+    "claim_id": "CLM-email-af69081b",
     "kind": "api_method",
     "text": "Header.number_of_fat_sectors field of type int",
     "confidence": 1.0,
@@ -168,7 +168,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e2834c",
+    "claim_id": "CLM-email-e2834cde",
     "kind": "api_method",
     "text": "Header.first_directory_sector_location field of type SectorNumber",
     "confidence": 1.0,
@@ -182,7 +182,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1ba46c",
+    "claim_id": "CLM-email-1ba46ce6",
     "kind": "api_method",
     "text": "Header.transaction_signature_number field of type int",
     "confidence": 1.0,
@@ -196,7 +196,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b57baf",
+    "claim_id": "CLM-email-b57baf81",
     "kind": "api_method",
     "text": "Header.mini_stream_cutoff_size field of type int",
     "confidence": 1.0,
@@ -210,7 +210,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-60f1dc",
+    "claim_id": "CLM-email-60f1dc93",
     "kind": "api_method",
     "text": "Header.first_mini_fat_sector_location field of type SectorNumber",
     "confidence": 1.0,
@@ -224,7 +224,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d373e4",
+    "claim_id": "CLM-email-d373e4ab",
     "kind": "api_method",
     "text": "Header.number_of_mini_fat_sectors field of type int",
     "confidence": 1.0,
@@ -238,7 +238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-05ca6b",
+    "claim_id": "CLM-email-05ca6b03",
     "kind": "api_method",
     "text": "Header.first_difat_sector_location field of type SectorNumber",
     "confidence": 1.0,
@@ -252,7 +252,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8286cd",
+    "claim_id": "CLM-email-8286cd2d",
     "kind": "api_method",
     "text": "Header.number_of_difat_sectors field of type int",
     "confidence": 1.0,
@@ -266,7 +266,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-83530f",
+    "claim_id": "CLM-email-83530fd2",
     "kind": "api_method",
     "text": "Header.difat field of type List[SectorNumber]",
     "confidence": 1.0,
@@ -294,7 +294,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-483686",
+    "claim_id": "CLM-email-483686b6",
     "kind": "api_method",
     "text": "DirectoryEntry.is_storage() -> bool",
     "confidence": 1.0,
@@ -308,7 +308,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-947828",
+    "claim_id": "CLM-email-9478288a",
     "kind": "api_method",
     "text": "DirectoryEntry.is_stream() -> bool",
     "confidence": 1.0,
@@ -322,7 +322,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d63fb3",
+    "claim_id": "CLM-email-d63fb3a5",
     "kind": "api_method",
     "text": "DirectoryEntry.is_root() -> bool",
     "confidence": 1.0,
@@ -336,7 +336,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b3febb",
+    "claim_id": "CLM-email-b3febb21",
     "kind": "api_method",
     "text": "DirectoryEntry.stream_id field of type StreamId",
     "confidence": 1.0,
@@ -350,7 +350,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-46af56",
+    "claim_id": "CLM-email-46af5628",
     "kind": "api_method",
     "text": "DirectoryEntry.name field of type str",
     "confidence": 1.0,
@@ -364,7 +364,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-27f845",
+    "claim_id": "CLM-email-27f84513",
     "kind": "api_method",
     "text": "DirectoryEntry.directory_entry_name_length field of type int",
     "confidence": 1.0,
@@ -378,7 +378,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a7f8ac",
+    "claim_id": "CLM-email-a7f8ac99",
     "kind": "api_method",
     "text": "DirectoryEntry.object_type field of type DirectoryObjectType",
     "confidence": 1.0,
@@ -392,7 +392,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6363e4",
+    "claim_id": "CLM-email-6363e407",
     "kind": "api_method",
     "text": "DirectoryEntry.color_flag field of type DirectoryColorFlag",
     "confidence": 1.0,
@@ -406,7 +406,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-60dbd2",
+    "claim_id": "CLM-email-60dbd2a3",
     "kind": "api_method",
     "text": "DirectoryEntry.left_sibling_id field of type StreamId",
     "confidence": 1.0,
@@ -420,7 +420,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-eb3dde",
+    "claim_id": "CLM-email-eb3dde1b",
     "kind": "api_method",
     "text": "DirectoryEntry.right_sibling_id field of type StreamId",
     "confidence": 1.0,
@@ -434,7 +434,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3a32a8",
+    "claim_id": "CLM-email-3a32a8a6",
     "kind": "api_method",
     "text": "DirectoryEntry.child_id field of type StreamId",
     "confidence": 1.0,
@@ -448,7 +448,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-35cb15",
+    "claim_id": "CLM-email-35cb150a",
     "kind": "api_method",
     "text": "DirectoryEntry.clsid field of type bytes",
     "confidence": 1.0,
@@ -462,7 +462,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f90943",
+    "claim_id": "CLM-email-f90943b0",
     "kind": "api_method",
     "text": "DirectoryEntry.state_bits field of type int",
     "confidence": 1.0,
@@ -476,7 +476,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-173fb1",
+    "claim_id": "CLM-email-173fb195",
     "kind": "api_method",
     "text": "DirectoryEntry.creation_time field of type FileTime",
     "confidence": 1.0,
@@ -490,7 +490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ff5c69",
+    "claim_id": "CLM-email-ff5c6983",
     "kind": "api_method",
     "text": "DirectoryEntry.modified_time field of type FileTime",
     "confidence": 1.0,
@@ -504,7 +504,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-eae272",
+    "claim_id": "CLM-email-eae27227",
     "kind": "api_method",
     "text": "DirectoryEntry.starting_sector_location field of type SectorNumber",
     "confidence": 1.0,
@@ -518,7 +518,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1ffdf0",
+    "claim_id": "CLM-email-1ffdf0ea",
     "kind": "api_method",
     "text": "DirectoryEntry.stream_size field of type int",
     "confidence": 1.0,
@@ -560,7 +560,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f761ef",
+    "claim_id": "CLM-email-f761ef46",
     "kind": "api_method",
     "text": "CFBReader.__init__(data, _mmap_owner) -> None",
     "confidence": 1.0,
@@ -574,7 +574,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c9da9a",
+    "claim_id": "CLM-email-c9da9a6f",
     "kind": "api_method",
     "text": "CFBReader.from_file(path) -> \"CFBReader\"",
     "confidence": 1.0,
@@ -588,7 +588,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1692a1",
+    "claim_id": "CLM-email-1692a13e",
     "kind": "api_method",
     "text": "CFBReader.close() -> None",
     "confidence": 1.0,
@@ -602,7 +602,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8fd8b8",
+    "claim_id": "CLM-email-8fd8b8a9",
     "kind": "api_method",
     "text": "CFBReader.get_entry(stream_id) -> DirectoryEntry",
     "confidence": 1.0,
@@ -616,7 +616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-2c1ee5",
+    "claim_id": "CLM-email-2c1ee598",
     "kind": "api_method",
     "text": "CFBReader.get_stream_data(stream_id) -> bytes",
     "confidence": 1.0,
@@ -630,7 +630,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b615e8",
+    "claim_id": "CLM-email-b615e8d6",
     "kind": "api_method",
     "text": "CFBReader.iter_storages() -> Iterator[DirectoryEntry]",
     "confidence": 1.0,
@@ -644,7 +644,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-4e3a9e",
+    "claim_id": "CLM-email-4e3a9e5f",
     "kind": "api_method",
     "text": "CFBReader.iter_streams() -> Iterator[DirectoryEntry]",
     "confidence": 1.0,
@@ -658,7 +658,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c43832",
+    "claim_id": "CLM-email-c43832c6",
     "kind": "api_method",
     "text": "CFBReader.iter_children(storage_stream_id) -> Iterator[DirectoryEntry]",
     "confidence": 1.0,
@@ -672,7 +672,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c5983c",
+    "claim_id": "CLM-email-c5983c57",
     "kind": "api_method",
     "text": "CFBReader.iter_tree(start_stream_id) -> Iterator[Tuple[int, DirectoryEntry]]",
     "confidence": 1.0,
@@ -686,7 +686,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-0d0582",
+    "claim_id": "CLM-email-0d05828b",
     "kind": "api_method",
     "text": "CFBReader.find_child_by_name(storage_stream_id, name) -> Optional[DirectoryEntry]",
     "confidence": 1.0,
@@ -700,7 +700,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-24a4b6",
+    "claim_id": "CLM-email-24a4b654",
     "kind": "api_method",
     "text": "CFBReader.resolve_path(names, start_stream_id) -> Optional[DirectoryEntry]",
     "confidence": 1.0,
@@ -714,7 +714,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-cc4c5e",
+    "claim_id": "CLM-email-cc4c5e65",
     "kind": "api_method",
     "text": "CFBReader.data_size property of type int",
     "confidence": 1.0,
@@ -728,7 +728,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c92cc8",
+    "claim_id": "CLM-email-c92cc8f8",
     "kind": "api_method",
     "text": "CFBReader.major_version property of type int",
     "confidence": 1.0,
@@ -742,7 +742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-44c281",
+    "claim_id": "CLM-email-44c28197",
     "kind": "api_method",
     "text": "CFBReader.sector_size property of type int",
     "confidence": 1.0,
@@ -756,7 +756,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8a6ba3",
+    "claim_id": "CLM-email-8a6ba3a8",
     "kind": "api_method",
     "text": "CFBReader.mini_sector_size property of type int",
     "confidence": 1.0,
@@ -770,7 +770,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-866c4b",
+    "claim_id": "CLM-email-866c4b78",
     "kind": "api_method",
     "text": "CFBReader.fat_sector_count property of type int",
     "confidence": 1.0,
@@ -784,7 +784,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-9ca5d8",
+    "claim_id": "CLM-email-9ca5d863",
     "kind": "api_method",
     "text": "CFBReader.directory_entry_count property of type int",
     "confidence": 1.0,
@@ -798,7 +798,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7e1287",
+    "claim_id": "CLM-email-7e1287ea",
     "kind": "api_method",
     "text": "CFBReader.materialized_stream_count property of type int",
     "confidence": 1.0,
@@ -812,7 +812,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-76a354",
+    "claim_id": "CLM-email-76a354ce",
     "kind": "api_method",
     "text": "CFBReader.file_size property of type int",
     "confidence": 1.0,
@@ -826,7 +826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a6011f",
+    "claim_id": "CLM-email-a6011f2c",
     "kind": "api_method",
     "text": "CFBReader.HEADER_LAYOUT field of type Dict[str, Tuple[int, int]]",
     "confidence": 1.0,
@@ -840,7 +840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a166e3",
+    "claim_id": "CLM-email-a166e307",
     "kind": "api_method",
     "text": "CFBReader.DIRECTORY_ENTRY_LAYOUT field of type Dict[str, Tuple[int, int]]",
     "confidence": 1.0,
@@ -854,7 +854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-86fcc0",
+    "claim_id": "CLM-email-86fcc01c",
     "kind": "api_method",
     "text": "CFBReader.header field of type unknown",
     "confidence": 1.0,
@@ -868,7 +868,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e6a719",
+    "claim_id": "CLM-email-e6a71936",
     "kind": "api_method",
     "text": "CFBReader.difat field of type List[SectorNumber]",
     "confidence": 1.0,
@@ -882,7 +882,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-83fbab",
+    "claim_id": "CLM-email-83fbab28",
     "kind": "api_method",
     "text": "CFBReader.fat field of type List[int]",
     "confidence": 1.0,
@@ -896,7 +896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a6d1d2",
+    "claim_id": "CLM-email-a6d1d26b",
     "kind": "api_method",
     "text": "CFBReader.mini_fat field of type List[int]",
     "confidence": 1.0,
@@ -910,7 +910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-49c1e8",
+    "claim_id": "CLM-email-49c1e8c7",
     "kind": "api_method",
     "text": "CFBReader.directory_entries field of type unknown",
     "confidence": 1.0,
@@ -924,7 +924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-54e109",
+    "claim_id": "CLM-email-54e109c1",
     "kind": "api_method",
     "text": "CFBReader.root_entry field of type unknown",
     "confidence": 1.0,
@@ -938,7 +938,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a68770",
+    "claim_id": "CLM-email-a6877020",
     "kind": "api_method",
     "text": "CFBReader.mini_stream field of type unknown",
     "confidence": 1.0,
@@ -952,7 +952,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-98ead1",
+    "claim_id": "CLM-email-98ead1a3",
     "kind": "api_method",
     "text": "CFBReader.stream_data field of type Dict[StreamId, bytes]",
     "confidence": 1.0,
@@ -980,7 +980,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6d0bec",
+    "claim_id": "CLM-email-6d0bec16",
     "kind": "api_method",
     "text": "CFBStream.name field of type str",
     "confidence": 1.0,
@@ -994,7 +994,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-567e75",
+    "claim_id": "CLM-email-567e755f",
     "kind": "api_method",
     "text": "CFBStream.data field of type bytes",
     "confidence": 1.0,
@@ -1008,7 +1008,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c43b22",
+    "claim_id": "CLM-email-c43b2231",
     "kind": "api_method",
     "text": "CFBStream.clsid field of type bytes",
     "confidence": 1.0,
@@ -1022,7 +1022,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c2c97b",
+    "claim_id": "CLM-email-c2c97bf3",
     "kind": "api_method",
     "text": "CFBStream.state_bits field of type int",
     "confidence": 1.0,
@@ -1036,7 +1036,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5f6eb6",
+    "claim_id": "CLM-email-5f6eb6cd",
     "kind": "api_method",
     "text": "CFBStream.creation_time field of type FileTime",
     "confidence": 1.0,
@@ -1050,7 +1050,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-55ee18",
+    "claim_id": "CLM-email-55ee1833",
     "kind": "api_method",
     "text": "CFBStream.modified_time field of type FileTime",
     "confidence": 1.0,
@@ -1078,7 +1078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-44b587",
+    "claim_id": "CLM-email-44b587a5",
     "kind": "api_method",
     "text": "CFBStorage.add_storage(storage) -> \"CFBStorage\"",
     "confidence": 1.0,
@@ -1092,7 +1092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ed9286",
+    "claim_id": "CLM-email-ed9286db",
     "kind": "api_method",
     "text": "CFBStorage.add_stream(stream) -> CFBStream",
     "confidence": 1.0,
@@ -1106,7 +1106,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-617921",
+    "claim_id": "CLM-email-61792184",
     "kind": "api_method",
     "text": "CFBStorage.name field of type str",
     "confidence": 1.0,
@@ -1120,7 +1120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-36a868",
+    "claim_id": "CLM-email-36a8687d",
     "kind": "api_method",
     "text": "CFBStorage.clsid field of type bytes",
     "confidence": 1.0,
@@ -1134,7 +1134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b6b99d",
+    "claim_id": "CLM-email-b6b99dff",
     "kind": "api_method",
     "text": "CFBStorage.state_bits field of type int",
     "confidence": 1.0,
@@ -1148,7 +1148,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-01227a",
+    "claim_id": "CLM-email-01227a9e",
     "kind": "api_method",
     "text": "CFBStorage.creation_time field of type FileTime",
     "confidence": 1.0,
@@ -1162,7 +1162,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-2de7d1",
+    "claim_id": "CLM-email-2de7d110",
     "kind": "api_method",
     "text": "CFBStorage.modified_time field of type FileTime",
     "confidence": 1.0,
@@ -1176,7 +1176,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ac7b3f",
+    "claim_id": "CLM-email-ac7b3ff4",
     "kind": "api_method",
     "text": "CFBStorage.children field of type list[\"CFBStorage | CFBStream\"]",
     "confidence": 1.0,
@@ -1204,7 +1204,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-498caa",
+    "claim_id": "CLM-email-498caaec",
     "kind": "api_method",
     "text": "CFBDocument.from_reader(reader) -> \"CFBDocument\"",
     "confidence": 1.0,
@@ -1218,7 +1218,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ffb634",
+    "claim_id": "CLM-email-ffb634bd",
     "kind": "api_method",
     "text": "CFBDocument.build_storage(entry_id) -> CFBStorage",
     "confidence": 1.0,
@@ -1232,7 +1232,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3a9097",
+    "claim_id": "CLM-email-3a909751",
     "kind": "api_method",
     "text": "CFBDocument.from_file(path) -> \"CFBDocument\"",
     "confidence": 1.0,
@@ -1246,7 +1246,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6842a7",
+    "claim_id": "CLM-email-6842a7bf",
     "kind": "api_method",
     "text": "CFBDocument.root field of type CFBStorage",
     "confidence": 1.0,
@@ -1260,7 +1260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-86f8b1",
+    "claim_id": "CLM-email-86f8b1fc",
     "kind": "api_method",
     "text": "CFBDocument.major_version field of type int",
     "confidence": 1.0,
@@ -1274,7 +1274,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c8add4",
+    "claim_id": "CLM-email-c8add49a",
     "kind": "api_method",
     "text": "CFBDocument.minor_version field of type int",
     "confidence": 1.0,
@@ -1288,7 +1288,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c1eb81",
+    "claim_id": "CLM-email-c1eb818b",
     "kind": "api_method",
     "text": "CFBDocument.transaction_signature_number field of type int",
     "confidence": 1.0,
@@ -1316,7 +1316,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ed6e27",
+    "claim_id": "CLM-email-ed6e2706",
     "kind": "api_method",
     "text": "CFBWriter.to_bytes(document) -> bytes",
     "confidence": 1.0,
@@ -1330,7 +1330,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3810e8",
+    "claim_id": "CLM-email-3810e8f9",
     "kind": "api_method",
     "text": "CFBWriter.write_file(document, path) -> None",
     "confidence": 1.0,
@@ -1386,7 +1386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-084b6c",
+    "claim_id": "CLM-email-084b6c95",
     "kind": "api_method",
     "text": "StorageLayout.recipient_storages field of type Tuple[DirectoryEntry, ...]",
     "confidence": 1.0,
@@ -1400,7 +1400,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ca8a75",
+    "claim_id": "CLM-email-ca8a750e",
     "kind": "api_method",
     "text": "StorageLayout.attachment_storages field of type Tuple[DirectoryEntry, ...]",
     "confidence": 1.0,
@@ -1414,7 +1414,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d3bd33",
+    "claim_id": "CLM-email-d3bd33a7",
     "kind": "api_method",
     "text": "StorageLayout.named_property_mapping_storage field of type DirectoryEntry",
     "confidence": 1.0,
@@ -1428,7 +1428,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1d69de",
+    "claim_id": "CLM-email-1d69de20",
     "kind": "api_method",
     "text": "StorageLayout.top_level_property_stream field of type DirectoryEntry",
     "confidence": 1.0,
@@ -1456,7 +1456,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-243605",
+    "claim_id": "CLM-email-243605ea",
     "kind": "api_method",
     "text": "MsgReader.__init__(cfb_reader, strict) -> None",
     "confidence": 1.0,
@@ -1470,7 +1470,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a23b5f",
+    "claim_id": "CLM-email-a23b5f9a",
     "kind": "api_method",
     "text": "MsgReader.from_file(path, strict) -> \"MsgReader\"",
     "confidence": 1.0,
@@ -1484,7 +1484,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-00b295",
+    "claim_id": "CLM-email-00b29508",
     "kind": "api_method",
     "text": "MsgReader.close() -> None",
     "confidence": 1.0,
@@ -1498,7 +1498,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-fc927d",
+    "claim_id": "CLM-email-fc927d65",
     "kind": "api_method",
     "text": "MsgReader.iter_top_level_fixed_length_properties() -> Iterator[PropertyEntryFixedLength]",
     "confidence": 1.0,
@@ -1512,7 +1512,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c17ce7",
+    "claim_id": "CLM-email-c17ce794",
     "kind": "api_method",
     "text": "MsgReader.iter_recipient_storages() -> Iterator[DirectoryEntry]",
     "confidence": 1.0,
@@ -1526,7 +1526,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1ab13d",
+    "claim_id": "CLM-email-1ab13d49",
     "kind": "api_method",
     "text": "MsgReader.iter_attachment_storages() -> Iterator[DirectoryEntry]",
     "confidence": 1.0,
@@ -1540,7 +1540,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6ed7a0",
+    "claim_id": "CLM-email-6ed7a044",
     "kind": "api_method",
     "text": "MsgReader.parse_message_property_stream(storage_stream_id) -> Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
     "confidence": 1.0,
@@ -1554,7 +1554,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-be6fd3",
+    "claim_id": "CLM-email-be6fd3cd",
     "kind": "api_method",
     "text": "MsgReader.parse_subobject_property_stream(storage_stream_id) -> Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
     "confidence": 1.0,
@@ -1568,7 +1568,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3d9f8c",
+    "claim_id": "CLM-email-3d9f8c5f",
     "kind": "api_method",
     "text": "MsgReader.parse_top_level_property_stream(data) -> Tuple[PropertyStreamHeaderTopLevel, List[PropertyEntryFixedLength]]",
     "confidence": 1.0,
@@ -1582,7 +1582,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-108cad",
+    "claim_id": "CLM-email-108cad14",
     "kind": "api_method",
     "text": "MsgReader.parse_subobject_property_stream_data(data) -> Tuple[PropertyStreamHeaderSubobject, List[PropertyEntryFixedLength]]",
     "confidence": 1.0,
@@ -1596,7 +1596,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-9b4125",
+    "claim_id": "CLM-email-9b412563",
     "kind": "api_method",
     "text": "MsgReader.cfb_reader property of type CFBReader",
     "confidence": 1.0,
@@ -1610,7 +1610,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-829231",
+    "claim_id": "CLM-email-8292317f",
     "kind": "api_method",
     "text": "MsgReader.storage_layout property of type StorageLayout",
     "confidence": 1.0,
@@ -1624,7 +1624,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b0dca1",
+    "claim_id": "CLM-email-b0dca161",
     "kind": "api_method",
     "text": "MsgReader.strict property of type bool",
     "confidence": 1.0,
@@ -1638,7 +1638,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-32166f",
+    "claim_id": "CLM-email-32166f6b",
     "kind": "api_method",
     "text": "MsgReader.validation_issues property of type Tuple[str, ...]",
     "confidence": 1.0,
@@ -1652,7 +1652,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6cd737",
+    "claim_id": "CLM-email-6cd737a6",
     "kind": "api_method",
     "text": "MsgReader.PROPERTY_STREAM_HEADER_TOP_LEVEL_LAYOUT field of type Dict[str, Tuple[int, int]]",
     "confidence": 1.0,
@@ -1666,7 +1666,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e004e7",
+    "claim_id": "CLM-email-e004e750",
     "kind": "api_method",
     "text": "MsgReader.PROPERTY_STREAM_HEADER_SUBOBJECT_LAYOUT field of type Dict[str, Tuple[int, int]]",
     "confidence": 1.0,
@@ -1680,7 +1680,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1cbeb8",
+    "claim_id": "CLM-email-1cbeb8c0",
     "kind": "api_method",
     "text": "MsgReader.PROPERTY_ENTRY_FIXED_LENGTH_LAYOUT field of type Dict[str, Tuple[int, int]]",
     "confidence": 1.0,
@@ -1708,7 +1708,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-bb01f5",
+    "claim_id": "CLM-email-bb01f5ca",
     "kind": "api_method",
     "text": "MsgStream.name field of type str",
     "confidence": 1.0,
@@ -1722,7 +1722,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-9989ef",
+    "claim_id": "CLM-email-9989ef77",
     "kind": "api_method",
     "text": "MsgStream.data field of type bytes",
     "confidence": 1.0,
@@ -1736,7 +1736,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-62e69e",
+    "claim_id": "CLM-email-62e69e64",
     "kind": "api_method",
     "text": "MsgStream.clsid field of type bytes",
     "confidence": 1.0,
@@ -1750,7 +1750,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7c8169",
+    "claim_id": "CLM-email-7c8169ec",
     "kind": "api_method",
     "text": "MsgStream.state_bits field of type int",
     "confidence": 1.0,
@@ -1764,7 +1764,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-74b170",
+    "claim_id": "CLM-email-74b170d2",
     "kind": "api_method",
     "text": "MsgStream.creation_time field of type int",
     "confidence": 1.0,
@@ -1778,7 +1778,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b84847",
+    "claim_id": "CLM-email-b848479b",
     "kind": "api_method",
     "text": "MsgStream.modified_time field of type int",
     "confidence": 1.0,
@@ -1806,7 +1806,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e085c0",
+    "claim_id": "CLM-email-e085c001",
     "kind": "api_method",
     "text": "MsgStorage.add_stream(stream) -> MsgStream",
     "confidence": 1.0,
@@ -1820,7 +1820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-11ea62",
+    "claim_id": "CLM-email-11ea62c3",
     "kind": "api_method",
     "text": "MsgStorage.add_storage(storage) -> \"MsgStorage\"",
     "confidence": 1.0,
@@ -1834,7 +1834,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7a471f",
+    "claim_id": "CLM-email-7a471f8e",
     "kind": "api_method",
     "text": "MsgStorage.iter_streams() -> Iterator[MsgStream]",
     "confidence": 1.0,
@@ -1848,7 +1848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-43bc15",
+    "claim_id": "CLM-email-43bc1547",
     "kind": "api_method",
     "text": "MsgStorage.iter_storages() -> Iterator[\"MsgStorage\"]",
     "confidence": 1.0,
@@ -1862,7 +1862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-59ba46",
+    "claim_id": "CLM-email-59ba4666",
     "kind": "api_method",
     "text": "MsgStorage.find_stream(name) -> MsgStream | None",
     "confidence": 1.0,
@@ -1876,7 +1876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-79ab99",
+    "claim_id": "CLM-email-79ab9971",
     "kind": "api_method",
     "text": "MsgStorage.find_storage(name) -> \"MsgStorage\" | None",
     "confidence": 1.0,
@@ -1890,7 +1890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c8b112",
+    "claim_id": "CLM-email-c8b1120b",
     "kind": "api_method",
     "text": "MsgStorage.name field of type str",
     "confidence": 1.0,
@@ -1904,7 +1904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-be15b6",
+    "claim_id": "CLM-email-be15b672",
     "kind": "api_method",
     "text": "MsgStorage.role field of type str",
     "confidence": 1.0,
@@ -1918,7 +1918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7f6d50",
+    "claim_id": "CLM-email-7f6d5017",
     "kind": "api_method",
     "text": "MsgStorage.clsid field of type bytes",
     "confidence": 1.0,
@@ -1932,7 +1932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5cd35a",
+    "claim_id": "CLM-email-5cd35a2e",
     "kind": "api_method",
     "text": "MsgStorage.state_bits field of type int",
     "confidence": 1.0,
@@ -1946,7 +1946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7f6ee6",
+    "claim_id": "CLM-email-7f6ee6f3",
     "kind": "api_method",
     "text": "MsgStorage.creation_time field of type int",
     "confidence": 1.0,
@@ -1960,7 +1960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-73f7c2",
+    "claim_id": "CLM-email-73f7c25d",
     "kind": "api_method",
     "text": "MsgStorage.modified_time field of type int",
     "confidence": 1.0,
@@ -1974,7 +1974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-25bdd8",
+    "claim_id": "CLM-email-25bdd82d",
     "kind": "api_method",
     "text": "MsgStorage.streams field of type list[MsgStream]",
     "confidence": 1.0,
@@ -1988,7 +1988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-0db8cb",
+    "claim_id": "CLM-email-0db8cbae",
     "kind": "api_method",
     "text": "MsgStorage.storages field of type list[\"MsgStorage\"]",
     "confidence": 1.0,
@@ -2002,7 +2002,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-87b071",
+    "claim_id": "CLM-email-87b07173",
     "kind": "api_method",
     "text": "MsgStorage.property_header_kind field of type str | None",
     "confidence": 1.0,
@@ -2016,7 +2016,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7f21dd",
+    "claim_id": "CLM-email-7f21dd89",
     "kind": "api_method",
     "text": "MsgStorage.property_stream_header field of type PropertyStreamHeaderTopLevel | PropertyStreamHeaderSubobject | None",
     "confidence": 1.0,
@@ -2030,7 +2030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-af8f83",
+    "claim_id": "CLM-email-af8f8384",
     "kind": "api_method",
     "text": "MsgStorage.fixed_length_properties field of type tuple[PropertyEntryFixedLength, ...]",
     "confidence": 1.0,
@@ -2044,7 +2044,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-fb0aa1",
+    "claim_id": "CLM-email-fb0aa157",
     "kind": "api_method",
     "text": "MsgStorage.property_stream_parse_error field of type str | None",
     "confidence": 1.0,
@@ -2072,7 +2072,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f35a0d",
+    "claim_id": "CLM-email-f35a0dc1",
     "kind": "api_method",
     "text": "MsgDocument.from_reader(reader) -> \"MsgDocument\"",
     "confidence": 1.0,
@@ -2086,7 +2086,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c60923",
+    "claim_id": "CLM-email-c6092328",
     "kind": "api_method",
     "text": "MsgDocument.build_storage(entry, role) -> MsgStorage",
     "confidence": 1.0,
@@ -2100,7 +2100,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-441f14",
+    "claim_id": "CLM-email-441f148d",
     "kind": "api_method",
     "text": "MsgDocument.from_file(path, strict) -> \"MsgDocument\"",
     "confidence": 1.0,
@@ -2114,7 +2114,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-27d610",
+    "claim_id": "CLM-email-27d610ea",
     "kind": "api_method",
     "text": "MsgDocument.to_cfb_document() -> CFBDocument",
     "confidence": 1.0,
@@ -2128,7 +2128,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f0eef3",
+    "claim_id": "CLM-email-f0eef3f7",
     "kind": "api_method",
     "text": "MsgDocument.root field of type MsgStorage",
     "confidence": 1.0,
@@ -2142,7 +2142,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8fe3d1",
+    "claim_id": "CLM-email-8fe3d1ed",
     "kind": "api_method",
     "text": "MsgDocument.major_version field of type int",
     "confidence": 1.0,
@@ -2156,7 +2156,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b331d4",
+    "claim_id": "CLM-email-b331d477",
     "kind": "api_method",
     "text": "MsgDocument.minor_version field of type int",
     "confidence": 1.0,
@@ -2170,7 +2170,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-34f951",
+    "claim_id": "CLM-email-34f9513e",
     "kind": "api_method",
     "text": "MsgDocument.transaction_signature_number field of type int",
     "confidence": 1.0,
@@ -2184,7 +2184,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-816cdd",
+    "claim_id": "CLM-email-816cdd82",
     "kind": "api_method",
     "text": "MsgDocument.strict field of type bool",
     "confidence": 1.0,
@@ -2212,7 +2212,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5033a3",
+    "claim_id": "CLM-email-5033a3a8",
     "kind": "api_method",
     "text": "MsgWriter.to_bytes(document) -> bytes",
     "confidence": 1.0,
@@ -2226,7 +2226,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b8a233",
+    "claim_id": "CLM-email-b8a233ec",
     "kind": "api_method",
     "text": "MsgWriter.write_file(document, path) -> None",
     "confidence": 1.0,
@@ -2310,7 +2310,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c6e396",
+    "claim_id": "CLM-email-c6e3965d",
     "kind": "api_method",
     "text": "MapiNamedProperty.string(name, property_set) -> \"MapiNamedProperty\"",
     "confidence": 1.0,
@@ -2324,7 +2324,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e662dd",
+    "claim_id": "CLM-email-e662dd4e",
     "kind": "api_method",
     "text": "MapiNamedProperty.numeric(lid, property_set) -> \"MapiNamedProperty\"",
     "confidence": 1.0,
@@ -2338,7 +2338,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ddce2f",
+    "claim_id": "CLM-email-ddce2fc7",
     "kind": "api_method",
     "text": "MapiNamedProperty.property_set field of type uuid.UUID",
     "confidence": 1.0,
@@ -2352,7 +2352,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1c448b",
+    "claim_id": "CLM-email-1c448bf9",
     "kind": "api_method",
     "text": "MapiNamedProperty.kind field of type str",
     "confidence": 1.0,
@@ -2366,7 +2366,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5eb4a9",
+    "claim_id": "CLM-email-5eb4a9be",
     "kind": "api_method",
     "text": "MapiNamedProperty.name field of type str | None",
     "confidence": 1.0,
@@ -2380,7 +2380,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c0a2fa",
+    "claim_id": "CLM-email-c0a2faad",
     "kind": "api_method",
     "text": "MapiNamedProperty.lid field of type int | None",
     "confidence": 1.0,
@@ -2394,7 +2394,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7782e0",
+    "claim_id": "CLM-email-7782e0ff",
     "kind": "api_method",
     "text": "MapiNamedProperty.property_id field of type int | None",
     "confidence": 1.0,
@@ -2422,7 +2422,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7fffd9",
+    "claim_id": "CLM-email-7fffd9d8",
     "kind": "api_method",
     "text": "MapiProperty.clone() -> \"MapiProperty\"",
     "confidence": 1.0,
@@ -2436,7 +2436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-2d61b4",
+    "claim_id": "CLM-email-2d61b433",
     "kind": "api_method",
     "text": "MapiProperty.clear_raw() -> None",
     "confidence": 1.0,
@@ -2450,7 +2450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-362fc2",
+    "claim_id": "CLM-email-362fc2fe",
     "kind": "api_method",
     "text": "MapiProperty.property_tag property of type int",
     "confidence": 1.0,
@@ -2464,7 +2464,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d905cd",
+    "claim_id": "CLM-email-d905cdc1",
     "kind": "api_method",
     "text": "MapiProperty.property_id field of type int",
     "confidence": 1.0,
@@ -2478,7 +2478,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-80ff61",
+    "claim_id": "CLM-email-80ff616d",
     "kind": "api_method",
     "text": "MapiProperty.property_type field of type int",
     "confidence": 1.0,
@@ -2492,7 +2492,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3f53b8",
+    "claim_id": "CLM-email-3f53b8a2",
     "kind": "api_method",
     "text": "MapiProperty.value field of type Any",
     "confidence": 1.0,
@@ -2506,7 +2506,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-cefcb6",
+    "claim_id": "CLM-email-cefcb61c",
     "kind": "api_method",
     "text": "MapiProperty.flags field of type int",
     "confidence": 1.0,
@@ -2520,7 +2520,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ede7ef",
+    "claim_id": "CLM-email-ede7ef2a",
     "kind": "api_method",
     "text": "MapiProperty.named field of type MapiNamedProperty | None",
     "confidence": 1.0,
@@ -2534,7 +2534,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c84532",
+    "claim_id": "CLM-email-c845325c",
     "kind": "api_method",
     "text": "MapiProperty.raw_inline_value field of type bytes | None",
     "confidence": 1.0,
@@ -2548,7 +2548,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e7b013",
+    "claim_id": "CLM-email-e7b01357",
     "kind": "api_method",
     "text": "MapiProperty.raw_size_value field of type int | None",
     "confidence": 1.0,
@@ -2562,7 +2562,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-feda10",
+    "claim_id": "CLM-email-feda105b",
     "kind": "api_method",
     "text": "MapiProperty.raw_reserved_value field of type int | None",
     "confidence": 1.0,
@@ -2576,7 +2576,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-307e76",
+    "claim_id": "CLM-email-307e7694",
     "kind": "api_method",
     "text": "MapiProperty.raw_direct_stream field of type bytes | None",
     "confidence": 1.0,
@@ -2590,7 +2590,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-db4b13",
+    "claim_id": "CLM-email-db4b1356",
     "kind": "api_method",
     "text": "MapiProperty.raw_indexed_streams field of type tuple[tuple[int, bytes], ...]",
     "confidence": 1.0,
@@ -2604,7 +2604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a4fdac",
+    "claim_id": "CLM-email-a4fdac82",
     "kind": "api_method",
     "text": "MapiProperty.preserve_raw field of type bool",
     "confidence": 1.0,
@@ -2632,7 +2632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-0ca43e",
+    "claim_id": "CLM-email-0ca43e83",
     "kind": "api_method",
     "text": "MapiPropertyCollection.__init__() -> None",
     "confidence": 1.0,
@@ -2646,7 +2646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-dfcca2",
+    "claim_id": "CLM-email-dfcca299",
     "kind": "api_method",
     "text": "MapiPropertyCollection.set(property) -> MapiProperty",
     "confidence": 1.0,
@@ -2660,7 +2660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-df73d6",
+    "claim_id": "CLM-email-df73d677",
     "kind": "api_method",
     "text": "MapiPropertyCollection.add(property_id, property_type, value, flags, named) -> MapiProperty",
     "confidence": 1.0,
@@ -2674,7 +2674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6f53b6",
+    "claim_id": "CLM-email-6f53b6f4",
     "kind": "api_method",
     "text": "MapiPropertyCollection.get(property_id, property_type) -> MapiProperty | None",
     "confidence": 1.0,
@@ -2688,7 +2688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-36f3a3",
+    "claim_id": "CLM-email-36f3a3c9",
     "kind": "api_method",
     "text": "MapiPropertyCollection.remove(property_id, property_type) -> None",
     "confidence": 1.0,
@@ -2702,7 +2702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d1329f",
+    "claim_id": "CLM-email-d1329ffa",
     "kind": "api_method",
     "text": "MapiPropertyCollection.iter_properties() -> Iterator[MapiProperty]",
     "confidence": 1.0,
@@ -2730,7 +2730,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6d11bb",
+    "claim_id": "CLM-email-6d11bbf3",
     "kind": "api_method",
     "text": "MapiRecipient.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
     "confidence": 1.0,
@@ -2744,7 +2744,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b7b418",
+    "claim_id": "CLM-email-b7b41807",
     "kind": "api_method",
     "text": "MapiRecipient.display_name field of type str | None",
     "confidence": 1.0,
@@ -2758,7 +2758,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e413d1",
+    "claim_id": "CLM-email-e413d1a5",
     "kind": "api_method",
     "text": "MapiRecipient.email_address field of type str | None",
     "confidence": 1.0,
@@ -2772,7 +2772,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-6019c3",
+    "claim_id": "CLM-email-6019c38c",
     "kind": "api_method",
     "text": "MapiRecipient.recipient_type field of type int",
     "confidence": 1.0,
@@ -2786,7 +2786,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ba806e",
+    "claim_id": "CLM-email-ba806e43",
     "kind": "api_method",
     "text": "MapiRecipient.address_type field of type str",
     "confidence": 1.0,
@@ -2800,7 +2800,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-eb073e",
+    "claim_id": "CLM-email-eb073efc",
     "kind": "api_method",
     "text": "MapiRecipient.storage_id field of type int | None",
     "confidence": 1.0,
@@ -2814,7 +2814,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a756cb",
+    "claim_id": "CLM-email-a756cb57",
     "kind": "api_method",
     "text": "MapiRecipient.properties field of type MapiPropertyCollection",
     "confidence": 1.0,
@@ -2828,7 +2828,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8cb801",
+    "claim_id": "CLM-email-8cb80168",
     "kind": "api_method",
     "text": "MapiRecipient.extra_streams field of type list[MsgStream]",
     "confidence": 1.0,
@@ -2842,7 +2842,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ffa883",
+    "claim_id": "CLM-email-ffa883f1",
     "kind": "api_method",
     "text": "MapiRecipient.extra_storages field of type list[MsgStorage]",
     "confidence": 1.0,
@@ -2856,7 +2856,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ae9896",
+    "claim_id": "CLM-email-ae98962f",
     "kind": "api_method",
     "text": "MapiRecipient.header_reserved_0 field of type bytes",
     "confidence": 1.0,
@@ -2884,7 +2884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-028805",
+    "claim_id": "CLM-email-0288051f",
     "kind": "api_method",
     "text": "MapiAttachment.from_bytes(filename, data, mime_type, content_id) -> \"MapiAttachment\"",
     "confidence": 1.0,
@@ -2898,7 +2898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1eb4e2",
+    "claim_id": "CLM-email-1eb4e250",
     "kind": "api_method",
     "text": "MapiAttachment.from_embedded_message(message, filename, mime_type) -> \"MapiAttachment\"",
     "confidence": 1.0,
@@ -2912,7 +2912,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-003aa7",
+    "claim_id": "CLM-email-003aa7ad",
     "kind": "api_method",
     "text": "MapiAttachment.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
     "confidence": 1.0,
@@ -2926,7 +2926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-3c5bac",
+    "claim_id": "CLM-email-3c5bac39",
     "kind": "api_method",
     "text": "MapiAttachment.storage_name property of type str | None",
     "confidence": 1.0,
@@ -2940,7 +2940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-eefe47",
+    "claim_id": "CLM-email-eefe4701",
     "kind": "api_method",
     "text": "MapiAttachment.is_embedded_message property of type bool",
     "confidence": 1.0,
@@ -2954,7 +2954,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-039f9f",
+    "claim_id": "CLM-email-039f9f1d",
     "kind": "api_method",
     "text": "MapiAttachment.is_storage_attachment property of type bool",
     "confidence": 1.0,
@@ -2968,7 +2968,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-d94efd",
+    "claim_id": "CLM-email-d94efd7e",
     "kind": "api_method",
     "text": "MapiAttachment.embedded_storage_name property of type str | None",
     "confidence": 1.0,
@@ -2982,7 +2982,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-4fe588",
+    "claim_id": "CLM-email-4fe58868",
     "kind": "api_method",
     "text": "MapiAttachment.filename field of type str | None",
     "confidence": 1.0,
@@ -2996,7 +2996,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-93e470",
+    "claim_id": "CLM-email-93e47040",
     "kind": "api_method",
     "text": "MapiAttachment.data field of type bytes",
     "confidence": 1.0,
@@ -3010,7 +3010,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e624e9",
+    "claim_id": "CLM-email-e624e945",
     "kind": "api_method",
     "text": "MapiAttachment.mime_type field of type str | None",
     "confidence": 1.0,
@@ -3024,7 +3024,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c9da41",
+    "claim_id": "CLM-email-c9da4122",
     "kind": "api_method",
     "text": "MapiAttachment.content_id field of type str | None",
     "confidence": 1.0,
@@ -3038,7 +3038,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-b88a5b",
+    "claim_id": "CLM-email-b88a5ba7",
     "kind": "api_method",
     "text": "MapiAttachment.attach_method field of type int",
     "confidence": 1.0,
@@ -3052,7 +3052,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-80fbbd",
+    "claim_id": "CLM-email-80fbbd44",
     "kind": "api_method",
     "text": "MapiAttachment.storage_id field of type int | None",
     "confidence": 1.0,
@@ -3066,7 +3066,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-db782f",
+    "claim_id": "CLM-email-db782f32",
     "kind": "api_method",
     "text": "MapiAttachment.embedded_message field of type \"MapiMessage | None\"",
     "confidence": 1.0,
@@ -3080,7 +3080,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-39f231",
+    "claim_id": "CLM-email-39f2310f",
     "kind": "api_method",
     "text": "MapiAttachment.custom_storage field of type MsgStorage | None",
     "confidence": 1.0,
@@ -3094,7 +3094,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-58d56c",
+    "claim_id": "CLM-email-58d56c7a",
     "kind": "api_method",
     "text": "MapiAttachment.properties field of type MapiPropertyCollection",
     "confidence": 1.0,
@@ -3108,7 +3108,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-62f292",
+    "claim_id": "CLM-email-62f29293",
     "kind": "api_method",
     "text": "MapiAttachment.extra_streams field of type list[MsgStream]",
     "confidence": 1.0,
@@ -3122,7 +3122,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-705275",
+    "claim_id": "CLM-email-70527563",
     "kind": "api_method",
     "text": "MapiAttachment.header_reserved_0 field of type bytes",
     "confidence": 1.0,
@@ -3150,7 +3150,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e9d04c",
+    "claim_id": "CLM-email-e9d04c45",
     "kind": "api_method",
     "text": "MapiMessage.from_file(path, strict) -> \"MapiMessage\"",
     "confidence": 1.0,
@@ -3164,7 +3164,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-320fcf",
+    "claim_id": "CLM-email-320fcf78",
     "kind": "api_method",
     "text": "MapiMessage.from_msg_document(document) -> \"MapiMessage\"",
     "confidence": 1.0,
@@ -3178,7 +3178,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-86c30e",
+    "claim_id": "CLM-email-86c30e0a",
     "kind": "api_method",
     "text": "MapiMessage.from_email_message(email_message, unicode_strings) -> \"MapiMessage\"",
     "confidence": 1.0,
@@ -3192,7 +3192,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-89e94e",
+    "claim_id": "CLM-email-89e94e27",
     "kind": "api_method",
     "text": "MapiMessage.create(subject, body, unicode_strings) -> \"MapiMessage\"",
     "confidence": 1.0,
@@ -3206,7 +3206,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-062510",
+    "claim_id": "CLM-email-062510b9",
     "kind": "api_method",
     "text": "MapiMessage.iter_properties() -> Iterator[MapiProperty]",
     "confidence": 1.0,
@@ -3220,7 +3220,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ee157e",
+    "claim_id": "CLM-email-ee157e32",
     "kind": "api_method",
     "text": "MapiMessage.iter_property_keys(storage_stream_id) -> Iterator[tuple[int, int]]",
     "confidence": 1.0,
@@ -3234,7 +3234,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ed153d",
+    "claim_id": "CLM-email-ed153da6",
     "kind": "api_method",
     "text": "MapiMessage.set_property(property_id, property_type_or_value, value, flags) -> MapiProperty",
     "confidence": 1.0,
@@ -3248,7 +3248,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-018e3f",
+    "claim_id": "CLM-email-018e3f3b",
     "kind": "api_method",
     "text": "MapiMessage.get_property(property_id, property_type, storage_stream_id, decode) -> MapiProperty | Any | None",
     "confidence": 1.0,
@@ -3262,7 +3262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-32b2b5",
+    "claim_id": "CLM-email-32b2b538",
     "kind": "api_method",
     "text": "MapiMessage.get_property_value(property_id, property_type, storage_stream_id, decode) -> Any | None",
     "confidence": 1.0,
@@ -3276,7 +3276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c8e3e5",
+    "claim_id": "CLM-email-c8e3e51d",
     "kind": "api_method",
     "text": "MapiMessage.set_named_property(named_property, property_type, value, flags) -> MapiProperty",
     "confidence": 1.0,
@@ -3290,7 +3290,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f79c4d",
+    "claim_id": "CLM-email-f79c4d05",
     "kind": "api_method",
     "text": "MapiMessage.get_named_property(named_property, property_type) -> MapiProperty | None",
     "confidence": 1.0,
@@ -3304,7 +3304,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a15091",
+    "claim_id": "CLM-email-a15091fe",
     "kind": "api_method",
     "text": "MapiMessage.add_recipient(email_address, display_name, recipient_type) -> MapiRecipient",
     "confidence": 1.0,
@@ -3318,7 +3318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-58a548",
+    "claim_id": "CLM-email-58a5487d",
     "kind": "api_method",
     "text": "MapiMessage.add_attachment(filename, data, mime_type, content_id) -> MapiAttachment",
     "confidence": 1.0,
@@ -3332,7 +3332,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-490c96",
+    "claim_id": "CLM-email-490c96cc",
     "kind": "api_method",
     "text": "MapiMessage.add_embedded_message_attachment(message, filename, mime_type) -> MapiAttachment",
     "confidence": 1.0,
@@ -3346,7 +3346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f26c41",
+    "claim_id": "CLM-email-f26c415b",
     "kind": "api_method",
     "text": "MapiMessage.save(path) -> None",
     "confidence": 1.0,
@@ -3360,7 +3360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-34089c",
+    "claim_id": "CLM-email-34089cef",
     "kind": "api_method",
     "text": "MapiMessage.to_bytes() -> bytes",
     "confidence": 1.0,
@@ -3374,7 +3374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-00889e",
+    "claim_id": "CLM-email-00889eac",
     "kind": "api_method",
     "text": "MapiMessage.to_email_message() -> EmailMessage",
     "confidence": 1.0,
@@ -3388,7 +3388,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-85a994",
+    "claim_id": "CLM-email-85a994b9",
     "kind": "api_method",
     "text": "MapiMessage.to_email_bytes() -> bytes",
     "confidence": 1.0,
@@ -3402,7 +3402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-145e0c",
+    "claim_id": "CLM-email-145e0c4c",
     "kind": "api_method",
     "text": "MapiMessage.to_email_string() -> str",
     "confidence": 1.0,
@@ -3416,7 +3416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f5d267",
+    "claim_id": "CLM-email-f5d2677b",
     "kind": "api_method",
     "text": "MapiMessage.iter_attachments_info() -> Iterator[MapiAttachment]",
     "confidence": 1.0,
@@ -3430,7 +3430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5ef05c",
+    "claim_id": "CLM-email-5ef05c84",
     "kind": "api_method",
     "text": "MapiMessage.close() -> None",
     "confidence": 1.0,
@@ -3444,7 +3444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-764260",
+    "claim_id": "CLM-email-764260a6",
     "kind": "api_method",
     "text": "MapiMessage.to_msg_document() -> MsgDocument",
     "confidence": 1.0,
@@ -3458,7 +3458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-0ac9d8",
+    "claim_id": "CLM-email-0ac9d8ad",
     "kind": "api_method",
     "text": "MapiMessage.msg_reader property of type MsgReader",
     "confidence": 1.0,
@@ -3472,7 +3472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8d8350",
+    "claim_id": "CLM-email-8d83504b",
     "kind": "api_method",
     "text": "MapiMessage.validation_issues property of type tuple[str, ...]",
     "confidence": 1.0,
@@ -3486,7 +3486,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-23f652",
+    "claim_id": "CLM-email-23f652f3",
     "kind": "api_method",
     "text": "MapiMessage.subject property of type str | None",
     "confidence": 1.0,
@@ -3500,7 +3500,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-06ae40",
+    "claim_id": "CLM-email-06ae401c",
     "kind": "api_method",
     "text": "MapiMessage.body property of type str | None",
     "confidence": 1.0,
@@ -3514,7 +3514,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-5c8bcd",
+    "claim_id": "CLM-email-5c8bcd1e",
     "kind": "api_method",
     "text": "MapiMessage.message_class property of type str | None",
     "confidence": 1.0,
@@ -3528,7 +3528,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-c9c31d",
+    "claim_id": "CLM-email-c9c31dd6",
     "kind": "api_method",
     "text": "MapiMessage.body_html property of type str | None",
     "confidence": 1.0,
@@ -3542,7 +3542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-18a7d3",
+    "claim_id": "CLM-email-18a7d301",
     "kind": "api_method",
     "text": "MapiMessage.unicode_strings field of type bool",
     "confidence": 1.0,
@@ -3556,7 +3556,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ae13b9",
+    "claim_id": "CLM-email-ae13b9e9",
     "kind": "api_method",
     "text": "MapiMessage.properties field of type MapiPropertyCollection",
     "confidence": 1.0,
@@ -3570,7 +3570,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e8069e",
+    "claim_id": "CLM-email-e8069eac",
     "kind": "api_method",
     "text": "MapiMessage.recipients field of type list[MapiRecipient]",
     "confidence": 1.0,
@@ -3584,7 +3584,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-0c18cc",
+    "claim_id": "CLM-email-0c18cce5",
     "kind": "api_method",
     "text": "MapiMessage.attachments field of type list[MapiAttachment]",
     "confidence": 1.0,
@@ -3598,7 +3598,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-44de1e",
+    "claim_id": "CLM-email-44de1e67",
     "kind": "api_method",
     "text": "MapiMessage.extra_streams field of type list[MsgStream]",
     "confidence": 1.0,
@@ -3612,7 +3612,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-4e41f1",
+    "claim_id": "CLM-email-4e41f14a",
     "kind": "api_method",
     "text": "MapiMessage.extra_storages field of type list[MsgStorage]",
     "confidence": 1.0,
@@ -3626,7 +3626,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-545075",
+    "claim_id": "CLM-email-54507575",
     "kind": "api_method",
     "text": "MapiMessage.nameid_mapping field of type _NamedPropertyMapping",
     "confidence": 1.0,
@@ -3640,7 +3640,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-54fb2b",
+    "claim_id": "CLM-email-54fb2bf5",
     "kind": "api_method",
     "text": "MapiMessage.major_version field of type int",
     "confidence": 1.0,
@@ -3654,7 +3654,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-7b65e5",
+    "claim_id": "CLM-email-7b65e553",
     "kind": "api_method",
     "text": "MapiMessage.minor_version field of type int",
     "confidence": 1.0,
@@ -3668,7 +3668,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f1c410",
+    "claim_id": "CLM-email-f1c410af",
     "kind": "api_method",
     "text": "MapiMessage.transaction_signature_number field of type int",
     "confidence": 1.0,
@@ -3682,7 +3682,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-10147b",
+    "claim_id": "CLM-email-10147bcd",
     "kind": "api_method",
     "text": "MapiMessage.header_reserved_0 field of type bytes",
     "confidence": 1.0,
@@ -3696,7 +3696,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-fcc78e",
+    "claim_id": "CLM-email-fcc78ef8",
     "kind": "api_method",
     "text": "MapiMessage.header_reserved_1 field of type bytes",
     "confidence": 1.0,
@@ -3710,7 +3710,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-075c05",
+    "claim_id": "CLM-email-075c05a4",
     "kind": "api_method",
     "text": "MapiMessage.emit_store_support_mask field of type bool",
     "confidence": 1.0,
@@ -3724,7 +3724,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-9eb06a",
+    "claim_id": "CLM-email-9eb06ac9",
     "kind": "api_method",
     "text": "MapiMessage.emit_compatibility_defaults field of type bool",
     "confidence": 1.0,
@@ -3738,7 +3738,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-045c46",
+    "claim_id": "CLM-email-045c4681",
     "kind": "api_method",
     "text": "MapiMessage.preserve_declared_header_counts field of type bool",
     "confidence": 1.0,
@@ -3752,7 +3752,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-9a417c",
+    "claim_id": "CLM-email-9a417c8d",
     "kind": "api_method",
     "text": "MapiMessage.declared_next_recipient_id field of type int | None",
     "confidence": 1.0,
@@ -3766,7 +3766,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a575e9",
+    "claim_id": "CLM-email-a575e957",
     "kind": "api_method",
     "text": "MapiMessage.declared_next_attachment_id field of type int | None",
     "confidence": 1.0,
@@ -3780,7 +3780,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ce4452",
+    "claim_id": "CLM-email-ce445294",
     "kind": "api_method",
     "text": "MapiMessage.declared_recipient_count field of type int | None",
     "confidence": 1.0,
@@ -3794,7 +3794,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-a74540",
+    "claim_id": "CLM-email-a7454001",
     "kind": "api_method",
     "text": "MapiMessage.declared_attachment_count field of type int | None",
     "confidence": 1.0,
@@ -3864,7 +3864,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-cd653b",
+    "claim_id": "CLM-email-cd653bb1",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.reserved_0 field of type bytes",
     "confidence": 1.0,
@@ -3878,7 +3878,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-99e3b7",
+    "claim_id": "CLM-email-99e3b7f2",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.next_recipient_id field of type int",
     "confidence": 1.0,
@@ -3892,7 +3892,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-1969f4",
+    "claim_id": "CLM-email-1969f438",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.next_attachment_id field of type int",
     "confidence": 1.0,
@@ -3906,7 +3906,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-8e1869",
+    "claim_id": "CLM-email-8e186996",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.recipient_count field of type int",
     "confidence": 1.0,
@@ -3920,7 +3920,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f3d4bb",
+    "claim_id": "CLM-email-f3d4bb2b",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.attachment_count field of type int",
     "confidence": 1.0,
@@ -3934,7 +3934,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-f69b1b",
+    "claim_id": "CLM-email-f69b1bbd",
     "kind": "api_method",
     "text": "PropertyStreamHeaderTopLevel.reserved_1 field of type bytes",
     "confidence": 1.0,
@@ -3962,7 +3962,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-177db8",
+    "claim_id": "CLM-email-177db83d",
     "kind": "api_method",
     "text": "PropertyStreamHeaderSubobject.reserved_0 field of type bytes",
     "confidence": 1.0,
@@ -3990,7 +3990,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-e6206c",
+    "claim_id": "CLM-email-e6206cec",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.is_mandatory() -> bool",
     "confidence": 1.0,
@@ -4004,7 +4004,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ed2246",
+    "claim_id": "CLM-email-ed2246e3",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.is_readable() -> bool",
     "confidence": 1.0,
@@ -4018,7 +4018,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-ce46b7",
+    "claim_id": "CLM-email-ce46b718",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.is_writable() -> bool",
     "confidence": 1.0,
@@ -4032,7 +4032,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-486af1",
+    "claim_id": "CLM-email-486af194",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.property_tag field of type int",
     "confidence": 1.0,
@@ -4046,7 +4046,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-419338",
+    "claim_id": "CLM-email-41933860",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.flags field of type int",
     "confidence": 1.0,
@@ -4060,7 +4060,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-email-103583",
+    "claim_id": "CLM-email-10358318",
     "kind": "api_method",
     "text": "PropertyEntryFixedLength.value field of type bytes",
     "confidence": 1.0,

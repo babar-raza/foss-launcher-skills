@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "bundle_id": "c01a39a0-2f34-4f31-8bcb-ee4e8fb8b2a7",
+  "bundle_id": "9e234717-dc1c-4645-9b1e-097d56fccde0",
   "family": "email",
   "platform": "python",
   "repo_sha": "10a906b48c0c11005c4d93b524e4431901c9717c",
-  "generated_at": "2026-08-24T05:29:55.974102+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "generated_at": "2026-08-28T04:48:47.571818+00:00",
+  "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "2fcc7b8f1417ff7f576054406fbcb904a86a402ba28c90ab3af8c6435318a5a1",
+      "sha256": "0cec5437786cc68496021f944167ecd7a9893a188ddacb9e95d8223b4df1e425",
       "bytes": 1220
     },
     "api_surface.json": {
@@ -17,7 +17,7 @@
       "bytes": 117871
     },
     "api_surface.md": {
-      "sha256": "fd73867c8b9cf4efccdf0a099d68c9bcd3db689ff0ea53effde68cd3d14fcaa4",
+      "sha256": "5a6ee877880e38fbb5b0a452826b875f758003d5170e70f15257300e10ac5a97",
       "bytes": 16380
     },
     "formats.json": {
@@ -25,12 +25,12 @@
       "bytes": 1141
     },
     "formats.md": {
-      "sha256": "ecc8b84282b962a1dcd35ecfdf7b6c935eab8d3028de45c8c48bfcec498b5a96",
+      "sha256": "4b9e6e1caf780387d1be8528bba92e6ff62255b8e3acb7348d88e1365233c379",
       "bytes": 380
     },
     "claims.json": {
-      "sha256": "704d21428eec4a91380bbc543462df42521f7a7e43c0173ace2b0780f2303e6a",
-      "bytes": 201374
+      "sha256": "260fd25b77ff6b7576fa2c75b36a8316d6f22f79264ca1618fc4e3e0b614699e",
+      "bytes": 201894
     },
     "limitations.md": {
       "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
@@ -41,7 +41,7 @@
       "bytes": 176
     },
     "merge_report.md": {
-      "sha256": "d38433148abcad38b035a7917630a4f40d5ac6ecd14e2d64592b43dc602f1a7a",
+      "sha256": "c351c6786911f3d556c5054bf27199122f4b2e2accc47222b15fe25bb3b9ad12",
       "bytes": 512
     },
     "snippets/snippet_001.py": {
@@ -145,6 +145,6 @@
       "bytes": 13902
     }
   },
-  "promote_run_id": "promote-20260824T052956Z",
+  "promote_run_id": "promote-20260828T044847Z",
   "status": "COMPLETE"
 }
