@@ -878,6 +878,65 @@ def test_upstream_scope_selected_from_real_pia_score_schema(tmp_path: Path):
     assert prepared["scope"]["paths"] == sorted([high, medium])
 
 
+def test_pia_scope_excludes_protected_pages(tmp_path: Path):
+    """Regression test for a confirmed bug (2026-08-28, cells/net + 3d/python
+    batch-6 refreshes): page_impact_assess.py's PIA scoring has no concept
+    of content protection, so a page marked auto_updatable:false or
+    manually curated but flagged HIGH/MEDIUM_IMPACT (its underlying API
+    changed) still got pinned into scope via pia_scope_paths -- even though
+    _full_reference_scope_paths() (batch_reference.py's own rebuild_all
+    dry-run) already, correctly, excludes protected reference pages from
+    its own contribution. apply_run()'s real write then correctly respects
+    the protection and skips the page (disposition=BLOCKED), but with no
+    valid decision for a page still pinned in scope, that trips the "N
+    scoped page decision(s) are BLOCKED" hard block for a page nothing was
+    ever going to write to -- confirmed live on cells/net (10 pages,
+    e.g. Cell.md, auto_updatable:false since 2026-04) and 3d/python (1 KB
+    page). Fixed via _filter_protected_paths()."""
+    normal = "content/docs.aspose.org/en/pdf/net/normal.md"
+    protected = "content/docs.aspose.org/en/pdf/net/protected.md"
+    manually_curated = "content/docs.aspose.org/en/pdf/net/manually-curated.md"
+    for relative in (normal,):
+        page = tmp_path / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("page\n", encoding="utf-8")
+    (tmp_path / protected).write_text(
+        "---\nprovenance:\n  auto_updatable: false\n---\nprotected page\n",
+        encoding="utf-8",
+    )
+    (tmp_path / manually_curated).write_text(
+        "---\nprovenance:\n  last_mechanism: manual-edit-skill\n---\ncurated page\n",
+        encoding="utf-8",
+    )
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-PIA-PROTECTED", session_id="session-1",
+    )
+    planning = tmp_path / "reports/refresh_runs/pdf/net/RUN-PIA-PROTECTED/planning/pdf/net"
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps(
+            {
+                "pages": [
+                    {"path": normal, "pia_score": "HIGH_IMPACT"},
+                    {"path": protected, "pia_score": "HIGH_IMPACT"},
+                    {"path": manually_curated, "pia_score": "HIGH_IMPACT"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert normal in prepared["scope"]["paths"]
+    assert protected not in prepared["scope"]["paths"]
+    assert manually_curated not in prepared["scope"]["paths"]
+
+
 def test_prepare_run_sets_blog_announcement_required_true_for_real_delta(tmp_path: Path):
     """Task 6 (S9.6, corrected): a real, non-empty knowledge_delta.json must
     set manifest["blog_announcement_required"] -- the deterministic half of

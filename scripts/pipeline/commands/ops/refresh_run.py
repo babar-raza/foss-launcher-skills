@@ -43,7 +43,7 @@ from lib.schema_validators import (  # noqa: E402
     validate_refresh_page_decision,
     validate_refresh_run_manifest,
 )
-from lib.provenance import is_manually_curated, read_provenance  # noqa: E402
+from lib.provenance import is_auto_updatable, is_manually_curated, read_provenance  # noqa: E402
 from lib.reference_filter import index_generator_version_is_stale  # noqa: E402
 from commands.ops import page_impact_matrix  # noqa: E402
 from commands.knowledge import stale_detect  # noqa: E402
@@ -1419,6 +1419,36 @@ def _paths_from_pia(path: Path) -> list[str]:
     return sorted(set(selected))
 
 
+def _filter_protected_paths(paths: list[str]) -> list[str]:
+    """Drop paths whose CURRENT working-tree file is auto_updatable:false or
+    manually curated -- found live 2026-08-28 (cells/net, 3d/python): PIA's
+    impact scoring (page_impact_assess.py) has no concept of content
+    protection, so a protected reference page whose API changed still gets
+    pinned into scope via ``pia_scope_paths``, even though
+    ``_full_reference_scope_paths()`` (batch_reference.py's own rebuild_all
+    dry-run) already, correctly, excludes it. The union at the scope_paths
+    call site re-introduces exactly the pages the reference-scope comment
+    above says should never enter scope ("no hand-authored-content risk
+    beyond the EXISTING, unchanged auto_updatable:false/manually-curated
+    protections") -- apply_run()'s real write then respects the protection
+    and skips the page, but with no valid decision for a page still pinned
+    in scope, tripping the "N scoped page decision(s) are BLOCKED" hard
+    block for a page nothing was ever going to write to. Filtering here,
+    before scope is pinned, is the correct fix: it makes the promise
+    scope.json makes match what apply_run() was always going to honor.
+    """
+    kept: list[str] = []
+    for relative_path in paths:
+        full_path = _repo_root / relative_path
+        if not full_path.is_file():
+            kept.append(relative_path)
+            continue
+        if not is_auto_updatable(full_path) or is_manually_curated(full_path):
+            continue
+        kept.append(relative_path)
+    return kept
+
+
 def _full_reference_scope_paths(family: str, platform: str) -> list[str]:
     """Full, delta-independent reference-page candidate path list (deep-
     reassessment pass, 2026-08-24, closes G17 at its root -- see prepare_run's
@@ -1765,7 +1795,9 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
     if scope_ref and _file_digest(_repo_root / scope_ref) != expected_scope_input:
         raise RefreshRunError("Scope manifest changed after INPUTS_PINNED")
     explicit_scope_paths = _scope_paths_from_file(scope_ref)
-    pia_scope_paths = _paths_from_pia(planning_product / "page_impact.json")
+    pia_scope_paths = _filter_protected_paths(
+        _paths_from_pia(planning_product / "page_impact.json")
+    )
     if manifest["mode"] == "remediation":
         # A remediation run is an explicit, operator-pinned truth-audit scope.
         # Historical PIA output may inform planning, but must never broaden the
