@@ -1,14 +1,14 @@
-bundle_generated_at: '2026-08-24T05:41:03.008772+00:00'
-bundle_id: a7567e32-22a9-4037-b6d8-5087466696f0
+bundle_generated_at: '2026-08-28T06:22:25.700060+00:00'
+bundle_id: d53ccb0e-fb64-481d-b0ff-f72258faf4f7
 config_sha: 57d1f0a83e7eb176
 enrichment_status: full
-extractor_hash: 28da6c8722502343
+extractor_hash: 662d97a270edc5c5
 family: words
-generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
+generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
 generator_semver: 2.0.0
 has_conflicts: false
 input_hashes:
-  enriched_claims_sha: 849d2cf45c243df8e590c69b531920b6c0c20d821c6ba1e132e4e48547ebc8fb
+  enriched_claims_sha: a636b2f34419071b8ab551ea4b29179885a0438e9bb4054ea4596c1e35380b93
   extractor_config_sha: 57d1f0a83e7eb176
   products_json_entry_sha: 79513621d553ae6a35f4e91d8590a34f35cfbcfdedd71d12bbf454621e421f36
   scout_api_surface_sha: 7d08b690a11ee279a9a8d1dab2f0743bba68a308adc28368a2f833b74aeda130
@@ -16,18 +16,18 @@ input_hashes:
 license: MIT
 platform: python
 product_name: aspose-words-foss
-promoted_at: '2026-08-24T05:41:03.083408+00:00'
+promoted_at: '2026-08-28T06:22:25.786787+00:00'
 repo_sha: 2d2efee2787cb9e56d071d17f8d7b740dce8b784
 repo_url: https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python.git
 schema_version: 2
-source: scout_only
+source: scout_and_enriched
 stale_since: null
 stats:
   class_count: 189
-  enriched_claims: 0
+  enriched_claims: 773
   forbidden_count: 1
   scout_claims: 1268
   snippet_count: 39
   supplemental_claims: 0
-  total_claims: 1268
+  total_claims: 2041
 version: 26.7.0

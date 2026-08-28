@@ -1235,9 +1235,9 @@
   },
   "words/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-24T05:41:03.083408+00:00",
+      "accepted_at": "2026-08-28T06:22:25.786787+00:00",
       "repo_sha": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
-      "run_id": "promote-20260824T054103Z",
+      "run_id": "promote-20260828T062225Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
@@ -1247,39 +1247,39 @@
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\python-docx-word-converter\\index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.788017Z"
+        "recorded_at": "2026-08-28T06:22:27.983309Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\words\\python\\words-core-management-python\\index.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.807952Z"
+        "recorded_at": "2026-08-28T06:22:27.995851Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\core-management.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.309766Z"
+        "recorded_at": "2026-08-28T06:22:27.893844Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\docx-reader.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.361511Z"
+        "recorded_at": "2026-08-28T06:22:27.910325Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\developer-guide\\pdf-writer.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.671326Z"
+        "recorded_at": "2026-08-28T06:22:27.945516Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\words\\python\\getting-started\\installation.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.702272Z"
+        "recorded_at": "2026-08-28T06:22:27.957136Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\faq.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.843340Z"
+        "recorded_at": "2026-08-28T06:22:28.008570Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-convert-converters-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.916731Z"
+        "recorded_at": "2026-08-28T06:22:28.021794Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-export-pdf-writer-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:07.931609Z"
+        "recorded_at": "2026-08-28T06:22:28.030912Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-and-export-word-documents-python.md": {
         "reason": "audit_fail",
@@ -1287,26 +1287,53 @@
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-doc-reader-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:08.005759Z"
+        "recorded_at": "2026-08-28T06:22:28.049246Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-load-docx-reader-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:08.019957Z"
+        "recorded_at": "2026-08-28T06:22:28.061998Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\how-to-work-with-document-management-python.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:08.035658Z"
+        "recorded_at": "2026-08-28T06:22:28.070785Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\words\\python\\use-cases.md": {
         "reason": "audit_fail",
-        "recorded_at": "2026-08-24T05:41:08.120370Z"
+        "recorded_at": "2026-08-28T06:22:28.085091Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\products.aspose.org\\en\\words\\python\\_index.md": {
         "reason": "audit_fail",
         "recorded_at": "2026-08-24T05:41:04.520583Z"
+      },
+      "content\\docs.aspose.org\\en\\words\\python\\developer-guide\\docx-reader.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-28T06:43:01.917890Z"
+      },
+      "content\\docs.aspose.org\\en\\words\\python\\getting-started\\installation.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-28T06:43:01.924969Z"
+      },
+      "content\\kb.aspose.org\\en\\words\\python\\how-to-load-doc-reader-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-28T06:43:01.931981Z"
+      },
+      "content\\kb.aspose.org\\en\\words\\python\\how-to-load-docx-reader-python.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-28T06:43:01.939777Z"
+      },
+      "content\\kb.aspose.org\\en\\words\\python\\use-cases.md": {
+        "reason": "audit_fail",
+        "recorded_at": "2026-08-28T06:43:01.948093Z"
       }
     },
     "family": "words",
-    "platform": "python"
+    "platform": "python",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-28T06:48:55.940407Z",
+      "report_path": "reports\\audit\\words-python-truth-20260828.md",
+      "verdict": "PASS",
+      "warn_count": 23
+    }
   }
 }
