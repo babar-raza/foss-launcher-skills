@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "bundle_id": "df39bb8f-1265-4fcc-b938-14a133af34d8",
+  "bundle_id": "94418728-dcf7-46e9-a9c7-846be90e37ed",
   "family": "pdf",
   "platform": "net",
   "repo_sha": "663783d18ec1c00efbd9b56a0a6ea20e4671d92b",
-  "generated_at": "2026-08-24T06:22:03.786019+00:00",
+  "generated_at": "2026-08-28T07:09:15.286367+00:00",
   "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "ef737c1dce8ee7a02240dbf7a342822b469ff33dfbfe68a832292aba0b77d5f7",
+      "sha256": "1616cc9cd6c42c9737b1fc5bf9ac4e639f29c3814d3d3da7b63e5f13e94f275c",
       "bytes": 1206
     },
     "api_surface.json": {
@@ -17,7 +17,7 @@
       "bytes": 4917628
     },
     "api_surface.md": {
-      "sha256": "38689c38037c4a213827bd402f15b9fb6e4461ce0ed730d650090dfc4094e218",
+      "sha256": "15dfa4d5b2ff217682602f72b9db1c50f3381b2fef97106c3399da32669413b6",
       "bytes": 508336
     },
     "formats.json": {
@@ -25,7 +25,7 @@
       "bytes": 15025
     },
     "formats.md": {
-      "sha256": "08019d91cd38ec170977db44fe3194a50e8dfd6208bd3f3b33a85203e24d486a",
+      "sha256": "8e62c9cc30fbfdd70055f84a0420cb13ec911fe0f73347a1752ab4bc4027dc9b",
       "bytes": 1246
     },
     "claims.json": {
@@ -41,7 +41,7 @@
       "bytes": 143
     },
     "merge_report.md": {
-      "sha256": "1a817118267bb89234ae5c0fcaf97c0509ad614d9959fa1e4fabf248579cbadb",
+      "sha256": "30eccda660735c1219ceb1b18b21bd714df956288343e640e3193c9c195abaa8",
       "bytes": 509
     },
     "snippets/snippet_001.cs": {
@@ -449,6 +449,6 @@
       "bytes": 50104
     }
   },
-  "promote_run_id": "promote-20260824T062204Z",
+  "promote_run_id": "promote-20260828T070916Z",
   "status": "COMPLETE"
 }

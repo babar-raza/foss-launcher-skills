@@ -1,5 +1,5 @@
 # Promote Report: pdf/net
-Date: 2026-08-24T06:22:04.151030+00:00
+Date: 2026-08-28T07:09:15.653198+00:00
 Scout SHA: 663783d18ec1c00efbd9b56a0a6ea20e4671d92b
 Source: scout-only (standalone pipeline, no FL dependency)
 

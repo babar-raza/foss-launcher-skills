@@ -1,22 +1,22 @@
-bundle_generated_at: '2026-08-24T06:22:03.786019+00:00'
-bundle_id: df39bb8f-1265-4fcc-b938-14a133af34d8
-config_sha: e034fc744e7fe760
-enrichment_status: scout-only
-extractor_hash: 28da6c8722502343
+bundle_generated_at: '2026-08-28T07:09:15.286367+00:00'
+bundle_id: 94418728-dcf7-46e9-a9c7-846be90e37ed
+config_sha: ba558925e966ce6d
+enrichment_status: full
+extractor_hash: 662d97a270edc5c5
 family: pdf
 generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
 generator_semver: 2.0.0
 has_conflicts: false
 input_hashes:
   enriched_claims_sha: f35ec9f7804586738547a7dec43e5c8f3f104097814d84d900b5e053335dc760
-  extractor_config_sha: e034fc744e7fe760
+  extractor_config_sha: ba558925e966ce6d
   products_json_entry_sha: 0b626120db91033d03581396a225b49d93292a7db7913f4d2d4cf4898966d77a
   scout_api_surface_sha: 7b010a379006ee42fe6a26571fc5b22ba3e00091d1c3c1c4754ba1ae52bdaa17
   scout_claims_sha: 3015f56213d2d321cae144c68218029bdf1b7c4c4749d4d84ae49979a2ff7d64
 license: ''
 platform: net
 product_name: Aspose.PDF.FOSS
-promoted_at: '2026-08-24T06:22:04.123432+00:00'
+promoted_at: '2026-08-28T07:09:15.614796+00:00'
 repo_sha: 663783d18ec1c00efbd9b56a0a6ea20e4671d92b
 repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET.git
 schema_version: 2
