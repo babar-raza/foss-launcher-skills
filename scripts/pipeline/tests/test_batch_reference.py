@@ -1613,6 +1613,63 @@ class TestRebuildAll:
         written = (page_dir / "Beta.md").read_text(encoding="utf-8")
         assert "reference.aspose.com/fake/net/x/beta/" in written
 
+    def test_rebuild_of_unchanged_page_records_evidence_only_not_body_updated(
+        self, tmp_path,
+    ):
+        """PDF-NET-REFRESH-001 (v26.7.0), found live again 2026-08-28: rebuilding
+        an existing page whose regenerated body is byte-identical to before
+        must record disposition/verdict EVIDENCE_ONLY, not BODY_UPDATED --
+        `is_update=True` only means "this page already existed," not "its
+        body prose changed." attach_evidence(force=True) always re-stamps
+        the evidence block even when nothing else differs, so unconditionally
+        recording BODY_UPDATED is exactly the defect
+        post_refresh_verify.py's Check 8 Case A (RPR-J-05) exists to catch --
+        confirmed live: 509 of 854 pdf/net reference pages hit this."""
+        merged, page_dir = self._make_setup(tmp_path, ["Gamma"])
+
+        # First generate: page doesn't exist yet -> GENERATED, real content written.
+        result1 = run(
+            "fake", "net", rebuild_all=True, confirm_rebuild=True, run_id="RUN-GEN",
+        )
+        assert result1["generated"] == 1
+        page_path = page_dir / "Gamma.md"
+        assert page_path.is_file()
+
+        # --update mode (matching how refresh_run.py's own knowledge-delta-
+        # driven path routes a class whose knowledge changed) has no
+        # "timestamp-only churn guard" short-circuit -- unlike --rebuild-all,
+        # it always reaches the write/disposition-recording path for any
+        # class named in knowledge_delta.json, regardless of whether that
+        # class's OWN declaration (and therefore its generated body) is
+        # actually different. Gamma's declaration is untouched, so its
+        # generated body prose stays byte-identical -- exactly the real
+        # defect's shape: a knowledge delta that re-stamps evidence across
+        # many pages without any of their individual bodies actually changing.
+        (merged / "knowledge_delta.json").write_text(
+            json.dumps({"modified_apis": ["Gamma"]}), encoding="utf-8",
+        )
+        result2 = run(
+            "fake", "net", update=True, run_id="RUN-UPDATE",
+        )
+        assert result2["updated"] == 1
+
+        decisions_path = (
+            tmp_path / "reports" / "refresh_runs" / "fake" / "net" / "RUN-UPDATE"
+            / "page_decisions.jsonl"
+        )
+        rows = [
+            json.loads(line)
+            for line in decisions_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert len(rows) == 1
+        row = rows[0]
+        assert row["disposition"] == "EVIDENCE_ONLY", (
+            f"expected EVIDENCE_ONLY for an unchanged-body rebuild, got "
+            f"{row['disposition']!r} -- this is the PDF-NET-REFRESH-001 regression"
+        )
+        assert row["body_hash_before"] == row["body_hash_after"]
+
 
 # ---------------------------------------------------------------------------
 # configure() seam (MP-SR03 / TC-04)

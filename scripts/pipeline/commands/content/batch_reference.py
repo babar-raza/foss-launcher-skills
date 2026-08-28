@@ -2294,6 +2294,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         _emit_receipt,
         _emit_run_decision,
         _existing_run_receipts,
+        _normalized_body_hash,
         _run_recorded_at,
         _scan_forbidden_claims,
     )
@@ -2483,7 +2484,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 receipt = existing_run_receipts[
                     _canonical_reference_path(page_path)
                 ]
-                if receipt.get("verdict") == "BODY_UPDATED":
+                if receipt.get("verdict") in ("BODY_UPDATED", "EVIDENCE_ONLY"):
                     updated.append(entry)
                 elif receipt.get("verdict") == "GENERATED":
                     generated.append(entry)
@@ -2557,6 +2558,30 @@ def run(family: str, platform: str, kind_arg: str = "all",
             final_file_hash = hashlib.sha256(
                 staging_path.read_bytes()
             ).hexdigest()
+            # PDF-NET-REFRESH-001 (v26.7.0): `is_update` only means "this page
+            # already existed and was regenerated," not "its body prose
+            # actually changed" -- attach_evidence(force=True) always
+            # re-stamps the evidence block (model_sha, apis, etc.) even when
+            # the class's real generated body is byte-identical to before.
+            # Unconditionally recording BODY_UPDATED here is exactly the
+            # defect post_refresh_verify.py's Check 8 Case A (RPR-J-05) exists
+            # to catch -- confirmed live 2026-08-28: 509 of 854 pdf/net
+            # reference pages recorded BODY_UPDATED with zero real git body
+            # diff. The schema validator deliberately does not enforce this
+            # itself (validate_refresh_page_decision's own docstring: "They do
+            # not prove that a body changed" -- by design, deferring to git-
+            # based post-hoc verification), so the caller must get the
+            # disposition right up front.
+            reference_body_changed = is_update and (
+                _normalized_body_hash(before_content)
+                != _normalized_body_hash(final_content)
+            )
+            if is_update:
+                reference_disposition = (
+                    "BODY_UPDATED" if reference_body_changed else "EVIDENCE_ONLY"
+                )
+            else:
+                reference_disposition = "GENERATED"
             _record_reference_attempt(
                 page_path,
                 before_content,
@@ -2566,8 +2591,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 intended_action=(
                     "REFERENCE_UPDATE" if is_update else "REFERENCE_GENERATE"
                 ),
-                disposition="BODY_UPDATED" if is_update else "GENERATED",
-                verdict="BODY_UPDATED" if is_update else "GENERATED",
+                disposition=reference_disposition,
+                verdict=reference_disposition,
                 reason="GENERATED_FROM_PINNED_KNOWLEDGE",
             )
             # TC13 (2026-08-26): structural no-downgrade guard for backlink
