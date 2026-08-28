@@ -609,13 +609,20 @@
   },
   "cells/typescript": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-24T06:11:30.513457+00:00",
+      "accepted_at": "2026-08-28T05:14:29.518362+00:00",
       "repo_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
-      "run_id": "promote-20260824T061130Z",
+      "run_id": "promote-20260828T051429Z",
       "sha_source": "model.yaml"
     },
     "family": "cells",
-    "platform": "typescript"
+    "platform": "typescript",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-28T05:41:22.597524Z",
+      "report_path": "reports\\audit\\cells-typescript-truth-20260828.md",
+      "verdict": "PASS",
+      "warn_count": 0
+    }
   },
   "email/cpp": {
     "accepted_baseline": {

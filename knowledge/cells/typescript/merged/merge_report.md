@@ -1,5 +1,5 @@
 # Promote Report: cells/typescript
-Date: 2026-08-24T06:11:30.529097+00:00
+Date: 2026-08-28T05:14:29.533151+00:00
 Scout SHA: fc186507e5b7124f4664aa6035f25cfd3112367d
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -7,9 +7,9 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Metric | Value |
 |--------|-------|
 | Scout claims | 775 |
-| Enriched claims (S-37) | 0 |
+| Enriched claims (S-37) | 332 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 770 |
+| Total claims | 1102 |
 | Classes | 131 |
 | Forbidden claims | 0 |
 | Snippets | 27 |

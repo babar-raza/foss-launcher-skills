@@ -1,14 +1,14 @@
-bundle_generated_at: '2026-08-24T06:11:30.458693+00:00'
-bundle_id: c2f8d9ff-258f-4dc4-94f3-ad9eb812871f
+bundle_generated_at: '2026-08-28T05:14:29.470333+00:00'
+bundle_id: b508d800-3fe5-4358-b1ff-a91dc6ab25e4
 config_sha: 5676a5ada3d9dda2
 enrichment_status: full
-extractor_hash: 28da6c8722502343
+extractor_hash: 662d97a270edc5c5
 family: cells
 generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
 generator_semver: 2.0.0
 has_conflicts: false
 input_hashes:
-  enriched_claims_sha: 9d551b346189f79afc525aa4db3ce841c4fc458b9c9b7a99361a447284ee0e36
+  enriched_claims_sha: fcd95b776205a14d73b3645406bf1f8da56c41121fdd19450c95aff3f3148348
   extractor_config_sha: 5676a5ada3d9dda2
   products_json_entry_sha: 553a458371d91f95231ca3e9a81734061baa499c2879ff161446bd947138d04b
   scout_api_surface_sha: 532c4ffe5770d0c1620a15028d45661d353fe34219fd6efc40232dd13b7c07b9
@@ -16,18 +16,18 @@ input_hashes:
 license: MIT
 platform: typescript
 product_name: '@aspose/cells'
-promoted_at: '2026-08-24T06:11:30.513457+00:00'
+promoted_at: '2026-08-28T05:14:29.518362+00:00'
 repo_sha: fc186507e5b7124f4664aa6035f25cfd3112367d
 repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git
 schema_version: 2
-source: scout_only
+source: scout_and_enriched
 stale_since: null
 stats:
   class_count: 108
-  enriched_claims: 0
+  enriched_claims: 332
   forbidden_count: 0
   scout_claims: 775
   snippet_count: 27
   supplemental_claims: 0
-  total_claims: 770
+  total_claims: 1102
 version: 1.0.0
