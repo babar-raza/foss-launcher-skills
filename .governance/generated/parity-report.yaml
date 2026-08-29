@@ -936,7 +936,7 @@ capabilities:
   name: workflow-harden
   parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-08-29T15:11:19.914806Z'
+generated_at: '2026-08-29T15:50:07.638268Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0

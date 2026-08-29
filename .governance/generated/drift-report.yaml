@@ -1,5 +1,5 @@
 drift_entries: []
-generated_at: '2026-08-29T15:11:19.518034Z'
+generated_at: '2026-08-29T15:50:07.313582Z'
 generator: tools/capability_sync/detect_adapter_drift.py
 summary:
   drift_detected_count: 0

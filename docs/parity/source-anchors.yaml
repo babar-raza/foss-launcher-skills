@@ -1045,3 +1045,33 @@ anchors:
       taskcards), which this repo does not have. Kept the 8-dimension
       probe and severity taxonomy, which are genuinely CI-system-agnostic.
       Agent-executed, no backing script, matching source's own contract shape.
+  - target_path: scripts/pipeline/lib/advisory_lock.py
+    source_path: scripts/pipeline/lib/advisory_lock.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-1, partial). Near-verbatim;
+      zero content/product coupling in source. Behavioral-equivalence
+      tested against source in tests/test_behavioral_equivalence_source_parity.py.
+  - target_path: scripts/pipeline/lib/taskcard_store.py
+    source_path: scripts/pipeline/lib/taskcard_store.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-1, partial). Near-verbatim;
+      zero content/product coupling in source. Real multi-thread
+      concurrency proof in tests/test_taskcard_store.py (20 threads racing
+      a CAS update: exactly 1 winner, 19 rejections, no lost updates).
+      Behavioral-equivalence tested against source.
+  - target_path: scripts/pipeline/lib/schema_validators.py
+    source_path: scripts/pipeline/lib/schema_validators.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-1, partial) as a NARROW
+      SLICE: only validate_taskcard_record and its direct dependencies.
+      Source's file also validates other schemas (fact graphs, etc.)
+      specific to its own knowledge pipeline, deliberately not ported.

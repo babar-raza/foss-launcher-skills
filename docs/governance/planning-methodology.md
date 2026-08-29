@@ -37,14 +37,18 @@ generic model, rather than claiming a concordance that doesn't fully hold:
 - **No dependency-ordered DAG.** `TASK_BACKLOG.md` rows are grouped by
   Workstream, not linked by an explicit "blocked-by" graph. Ordering within
   a workstream is positional (table row order), not machine-computed.
-- **No concurrency-safe, compare-and-swap ledger.** aspose.org built exactly
-  this (`taskcard_store.py` + `master_plan_index.py`, both FileLock-guarded
-  with row-level CAS) after getting burned by concurrent-session write
-  races. This repo has not needed that yet -- `TASK_BACKLOG.md` is a plain
-  markdown file, edited directly. If this repo starts being worked by
-  multiple concurrent agent sessions the way aspose.org is, that gap
-  becomes real; it is tracked as a deferred item in `TASK_BACKLOG.md`
-  (Workstream SYNC-2026-08-29) rather than solved preemptively here.
+- **Partially closed 2026-08-29**: a concurrency-safe, compare-and-swap
+  taskcard ledger now exists (`scripts/pipeline/lib/taskcard_store.py` +
+  `advisory_lock.py`, ported from aspose.org, real multi-thread test
+  coverage) with a CLI (`scripts/pipeline/commands/ops/mission_taskcard_cli.py`).
+  `TASK_BACKLOG.md`'s plain-markdown-table rows are still the primary,
+  human-readable planning surface -- the taskcard store is available for
+  any mission that needs CAS-protected concurrent tracking, it does not
+  replace `TASK_BACKLOG.md`. aspose.org's `master_plan_index.py`
+  (a `master-plan.md` missions-index upsert) was deliberately NOT ported:
+  this repo has no per-mission-file split for it to index yet. See
+  `TASK_BACKLOG.md` Workstream SYNC-2026-08-29, item SYNC-1, for what
+  remains open (`git_plumb_commit.py`, still deferred).
 - **Mission-task state and deliverable-lifecycle state are conflated.** A
   single `Status` column (e.g. "✅ DONE") in `TASK_BACKLOG.md` does not
   distinguish "the implementation task is closed" from "the resulting
