@@ -1051,8 +1051,19 @@ anchors:
     commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
     verified_at: "2026-08-29T12:52:01Z"
     notes: >
-      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-1, partial). Near-verbatim;
-      zero content/product coupling in source. Behavioral-equivalence
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-1, partial). Near-verbatim
+      at anchor time; zero content/product coupling in source. ONE
+      intentional post-anchor divergence from source, found via this
+      port's own test suite: acquire() now also catches PermissionError
+      alongside FileExistsError on the O_CREAT|O_EXCL open, working around
+      a real, reproducible-under-load (~1-in-5 at 30-way thread
+      contention) Windows filesystem race where a lock-file open racing
+      against another thread's unlink() raises PermissionError instead of
+      FileExistsError -- a POSIX-vs-Windows semantics gap, not a logic
+      change. Locked in by a deterministic regression test
+      (test_acquire_retries_on_windows_permission_error_race) plus 10
+      consecutive clean stress-test runs of the real 30-thread scenario
+      that originally caught it. Behavioral-equivalence
       tested against source in tests/test_behavioral_equivalence_source_parity.py.
   - target_path: scripts/pipeline/lib/taskcard_store.py
     source_path: scripts/pipeline/lib/taskcard_store.py

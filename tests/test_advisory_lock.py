@@ -1,4 +1,5 @@
 """Tests for scripts/pipeline/lib/advisory_lock.py (ported 2026-08-29)."""
+import os
 import sys
 import threading
 import time
@@ -90,3 +91,28 @@ def test_dead_pid_is_stolen_immediately(tmp_path, monkeypatch):
     elapsed = time.monotonic() - start
     waiter.release()
     assert elapsed < 1.5  # stolen via liveness probe, not the full stale-timeout wait
+
+
+def test_acquire_retries_on_windows_permission_error_race(tmp_path, monkeypatch):
+    """Regression test for a real, intermittent (~1-in-5 under 30-way thread
+    contention) failure found in this port's own test suite: on Windows,
+    os.open(O_CREAT|O_EXCL) can raise PermissionError instead of
+    FileExistsError when it races against another thread's unlink() of the
+    same path. Deterministically simulate that exact race via a monkeypatched
+    os.open that raises PermissionError once, then succeeds -- acquire() must
+    retry, not propagate the exception."""
+    lock_path = tmp_path / "state.lock"
+    real_open = os.open
+    calls = {"count": 0}
+
+    def flaky_open(path, flags, *a, **kw):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise PermissionError(13, "Permission denied")
+        return real_open(path, flags, *a, **kw)
+
+    monkeypatch.setattr(advisory_lock.os, "open", flaky_open)
+    lock = FileLock(lock_path, timeout=2.0, poll=0.01)
+    lock.acquire()  # must not raise -- the PermissionError must be retried
+    assert calls["count"] == 2
+    lock.release()

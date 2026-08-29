@@ -152,7 +152,19 @@ class FileLock:
                 self._held = True
                 self._own_payload = payload
                 return self
-            except FileExistsError:
+            except (FileExistsError, PermissionError):
+                # Windows adaptation, found live during this port's own test
+                # suite (flaky ~1-in-5 under 30-way thread contention, never
+                # reproduced on the first few runs): POSIX guarantees
+                # O_CREAT|O_EXCL on an existing path raises FileExistsError.
+                # Windows can instead raise PermissionError (WinError 5) when
+                # this open() races against another thread's unlink() of the
+                # same path (_steal()/release() below) -- the file is
+                # transiently in a delete-pending state, neither cleanly
+                # absent nor cleanly present. Treating PermissionError the
+                # same as FileExistsError here is correct either way: both
+                # mean "something else is going on with this path right now,"
+                # which is exactly what this retry loop already handles.
                 now = time.monotonic()
                 if now >= next_liveness_probe:
                     next_liveness_probe = now + _LIVENESS_PROBE_INTERVAL
