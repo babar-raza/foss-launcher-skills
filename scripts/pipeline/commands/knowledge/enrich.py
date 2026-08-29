@@ -569,6 +569,17 @@ def _get_router():
 # into the key, so prompt changes invalidate automatically).
 _ENRICH_CACHE_SCHEMA = "1"
 
+# TC-MT040-25: per-call chat timeout, overridable via --llm-timeout. Default
+# unchanged (90s, matching llm_registry.yaml's own professionalize.chat
+# default_timeout) so this is a pure opt-in -- every existing caller/product
+# behaves identically unless the new flag is passed. Added after pdf/typescript's
+# real bootstrap (3602 classes, the largest enrichment target this pipeline has
+# attempted) repeatedly hit "Request timed out" (not a connection failure --
+# the server was reachable) at the 90s default; a larger timeout is a targeted,
+# scoped fix (this module's own hardcoded call site) rather than a shared
+# llm_registry.yaml change that would alter every other module's LLM calls too.
+_LLM_TIMEOUT_SECONDS = 90
+
 
 def _llm_call(
     prompt_system: str,
@@ -613,7 +624,7 @@ def _llm_call(
         prompt_system, prompt_user,
         temperature=0.0,
         max_tokens=8000,
-        timeout=90,
+        timeout=_LLM_TIMEOUT_SECONDS,
         json_extract=True,
         json_array=True,
         context=LLMCallContext.create("knowledge-enrich", "knowledge-enrichment", "claims"),
@@ -1668,6 +1679,7 @@ def _write_enrichment_report(family, platform, run_stats, enrichment_status, out
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    global _LLM_TIMEOUT_SECONDS
     parser = argparse.ArgumentParser(
         description="S-37 knowledge-enrich: LLM semantic enrichment from scout artifacts.")
     parser.add_argument("family", help="Product family (e.g. '3d')")
@@ -1692,7 +1704,13 @@ def main() -> None:
     parser.add_argument("--no-llm-cache", action="store_true", dest="no_llm_cache",
                         help="HARDEN-A4: bypass the content-hash LLM output cache and force "
                              "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
+    parser.add_argument("--llm-timeout", type=int, default=_LLM_TIMEOUT_SECONDS,
+                        help=f"Per-call chat timeout in seconds (default {_LLM_TIMEOUT_SECONDS}, "
+                             "matching llm_registry.yaml's professionalize.chat default_timeout). "
+                             "Scoped to this module's own call site only -- does not change the "
+                             "shared registry default other callers use.")
     args = parser.parse_args()
+    _LLM_TIMEOUT_SECONDS = args.llm_timeout
 
     # TC-03/G-03 (MT009 SEED-04): a require_all() precondition call previously
     # lived here, checking for knowledge/{family}/{platform}/merged/model.yaml

@@ -1263,3 +1263,46 @@ class TestEnrichPrunesCarriedForwardOnLoad:
 
         assert (scout_dir / "enriched_claims.json").read_text(encoding="utf-8") == original
 
+
+class TestLlmTimeoutOverride:
+    """TC-MT040-25: --llm-timeout is scoped to this module's own call site
+    only (a global llm_registry.yaml change would affect every other LLM
+    caller in the pipeline, not just enrich.py's unusually large-payload
+    products like pdf/typescript)."""
+
+    def setup_method(self):
+        self._original = _enrich_module._LLM_TIMEOUT_SECONDS
+
+    def teardown_method(self):
+        _enrich_module._LLM_TIMEOUT_SECONDS = self._original
+
+    def test_default_value_unchanged(self):
+        # Backward-compat: the module-level default must still be 90,
+        # matching llm_registry.yaml's professionalize.chat default_timeout,
+        # so every existing caller behaves identically unless --llm-timeout
+        # is explicitly passed.
+        assert self._original == 90
+
+    def test_llm_call_uses_module_level_timeout(self, monkeypatch, tmp_path):
+        from lib.llm_router import EndpointStatus
+        captured = {}
+
+        class _FakeResult:
+            status = EndpointStatus.OK
+            data = {"claims": []}
+            provider = "fake"
+            model = "fake-model"
+            metrics_events = []
+
+        class _FakeRouter:
+            def call_chat(self, *args, **kwargs):
+                captured["timeout"] = kwargs.get("timeout")
+                return _FakeResult()
+
+        monkeypatch.setattr(_enrich_module, "_get_router", lambda: _FakeRouter())
+        _enrich_module._LLM_TIMEOUT_SECONDS = 240
+
+        _enrich_module._llm_call("system prompt", "user prompt")
+
+        assert captured["timeout"] == 240
+
