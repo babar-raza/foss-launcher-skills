@@ -130,6 +130,48 @@ def _normalize_type(value: str) -> str:
     return value.lower()
 
 
+def _signature_matches_known(claimed: tuple[str, ...], known: set[tuple[str, ...]]) -> bool:
+    """Return True if *claimed* matches any real signature in *known*,
+    tolerating a claimed class/enum reference in a ``type[T]``-typed
+    parameter position.
+
+    Found live 2026-08-28 (note/python, 4 pages): a method like
+    ``GetChildNodes(node_type: type[TNode]) -> list[TNode]`` is called by
+    literally passing the desired class as the argument value, e.g.
+    ``doc.GetChildNodes(Image)`` -- prose documenting this correctly cites
+    the concrete class name ("Image") in the parens, or, in a general
+    usage table, a generic placeholder name like "NodeType"/"Type". Either
+    shape is accurate prose, but _signature_claim tokenizes the cited name
+    as if it were asserting a literal parameter TYPE, and the plain
+    ``claimed in known`` check then compares it against the real declared
+    type ``type[TNode]`` -- a guaranteed mismatch for every single
+    accurate usage, since no real call site ever literally writes the
+    type annotation itself in this position. Enum access
+    (``SaveFormat.Pdf``) hits the same shape.
+
+    Every token that survives into *claimed* has already passed
+    _signature_claim's own identifier-shape gate (capitalized, dotted, a
+    known type word, or bracketed) before being lowercased -- there is no
+    further signal left to check here, so once a real parameter's type is
+    a ``type[...]`` generic, any claimed token in that position is
+    accepted unconditionally. This mirrors the existing bare-call
+    RPR-ST087-01 guard's own reasoning: a real, current class/enum name
+    genuinely satisfying a type-parameter slot is not evidence of stale
+    prose, so skipping the check is correct, not merely convenient.
+    """
+    if claimed in known:
+        return True
+    for candidate in known:
+        if len(candidate) != len(claimed):
+            continue
+        if all(
+            claimed_tok == known_tok or known_tok.startswith("type[")
+            for claimed_tok, known_tok in zip(claimed, candidate)
+        ):
+            return True
+    return False
+
+
 def _signature_claim(value: str) -> tuple[str, ...] | None:
     """Return normalized type tokens, or None when text looks like call values."""
     if not value.strip():
@@ -159,6 +201,19 @@ def _signature_claim(value: str) -> tuple[str, ...] | None:
             not raw
             or any(char in raw for char in "\"'=")
             or re.fullmatch(r"[-+]?\d+(?:\.\d+)?", raw)
+            # A bare ellipsis ("...") is a common documentation convention
+            # for "other arguments omitted here, see the real signature" --
+            # not a claimed parameter type. Found live 2026-08-28
+            # (note/python installation.md): "Document.Save(..., SaveFormat.
+            # Pdf)" tokenized "..." as its own claimed type (it contains a
+            # "." so passed the acceptance check below), comparing it
+            # against Save's real first-parameter type and producing a
+            # guaranteed mismatch on prose that never claimed anything
+            # about that parameter's type at all. Rejecting any token with
+            # no alphanumeric content at all (same test already used for
+            # "can't tell what this claims" elsewhere in this function)
+            # skips the check instead of manufacturing a false positive.
+            or not any(char.isalnum() for char in raw)
         ):
             return None
         # Accept both ``String`` and ``String value`` documentation forms.
@@ -354,7 +409,7 @@ def triage_confirm(
             if claimed is None:
                 continue
             known = current_signatures.get((api_name, member))
-            if known is not None and claimed not in known:
+            if known is not None and not _signature_matches_known(claimed, known):
                 reasons.append(
                     f"body references stale signature "
                     f"'{api_name}.{member}({raw_params})' on a modified API"

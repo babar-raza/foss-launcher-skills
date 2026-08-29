@@ -137,6 +137,112 @@ class TestLayer2Detection:
         result = triage_confirm(page, knowledge)
         assert result["stale"] is False
 
+    def test_class_passed_as_value_for_generic_type_param_is_not_falsely_stale(self, tmp_path):
+        """Regression test for a confirmed, live false positive (2026-08-28,
+        note/python, 4 pages blocked): a method typed
+        ``node_type: type[TNode]`` is called by literally passing the
+        desired class as the argument value -- e.g. `GetChildNodes(Image)`
+        -- which is accurate prose, but the naive comparison tokenized
+        "Image" as if it were asserting a literal parameter TYPE and
+        compared it against the real declared type "type[TNode]", a
+        guaranteed mismatch for every genuinely correct usage of this
+        pattern (no real call site ever writes the type annotation itself
+        in this position)."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `Document.GetChildNodes(Image)` to retrieve all images.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Document",
+                "methods": [{
+                    "name": "GetChildNodes",
+                    "params": [{"name": "node_type", "type": "type[TNode]"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["Document"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_generic_placeholder_name_for_type_param_is_not_falsely_stale(self, tmp_path):
+        """Same fix, for a generic usage-table placeholder name (e.g.
+        "NodeType") rather than a concrete class name -- both are
+        legitimate documentation styles for a type[T]-typed parameter."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "`Document.GetChildNodes(NodeType)` | Return a typed list of matching descendants.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Document",
+                "methods": [{
+                    "name": "GetChildNodes",
+                    "params": [{"name": "node_type", "type": "type[TNode]"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["Document"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_wrong_type_still_detected_as_stale_when_real_param_is_not_generic(self, tmp_path):
+        """Negative control: the type[T] tolerance must not blind the
+        checker to a real, non-generic signature mismatch."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `ChangedClass.convert(String)` for conversion.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "ChangedClass",
+                "methods": [{
+                    "name": "convert",
+                    "params": [{"name": "value", "type": "Stream"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["ChangedClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("stale signature" in reason for reason in result["reasons"])
+
+    def test_ellipsis_placeholder_in_claimed_params_is_not_falsely_stale(self, tmp_path):
+        """Regression test for a confirmed, live false positive (2026-08-28,
+        note/python installation.md): "Document.Save(..., SaveFormat.Pdf)"
+        is a common documentation convention -- "..." stands for "other
+        arguments omitted here", not a claimed parameter type -- but it
+        contains a "." so it passed _signature_claim's own acceptance
+        check and was compared against Save's real first-parameter type,
+        producing a guaranteed mismatch on prose that never claimed
+        anything about that parameter's type at all."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Call `Document.Save(..., SaveFormat.Pdf)` to export as PDF.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Document",
+                "methods": [{
+                    "name": "Save",
+                    "params": [
+                        {"name": "target", "type": "str | Path | BinaryIO"},
+                        {"name": "format_or_options", "type": "SaveFormat | SaveOptions | None"},
+                    ],
+                }],
+            }],
+            "delta": {"modified_apis": ["Document"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
     def test_chained_call_in_same_backtick_span_is_not_falsely_stale(self, tmp_path):
         """Regression test for a confirmed bug: [^`]* inside the captured
         parameter group is greedy across parens, so a CHAINED call in one
