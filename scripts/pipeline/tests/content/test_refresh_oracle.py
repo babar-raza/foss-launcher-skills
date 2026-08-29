@@ -265,6 +265,43 @@ def test_typescript_dom_document_is_allowed(tmp_path):
     assert findings == []
 
 
+def test_python_typevar_tnode_is_allowed(tmp_path):
+    """Python's own typing.TypeVar naming convention (a bound generic type
+    parameter, e.g. GetChildNodes(node_type: type[TNode]) -> list[TNode])
+    is never a real class name -- it's a variable standing for whatever
+    concrete class the caller passes. Found live 2026-08-29, note/python:
+    27 correct citations of `TNode` across multiple pages produced 27
+    false INVALID_SYMBOL findings, the largest false-positive cluster
+    observed for this check."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`GetChildNodes(node_type)` accepts a `type[TNode]` and returns a "
+        "`list[TNode]` of matching descendants.\n",
+    )
+    api_surface = {"Document", "Document.GetChildNodes"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_python_stdlib_bytesio_is_allowed(tmp_path):
+    """Python stdlib io.BytesIO referenced by Document's own real
+    constructor/Save signatures for in-memory byte-stream I/O is not an
+    aspose-note-foss API class and is absent from api_surface.json by
+    design. Found live 2026-08-29, note/python's blog and reference
+    content."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Load from a `BytesIO` buffer by passing it directly to `Document`.\n",
+    )
+    api_surface = {"Document"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_pdf_content_stream_operator_codes_are_allowed(tmp_path):
     """PDF content-stream operator codes (ISO 32000-1 SS A.2) are raw format
     syntax tokens explaining the spec itself, never Java class names.

@@ -231,6 +231,15 @@ _LITERAL_AND_BUILTIN_TOKENS = {
     # Python version") produced a false INVALID_SYMBOL finding -- the set
     # above was not exhaustive over Python's builtin exception hierarchy.
     "SyntaxError",
+    # Python's own typing.TypeVar naming convention (a bound generic type
+    # parameter, e.g. `def get_child_nodes(node_type: type[TNode]) ->
+    # list[TNode]`) -- never a real class name, since it's a variable that
+    # stands for whatever concrete class the caller passes. Found live
+    # 2026-08-29, note/python: 27 correct citations of `TNode` across
+    # multiple pages describing GetChildNodes' generic signature produced
+    # 27 false INVALID_SYMBOL findings, the single largest false-positive
+    # cluster observed for this check.
+    "TNode",
 }
 
 # RPR-ST089-02: a token made ENTIRELY of hex digit characters (0-9, A-F), in
@@ -332,6 +341,12 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # "List" above. Found live 2026-08-28, cells/typescript's
         # DOMParser.md reference page.
         "Document",
+        # Python stdlib io.BytesIO -- Document's own constructor/Save methods
+        # genuinely accept and return this stdlib type for in-memory
+        # byte-stream I/O, so it's a correct reference in prose/code
+        # describing those methods, not an aspose-note-foss API class.
+        # Found live 2026-08-29, note/python's blog and reference content.
+        "BytesIO",
     }
     content_tokens = {
         "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",
