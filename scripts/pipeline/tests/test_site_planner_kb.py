@@ -604,5 +604,19 @@ class TestKBSlugSelfHealingGenericLabels(unittest.TestCase):
         )
 
 
+class TestTroubleHowtoMinConstant(unittest.TestCase):
+    """MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-47 (D-8a): the
+    troubleshooting-page how-to threshold was previously an inline literal
+    (SH-02 lowered it 6 -> 3 without updating the comment above
+    TROUBLE_PLATFORMS or skills/site-plan.md's own prose, which still said
+    ">= 6" until this card). Now a named constant so a future change and a
+    skill-doc <!-- pin: --> annotation both have one real value to agree
+    against, instead of drifting independently again."""
+
+    def test_trouble_howto_min_is_three(self):
+        import site_planner
+        self.assertEqual(site_planner.TROUBLE_HOWTO_MIN, 3)
+
+
 if __name__ == "__main__":
     unittest.main()

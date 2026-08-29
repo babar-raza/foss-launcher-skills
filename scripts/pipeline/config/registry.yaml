@@ -435,6 +435,54 @@ scripts:
     deprecated_since: null
     notes: "Stage 8 readiness scorecard for launch-product; collects grades and translation coverage"
 
+  - path: scripts/pipeline/commands/launch/product_acceptance_state.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_product_acceptance_state.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Mission MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, TC-MT040-49 (R-1):
+      read-only compute_product_state(family, platform) -- regenerates one
+      consistent status view (overall_status:
+      no_acceptance_artifact_found|artifacts_disagree|stale_verdict|current|unverifiable)
+      from readiness.md, the most recent
+      reports/publish-review/{family}-{platform}-*/final-verdict.md, and the 5
+      H-gate sample files. Never writes. Named product_acceptance_state.py
+      (not product_state.py) to avoid shadowing the pre-existing, unrelated
+      scripts/pipeline/lib/product_state.py lifecycle state machine, which sits
+      earlier on sys.path per conftest.py's setup order."
+
+  - path: scripts/pipeline/lib/acceptance_bindings.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_acceptance_bindings.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Mission MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, TC-MT040-49 (R-1):
+      compute_bindings(family, platform) / bindings_status(stored, current) --
+      binds an acceptance artifact (readiness scorecard, S-90 final-verdict) to
+      the model_sha/extractor_hash/evaluator_logic_version it was computed
+      against, so a stale artifact reads STALE instead of silently outliving
+      its evidence. Consumed by readiness_scorecard.py and
+      human_review_sampler.py (both call configure(repo_root=...) on this
+      module too, not just themselves, to keep tmp_path test isolation honest)."
+
   - path: scripts/pipeline/commands/launch/readiness_gate.py
     kind: entrypoint
     lifecycle: active

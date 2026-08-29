@@ -93,10 +93,22 @@ KB_PLATFORM_SUFFIX = {
 }
 
 # Troubleshooting eligibility — platforms where a troubleshooting page is generated
-# when howto_count >= 6 (see plan_kb).  net and java added 2026-04-07 healing sprint:
-# these platforms produce enough how-to articles to warrant a troubleshooting page.
-# rust added 2026-07-25 (cells/rust onboarding — parity with the other cells platforms).
+# when howto_count >= TROUBLE_HOWTO_MIN (see plan_kb). net and java added 2026-04-07
+# healing sprint: these platforms produce enough how-to articles to warrant a
+# troubleshooting page. rust added 2026-07-25 (cells/rust onboarding — parity
+# with the other cells platforms).
+#
+# MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-47 (D-8a): this comment (and
+# skills/site-plan.md's own prose) previously said "howto_count >= 6" -- stale;
+# the real threshold below the TROUBLE_PLATFORMS check was lowered to 3 by
+# SH-02 without either the comment above the SET or the skill doc being
+# updated. Extracted the previously-inline literal into TROUBLE_HOWTO_MIN so a
+# future change updates one real value instead of drifting in 3+ places again,
+# and so skills/site-plan.md can carry a <!-- pin: site_planner.TROUBLE_HOWTO_MIN -->
+# annotation (checked by scripts/ci/checks/check_skill_doc_pins.py) instead of
+# a plain, unchecked number.
 TROUBLE_PLATFORMS = {"typescript", "python", "cpp", "net", "java", "rust"}
+TROUBLE_HOWTO_MIN = 3
 
 
 # ---------------------------------------------------------------------------
@@ -1960,9 +1972,9 @@ def plan_kb(
 
     # Troubleshooting — conditional (derived only when threshold met)
     trouble_derived = False
-    # SH-02: lowered from 6 to 3 — any product with 3+ how-tos has enough
-    # surface area for a troubleshooting page
-    if howto_count >= 3 and platform in TROUBLE_PLATFORMS:
+    # SH-02: lowered from 6 to TROUBLE_HOWTO_MIN (3) — any product with that
+    # many how-tos has enough surface area for a troubleshooting page
+    if howto_count >= TROUBLE_HOWTO_MIN and platform in TROUBLE_PLATFORMS:
         trouble_derived = True
         pages.append(
             {
