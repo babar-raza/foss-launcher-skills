@@ -82,6 +82,39 @@ class TestNonPublicDirExclusion:
         exports = tac.extract_ts_exports_from_clone_cache("pdf", "typescript")
         assert exports == {"Document"}
 
+    def test_examples_dir_excluded(self, tmp_path):
+        # Live-verified 2026-08-29 (pdf/typescript): demo-scaffolding
+        # interfaces local to examples/feature-showcase/*.ts's own usage
+        # code (never re-exported from src/) must not be counted as
+        # missing public API.
+        _write_clone_file(
+            tmp_path, "pdf", "typescript",
+            "examples/feature-showcase/render.ts",
+            "export interface Thumb {}\n",
+        )
+        _write_clone_file(
+            tmp_path, "pdf", "typescript",
+            "src/document.ts",
+            "export class Document {}\n",
+        )
+        exports = tac.extract_ts_exports_from_clone_cache("pdf", "typescript")
+        assert exports == {"Document"}
+        assert "Thumb" not in exports
+
+    def test_samples_dir_excluded(self, tmp_path):
+        _write_clone_file(
+            tmp_path, "pdf", "typescript",
+            "samples/demo.ts",
+            "export interface DemoOptions {}\n",
+        )
+        _write_clone_file(
+            tmp_path, "pdf", "typescript",
+            "src/document.ts",
+            "export class Document {}\n",
+        )
+        exports = tac.extract_ts_exports_from_clone_cache("pdf", "typescript")
+        assert exports == {"Document"}
+
     def test_test_dirs_excluded_from_ts_fallback(self, tmp_path):
         # No .d.ts files at all -> falls back to .ts source scan.
         _write_clone_file(

@@ -64,9 +64,20 @@ def configure(*, repo_root: "Path | None" = None) -> None:
 # these from the regex source scan is what G-TS-10 calls out as the fix for
 # false "missing from api_surface" findings sourced from vendored/build
 # output rather than the product's own source.
+#
+# examples/samples added live 2026-08-29 (TC-MT040-25, pdf/typescript
+# authoritative bootstrap): the regex fallback's original set had no
+# examples/samples exclusion, so it counted 4 real, exported interfaces
+# from pdf/typescript's examples/feature-showcase/*.ts (CardGridOptions,
+# MintedSigner, TextStyle, Thumb) as "missing from api_surface" -- they
+# are demo-scaffolding interfaces local to the example files' own usage
+# code, never re-exported from src/ or the package's real barrel, so they
+# correctly do NOT appear in api_surface.json. The barrel-completeness
+# signal (compute_barrel_completeness(), reading the real barrel) never
+# had this false-positive class -- only the coarser regex fallback did.
 _NON_PUBLIC_DIRS = frozenset({
     "node_modules", "dist", "build", "test", "tests", "__tests__",
-    "coverage", ".git",
+    "coverage", ".git", "examples", "samples",
 })
 
 # TypeScript export patterns to extract class/interface/enum names.
