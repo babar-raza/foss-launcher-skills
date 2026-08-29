@@ -288,7 +288,15 @@ def count_index_table_rows(markdown_text: str) -> int:
 #       generate_grouped_index() before _build_grouped_index_body() renders rows. No page was
 #       ever stamped before this constant existed -- an absent field means "generated before
 #       this fingerprint existed" and must be treated as stale, not as version 0-is-fine.
-GROUPED_INDEX_GENERATOR_VERSION = 1
+#   2 = D-4 / TC-MT040-43: batch_reference._derive_group_key()/_build_grouped_index_body()
+#       now read module_key/module_label off each api_surface entry when
+#       promote.py (commands/knowledge/promote.py) has written them, instead of
+#       always deriving the group purely from the entry's file path -- fixes
+#       flat-src platforms (no subdirectories at all) that used to collapse
+#       every entry into one "Core API" group (G-TS-01). Output only changes
+#       for entries whose knowledge carries module_key; older knowledge falls
+#       back to the unchanged directory-path logic and renders byte-identically.
+GROUPED_INDEX_GENERATOR_VERSION = 2
 
 
 def index_generator_version_is_stale(

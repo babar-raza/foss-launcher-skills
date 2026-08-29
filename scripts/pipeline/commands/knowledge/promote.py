@@ -682,6 +682,275 @@ def validate_promoted_artifacts(family: str, platform: str, merged_dir: Path) ->
 
 
 # ---------------------------------------------------------------------------
+# Module/topic assignment (D-4 / TC-MT040-43)
+# ---------------------------------------------------------------------------
+#
+# batch_reference.py's _derive_group_key() (the grouped reference index) and
+# site_planner.py's detect_clusters() (the docs/KB capability clusters) each
+# independently derived a class's "topic" from its file's directory path --
+# two separately-maintained implementations of the same underlying question,
+# both an accident of repo layout rather than a real signal. For a flat-src
+# repo with no subdirectories at all (e.g. pdf/typescript's ~300 files
+# directly under src/) that path signal doesn't exist, so both consumers
+# collapsed everything into one group ("Core API" / a single degenerate
+# cluster) -- G-TS-01.
+#
+# This section computes ONE answer at promote time -- module_key (a stable
+# lowercase identifier) and module_label (a human display label) -- written
+# onto every merged api_surface.json entry, via compute_module_assignment(),
+# using an ordered strategy:
+#
+#   (a) informative directory segment relative to the package's own common
+#       root, derived from the api_surface data itself (the longest shared
+#       directory prefix across every entry's file path) rather than a
+#       hard-coded per-platform path pattern. Today's working behavior for
+#       nested layouts (e.g. 3d/typescript's .../formats/collada/*.ts ->
+#       module_key "formats").
+#   (b) export-group named by the entry-point/barrel language adapter (e.g.
+#       a TypeScript `export * as Forms from './forms.js'`), via
+#       lang.<language>.export_groups() when that (optional) adapter
+#       capability is implemented.
+#   (c) a family-agnostic file-stem/identifier keyword table for flat
+#       layouts (G-TS-01 / TC-MT040-18) -- presentational vocabulary, never
+#       a claim about what a class does; an unmatched identifier degrades
+#       to (d), never to a fabricated group.
+#   (d) "core" / "Core API" -- the fallback when nothing above matches.
+#
+# batch_reference._derive_group_key() and site_planner.detect_clusters()
+# both read module_key/module_label when present and fall back to their own
+# existing directory-path logic when absent (older knowledge that has not
+# been re-promoted through this code) -- so no shipped product's grouped
+# index or site plan changes until its own next knowledge promotion.
+MODULE_ASSIGNMENT_VERSION = 1
+
+# (c) G-TS-01 / TC-MT040-18: WHOLE-WORD tokens checked (in this priority
+# order, first match wins) against every camelCase/snake/kebab-tokenized
+# word of an entry's own name and its source file's stem (see
+# _tokenize_identifier() below) -- never a raw substring-of-string test.
+# Substring matching was tried first and rejected: it false-matched, e.g.,
+# "form" inside "FileFormat"/"registerFormat" (a real, live false positive
+# against 3d/typescript's actual classes -- "form" is literally the first
+# four characters of "format"), the same class of mid-word substring-
+# collision bug already fixed elsewhere in this repo (body_impact's
+# keyword matcher, commit c95b448811). Deliberately narrow and specific
+# (compound PDF-domain terms rather than bare generic English words like
+# "form"/"image"/"table"/"cell"/"text") for the same reason: a generic
+# word is far more likely to coincidentally match an unrelated product's
+# class name (verified live against cells/typescript's real spreadsheet
+# classes -- "Cell", "Font", "ImageInfo" -- which must NOT be swept into
+# PDF-flavored groups just because they share a common English word). This
+# is display vocabulary for otherwise-ungroupable flat layouts, not a
+# claim about behavior -- an identifier that matches nothing degrades to
+# (d), never to a fabricated group. A few narrow, genuinely cross-domain
+# terms (e.g. "hyperlink", "encrypt") may still coincidentally match an
+# unrelated product's class; that residual is an accepted, documented
+# tradeoff of a family-agnostic table, not a claim of perfect precision.
+_STEM_KEYWORD_GROUPS: "list[tuple[str, tuple[str, ...]]]" = [
+    ("forms", ("acroform", "formfield", "xfa")),
+    ("annotations", ("annotation", "annotations", "annot", "markup", "stamp", "stamps")),
+    ("compliance", ("pdfa", "pdfua", "compliance", "verapdf")),
+    ("conversion", ("docx", "epub", "markdown", "tiff", "raster", "fdf", "xfdf",
+                     "exporter", "importer", "converter", "conversion")),
+    ("images", ("jpeg", "jpg")),
+    ("text", ("glyph", "glyphs")),
+    ("structure", ("outline", "outlines", "bookmark", "bookmarks", "toc")),
+    ("security", ("encrypt", "encryption", "decrypt", "decryption", "signature",
+                   "permission", "permissions")),
+    ("navigation", ("hyperlink", "hyperlinks", "destination", "destinations")),
+    ("tables", ("tableabsorber",)),
+    ("attachments", ("attachment", "attachments", "fileattach")),
+    ("redaction", ("redact", "redaction", "redactions")),
+]
+
+_STEM_GROUP_LABELS: dict[str, str] = {
+    "forms": "Forms",
+    "annotations": "Annotations",
+    "compliance": "Compliance",
+    "conversion": "Conversion",
+    "images": "Images",
+    "text": "Text",
+    "structure": "Structure",
+    "security": "Security",
+    "navigation": "Navigation",
+    "tables": "Tables",
+    "attachments": "Attachments",
+    "redaction": "Redaction",
+}
+
+
+def _title_case_module_key(key: str) -> str:
+    """Human display label for a raw module key, e.g. 'annotations' -> 'Annotations'."""
+    label = key.replace("_", " ").replace("-", " ").strip()
+    return label.title() if label else "Core API"
+
+
+def _common_dir_prefix(file_paths: list) -> str:
+    """Return the longest common DIRECTORY prefix shared by every non-empty
+    path in *file_paths* (segment-wise, never a partial segment), or "" if
+    there is none (including a genuinely flat layout, or empty input). The
+    file's own basename is never considered part of the prefix.
+    """
+    dir_parts = []
+    for fp in file_paths:
+        if not fp:
+            continue
+        norm = str(fp).replace("\\", "/")
+        parts = norm.split("/")[:-1]
+        dir_parts.append(parts)
+    if not dir_parts:
+        return ""
+    common: list = []
+    for seg_group in zip(*dir_parts):
+        if len(set(seg_group)) == 1:
+            common.append(seg_group[0])
+        else:
+            break
+    return "/".join(common)
+
+
+def _dir_segment_module_key(file_path: str, common_prefix: str) -> "str | None":
+    """(a) Return the first informative directory segment of *file_path*
+    once *common_prefix* (see _common_dir_prefix) is stripped, or None when
+    the file sits directly at (or above) that common root -- callers must
+    cascade to the next strategy in that case, never default to "core"
+    here directly (a class under a keyword-matchable flat file still
+    deserves a chance at strategy (c) first).
+    """
+    if not file_path:
+        return None
+    norm = str(file_path).replace("\\", "/")
+    if common_prefix:
+        prefix = common_prefix + "/"
+        if norm.startswith(prefix):
+            norm = norm[len(prefix):]
+    parts = norm.split("/")
+    if len(parts) < 2:
+        return None
+    segment = parts[0]
+    if not segment or "." in segment:
+        return None
+    # Flatten format-detector sub-sub-packages (fbx/, obj/, stl/, collada/,
+    # ...) under one "formats" group -- mirrors site_planner's existing
+    # "formats" ancestor-flattening for nested per-format directories.
+    if segment.lower() == "formats" and len(parts) > 2:
+        return "formats"
+    return segment.lower()
+
+
+_CAMEL_BOUNDARY_RE = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+_WORD_SEP_RE = re.compile(r"[_\-\s]+")
+
+
+def _tokenize_identifier(text: str) -> "list[str]":
+    """Split an identifier or file stem into lowercase WHOLE words on
+    camelCase boundaries and ``_``/``-``/whitespace separators, e.g.
+    ``"registerFormat"`` -> ``["register", "format"]``,
+    ``"docx-export"`` -> ``["docx", "export"]``. Used so keyword matching
+    below compares whole words, never a substring spanning part of one word
+    (see _STEM_KEYWORD_GROUPS' docstring for why that distinction matters).
+    """
+    if not text:
+        return []
+    spaced = _CAMEL_BOUNDARY_RE.sub(" ", text)
+    spaced = _WORD_SEP_RE.sub(" ", spaced)
+    return [w.lower() for w in spaced.split() if w]
+
+
+def _keyword_group_for_stem(*texts: str) -> "str | None":
+    """(c) Return the first matching G-TS-01/TC-MT040-18 keyword group for
+    any of *texts* (checked in _STEM_KEYWORD_GROUPS priority order), by
+    exact whole-word match against each text's tokenized words (see
+    _tokenize_identifier()), or None if nothing matches -- callers must
+    then fall back to (d), never guess.
+    """
+    tokens: set = set()
+    for t in texts:
+        tokens.update(_tokenize_identifier(t))
+    if not tokens:
+        return None
+    for group, keywords in _STEM_KEYWORD_GROUPS:
+        if tokens.intersection(keywords):
+            return group
+    return None
+
+
+def _barrel_export_groups(family: str, platform: str) -> "dict[str, str] | None":
+    """(b) Best-effort {exported_name: group_label} map from the language
+    adapter's barrel/entry-point (e.g. TypeScript's `export * as Forms from
+    './forms.js'`), or None when unavailable -- no local clone, the
+    platform's adapter doesn't implement this optional capability, or the
+    adapter found no grouped re-exports at all (the common case). Never
+    raises; never returns partial/fabricated data.
+    """
+    try:
+        from extraction import lang
+        from extraction.tree_helpers import PLATFORM_TO_LANG
+        from extraction.package_root import detect_package_root
+        from core.clone_cache import clone_path, clone_exists
+    except Exception:
+        return None
+
+    language = PLATFORM_TO_LANG.get(platform, platform)
+    # "javascript" has no dedicated adapter module -- scout-time code
+    # (extraction/api_surface.py) already treats typescript/javascript
+    # identically via lang.typescript; mirror that here.
+    lang_mod = lang.get("typescript") if language == "javascript" else lang.get(language)
+    export_groups_fn = getattr(lang_mod, "export_groups", None) if lang_mod else None
+    if export_groups_fn is None:
+        return None
+
+    try:
+        if not clone_exists(family, platform):
+            return None
+        repo = clone_path(family, platform)
+        pkg_root = detect_package_root(repo, platform)
+        return export_groups_fn(repo, pkg_root)
+    except Exception:
+        return None
+
+
+def compute_module_assignment(api_surface: list, family: str, platform: str) -> None:
+    """Write module_key/module_label onto every entry in *api_surface*, in
+    place, using the ordered (a)/(b)/(c)/(d) strategy documented above.
+    Safe to call on any list (including an empty one); never raises.
+    """
+    if not isinstance(api_surface, list):
+        return
+
+    file_paths = [e.get("file", "") for e in api_surface if isinstance(e, dict)]
+    common_prefix = _common_dir_prefix(file_paths)
+    export_groups = _barrel_export_groups(family, platform)  # (b), computed once
+
+    for entry in api_surface:
+        if not isinstance(entry, dict):
+            continue
+        name = entry.get("name", "") or ""
+        file_path = entry.get("file", "") or ""
+
+        subpkg = _dir_segment_module_key(file_path, common_prefix)  # (a)
+        if subpkg:
+            entry["module_key"] = subpkg
+            entry["module_label"] = _title_case_module_key(subpkg)
+            continue
+
+        if export_groups and name in export_groups:  # (b)
+            group = export_groups[name]
+            entry["module_key"] = group.lower()
+            entry["module_label"] = _title_case_module_key(group)
+            continue
+
+        stem = Path(file_path).stem if file_path else ""
+        keyword_group = _keyword_group_for_stem(name, stem)  # (c)
+        if keyword_group:
+            entry["module_key"] = keyword_group
+            entry["module_label"] = _STEM_GROUP_LABELS[keyword_group]
+            continue
+
+        entry["module_key"] = "core"  # (d)
+        entry["module_label"] = "Core API"
+
+
+# ---------------------------------------------------------------------------
 # api_surface.md generator (ported from merge.py unchanged)
 # ---------------------------------------------------------------------------
 
@@ -1182,6 +1451,10 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     _godoc_inferred = _apply_godoc_fallback(scout_api, platform)
     if _godoc_inferred:
         print(f"  GoDoc fallback: {_godoc_inferred} method(s) inferred from name patterns (doc_source: name_inference)")
+    # D-4 / TC-MT040-43: write module_key/module_label onto every entry
+    # before this authoritative copy is written -- see the "Module/topic
+    # assignment" section above for the ordered strategy.
+    compute_module_assignment(scout_api, family, platform)
     (merged_dir / "api_surface.json").write_text(
         json.dumps(scout_api, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"  API surface: {len(scout_api)} classes")
@@ -1507,6 +1780,7 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
         "generator_semver": GENERATOR_SEMVER,
         "bundle_id": _bundle_id,
         "bundle_generated_at": _bundle_generated_at,
+        "module_assignment_version": MODULE_ASSIGNMENT_VERSION,
         "input_hashes": {
             "extractor_config_sha": _extractor_config_sha,
             "scout_claims_sha": _scout_claims_sha,

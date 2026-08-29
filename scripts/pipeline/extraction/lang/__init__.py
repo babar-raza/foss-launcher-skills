@@ -93,6 +93,23 @@ language string:
         that don't cache. ``content_eval/evaluators/_reachability.py``'s
         own ``clear_caches()`` calls this on every language module.
 
+    export_groups(repo: Path, pkg_root: Path) -> dict[str, str] | None  (OPTIONAL,
+    TC-MT040-43 / D-4)
+        NOT part of the required contract above -- an additive capability a
+        language module MAY implement when its entry-point/barrel can name
+        sub-namespace groupings (e.g. TypeScript's
+        ``export * as Forms from './forms.js'``). Returns a best-effort
+        ``{exported_name: group_label}`` map, or ``None`` when the adapter
+        doesn't implement this, can't resolve the barrel, or found no named
+        groupings. Callers probe for it with
+        ``getattr(module, "export_groups", None)`` rather than assuming
+        every language module defines it. Only ``typescript`` implements it
+        today (see ``extraction/lang/typescript.py``); it backs
+        ``commands/knowledge/promote.py``'s module/topic-assignment
+        strategy (b) (module_key/module_label written onto api_surface.json
+        entries at promote time -- see that file's "Module/topic
+        assignment" section for the full ordered strategy).
+
 Consumers (as of this card):
   - extraction/api_surface.py's ``_compute_reachable`` calls
     ``python.export_surface`` / ``rust.export_surface`` (python/rust only --

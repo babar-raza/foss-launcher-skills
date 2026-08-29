@@ -905,7 +905,19 @@ def detect_clusters(
             class_visibility[entry["name"]] = entry.get("visibility", "conventional")
 
     # ----- 1. Build class → sub-package map from api_surface file paths -----
+    # D-4 / TC-MT040-43: when commands/knowledge/promote.py has already
+    # written module_key/module_label onto an entry (the module/topic
+    # assignment computed once in the knowledge layer), use it directly
+    # instead of re-deriving from the file path here -- this is what fixes
+    # flat-src platforms (e.g. TypeScript, no subdirectories at all) where
+    # _class_to_subpackage() below can't find a real subpackage segment and
+    # every class collapses into one degenerate cluster (the site-planner
+    # half of G-TS-01/W5). Falls back to the existing _class_to_subpackage()
+    # path-based logic unchanged for entries from older knowledge that has
+    # not yet been re-promoted through that code -- so no shipped product's
+    # site plan changes until its own next knowledge promotion.
     class_to_subpkg: dict[str, str] = {}
+    class_label_override: dict[str, str] = {}
     for entry in api_surface:
         if not isinstance(entry, dict):
             continue
@@ -922,11 +934,18 @@ def detect_clusters(
         if (any(pat in file_path for pat in _INTERNAL_PATH_PATTERNS)
                 and not entry.get("exported_via_package_init")):
             continue
-        class_to_subpkg[cls_name] = _class_to_subpackage(file_path)
+        module_key = entry.get("module_key")
+        if module_key:
+            class_to_subpkg[cls_name] = module_key
+            module_label = entry.get("module_label")
+            if module_label:
+                class_label_override[module_key] = module_label
+        else:
+            class_to_subpkg[cls_name] = _class_to_subpackage(file_path)
 
     # ----- 2. Build sub-package → cluster label map -----
     subpkg_label: dict[str, str] = {
-        sp: _subpkg_to_label(sp, family)
+        sp: class_label_override.get(sp) or _subpkg_to_label(sp, family)
         for sp in set(class_to_subpkg.values())
     }
 

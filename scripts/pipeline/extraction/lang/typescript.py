@@ -240,6 +240,13 @@ _DIST_PREFIXES = ("dist/", "lib/", "build/")
 _EXPORT_STAR_AS_RE = re.compile(
     r"\bexport\s+\*\s+as\s+[A-Za-z_$][\w$]*\s+from\s+['\"]([^'\"]+)['\"]"
 )
+# Same pattern as _EXPORT_STAR_AS_RE, but with the namespace name itself
+# captured too (TC-MT040-43 / D-4 strategy (b): export_groups() below needs
+# both pieces; _EXPORT_STAR_AS_RE stays as-is since export_surface()'s
+# reachability bail-check only ever needed the specifier).
+_EXPORT_STAR_AS_NAMED_RE = re.compile(
+    r"\bexport\s+\*\s+as\s+(?P<ns>[A-Za-z_$][\w$]*)\s+from\s+['\"](?P<spec>[^'\"]+)['\"]"
+)
 _EXPORT_EQUALS_RE = re.compile(r"\bexport\s*=(?!=)")
 _EXPORT_STAR_FROM_RE = re.compile(r"\bexport\s+\*\s+from\s+['\"]([^'\"]+)['\"]")
 _EXPORT_BRACE_RE = re.compile(
@@ -485,6 +492,63 @@ def export_surface(repo: Path, pkg_root: Path) -> "tuple[set[str] | None, Path |
         return None, None
     entry = resolve_entry_point(repo, pkg_root)
     return set(names), entry
+
+
+# ---------------------------------------------------------------------------
+# export_groups (TC-MT040-43 / D-4 strategy (b) -- OPTIONAL adapter
+# capability, not part of the shared extraction/lang/ contract)
+# ---------------------------------------------------------------------------
+
+def export_groups(repo: Path, pkg_root: Path) -> "dict[str, str] | None":
+    """Best-effort ``{exported_name: group_label}`` map for names the
+    barrel/entry-point re-exports under a NAMED sub-namespace -- e.g.
+    ``export * as Forms from './forms.js'`` groups every name that
+    ``./forms.js`` itself exports under the label ``"Forms"``.
+
+    This is an ADDITIVE, OPTIONAL capability layered on top of the shared
+    export_surface() contract (see extraction/lang/__init__.py) -- it is
+    NOT part of that contract's return shape (which stays the established
+    ``(names, entry_path)`` 2-tuple three existing consumers already
+    unpack), so it is exposed as its own function that a caller probes for
+    with ``getattr(module, "export_groups", None)`` (only this module
+    implements it today; commands/knowledge/promote.py's D-4 module-
+    assignment strategy is the one caller).
+
+    Returns ``None`` when the barrel can't be resolved, or contains no
+    ``export * as Name from '...'`` groupings at all (the common case --
+    most TS barrels re-export everything flat via ``export { ... } from``)
+    -- callers must treat ``None`` as "no grouping information available",
+    not "confirmed no groups", and fall back to another strategy. Unlike
+    export_surface()'s all-or-nothing reachability contract, a single
+    unresolvable/non-relative ``export * as`` target only drops THAT one
+    grouping (skipped, not a global bail) -- this function is presentational
+    best-effort, never a claim about reachability.
+    """
+    entry = resolve_entry_point(repo, pkg_root)
+    if entry is None:
+        return None
+    try:
+        text = entry.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+
+    groups: dict[str, str] = {}
+    for m in _EXPORT_STAR_AS_NAMED_RE.finditer(text):
+        ns = m.group("ns")
+        spec = m.group("spec")
+        if not _is_relative_specifier(spec):
+            continue  # bare/unresolvable package target -- skip this grouping only
+        target = _resolve_relative_ts_file(entry.parent, spec)
+        if target is None:
+            continue
+        sub = _collect_file_exports(target, set(), 0)
+        if sub is None:
+            continue
+        sub_names, _found_any = sub
+        for nm in sub_names:
+            groups.setdefault(nm, ns)
+
+    return groups if groups else None
 
 
 # ---------------------------------------------------------------------------

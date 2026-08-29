@@ -288,8 +288,11 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
                    "struct_declaration", "record_declaration"},
     "cpp":        {"class_specifier", "struct_specifier"},
     "python":     {"class_definition"},
+    # TC-MT040-10: abstract_class_declaration is a distinct tree-sitter node
+    # type from class_declaration -- mirrors lib/reference_filter.py's
+    # identical addition (TC-REF-11 keeps these two constants in lockstep).
     "typescript": {"class_declaration", "interface_declaration",
-                   "type_alias_declaration"},
+                   "type_alias_declaration", "abstract_class_declaration"},
     "javascript": {"class_declaration"},
     "nodejs":     {"class_declaration"},
     "go":         {"type_spec"},
@@ -1247,7 +1250,23 @@ def _derive_group_key(entry: dict, family: str, platform: str) -> str:
 
     Returns the most informative subpackage segment from the ``file`` path.
     For entries at the package root, returns ``"core"``.
+
+    D-4 / TC-MT040-43: when ``commands/knowledge/promote.py`` has already
+    written a ``module_key`` onto this entry (the module/topic assignment
+    computed once in the knowledge layer), it is used directly and the
+    per-platform directory-path logic below is skipped entirely -- this is
+    what fixes flat-src platforms (e.g. TypeScript, no subdirectories at
+    all) where that path-based logic below can't find a real subpackage
+    segment (G-TS-01: it used to fall through to "core" for every entry).
+    Falls back to the existing directory-path logic unchanged for entries
+    from older knowledge that has not yet been re-promoted through
+    promote.py's module-assignment code -- so no shipped product's grouped
+    index changes until its own next knowledge promotion.
     """
+    module_key = entry.get("module_key")
+    if module_key:
+        return module_key
+
     file_path = entry.get("file", "")
     if not file_path:
         return "core"
@@ -1411,7 +1430,17 @@ def _build_grouped_index_body(
 
     for gkey in sorted_keys:
         entries = groups[gkey]
-        label = _group_label(gkey, family, platform)
+        # D-4 / TC-MT040-43: prefer a knowledge-layer module_label (written
+        # by promote.py alongside the module_key that produced this group)
+        # over the derived heading -- all entries in a group share the same
+        # module_key, so their module_label (when present) is consistent;
+        # the first non-empty one found is used. Falls back to the existing
+        # _group_label() derivation when no entry carries one (older
+        # knowledge, or a group produced by the legacy directory-path key).
+        label = next(
+            (e.get("module_label") for e in entries if e.get("module_label")),
+            None,
+        ) or _group_label(gkey, family, platform)
 
         # Sub-group by category
         by_cat: dict[str, list[dict]] = defaultdict(list)
