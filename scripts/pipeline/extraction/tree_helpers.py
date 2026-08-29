@@ -67,8 +67,16 @@ _CLASS_TYPES: dict[str, set[str]] = {
     "csharp": {"class_declaration", "interface_declaration", "enum_declaration",
                "struct_declaration", "record_declaration"},
     "javascript": {"class_declaration"},
+    # TC-MT040-10: abstract_class_declaration is a DISTINCT tree-sitter node
+    # type from class_declaration for `export abstract class X {}` (verified
+    # via a live tree-sitter-typescript parse probe) -- without it here, every
+    # abstract TS class was invisible to extraction entirely (not merely
+    # missing its is_abstract flag). Confirmed live: 8 real abstract classes
+    # under 3d/typescript's src/ (e.g. formats/Exporter.ts's `export abstract
+    # class Exporter`), none previously extracted.
     "typescript": {"class_declaration", "interface_declaration",
-                   "type_alias_declaration", "enum_declaration"},
+                   "type_alias_declaration", "enum_declaration",
+                   "abstract_class_declaration"},
     "cpp": {"class_specifier", "struct_specifier", "enum_specifier"},
     "python": {"class_definition"},
     "go": {"type_declaration", "type_spec"},
@@ -81,8 +89,13 @@ _FUNC_TYPES: dict[str, set[str]] = {
                "property_declaration"},
     "javascript": {"function_declaration", "method_definition", "arrow_function",
                    "public_field_definition"},
+    # TC-MT040-10: abstract method signatures (`abstract load(p: string): void;`,
+    # no body) inside an abstract_class_declaration body parse as their own
+    # distinct `abstract_method_signature` node type, not `method_signature`
+    # (that one is for interface/ambient bodies) -- verified via parse probe.
     "typescript": {"function_declaration", "method_definition", "arrow_function",
-                   "public_field_definition", "property_signature", "method_signature"},
+                   "public_field_definition", "property_signature", "method_signature",
+                   "abstract_method_signature"},
     "go": {"function_declaration", "method_declaration"},
     "cpp": {"function_definition"},
     "python": {"function_definition"},
@@ -110,7 +123,12 @@ _MODULE_TYPES: dict[str, set[str]] = {
     "java": {"package_declaration"},
     "csharp": {"namespace_declaration", "file_scoped_namespace_declaration"},
     "javascript": set(),
-    "typescript": set(),
+    # TC-MT040-15: `namespace Foo {}` / `export namespace Foo {}` parse as
+    # `internal_module`; the legacy `module Foo {}` keyword form (rare, but
+    # real tree-sitter-typescript grammar output) parses as a separate
+    # top-level `module` node type -- both verified via parse probe. Neither
+    # was previously recognized as a module/namespace container at all.
+    "typescript": {"internal_module", "module"},
     "go": {"package_clause"},
     "cpp": {"namespace_definition"},
     "python": set(),
@@ -614,6 +632,33 @@ def _extract_bases(node, language: str) -> list[str]:
 
     # Java/C#: superclass, interfaces, base_list
     for ch in node.children:
+        if ch.type == "class_heritage":
+            # TC-MT040-10 finding: TypeScript wraps a combined `extends X
+            # implements Y, Z` as ONE class_heritage node containing
+            # extends_clause + implements_clause as separate children
+            # (verified via parse probe) -- node_text() on the whole
+            # class_heritage node then returns both clauses concatenated
+            # ("Base implements IExport"), which the single
+            # leading-keyword-strip + comma-split below cannot separate
+            # correctly (it produced ONE bogus base "Base implements
+            # IExport" instead of the two correct ones, "Base" and
+            # "IExport"). Not abstract-class-specific -- affects any TS
+            # class_declaration with both clauses present too, same grammar
+            # shape either way. Process each sub-clause independently
+            # instead of the parent node as a whole.
+            sub_chs = [c for c in ch.children
+                       if c.type in ("extends_clause", "implements_clause")]
+            if sub_chs:
+                for sub in sub_chs:
+                    sub_text = re.sub(r"^(extends|implements)\s*", "", node_text(sub))
+                    for part in sub_text.split(","):
+                        part = part.strip()
+                        if part:
+                            bases.append(part)
+                continue
+            # No recognized sub-clauses -- fall through to the generic
+            # whole-node handling below (preserves prior behavior exactly
+            # for any other class_heritage shape).
         if ch.type in ("superclass", "type_identifier", "base_list",
                         "super_interfaces", "extends_interfaces",
                         "class_heritage", "extends_clause",

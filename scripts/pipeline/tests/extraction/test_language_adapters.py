@@ -19,7 +19,10 @@ from content_eval.evaluators import _reachability
 from extraction import lang
 
 ALL_LANGUAGES = ("python", "rust", "csharp", "typescript", "java", "cpp", "go")
-NO_SIGNAL_LANGUAGES = ("typescript", "java", "cpp", "go")
+# TC-MT040-11 gave typescript a real export_surface() implementation --
+# removed from this "no signal yet" list; see test_typescript_export_surface.py
+# for its own dedicated behavior coverage.
+NO_SIGNAL_LANGUAGES = ("java", "cpp", "go")
 
 
 def _write(path: Path, text: str) -> None:

@@ -87,8 +87,14 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
                    "struct_declaration", "record_declaration"},
     "cpp":        {"class_specifier", "struct_specifier"},
     "python":     {"class_definition"},
+    # TC-MT040-10: abstract_class_declaration is a distinct tree-sitter node
+    # type from class_declaration (`export abstract class X {}`) -- without
+    # it here, an abstract TS class extracted into api_surface.json (thanks
+    # to the matching tree_helpers._CLASS_TYPES fix) would still never
+    # appear in a grouped reference index, since this filter is the second,
+    # independent gate reference-page generation applies.
     "typescript": {"class_declaration", "interface_declaration",
-                   "type_alias_declaration"},
+                   "type_alias_declaration", "abstract_class_declaration"},
     "javascript": {"class_declaration"},
     "nodejs":     {"class_declaration"},
     "go":         {"type_spec"},

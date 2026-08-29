@@ -696,6 +696,64 @@ def _extract_doc_comment(node, language: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# TC-MT040-12: TSDoc block-tag enrichment (additive -- see
+# lang/typescript.py's parse_doc() for the actual tag parser)
+# ---------------------------------------------------------------------------
+
+def _ts_raw_jsdoc_comment(node) -> str:
+    """Return the raw JSDoc comment text (including ``/**``/``*/``
+    delimiters) immediately preceding *node*, after applying TypeScript's
+    doc_anchor() redirection -- the same anchor resolution
+    _extract_doc_comment uses, but returning the full raw block instead of
+    just a first-sentence summary, for lang.typescript.parse_doc()'s richer
+    TSDoc block-tag parsing. Returns "" when no such comment is found.
+    """
+    anchored = lang.typescript.doc_anchor(node)
+    prev = anchored.prev_named_sibling
+    if prev is None:
+        prev = anchored.prev_sibling
+    if prev is None:
+        return ""
+    txt = node_text(prev)
+    return txt if txt.startswith("/**") else ""
+
+
+def _apply_ts_tsdoc_enrichment(entry: dict, doc_node) -> None:
+    """TC-MT040-12: additive TSDoc enrichment for a TypeScript/JavaScript
+    method/function/module-constant entry.
+
+    Populates each existing params[] item's "doc" (matched by name, after
+    stripping a leading rest-param "..." marker and/or leading "_"), plus
+    "return_doc"/"remarks"/"doc_examples" on *entry* itself, whenever
+    lang.typescript.parse_doc()'s richer TSDoc block-tag parser finds them.
+    Purely additive: never touches *entry*'s existing "doc" field (still
+    exactly what _extract_doc_comment computed) or removes/renames any
+    existing key. No-op when there is no JSDoc comment to parse.
+    """
+    raw = _ts_raw_jsdoc_comment(doc_node)
+    if not raw:
+        return
+    parsed = lang.typescript.parse_doc(raw)
+
+    tag_params = parsed.get("params")
+    if tag_params:
+        for p in entry.get("params", []):
+            lookup = p.get("name", "")
+            if lookup.startswith("..."):
+                lookup = lookup[3:]
+            lookup = lookup.lstrip("_")
+            if lookup in tag_params and tag_params[lookup]:
+                p["doc"] = tag_params[lookup]
+
+    if parsed.get("returns"):
+        entry["return_doc"] = parsed["returns"]
+    if parsed.get("remarks"):
+        entry["remarks"] = parsed["remarks"]
+    if parsed.get("examples"):
+        entry["doc_examples"] = parsed["examples"]
+
+
+# ---------------------------------------------------------------------------
 # Python property extraction
 # ---------------------------------------------------------------------------
 
@@ -1126,6 +1184,153 @@ def _extract_const_fields(
 
 
 # ---------------------------------------------------------------------------
+# TypeScript module-level `export const` extraction (TC-MT040-13)
+# ---------------------------------------------------------------------------
+
+_TS_LITERALISH_TYPES: frozenset[str] = frozenset({
+    "string", "number", "true", "false", "null",
+    "template_string", "array", "object",
+})
+
+
+def _infer_ts_literal_type(value_node) -> str:
+    """Best-effort type inference from a TS initializer literal's own node
+    shape, used only when no explicit type annotation is present.
+    """
+    if value_node is None:
+        return ""
+    t = value_node.type
+    if t in ("string", "template_string"):
+        return "string"
+    if t == "number":
+        return "number"
+    if t in ("true", "false"):
+        return "boolean"
+    if t == "array":
+        return "array"
+    if t == "object":
+        return "object"
+    if t == "new_expression":
+        ctor = child_by_field(value_node, "constructor")
+        return node_text(ctor) if ctor is not None else ""
+    if t == "unary_expression":
+        # e.g. `-1` -- a unary_expression wrapping a number literal.
+        arg = child_by_field(value_node, "argument")
+        if arg is not None:
+            return _infer_ts_literal_type(arg)
+    return ""
+
+
+def _extract_ts_module_constants(
+    root, rel: str, fpath: Path, family: str, compute_reachable,
+) -> tuple[list[dict[str, Any]], list[dict]]:
+    """Scan a TypeScript source file's top-level `export const` declarations
+    and emit module-level entries for them.
+
+    Root cause this closes: class-member fields (public_field_definition)
+    and top-level func_types nodes (function_declaration, arrow_function,
+    ...) were already scanned, but a bare module-level ``export const
+    MAX_PAGE_SIZE = 100;`` is neither a class nor a class member nor (from
+    the top-level-function loop's perspective) a func_types node --
+    lexical_declaration was never collected at all, so every such constant
+    was invisible to extraction entirely regardless of how public/documented
+    it was.
+
+    Only directly-exported (`export const ...`) top-level `const` bindings
+    are in scope: `let`/`var` (mutable, not constant) and non-exported
+    top-level `const` (never reachable from outside the module) are both
+    skipped. A destructuring-pattern declarator (`export const { a, b } =
+    obj;`) is skipped too -- out of scope, no single meaningful name to
+    attach a claim to.
+
+    An arrow-function or plain `function` expression initializer is emitted
+    as a `kind: "function"` entry instead of `kind: "constant"` (reusing
+    _extract_method_params/_extract_return_type directly -- arrow functions
+    carry the same `parameters`/`return_type` field shape as a regular
+    function declaration in this grammar, verified via parse probe).
+
+    Returns (entries, claims) to be extended onto the caller's own
+    classes/claims lists.
+    """
+    entries: list[dict[str, Any]] = []
+    claims: list[dict] = []
+
+    for stmt in root.children:
+        if stmt.type != "export_statement":
+            continue
+        decl = child_by_field(stmt, "declaration")
+        if decl is None or decl.type != "lexical_declaration":
+            continue
+        kind_node = child_by_field(decl, "kind")
+        if kind_node is None or node_text(kind_node) != "const":
+            continue  # skip `let`/`var` -- mutable, out of scope
+
+        doc = _extract_doc_comment(decl, "typescript")
+
+        for vd in find_children_by_type(decl, "variable_declarator"):
+            name_node = child_by_field(vd, "name")
+            if name_node is None or name_node.type != "identifier":
+                continue  # destructuring pattern -- out of scope
+            cname = node_text(name_node)
+            if not cname or cname.startswith("_"):
+                continue
+            value_node = child_by_field(vd, "value")
+
+            if value_node is not None and value_node.type in (
+                "arrow_function", "function_expression",
+            ):
+                params = _extract_method_params(value_node, "typescript")
+                ret = _extract_return_type(value_node, "typescript")
+                func_entry: dict[str, Any] = {
+                    "name": cname,
+                    "kind": "function",
+                    "doc": doc,
+                    "file": rel,
+                    "line": vd.start_point[0] + 1,
+                    "bases": [],
+                    "methods": [],
+                    "properties": [],
+                    "params": params,
+                    "return_type": ret,
+                    "reachable": compute_reachable(cname, fpath, rel),
+                }
+                _apply_ts_tsdoc_enrichment(func_entry, decl)
+                entries.append(func_entry)
+                claims.append(_make_claim(
+                    family, "api_method",
+                    f"Function {cname}({', '.join(p['name'] for p in params)}) -> {ret}",
+                    rel, vd.start_point[0] + 1))
+                continue
+
+            type_node = child_by_field(vd, "type")
+            ctype = (node_text(type_node).lstrip(":").strip() if type_node is not None
+                     else _infer_ts_literal_type(value_node))
+            cvalue = node_text(value_node)[:80] if value_node is not None else ""
+
+            const_entry: dict[str, Any] = {
+                "name": cname,
+                "kind": "constant",
+                "doc": doc,
+                "file": rel,
+                "line": vd.start_point[0] + 1,
+                "type": ctype,
+                "value": cvalue,
+                "bases": [],
+                "methods": [],
+                "properties": [],
+                "reachable": compute_reachable(cname, fpath, rel),
+            }
+            entries.append(const_entry)
+            claims.append(_make_claim(
+                family, "api_field",
+                f"{cname} constant of type {ctype or 'unknown'}",
+                rel, vd.start_point[0] + 1,
+            ))
+
+    return entries, claims
+
+
+# ---------------------------------------------------------------------------
 # C++ property synthesis
 # ---------------------------------------------------------------------------
 
@@ -1352,6 +1557,30 @@ def _cpp_canonical_namespace(cnode) -> str:
         parent = parent.parent
     parts.reverse()
     return "::".join(parts)
+
+
+def _ts_namespace_chain(cnode) -> str:
+    """Walk up the AST from a TypeScript class/interface/enum node collecting
+    every enclosing `internal_module`/`module` (namespace) name, outer-to-
+    inner, skipping `export_statement`/`statement_block` wrapper nodes in
+    between. Returns "" when *cnode* is not nested inside any namespace
+    block. A dotted namespace name (`namespace Outer.Inner2 {}`) parses as a
+    single `nested_identifier` name field whose own text already contains
+    the dots (verified via parse probe) -- no extra join step needed for
+    that case, it falls out of the same node_text() call.
+
+    TC-MT040-15.
+    """
+    parts: list[str] = []
+    parent = cnode.parent
+    while parent is not None:
+        if parent.type in ("internal_module", "module"):
+            name_node = child_by_field(parent, "name")
+            if name_node is not None:
+                parts.append(node_text(name_node))
+        parent = parent.parent
+    parts.reverse()
+    return ".".join(parts)
 
 
 def _csharp_canonical_namespace(cnode) -> str:
@@ -2563,6 +2792,12 @@ def extract_api_surface(
     _python_export_root: "Path | None" = None
     _python_export_init_rel = ""
     _rust_reexports: "set[str] | None" = None
+    # TC-MT040-11: TypeScript/JavaScript reachability signal (real
+    # implementation -- was an unconditional (None, None) placeholder from
+    # extraction/lang/typescript.py before this card).
+    _ts_exports: "set[str] | None" = None
+    _ts_entry_point: "Path | None" = None
+    _ts_entry_point_rel = ""
     if language == "python":
         _python_exports, _python_export_root = lang.python.export_surface(repo, pkg_root)
         if _python_export_root is not None:
@@ -2574,6 +2809,22 @@ def extract_api_surface(
                 _python_export_init_rel = ""
     elif language == "rust":
         _rust_reexports, _ = lang.rust.export_surface(repo, pkg_root)
+    elif language in ("typescript", "javascript"):
+        _ts_exports, _ts_entry_point = lang.typescript.export_surface(repo, pkg_root)
+        # resolve_entry_point() is called separately (not derived from
+        # _ts_entry_point above) so scout_report's ts_entry_point stays
+        # populated even when export_surface() had to return (None, None)
+        # for the whole result because the barrel's exports could not be
+        # safely enumerated -- see lang/typescript.py's export_surface()
+        # docstring for why that case still loses the entry path there.
+        _ts_resolved_entry = lang.typescript.resolve_entry_point(repo, pkg_root)
+        if _ts_resolved_entry is not None:
+            try:
+                _ts_entry_point_rel = str(
+                    _ts_resolved_entry.relative_to(repo)
+                ).replace("\\", "/")
+            except ValueError:
+                _ts_entry_point_rel = ""
 
     def _compute_reachable(item_name: str, item_fpath: Path, item_rel: str) -> bool:
         """RC-W1-004: reachable=True unless a language-specific check above
@@ -2600,6 +2851,16 @@ def extract_api_surface(
             return item_name in _python_exports
         if language == "rust" and _rust_reexports is not None:
             return item_name in _rust_reexports
+        if language in ("typescript", "javascript") and _ts_exports is not None:
+            # An item literally declared in the entry/barrel file itself is
+            # trivially reachable -- mirrors the python __init__.py bypass
+            # above. In practice every such item is already captured by
+            # export_surface()'s own entry-file bare-declaration scan, but
+            # this direct check stays as a second, independent safety net
+            # (never a source of a false "confirmed unreachable").
+            if _ts_entry_point is not None and item_fpath == _ts_entry_point:
+                return True
+            return item_name in _ts_exports
         return True
 
     class_types = _CLASS_TYPES.get(language, set())
@@ -2635,6 +2896,16 @@ def extract_api_surface(
             # Rust mod_item: extract the name field — the node text of an
             # inline module (`mod foo { ... }`) spans the entire module body.
             if language == "rust" and mnode.type == "mod_item":
+                name_node = child_by_field(mnode, "name")
+                if name_node:
+                    packages.add(node_text(name_node))
+                continue
+            # TC-MT040-15: TypeScript namespace/module blocks
+            # (internal_module / module) -- extract the name field instead
+            # of full text, same reason as cpp/rust above: node_text() on
+            # the whole block would return the entire namespace BODY, not
+            # just its name.
+            if language == "typescript" and mnode.type in ("internal_module", "module"):
                 name_node = child_by_field(mnode, "name")
                 if name_node:
                     packages.add(node_text(name_node))
@@ -2866,13 +3137,43 @@ def extract_api_surface(
                                 if acc_text.startswith(("set", "init")):
                                     writable = True
                                     break
-                    properties.append({
+                    prop_entry: dict[str, Any] = {
                         "name": mname,
                         "type": ptype,
                         "doc": _extract_doc_comment(mnode, language),
                         "line": mnode.start_point[0] + 1,
                         "writable": writable,
-                    })
+                    }
+
+                    # TC-MT040-13: TypeScript class fields carry static/
+                    # readonly as direct modifier-TOKEN children (verified
+                    # via parse probe -- `static`/`readonly` are their own
+                    # child nodes, not bundled into a "modifiers" node the
+                    # way C#/Java do it) -- a wholly separate mechanism from
+                    # the accessor_list check above (which is C#-only).
+                    # Previously every TS public_field_definition was
+                    # hardcoded writable: False regardless of whether it was
+                    # actually a plain mutable field.
+                    if language == "typescript" and mnode.type == "public_field_definition":
+                        _ts_is_static = any(ch.type == "static" for ch in mnode.children)
+                        _ts_is_readonly = any(ch.type == "readonly" for ch in mnode.children)
+                        prop_entry["writable"] = not _ts_is_readonly
+                        if _ts_is_static:
+                            prop_entry["is_static"] = True
+                        _ts_value_node = child_by_field(mnode, "value")
+                        _ts_is_literalish = (
+                            _ts_value_node is not None
+                            and (_ts_value_node.type in _TS_LITERALISH_TYPES
+                                 or _ts_value_node.type == "unary_expression")
+                        )
+                        if (_ts_is_static and _ts_is_readonly) or (
+                            _ts_is_static and _ts_is_literalish
+                        ):
+                            prop_entry["kind"] = "constant"
+                            if _ts_value_node is not None:
+                                prop_entry["value"] = node_text(_ts_value_node)[:80]
+
+                    properties.append(prop_entry)
                     claims.append(_make_claim(
                         family, "api_method",
                         f"{cname}.{mname} property of type {ptype}",
@@ -2910,6 +3211,9 @@ def extract_api_surface(
                     method_entry["stub"] = True
                 elif language == "cpp" and _is_cpp_stub(mnode):
                     method_entry["stub"] = True
+
+                if language in ("typescript", "javascript"):
+                    _apply_ts_tsdoc_enrichment(method_entry, mnode)
 
                 methods.append(method_entry)
                 claims.append(_make_claim(
@@ -3166,6 +3470,12 @@ def extract_api_surface(
                 cls_record["is_sealed"] = True
             if "partial" in _cls_mods:
                 cls_record["is_partial"] = True
+            # TC-MT040-10: TypeScript expresses `abstract` as a distinct
+            # grammar-level node type (abstract_class_declaration), not a
+            # modifier keyword token the way C#/Java do -- no _cls_mods
+            # membership check applies here.
+            if language == "typescript" and cnode.type == "abstract_class_declaration":
+                cls_record["is_abstract"] = True
             if is_enum:
                 cls_record["enum_members"] = enum_members
 
@@ -3256,6 +3566,14 @@ def extract_api_surface(
                         parts[-1] = re.sub(r"\.tsx?$", "", parts[-1])
                     if parts and parts[-1] == "index":
                         parts = parts[:-1]
+                    # TC-MT040-15: prefix with the enclosing namespace/module
+                    # chain (if any), IN ADDITION to the file-path-derived
+                    # segments above -- a class declared inside `namespace
+                    # Foo { ... }` is imported as `Foo.ClassName`, not merely
+                    # under its physical file's own module segment.
+                    _ts_ns_chain = _ts_namespace_chain(cnode)
+                    if _ts_ns_chain:
+                        parts = _ts_ns_chain.split(".") + parts
                     if parts:
                         module_path = ".".join(parts)
                         cls_record["canonical_namespace"] = module_path
@@ -3359,11 +3677,24 @@ def extract_api_surface(
                 func_entry["receiver_type"] = receiver_type
             if rust_trait:
                 func_entry["trait_impl"] = rust_trait
+            if language in ("typescript", "javascript"):
+                _apply_ts_tsdoc_enrichment(func_entry, fnode)
             classes.append(func_entry)
             claims.append(_make_claim(
                 family, "api_method",
                 f"Function {fname}({', '.join(p['name'] for p in params)}) -> {ret}",
                 rel, fnode.start_point[0] + 1))
+
+        # TC-MT040-13: module-level `export const` declarations -- classes,
+        # functions, and top-level functions above are the only three shapes
+        # func_types/class_types nodes cover; a bare `export const X = ...`
+        # (constant OR arrow-function-valued) is neither and was previously
+        # invisible to extraction entirely.
+        if language == "typescript":
+            _ts_const_entries, _ts_const_claims = _extract_ts_module_constants(
+                root, rel, fpath, family, _compute_reachable)
+            classes.extend(_ts_const_entries)
+            claims.extend(_ts_const_claims)
 
     # SFX-1: Associate Go receiver methods with their parent type entries.
     # Go methods are top-level nodes (not children of type nodes), so the
@@ -3416,6 +3747,16 @@ def extract_api_surface(
         "total_source_files_found": _collection_stats.get("candidates_found", files_attempted),
         "files_capped": _collection_stats.get("files_capped", False),
     }
+    # TC-MT040-11: operator-visible evidence of what the TS/JS barrel
+    # resolution resolved to. Deliberately only added to the report for
+    # typescript/javascript (never an always-present, empty-for-everyone-
+    # else key) -- extraction_goldens.py's byte-for-byte report parity
+    # check for python/rust caught exactly this when it was first added
+    # unconditionally; this constant's own file-scope docstring is explicit
+    # that non-TS/JS extraction behavior must not change in any way a
+    # regression test would catch.
+    if language in ("typescript", "javascript"):
+        scout_report["ts_entry_point"] = _ts_entry_point_rel
     # Task 16 (§9.11, closes half of G10): stabilize member-claim IDs against
     # a "ClassName.MemberName" anchor instead of the full claim text -- see
     # _stabilize_scout_claim_ids' own docstring for the full rationale and the
