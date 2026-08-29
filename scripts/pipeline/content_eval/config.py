@@ -261,6 +261,28 @@ PROSE_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
         (r"\bmaven\b", "Maven reference in Rust page"),
         (r"\bnpm\s+install\b", "npm install in Rust page"),
     ],
+    # G-TS-03 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-19): typescript
+    # and javascript previously had no entry at all, so platform_purity.py
+    # never checked TS/JS page prose for cross-platform install-command
+    # contamination (every OTHER platform above already does). `npm install`
+    # is native to these two platforms and is deliberately excluded, mirroring
+    # how each platform's own list above never flags its own native command.
+    "typescript": [
+        (r"\bpip\s+install\b", "Python pip install in TypeScript page"),
+        (r"\bNuGet\b", "NuGet reference in TypeScript page"),
+        (r"\bdotnet\s+add\s+package\b", "dotnet CLI in TypeScript page"),
+        (r"\bmaven\b", "Maven reference in TypeScript page"),
+        (r"\bcargo\s+add\b", "cargo add in TypeScript page"),
+        (r"\bgo\s+get\b", "go get in TypeScript page"),
+    ],
+    "javascript": [
+        (r"\bpip\s+install\b", "Python pip install in JavaScript page"),
+        (r"\bNuGet\b", "NuGet reference in JavaScript page"),
+        (r"\bdotnet\s+add\s+package\b", "dotnet CLI in JavaScript page"),
+        (r"\bmaven\b", "Maven reference in JavaScript page"),
+        (r"\bcargo\s+add\b", "cargo add in JavaScript page"),
+        (r"\bgo\s+get\b", "go get in JavaScript page"),
+    ],
 }
 
 # Risk language patterns
