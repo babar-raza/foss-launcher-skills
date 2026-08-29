@@ -101,6 +101,37 @@ def _load_registered_platforms() -> set[str]:
         return set()
 
 
+def _load_registered_families() -> set[str]:
+    """Return set of family keys with a verified family-level target in
+    data/aspose_com_targets.json.
+
+    Found live 2026-08-29 (pdf/typescript blog-post qualification, mission
+    MT040): C5 below previously required an EXACT family/platform match,
+    with no awareness of the family-level fallback
+    lib/backlink_targets.py's own resolution algorithm already implements
+    (_lookup_family()/resolve_best_verified_ancestor() -- a brand-new
+    platform correctly falls back to its family's verified target, e.g.
+    3d/typescript and now pdf/typescript both resolve to
+    https://products.aspose.com/pdf/ with no commercial per-platform page
+    existing to fabricate). C5 was blocking every first-launch blog post
+    on a brand-new platform for a "gap" the real backlink-injection
+    mechanism never had -- this closes that inconsistency by teaching C5
+    the same fallback, not by exempting new platforms from the check.
+    """
+    path = _REPO_ROOT / "data" / "aspose_com_targets.json"
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        families = (
+            data.get("targets", {})
+            .get("products.aspose.com", {})
+            .get("families", {})
+        )
+        return set(families.keys())
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return set()
+
+
 # ---------------------------------------------------------------------------
 # Frontmatter parser
 # ---------------------------------------------------------------------------
@@ -139,6 +170,7 @@ def _check_post(
     platform: str,
     family_routes: dict[str, str],
     registered_platforms: set[str],
+    registered_families: set[str] = frozenset(),
 ) -> list[Finding]:
     findings: list[Finding] = []
 
@@ -208,13 +240,18 @@ def _check_post(
             "type: post is an old S-57 template artifact. Remove the type: field.",
         ))
 
-    # C5 — Platform target registered in JSON
+    # C5 — Platform target registered in JSON, or a family-level fallback
+    # exists (mirrors lib/backlink_targets.py's own ancestor-fallback
+    # resolution -- see _load_registered_families()'s docstring).
     platform_key = f"{family}/{platform}"
-    if registered_platforms and platform_key not in registered_platforms:
+    has_platform_target = platform_key in registered_platforms
+    has_family_fallback = family in registered_families
+    if registered_platforms and not has_platform_target and not has_family_fallback:
         findings.append(Finding(
             "C5", "FAIL",
             f"'{platform_key}' not found in data/aspose_com_targets.json "
-            f"(products.aspose.com.platforms). "
+            f"(products.aspose.com.platforms), and family '{family}' has no "
+            f"family-level fallback target either. "
             "Run fetch_aspose_com_targets.py after deploying products site.",
         ))
 
@@ -251,6 +288,7 @@ def check_files(
     paths: list[str],
     family_routes: dict[str, str],
     registered_platforms: set[str],
+    registered_families: set[str] = frozenset(),
 ) -> int:
     """Staged-file mode: check given paths. Return 1 if any FAIL, 0 otherwise."""
     fail_count = 0
@@ -261,7 +299,8 @@ def check_files(
             continue
         family, platform = _extract_family_platform(p)
         findings = _check_post(
-            Path(p), family, platform, family_routes, registered_platforms
+            Path(p), family, platform, family_routes, registered_platforms,
+            registered_families,
         )
         for f in findings:
             tag = f"[{f.check}] {f.level}"
@@ -285,6 +324,7 @@ def scan_root(
     blog_root: Path,
     family_routes: dict[str, str],
     registered_platforms: set[str],
+    registered_families: set[str] = frozenset(),
 ) -> list[tuple[Path, Finding]]:
     """Return (path, finding) for all failing/warning posts under blog_root."""
     results: list[tuple[Path, Finding]] = []
@@ -292,7 +332,10 @@ def scan_root(
         if not _is_blog_post(md):
             continue
         family, platform = _extract_family_platform(md)
-        for finding in _check_post(md, family, platform, family_routes, registered_platforms):
+        for finding in _check_post(
+            md, family, platform, family_routes, registered_platforms,
+            registered_families,
+        ):
             results.append((md, finding))
     return results
 
@@ -334,6 +377,7 @@ def main(argv: list[str] | None = None) -> int:
 
     family_routes = _load_family_routes()
     registered_platforms = _load_registered_platforms()
+    registered_families = _load_registered_families()
 
     if args.scan or not args.files:
         content_root = Path(args.root)
@@ -342,7 +386,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: blog content root not found: {blog_root}", file=sys.stderr)
             return 2
 
-        results = scan_root(blog_root, family_routes, registered_platforms)
+        results = scan_root(blog_root, family_routes, registered_platforms, registered_families)
         if not results:
             print("Blog post standards scan: 0 issues found.")
             return 0
@@ -362,7 +406,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n{total} finding(s): {fail_count} FAIL, {total - fail_count} WARN.")
         return 1 if fail_count else 0
 
-    return check_files(args.files, family_routes, registered_platforms)
+    return check_files(args.files, family_routes, registered_platforms, registered_families)
 
 
 if __name__ == "__main__":

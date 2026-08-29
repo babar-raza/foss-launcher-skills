@@ -309,6 +309,33 @@ def test_c5_pass_platform_registered(tmp_path):
     assert not any(f.check == "C5" for f in findings)
 
 
+def test_c5_pass_family_fallback(tmp_path):
+    # TC-MT040-27/28: a brand-new platform (e.g. pdf/typescript) with no
+    # per-platform commercial target must not FAIL C5 when its family DOES
+    # have a verified family-level fallback target -- mirrors
+    # lib/backlink_targets.py's own ancestor-fallback resolution, which a
+    # real blog post's backlink injection already relies on.
+    post = _make_post(tmp_path, "pdf", "typescript", "my-post", _GOOD_POST)
+    findings = _check_post(
+        post, "pdf", "typescript", _FAMILY_ROUTES, {"pdf/go"},
+        registered_families={"pdf"},
+    )
+    assert not any(f.check == "C5" for f in findings)
+
+
+def test_c5_fail_no_platform_and_no_family_fallback(tmp_path):
+    # A platform whose family has NEITHER a platform-specific NOR a
+    # family-level target must still FAIL -- the fallback only covers a
+    # real, verified family-level entry, it does not exempt every unknown
+    # platform unconditionally.
+    post = _make_post(tmp_path, "pdf", "typescript", "my-post", _GOOD_POST)
+    findings = _check_post(
+        post, "pdf", "typescript", _FAMILY_ROUTES, {"pdf/go"},
+        registered_families={"cells"},
+    )
+    assert any(f.check == "C5" and f.level == "FAIL" for f in findings)
+
+
 # ---------------------------------------------------------------------------
 # Regression: cells/net posts should pass
 # ---------------------------------------------------------------------------
