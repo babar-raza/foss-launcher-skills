@@ -72,6 +72,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/ci/tests/test_check_skill_doc_pins.py": {
+      "T1": 0,
+      "T2": 0,
+      "T3": 2,
+      "T4": 0
+    },
     "scripts/ci/tests/test_check_skill_mirror_parity.py": {
       "T1": 3,
       "T2": 3,
@@ -207,6 +213,12 @@
     "scripts/pipeline/tests/content_eval/test_type_accuracy.py": {
       "T1": 1,
       "T2": 0,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/content_eval/test_typescript_code_reachability.py": {
+      "T1": 0,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -576,6 +588,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_product_acceptance_state.py": {
+      "T1": 0,
+      "T2": 0,
+      "T3": 2,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_promote_atomic.py": {
       "T1": 0,
       "T2": 2,
@@ -603,7 +621,7 @@
     "scripts/pipeline/tests/test_readiness_scorecard.py": {
       "T1": 0,
       "T2": 7,
-      "T3": 4,
+      "T3": 5,
       "T4": 0
     },
     "scripts/pipeline/tests/test_reconciliation_ledger.py": {
@@ -799,14 +817,14 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-29T09:34:08Z",
+  "generated_at": "2026-08-29T11:10:38Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 949,
-    "T3": 108,
+    "T2": 951,
+    "T3": 113,
     "T4": 15
   }
 }
