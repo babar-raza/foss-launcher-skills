@@ -1,16 +1,6 @@
-from aspose.note import Document, RichText, Image, Table
+from aspose.note import Document, SaveFormat
+from aspose.note.saving import PdfSaveOptions
 
-doc = Document("testfiles/TagSizes.one")
-
-def dump_tags(kind: str, tags) -> None:
-  for t in tags:
-    print(kind, "tag:", t.Label, t.Icon)
-
-for rt in doc.GetChildNodes(RichText):
-  dump_tags("RichText", rt.Tags)
-
-for img in doc.GetChildNodes(Image):
-  dump_tags("Image", img.Tags)
-
-for tbl in doc.GetChildNodes(Table):
-  dump_tags("Table", tbl.Tags)
+doc = Document("TagSizes.one")
+opts = PdfSaveOptions(JpegQuality=90)
+doc.Save("out.pdf", opts)

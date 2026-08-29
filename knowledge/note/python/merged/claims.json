@@ -1,6 +1,6 @@
 [
   {
-    "claim_id": "CLM-note-44a2bd",
+    "claim_id": "CLM-note-efb39e23",
     "kind": "api_method",
     "text": "LogicalNode.kind field of type str",
     "confidence": 1.0,
@@ -14,7 +14,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6709ef",
+    "claim_id": "CLM-note-9c6f7e9f",
     "kind": "api_method",
     "text": "LogicalNode.oid field of type Any",
     "confidence": 1.0,
@@ -28,7 +28,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-92aef4",
+    "claim_id": "CLM-note-9b53873c",
     "kind": "api_method",
     "text": "LogicalNode.properties field of type dict[str, Any]",
     "confidence": 1.0,
@@ -42,7 +42,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b35f2a",
+    "claim_id": "CLM-note-a1f86e5d",
     "kind": "api_method",
     "text": "LogicalNode.children field of type list[LogicalNode]",
     "confidence": 1.0,
@@ -56,7 +56,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b39b04",
+    "claim_id": "CLM-note-6ad7c68f",
     "kind": "api_method",
     "text": "LogicalNode.metadata field of type list[LogicalNode]",
     "confidence": 1.0,
@@ -84,7 +84,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-792ef5",
+    "claim_id": "CLM-note-a95f3def",
     "kind": "api_method",
     "text": "LogicalDocument.root field of type LogicalNode | None",
     "confidence": 1.0,
@@ -112,7 +112,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-db5169",
+    "claim_id": "CLM-note-ee27867e",
     "kind": "api_method",
     "text": "LoadedOneNoteDocument.display_name field of type str | None",
     "confidence": 1.0,
@@ -126,7 +126,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1c32d3",
+    "claim_id": "CLM-note-ae7b3f85",
     "kind": "api_method",
     "text": "LoadedOneNoteDocument.logical_document field of type LogicalDocument",
     "confidence": 1.0,
@@ -140,7 +140,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-92d71d",
+    "claim_id": "CLM-note-c1770778",
     "kind": "api_method",
     "text": "LoadedOneNoteDocument.pages field of type list[Page]",
     "confidence": 1.0,
@@ -154,7 +154,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5fd2e5",
+    "claim_id": "CLM-note-fad4a585",
     "kind": "api_method",
     "text": "LoadedOneNoteDocument.page_histories field of type list[list[Page]]",
     "confidence": 1.0,
@@ -196,7 +196,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-18eb3d",
+    "claim_id": "CLM-note-1702e2af",
     "kind": "api_method",
     "text": "ExtendedGUID.guid field of type str",
     "confidence": 1.0,
@@ -210,7 +210,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-739f08",
+    "claim_id": "CLM-note-6e96248e",
     "kind": "api_method",
     "text": "ExtendedGUID.n field of type int",
     "confidence": 1.0,
@@ -238,7 +238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-4fe7ca",
+    "claim_id": "CLM-note-d213da6a",
     "kind": "api_method",
     "text": "JCID.index field of type int",
     "confidence": 1.0,
@@ -252,7 +252,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b7de90",
+    "claim_id": "CLM-note-4c905b02",
     "kind": "api_method",
     "text": "JCID.IsBinary field of type bool",
     "confidence": 1.0,
@@ -266,7 +266,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0068c1",
+    "claim_id": "CLM-note-b407e51e",
     "kind": "api_method",
     "text": "JCID.IsPropertySet field of type bool",
     "confidence": 1.0,
@@ -280,7 +280,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7d5738",
+    "claim_id": "CLM-note-b975bdca",
     "kind": "api_method",
     "text": "JCID.IsGraphNode field of type bool",
     "confidence": 1.0,
@@ -294,7 +294,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-29093d",
+    "claim_id": "CLM-note-ffc27bb0",
     "kind": "api_method",
     "text": "JCID.IsFileData field of type bool",
     "confidence": 1.0,
@@ -308,7 +308,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-56ec07",
+    "claim_id": "CLM-note-d3357a56",
     "kind": "api_method",
     "text": "JCID.IsReadOnly field of type bool",
     "confidence": 1.0,
@@ -336,7 +336,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e15d28",
+    "claim_id": "CLM-note-e975b23f",
     "kind": "api_method",
     "text": "FileNode.file_node_id field of type int",
     "confidence": 1.0,
@@ -350,7 +350,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-94eb23",
+    "claim_id": "CLM-note-70a2a911",
     "kind": "api_method",
     "text": "FileNode.payload field of type bytes",
     "confidence": 1.0,
@@ -364,7 +364,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1f6178",
+    "claim_id": "CLM-note-74358931",
     "kind": "api_method",
     "text": "FileNode.stp_format field of type int",
     "confidence": 1.0,
@@ -378,7 +378,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-eeb27e",
+    "claim_id": "CLM-note-571a9959",
     "kind": "api_method",
     "text": "FileNode.cb_format field of type int",
     "confidence": 1.0,
@@ -392,7 +392,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-16ec12",
+    "claim_id": "CLM-note-28825991",
     "kind": "api_method",
     "text": "FileNode.base_type field of type int",
     "confidence": 1.0,
@@ -420,7 +420,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c8ee6a",
+    "claim_id": "CLM-note-b3f527f0",
     "kind": "api_method",
     "text": "OneStoreObject.oid field of type ExtendedGUID",
     "confidence": 1.0,
@@ -434,7 +434,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-a5ffa4",
+    "claim_id": "CLM-note-db4c6ceb",
     "kind": "api_method",
     "text": "OneStoreObject.jcid field of type JCID",
     "confidence": 1.0,
@@ -448,7 +448,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-84fd0c",
+    "claim_id": "CLM-note-987a54cc",
     "kind": "api_method",
     "text": "OneStoreObject.jcid_name field of type str",
     "confidence": 1.0,
@@ -462,7 +462,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-cc430d",
+    "claim_id": "CLM-note-f13bf239",
     "kind": "api_method",
     "text": "OneStoreObject.properties field of type dict[str, Any]",
     "confidence": 1.0,
@@ -476,7 +476,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ac45d9",
+    "claim_id": "CLM-note-70f43204",
     "kind": "api_method",
     "text": "OneStoreObject.raw_properties field of type list[tuple[str, Any]]",
     "confidence": 1.0,
@@ -490,7 +490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f13c11",
+    "claim_id": "CLM-note-20acf83d",
     "kind": "api_method",
     "text": "OneStoreObject.file_data_reference field of type str | None",
     "confidence": 1.0,
@@ -504,7 +504,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7fe1c0",
+    "claim_id": "CLM-note-9b852d21",
     "kind": "api_method",
     "text": "OneStoreObject.file_extension field of type str | None",
     "confidence": 1.0,
@@ -532,7 +532,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-272fc8",
+    "claim_id": "CLM-note-6665eeb2",
     "kind": "api_method",
     "text": "RevisionManifestRecord.rid field of type ExtendedGUID",
     "confidence": 1.0,
@@ -546,7 +546,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0c90bd",
+    "claim_id": "CLM-note-7656810b",
     "kind": "api_method",
     "text": "RevisionManifestRecord.rid_dependent field of type ExtendedGUID | None",
     "confidence": 1.0,
@@ -560,7 +560,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-35d2f1",
+    "claim_id": "CLM-note-8a546bc4",
     "kind": "api_method",
     "text": "RevisionManifestRecord.context_id field of type ExtendedGUID | None",
     "confidence": 1.0,
@@ -574,7 +574,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-70cd9d",
+    "claim_id": "CLM-note-c921e97f",
     "kind": "api_method",
     "text": "RevisionManifestRecord.root_roles field of type dict[int, ExtendedGUID]",
     "confidence": 1.0,
@@ -588,7 +588,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-03ea6d",
+    "claim_id": "CLM-note-1d4bba21",
     "kind": "api_method",
     "text": "RevisionManifestRecord.objects field of type dict[ExtendedGUID, OneStoreObject]",
     "confidence": 1.0,
@@ -602,7 +602,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-58e61f",
+    "claim_id": "CLM-note-d28f5b1f",
     "kind": "api_method",
     "text": "RevisionManifestRecord.section_display_name field of type str | None",
     "confidence": 1.0,
@@ -616,7 +616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-516d74",
+    "claim_id": "CLM-note-b4b3abd6",
     "kind": "api_method",
     "text": "RevisionManifestRecord.order_index field of type int",
     "confidence": 1.0,
@@ -644,7 +644,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c3c512",
+    "claim_id": "CLM-note-da91b449",
     "kind": "api_method",
     "text": "RevisionRoleBinding.rid field of type ExtendedGUID",
     "confidence": 1.0,
@@ -658,7 +658,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-023745",
+    "claim_id": "CLM-note-5727b93f",
     "kind": "api_method",
     "text": "RevisionRoleBinding.context_id field of type ExtendedGUID | None",
     "confidence": 1.0,
@@ -672,7 +672,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-a5a442",
+    "claim_id": "CLM-note-2f37da9d",
     "kind": "api_method",
     "text": "RevisionRoleBinding.role field of type int",
     "confidence": 1.0,
@@ -686,7 +686,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3fa004",
+    "claim_id": "CLM-note-ab58f5a9",
     "kind": "api_method",
     "text": "RevisionRoleBinding.order_index field of type int",
     "confidence": 1.0,
@@ -714,7 +714,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f0d8ef",
+    "claim_id": "CLM-note-1997f910",
     "kind": "api_method",
     "text": "ObjectSpaceState.get_latest_root(role, context_id) -> ExtendedGUID | None",
     "confidence": 1.0,
@@ -728,7 +728,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-695339",
+    "claim_id": "CLM-note-a5649995",
     "kind": "api_method",
     "text": "ObjectSpaceState.iter_latest_roots(role) -> list[tuple[ExtendedGUID | None, ExtendedGUID]]",
     "confidence": 1.0,
@@ -742,7 +742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-247bf1",
+    "claim_id": "CLM-note-ed4c641b",
     "kind": "api_method",
     "text": "ObjectSpaceState.get_latest_revision_index(role, context_id) -> int | None",
     "confidence": 1.0,
@@ -756,7 +756,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-408188",
+    "claim_id": "CLM-note-02b09d87",
     "kind": "api_method",
     "text": "ObjectSpaceState.gosid field of type ExtendedGUID",
     "confidence": 1.0,
@@ -770,7 +770,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-febec4",
+    "claim_id": "CLM-note-a40a271a",
     "kind": "api_method",
     "text": "ObjectSpaceState.root_roles field of type dict[int, ExtendedGUID]",
     "confidence": 1.0,
@@ -784,7 +784,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-56789d",
+    "claim_id": "CLM-note-d9c8452b",
     "kind": "api_method",
     "text": "ObjectSpaceState.objects field of type dict[ExtendedGUID, OneStoreObject]",
     "confidence": 1.0,
@@ -798,7 +798,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-79542c",
+    "claim_id": "CLM-note-931afa9d",
     "kind": "api_method",
     "text": "ObjectSpaceState.section_display_name field of type str | None",
     "confidence": 1.0,
@@ -812,7 +812,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ba427d",
+    "claim_id": "CLM-note-3a472926",
     "kind": "api_method",
     "text": "ObjectSpaceState.revisions field of type list[RevisionManifestRecord]",
     "confidence": 1.0,
@@ -826,7 +826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c9f1a3",
+    "claim_id": "CLM-note-06b1699e",
     "kind": "api_method",
     "text": "ObjectSpaceState.role_bindings field of type list[RevisionRoleBinding]",
     "confidence": 1.0,
@@ -840,7 +840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b97c1d",
+    "claim_id": "CLM-note-c767e028",
     "kind": "api_method",
     "text": "ObjectSpaceState.latest_roots_by_context_role field of type dict[tuple[ExtendedGUID | None, int], ExtendedGUID]",
     "confidence": 1.0,
@@ -854,7 +854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b6f705",
+    "claim_id": "CLM-note-bf86c165",
     "kind": "api_method",
     "text": "ObjectSpaceState.latest_revision_indices_by_context_role field of type dict[tuple[ExtendedGUID | None, int], int]",
     "confidence": 1.0,
@@ -882,7 +882,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-43d878",
+    "claim_id": "CLM-note-56788c45",
     "kind": "api_method",
     "text": "OneStoreFile.data field of type bytes",
     "confidence": 1.0,
@@ -896,7 +896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-888c10",
+    "claim_id": "CLM-note-f117e43b",
     "kind": "api_method",
     "text": "OneStoreFile.object_spaces field of type list[ObjectSpaceState]",
     "confidence": 1.0,
@@ -910,7 +910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-cc75ce",
+    "claim_id": "CLM-note-c9ce82b5",
     "kind": "api_method",
     "text": "OneStoreFile.file_data_store field of type dict[str, bytes]",
     "confidence": 1.0,
@@ -924,7 +924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-793047",
+    "claim_id": "CLM-note-147897be",
     "kind": "api_method",
     "text": "OneStoreFile.display_name field of type str | None",
     "confidence": 1.0,
@@ -980,7 +980,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e5ea2f",
+    "claim_id": "CLM-note-1b302f5f",
     "kind": "api_method",
     "text": "OutlinePrefixFlowable.__init__() -> None",
     "confidence": 1.0,
@@ -994,7 +994,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-491d39",
+    "claim_id": "CLM-note-72aaacd9",
     "kind": "api_method",
     "text": "OutlinePrefixFlowable.wrap(aW, aH) -> ",
     "confidence": 1.0,
@@ -1008,7 +1008,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-655c84",
+    "claim_id": "CLM-note-324add95",
     "kind": "api_method",
     "text": "OutlinePrefixFlowable.draw() -> ",
     "confidence": 1.0,
@@ -1022,7 +1022,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e2330a",
+    "claim_id": "CLM-note-7c94225e",
     "kind": "api_method",
     "text": "OutlinePrefixFlowable.width field of type unknown",
     "confidence": 1.0,
@@ -1036,7 +1036,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-90ed29",
+    "claim_id": "CLM-note-29eb63e4",
     "kind": "api_method",
     "text": "OutlinePrefixFlowable.height field of type unknown",
     "confidence": 1.0,
@@ -1064,7 +1064,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-274f73",
+    "claim_id": "CLM-note-50bf046a",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.__init__() -> None",
     "confidence": 1.0,
@@ -1078,7 +1078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ee61b2",
+    "claim_id": "CLM-note-1dfc871e",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.wrap(aW, aH) -> ",
     "confidence": 1.0,
@@ -1092,7 +1092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e6e15d",
+    "claim_id": "CLM-note-6e710b68",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.draw() -> ",
     "confidence": 1.0,
@@ -1106,7 +1106,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-136d1b",
+    "claim_id": "CLM-note-90a41938",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.hAlign field of type unknown",
     "confidence": 1.0,
@@ -1120,7 +1120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-94c7b3",
+    "claim_id": "CLM-note-40f00450",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.width field of type unknown",
     "confidence": 1.0,
@@ -1134,7 +1134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-a350bf",
+    "claim_id": "CLM-note-f6c656b3",
     "kind": "api_method",
     "text": "AttachmentTagFlowable.height field of type unknown",
     "confidence": 1.0,
@@ -1302,7 +1302,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-829d25",
+    "claim_id": "CLM-note-fa2290a9",
     "kind": "api_method",
     "text": "UnsupportedFileFormatException.__init__(message, file_format) -> None",
     "confidence": 1.0,
@@ -1316,7 +1316,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9ab095",
+    "claim_id": "CLM-note-477224ae",
     "kind": "api_method",
     "text": "UnsupportedFileFormatException.FileFormat property of type FileFormat",
     "confidence": 1.0,
@@ -1358,7 +1358,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ac4819",
+    "claim_id": "CLM-note-8311bac9",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitDocumentStart(document) -> None",
     "confidence": 1.0,
@@ -1372,7 +1372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c244ff",
+    "claim_id": "CLM-note-0a78e40a",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitDocumentEnd(document) -> None",
     "confidence": 1.0,
@@ -1386,7 +1386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0c7df4",
+    "claim_id": "CLM-note-1596949f",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitPageStart(page) -> None",
     "confidence": 1.0,
@@ -1400,7 +1400,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e4d8d7",
+    "claim_id": "CLM-note-56427749",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitPageEnd(page) -> None",
     "confidence": 1.0,
@@ -1414,7 +1414,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9cea69",
+    "claim_id": "CLM-note-e20a181f",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitTitleStart(title) -> None",
     "confidence": 1.0,
@@ -1428,7 +1428,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-533daa",
+    "claim_id": "CLM-note-2d18a57a",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitTitleEnd(title) -> None",
     "confidence": 1.0,
@@ -1442,7 +1442,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1341f8",
+    "claim_id": "CLM-note-b05969fd",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitOutlineStart(outline) -> None",
     "confidence": 1.0,
@@ -1456,7 +1456,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-082312",
+    "claim_id": "CLM-note-cf20e17d",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitOutlineEnd(outline) -> None",
     "confidence": 1.0,
@@ -1470,7 +1470,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3d9fb3",
+    "claim_id": "CLM-note-c7b78680",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitOutlineElementStart(outline_element) -> None",
     "confidence": 1.0,
@@ -1484,7 +1484,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5d5fbf",
+    "claim_id": "CLM-note-dd021b0c",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitOutlineElementEnd(outline_element) -> None",
     "confidence": 1.0,
@@ -1498,7 +1498,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c59308",
+    "claim_id": "CLM-note-13b5800e",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitRichTextStart(rich_text) -> None",
     "confidence": 1.0,
@@ -1512,7 +1512,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-90f385",
+    "claim_id": "CLM-note-aa07c734",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitRichTextEnd(rich_text) -> None",
     "confidence": 1.0,
@@ -1526,7 +1526,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e468f6",
+    "claim_id": "CLM-note-f21a0a68",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitImageStart(image) -> None",
     "confidence": 1.0,
@@ -1540,7 +1540,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-546076",
+    "claim_id": "CLM-note-59e72f97",
     "kind": "api_method",
     "text": "DocumentVisitor.VisitImageEnd(image) -> None",
     "confidence": 1.0,
@@ -1568,7 +1568,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b1e020",
+    "claim_id": "CLM-note-99cc7468",
     "kind": "api_method",
     "text": "License.SetLicense(license_path_or_stream) -> None",
     "confidence": 1.0,
@@ -1596,7 +1596,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-14043d",
+    "claim_id": "CLM-note-f88fd2de",
     "kind": "api_method",
     "text": "Metered.SetMeteredKey(public_key, private_key) -> None",
     "confidence": 1.0,
@@ -1624,7 +1624,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-a3b2e3",
+    "claim_id": "CLM-note-066a67c6",
     "kind": "api_method",
     "text": "LoadOptions.DocumentPassword field of type str | None",
     "confidence": 1.0,
@@ -1638,7 +1638,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-115945",
+    "claim_id": "CLM-note-f7c1f8ce",
     "kind": "api_method",
     "text": "LoadOptions.LoadHistory field of type bool",
     "confidence": 1.0,
@@ -1666,7 +1666,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8d9838",
+    "claim_id": "CLM-note-913cef0a",
     "kind": "api_method",
     "text": "Node.Accept(visitor) -> None",
     "confidence": 1.0,
@@ -1680,7 +1680,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-14b30e",
+    "claim_id": "CLM-note-321cd8a6",
     "kind": "api_method",
     "text": "Node.ParentNode property of type Node | None",
     "confidence": 1.0,
@@ -1694,7 +1694,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ad43cb",
+    "claim_id": "CLM-note-1c7c3c9c",
     "kind": "api_method",
     "text": "Node.Document property of type Document | None",
     "confidence": 1.0,
@@ -1722,7 +1722,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5303b6",
+    "claim_id": "CLM-note-d108dd17",
     "kind": "api_method",
     "text": "CompositeNode.AppendChildLast(node) -> TNode",
     "confidence": 1.0,
@@ -1736,7 +1736,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-18c27b",
+    "claim_id": "CLM-note-c9e28a79",
     "kind": "api_method",
     "text": "CompositeNode.AppendChildFirst(node) -> TNode",
     "confidence": 1.0,
@@ -1750,7 +1750,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-27fd82",
+    "claim_id": "CLM-note-5e58b59b",
     "kind": "api_method",
     "text": "CompositeNode.InsertChild(index, node) -> TNode",
     "confidence": 1.0,
@@ -1764,7 +1764,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0b2a5a",
+    "claim_id": "CLM-note-9bf2e1f8",
     "kind": "api_method",
     "text": "CompositeNode.RemoveChild(node) -> None",
     "confidence": 1.0,
@@ -1778,7 +1778,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3d2423",
+    "claim_id": "CLM-note-f74dd38d",
     "kind": "api_method",
     "text": "CompositeNode.GetEnumerator() -> Iterator[Node]",
     "confidence": 1.0,
@@ -1792,7 +1792,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d5e310",
+    "claim_id": "CLM-note-176c696d",
     "kind": "api_method",
     "text": "CompositeNode.GetChildNodes(node_type) -> list[TNode]",
     "confidence": 1.0,
@@ -1806,7 +1806,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8e746c",
+    "claim_id": "CLM-note-5b0d809e",
     "kind": "api_method",
     "text": "CompositeNode.FirstChild property of type Node | None",
     "confidence": 1.0,
@@ -1820,7 +1820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0f0541",
+    "claim_id": "CLM-note-ed02548c",
     "kind": "api_method",
     "text": "CompositeNode.LastChild property of type Node | None",
     "confidence": 1.0,
@@ -1848,7 +1848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-483b6e",
+    "claim_id": "CLM-note-6c5af677",
     "kind": "api_method",
     "text": "NoteTag.__init__(construction_token, Label, Icon, Status, Highlight, CreationTime, CompletedTime, FontColor) -> None",
     "confidence": 1.0,
@@ -1862,7 +1862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-dbeb3a",
+    "claim_id": "CLM-note-edfcb41c",
     "kind": "api_method",
     "text": "NoteTag.CreateYellowStar(label) -> NoteTag",
     "confidence": 1.0,
@@ -1876,7 +1876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-026130",
+    "claim_id": "CLM-note-7b3d81cd",
     "kind": "api_method",
     "text": "NoteTag.CreateQuestionMark(label) -> NoteTag",
     "confidence": 1.0,
@@ -1890,7 +1890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9652af",
+    "claim_id": "CLM-note-dff32a38",
     "kind": "api_method",
     "text": "NoteTag.CreateMusicalNote(label) -> NoteTag",
     "confidence": 1.0,
@@ -1904,7 +1904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e76dc0",
+    "claim_id": "CLM-note-6d18c2af",
     "kind": "api_method",
     "text": "NoteTag.Label property of type str | None",
     "confidence": 1.0,
@@ -1918,7 +1918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3d4785",
+    "claim_id": "CLM-note-56fce14e",
     "kind": "api_method",
     "text": "NoteTag.Icon property of type int | None",
     "confidence": 1.0,
@@ -1932,7 +1932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3616ee",
+    "claim_id": "CLM-note-20f6e473",
     "kind": "api_method",
     "text": "NoteTag.Status property of type TagStatus",
     "confidence": 1.0,
@@ -1946,7 +1946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-16a475",
+    "claim_id": "CLM-note-298892ba",
     "kind": "api_method",
     "text": "NoteTag.Highlight property of type int | None",
     "confidence": 1.0,
@@ -1960,7 +1960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-44001a",
+    "claim_id": "CLM-note-da7f0930",
     "kind": "api_method",
     "text": "NoteTag.CreationTime property of type datetime | None",
     "confidence": 1.0,
@@ -1974,7 +1974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-311ffd",
+    "claim_id": "CLM-note-ae2f15ea",
     "kind": "api_method",
     "text": "NoteTag.CompletedTime property of type datetime | None",
     "confidence": 1.0,
@@ -1988,7 +1988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-272567",
+    "claim_id": "CLM-note-61bc107e",
     "kind": "api_method",
     "text": "NoteTag.FontColor property of type int | None",
     "confidence": 1.0,
@@ -2016,7 +2016,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-024bd5",
+    "claim_id": "CLM-note-3bc52e7f",
     "kind": "api_method",
     "text": "ParagraphStyle.__init__(FontName, FontSize, FontColor, Highlight, IsBold, IsItalic, IsUnderline, IsStrikethrough, IsSuperscript, IsSubscript) -> None",
     "confidence": 1.0,
@@ -2030,7 +2030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-75a57d",
+    "claim_id": "CLM-note-b4b89976",
     "kind": "api_method",
     "text": "ParagraphStyle.Default() -> ParagraphStyle",
     "confidence": 1.0,
@@ -2044,7 +2044,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-97e18e",
+    "claim_id": "CLM-note-9e552952",
     "kind": "api_method",
     "text": "ParagraphStyle.FontStyle property of type int",
     "confidence": 1.0,
@@ -2058,7 +2058,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-28f00b",
+    "claim_id": "CLM-note-38a57716",
     "kind": "api_method",
     "text": "ParagraphStyle.FontName field of type unknown",
     "confidence": 1.0,
@@ -2072,7 +2072,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d3953d",
+    "claim_id": "CLM-note-e00048a6",
     "kind": "api_method",
     "text": "ParagraphStyle.FontSize field of type unknown",
     "confidence": 1.0,
@@ -2086,7 +2086,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-19d6ed",
+    "claim_id": "CLM-note-06e4191f",
     "kind": "api_method",
     "text": "ParagraphStyle.FontColor field of type unknown",
     "confidence": 1.0,
@@ -2100,7 +2100,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f9a95c",
+    "claim_id": "CLM-note-3d2ddd4a",
     "kind": "api_method",
     "text": "ParagraphStyle.Highlight field of type unknown",
     "confidence": 1.0,
@@ -2114,7 +2114,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-2f3a16",
+    "claim_id": "CLM-note-26e78172",
     "kind": "api_method",
     "text": "ParagraphStyle.IsBold field of type unknown",
     "confidence": 1.0,
@@ -2128,7 +2128,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b7b106",
+    "claim_id": "CLM-note-320520d8",
     "kind": "api_method",
     "text": "ParagraphStyle.IsItalic field of type unknown",
     "confidence": 1.0,
@@ -2142,7 +2142,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f71757",
+    "claim_id": "CLM-note-55c40704",
     "kind": "api_method",
     "text": "ParagraphStyle.IsUnderline field of type unknown",
     "confidence": 1.0,
@@ -2156,7 +2156,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-74291c",
+    "claim_id": "CLM-note-6a9bb5c9",
     "kind": "api_method",
     "text": "ParagraphStyle.IsStrikethrough field of type unknown",
     "confidence": 1.0,
@@ -2170,7 +2170,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c832a8",
+    "claim_id": "CLM-note-2ad87d8f",
     "kind": "api_method",
     "text": "ParagraphStyle.IsSuperscript field of type unknown",
     "confidence": 1.0,
@@ -2184,7 +2184,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6e7d81",
+    "claim_id": "CLM-note-d81f3e96",
     "kind": "api_method",
     "text": "ParagraphStyle.IsSubscript field of type unknown",
     "confidence": 1.0,
@@ -2212,7 +2212,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-428537",
+    "claim_id": "CLM-note-035a9722",
     "kind": "api_method",
     "text": "TextStyle.__init__(IsHyperlink, HyperlinkAddress, FontName, FontSize, FontColor, Highlight, Language, IsBold, IsItalic, IsUnderline, IsStrikethrough, IsSuperscript, IsSubscript, IsHidden, IsMathFormatting) -> None",
     "confidence": 1.0,
@@ -2226,7 +2226,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1fe6c2",
+    "claim_id": "CLM-note-dc7298a3",
     "kind": "api_method",
     "text": "TextStyle.Default() -> TextStyle",
     "confidence": 1.0,
@@ -2240,7 +2240,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-2136c9",
+    "claim_id": "CLM-note-de538aa0",
     "kind": "api_method",
     "text": "TextStyle.DefaultMsOneNoteTitleTextStyle() -> TextStyle",
     "confidence": 1.0,
@@ -2254,7 +2254,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-2c772a",
+    "claim_id": "CLM-note-54d638f0",
     "kind": "api_method",
     "text": "TextStyle.DefaultMsOneNoteTitleDateStyle() -> TextStyle",
     "confidence": 1.0,
@@ -2268,7 +2268,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0a85fa",
+    "claim_id": "CLM-note-25f2b8ae",
     "kind": "api_method",
     "text": "TextStyle.DefaultMsOneNoteTitleTimeStyle() -> TextStyle",
     "confidence": 1.0,
@@ -2282,7 +2282,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-995998",
+    "claim_id": "CLM-note-a0529074",
     "kind": "api_method",
     "text": "TextStyle.IsHyperlink property of type bool",
     "confidence": 1.0,
@@ -2296,7 +2296,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9e0587",
+    "claim_id": "CLM-note-42cc82b8",
     "kind": "api_method",
     "text": "TextStyle.HyperlinkAddress property of type str | None",
     "confidence": 1.0,
@@ -2310,7 +2310,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0ca7fe",
+    "claim_id": "CLM-note-7be60040",
     "kind": "api_method",
     "text": "TextStyle.FontName property of type str | None",
     "confidence": 1.0,
@@ -2324,7 +2324,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-66332f",
+    "claim_id": "CLM-note-56237d62",
     "kind": "api_method",
     "text": "TextStyle.FontSize property of type float | None",
     "confidence": 1.0,
@@ -2338,7 +2338,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6315e1",
+    "claim_id": "CLM-note-bfac04d4",
     "kind": "api_method",
     "text": "TextStyle.FontColor property of type int | None",
     "confidence": 1.0,
@@ -2352,7 +2352,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8f1e39",
+    "claim_id": "CLM-note-1ff465af",
     "kind": "api_method",
     "text": "TextStyle.Highlight property of type int | None",
     "confidence": 1.0,
@@ -2366,7 +2366,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-26e639",
+    "claim_id": "CLM-note-724d6b31",
     "kind": "api_method",
     "text": "TextStyle.Language property of type int | None",
     "confidence": 1.0,
@@ -2380,7 +2380,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-bcfc64",
+    "claim_id": "CLM-note-1396baef",
     "kind": "api_method",
     "text": "TextStyle.IsBold property of type bool",
     "confidence": 1.0,
@@ -2394,7 +2394,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f164f2",
+    "claim_id": "CLM-note-3fe74d46",
     "kind": "api_method",
     "text": "TextStyle.IsItalic property of type bool",
     "confidence": 1.0,
@@ -2408,7 +2408,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8c1bd6",
+    "claim_id": "CLM-note-850d9173",
     "kind": "api_method",
     "text": "TextStyle.IsUnderline property of type bool",
     "confidence": 1.0,
@@ -2422,7 +2422,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8e8d0c",
+    "claim_id": "CLM-note-70c1ec86",
     "kind": "api_method",
     "text": "TextStyle.IsStrikethrough property of type bool",
     "confidence": 1.0,
@@ -2436,7 +2436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8b969c",
+    "claim_id": "CLM-note-c474b65f",
     "kind": "api_method",
     "text": "TextStyle.IsSuperscript property of type bool",
     "confidence": 1.0,
@@ -2450,7 +2450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f230b2",
+    "claim_id": "CLM-note-1a45585e",
     "kind": "api_method",
     "text": "TextStyle.IsSubscript property of type bool",
     "confidence": 1.0,
@@ -2464,7 +2464,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-33abb9",
+    "claim_id": "CLM-note-5c98efa2",
     "kind": "api_method",
     "text": "TextStyle.IsHidden property of type bool",
     "confidence": 1.0,
@@ -2478,7 +2478,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b1c371",
+    "claim_id": "CLM-note-aea88ece",
     "kind": "api_method",
     "text": "TextStyle.IsMathFormatting property of type bool",
     "confidence": 1.0,
@@ -2492,7 +2492,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8f3b9c",
+    "claim_id": "CLM-note-ad93d01e",
     "kind": "api_method",
     "text": "TextStyle.FontStyle property of type int",
     "confidence": 1.0,
@@ -2520,7 +2520,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7332d0",
+    "claim_id": "CLM-note-9f5024b8",
     "kind": "api_method",
     "text": "TextRun.Text field of type str",
     "confidence": 1.0,
@@ -2534,7 +2534,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-636f6e",
+    "claim_id": "CLM-note-eee1c2dc",
     "kind": "api_method",
     "text": "TextRun.Style field of type TextStyle",
     "confidence": 1.0,
@@ -2562,7 +2562,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e5bbc7",
+    "claim_id": "CLM-note-c9d9a886",
     "kind": "api_method",
     "text": "RichText.__init__(Text, TextRuns, ParagraphStyle, Alignment, Tags, LastModifiedTime, SpaceBefore, SpaceAfter, LineSpacing) -> None",
     "confidence": 1.0,
@@ -2576,7 +2576,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-dc8d2f",
+    "claim_id": "CLM-note-75f7ce5b",
     "kind": "api_method",
     "text": "RichText.Append(text, style) -> RichText",
     "confidence": 1.0,
@@ -2590,7 +2590,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-534814",
+    "claim_id": "CLM-note-72e2d733",
     "kind": "api_method",
     "text": "RichText.AppendFront(text, style) -> RichText",
     "confidence": 1.0,
@@ -2604,7 +2604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-66afcb",
+    "claim_id": "CLM-note-01f90597",
     "kind": "api_method",
     "text": "RichText.Clear() -> RichText",
     "confidence": 1.0,
@@ -2618,7 +2618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f0d5bc",
+    "claim_id": "CLM-note-ee7b1cc2",
     "kind": "api_method",
     "text": "RichText.GetEnumerator() -> Iterator[str]",
     "confidence": 1.0,
@@ -2632,7 +2632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-fb8d01",
+    "claim_id": "CLM-note-f112d47e",
     "kind": "api_method",
     "text": "RichText.IndexOf(value, startIndex, count, comparison) -> int",
     "confidence": 1.0,
@@ -2646,7 +2646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ec0c91",
+    "claim_id": "CLM-note-0afc5153",
     "kind": "api_method",
     "text": "RichText.Insert(index, text, style) -> RichText",
     "confidence": 1.0,
@@ -2660,7 +2660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e48077",
+    "claim_id": "CLM-note-c86a16b1",
     "kind": "api_method",
     "text": "RichText.Remove(start, count) -> RichText",
     "confidence": 1.0,
@@ -2674,7 +2674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-31d1b1",
+    "claim_id": "CLM-note-b87330f1",
     "kind": "api_method",
     "text": "RichText.Replace(old_value, new_value, style) -> RichText",
     "confidence": 1.0,
@@ -2688,7 +2688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6925f2",
+    "claim_id": "CLM-note-fea59457",
     "kind": "api_method",
     "text": "RichText.Trim() -> RichText",
     "confidence": 1.0,
@@ -2702,7 +2702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-97a895",
+    "claim_id": "CLM-note-59f12306",
     "kind": "api_method",
     "text": "RichText.TrimStart() -> RichText",
     "confidence": 1.0,
@@ -2716,7 +2716,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e35265",
+    "claim_id": "CLM-note-fbf8770d",
     "kind": "api_method",
     "text": "RichText.TrimEnd() -> RichText",
     "confidence": 1.0,
@@ -2730,7 +2730,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-fae1fb",
+    "claim_id": "CLM-note-8b79fba3",
     "kind": "api_method",
     "text": "RichText.Text property of type str",
     "confidence": 1.0,
@@ -2744,7 +2744,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0d8ee8",
+    "claim_id": "CLM-note-9dadef1b",
     "kind": "api_method",
     "text": "RichText.TextRuns property of type list[TextRun]",
     "confidence": 1.0,
@@ -2758,7 +2758,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c7f52b",
+    "claim_id": "CLM-note-a39e093a",
     "kind": "api_method",
     "text": "RichText.ParagraphStyle property of type ParagraphStyle",
     "confidence": 1.0,
@@ -2772,7 +2772,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1eda62",
+    "claim_id": "CLM-note-e979571e",
     "kind": "api_method",
     "text": "RichText.Tags property of type list[NoteTag]",
     "confidence": 1.0,
@@ -2786,7 +2786,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d07e60",
+    "claim_id": "CLM-note-0678eb14",
     "kind": "api_method",
     "text": "RichText.Length property of type int",
     "confidence": 1.0,
@@ -2800,7 +2800,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-425453",
+    "claim_id": "CLM-note-9fa57c1f",
     "kind": "api_method",
     "text": "RichText.Alignment property of type HorizontalAlignment | None",
     "confidence": 1.0,
@@ -2814,7 +2814,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1324fe",
+    "claim_id": "CLM-note-8c15973d",
     "kind": "api_method",
     "text": "RichText.IsTitleText property of type bool",
     "confidence": 1.0,
@@ -2828,7 +2828,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-91338c",
+    "claim_id": "CLM-note-4e3c29d8",
     "kind": "api_method",
     "text": "RichText.IsTitleDate property of type bool",
     "confidence": 1.0,
@@ -2842,7 +2842,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5dd220",
+    "claim_id": "CLM-note-108d5015",
     "kind": "api_method",
     "text": "RichText.IsTitleTime property of type bool",
     "confidence": 1.0,
@@ -2856,7 +2856,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8fc755",
+    "claim_id": "CLM-note-42a83ca9",
     "kind": "api_method",
     "text": "RichText.LastModifiedTime field of type unknown",
     "confidence": 1.0,
@@ -2870,7 +2870,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-707bba",
+    "claim_id": "CLM-note-01273b3e",
     "kind": "api_method",
     "text": "RichText.SpaceBefore field of type unknown",
     "confidence": 1.0,
@@ -2884,7 +2884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3174e6",
+    "claim_id": "CLM-note-63e1c435",
     "kind": "api_method",
     "text": "RichText.SpaceAfter field of type unknown",
     "confidence": 1.0,
@@ -2898,7 +2898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-04ebb0",
+    "claim_id": "CLM-note-7c40204e",
     "kind": "api_method",
     "text": "RichText.LineSpacing field of type unknown",
     "confidence": 1.0,
@@ -2926,7 +2926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-733595",
+    "claim_id": "CLM-note-07149d1e",
     "kind": "api_method",
     "text": "Title.__init__(TitleText, TitleDate, TitleTime) -> None",
     "confidence": 1.0,
@@ -2940,7 +2940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-99595d",
+    "claim_id": "CLM-note-6020ce20",
     "kind": "api_method",
     "text": "Title.GetEnumerator() -> Iterator[Node]",
     "confidence": 1.0,
@@ -2954,7 +2954,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e54b55",
+    "claim_id": "CLM-note-58a469ea",
     "kind": "api_method",
     "text": "Title.GetChildNodes(node_type) -> list[TNode]",
     "confidence": 1.0,
@@ -2968,7 +2968,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e2d474",
+    "claim_id": "CLM-note-20bf59e8",
     "kind": "api_method",
     "text": "Title.TitleText property of type RichText | None",
     "confidence": 1.0,
@@ -2982,7 +2982,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1d9f7d",
+    "claim_id": "CLM-note-0f5b5e4c",
     "kind": "api_method",
     "text": "Title.TitleDate property of type RichText | None",
     "confidence": 1.0,
@@ -2996,7 +2996,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-670084",
+    "claim_id": "CLM-note-3238c9b3",
     "kind": "api_method",
     "text": "Title.TitleTime property of type RichText | None",
     "confidence": 1.0,
@@ -3024,7 +3024,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f2a4c0",
+    "claim_id": "CLM-note-1a9b9734",
     "kind": "api_method",
     "text": "NumberList.GetNumberedListHeader(number) -> str",
     "confidence": 1.0,
@@ -3038,7 +3038,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7160a3",
+    "claim_id": "CLM-note-a471ed02",
     "kind": "api_method",
     "text": "NumberList.Format field of type str | None",
     "confidence": 1.0,
@@ -3052,7 +3052,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-918218",
+    "claim_id": "CLM-note-50442e01",
     "kind": "api_method",
     "text": "NumberList.NumberFormat field of type str | None",
     "confidence": 1.0,
@@ -3066,7 +3066,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-663be0",
+    "claim_id": "CLM-note-3f7fcea5",
     "kind": "api_method",
     "text": "NumberList.Font field of type str | None",
     "confidence": 1.0,
@@ -3080,7 +3080,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d0551a",
+    "claim_id": "CLM-note-ddb5c86d",
     "kind": "api_method",
     "text": "NumberList.FontSize field of type float | None",
     "confidence": 1.0,
@@ -3094,7 +3094,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-de8183",
+    "claim_id": "CLM-note-c6ee61e7",
     "kind": "api_method",
     "text": "NumberList.FontColor field of type int | None",
     "confidence": 1.0,
@@ -3108,7 +3108,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-27dd5d",
+    "claim_id": "CLM-note-995e5a63",
     "kind": "api_method",
     "text": "NumberList.IsBold field of type bool",
     "confidence": 1.0,
@@ -3122,7 +3122,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ed2596",
+    "claim_id": "CLM-note-e1299239",
     "kind": "api_method",
     "text": "NumberList.IsItalic field of type bool",
     "confidence": 1.0,
@@ -3136,7 +3136,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-76cbfd",
+    "claim_id": "CLM-note-6fc33917",
     "kind": "api_method",
     "text": "NumberList.LastModifiedTime field of type datetime | None",
     "confidence": 1.0,
@@ -3150,7 +3150,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c5ed86",
+    "claim_id": "CLM-note-20beaab6",
     "kind": "api_method",
     "text": "NumberList.Restart field of type int | None",
     "confidence": 1.0,
@@ -3178,7 +3178,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-332a96",
+    "claim_id": "CLM-note-aa1cf5d1",
     "kind": "api_method",
     "text": "OutlineElement.NumberList field of type NumberList | None",
     "confidence": 1.0,
@@ -3206,7 +3206,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d43971",
+    "claim_id": "CLM-note-5ff6acaf",
     "kind": "api_method",
     "text": "Outline.HorizontalOffset field of type float | None",
     "confidence": 1.0,
@@ -3220,7 +3220,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e79b9e",
+    "claim_id": "CLM-note-43e3a5cd",
     "kind": "api_method",
     "text": "Outline.VerticalOffset field of type float | None",
     "confidence": 1.0,
@@ -3234,7 +3234,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0e761a",
+    "claim_id": "CLM-note-48448b58",
     "kind": "api_method",
     "text": "Outline.MaxWidth field of type float | None",
     "confidence": 1.0,
@@ -3248,7 +3248,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-4ee54e",
+    "claim_id": "CLM-note-9e1f7e87",
     "kind": "api_method",
     "text": "Outline.MaxHeight field of type float | None",
     "confidence": 1.0,
@@ -3262,7 +3262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-536e4c",
+    "claim_id": "CLM-note-0ae527c9",
     "kind": "api_method",
     "text": "Outline.MinWidth field of type float | None",
     "confidence": 1.0,
@@ -3276,7 +3276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-823341",
+    "claim_id": "CLM-note-fe11c805",
     "kind": "api_method",
     "text": "Outline.ReservedWidth field of type float | None",
     "confidence": 1.0,
@@ -3290,7 +3290,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-21d953",
+    "claim_id": "CLM-note-867d5848",
     "kind": "api_method",
     "text": "Outline.IndentPosition field of type float | None",
     "confidence": 1.0,
@@ -3304,7 +3304,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d686c5",
+    "claim_id": "CLM-note-4528da51",
     "kind": "api_method",
     "text": "Outline.DescendantsCannotBeMoved field of type bool",
     "confidence": 1.0,
@@ -3318,7 +3318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e197e5",
+    "claim_id": "CLM-note-f77841a1",
     "kind": "api_method",
     "text": "Outline.LastModifiedTime field of type datetime | None",
     "confidence": 1.0,
@@ -3346,7 +3346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-62e491",
+    "claim_id": "CLM-note-c2e46ab4",
     "kind": "api_method",
     "text": "Image.__init__(FileName, FilePath, Format, Bytes, Width, Height, OriginalWidth, OriginalHeight, HorizontalOffset, VerticalOffset, Alignment, IsBackground, LastModifiedTime, AlternativeTextTitle, AlternativeTextDescription, HyperlinkUrl, Tags) -> None",
     "confidence": 1.0,
@@ -3360,7 +3360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1f57f3",
+    "claim_id": "CLM-note-467b2f30",
     "kind": "api_method",
     "text": "Image.Replace(image) -> None",
     "confidence": 1.0,
@@ -3374,7 +3374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ae2891",
+    "claim_id": "CLM-note-fd254969",
     "kind": "api_method",
     "text": "Image.FileName property of type str | None",
     "confidence": 1.0,
@@ -3388,7 +3388,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-24c03f",
+    "claim_id": "CLM-note-fdaa8258",
     "kind": "api_method",
     "text": "Image.FilePath property of type str | None",
     "confidence": 1.0,
@@ -3402,7 +3402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-045af0",
+    "claim_id": "CLM-note-6ae96054",
     "kind": "api_method",
     "text": "Image.Format property of type str | None",
     "confidence": 1.0,
@@ -3416,7 +3416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-44cd97",
+    "claim_id": "CLM-note-86942d4b",
     "kind": "api_method",
     "text": "Image.Bytes property of type bytes",
     "confidence": 1.0,
@@ -3430,7 +3430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9afad8",
+    "claim_id": "CLM-note-8457c97e",
     "kind": "api_method",
     "text": "Image.OriginalWidth property of type float | None",
     "confidence": 1.0,
@@ -3444,7 +3444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5e247b",
+    "claim_id": "CLM-note-1cfdee72",
     "kind": "api_method",
     "text": "Image.OriginalHeight property of type float | None",
     "confidence": 1.0,
@@ -3458,7 +3458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0f698b",
+    "claim_id": "CLM-note-947495e0",
     "kind": "api_method",
     "text": "Image.Tags property of type list[NoteTag]",
     "confidence": 1.0,
@@ -3472,7 +3472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-38f385",
+    "claim_id": "CLM-note-edf142ec",
     "kind": "api_method",
     "text": "Image.Alignment property of type HorizontalAlignment | None",
     "confidence": 1.0,
@@ -3486,7 +3486,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-645b20",
+    "claim_id": "CLM-note-3c39d50c",
     "kind": "api_method",
     "text": "Image.Width field of type unknown",
     "confidence": 1.0,
@@ -3500,7 +3500,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9babf0",
+    "claim_id": "CLM-note-300eeb3b",
     "kind": "api_method",
     "text": "Image.Height field of type unknown",
     "confidence": 1.0,
@@ -3514,7 +3514,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3a5aa3",
+    "claim_id": "CLM-note-c8a30691",
     "kind": "api_method",
     "text": "Image.HorizontalOffset field of type unknown",
     "confidence": 1.0,
@@ -3528,7 +3528,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-cba88c",
+    "claim_id": "CLM-note-37cfebf9",
     "kind": "api_method",
     "text": "Image.VerticalOffset field of type unknown",
     "confidence": 1.0,
@@ -3542,7 +3542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3c12ca",
+    "claim_id": "CLM-note-63c425fb",
     "kind": "api_method",
     "text": "Image.IsBackground field of type unknown",
     "confidence": 1.0,
@@ -3556,7 +3556,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-296fd2",
+    "claim_id": "CLM-note-10fb6487",
     "kind": "api_method",
     "text": "Image.LastModifiedTime field of type unknown",
     "confidence": 1.0,
@@ -3570,7 +3570,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6d37ea",
+    "claim_id": "CLM-note-84f38954",
     "kind": "api_method",
     "text": "Image.AlternativeTextTitle field of type unknown",
     "confidence": 1.0,
@@ -3584,7 +3584,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7792b3",
+    "claim_id": "CLM-note-d8ad5613",
     "kind": "api_method",
     "text": "Image.AlternativeTextDescription field of type unknown",
     "confidence": 1.0,
@@ -3598,7 +3598,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-4a14fd",
+    "claim_id": "CLM-note-6828d560",
     "kind": "api_method",
     "text": "Image.HyperlinkUrl field of type unknown",
     "confidence": 1.0,
@@ -3626,7 +3626,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d4b521",
+    "claim_id": "CLM-note-20141432",
     "kind": "api_method",
     "text": "AttachedFile.__init__(FileName, Bytes, Tags) -> None",
     "confidence": 1.0,
@@ -3640,7 +3640,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f871a9",
+    "claim_id": "CLM-note-d56dc64a",
     "kind": "api_method",
     "text": "AttachedFile.FileName property of type str | None",
     "confidence": 1.0,
@@ -3654,7 +3654,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3a9b9f",
+    "claim_id": "CLM-note-b0beb5c0",
     "kind": "api_method",
     "text": "AttachedFile.Bytes property of type bytes",
     "confidence": 1.0,
@@ -3668,7 +3668,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f6ca69",
+    "claim_id": "CLM-note-728c1518",
     "kind": "api_method",
     "text": "AttachedFile.Tags property of type list[NoteTag]",
     "confidence": 1.0,
@@ -3724,7 +3724,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-93962f",
+    "claim_id": "CLM-note-8d56a609",
     "kind": "api_method",
     "text": "TableColumn.Width field of type float | None",
     "confidence": 1.0,
@@ -3738,7 +3738,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-4a1ddc",
+    "claim_id": "CLM-note-0b9f71df",
     "kind": "api_method",
     "text": "TableColumn.LockedWidth field of type bool",
     "confidence": 1.0,
@@ -3766,7 +3766,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-11e0fe",
+    "claim_id": "CLM-note-564ee9ca",
     "kind": "api_method",
     "text": "Table.__init__(Tags, Columns, IsBordersVisible, LastModifiedTime) -> None",
     "confidence": 1.0,
@@ -3780,7 +3780,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-639784",
+    "claim_id": "CLM-note-01569835",
     "kind": "api_method",
     "text": "Table.Tags property of type list[NoteTag]",
     "confidence": 1.0,
@@ -3794,7 +3794,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c3a365",
+    "claim_id": "CLM-note-c66d053b",
     "kind": "api_method",
     "text": "Table.Columns property of type list[TableColumn]",
     "confidence": 1.0,
@@ -3808,7 +3808,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-38115a",
+    "claim_id": "CLM-note-88217941",
     "kind": "api_method",
     "text": "Table.IsBordersVisible field of type unknown",
     "confidence": 1.0,
@@ -3822,7 +3822,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b0832f",
+    "claim_id": "CLM-note-bafa603c",
     "kind": "api_method",
     "text": "Table.LastModifiedTime field of type unknown",
     "confidence": 1.0,
@@ -3850,7 +3850,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3886db",
+    "claim_id": "CLM-note-e238af22",
     "kind": "api_method",
     "text": "Page.Clone(cloneHistory) -> Page",
     "confidence": 1.0,
@@ -3864,7 +3864,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-98d98a",
+    "claim_id": "CLM-note-288c4c49",
     "kind": "api_method",
     "text": "Page.Title field of type Title | None",
     "confidence": 1.0,
@@ -3878,7 +3878,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-85a59d",
+    "claim_id": "CLM-note-e3e52cf3",
     "kind": "api_method",
     "text": "Page.Author field of type str | None",
     "confidence": 1.0,
@@ -3892,7 +3892,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c6f7a2",
+    "claim_id": "CLM-note-49d125b7",
     "kind": "api_method",
     "text": "Page.CreationTime field of type datetime | None",
     "confidence": 1.0,
@@ -3906,7 +3906,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-94d23e",
+    "claim_id": "CLM-note-46aa30cc",
     "kind": "api_method",
     "text": "Page.LastModifiedTime field of type datetime | None",
     "confidence": 1.0,
@@ -3920,7 +3920,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-b014d7",
+    "claim_id": "CLM-note-68deea71",
     "kind": "api_method",
     "text": "Page.Level field of type int | None",
     "confidence": 1.0,
@@ -3934,7 +3934,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-f990e6",
+    "claim_id": "CLM-note-9a2f47d6",
     "kind": "api_method",
     "text": "Page.BackgroundColor field of type int | None",
     "confidence": 1.0,
@@ -3948,7 +3948,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7a95a9",
+    "claim_id": "CLM-note-f402f3c5",
     "kind": "api_method",
     "text": "Page.Margin field of type Any | None",
     "confidence": 1.0,
@@ -3962,7 +3962,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d1de0a",
+    "claim_id": "CLM-note-b26359ae",
     "kind": "api_method",
     "text": "Page.SizeType field of type Any | None",
     "confidence": 1.0,
@@ -3976,7 +3976,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-d88ad4",
+    "claim_id": "CLM-note-be5d3e1a",
     "kind": "api_method",
     "text": "Page.PageLayoutSize field of type Any | None",
     "confidence": 1.0,
@@ -3990,7 +3990,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7e81c9",
+    "claim_id": "CLM-note-4c37c238",
     "kind": "api_method",
     "text": "Page.IsConflictPage field of type bool",
     "confidence": 1.0,
@@ -4004,7 +4004,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-2bdee3",
+    "claim_id": "CLM-note-43f87357",
     "kind": "api_method",
     "text": "Page.PageContentRevisionSummary field of type Any | None",
     "confidence": 1.0,
@@ -4032,7 +4032,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7a22ef",
+    "claim_id": "CLM-note-ddd72043",
     "kind": "api_method",
     "text": "PageHistory.__init__(current) -> None",
     "confidence": 1.0,
@@ -4046,7 +4046,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c78874",
+    "claim_id": "CLM-note-73db21e4",
     "kind": "api_method",
     "text": "PageHistory.Add(page) -> None",
     "confidence": 1.0,
@@ -4060,7 +4060,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e0b680",
+    "claim_id": "CLM-note-90fb6e6d",
     "kind": "api_method",
     "text": "PageHistory.AddRange(pages) -> None",
     "confidence": 1.0,
@@ -4074,7 +4074,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-5dda10",
+    "claim_id": "CLM-note-1150fd7e",
     "kind": "api_method",
     "text": "PageHistory.Clear() -> None",
     "confidence": 1.0,
@@ -4088,7 +4088,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-eba647",
+    "claim_id": "CLM-note-5ad54517",
     "kind": "api_method",
     "text": "PageHistory.Contains(page) -> bool",
     "confidence": 1.0,
@@ -4102,7 +4102,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-6080b8",
+    "claim_id": "CLM-note-278f05b8",
     "kind": "api_method",
     "text": "PageHistory.CopyTo(target, index) -> None",
     "confidence": 1.0,
@@ -4116,7 +4116,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-3d5468",
+    "claim_id": "CLM-note-47d8602e",
     "kind": "api_method",
     "text": "PageHistory.GetEnumerator() -> Iterator[Page]",
     "confidence": 1.0,
@@ -4130,7 +4130,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-38dade",
+    "claim_id": "CLM-note-edca6fb2",
     "kind": "api_method",
     "text": "PageHistory.IndexOf(page) -> int",
     "confidence": 1.0,
@@ -4144,7 +4144,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-0895e4",
+    "claim_id": "CLM-note-25aef337",
     "kind": "api_method",
     "text": "PageHistory.Insert(index, page) -> None",
     "confidence": 1.0,
@@ -4158,7 +4158,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7d4b6f",
+    "claim_id": "CLM-note-8e1e6909",
     "kind": "api_method",
     "text": "PageHistory.Remove(page) -> bool",
     "confidence": 1.0,
@@ -4172,7 +4172,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e5f46c",
+    "claim_id": "CLM-note-2022cab9",
     "kind": "api_method",
     "text": "PageHistory.RemoveAt(index) -> None",
     "confidence": 1.0,
@@ -4186,7 +4186,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-c437ed",
+    "claim_id": "CLM-note-9a9c11f9",
     "kind": "api_method",
     "text": "PageHistory.RemoveRange(index, count) -> None",
     "confidence": 1.0,
@@ -4200,7 +4200,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-e018bf",
+    "claim_id": "CLM-note-f0fb4a9f",
     "kind": "api_method",
     "text": "PageHistory.Count property of type int",
     "confidence": 1.0,
@@ -4214,7 +4214,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-9f5043",
+    "claim_id": "CLM-note-06f239d9",
     "kind": "api_method",
     "text": "PageHistory.Current property of type Page",
     "confidence": 1.0,
@@ -4228,7 +4228,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-80bf9c",
+    "claim_id": "CLM-note-07a46d0a",
     "kind": "api_method",
     "text": "PageHistory.IsReadOnly property of type bool",
     "confidence": 1.0,
@@ -4256,7 +4256,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-731481",
+    "claim_id": "CLM-note-99b68c20",
     "kind": "api_method",
     "text": "Document.__init__(source, load_options) -> None",
     "confidence": 1.0,
@@ -4270,7 +4270,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-660515",
+    "claim_id": "CLM-note-0420b657",
     "kind": "api_method",
     "text": "Document.DetectLayoutChanges() -> None",
     "confidence": 1.0,
@@ -4284,7 +4284,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-72a124",
+    "claim_id": "CLM-note-c9c07408",
     "kind": "api_method",
     "text": "Document.GetPageHistory(page) -> PageHistory",
     "confidence": 1.0,
@@ -4298,7 +4298,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-fa27d9",
+    "claim_id": "CLM-note-35a3163c",
     "kind": "api_method",
     "text": "Document.Save(target, format_or_options) -> None",
     "confidence": 1.0,
@@ -4312,7 +4312,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-329888",
+    "claim_id": "CLM-note-e5f6f734",
     "kind": "api_method",
     "text": "Document.FileFormat property of type FileFormat",
     "confidence": 1.0,
@@ -4326,7 +4326,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-8dbd48",
+    "claim_id": "CLM-note-8a60e8b8",
     "kind": "api_method",
     "text": "Document.DisplayName field of type str | None",
     "confidence": 1.0,
@@ -4340,7 +4340,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-eafc96",
+    "claim_id": "CLM-note-16af7034",
     "kind": "api_method",
     "text": "Document.CreationTime field of type datetime | None",
     "confidence": 1.0,
@@ -4368,7 +4368,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-565c4a",
+    "claim_id": "CLM-note-07178654",
     "kind": "api_method",
     "text": "SaveOptions.__init__(save_format, PageIndex, PageCount, FontsSubsystem) -> None",
     "confidence": 1.0,
@@ -4382,7 +4382,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-556c7c",
+    "claim_id": "CLM-note-a0f5af2e",
     "kind": "api_method",
     "text": "SaveOptions.SaveFormat property of type SaveFormat",
     "confidence": 1.0,
@@ -4396,7 +4396,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-ef1f3a",
+    "claim_id": "CLM-note-31affca3",
     "kind": "api_method",
     "text": "SaveOptions.PageIndex field of type unknown",
     "confidence": 1.0,
@@ -4410,7 +4410,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-09abd9",
+    "claim_id": "CLM-note-5a226dd7",
     "kind": "api_method",
     "text": "SaveOptions.PageCount field of type unknown",
     "confidence": 1.0,
@@ -4424,7 +4424,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-91ccc6",
+    "claim_id": "CLM-note-54d60713",
     "kind": "api_method",
     "text": "SaveOptions.FontsSubsystem field of type unknown",
     "confidence": 1.0,
@@ -4452,7 +4452,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-468e57",
+    "claim_id": "CLM-note-7c400c42",
     "kind": "api_method",
     "text": "PdfSaveOptions.__init__(PageIndex, PageCount, FontsSubsystem, ImageCompression, JpegQuality, PageSettings, PageSplittingAlgorithm) -> None",
     "confidence": 1.0,
@@ -4466,7 +4466,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-4d4be0",
+    "claim_id": "CLM-note-bf5e4174",
     "kind": "api_method",
     "text": "PdfSaveOptions.ImageCompression field of type unknown",
     "confidence": 1.0,
@@ -4480,7 +4480,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-a11df9",
+    "claim_id": "CLM-note-722f407f",
     "kind": "api_method",
     "text": "PdfSaveOptions.JpegQuality field of type unknown",
     "confidence": 1.0,
@@ -4494,7 +4494,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-1a5f18",
+    "claim_id": "CLM-note-6c0371f4",
     "kind": "api_method",
     "text": "PdfSaveOptions.PageSettings field of type unknown",
     "confidence": 1.0,
@@ -4508,7 +4508,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-note-7d1434",
+    "claim_id": "CLM-note-aa2394dd",
     "kind": "api_method",
     "text": "PdfSaveOptions.PageSplittingAlgorithm field of type unknown",
     "confidence": 1.0,
@@ -4645,5 +4645,3618 @@
     "claim_source": "scout",
     "evidence": [],
     "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-note-python-37a436a2",
+    "text": "AttachedFile.FileName holds the optional name of the attached file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bb4ede93",
+    "text": "AttachedFile.Bytes contains the raw binary content of the attached file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-293e9fef",
+    "text": "AttachedFile.Tags is a list of NoteTag objects associated with the attached file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6eb5c0fe",
+    "text": "AttachmentTagFlowable.wrap calculates and returns the flowable's dimensions based on available width aW and height aH.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0331fdf9",
+    "text": "AttachmentTagFlowable.draw renders the attachment tag onto the canvas during PDF generation.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6ac29a70",
+    "text": "AttachmentTagFlowable.hAlign represents the horizontal alignment setting for the tag flowable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a1cf3e1f",
+    "text": "AttachmentTagFlowable.width represents the current width of the tag flowable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c2f6dec7",
+    "text": "CompositeNode.AppendChildLast appends the given node as the last child and returns the added node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fd9063df",
+    "text": "CompositeNode.AppendChildFirst inserts the given node as the first child and returns the added node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f9f6863f",
+    "text": "CompositeNode.InsertChild inserts the given node at the specified index among children and returns the added node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4e11cf95",
+    "text": "CompositeNode.RemoveChild removes the specified child node from this composite node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5326592e",
+    "text": "CompositeNode.GetEnumerator returns an iterator over the child nodes of this composite node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0a018f21",
+    "text": "CompositeNode.GetChildNodes returns a list of child nodes that match the provided node type.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a2a47a4e",
+    "text": "CompositeNode.FirstChild provides the first child node or None if there are no children.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c4d61216",
+    "text": "Document.DetectLayoutChanges detects changes in the document layout and updates internal state.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a1a8d3bd",
+    "text": "Document.GetPageHistory returns a PageHistory object for the specified Page.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f81c4b8a",
+    "text": "Document.Save writes the document to a file, stream, or path using the given format or options.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e44b9ad6",
+    "text": "Document.FileFormat represents the file format of the loaded document.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d28ff624",
+    "text": "Document.DisplayName represents the human‑readable name of the document, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9189b42d",
+    "text": "Document.CreationTime represents the document's creation timestamp, or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-efc0b510",
+    "text": "DocumentVisitor.VisitDocumentStart is invoked when traversal begins a Document node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a189825f",
+    "text": "DocumentVisitor.VisitDocumentEnd is invoked after traversal finishes a Document node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-56fa7667",
+    "text": "DocumentVisitor.VisitPageStart is invoked when traversal begins a Page node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fa9ae2c5",
+    "text": "DocumentVisitor.VisitPageEnd is invoked after traversal finishes a Page node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-407b86bb",
+    "text": "DocumentVisitor.VisitTitleStart is invoked when traversal begins a Title node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-25069fff",
+    "text": "DocumentVisitor.VisitTitleEnd is invoked after traversal finishes a Title node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ffb69f35",
+    "text": "DocumentVisitor.VisitOutlineStart is invoked when traversal begins an Outline node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0c6a4a8d",
+    "text": "DocumentVisitor.VisitOutlineEnd is invoked after traversal finishes an Outline node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-375666be",
+    "text": "DocumentVisitor.VisitOutlineElementStart is invoked when traversal begins an OutlineElement node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cba7bac0",
+    "text": "DocumentVisitor.VisitOutlineElementEnd is invoked after traversal finishes an OutlineElement node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-361df198",
+    "text": "DocumentVisitor.VisitRichTextStart is invoked when traversal begins a RichText node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-82a6872c",
+    "text": "DocumentVisitor.VisitRichTextEnd is invoked after traversal finishes a RichText node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3d607bc4",
+    "text": "DocumentVisitor.VisitImageStart is invoked when traversal begins an Image node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ac840a40",
+    "text": "DocumentVisitor.VisitImageEnd is invoked after traversal finishes an Image node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6a10304b",
+    "text": "ExtendedGUID.guid represents the GUID string component of the extended identifier.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b99d5ba5",
+    "text": "ExtendedGUID.n represents the integer part of the extended GUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c73a04d4",
+    "text": "FileNode.file_node_id is the integer identifier of the file node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a68051df",
+    "text": "FileNode.payload contains the raw binary data stored in the file node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b4512fcb",
+    "text": "FileNode.stp_format is an integer code indicating the STP format of the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-34f469b6",
+    "text": "FileNode.cb_format is an integer representing the CB format of the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2b4e3735",
+    "text": "FileNode.base_type is an integer that specifies the base type category of the file node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-23c1ae59",
+    "text": "Image.Replace replaces the current image data with the provided Image instance.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-39cab453",
+    "text": "Image.FileName returns the image's file name, or None if unavailable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-834b3081",
+    "text": "Image.FilePath returns the full path to the image file, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b464d04a",
+    "text": "Image.Format returns the image format string (e.g., \"png\"), or None if unknown.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7cb719ac",
+    "text": "Image.Bytes provides the raw binary content of the image.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3b449dc8",
+    "text": "Image.OriginalWidth returns the original width in points, or None if not defined.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7e4ebb90",
+    "text": "Image.Tags contains a list of NoteTag objects associated with the image.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a13b20e0",
+    "text": "Image.Alignment indicates the horizontal alignment of the image, or None if default.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-12650ed7",
+    "text": "Image.Width gets or sets the displayed width of the image.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d612e98e",
+    "text": "Image.HorizontalOffset returns the horizontal offset of the image relative to its container.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-426d7864",
+    "text": "Image.VerticalOffset returns the vertical offset of the image relative to its container.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e4a00c1a",
+    "text": "Image.IsBackground indicates whether the image is used as a page background.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dbf910ee",
+    "text": "Image.LastModifiedTime provides the timestamp of the last modification to the image.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7a237229",
+    "text": "Image.AlternativeTextTitle returns the title text for the image's alternative text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-97094c2b",
+    "text": "Image.AlternativeTextDescription returns the description text for the image's alternative text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f945a15c",
+    "text": "Image.HyperlinkUrl returns the URL linked to the image, if any.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a5170f3a",
+    "text": "JCID.index holds the integer identifier of the JCID instance.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3c84842f",
+    "text": "JCID.IsBinary indicates whether the JCID represents binary data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-707a478b",
+    "text": "JCID.IsPropertySet shows if the JCID corresponds to a property set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c79e4262",
+    "text": "JCID.IsGraphNode denotes that the JCID is a graph node type.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-df34b3b1",
+    "text": "JCID.IsFileData signals that the JCID contains file data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-42237659",
+    "text": "JCID.IsReadOnly specifies that the JCID cannot be modified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b5a3de4f",
+    "text": "License.SetLicense loads a license from the given file path or binary stream.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0437e237",
+    "text": "LoadOptions.DocumentPassword holds the password used to open encrypted documents, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-50bb90ff",
+    "text": "LoadOptions.LoadHistory indicates whether the document's edit history should be loaded when opening the file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b6ab31ca",
+    "text": "LoadedOneNoteDocument.display_name provides the optional display name of the OneNote document.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3f5e3aad",
+    "text": "LoadedOneNoteDocument.logical_document gives access to the underlying logical document structure.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e788aa21",
+    "text": "LoadedOneNoteDocument.pages returns a list of Page objects representing the document's pages.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c5972ff2",
+    "text": "LoadedOneNoteDocument.page_histories contains a list of page version histories, each as a list of Page objects.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-25259880",
+    "text": "LogicalDocument.root represents the root logical node of the document, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-14772e98",
+    "text": "LogicalNode.kind represents the type identifier of the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-77755e70",
+    "text": "LogicalNode.oid holds the object identifier associated with the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4678338c",
+    "text": "LogicalNode.properties is a dictionary of custom attributes for the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7263d3f7",
+    "text": "LogicalNode.children is a list of child LogicalNode objects.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5b7e70cf",
+    "text": "LogicalNode.metadata is a list of LogicalNode objects containing metadata.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c9348b15",
+    "text": "Metered.SetMeteredKey stores the provided public and private keys for metered licensing.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c30506e2",
+    "text": "Node.Accept invokes the visitor on this node for traversal or processing.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-10ab6a39",
+    "text": "Node.ParentNode returns the containing node or None if this node is the root.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-59c55910",
+    "text": "Node.Document returns the Document that owns this node, or None if it is not attached to a document.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a525dc37",
+    "text": "NoteTag.CreateYellowStar creates a yellow‑star tag, optionally assigning a label.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d094fdf5",
+    "text": "NoteTag.CreateQuestionMark creates a question‑mark tag, optionally assigning a label.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5c7932ab",
+    "text": "NoteTag.CreateMusicalNote creates a musical‑note tag, optionally assigning a label.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a0be4b9b",
+    "text": "NoteTag.Label gets or sets the textual label attached to the tag.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-16c2edf7",
+    "text": "NoteTag.Icon gets or sets the integer identifier of the tag's icon.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5a08e646",
+    "text": "NoteTag.Status gets or sets the TagStatus indicating the tag's current state.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f1f3992e",
+    "text": "NoteTag.Highlight gets or sets the highlight color index applied to the tag.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c7003e26",
+    "text": "NoteTag.CreationTime gets or sets the datetime when the tag was created.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7b75fc11",
+    "text": "NoteTag.CompletedTime gets or sets the datetime when the tag was marked completed.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-68f8b3af",
+    "text": "NoteTag.FontColor gets or sets the integer representing the tag label's font color.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1fb83be6",
+    "text": "NumberList.GetNumberedListHeader returns the header string for the specified list number.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3bbea237",
+    "text": "NumberList.Format stores the list's format string or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8015480d",
+    "text": "NumberList.NumberFormat stores the numbering style string or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-66202c98",
+    "text": "NumberList.Font stores the font name used for list items or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2a1ed2b4",
+    "text": "NumberList.FontSize stores the font size for list items or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c4be45c7",
+    "text": "NumberList.FontColor stores the font color as an integer (e.g., ARGB) or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3c789565",
+    "text": "NumberList.IsBold indicates whether list text is bold.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-40fb03c6",
+    "text": "NumberList.IsItalic indicates whether list text is italic.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3db51ff9",
+    "text": "NumberList.LastModifiedTime stores the datetime when the list was last modified or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a06ec167",
+    "text": "NumberList.Restart stores the restart index for numbering or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8a1adcb1",
+    "text": "ObjectSpaceState.get_latest_root returns the latest root GUID for the given role and optional context, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d45f4f7e",
+    "text": "ObjectSpaceState.iter_latest_roots returns a list of (context_id, root GUID) tuples for the specified role.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9cdb12af",
+    "text": "ObjectSpaceState.get_latest_revision_index returns the latest revision index for the role and optional context, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-aea41671",
+    "text": "ObjectSpaceState.gosid is the globally unique identifier for this object space state.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-211ac4c4",
+    "text": "ObjectSpaceState.root_roles maps role integers to their associated root GUIDs.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-94924c17",
+    "text": "ObjectSpaceState.objects stores OneStoreObject instances keyed by their ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b2f5fc2f",
+    "text": "ObjectSpaceState.section_display_name holds an optional display name for the section.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-83ca2b9c",
+    "text": "ObjectSpaceState.revisions is a list of RevisionManifestRecord objects representing revisions.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7768ad3e",
+    "text": "ObjectSpaceState.role_bindings contains RevisionRoleBinding entries linking roles to revisions.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cf5064ab",
+    "text": "ObjectSpaceState.latest_roots_by_context_role maps (context_id, role) tuples to the latest root GUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-816698d1",
+    "text": "ObjectSpaceState.latest_revision_indices_by_context_role maps (context_id, role) to the latest revision index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-557a1fcd",
+    "text": "OneStoreFile.data holds the raw binary content of the OneStore file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-99f57585",
+    "text": "OneStoreFile.object_spaces is a list of ObjectSpaceState objects representing object spaces in the file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7d94eb66",
+    "text": "OneStoreFile.file_data_store maps string keys to binary data for embedded file resources.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b7bb5924",
+    "text": "OneStoreFile.display_name is the optional display name of the file, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dd839fca",
+    "text": "OneStoreObject.oid is the unique ExtendedGUID identifier of the OneStore object.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-03e2212a",
+    "text": "OneStoreObject.jcid holds the JCID (class identifier) for the object's type.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-23e9acc8",
+    "text": "OneStoreObject.jcid_name is the readable name of the JCID class.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-059a1e3c",
+    "text": "OneStoreObject.properties maps property names to their parsed values.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-06226c21",
+    "text": "OneStoreObject.raw_properties lists the raw (name, value) tuples as read from the file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8230f155",
+    "text": "OneStoreObject.file_data_reference optionally stores a reference string to external file data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-650b1bc0",
+    "text": "OneStoreObject.file_extension optionally holds the file extension for attached data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-73a1c767",
+    "text": "Outline.HorizontalOffset represents the horizontal offset of the outline within its container.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-85a2fd09",
+    "text": "Outline.VerticalOffset represents the vertical offset of the outline within its container.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1e57f1dc",
+    "text": "Outline.MaxWidth specifies the maximum width the outline may occupy.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-768ee6b4",
+    "text": "Outline.MaxHeight specifies the maximum height the outline may occupy.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3d373341",
+    "text": "Outline.MinWidth specifies the minimum width the outline must occupy.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9c0ccc1f",
+    "text": "Outline.ReservedWidth indicates width reserved for child elements of the outline.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5daeb310",
+    "text": "Outline.IndentPosition defines the indentation position for the outline content.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-667c7494",
+    "text": "Outline.DescendantsCannotBeMoved indicates whether descendant elements are locked from moving.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-97004e3f",
+    "text": "Outline.LastModifiedTime provides the date and time when the outline was last modified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6b413bf0",
+    "text": "OutlineElement.NumberList represents the numbered list applied to this outline element, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-da2660f4",
+    "text": "OutlinePrefixFlowable.wrap sets the flowable's available width and height to aW and aH.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6f1f4640",
+    "text": "OutlinePrefixFlowable.draw renders the outline prefix using its current dimensions.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f8339908",
+    "text": "OutlinePrefixFlowable.width returns the current width of the outline prefix flowable.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-77cd0c0f",
+    "text": "Page.Clone creates a copy of the page; if cloneHistory is true the page's revision history is also copied.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-42d1289f",
+    "text": "Page.Title gets or sets the page's Title object, or None if not present.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a343e673",
+    "text": "Page.Author gets or sets the name of the page's author, or None if undefined.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-76bd9d96",
+    "text": "Page.CreationTime gets or sets the datetime when the page was created, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1a793b4b",
+    "text": "Page.LastModifiedTime gets or sets the datetime of the page's last modification, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-15794532",
+    "text": "Page.Level gets or sets the hierarchical level of the page within the document, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-90619b49",
+    "text": "Page.BackgroundColor gets or sets the page's background color as an integer ARGB value, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9230ae6c",
+    "text": "Page.Margin gets or sets the page margin settings, type unspecified, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-16ab4c9a",
+    "text": "Page.SizeType gets or sets the page size classification, type unspecified, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-76a6a146",
+    "text": "Page.PageLayoutSize gets or sets the layout dimensions of the page, type unspecified, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c891d26d",
+    "text": "Page.IsConflictPage indicates whether the page represents a conflict during synchronization.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2c3caa34",
+    "text": "Page.PageContentRevisionSummary provides a summary object of content revisions for the page, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a2907fba",
+    "text": "PageHistory.Add adds the specified Page to the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cff8e4fa",
+    "text": "PageHistory.AddRange adds multiple Page objects to the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d231fc67",
+    "text": "PageHistory.Clear removes all pages from the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c34c4ef4",
+    "text": "PageHistory.Contains returns True if the given Page is in the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-91c11248",
+    "text": "PageHistory.CopyTo copies pages into target list starting at the given index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-55849d40",
+    "text": "PageHistory.GetEnumerator returns an iterator over the pages in the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e548e41d",
+    "text": "PageHistory.IndexOf returns the zero‑based index of the specified Page, or -1 if not found.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-63638efd",
+    "text": "PageHistory.Insert inserts a Page at the specified index in the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7aced69e",
+    "text": "PageHistory.Remove removes the first occurrence of the given Page and returns success.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-676de429",
+    "text": "PageHistory.RemoveAt removes the Page at the specified index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4b463cc6",
+    "text": "PageHistory.RemoveRange removes a range of pages starting at index for count items.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7e0026e9",
+    "text": "PageHistory.Count gets the total number of pages in the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cc6c9a36",
+    "text": "PageHistory.Current gets the current Page in the enumeration.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5d1a134a",
+    "text": "PageHistory.IsReadOnly indicates whether the collection cannot be modified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7beade1a",
+    "text": "ParagraphStyle.Default returns a ParagraphStyle instance initialized with default formatting values.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-26e2b7d7",
+    "text": "ParagraphStyle.FontStyle represents the numeric style identifier for the paragraph's font.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ef46aa15",
+    "text": "ParagraphStyle.FontName represents the name of the font used for the paragraph text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c8348ae9",
+    "text": "ParagraphStyle.FontSize represents the size of the font applied to the paragraph.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-03a3fd46",
+    "text": "ParagraphStyle.FontColor represents the color of the paragraph's text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b5597c93",
+    "text": "ParagraphStyle.Highlight represents the background highlight color applied to the paragraph.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3775179b",
+    "text": "ParagraphStyle.IsBold indicates whether the paragraph text is rendered in bold weight.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a2c31915",
+    "text": "ParagraphStyle.IsItalic indicates whether the paragraph text is rendered in italic style.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-26b15a11",
+    "text": "ParagraphStyle.IsUnderline indicates whether the paragraph text has an underline decoration.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0846ed7e",
+    "text": "ParagraphStyle.IsStrikethrough indicates whether the paragraph text has a strikethrough line.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-938c891a",
+    "text": "ParagraphStyle.IsSuperscript indicates whether the paragraph text is displayed as superscript.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5f6c1908",
+    "text": "ParagraphStyle.IsSubscript indicates whether the paragraph text is displayed as subscript.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e71dfaf6",
+    "text": "PdfSaveOptions.ImageCompression controls the compression algorithm applied to images embedded in the PDF.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-309d1277",
+    "text": "PdfSaveOptions.JpegQuality sets the quality level (0-100) for JPEG image encoding in the PDF.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bcad6ba9",
+    "text": "PdfSaveOptions.PageSettings defines page dimensions, margins, and orientation for the generated PDF.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-64357d7f",
+    "text": "PdfSaveOptions.PageSplittingAlgorithm selects the algorithm used to split content across PDF pages.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-71262f3d",
+    "text": "RevisionManifestRecord.rid is the unique identifier of the revision manifest record.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ce483bd9",
+    "text": "RevisionManifestRecord.rid_dependent optionally holds the identifier of a dependent revision.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-94b1944a",
+    "text": "RevisionManifestRecord.context_id optionally references the context GUID associated with the record.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-95f0929e",
+    "text": "RevisionManifestRecord.root_roles maps integer role indices to GUIDs defining root roles.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5b0531a6",
+    "text": "RevisionManifestRecord.objects maps GUIDs to OneStoreObject instances contained in the record.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2afba773",
+    "text": "RevisionManifestRecord.section_display_name optionally stores the display name of the section.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-846e1eab",
+    "text": "RevisionManifestRecord.order_index indicates the sequential order of the record within its container.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-34d4a83d",
+    "text": "RevisionRoleBinding.rid identifies the binding's unique identifier as an ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-881b413a",
+    "text": "RevisionRoleBinding.context_id optionally holds the related context identifier as an ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-91c9bee7",
+    "text": "RevisionRoleBinding.role stores the role index associated with the revision binding.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b21eadb9",
+    "text": "RevisionRoleBinding.order_index indicates the sequence order of the binding within its collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-be0db24e",
+    "text": "RichText.Append appends the given text with optional style to the end of the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-22a46303",
+    "text": "RichText.AppendFront inserts the given text with optional style at the beginning of the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5cf4eb4b",
+    "text": "RichText.Clear removes all content from the rich text and returns the instance.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bbffc00c",
+    "text": "RichText.GetEnumerator returns an iterator over the characters of the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4efa31e4",
+    "text": "RichText.IndexOf returns the index of value within the text, searching from startIndex for count characters with optional comparison.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-67564c0f",
+    "text": "RichText.Insert inserts text with optional style at the specified index in the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3541f49c",
+    "text": "RichText.Remove deletes count characters starting at start, or to the end if count is omitted.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6c8dac92",
+    "text": "RichText.Replace replaces occurrences of old_value with new_value and applies optional style to the new text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-af90baf5",
+    "text": "RichText.Trim removes leading and trailing whitespace from the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-817ffa2f",
+    "text": "RichText.TrimStart removes leading whitespace from the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ea003d1a",
+    "text": "RichText.TrimEnd removes trailing whitespace from the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-819ae748",
+    "text": "RichText.Text gets or sets the plain string content of the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4cc4b6f4",
+    "text": "RichText.TextRuns gets the list of TextRun objects representing formatted segments.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-75288326",
+    "text": "RichText.ParagraphStyle gets or sets the ParagraphStyle applied to the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fb7005c1",
+    "text": "RichText.Tags gets the collection of NoteTag objects attached to the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-16b35d29",
+    "text": "RichText.Length gets the total number of characters in the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6d78e081",
+    "text": "RichText.Alignment gets or sets the horizontal alignment of the paragraph, if defined.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-deff8460",
+    "text": "RichText.IsTitleText indicates whether the rich text is marked as a title element.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-05cdc443",
+    "text": "RichText.IsTitleDate indicates whether the rich text represents a title date.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-928e2d30",
+    "text": "RichText.IsTitleTime indicates whether the rich text represents a title time.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6133b598",
+    "text": "RichText.LastModifiedTime provides the timestamp of the last modification to the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b88ad9a6",
+    "text": "RichText.SpaceBefore gets or sets the spacing before the paragraph containing the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-66b6ca9b",
+    "text": "RichText.LineSpacing gets or sets the line spacing value for the paragraph of the rich text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ae5b1f28",
+    "text": "SaveOptions.SaveFormat specifies the output format for saving the document.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-37bee30d",
+    "text": "SaveOptions.PageIndex gets or sets the zero‑based index of the first page to save.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3008b09f",
+    "text": "SaveOptions.PageCount gets or sets the number of pages to include in the save operation.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8288f4ba",
+    "text": "SaveOptions.FontsSubsystem configures the font handling subsystem used during saving.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7961de38",
+    "text": "Table.Tags provides the collection of NoteTag objects attached to the table.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-331e3844",
+    "text": "Table.Columns returns the list of TableColumn objects that define the table's columns.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cf3dee42",
+    "text": "Table.IsBordersVisible indicates whether the table's borders are visible.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-cee3369d",
+    "text": "Table.LastModifiedTime stores the timestamp of the table's most recent modification.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2535fcba",
+    "text": "TableColumn.Width represents the column width in points, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fce12db0",
+    "text": "TableColumn.LockedWidth indicates whether the column width is fixed and cannot be auto‑adjusted.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dca38227",
+    "text": "TextRun.Text holds the plain string content of the text run.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9e4ca55d",
+    "text": "TextRun.Style provides the TextStyle object that defines formatting for the run.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-aee33fa1",
+    "text": "TextStyle.Default returns a TextStyle object representing the library's default text formatting.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8370fdf0",
+    "text": "TextStyle.DefaultMsOneNoteTitleTextStyle returns a TextStyle configured for OneNote title text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8cfab251",
+    "text": "TextStyle.DefaultMsOneNoteTitleDateStyle returns a TextStyle configured for OneNote title date.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f9984c06",
+    "text": "TextStyle.DefaultMsOneNoteTitleTimeStyle returns a TextStyle configured for OneNote title time.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e2089d52",
+    "text": "TextStyle.IsHyperlink indicates whether the text run is a hyperlink.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f02f9651",
+    "text": "TextStyle.HyperlinkAddress holds the URL of the hyperlink, or None if not a link.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d4f4b5ce",
+    "text": "TextStyle.FontName stores the name of the font applied to the text, or None if unspecified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-143ddf8c",
+    "text": "TextStyle.FontSize stores the font size in points, or None if unspecified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dfa226bc",
+    "text": "TextStyle.FontColor stores the text color as an ARGB integer, or None if unspecified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f1d1a7f5",
+    "text": "TextStyle.Language stores the language identifier as an integer, or None if unspecified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-219872bc",
+    "text": "TextStyle.IsBold indicates whether the text is bold.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-01e48b73",
+    "text": "TextStyle.IsItalic indicates whether the text is italic.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3fc978d1",
+    "text": "TextStyle.IsUnderline indicates whether the text is underlined.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b5cab11b",
+    "text": "TextStyle.IsStrikethrough indicates whether the text has a strikethrough.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f551183c",
+    "text": "TextStyle.IsSuperscript indicates whether the text is superscript.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-794a1ce9",
+    "text": "TextStyle.IsSubscript indicates whether the text is subscript.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5c5d229c",
+    "text": "TextStyle.IsHidden indicates whether the text is hidden from view.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c2bf8ffc",
+    "text": "TextStyle.IsMathFormatting indicates whether the text uses math formatting.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-51ce1efb",
+    "text": "TextStyle.FontStyle stores an integer representing the font style flags.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ada677a8",
+    "text": "Title.GetEnumerator returns an iterator over the child Node objects of the Title.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1f65df19",
+    "text": "Title.GetChildNodes returns a list of child nodes filtered by the specified node type.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-aa1a3d9b",
+    "text": "Title.TitleText holds the RichText representing the title's main text, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-379143b3",
+    "text": "Title.TitleDate holds the RichText representing the title's date component, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-29bc6185",
+    "text": "UnsupportedFileFormatException.FileFormat represents the file format that triggered the exception.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d0f7decc",
+    "text": "AttachmentTagFlowable.wrap computes the flowable size based on the given available width and height.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5d7c0c5d",
+    "text": "AttachmentTagFlowable.width holds the calculated width of the attachment tag flowable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1adbd6c0",
+    "text": "CompositeNode.AppendChildLast adds the given node as the last child of this composite and returns the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c982ae7a",
+    "text": "CompositeNode.LastChild returns the last child node of this composite, or None if there are no children.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1e068016",
+    "text": "Document.DetectLayoutChanges detects layout changes in the document.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c460bf45",
+    "text": "Document.GetPageHistory returns the history information for the specified page.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a388df23",
+    "text": "Document.DisplayName returns the document's display name, or None if unavailable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c33b25a7",
+    "text": "Document.CreationTime returns the document's creation timestamp, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2355fff3",
+    "text": "DocumentVisitor.VisitPageStart is called when traversal enters a Page node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8d903e2b",
+    "text": "DocumentVisitor.VisitPageEnd is called after traversal leaves a Page node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b7ace8ed",
+    "text": "DocumentVisitor.VisitTitleStart is triggered when traversal enters a Title node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f75c7e44",
+    "text": "DocumentVisitor.VisitTitleEnd is triggered after traversal exits a Title node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fa4958a0",
+    "text": "DocumentVisitor.VisitOutlineElementStart is called when traversal enters an OutlineElement node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2bafe5e9",
+    "text": "DocumentVisitor.VisitOutlineElementEnd is called after traversal exits an OutlineElement node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-240df67f",
+    "text": "DocumentVisitor.VisitImageStart is called when traversal enters an Image node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0562dcfb",
+    "text": "DocumentVisitor.VisitImageEnd is called after traversal exits an Image node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2755b452",
+    "text": "FileNode.payload contains the raw binary data of the attached file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8e6ecc73",
+    "text": "FileNode.stp_format indicates the storage format type code for the file node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-39fd3a93",
+    "text": "FileNode.cb_format specifies the size in bytes of the format data for the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ecc5a2b8",
+    "text": "FileNode.base_type denotes the base type enumeration value of the node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e9e84171",
+    "text": "Image.OriginalHeight returns the original height of the image in points, or None if not known.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-279fc25b",
+    "text": "Image.AlternativeTextDescription holds the descriptive text for accessibility purposes.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f2121103",
+    "text": "LoadOptions.DocumentPassword holds the password string used to open encrypted OneNote files, or None if not needed.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ccb2fbed",
+    "text": "LoadedOneNoteDocument.logical_document provides the underlying LogicalDocument representing the file structure.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6ebc13d1",
+    "text": "LogicalNode.kind indicates the type or category of this logical node as a string.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7e86b5fd",
+    "text": "LogicalNode.oid stores the object identifier associated with the node, type is Any.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6c11747f",
+    "text": "LogicalNode.properties is a dictionary mapping string keys to arbitrary values for node attributes.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ad3f715a",
+    "text": "LogicalNode.children holds a list of child LogicalNode objects forming a hierarchy.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6392d94b",
+    "text": "LogicalNode.metadata contains a list of LogicalNode objects representing auxiliary metadata.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-09ba2860",
+    "text": "Metered.SetMeteredKey sets the public and private metered keys used for licensing.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6b16ee3c",
+    "text": "Node.Accept invokes the given DocumentVisitor to process this node.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-966bed2e",
+    "text": "NoteTag.CreateYellowStar creates a yellow star tag with an optional label and returns the NoteTag.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-47b785c5",
+    "text": "NoteTag.CreateQuestionMark creates a question‑mark tag with an optional label and returns the NoteTag.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bd0c27bc",
+    "text": "NoteTag.CreateMusicalNote creates a musical‑note tag with an optional label and returns the NoteTag.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ea79da3b",
+    "text": "NoteTag.Label stores the tag's label text or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-48040a7d",
+    "text": "NoteTag.Icon stores the integer identifier of the tag's icon or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-440becc7",
+    "text": "NoteTag.Status indicates the tag's current status as a TagStatus enum value.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-60ba5ea5",
+    "text": "NoteTag.Highlight holds the highlight color code as an integer or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-61f0ca1a",
+    "text": "NoteTag.CreationTime records the datetime when the tag was created or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-20d5e4b4",
+    "text": "NoteTag.FontColor stores the font color as an integer ARGB value or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-388a47c4",
+    "text": "NumberList.Format holds the list's format string, or None if not set.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-66168976",
+    "text": "NumberList.NumberFormat specifies the numeric format used for list items, or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8cf7b0db",
+    "text": "NumberList.Font contains the name of the font applied to the list, or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fdf29b45",
+    "text": "NumberList.FontSize indicates the font size for the list text, or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-97444f53",
+    "text": "NumberList.Restart defines the number at which the list restarts, or None.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f71459b4",
+    "text": "ObjectSpaceState.gosid holds the global object store identifier as an ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0171e0ba",
+    "text": "ObjectSpaceState.objects provides a dictionary of all OneStore objects keyed by their ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c9aafc23",
+    "text": "ObjectSpaceState.section_display_name is the optional display name of the section, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7271e57f",
+    "text": "ObjectSpaceState.role_bindings stores a list of RevisionRoleBinding objects linking roles to revisions.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b6564d51",
+    "text": "ObjectSpaceState.latest_roots_by_context_role maps (context GUID, role) pairs to the latest root GUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bdddd03b",
+    "text": "ObjectSpaceState.latest_revision_indices_by_context_role maps (context GUID, role) pairs to the latest revision index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f5a94764",
+    "text": "OneStoreFile.object_spaces contains a list of ObjectSpaceState objects describing each object space.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e7f08a00",
+    "text": "OneStoreFile.file_data_store maps string identifiers to binary blobs of embedded file data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-9d3bcf97",
+    "text": "OneStoreFile.display_name provides the optional display name of the file, or None if unavailable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-711b3254",
+    "text": "OneStoreObject.jcid is the JCID (object type identifier) of the OneStore object.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e4e7b7de",
+    "text": "OneStoreObject.jcid_name provides a human‑readable name for the JCID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-02d59cc6",
+    "text": "OneStoreObject.properties is a dict mapping property names to their parsed values.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6359e7c5",
+    "text": "OneStoreObject.raw_properties is a list of (name, raw value) tuples as read from the file.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6b783ec6",
+    "text": "OneStoreObject.file_data_reference holds an optional reference string to external file data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-1340cead",
+    "text": "OneStoreObject.file_extension contains an optional file extension for attached file data.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3d16128e",
+    "text": "Outline.HorizontalOffset is the horizontal offset of the outline relative to its container.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5299ee43",
+    "text": "Outline.VerticalOffset is the vertical offset of the outline relative to its container.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-10abc966",
+    "text": "Outline.MaxWidth specifies the maximum allowed width for the outline.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6954fa1e",
+    "text": "Outline.MaxHeight specifies the maximum allowed height for the outline.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7921ef3f",
+    "text": "Outline.ReservedWidth indicates a width reserved for the outline, often for indentation.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-896b4b88",
+    "text": "Outline.IndentPosition defines the position where child outlines are indented.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2d61c2ae",
+    "text": "Outline.LastModifiedTime records the timestamp of the last modification to the outline.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-02229502",
+    "text": "OutlineElement.NumberList provides the NumberList associated with the outline element, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ae7f860f",
+    "text": "OutlinePrefixFlowable.wrap configures the flowable to fit within the specified width (aW) and height (aH).",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-725ec9dd",
+    "text": "OutlinePrefixFlowable.draw renders the outline prefix flowable onto the current drawing canvas.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-68f79b3b",
+    "text": "Page.Title returns the page title object, or None if the page has no title.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a363ba28",
+    "text": "Page.Author returns the author name of the page as a string, or None if not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bb852547",
+    "text": "Page.CreationTime returns the datetime when the page was created, or None if unavailable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7fa58513",
+    "text": "Page.LastModifiedTime returns the datetime of the page's last modification, or None if unavailable.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3f11813c",
+    "text": "Page.Level returns the hierarchical level of the page within the document, or None if undefined.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ded34b42",
+    "text": "Page.BackgroundColor returns the page background color as an integer (e.g., ARGB), or None if not specified.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-08008ca5",
+    "text": "Page.Margin provides the page margin settings, or None if not defined.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0a7e3987",
+    "text": "Page.SizeType indicates the sizing mode of the page, or None if not set.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e246d5d8",
+    "text": "Page.PageLayoutSize gives the layout dimensions of the page, or None if not available.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6e19a20a",
+    "text": "Page.IsConflictPage is True when the page represents a conflict version, otherwise False.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-55afdd04",
+    "text": "Page.PageContentRevisionSummary contains a summary of content revisions for the page, or None if absent.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b924dd28",
+    "text": "PageHistory.AddRange adds all Pages from the list to the history collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0cf4ac95",
+    "text": "PageHistory.Contains returns true if the specified Page exists in the collection.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-bb473ac2",
+    "text": "PageHistory.Remove deletes the first occurrence of the Page and returns true if successful.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-63118eb8",
+    "text": "PageHistory.RemoveAt removes the Page at the given zero‑based index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-724033a3",
+    "text": "PageHistory.RemoveRange removes count Pages starting from the specified index.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fea2aefd",
+    "text": "PageHistory.Current gets the currently active Page in the history.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-3408e020",
+    "text": "ParagraphStyle.FontStyle gets or sets the numeric style identifier for the font.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e3404442",
+    "text": "ParagraphStyle.FontName gets or sets the name of the font used for the paragraph.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-797089ba",
+    "text": "ParagraphStyle.FontSize gets or sets the size of the font in points.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-8da15efd",
+    "text": "ParagraphStyle.FontColor gets or sets the font color as an integer value.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6296b2dc",
+    "text": "ParagraphStyle.Highlight gets or sets the highlight color applied to the paragraph text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-df7c0a5d",
+    "text": "RevisionManifestRecord.rid is the primary identifier of the revision manifest as an ExtendedGUID.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5c40d09c",
+    "text": "RevisionManifestRecord.rid_dependent optionally holds a dependent ExtendedGUID linked to the manifest.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4e79bcf9",
+    "text": "RevisionManifestRecord.context_id optionally stores the context ExtendedGUID associated with the manifest.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-05518b14",
+    "text": "RevisionManifestRecord.root_roles maps integer role indices to their corresponding ExtendedGUIDs.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e02db32b",
+    "text": "RevisionManifestRecord.objects maps each object's ExtendedGUID to its OneStoreObject representation.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-755b1874",
+    "text": "RevisionManifestRecord.order_index indicates the manifest's sequential order as an integer.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-42962c75",
+    "text": "RichText.Append adds the given text with an optional style to the end and returns the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-017d7615",
+    "text": "RichText.AppendFront inserts the given text with an optional style at the beginning and returns the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a52c80ec",
+    "text": "RichText.GetEnumerator returns an iterator over the string segments of the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2b365f4e",
+    "text": "RichText.IndexOf finds the index of a value within a range, with optional count and comparison, and returns the position.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dfcb6d49",
+    "text": "RichText.Insert places the given text with an optional style at the specified index and returns the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-b5108981",
+    "text": "RichText.Remove deletes a segment starting at the given index for an optional count and returns the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-efd44b10",
+    "text": "RichText.Replace substitutes old_value with new_value, applying an optional style, and returns the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f6d52411",
+    "text": "RichText.TextRuns provides a list of TextRun objects representing styled segments of the text.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-2aef8084",
+    "text": "RichText.Tags returns a list of NoteTag objects attached to the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4715c26c",
+    "text": "RichText.Length reports the number of characters contained in the RichText.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-aa30d541",
+    "text": "RichText.IsTitleText indicates whether the RichText is recognized as a title line.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-85d9b897",
+    "text": "RichText.SpaceAfter gets or sets the spacing after the paragraph containing the RichText.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-842933f8",
+    "text": "SaveOptions.SaveFormat represents the target format for saving the document.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-587c08a3",
+    "text": "SaveOptions.PageIndex specifies the zero‑based index of the first page to include when saving.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-da5d4aa9",
+    "text": "SaveOptions.PageCount defines the number of pages to save starting from PageIndex.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c81ecfbd",
+    "text": "Table.Tags provides a list of NoteTag objects associated with the table.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fa8f6272",
+    "text": "Table.Columns returns a list of TableColumn objects defining the table's columns.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-e9271220",
+    "text": "TableColumn.Width represents the column's width in points; None indicates the width is not set.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-805eb4d1",
+    "text": "TextStyle.Highlight contains the highlight color as an ARGB integer, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a0554218",
+    "text": "TextStyle.Language stores a language identifier (LCID) for the text, or None.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-d8729ec5",
+    "text": "TextStyle.FontStyle holds an integer representing combined font style flags.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0f0b9bb8",
+    "text": "Title.TitleText provides the RichText representing the main title string, or None if absent.",
+    "kind": "api",
+    "confidence": 0.8,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-303d229a",
+    "text": "Title.TitleTime provides the RichText containing the title's time component, or None if absent.",
+    "kind": "api",
+    "confidence": 0.7,
+    "claim_source": "llm_member_doc",
+    "page_role": "reference",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-36a115ea",
+    "text": "Load a OneNote file by creating a `Document` instance with the file path, e.g., `doc = Document('../testfiles/SimpleTable.one')`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/export_pdf.py",
+        "snippet": "doc = Document(\"../testfiles/SimpleTable.one\")"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-c3cd361c",
+    "text": "Iterate over all `RichText` nodes in a document using `doc.GetChildNodes(RichText)` and read each node's `Text` property to extract plain text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/extract_text.py",
+        "snippet": "for rt in doc.GetChildNodes(RichText):\n    if rt.Text:\n        print(rt.Text)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-0dda8b7d",
+    "text": "Save a document or selected pages to PDF by calling `doc.Save('out.pdf', SaveFormat.Pdf)`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/export_pdf.py",
+        "snippet": "doc.Save(\"out.pdf\", SaveFormat.Pdf)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-fbbc0dcc",
+    "text": "Append a new node to the end of a document's child list with `doc.AppendChildLast(node)`, which returns the added node.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_REFERENCE.md",
+        "snippet": "Document.AppendChildLast(node) -> TNode"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f2fb5ce4",
+    "text": "Loading a corrupted `.one` file raises `FileCorruptedException`, indicating the file cannot be parsed.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FileCorruptedException"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5cce3c51",
+    "text": "The `Document.Save(target, format_or_options)` method writes the document to the specified path using the given format enum or save‑options object.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_REFERENCE.md",
+        "snippet": "Document.Save(target, format_or_options) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-6f950fd8",
+    "text": "The library provides a DOM that represents OneNote notebooks as Document, Page, Outline, OutlineElement, RichText, Image, Table, and AttachedFile nodes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Traverse the parsed document as a tree of `Page`, `Outline`, `OutlineElement`, `RichText`, `Image`, `Table`, and `AttachedFile` nodes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a5f662bd",
+    "text": "Developers can extract OneNote tags such as yellow stars, question marks, and musical notes using the NoteTag class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "OneNote tags through `NoteTag` (yellow star, question mark, musical note, and custom tags)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-915ae716",
+    "text": "To export a OneNote page to PDF, load a Document and call Document.Save with a target path and SaveFormat.Pdf.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/export_pdf.py",
+        "snippet": "doc = Document(\"../testfiles/SimpleTable.one\")\n doc.Save(\"out.pdf\", SaveFormat.Pdf)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-7ae48ee3",
+    "text": "Rich‑text content can be enumerated with Document.GetChildNodes(RichText) and accessed via the Text property of each RichText object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/extract_text.py",
+        "snippet": "for rt in doc.GetChildNodes(RichText):\n    if rt.Text:\n        print(rt.Text)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f391fc44",
+    "text": "Images can be saved to disk by iterating Document.GetChildNodes(Image) and writing each Image.Bytes to a file.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "examples/save_images.py",
+        "snippet": "for i, img in enumerate(doc.GetChildNodes(Image), start=1):\n    name = img.FileName or f\"image_{i}.png\"\n    (out_dir / name).write_bytes(img.Bytes)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-579c7b0a",
+    "text": "Numbered list headers are generated with NumberList.GetNumberedListHeader(number), which returns the formatted string for the supplied list number.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "NumberList.GetNumberedListHeader(number) -> str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-5a7bc99a",
+    "text": "Metered.SetMeteredKey(public_key, private_key) registers metering credentials and returns no value.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Metered.SetMeteredKey(public_key, private_key) -> None"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-f0768e27",
+    "text": "The `Table` class represents a OneNote table and provides methods such as `AppendChildLast(node)`, `InsertChild(index, node)`, and `RemoveChild(node)` to modify its rows and cells.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: Table\n  Methods: AppendChildLast(node) -> TNode; AppendChildFirst(node) -> TNode; InsertChild(index, node) -> TNode; RemoveChild(node) -> None; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-dc9719d0",
+    "text": "A `TableColumn` exposes the `Width` and `LockedWidth` properties to read or set column dimensions and locking behavior.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: TableColumn\n  Properties: Width, LockedWidth"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-4347155f",
+    "text": "The `TextRun` class gives access to the plain text of a run via its `Text` property and to its formatting via the `Style` property.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: TextRun\n  Properties: Text, Style"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-a7add1f8",
+    "text": "Create a default text style with `TextStyle.Default()` or obtain OneNote‑specific title styles using the `DefaultMsOneNoteTitle*` methods.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: TextStyle\n  Methods: Default() -> TextStyle; DefaultMsOneNoteTitleTextStyle() -> TextStyle; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-ff33c3ce",
+    "text": "`TagStatus` enum values (`Open`, `Completed`, `Disabled`) indicate the current state of a OneNote tag attached to a node.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: TagStatus\n  Enum values: Open, Completed, Disabled"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-11b30e10",
+    "text": "If a file format is not supported for loading, the library raises `UnsupportedFileFormatException` with the offending format available via its `FileFormat` property.",
+    "kind": "api",
+    "page_role": "kb",
+    "confidence": 0.3,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: UnsupportedFileFormatException\n  Properties: FileFormat"
+      }
+    ],
+    "stale_warning": "Source code references 'UnsupportedFileFormatException' in non-test files — claim that it is not consumed may be incorrect",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-note-python-814c9485",
+    "text": "The `Title` node provides `TitleText`, `TitleDate`, and `TitleTime` properties to access a page's title and its associated date and time metadata.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VERIFIED_FACTS",
+        "snippet": "Class: Title\n  Properties: TitleText, TitleDate, TitleTime, ParentNode, Document"
+      }
+    ],
+    "provenance": "enriched"
   }
 ]

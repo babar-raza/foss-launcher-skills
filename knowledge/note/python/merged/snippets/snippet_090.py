@@ -1,9 +1,7 @@
 from pathlib import Path
-from aspose.note import Document
+from aspose.note import Document, AttachedFile
 
-one_path = Path("testfiles/SimpleTable.one")
-with one_path.open("rb") as f:
-  doc = Document(f)
-
-print(doc.DisplayName)
-print(len(list(doc)))
+doc = Document("OnePageWithFile.one")
+for i, af in enumerate(doc.GetChildNodes(AttachedFile), start=1):
+    name = af.FileName or f"attachment_{i}.bin"
+    Path(name).write_bytes(af.Bytes)

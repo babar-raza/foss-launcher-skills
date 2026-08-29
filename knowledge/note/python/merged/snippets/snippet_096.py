@@ -1,9 +1,8 @@
-from aspose.note import Document, AttachedFile
+from aspose.note import Document, OutlineElement
 
-doc = Document("testfiles/OnePageWithFile.one")
-
-for i, af in enumerate(doc.GetChildNodes(AttachedFile), start=1):
-  name = af.FileName or f"attachment_{i}.bin"
-  with open(name, "wb") as f:
-    f.write(af.Bytes)
-  print("saved:", name)
+doc = Document("NumberedListWithTags.one")
+for oe in doc.GetChildNodes(OutlineElement):
+    nl = oe.NumberList
+    if nl is None:
+        continue
+    print("format=", nl.Format, "number_format=", nl.NumberFormat, "restart=", nl.Restart)

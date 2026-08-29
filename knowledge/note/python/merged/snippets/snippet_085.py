@@ -1,10 +1,6 @@
 from aspose.note import Document
 
-doc = Document("testfiles/SimpleTable.one")
+doc = Document("SimpleTable.one")
 print(doc.DisplayName)
-pages = list(doc)
-print(len(pages))
-
-# pages are direct children of Document
-for page in pages:
+for page in doc:
     print(page.Title.TitleText.Text)

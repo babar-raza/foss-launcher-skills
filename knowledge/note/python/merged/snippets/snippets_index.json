@@ -1542,7 +1542,7 @@
     "file": "snippet_085.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 31,
+    "source_line": 104,
     "classes_used": [
       "Document",
       "Table",
@@ -1557,11 +1557,11 @@
     "file": "snippet_086.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 46,
+    "source_line": 115,
     "classes_used": [
       "Document",
-      "RichText",
-      "SaveFormat"
+      "SaveFormat",
+      "Table"
     ],
     "methods_used": [
       "Document.Save"
@@ -1576,24 +1576,7 @@
     "file": "snippet_087.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 274,
-    "classes_used": [
-      "Document",
-      "Node",
-      "RichText"
-    ],
-    "methods_used": [
-      "Document.GetChildNodes"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_088",
-    "file": "snippet_088.py",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 284,
+    "source_line": 129,
     "classes_used": [
       "Document",
       "Image",
@@ -1607,31 +1590,11 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_089",
-    "file": "snippet_089.py",
+    "id": "snippet_088",
+    "file": "snippet_088.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 296,
-    "classes_used": [
-      "Document",
-      "PdfSaveOptions",
-      "SaveFormat",
-      "SaveOptions"
-    ],
-    "methods_used": [
-      "Document.Save"
-    ],
-    "formats_referenced": [
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_090",
-    "file": "snippet_090.py",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 309,
+    "source_line": 147,
     "classes_used": [
       "Document",
       "Table"
@@ -1641,30 +1604,60 @@
     "provenance": "scout"
   },
   {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 157,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText",
+      "Table",
+      "TableCell",
+      "TableRow"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Table.GetChildNodes",
+      "TableCell.GetChildNodes",
+      "TableRow.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 170,
+    "classes_used": [
+      "AttachedFile",
+      "Document",
+      "Node",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes",
+      "Page.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
     "id": "snippet_091",
     "file": "snippet_091.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 323,
+    "source_line": 182,
     "classes_used": [
       "Document",
-      "Image",
       "Node",
-      "Outline",
-      "OutlineElement",
-      "Page",
-      "RichText",
-      "Table",
-      "Title"
+      "RichText"
     ],
     "methods_used": [
-      "Document.GetChildNodes",
-      "Image.GetChildNodes",
-      "Outline.GetChildNodes",
-      "OutlineElement.GetChildNodes",
-      "Page.GetChildNodes",
-      "Table.GetChildNodes",
-      "Title.GetChildNodes"
+      "Document.GetChildNodes"
     ],
     "formats_referenced": [],
     "provenance": "scout"
@@ -1674,7 +1667,7 @@
     "file": "snippet_092.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 342,
+    "source_line": 193,
     "classes_used": [
       "Document",
       "DocumentVisitor",
@@ -1696,7 +1689,44 @@
     "file": "snippet_093.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 370,
+    "source_line": 219,
+    "classes_used": [
+      "Document",
+      "Node",
+      "RichText"
+    ],
+    "methods_used": [
+      "Document.GetChildNodes"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 229,
+    "classes_used": [
+      "Document",
+      "PdfSaveOptions",
+      "SaveFormat",
+      "SaveOptions"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 240,
     "classes_used": [
       "Document",
       "Node",
@@ -1710,74 +1740,11 @@
     "provenance": "scout"
   },
   {
-    "id": "snippet_094",
-    "file": "snippet_094.py",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 382,
-    "classes_used": [
-      "Document",
-      "Image",
-      "Node",
-      "RichText",
-      "Table"
-    ],
-    "methods_used": [
-      "Document.GetChildNodes",
-      "Image.GetChildNodes",
-      "Table.GetChildNodes"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_095",
-    "file": "snippet_095.py",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 403,
-    "classes_used": [
-      "Document",
-      "Node",
-      "RichText",
-      "Table",
-      "TableCell",
-      "TableRow"
-    ],
-    "methods_used": [
-      "Document.GetChildNodes",
-      "Table.GetChildNodes",
-      "TableCell.GetChildNodes",
-      "TableRow.GetChildNodes"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
     "id": "snippet_096",
     "file": "snippet_096.py",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 421,
-    "classes_used": [
-      "AttachedFile",
-      "Document",
-      "Node",
-      "Page"
-    ],
-    "methods_used": [
-      "Document.GetChildNodes",
-      "Page.GetChildNodes"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_097",
-    "file": "snippet_097.py",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 435,
+    "source_line": 252,
     "classes_used": [
       "Document",
       "Node",

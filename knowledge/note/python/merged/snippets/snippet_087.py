@@ -1,5 +1,10 @@
-from aspose.note import Document, RichText
+from pathlib import Path
+from aspose.note import Document, Image
 
-doc = Document("testfiles/FormattedRichText.one")
-texts = [rt.Text for rt in doc.GetChildNodes(RichText)]
-print("\n".join(texts))
+out_dir = Path("out_images")
+out_dir.mkdir(exist_ok=True)
+
+doc = Document("3ImagesWithDifferentAlignment.one")
+for i, img in enumerate(doc.GetChildNodes(Image), start=1):
+    name = img.FileName or f"image_{i}.png"
+    (out_dir / name).write_bytes(img.Bytes)

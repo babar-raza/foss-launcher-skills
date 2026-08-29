@@ -1,21 +1,33 @@
+bundle_generated_at: '2026-08-28T11:38:27.819129+00:00'
+bundle_id: e177a431-daef-4502-8953-9e856c743c04
+config_sha: 8c48120efd479f40
+enrichment_status: full
+extractor_hash: 662d97a270edc5c5
 family: note
+generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: a2785e596a2f2d40d68a2311979d2b11b77268adbdc80659a5f0c6f5620bb1d8
+  extractor_config_sha: 8c48120efd479f40
+  products_json_entry_sha: 1fe2362b29f4f5b90c099ba6cd08fdde419ba602b3b6b9152ab6a774605d3839
+  scout_api_surface_sha: e7622a1a2e0f16f48515367052c5f4388f799b913215f3fa21c1dce1b0719d79
+  scout_claims_sha: 5b90fae51b88f997b2fdd5146de84f8d75662414ac43363bfcf8e7d3ce3383e4
+license: LicenseRef-Aspose-Split
 platform: python
 product_name: aspose-note
-version: 26.3.2
-license: LicenseRef-Aspose-Split
+promoted_at: '2026-08-28T11:38:27.911687+00:00'
+repo_sha: 41de2e8ab478b5aeff3663f7f7cbf83b19fdf676
 repo_url: https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python.git
-repo_sha: 6d97a522a9ed24708687911f1aabb76e2dea2da7
-config_sha: 8c48120efd479f40
+schema_version: 2
+source: scout_and_enriched
 stale_since: null
-promoted_at: '2026-07-12T14:38:31.127804+00:00'
-source: scout_only
-enrichment_status: scout-only
-has_conflicts: false
 stats:
-  scout_claims: 333
-  enriched_claims: 0
-  supplemental_claims: 0
-  total_claims: 333
   class_count: 50
+  enriched_claims: 388
   forbidden_count: 0
-  snippet_count: 97
+  scout_claims: 333
+  snippet_count: 96
+  supplemental_claims: 0
+  total_claims: 721
+version: 26.3.2
