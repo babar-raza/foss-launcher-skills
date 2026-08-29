@@ -117,3 +117,51 @@ def test_build_context_resolves_all_fields(tmp_path):
     assert context.clone_cache == cache.resolve()
     assert context.metrics_mode == "dry-run"
     assert context.dry_run is True
+
+
+def test_resolve_forbidden_write_root_defaults_to_aspose_content_root():
+    from content_repo_adapter import resolve_forbidden_write_root
+    assert resolve_forbidden_write_root({}, {}) == ASPOSE_CONTENT_ROOT
+
+
+def test_resolve_forbidden_write_root_prefers_env(tmp_path):
+    from content_repo_adapter import resolve_forbidden_write_root
+    custom = tmp_path / "some-other-content-repo"
+    result = resolve_forbidden_write_root({}, {"FORBIDDEN_CONTENT_ROOT": str(custom)})
+    assert result == custom.resolve()
+
+
+def test_resolve_forbidden_write_root_supports_config(tmp_path):
+    from content_repo_adapter import resolve_forbidden_write_root
+    custom = tmp_path / "config-content-repo"
+    result = resolve_forbidden_write_root({"forbidden_content_root": str(custom)}, {})
+    assert result == custom.resolve()
+
+
+def test_assert_write_allowed_blocks_configured_forbidden_root(tmp_path):
+    custom_root = tmp_path / "other-content-repo"
+    target = custom_root / "docs" / "en" / "x.md"
+    with pytest.raises(ConfigError, match="Refusing write"):
+        assert_write_allowed(target, env={"FORBIDDEN_CONTENT_ROOT": str(custom_root)})
+
+
+def test_assert_write_allowed_with_configured_root_permits_aspose_content(tmp_path):
+    # Once a caller has configured a DIFFERENT forbidden root, a target under
+    # the legacy ASPOSE_CONTENT_ROOT is no longer implicitly blocked -- the
+    # boundary is whatever the caller configured, not a second hidden check.
+    custom_root = tmp_path / "other-content-repo"
+    target = ASPOSE_CONTENT_ROOT / "docs.aspose.org" / "en" / "x.md"
+    result = assert_write_allowed(target, env={"FORBIDDEN_CONTENT_ROOT": str(custom_root)})
+    assert result == target.resolve()
+
+
+def test_assert_write_allowed_explicit_forbidden_root_overrides_config_and_env(tmp_path):
+    explicit_root = tmp_path / "explicit-root"
+    env_root = tmp_path / "env-root"
+    target = explicit_root / "x.md"
+    with pytest.raises(ConfigError, match="Refusing write"):
+        assert_write_allowed(
+            target,
+            forbidden_root=explicit_root,
+            env={"FORBIDDEN_CONTENT_ROOT": str(env_root)},
+        )

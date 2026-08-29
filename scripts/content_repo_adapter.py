@@ -4,6 +4,19 @@ Centralizes path and mode decisions for standalone skills that operate against
 an external content repository. The adapter is deliberately conservative: it
 fails closed on missing content roots and forbids writes to the live aspose.org
 content tree unless a caller only resolves paths for read-only inspection.
+
+2026-08-29 sync note: the original write-safety boundary was a single
+hardcoded ASPOSE_CONTENT_ROOT constant used directly inside
+assert_write_allowed -- this was the exact class of structural coupling
+scripts/ci/checks/check_hardcoded_external_coupling.py was built to catch
+(found live during that sync; present, undetected, through two prior
+"parity complete" closures). ASPOSE_CONTENT_ROOT is preserved below,
+unchanged, as the documented backward-compatible DEFAULT boundary --
+existing tests construct write targets under it directly and continue to
+pass unchanged -- but assert_write_allowed now resolves the boundary via
+resolve_forbidden_write_root() first, which is config/env driven, so a
+caller pointed at a different content repo is no longer silently coupled
+to this one hardcoded path.
 """
 
 from __future__ import annotations
@@ -18,6 +31,7 @@ from config_loader import ConfigError
 
 ASPOSE_CONTENT_ROOT = Path("D:/onedrive/Documents/GitHub/aspose.org/content").resolve()
 OBSOLETE_CLONE_CACHE_MARKER = "foss-launcher/runs/.clone_cache"
+FORBIDDEN_CONTENT_ROOT_ENV = "FORBIDDEN_CONTENT_ROOT"
 
 
 @dataclass(frozen=True)
@@ -116,28 +130,55 @@ def metrics_mode(
     return "disabled"
 
 
+def resolve_forbidden_write_root(
+    config: Mapping[str, object] | None = None,
+    env: Mapping[str, str] | None = None,
+) -> Path:
+    """Resolve the write-safety boundary a caller must not write into directly.
+
+    Resolution order:
+    1. ``FORBIDDEN_CONTENT_ROOT`` env var
+    2. ``config["forbidden_content_root"]``
+    3. ``ASPOSE_CONTENT_ROOT`` -- this repo's original hardcoded default,
+       preserved for backward compatibility. Existing callers that rely on
+       the default boundary (including tests that construct targets under
+       ASPOSE_CONTENT_ROOT directly) continue to work unchanged.
+    """
+
+    env = os.environ if env is None else env
+    raw = env.get(FORBIDDEN_CONTENT_ROOT_ENV) or _config_get(config, "forbidden_content_root")
+    if raw:
+        return _as_path(raw)
+    return ASPOSE_CONTENT_ROOT
+
+
 def assert_write_allowed(
     target: str | os.PathLike[str],
     *,
     dry_run: bool = False,
     allow_live_aspose_content: bool = False,
+    forbidden_root: Path | None = None,
+    config: Mapping[str, object] | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> Path:
     """Validate a write target and return its resolved path.
 
     Dry-runs are allowed to compute forbidden targets for reporting. Real
-    writes to the live aspose.org content tree are denied by default.
+    writes under the forbidden boundary (see resolve_forbidden_write_root)
+    are denied by default.
     """
 
     path = _as_path(target)
     if dry_run:
         return path
+    boundary = forbidden_root if forbidden_root is not None else resolve_forbidden_write_root(config, env)
     try:
-        path.relative_to(ASPOSE_CONTENT_ROOT)
+        path.relative_to(boundary)
     except ValueError:
         return path
     if allow_live_aspose_content:
         return path
-    raise ConfigError(f"Refusing write under live aspose.org content root: {path}")
+    raise ConfigError(f"Refusing write under forbidden content root: {path}")
 
 
 def build_context(
