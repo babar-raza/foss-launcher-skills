@@ -107,6 +107,94 @@ class TestSampler:
 
 
 # ---------------------------------------------------------------------------
+# Tests: products.aspose.org sibling-platform isolation (MT040, 2026-08-29)
+#
+# Bug: pdf/typescript's real H-01 sample pulled in
+# products.aspose.org/en/pdf/net/_index.md instead of pdf/typescript's own
+# page. Root cause: products.aspose.org nests one _index.md per platform as
+# a SIBLING directory under en/{family}/ (unlike docs/kb/reference, where
+# platform is a child of family) plus one shared en/{family}/_index.md --
+# the old `en/{family}/**/*.md` rglob (scoped to family only, no platform
+# segment) matched every sibling platform's own page too. The pre-existing
+# fixture never had more than one platform under a family, so this was
+# never exercised.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def multi_platform_repo_root(tmp_path):
+    """A family with THREE platforms, each carrying its own
+    products.aspose.org page -- reproduces the real pdf/{net,python,
+    typescript} shape that exposed the bug."""
+    root = tmp_path / "repo"
+    root.mkdir(exist_ok=True)
+
+    for platform in ("net", "python", "typescript"):
+        p = root / "content" / "products.aspose.org" / "en" / "pdf" / platform / "_index.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(f"---\ntitle: Products {platform}\ngrade: B\n---\n{platform} product page.\n")
+
+    family_index = root / "content" / "products.aspose.org" / "en" / "pdf" / "_index.md"
+    family_index.write_text("---\ntitle: Products\ngrade: B\n---\nFamily page.\n")
+
+    # Minimal docs/kb/blog/reference pages so H-01/H-02 generation doesn't
+    # short-circuit on an empty product.
+    for site in ["docs.aspose.org", "kb.aspose.org"]:
+        p = root / "content" / site / "en" / "pdf" / "typescript" / "page0.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("---\ntitle: Page\ngrade: B\n---\nContent here.\n")
+
+    ref_root = root / "content" / "reference.aspose.org" / "en" / "pdf" / "typescript"
+    ref_root.mkdir(parents=True, exist_ok=True)
+    (ref_root / "Class0.md").write_text("---\ntitle: Class0\ngrade: A\n---\n" + "x" * 500)
+
+    (root / "reports" / "human-review").mkdir(parents=True, exist_ok=True)
+    return root
+
+
+class TestProductsPageSiblingIsolation:
+    """products.aspose.org page collection must never cross into a
+    sibling platform's own product page for a multi-platform family."""
+
+    def test_collect_non_reference_pages_excludes_sibling_platforms(self, multi_platform_repo_root):
+        _hrs.configure(repo_root=multi_platform_repo_root)
+        try:
+            pages = _hrs._collect_non_reference_pages("pdf", "typescript")
+        finally:
+            _hrs.configure()
+
+        products_pages = [p for p in pages if "products.aspose.org" in str(p)]
+        products_names = {str(p).replace("\\", "/") for p in products_pages}
+
+        assert any(n.endswith("pdf/typescript/_index.md") for n in products_names), (
+            f"the target platform's own products page must be included; got: {products_names}"
+        )
+        assert any(n.endswith("pdf/_index.md") and "/typescript/" not in n for n in products_names), (
+            f"the shared family-level products page must still be included; got: {products_names}"
+        )
+        assert not any(n.endswith("pdf/net/_index.md") for n in products_names), (
+            f"a SIBLING platform's own products page must never be pulled in; got: {products_names}"
+        )
+        assert not any(n.endswith("pdf/python/_index.md") for n in products_names), (
+            f"a SIBLING platform's own products page must never be pulled in; got: {products_names}"
+        )
+        # Exactly two products.aspose.org pages: the target platform's own
+        # page and the one shared family page -- never more.
+        assert len(products_pages) == 2, f"expected exactly 2 products pages, got: {products_names}"
+
+    def test_h01_sample_never_names_a_sibling_platform_page(self, multi_platform_repo_root):
+        """End-to-end: the real generate_h01() output must never name a
+        sibling platform's products page."""
+        _hrs.configure(repo_root=multi_platform_repo_root)
+        try:
+            out = _hrs.generate_h01("pdf", "typescript")
+            text = out.read_text()
+            assert "pdf/net/_index.md" not in text.replace("\\", "/")
+            assert "pdf/python/_index.md" not in text.replace("\\", "/")
+        finally:
+            _hrs.configure()
+
+
+# ---------------------------------------------------------------------------
 # Tests: readiness_scorecard H-gate integration
 # ---------------------------------------------------------------------------
 

@@ -58,9 +58,24 @@ def _collect_non_reference_pages(family: str, platform: str) -> list[Path]:
             if search_root.is_dir():
                 pages.extend(search_root.rglob("index.md"))
         elif site == "products.aspose.org":
-            search_root = site_root / "en" / family
-            if search_root.is_dir():
-                pages.extend(search_root.rglob("*.md"))
+            # products.aspose.org nests a separate _index.md per platform
+            # under en/{family}/{platform}/ (like docs/kb/reference), plus
+            # one shared en/{family}/_index.md family page -- unlike
+            # docs/kb/reference, family and platform pages are SIBLINGS in
+            # the same directory tree, not parent/child. A bare
+            # `en/{family}/**/*.md` rglob (the shape used before this fix)
+            # therefore also matched every SIBLING platform's own product
+            # page (e.g. sampling pdf/typescript pulled in pdf/net/_index.md)
+            # -- confirmed live 2026-08-29 generating pdf/typescript's H-01
+            # sample (MT040): candidate #5 was products.aspose.org/en/pdf/
+            # net/_index.md, not pdf/typescript's own page, for a
+            # family with 6 sibling platforms.
+            platform_root = site_root / "en" / family / platform
+            if platform_root.is_dir():
+                pages.extend(platform_root.rglob("*.md"))
+            family_index = site_root / "en" / family / "_index.md"
+            if family_index.is_file():
+                pages.append(family_index)
         else:
             search_root = site_root / "en" / family / platform
             if search_root.is_dir():
