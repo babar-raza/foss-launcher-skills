@@ -62,3 +62,18 @@ def test_check_dar_coverage_compiles():
 def test_check_knowledge_staleness_compiles():
     """check_knowledge_staleness.py compiles without syntax errors."""
     assert _can_compile("check_knowledge_staleness.py")
+
+
+def test_check_stale_file_regression_compiles():
+    """check_stale_file_regression.py compiles without syntax errors (ported 2026-08-29)."""
+    assert _can_compile("check_stale_file_regression.py")
+
+
+def test_check_module_consumption_compiles():
+    """check_module_consumption.py compiles without syntax errors (ported 2026-08-29)."""
+    assert _can_compile("check_module_consumption.py")
+
+
+def test_check_hardcoded_external_coupling_compiles():
+    """check_hardcoded_external_coupling.py compiles without syntax errors (new 2026-08-29)."""
+    assert _can_compile("check_hardcoded_external_coupling.py")
