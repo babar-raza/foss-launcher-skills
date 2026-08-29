@@ -926,14 +926,23 @@ capabilities:
   kilo_adapter_hash: f1e1182438e909ad
   name: llms-stale
   parity_status: FULL_PARITY
+- agent_adapter_hash: d5df2be869679554
+  canonical_hash: d5df2be869679554
+  capability_id: S-121
+  claude_adapter_hash: d5df2be869679554
+  gaps: []
+  internal: false
+  kilo_adapter_hash: d5df2be869679554
+  name: workflow-harden
+  parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-08-29T15:03:02.454382Z'
+generated_at: '2026-08-29T15:11:19.914806Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0
   claude_adapter_missing: 0
-  full_parity: 103
+  full_parity: 104
   gaps_total: 0
   internal_skipped: 7
   semantic_drift: 0
-  total_capabilities: 103
+  total_capabilities: 104

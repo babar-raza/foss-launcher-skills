@@ -124,6 +124,7 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-118 | llms-fidelity | S-LG-04 | llms-fidelity | Ported 2026-08-29; same generalization as S-116 |
 | S-119 | llms-verify | S-LG-02 | llms-verify | Ported 2026-08-29 (SYNC-6); config.yaml sites.{type}.base_url replaces source's URL-mapping file; proven with a real local HTTP server, not mocked |
 | S-120 | llms-stale | S-LG-05 | llms-stale | Ported 2026-08-29 (SYNC-7); manifest reuses config.yaml's existing reports_path, no new config key |
+| S-121 | workflow-harden | S-115 | workflow-harden | Ported 2026-08-29 (SYNC-3, partial); dropped GitHub-only assumption + source's checkpoint/taskcard infrastructure, kept the CI-agnostic 8-dimension probe. The other 5 SYNC-3 skills (plan-health-watchdog, blind-spot-audit, forensic-heal-sprint, regression-classification, triage-verdict-gate) remain unported -- they depend on source's TaskcardStore/MISSION_AUTHORITY/refresh-run/content_eval-grading infrastructure, not just the taskcard store alone |
 
 ---
 

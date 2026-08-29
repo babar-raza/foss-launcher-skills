@@ -1032,3 +1032,16 @@ anchors:
       source file confirmed to exist at this path, commit_sha is its own most
       recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
       for what that would still require.
+  - target_path: skills/workflow-harden.md
+    source_path: .claude/commands/workflow-harden.md
+    capability_id: S-121
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-3, partial). Generalized:
+      dropped source's GitHub-Actions-only assumption (this repo runs both
+      GitHub Actions and GitLab CI) and its checkpoint/taskcard
+      infrastructure (skill_context.py/override_manager.py/schema-5f
+      taskcards), which this repo does not have. Kept the 8-dimension
+      probe and severity taxonomy, which are genuinely CI-system-agnostic.
+      Agent-executed, no backing script, matching source's own contract shape.

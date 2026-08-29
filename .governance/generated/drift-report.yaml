@@ -1,7 +1,7 @@
 drift_entries: []
-generated_at: '2026-08-29T15:03:02.134947Z'
+generated_at: '2026-08-29T15:11:19.518034Z'
 generator: tools/capability_sync/detect_adapter_drift.py
 summary:
   drift_detected_count: 0
-  total_adapters_checked: 302
+  total_adapters_checked: 305
   verdict: NO_DRIFT

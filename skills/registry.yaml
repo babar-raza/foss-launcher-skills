@@ -648,3 +648,9 @@ skills:
     description: Detect stale or missing llms-output pages via a content-hash manifest
     internal: false
     script: scripts/llms_stale.py
+
+  - id: S-121
+    name: workflow-harden
+    description: Audit and harden CI workflow files (GitHub Actions and/or GitLab CI) via a fixed 8-dimension probe
+    internal: false
+    script: null

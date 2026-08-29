@@ -1901,7 +1901,26 @@ capabilities:
   name: llms-stale
   operation_type: unknown
   script: scripts/llms_stale.py
+- adapters:
+    agent_skill: .agents\skills\workflow-harden\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\workflow-harden.md
+    canonical_exists: true
+    claude_command: .claude\commands\workflow-harden.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\workflow-harden\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Audit and harden CI workflow files (GitHub Actions and/or GitLab CI)
+    via a fixed 8-dimension probe
+  id: S-121
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: workflow-harden
+  operation_type: unknown
+  script: null
 internal_capabilities: 7
-public_capabilities: 96
+public_capabilities: 97
 schema_version: 1
-total_capabilities: 103
+total_capabilities: 104

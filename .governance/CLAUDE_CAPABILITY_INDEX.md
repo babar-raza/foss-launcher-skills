@@ -7,7 +7,7 @@
 
 **Canonical registry**: `skills/registry.yaml`
 **Generated commands**: `.claude/commands/`
-**Total capabilities**: 103 (96 public slash commands, 7 internal)
+**Total capabilities**: 104 (97 public slash commands, 7 internal)
 
 ### Available Slash Commands
 
@@ -109,6 +109,7 @@
 | S-118 | `llms-fidelity` | — | — | Score content fidelity between source pages and generated llms-output/ text |
 | S-119 | `llms-verify` | — | — | Verify live HTTP endpoints for deployed llms-output pages |
 | S-120 | `llms-stale` | — | — | Detect stale or missing llms-output pages via a content-hash manifest |
+| S-121 | `workflow-harden` | — | — | Audit and harden CI workflow files (GitHub Actions and/or GitLab CI) via a fixed 8-dimension probe |
 
 ### Capability Governance
 
