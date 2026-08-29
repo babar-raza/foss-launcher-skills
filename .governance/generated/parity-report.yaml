@@ -927,7 +927,7 @@ capabilities:
   name: llms-stale
   parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-08-29T14:44:19.863209Z'
+generated_at: '2026-08-29T15:03:02.454382Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0

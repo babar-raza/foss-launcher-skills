@@ -11,7 +11,7 @@ The 2026-05-14 "84/84 FUNCTIONAL parity, 0 gaps" closure below was accurate when
 
 This sync introduces `docs/parity/source-anchors.yaml` — a commit-SHA-pinned ledger, checked by `tools/capability_sync/detect_source_drift.py --check`, that makes future drift detectable with one command instead of a full manual re-audit.
 
-**Honest scope of what is now anchored:** only the 7 artifacts touched by the 2026-08-29 sync (see the dated section below) have a `source-anchors.yaml` entry. The other ~84 capabilities from the 2026-05-14 closure remain exactly as unpinned/unverifiable as they were before this sync — retroactively anchoring them is tracked as its own item in `TASK_BACKLOG.md` (Workstream SYNC-2026-08-29), not silently assumed done.
+**Scope of what is now anchored (updated same day):** 86 of 91 capabilities now have a `source-anchors.yaml` entry — 9 fully verified (the artifacts this sync actually ported/tested), 77 mechanically anchored by `scripts/pipeline/commands/ops/backfill_source_anchors.py` (source file confirmed to exist, pinned to its own current commit SHA — explicitly **not** a semantic content re-review of those 77; see TASK_BACKLOG.md SYNC-8, which stays open until that review happens). 2 (`translate-page`/`translate-batch`) could not be anchored — source has retired them from its canonical trees (SYNC-10). Building the backfill tool also caught and fixed an independent, real documentation bug: `docs/id-mapping.md` had mislabeled 4 foss-exclusive skills as having an aspose.org counterpart.
 
 ```bash
 # Check whether anything anchored has drifted upstream (requires aspose.org

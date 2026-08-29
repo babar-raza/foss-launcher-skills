@@ -108,3 +108,927 @@ anchors:
       Ported 2026-08-29 (TASK_BACKLOG.md SYNC-7). Manifest reuses
       config.yaml's existing reports_path. New backing script
       scripts/llms_stale.py.
+  - target_path: skills/path-guard.md
+    source_path: skills/path-guard.md
+    capability_id: S-01
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-01' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/project-phase-store.md
+    source_path: skills/project-phase-store.md
+    capability_id: S-10
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-10' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/knowledge-diff.md
+    source_path: skills/knowledge-diff.md
+    capability_id: S-12
+    commit_sha: e97a314feaf120e810b03d6a401b28a9c6b3cb5f
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-12' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/stale-detect.md
+    source_path: skills/stale-detect.md
+    capability_id: S-13
+    commit_sha: 3786dcc2496e359498929bac7f9eb622e251d7da
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-13' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/knowledge-update.md
+    source_path: skills/knowledge-update.md
+    capability_id: S-14
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-14' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/embed-knowledge.md
+    source_path: skills/embed-knowledge.md
+    capability_id: S-15
+    commit_sha: 0b7a7f775f5f7a91c664aa409ff58de9d87254b6
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-15' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/rubric-align.md
+    source_path: skills/rubric-align.md
+    capability_id: S-17
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-17' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/page-plan.md
+    source_path: skills/page-plan.md
+    capability_id: S-18
+    commit_sha: c866348bdb72d2ac6e80097e7ed1cbdaef9f736a
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-18' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/page-draft.md
+    source_path: skills/page-draft.md
+    capability_id: S-19
+    commit_sha: c866348bdb72d2ac6e80097e7ed1cbdaef9f736a
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-19' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/page-update.md
+    source_path: skills/page-update.md
+    capability_id: S-20
+    commit_sha: e42275e5d87ed563eca592965f8ec513f677b2b9
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-20' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/page-enhance.md
+    source_path: skills/page-enhance.md
+    capability_id: S-21
+    commit_sha: e3e3625545a71562ad610c6751c9637cb6347411
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-21' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/faq-generate.md
+    source_path: skills/faq-generate.md
+    capability_id: S-22
+    commit_sha: 352c3147eb5b5ddf4bd7204f800e9d058a659744
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-22' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/evidence-cite.md
+    source_path: skills/evidence-cite.md
+    capability_id: S-24
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-24' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/eval-page.md
+    source_path: skills/eval-page.md
+    capability_id: S-25
+    commit_sha: 96279b87fa4e95b875d9e219c9be8228368fdc2c
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-25' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/heal-page.md
+    source_path: skills/heal-page.md
+    capability_id: S-26
+    commit_sha: 59b2feab62db8df85e5550b55fc9a53059396c10
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-26' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/truth-index.md
+    source_path: skills/truth-index.md
+    capability_id: S-31
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-31' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/content-audit.md
+    source_path: skills/content-audit.md
+    capability_id: S-32
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-32' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/change-guard.md
+    source_path: skills/change-guard.md
+    capability_id: S-33
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-33' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/repo-scout.md
+    source_path: skills/repo-scout.md
+    capability_id: S-34
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-34' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/truth-merge.md
+    source_path: skills/truth-merge.md
+    capability_id: S-35
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-35' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/cross-platform.md
+    source_path: skills/cross-platform.md
+    capability_id: S-36
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-36' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/launch-product.md
+    source_path: skills/launch-product.md
+    capability_id: S-38
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-38' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/batch-remediate.md
+    source_path: skills/batch-remediate.md
+    capability_id: S-40
+    commit_sha: 59b2feab62db8df85e5550b55fc9a53059396c10
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-40' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/batch-eval-fix.md
+    source_path: skills/batch-eval-fix.md
+    capability_id: S-41
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-41' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/category-fix.md
+    source_path: skills/category-fix.md
+    capability_id: S-42
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-42' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/truth-audit.md
+    source_path: skills/truth-audit.md
+    capability_id: S-47
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-47' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/knowledge-bootstrap.md
+    source_path: skills/knowledge-bootstrap.md
+    capability_id: S-49
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-49' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/content-check.md
+    source_path: skills/content-check.md
+    capability_id: S-50
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-50' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-docs-page.md
+    source_path: skills/new-docs-page.md
+    capability_id: S-51
+    commit_sha: 3fe99aa038a805d86f7c1fe34723e361f0ac85ed
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-51' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-kb-faq.md
+    source_path: skills/new-kb-faq.md
+    capability_id: S-54
+    commit_sha: 6acf3815780d227e9420241756c747a9de5d5071
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-54' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/site-plan.md
+    source_path: skills/site-plan.md
+    capability_id: S-57
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-47' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/family-sync.md
+    source_path: skills/family-sync.md
+    capability_id: S-58
+    commit_sha: 59b2feab62db8df85e5550b55fc9a53059396c10
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-48' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/refresh-product-page.md
+    source_path: skills/refresh-product-page.md
+    capability_id: S-59
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-86' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/launch-rollback.md
+    source_path: skills/launch-rollback.md
+    capability_id: S-60
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-79' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/knowledge-enrich.md
+    source_path: skills/knowledge-enrich.md
+    capability_id: S-61
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-37' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/gap-eval.md
+    source_path: skills/gap-eval.md
+    capability_id: S-62
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-43' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/gap-plan.md
+    source_path: skills/gap-plan.md
+    capability_id: S-63
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-44' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/gap-report.md
+    source_path: skills/gap-report.md
+    capability_id: S-64
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-45' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/gap-apply.md
+    source_path: skills/gap-apply.md
+    capability_id: S-65
+    commit_sha: 352c3147eb5b5ddf4bd7204f800e9d058a659744
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-46' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-products-page.md
+    source_path: skills/new-products-page.md
+    capability_id: S-66
+    commit_sha: e42275e5d87ed563eca592965f8ec513f677b2b9
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-61' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/batch-reference.md
+    source_path: skills/batch-reference.md
+    capability_id: S-67
+    commit_sha: 0b7a7f775f5f7a91c664aa409ff58de9d87254b6
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-62' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/code-smoke.md
+    source_path: skills/code-smoke.md
+    capability_id: S-68
+    commit_sha: 96279b87fa4e95b875d9e219c9be8228368fdc2c
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-63' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/getting-started.md
+    source_path: skills/getting-started.md
+    capability_id: S-69
+    commit_sha: a7b06ec9fa4947be8c911045b8e7d903f99617bb
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-64' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/link-validate.md
+    source_path: skills/link-validate.md
+    capability_id: S-70
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-65' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/register-human-content.md
+    source_path: skills/register-human-content.md
+    capability_id: S-71
+    commit_sha: 352c3147eb5b5ddf4bd7204f800e9d058a659744
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-66' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/diagnose-skill-failure.md
+    source_path: skills/diagnose-skill-failure.md
+    capability_id: S-72
+    commit_sha: 3cc0a8e6f82d953443faa3671117ef0de4910e7d
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-67' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/update-registry.md
+    source_path: skills/update-registry.md
+    capability_id: S-73
+    commit_sha: 3b3cfcb61fb9ba6a04b9075210358bde5349a7b1
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-68' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-kb-index.md
+    source_path: skills/new-kb-index.md
+    capability_id: S-74
+    commit_sha: 30358533356387931bd889a21db48397f7d1286a
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-69' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-docs-index.md
+    source_path: skills/new-docs-index.md
+    capability_id: S-75
+    commit_sha: e42275e5d87ed563eca592965f8ec513f677b2b9
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-70' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/new-reference-index.md
+    source_path: skills/new-reference-index.md
+    capability_id: S-76
+    commit_sha: e046932f6bd49596e92d285e9f35cb4837e75723
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-71' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/evidence-repair.md
+    source_path: skills/evidence-repair.md
+    capability_id: S-77
+    commit_sha: feca41d0a4b5baad1ff1d9907d6300478b0fdec1
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-72' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/manual-edit.md
+    source_path: skills/manual-edit.md
+    capability_id: S-78
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-73' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/causal-backtrack.md
+    source_path: skills/causal-backtrack.md
+    capability_id: S-79
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-74' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/commit.md
+    source_path: skills/commit.md
+    capability_id: S-81
+    commit_sha: 95d7c026782b8d11a015883e1dbf5b2e6eb59e3a
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-76' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/session-start.md
+    source_path: skills/session-start.md
+    capability_id: S-82
+    commit_sha: d1bec1870903f3ca1260ac511fc21e288d67766d
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-77' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/evidence-enhance.md
+    source_path: skills/evidence-enhance.md
+    capability_id: S-83
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-78' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/refresh-product.md
+    source_path: skills/refresh-product.md
+    capability_id: S-84
+    commit_sha: 50247ad2ff386eddc6129e662bf97f0c5ef0b061
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-84' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/coverage-reconcile.md
+    source_path: skills/coverage-reconcile.md
+    capability_id: S-85
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-80' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/knowledge-coverage-audit.md
+    source_path: skills/knowledge-coverage-audit.md
+    capability_id: S-86
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-81' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/delta-site-plan.md
+    source_path: skills/delta-site-plan.md
+    capability_id: S-87
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-82' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/page-retire.md
+    source_path: skills/page-retire.md
+    capability_id: S-88
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-83' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/truth-audit-content.md
+    source_path: skills/truth-audit-content.md
+    capability_id: S-90
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-85' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/system-heal.md
+    source_path: skills/system-heal.md
+    capability_id: S-93
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-87' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/heal-batch.md
+    source_path: skills/heal-batch.md
+    capability_id: S-94
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-89' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/publish-readiness-review.md
+    source_path: skills/publish-readiness-review.md
+    capability_id: S-95
+    commit_sha: 1768cdea38cfe1793df77bf4795c4bc00aafedb9
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-90' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/plan-normalize.md
+    source_path: skills/plan-normalize.md
+    capability_id: S-96
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-91' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/triage-confirm.md
+    source_path: skills/triage-confirm.md
+    capability_id: S-97
+    commit_sha: e97a314feaf120e810b03d6a401b28a9c6b3cb5f
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-92' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/backlog.md
+    source_path: skills/backlog.md
+    capability_id: S-98
+    commit_sha: c9b70f255a0a54a6778b4a4b33ee35f9cf070ec2
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-88' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/locale-patch.md
+    source_path: skills/locale-patch.md
+    capability_id: S-101
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-75' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/repo-patrol.md
+    source_path: skills/repo-patrol.md
+    capability_id: S-102
+    commit_sha: 3b3cfcb61fb9ba6a04b9075210358bde5349a7b1
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-93' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/change-sweep.md
+    source_path: skills/change-sweep.md
+    capability_id: S-103
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-94' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/discovery-triage.md
+    source_path: skills/discovery-triage.md
+    capability_id: S-104
+    commit_sha: a30d6a0ae994fb0235bcf46d92795447baa8bd45
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-95' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/section-enhance.md
+    source_path: skills/section-enhance.md
+    capability_id: S-105
+    commit_sha: ac4ea1ecf5b4a666e9ac5e1ab461907db7c064fc
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-96' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/cleanroom-regen.md
+    source_path: skills/cleanroom-regen.md
+    capability_id: S-106
+    commit_sha: b9725c11be2c4ea34658ea39fa2c3f5fc4044e76
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-97' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/content-enrich.md
+    source_path: skills/content-enrich.md
+    capability_id: S-108
+    commit_sha: d5b3060c55d28a9d045426de96a91103a0d95849
+    verified_at: "2026-08-29T14:58:20.000974Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing 'S-83' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/no-downgrade-guard.md
+    source_path: skills/no-downgrade-guard.md
+    capability_id: S-56
+    commit_sha: 29ae947916d2f5640ef8f076fd8061371c26cf14
+    verified_at: "2026-08-29T15:02:08.743422Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing '*(same aspose S-55)*' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.
+  - target_path: skills/pipeline-harden.md
+    source_path: skills/pipeline-harden.md
+    capability_id: S-110
+    commit_sha: e7d24d86b701c069012d4a3a69b51d5a5e0cfbd1
+    verified_at: "2026-08-29T15:02:08.743422Z"
+    verification_method: mechanical_existence_and_current_sha
+    notes: >
+      Backfilled 2026-08-29 (TASK_BACKLOG.md SYNC-8) from docs/id-mapping.md's
+      existing '*(none)*' mapping row. Mechanical anchor only --
+      source file confirmed to exist at this path, commit_sha is its own most
+      recent commit. NOT a semantic content re-review; see TASK_BACKLOG.md SYNC-8
+      for what that would still require.

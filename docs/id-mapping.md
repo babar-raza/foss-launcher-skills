@@ -34,21 +34,21 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-20 | page-update | S-20 | page-update | Same |
 | S-21 | page-enhance | S-21 | page-enhance | Same |
 | S-22 | faq-generate | S-22 | faq-generate | Same |
-| S-23 | ground-check | S-23 | ground-check | Same |
+| S-23 | ground-check | *(none)* | *(none)* | Corrected 2026-08-29 (SYNC-8): was mislabeled "Same" -- no ground-check exists anywhere in aspose.org's git history under skills/ or .claude/commands/. Actually foss-only; see "Skills Unique to foss-launcher" below. |
 | S-24 | evidence-cite | S-24 | evidence-cite | Same |
 | S-25 | eval-page | S-25 | eval-page | Same |
 | S-26 | heal-page | S-26 | heal-page | Same |
 | S-27–S-29 | *(unassigned)* | *(varies)* | *(varies)* | Gap |
-| S-30 | truth-sync | S-30 | truth-sync | Same |
+| S-30 | truth-sync | *(none)* | *(none)* | Corrected 2026-08-29 (SYNC-8): was mislabeled "Same" -- same finding as S-23. Actually foss-only; see below. |
 | S-31 | truth-index | S-31 | truth-index | Same |
 | S-32 | content-audit | S-32 | content-audit | Same |
 | S-33 | change-guard | S-33 | change-guard | Same |
 | S-34 | repo-scout | S-34 | repo-scout | Same |
 | S-35 | truth-merge | S-35 | truth-merge | Same |
 | S-36 | cross-platform | S-36 | cross-platform | Same |
-| S-37 | corpus-scan | S-37 | corpus-scan | Same |
+| S-37 | corpus-scan | *(none)* | *(none)* | Corrected 2026-08-29 (SYNC-8): was mislabeled "Same" -- same finding as S-23. Actually foss-only; see below. |
 | S-38 | launch-product | S-38 | launch-product | Same (S-38 collision: truth-audit renumbered to S-47) |
-| S-39 | discover-products | S-39 | discover-products | Same |
+| S-39 | discover-products | *(none)* | *(none)* | Corrected 2026-08-29 (SYNC-8): was mislabeled "Same" -- same finding as S-23. Actually foss-only; see below. |
 | S-40 | batch-remediate | S-40 | batch-remediate | Same |
 | S-41 | batch-eval-fix | S-41 | batch-eval-fix | Same |
 | S-42 | category-fix | S-42 | category-fix | Same (S-42 collision: evidence-verify renumbered to S-46) |
@@ -138,6 +138,22 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-48 | content-eval | foss multi-dimensional evaluator (new) |
 | S-107 | translate | foss dispatcher: routes to translate-page or translate-batch |
 | S-109 | seo-review | foss governance gate for SEO recommendations |
+| S-23 | ground-check | Corrected 2026-08-29 (SYNC-8, see note below) -- foss evidence pipeline (new) |
+| S-30 | truth-sync | Corrected 2026-08-29 (SYNC-8) -- foss evidence pipeline (new) |
+| S-37 | corpus-scan | Corrected 2026-08-29 (SYNC-8) -- foss corpus system (new) |
+| S-39 | discover-products | Corrected 2026-08-29 (SYNC-8) -- foss product discovery (new) |
+
+> **2026-08-29 correction note:** these 4 rows were previously listed in the
+> main Mapping Table above as "Same" (implying an identical aspose.org
+> counterpart). `scripts/pipeline/commands/ops/backfill_source_anchors.py`
+> (built for TASK_BACKLOG.md SYNC-8) found zero matches for any of these 4
+> names anywhere in aspose.org's git-tracked files (`skills/` or
+> `.claude/commands/`), confirmed via `git ls-files`. Cross-checked against
+> `docs/parity/README.md`'s own "8 foss-exclusive innovations" claim, which
+> already listed exactly these 4 (among others) as standalone-only -- the
+> main Mapping Table simply never reflected that. This is a genuine,
+> previously-undetected inconsistency between two of this repo's own
+> tracking documents, not a new decision -- moved here to make them agree.
 
 ## Skills Unique to aspose.org (not ported to foss-launcher)
 
