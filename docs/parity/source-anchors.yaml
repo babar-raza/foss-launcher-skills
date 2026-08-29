@@ -89,3 +89,22 @@ anchors:
     verified_at: "2026-08-29T12:52:01Z"
     notes: >
       Generalized the same way as llms-generate. New backing script scripts/llms_fidelity.py.
+  - target_path: skills/llms-verify.md
+    source_path: .claude/commands/llms-verify.md
+    capability_id: S-119
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-6). Generalized via an optional
+      config.yaml sites.{type}.base_url instead of source's URL-mapping
+      file. New backing script scripts/llms_verify.py, proven against a
+      real local HTTP server (loopback socket), not mocked.
+  - target_path: skills/llms-stale.md
+    source_path: .claude/commands/llms-stale.md
+    capability_id: S-120
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Ported 2026-08-29 (TASK_BACKLOG.md SYNC-7). Manifest reuses
+      config.yaml's existing reports_path. New backing script
+      scripts/llms_stale.py.

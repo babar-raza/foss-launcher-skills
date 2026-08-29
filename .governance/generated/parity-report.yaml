@@ -908,14 +908,32 @@ capabilities:
   kilo_adapter_hash: d81cd2c761586b12
   name: llms-fidelity
   parity_status: FULL_PARITY
+- agent_adapter_hash: f26f69f389ac896a
+  canonical_hash: f26f69f389ac896a
+  capability_id: S-119
+  claude_adapter_hash: f26f69f389ac896a
+  gaps: []
+  internal: false
+  kilo_adapter_hash: f26f69f389ac896a
+  name: llms-verify
+  parity_status: FULL_PARITY
+- agent_adapter_hash: f1e1182438e909ad
+  canonical_hash: f1e1182438e909ad
+  capability_id: S-120
+  claude_adapter_hash: f1e1182438e909ad
+  gaps: []
+  internal: false
+  kilo_adapter_hash: f1e1182438e909ad
+  name: llms-stale
+  parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-08-29T13:59:14.978197Z'
+generated_at: '2026-08-29T14:44:19.863209Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0
   claude_adapter_missing: 0
-  full_parity: 101
+  full_parity: 103
   gaps_total: 0
   internal_skipped: 7
   semantic_drift: 0
-  total_capabilities: 101
+  total_capabilities: 103

@@ -30,18 +30,25 @@ sites:
   docs:
     content_path: "content/docs.aspose.org/en/{family}/{platform}/"
     type: docs
+    # base_url: optional; only required by the llms-verify skill (live-endpoint
+    # verification after deploy). Omit entirely for sites with no public deploy.
+    # base_url: "https://docs.example.org"
   blog:
     content_path: "content/blog.aspose.org/{family}/{platform}/"
     type: blog
+    # base_url: "https://blog.example.org"
   kb:
     content_path: "content/kb.aspose.org/en/{family}/{platform}/"
     type: kb
+    # base_url: "https://kb.example.org"
   products:
     content_path: "content/products.aspose.org/en/{family}/"
     type: products
+    # base_url: "https://products.example.org"
   reference:
     content_path: "content/reference.aspose.org/en/{family}/{platform}/"
     type: reference
+    # base_url: "https://reference.example.org"
 
 knowledge_path: "knowledge/{family}/{platform}/"
 evidence_path: "evidence/{family}/{platform}/"

@@ -636,3 +636,15 @@ skills:
     description: Score content fidelity between source pages and generated llms-output/ text
     internal: false
     script: scripts/llms_fidelity.py
+
+  - id: S-119
+    name: llms-verify
+    description: Verify live HTTP endpoints for deployed llms-output pages
+    internal: false
+    script: scripts/llms_verify.py
+
+  - id: S-120
+    name: llms-stale
+    description: Detect stale or missing llms-output pages via a content-hash manifest
+    internal: false
+    script: scripts/llms_stale.py

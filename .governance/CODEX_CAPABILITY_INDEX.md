@@ -7,7 +7,7 @@
 
 **Canonical registry**: `skills/registry.yaml`
 **Skill root**: `.agents/skills/{name}/SKILL.md`
-**Total capabilities**: 101 (94 public, 7 internal)
+**Total capabilities**: 103 (96 public, 7 internal)
 
 ### Available Skills
 
@@ -114,6 +114,8 @@
 | S-116 | `llms-generate` | — | — | Generate llms-output/ .txt files and per-site llms.txt indexes for LLM consumption |
 | S-117 | `llms-coverage` | — | — | Audit coverage gap between content/ and llms-output/ |
 | S-118 | `llms-fidelity` | — | — | Score content fidelity between source pages and generated llms-output/ text |
+| S-119 | `llms-verify` | — | — | Verify live HTTP endpoints for deployed llms-output pages |
+| S-120 | `llms-stale` | — | — | Detect stale or missing llms-output pages via a content-hash manifest |
 
 ### Capability Governance
 

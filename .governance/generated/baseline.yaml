@@ -1865,7 +1865,43 @@ capabilities:
   name: llms-fidelity
   operation_type: unknown
   script: scripts/llms_fidelity.py
+- adapters:
+    agent_skill: .agents\skills\llms-verify\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\llms-verify.md
+    canonical_exists: true
+    claude_command: .claude\commands\llms-verify.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\llms-verify\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Verify live HTTP endpoints for deployed llms-output pages
+  id: S-119
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: llms-verify
+  operation_type: unknown
+  script: scripts/llms_verify.py
+- adapters:
+    agent_skill: .agents\skills\llms-stale\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\llms-stale.md
+    canonical_exists: true
+    claude_command: .claude\commands\llms-stale.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\llms-stale\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Detect stale or missing llms-output pages via a content-hash manifest
+  id: S-120
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: llms-stale
+  operation_type: unknown
+  script: scripts/llms_stale.py
 internal_capabilities: 7
-public_capabilities: 94
+public_capabilities: 96
 schema_version: 1
-total_capabilities: 101
+total_capabilities: 103

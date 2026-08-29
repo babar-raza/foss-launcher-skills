@@ -10,7 +10,7 @@
 > Run `python tools/capability_sync/run_sync.py` to regenerate.
 
 **Canonical registry**: `skills/registry.yaml`
-**Total capabilities**: 101 (94 public, 7 internal)
+**Total capabilities**: 103 (96 public, 7 internal)
 **Governance tooling**: `tools/capability_sync/`
 
 ### Capability Resolution Mandate
