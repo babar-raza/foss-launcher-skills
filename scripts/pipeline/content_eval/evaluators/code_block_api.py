@@ -50,9 +50,45 @@ from knowledge_core import Knowledge  # noqa: E402
 # Match ClassName.member_name patterns in code.
 # ClassName: starts with uppercase letter, at least 2 chars.
 # member_name: starts with letter or underscore, word chars.
+# ST-104: excludes matches where ClassName is itself immediately preceded by
+# a `.` -- that shape is the TAIL of a longer chain (`doc.Pages.map`, where
+# `Pages` is an instance property, not a standalone type reference), not a
+# top-level class reference.
 _MEMBER_ACCESS_RE = re.compile(
-    r"\b([A-Z][A-Za-z0-9_]{1,})\s*\.\s*([a-zA-Z_]\w*)"
+    r"(?<!\.)\b([A-Z][A-Za-z0-9_]{1,})\s*\.\s*([a-zA-Z_]\w*)"
 )
+
+# ST-104: string/template literals and comments are never real code
+# identifiers -- `'Hello from Aspose.PDF FOSS!'` and `// ...not
+# SearchAnnotations.` both false-positive-matched _MEMBER_ACCESS_RE before
+# this sanitization pass existed. Blanked spans keep their newlines so line
+# numbers computed from character offsets stay accurate.
+_STRING_LITERAL_RE = re.compile(
+    r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`)""",
+    re.DOTALL,
+)
+_LINE_COMMENT_RE = re.compile(r"//[^\n]*")
+_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+_PY_COMMENT_RE = re.compile(r"#[^\n]*")
+
+
+def _blank_span(match: "re.Match[str]") -> str:
+    return "".join(ch if ch == "\n" else " " for ch in match.group(0))
+
+
+def _sanitize_for_token_scan(content: str, lang: str) -> str:
+    """Blank string/template literals and comments before token scanning so
+    prose or literal text shaped like `Capitalized.member` is never mistaken
+    for a real code reference. Strings are blanked first so a `//` or `#`
+    inside a string literal is never mistaken for a comment start.
+    """
+    result = _STRING_LITERAL_RE.sub(_blank_span, content)
+    if lang == "python":
+        result = _PY_COMMENT_RE.sub(_blank_span, result)
+    else:
+        result = _BLOCK_COMMENT_RE.sub(_blank_span, result)
+        result = _LINE_COMMENT_RE.sub(_blank_span, result)
+    return result
 
 # RC-W1-004: bare type references — no `.member` involved, so
 # _MEMBER_ACCESS_RE never sees these. This is exactly the shape of the
@@ -84,6 +120,12 @@ _IGNORE_CLASSES: frozenset[str] = frozenset({
     "Type", "None", "True", "False", "Math", "Arrays", "Collections",
     "Exception", "Error", "RuntimeError", "ValueError", "TypeError",
     "IO", "OS", "Re", "Json", "Yaml",
+    # ST-104(b): TypeScript/JavaScript global builtins -- the sibling Java
+    # identifier "Arrays" (plural) was already present, but no JS/TS globals
+    # were, so idiomatic code like `Array.from(...)` or `new Uint8Array(...)`
+    # false-positived as unknown/unreachable classes.
+    "Array", "Promise", "Map", "Date", "RegExp", "JSON", "Number",
+    "Uint8Array", "Buffer", "Symbol", "WeakMap", "WeakSet",
 })
 
 
@@ -159,8 +201,14 @@ class CodeBlockApiEvaluator(BaseEvaluator):
             if not lang:
                 continue
 
+            # ST-104: blank string/template literals and comments so their
+            # text is never mistaken for a code identifier. Character
+            # offsets and line counts stay valid against the original
+            # `block.content` since only non-newline characters are blanked.
+            scan_content = _sanitize_for_token_scan(block.content, lang)
+
             # Extract all ClassName.member tokens from the code block
-            for match in _MEMBER_ACCESS_RE.finditer(block.content):
+            for match in _MEMBER_ACCESS_RE.finditer(scan_content):
                 class_name = match.group(1)
                 member_name = match.group(2)
 
@@ -168,7 +216,7 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                 if class_name in _IGNORE_CLASSES:
                     continue
 
-                line_offset = block.content[:match.start()].count("\n")
+                line_offset = scan_content[:match.start()].count("\n")
                 abs_line = block.start_line + 1 + line_offset
 
                 # RC-W1-004: reachability check runs regardless of whether the
@@ -214,10 +262,10 @@ class CodeBlockApiEvaluator(BaseEvaluator):
             # RC-W1-004: bare type references (catch clauses, `new X(...)`,
             # Python `from pkg import X`) carry no `.member` access, so the
             # loop above never sees them.
-            for class_name, offset in _extract_bare_type_names(block.content, lang):
+            for class_name, offset in _extract_bare_type_names(scan_content, lang):
                 if class_name in _IGNORE_CLASSES:
                     continue
-                line_offset = block.content[:offset].count("\n")
+                line_offset = scan_content[:offset].count("\n")
                 abs_line = block.start_line + 1 + line_offset
                 rf = self._reachability_finding(
                     class_name, page, knowledge, lang, abs_line, seen_reachability)
