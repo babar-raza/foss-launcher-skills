@@ -29,6 +29,15 @@ from extraction.tree_helpers import (
     node_text,
 )
 from extraction.api_surface import _is_stub_throw
+from extraction.format_signals import (
+    _KNOWN_FORMAT_TOKENS,
+    _PASCAL_EXPORT_VERBS,
+    _PASCAL_IMPORT_VERBS,
+    _split_camel_words,
+    _split_pascal_format_token,
+    recognize_camel_identifier_format,
+    recognize_pascal_verb_token,
+)
 
 
 # I/O method names by direction — used to find primary methods in Exporter/Importer classes
@@ -628,71 +637,23 @@ def _scan_ts_ooxml_writer_export(
 # product with false positives. Restricting the verb-prefixed suffix to
 # recognized format abbreviations keeps this pass safe to run unconditionally
 # across every language and family.
+#
+# TC-MT040-45 (D-6): the verb/token CLASSIFICATION half of this pass (which
+# used to live inline here as `_PASCAL_IMPORT_VERBS`/`_PASCAL_EXPORT_VERBS`/
+# `_KNOWN_FORMAT_TOKENS`/`_split_pascal_format_token`) now lives in
+# extraction/format_signals.py and is imported at the top of this file --
+# `_scan_pascal_verb_format_methods` below delegates to
+# `recognize_pascal_verb_token`, which reproduces the exact original
+# algorithm (single word after the verb, original case preserved, no
+# filler-skipping) so this pass's output is byte-identical to before the
+# move (see tests/extraction/test_format_signals.py's golden-parity test).
+# `_PASCAL_IO_VERB_RE` itself (the candidate-discovery regex) stays here --
+# it is specific to this pass's text-scanning shape, not part of the
+# reusable identifier-word recognizer.
 _PASCAL_IO_VERB_RE = re.compile(
     r"\b(Add|Insert|Load|Read|Import|Open|Parse|Save|Write|Export|Serialize)"
     r"([A-Z][A-Za-z0-9]*)\s*\(",
 )
-_PASCAL_IMPORT_VERBS: frozenset[str] = frozenset(
-    {"add", "insert", "load", "read", "import", "open", "parse"})
-_PASCAL_EXPORT_VERBS: frozenset[str] = frozenset(
-    {"save", "write", "export", "serialize"})
-
-# Known short file-format tokens recognized when they appear as the immediate
-# suffix of a PascalCase I/O verb. Deliberately broad (spans the format
-# vocabulary of the Aspose product families this pipeline covers: pdf,
-# cells, slides, words, email, 3d, note, page, font, html, barcode, tex) --
-# a generic fix must not be tuned to pdf/go specifically.
-_KNOWN_FORMAT_TOKENS: frozenset[str] = frozenset({
-    "svg", "pdf", "html", "htm", "xml", "json", "csv", "tsv",
-    "xls", "xlsx", "xlsm", "xlsb", "ods", "doc", "docx", "docm", "odt",
-    "ppt", "pptx", "pptm", "odp", "rtf", "txt", "md", "yaml", "yml",
-    "png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif", "ico", "webp",
-    "emf", "wmf", "eps", "ps", "svgz", "cgm", "cdr",
-    "zip", "tar", "gz",
-    "eml", "msg", "mbox", "vcf", "ics",
-    "fbx", "obj", "gltf", "glb", "stl", "dae", "3ds", "u3d", "amf",
-    "ply", "x3d", "dxf",
-    "mp3", "mp4", "wav", "avi", "mov", "webm",
-    "ttf", "otf", "woff", "woff2",
-    "cfb", "jbig2", "epub", "mobi", "azw3", "mhtml", "chm", "xps", "djvu",
-    "markdown", "latex", "tex",
-})
-
-
-def _split_pascal_format_token(remainder: str) -> str:
-    """Extract the first camelCase/acronym word from a PascalCase identifier
-    remainder (the portion of a method name right after its verb prefix).
-
-    Applies the standard acronym-boundary rule used by camelCase splitters: a
-    run of leading uppercase letters that is followed by a lowercase letter
-    treats the LAST uppercase letter of that run as the start of the next
-    word -- the same rule that splits "HTTPServer" into "HTTP" + "Server",
-    not "HTTPS" + "erver". This lets a single, simple function correctly
-    reduce every one of pdf/go's real SVG method names to the bare token
-    "SVG": "AddSVG" (nothing follows -- the whole remainder is the acronym),
-    "AddSVGFromStream" / "AddSVGObject" / "LoadSVGFromStream" (the acronym
-    run ends because a lowercase letter follows, so the last uppercase
-    letter -- "G" -- starts the next word: "SVG" + "FromStream"/"Object").
-    Ordinary single-capital words (e.g. "Watermark" in "AddWatermark") take
-    the other branch: consume the trailing lowercase/digit run as-is.
-    """
-    if not remainder:
-        return ""
-    j = 1
-    while j < len(remainder) and remainder[j].isupper():
-        j += 1
-    if j == 1:
-        # Ordinary capitalized word (Svg, Watermark, ...).
-        k = 1
-        while k < len(remainder) and (remainder[k].islower() or remainder[k].isdigit()):
-            k += 1
-        return remainder[:k]
-    if j == len(remainder):
-        # Whole remainder is one acronym run (AddSVG -> "SVG").
-        return remainder
-    # Acronym run ends because a lowercase letter follows -- the last
-    # uppercase letter belongs to the next word (AddSVGFromStream -> "SVG").
-    return remainder[: j - 1]
 
 
 def _scan_pascal_verb_format_methods(
@@ -724,18 +685,12 @@ def _scan_pascal_verb_format_methods(
         for m in _PASCAL_IO_VERB_RE.finditer(text):
             verb = m.group(1)
             remainder = m.group(2)
-            verb_lower = verb.lower()
-            token = _split_pascal_format_token(remainder)
-            token_lower = token.lower()
-            if token_lower not in _KNOWN_FORMAT_TOKENS:
+            result = recognize_pascal_verb_token(verb, remainder)
+            if result is None:
                 continue
-            if verb_lower in _PASCAL_IMPORT_VERBS:
-                direction = "import"
-            elif verb_lower in _PASCAL_EXPORT_VERBS:
-                direction = "export"
-            else:
-                continue
-            key = (token_lower, direction)
+            token = result["format"]
+            direction = result["direction"]
+            key = (token.lower(), direction)
             if key in seen:
                 continue
             seen.add(key)
@@ -754,6 +709,189 @@ def _scan_pascal_verb_format_methods(
                     f"{direction} support for {token} format "
                     f"(method name: {verb}{remainder})",
                     rel, line_num,
+                )
+
+    return new_entries
+
+
+# ---------------------------------------------------------------------------
+# Pass 1g (TC-MT040-14, G-TS-11): TypeScript/JavaScript exported-function
+# format detection.
+#
+# pdf/typescript's real format surface is camelCase top-level EXPORTED
+# FUNCTIONS (`renderDocumentToDocx`, `renderEpub`, `renderDocumentToTiff`,
+# `writeFdf`/`readFdf`, `writeXfdf`/`readXfdf` -- verified against
+# runs/.clone_cache/aspose_pdf_typescript/src/{docxexport,epubexport,raster,
+# fdf,xfdf}.ts, HEAD 04e7b50a), not classes with a `static load()` method
+# (Pass 1c's existing TS branch) or `*Exporter`/`*Importer`-named classes
+# (Pass 1's class-name pass). Without this pass, none of the above (nor the
+# OOXML/PascalCase passes, which are gated to a different shape) fire for
+# this repo -- a repeat of PDFPY-FORMATSGAP-001 for a new language.
+#
+# Three signals, each carrying its own file+line evidence:
+#   (a)/(b) Exported functions, exported arrow functions, and public static
+#       methods (the last only in files that declare an exported class) are
+#       discovered by regex, then each candidate NAME is run through
+#       `recognize_camel_identifier_format` (format_signals.py), which
+#       splits it via `_split_camel_words` and looks for a verb followed by
+#       a known format token, skipping filler words in between.
+#   (c) File-stem signal: a stem shaped like `<token><export|exporter|
+#       writer|encode|encoder|import|importer|reader|decode|decoder|
+#       parser>` (e.g. `docxexport.ts`, `epubexport.ts`, `mdexport.ts`)
+#       whose token is a known format, gated on the file actually containing
+#       an `export` line (so a coincidentally-named file with no exports at
+#       all can't fire).
+#   (d) Primary-format export: a `save`/`write`/`toBytes`/`toBuffer` method
+#       (case-insensitive -- pdf/typescript's real `Document.Save(...)` is
+#       PascalCase even though the library's free functions are camelCase)
+#       on a primary-stem file (document/workbook/presentation/spreadsheet)
+#       is evidence the library's OWN primary format (`family.title()`, e.g.
+#       "Pdf") can be exported -- the export-direction counterpart of Pass
+#       1c's constructor/static-load import detection.
+#
+# Known, accepted, documented miss: `addImagePages` (real, exported,
+# verified in runs/.../src/imagepages.ts) names no format token at all
+# ("image"/"pages" are neither a filler word nor a known token) -- this pass
+# correctly finds nothing for it, and that is by design, not a bug to work
+# around with a special case.
+# ---------------------------------------------------------------------------
+_TS_PRIMARY_STEMS = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+
+_TS_EXPORTED_FUNCTION_RE = re.compile(
+    r"^\s*export\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*[(<]",
+    re.MULTILINE,
+)
+_TS_EXPORTED_ARROW_RE = re.compile(
+    r"^\s*export\s+const\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*"
+    r"(?:async\s*)?(?:\(|[A-Za-z_$][\w$]*\s*=>)",
+    re.MULTILINE,
+)
+_TS_STATIC_METHOD_RE = re.compile(
+    r"^\s*(?:public\s+)?static\s+(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(",
+    re.MULTILINE,
+)
+_TS_EXPORTED_CLASS_RE = re.compile(r"\bexport\s+(?:abstract\s+)?class\b")
+
+# File-stem signal (c): a token immediately followed by an I/O-shaped suffix,
+# e.g. "docxexport" -> token "docx", suffix "export".
+_TS_STEM_DIRECTION_RE = re.compile(
+    r"^([a-z0-9]+?)(export|exporter|writer|encode|encoder"
+    r"|import|importer|reader|decode|decoder|parser)$"
+)
+_TS_STEM_EXPORT_SUFFIXES = frozenset(
+    {"export", "exporter", "writer", "encode", "encoder"})
+_TS_STEM_IMPORT_SUFFIXES = frozenset(
+    {"import", "importer", "reader", "decode", "decoder", "parser"})
+_TS_HAS_EXPORT_LINE_RE = re.compile(r"^\s*export\s", re.MULTILINE)
+
+# Primary-format export signal (d): save/write/toBytes/toBuffer, matched
+# case-insensitively -- pdf/typescript's real primary export method is the
+# PascalCase `Document.Save(options)`, not a camelCase `save(`.
+_TS_PRIMARY_EXPORT_METHOD_RE = re.compile(
+    r"\b(?:public\s+)?(?:async\s+)?(?:save|write|toBytes|toBuffer)\s*\(",
+    re.IGNORECASE,
+)
+
+
+def _scan_ts_io_functions(
+    files: list[Path],
+    repo: Path,
+    language: str,
+    family: str,
+    add_claim: object | None,
+) -> list[dict]:
+    """Pass 1g: TypeScript/JavaScript exported-function format detection.
+
+    See the module comment above _TS_PRIMARY_STEMS for the full design.
+    No-ops for every other language.
+    """
+    if language not in ("typescript", "javascript"):
+        return []
+
+    seen: set[tuple[str, str]] = set()
+    new_entries: list[dict] = []
+    primary_fmt = family.title()
+
+    def _emit(token: str, direction: str, rel: str, line: int, evidence_kind: str,
+               claim_text: str) -> None:
+        key = (token.lower(), direction)
+        if key in seen:
+            return
+        seen.add(key)
+        new_entries.append({
+            "format": token,
+            "enum": "",
+            "value": "",
+            "file": rel,
+            "line": line,
+            "direction": direction,
+            "evidence_kind": evidence_kind,
+        })
+        if callable(add_claim):
+            add_claim("format_support", claim_text, rel, line)
+
+    for fpath in files:
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        has_exported_class = bool(_TS_EXPORTED_CLASS_RE.search(text))
+
+        # Signals (a)/(b): exported functions, exported arrows, and (only in
+        # files with an exported class) public static methods -- each
+        # candidate name is classified by the shared identifier-word
+        # recognizer.
+        candidate_matches: list = list(_TS_EXPORTED_FUNCTION_RE.finditer(text))
+        candidate_matches.extend(_TS_EXPORTED_ARROW_RE.finditer(text))
+        if has_exported_class:
+            candidate_matches.extend(_TS_STATIC_METHOD_RE.finditer(text))
+
+        for m in candidate_matches:
+            name = m.group(1)
+            result = recognize_camel_identifier_format(name)
+            if result is None:
+                continue
+            line_num = text[: m.start()].count("\n") + 1
+            _emit(
+                result["format"], result["direction"], rel, line_num,
+                result["evidence_kind"],
+                f"{result['direction']} support for {result['format']} format "
+                f"(TypeScript function: {name})",
+            )
+
+        # Signal (c): file-stem shape, gated on the file actually exporting
+        # something (a same-named file with no exports at all can't fire).
+        stem_match = _TS_STEM_DIRECTION_RE.match(fpath.stem.lower())
+        if stem_match:
+            stem_token, suffix = stem_match.group(1), stem_match.group(2)
+            if stem_token in _KNOWN_FORMAT_TOKENS:
+                export_line_match = _TS_HAS_EXPORT_LINE_RE.search(text)
+                if export_line_match:
+                    if suffix in _TS_STEM_EXPORT_SUFFIXES:
+                        stem_direction = "export"
+                    else:
+                        stem_direction = "import"
+                    stem_line = text.count(
+                        "\n", 0, export_line_match.start()) + 1
+                    _emit(
+                        stem_token, stem_direction, rel, stem_line,
+                        "ts_io_identifier",
+                        f"{stem_direction} support for {stem_token} format "
+                        f"(file: {fpath.name})",
+                    )
+
+        # Signal (d): primary-format export on a primary-stem file.
+        if fpath.stem.lower() in _TS_PRIMARY_STEMS:
+            primary_match = _TS_PRIMARY_EXPORT_METHOD_RE.search(text)
+            if primary_match:
+                primary_line = text.count("\n", 0, primary_match.start()) + 1
+                _emit(
+                    primary_fmt, "export", rel, primary_line,
+                    "ts_io_identifier",
+                    f"export support for {primary_fmt} format "
+                    f"(primary save method in {fpath.name})",
                 )
 
     return new_entries
@@ -1048,6 +1186,12 @@ def detect_formats(
     # methods like Page.AddSVG / Document.LoadSVG that name a secondary
     # format directly, independent of class-name or primary-format ties).
     formats.extend(_scan_pascal_verb_format_methods(files, repo, _add_claim))
+
+    # Pass 1g (TC-MT040-14, G-TS-11): TypeScript/JavaScript exported-function
+    # format detection (renderDocumentToDocx, writeFdf/readFdf, ...). No-ops
+    # for every other language.
+    formats.extend(
+        _scan_ts_io_functions(files, repo, language, family, _add_claim))
 
     # Second pass: scan method names for format signals embedded in naming
     # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that
@@ -1812,6 +1956,16 @@ def _validate_formats(
 
     allowlist: per-family overrides for names that are in false_positives globally
     but are genuine user-visible formats for a specific family (e.g. "cfb" for email).
+
+    TC-MT040-14 (G-TS-11): entries whose ``evidence_kind`` is
+    ``"ts_io_identifier"`` (Pass 1g -- TypeScript/JavaScript exported-function
+    detection) bypass the false-positive-name rejection below. That pass is
+    already allowlist-gated by ``_KNOWN_FORMAT_TOKENS`` at the point the
+    token is picked (see ``format_signals.recognize_camel_identifier_format``),
+    so a token like ``png`` reaching here came from a real identified TS
+    export function (e.g. ``renderPageToPng``), not a loose class-name-suffix
+    or method-name substring match -- the false-positive list exists to catch
+    exactly that looser kind of match, which this pass never makes.
     """
     # CamelCase detection: two or more uppercase letters with lowercase between
     # them indicates a compound word (e.g. ChartXml, AutoFilterXML, MinimalCFB).
@@ -1822,7 +1976,9 @@ def _validate_formats(
         name = (f.get("format") or "").strip().strip("_")
         if not name or len(name) < 2:
             continue
-        if name.lower() in false_positives and name.lower() not in allowlist:
+        is_ts_identifier = f.get("evidence_kind") == "ts_io_identifier"
+        if (name.lower() in false_positives and name.lower() not in allowlist
+                and not is_ts_identifier):
             continue
         # Enum-sourced entries are authoritative — keep them
         if not f.get("enum"):
