@@ -1,10 +1,9 @@
-def test_highlight_generate_appearance_has_extgstate_resource():
-    doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Highlight",
-        (100, 100, 300, 140),
-        "",
-        properties={"QuadPoints": [100, 140, 300, 140, 100, 100, 300, 100]},
-    )
-    assert ann.generate_appearance() is True
-    assert b"/GsMul gs" in ann.appearance_normal
+def test_build_underline_and_strikeout_draw_lines():
+    quad = {"QuadPoints": [0, 20, 100, 20, 0, 0, 100, 0]}
+    under = build_appearance("Underline", (0, 0, 100, 20), quad)
+    strike = build_appearance("StrikeOut", (0, 0, 100, 20), quad)
+    assert under is not None and strike is not None
+    assert b"\nS\n" in under.content
+    assert b"\nS\n" in strike.content
+    # Strike-out sits higher than the underline.
+    assert under.content != strike.content

@@ -1,10 +1,12 @@
-def test_annotation_generate_appearance_sets_ap():
-    doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Square", (100, 100, 200, 200), "", properties={"C": [1, 0, 0], "IC": [0, 1, 0]}
+def test_build_highlight_uses_multiply_blend():
+    gen = build_appearance(
+        "Highlight",
+        (100, 100, 300, 140),
+        {"QuadPoints": [100, 140, 300, 140, 100, 100, 300, 100], "C": [1, 1, 0]},
     )
-    assert not ann.has_appearance
-    assert ann.generate_appearance() is True
-    assert ann.has_appearance
-    assert b"1 0 0 RG" in ann.appearance_normal
-    assert b"0 1 0 rg" in ann.appearance_normal
+    assert gen is not None
+    assert gen.ext_gstates == {"GsMul": {"BM": "Multiply"}}
+    assert b"/GsMul gs" in gen.content
+    assert b"1 1 0 rg" in gen.content
+    assert b"0 0 200 40 re" in gen.content  # quad bbox in local coords
+    assert b"\nf\n" in gen.content

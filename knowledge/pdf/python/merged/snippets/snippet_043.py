@@ -1,5 +1,9 @@
-def test_dash_from_legacy_border_array():
-    gen = build_appearance(
-        "Circle", _RECT, {"C": [0, 0, 0], "Border": [0, 0, 1, [2, 2]]}
+def test_bundle_is_deterministic() -> None:
+    """The checked-in bundle matches a fresh build (SHA-verified generator)."""
+    script = Path(__file__).resolve().parents[1] / "scripts" / "build_agl_data.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--check"],
+        capture_output=True,
+        text=True,
     )
-    assert b"[2 2] 0 d" in gen.content
+    assert result.returncode == 0, result.stderr + result.stdout

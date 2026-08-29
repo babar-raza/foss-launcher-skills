@@ -1,12 +1,7 @@
-def test_generated_appearance_survives_save_load():
-    doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Circle", (100, 100, 200, 160), "", properties={"C": [0, 0, 1]}
-    )
-    ann.generate_appearance()
-    buf = io.BytesIO()
-    doc.save(buf)
-    buf.seek(0)
-    reopened = Document()
-    reopened.load_from(buf)
-    assert reopened.pages[0].annotations[0].has_appearance
+def test_build_caret_draws_filled_triangle():
+    gen = build_appearance("Caret", (0, 0, 20, 20), {})
+    assert gen is not None
+    assert b"0 g" in gen.content  # defaults to black
+    assert gen.content.count(b" l\n") == 2  # two edges of the triangle
+    assert b"\nh\n" in gen.content and b"\nf\n" in gen.content
+    assert gen.fonts == {}  # marker shape needs no font

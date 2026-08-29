@@ -1,7 +1,8 @@
-def test_pdf_padding_constant():
-    """Check that PDF_PADDING matches PDF specification."""
-    assert isinstance(PDF_PADDING, (bytes, bytearray)), "PDF_PADDING should be bytes"
-    assert len(PDF_PADDING) == 32, "PDF_PADDING must be 32 bytes long"
-    assert PDF_PADDING[:4] == bytes([0x28, 0xBF, 0x4E, 0x5E]), (
-        "First four bytes incorrect"
-    )
+def test_rgb8_round_trips_interlaced_and_not(interlace):
+    image = _decode(_png(_W, _H, 2, 8, _rgb_at, interlace=interlace))
+    assert (image.width, image.height) == (_W, _H)
+    assert image.color_space == "DeviceRGB"
+    expected = bytes(
+        v for y in range(_H) for x in range(_W) for v in _rgb_at(x, y)
+    )
+    assert image.decoded_data == expected

@@ -1,9 +1,5 @@
-def test_build_underline_and_strikeout_draw_lines():
-    quad = {"QuadPoints": [0, 20, 100, 20, 0, 0, 100, 0]}
-    under = build_appearance("Underline", (0, 0, 100, 20), quad)
-    strike = build_appearance("StrikeOut", (0, 0, 100, 20), quad)
-    assert under is not None and strike is not None
-    assert b"\nS\n" in under.content
-    assert b"\nS\n" in strike.content
-    # Strike-out sits higher than the underline.
-    assert under.content != strike.content
+def test_line_none_ending_draws_only_the_shaft():
+    gen = build_appearance(
+        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("None")]}
+    )
+    assert gen.content.count(b"\nS\n") == 1  # shaft only

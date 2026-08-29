@@ -1,7 +1,4 @@
-def test_build_freetext_uses_default_appearance_size_and_colour():
-    gen = build_appearance(
-        "FreeText", (0, 0, 200, 30), {"Contents": "hi", "DA": "/Helv 14 Tf 1 0 0 rg"}
-    )
-    assert gen is not None
-    assert b"/Helv 14 Tf" in gen.content
-    assert b"1 0 0 rg" in gen.content
+def test_square_without_be_stays_rectangular():
+    gen = build_appearance("Square", _RECT, {"C": [0, 0, 0], "BS": {"W": 1}})
+    assert b" re" in gen.content
+    assert b" c\n" not in gen.content

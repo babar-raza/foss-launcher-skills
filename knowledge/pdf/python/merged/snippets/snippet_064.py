@@ -1,7 +1,7 @@
-def test_build_freetext_fills_background_from_c():
+def test_square_cloud_border_replaces_rectangle():
     gen = build_appearance(
-        "FreeText", (0, 0, 100, 40), {"Contents": "hi", "C": [1, 1, 0]}
+        "Square", _RECT, {"C": [0, 0, 1], "BE": {"S": N("C"), "I": 2}, "BS": {"W": 1}}
     )
     assert gen is not None
-    assert b"1 1 0 rg" in gen.content  # yellow background fill
-    assert b"\nf\n" in gen.content
+    assert b" c\n" in gen.content  # scalloped Bézier edges
+    assert b" re" not in gen.content  # not a plain rectangle

@@ -1,11 +1,10 @@
-def test_freetext_da_quadding_roundtrip():
-    doc, page = _new_page()
-    page.annotations.add(
-        "FreeText",
-        (10, 10, 200, 40),
-        "hi",
-        properties={"DA": "0 0 1 rg /Helv 12 Tf", "Q": 1},
+def test_stamp_generate_appearance_end_to_end():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add(
+        "Stamp",
+        (100, 100, 260, 150),
+        "",
+        properties={"Name": AnnotationName("Approved")},
     )
-    a = _roundtrip(doc).pages[0].annotations[0]
-    assert a.get_property("DA") == "0 0 1 rg /Helv 12 Tf"
-    assert a.get_property("Q") == 1
+    assert ann.generate_appearance() is True
+    assert b"(APPROVED) Tj" in ann.appearance_normal

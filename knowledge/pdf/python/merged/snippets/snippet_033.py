@@ -1,6 +1,10 @@
-def test_compute_hash_v5_different_password(self):
-        """Different passwords produce different hashes."""
-        salt = b"12345678"
-        result1 = EncryptionUtils.compute_hash_v5(b"pass1", salt)
-        result2 = EncryptionUtils.compute_hash_v5(b"pass2", salt)
-        assert result1 != result2, "Different passwords must produce different hashes"
+def test_object_key_derivation():
+    """Object-specific key derivation produces 16-byte keys."""
+    file_key = os.urandom(16)
+
+    obj_key = EncryptionUtils.derive_object_key(file_key, 10, 0, use_aes=True)
+    assert len(obj_key) == 16, "AES object key must be 16 bytes"
+
+    # Different objects get different keys
+    obj_key2 = EncryptionUtils.derive_object_key(file_key, 20, 0, use_aes=True)
+    assert obj_key != obj_key2

@@ -1,10 +1,8 @@
-def test_compute_hash_v5_with_user_key(self):
-        """User key affects the hash result."""
-        password = b"password"
-        salt = b"12345678"
-        user_key = os.urandom(48)
+def test_generate_file_id():
+    """generate_file_id produces unique 16-byte IDs."""
+    id1 = EncryptionUtils.generate_file_id()
+    id2 = EncryptionUtils.generate_file_id()
 
-        result_without = EncryptionUtils.compute_hash_v5(password, salt, b"")
-        result_with = EncryptionUtils.compute_hash_v5(password, salt, user_key)
-
-        assert result_without != result_with, "User key must affect hash"
+    assert len(id1) == 16
+    assert len(id2) == 16
+    assert id1 != id2

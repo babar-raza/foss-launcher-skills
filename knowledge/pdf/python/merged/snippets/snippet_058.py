@@ -1,10 +1,11 @@
-def test_build_polygon_closes_and_fills():
-    gen = build_appearance(
-        "Polygon",
-        (0, 0, 100, 100),
-        {"Vertices": [0, 0, 100, 0, 50, 100], "IC": [0, 0, 1]},
+def test_dash_applies_to_line_and_freetext():
+    line = build_appearance(
+        "Line", _RECT, {"L": [10, 10, 100, 60], "BS": {"S": N("D"), "D": [4]}}
     )
-    assert gen is not None
-    assert b"0 0 m" in gen.content
-    assert b"\nh\n" in gen.content  # closed
-    assert b"\nB\n" in gen.content  # fill + stroke
+    assert b"[4] 0 d" in line.content
+    ft = build_appearance(
+        "FreeText",
+        _RECT,
+        {"Contents": "hi", "BS": {"S": N("D"), "D": [5, 3], "W": 2}},
+    )
+    assert b"[5 3] 0 d" in ft.content

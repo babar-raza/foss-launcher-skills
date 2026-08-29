@@ -1,13 +1,15 @@
-def test_name_marker_roundtrip_and_equality():
-    doc, page = _new_page()
-    page.annotations.add(
-        "Text",
-        (10, 10, 30, 30),
-        "note",
-        properties={"Name": Name("Comment"), "Open": True},
+def test_freetext_generate_appearance_registers_font_resource():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add(
+        "FreeText",
+        (100, 100, 300, 160),
+        "hello from a free text box",
+        properties={"DA": "/Helv 12 Tf 0 g"},
     )
-    a = _roundtrip(doc).pages[0].annotations[0]
-    name = a.get_property("Name")
-    assert name == "Comment"  # equality with a plain str still holds
-    assert isinstance(name, Name)  # but it is still marked as a PDF name
-    assert a.get_property("Open") is True
+    assert ann.generate_appearance() is True
+    assert b"/Helv 12 Tf" in ann.appearance_normal
+    # The generated form XObject carries the /Helv font in its /Resources.
+    engine = doc._engine_pdf
+    annot = engine.get_annotations(0)[0]
+    assert annot["has_AP"] is True
+    assert b"Tj" in annot["AP_N"]

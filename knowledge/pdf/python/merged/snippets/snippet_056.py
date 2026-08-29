@@ -1,5 +1,3 @@
-def test_build_circle_uses_bezier_curves():
-    gen = build_appearance("Circle", (0, 0, 80, 60), {"IC": [0.5]})
-    assert gen is not None
-    assert gen.content.count(b" c\n") == 4  # four quarter-arc curves
-    assert b"0.5 g" in gen.content  # grayscale fill
+def test_solid_border_emits_no_dash():
+    gen = build_appearance("Square", _RECT, {"C": [0, 0, 0], "BS": {"W": 1}})
+    assert b" d\n" not in gen.content

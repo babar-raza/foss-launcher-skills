@@ -1,6 +1,5 @@
-def test_agl_named_glyphs() -> None:
-    assert glyph_name_to_unicode("aacute") == "á"
-    assert glyph_name_to_unicode("Euro") == "€"
-    assert glyph_name_to_unicode("afii10017") == "А"  # Cyrillic A
-    assert glyph_name_to_unicode("bullet") == "•"
-    assert glyph_name_to_unicode("Lcommaaccent") == "Ļ"
+def test_compute_owner_key_v4_different_passwords():
+    """Different owner passwords produce different O values."""
+    o1 = EncryptionUtils.compute_owner_key_v4("owner1", "user", 16, 4)
+    o2 = EncryptionUtils.compute_owner_key_v4("owner2", "user", 16, 4)
+    assert o1 != o2, "Different passwords should produce different O values"

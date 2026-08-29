@@ -1,11 +1,11 @@
-def test_base_encoding_tables() -> None:
-    standard = base_encoding_table("StandardEncoding")
-    win = base_encoding_table("WinAnsiEncoding")
-    mac = base_encoding_table("MacRomanEncoding")
-    assert standard is not None and len(standard) == 256
-    assert standard[65] == "A"
-    assert win[0x80] == "Euro" and win[0xA0] == "space" and win[0x95] == "bullet"
-    assert win[0x81] == ""  # undefined WinAnsi code
-    assert mac[65] == "A"
-    assert base_encoding_table("ExpertEncoding") is None  # not bundled
-    assert base_encoding_table("bogus") is None
+def test_file_id_affects_derived_key(random_file_id):
+    """Different file IDs produce different encryption keys."""
+    file_id1 = os.urandom(16)
+    file_id2 = os.urandom(16)
+
+    o_value = EncryptionUtils.compute_owner_key_v4("owner", "user", 16, 4)
+
+    _, key1 = EncryptionUtils.compute_user_key_v4("user", o_value, -4, file_id1, 16, 4)
+    _, key2 = EncryptionUtils.compute_user_key_v4("user", o_value, -4, file_id2, 16, 4)
+
+    assert key1 != key2, "Different file IDs should produce different keys"

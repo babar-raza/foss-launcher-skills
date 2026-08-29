@@ -1,5 +1,7 @@
-def test_compute_owner_key_v4_different_passwords():
-    """Different owner passwords produce different O values."""
-    o1 = EncryptionUtils.compute_owner_key_v4("owner1", "user", 16, 4)
-    o2 = EncryptionUtils.compute_owner_key_v4("owner2", "user", 16, 4)
-    assert o1 != o2, "Different passwords should produce different O values"
+def test_16_bit_grayscale_interlaced():
+    def sample(x, y):
+        return [(x * 2571 + y * 511) % 65536]
+
+    plain = _decode(_png(_W, _H, 0, 16, sample, interlace=0))
+    woven = _decode(_png(_W, _H, 0, 16, sample, interlace=1))
+    assert plain.decoded_data == woven.decoded_data

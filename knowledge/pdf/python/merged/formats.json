@@ -18,6 +18,22 @@
     "functional": false
   },
   {
+    "format": "Raw",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/jpeg2000.py",
+    "line": 518,
+    "direction": "import"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/svg_export.py",
+    "line": 76,
+    "direction": "export"
+  },
+  {
     "format": "Html",
     "enum": "",
     "value": "",
@@ -86,7 +102,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 74,
+    "line": 121,
     "direction": "import"
   },
   {
@@ -94,7 +110,31 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 574,
+    "line": 686,
+    "direction": "export"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/document.py",
+    "line": 780,
+    "direction": "export"
+  },
+  {
+    "format": "svg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/document.py",
+    "line": 797,
+    "direction": "export"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/document.py",
+    "line": 807,
     "direction": "export"
   },
   {
@@ -118,7 +158,31 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/content_stream_parser.py",
-    "line": 1240,
+    "line": 1266,
+    "direction": "export"
+  },
+  {
+    "format": "gray",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/rasterizer.py",
+    "line": 103,
+    "direction": "export"
+  },
+  {
+    "format": "bilevel",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/rasterizer.py",
+    "line": 107,
+    "direction": "export"
+  },
+  {
+    "format": "jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/rasterizer.py",
+    "line": 183,
     "direction": "export"
   },
   {
@@ -126,7 +190,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 1273,
+    "line": 1665,
     "direction": "export"
   },
   {
@@ -134,7 +198,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 2426,
+    "line": 2546,
     "direction": "export"
   },
   {
@@ -142,7 +206,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 10822,
+    "line": 12020,
     "direction": "export"
   },
   {
@@ -150,7 +214,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/facades.py",
-    "line": 379,
+    "line": 386,
     "direction": "export"
   }
 ]

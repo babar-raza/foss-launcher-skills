@@ -1,5 +1,18 @@
-def test_compute_owner_key_v4_empty_owner_uses_user():
-    """Empty owner password defaults to user password."""
-    o1 = EncryptionUtils.compute_owner_key_v4("", "user", 16, 4)
-    o2 = EncryptionUtils.compute_owner_key_v4("user", "user", 16, 4)
-    assert o1 == o2, "Empty owner password should use user password"
+def test_palette_indices_are_not_rescaled(depth):
+    """An index is a lookup key, not an intensity — scaling it corrupts colour."""
+    entries = min(1 << depth, 8)
+    palette = bytes(
+        v for i in range(entries) for v in (i * 30 % 256, 255 - i * 20, i * 11)
+    )
+
+    def sample(x, y):
+        return [(x + y) % entries]
+
+    image = _decode(_png(_W, _H, 3, depth, sample, palette=palette))
+    assert image.color_space == "DeviceRGB"
+    expected = bytearray()
+    for y in range(_H):
+        for x in range(_W):
+            index = sample(x, y)[0]
+            expected += palette[index * 3 : index * 3 + 3]
+    assert image.decoded_data == bytes(expected)

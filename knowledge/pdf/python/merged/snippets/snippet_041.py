@@ -1,5 +1,11 @@
-def test_dash_style_d_without_array_defaults():
-    gen = build_appearance(
-        "Square", _RECT, {"C": [0, 0, 0], "BS": {"S": N("D"), "W": 1}}
-    )
-    assert b"[3] 0 d" in gen.content
+def test_base_encoding_tables() -> None:
+    standard = base_encoding_table("StandardEncoding")
+    win = base_encoding_table("WinAnsiEncoding")
+    mac = base_encoding_table("MacRomanEncoding")
+    assert standard is not None and len(standard) == 256
+    assert standard[65] == "A"
+    assert win[0x80] == "Euro" and win[0xA0] == "space" and win[0x95] == "bullet"
+    assert win[0x81] == ""  # undefined WinAnsi code
+    assert mac[65] == "A"
+    assert base_encoding_table("ExpertEncoding") is None  # not bundled
+    assert base_encoding_table("bogus") is None

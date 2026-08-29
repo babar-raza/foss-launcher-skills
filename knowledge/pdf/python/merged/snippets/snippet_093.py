@@ -1,8 +1,5 @@
-def test_stamp_name_roundtrip():
-    doc, page = _new_page()
-    page.annotations.add(
-        "Stamp", (10, 10, 110, 60), "", properties={"Name": Name("Approved")}
-    )
-    a = _roundtrip(doc).pages[0].annotations[0]
-    assert a.subtype == "Stamp"
-    assert a.get_property("Name") == "Approved"
+def test_caret_generate_appearance_end_to_end():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add("Caret", (100, 100, 120, 120), "")
+    assert ann.generate_appearance() is True
+    assert b"\nf\n" in ann.appearance_normal

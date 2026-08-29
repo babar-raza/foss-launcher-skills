@@ -1,7 +1,8 @@
-def test_build_ink_draws_each_path():
+def test_line_closed_arrow_is_filled():
     gen = build_appearance(
-        "Ink", (0, 0, 100, 100), {"InkList": [[0, 0, 50, 50], [10, 10, 60, 10, 60, 60]]}
+        "Line",
+        _RECT,
+        {"L": [10, 40, 100, 40], "C": [1, 0, 0], "LE": [N("None"), N("ClosedArrow")]},
     )
-    assert gen is not None
-    assert gen.content.count(b" m\n") == 2  # one moveto per path
-    assert gen.content.count(b"\nS\n") == 2
+    assert b"\nb\n" in gen.content  # closepath-fill-stroke triangle
+    assert b"1 0 0 rg" in gen.content  # filled with the line colour

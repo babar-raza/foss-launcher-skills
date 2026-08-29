@@ -1,15 +1,13 @@
-def test_freetext_generate_appearance_registers_font_resource():
-    doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
+def test_build_freetext_draws_wrapped_text_and_border():
+    gen = build_appearance(
         "FreeText",
-        (100, 100, 300, 160),
-        "hello from a free text box",
-        properties={"DA": "/Helv 12 Tf 0 g"},
+        (0, 0, 60, 80),
+        {"Contents": "the quick brown fox jumps", "DA": "/Helv 10 Tf 0 g"},
     )
-    assert ann.generate_appearance() is True
-    assert b"/Helv 12 Tf" in ann.appearance_normal
-    # The generated form XObject carries the /Helv font in its /Resources.
-    engine = doc._engine_pdf
-    annot = engine.get_annotations(0)[0]
-    assert annot["has_AP"] is True
-    assert b"Tj" in annot["AP_N"]
+    assert gen is not None
+    assert b"/Helv 10 Tf" in gen.content
+    assert b"0 g" in gen.content  # DA text colour
+    assert gen.content.count(b" Tj") > 1  # wrapped across lines
+    assert b" re" in gen.content and b"\nS\n" in gen.content  # border box
+    # A font resource is requested so the caller can build /Resources /Font.
+    assert "Helv" in gen.fonts

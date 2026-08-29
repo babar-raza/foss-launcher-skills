@@ -1,7 +1,12 @@
-def test_encrypt_decrypt_aes256_roundtrip():
-    """Round-trip encryption using 256-bit AES key."""
-    key = os.urandom(32)
-    plaintext = b"Hello, PDF AES 256!"
-    ciphertext = EncryptionUtils.encrypt_aes_cbc(key, plaintext)
-    decrypted = EncryptionUtils.decrypt_aes_cbc(key, ciphertext)
-    assert decrypted == plaintext
+def test_grayscale_sub_byte_depths_are_scaled_to_8_bit(depth):
+    maxval = (1 << depth) - 1
+
+    def sample(x, y):
+        return [(x + y) % (maxval + 1)]
+
+    image = _decode(_png(_W, _H, 0, depth, sample))
+    assert image.color_space == "DeviceGray"
+    expected = bytes(
+        sample(x, y)[0] * 255 // maxval for y in range(_H) for x in range(_W)
+    )
+    assert image.decoded_data == expected

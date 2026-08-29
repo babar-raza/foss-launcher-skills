@@ -1,10 +1,7 @@
-def test_stamp_generate_appearance_end_to_end():
-    doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Stamp",
-        (100, 100, 260, 150),
-        "",
-        properties={"Name": AnnotationName("Approved")},
+def test_build_freetext_fills_background_from_c():
+    gen = build_appearance(
+        "FreeText", (0, 0, 100, 40), {"Contents": "hi", "C": [1, 1, 0]}
     )
-    assert ann.generate_appearance() is True
-    assert b"(APPROVED) Tj" in ann.appearance_normal
+    assert gen is not None
+    assert b"1 1 0 rg" in gen.content  # yellow background fill
+    assert b"\nf\n" in gen.content

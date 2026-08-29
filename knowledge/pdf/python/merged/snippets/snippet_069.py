@@ -1,7 +1,5 @@
-def test_build_stamp_honours_colour_and_contents_fallback():
-    gen = build_appearance(
-        "Stamp", (0, 0, 120, 40), {"C": [0, 0, 1], "Contents": "Reviewed"}
-    )
+def test_build_square_without_colour_defaults_to_black_border():
+    gen = build_appearance("Square", (0, 0, 50, 50), {})
     assert gen is not None
-    assert b"0 0 1 RG" in gen.content and b"0 0 1 rg" in gen.content
-    assert b"(Reviewed) Tj" in gen.content  # falls back to /Contents
+    assert b"0 G" in gen.content
+    assert b"\nS\n" in gen.content  # stroke only

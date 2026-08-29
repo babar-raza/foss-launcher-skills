@@ -1,11 +1,7 @@
-def test_document_generate_appearances_across_pages():
-    doc = Document()
-    doc.pages.add()
-    doc.pages.add()
-    doc.pages[0].annotations.add("Square", (0, 0, 50, 50), "")
-    doc.pages[1].annotations.add(
-        "Line", (0, 0, 50, 50), "", properties={"L": [0, 0, 50, 50]}
+def test_build_stamp_honours_colour_and_contents_fallback():
+    gen = build_appearance(
+        "Stamp", (0, 0, 120, 40), {"C": [0, 0, 1], "Contents": "Reviewed"}
     )
-    assert doc.generate_appearances() == 2
-    # Second call is a no-op (appearances already present).
-    assert doc.generate_appearances() == 0
+    assert gen is not None
+    assert b"0 0 1 RG" in gen.content and b"0 0 1 rg" in gen.content
+    assert b"(Reviewed) Tj" in gen.content  # falls back to /Contents

@@ -1,14 +1,5 @@
-def test_compute_user_key_v4_key_length_affects_result(random_file_id):
-    """Different key lengths produce different results."""
-    o_value = EncryptionUtils.compute_owner_key_v4("owner", "user", 16, 4)
-    _, key16 = EncryptionUtils.compute_user_key_v4(
-        "user", o_value, -4, random_file_id, 16, 4
-    )
-
-    o_value5 = EncryptionUtils.compute_owner_key_v4("owner", "user", 5, 2)
-    _, key5 = EncryptionUtils.compute_user_key_v4(
-        "user", o_value5, -4, random_file_id, 5, 2
-    )
-
-    assert len(key16) == 16
-    assert len(key5) == 5
+def test_gray_alpha_keeps_the_gray_channel():
+    image = _decode(_png(_W, _H, 4, 8, lambda x, y: [(x * 9) % 256, 128]))
+    assert image.color_space == "DeviceGray"
+    assert image.decoded_data == bytes((x * 9) % 256 for _y in range(_H)
+                                       for x in range(_W))

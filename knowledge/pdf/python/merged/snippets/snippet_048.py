@@ -1,5 +1,10 @@
-def test_line_none_ending_draws_only_the_shaft():
-    gen = build_appearance(
-        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("None")]}
-    )
-    assert gen.content.count(b"\nS\n") == 1  # shaft only
+def test_compute_hash_v5_with_user_key(self):
+        """User key affects the hash result."""
+        password = b"password"
+        salt = b"12345678"
+        user_key = os.urandom(48)
+
+        result_without = EncryptionUtils.compute_hash_v5(password, salt, b"")
+        result_with = EncryptionUtils.compute_hash_v5(password, salt, user_key)
+
+        assert result_without != result_with, "User key must affect hash"

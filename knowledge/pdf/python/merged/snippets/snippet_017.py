@@ -1,12 +1,7 @@
-def test_verify_password_v4_empty_password(random_file_id):
-    """Empty password verification works."""
-    o_value = EncryptionUtils.compute_owner_key_v4("owner", "", 16, 4)
-    u_value, expected_key = EncryptionUtils.compute_user_key_v4(
-        "", o_value, -4, random_file_id, 16, 4
-    )
-
-    verified_key = EncryptionUtils.verify_password_v4(
-        "", u_value, o_value, -4, random_file_id, 16, 4
-    )
-
-    assert verified_key == expected_key, "Empty password verification should work"
+def test_pdf_padding_constant():
+    """Check that PDF_PADDING matches PDF specification."""
+    assert isinstance(PDF_PADDING, (bytes, bytearray)), "PDF_PADDING should be bytes"
+    assert len(PDF_PADDING) == 32, "PDF_PADDING must be 32 bytes long"
+    assert PDF_PADDING[:4] == bytes([0x28, 0xBF, 0x4E, 0x5E]), (
+        "First four bytes incorrect"
+    )

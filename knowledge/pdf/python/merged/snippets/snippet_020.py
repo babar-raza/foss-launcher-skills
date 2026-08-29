@@ -1,8 +1,7 @@
-def test_generate_file_id():
-    """generate_file_id produces unique 16-byte IDs."""
-    id1 = EncryptionUtils.generate_file_id()
-    id2 = EncryptionUtils.generate_file_id()
-
-    assert len(id1) == 16
-    assert len(id2) == 16
-    assert id1 != id2
+def test_encrypt_decrypt_aes256_roundtrip():
+    """Round-trip encryption using 256-bit AES key."""
+    key = os.urandom(32)
+    plaintext = b"Hello, PDF AES 256!"
+    ciphertext = EncryptionUtils.encrypt_aes_cbc(key, plaintext)
+    decrypted = EncryptionUtils.decrypt_aes_cbc(key, ciphertext)
+    assert decrypted == plaintext

@@ -1,13 +1,10 @@
-def test_verify_password_v4_correct_user_password(random_file_id):
-    """Correct user password returns valid encryption key."""
-    user_pwd = "testuser"
-    o_value = EncryptionUtils.compute_owner_key_v4("owner", user_pwd, 16, 4)
-    u_value, expected_key = EncryptionUtils.compute_user_key_v4(
-        user_pwd, o_value, -4, random_file_id, 16, 4
+def test_unknown_interlace_method_is_rejected():
+    data = bytearray(_png(4, 4, 2, 8, _rgb_at))
+    ihdr = data.index(b"IHDR")
+    data[ihdr + 4 + 12] = 2  # interlace byte
+    payload = bytes(data[ihdr : ihdr + 4 + 13])
+    data[ihdr + 4 + 13 : ihdr + 4 + 17] = struct.pack(
+        ">I", zlib.crc32(payload) & 0xFFFFFFFF
     )
-
-    verified_key = EncryptionUtils.verify_password_v4(
-        user_pwd, u_value, o_value, -4, random_file_id, 16, 4
-    )
-
-    assert verified_key == expected_key, "Correct password should return encryption key"
+    with pytest.raises(PdfValidationException, match="interlace"):
+        _decode(bytes(data))

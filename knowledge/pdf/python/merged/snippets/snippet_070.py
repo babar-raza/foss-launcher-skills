@@ -1,7 +1,5 @@
-def test_build_caret_draws_filled_triangle():
-    gen = build_appearance("Caret", (0, 0, 20, 20), {})
+def test_build_circle_uses_bezier_curves():
+    gen = build_appearance("Circle", (0, 0, 80, 60), {"IC": [0.5]})
     assert gen is not None
-    assert b"0 g" in gen.content  # defaults to black
-    assert gen.content.count(b" l\n") == 2  # two edges of the triangle
-    assert b"\nh\n" in gen.content and b"\nf\n" in gen.content
-    assert gen.fonts == {}  # marker shape needs no font
+    assert gen.content.count(b" c\n") == 4  # four quarter-arc curves
+    assert b"0.5 g" in gen.content  # grayscale fill

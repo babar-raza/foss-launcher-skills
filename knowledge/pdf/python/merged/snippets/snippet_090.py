@@ -1,7 +1,10 @@
-def test_ink_nested_list_roundtrip():
-    doc, page = _new_page()
-    ink = [[10, 10, 20, 20, 30, 10], [40, 40, 50, 50]]
-    page.annotations.add("Ink", (10, 10, 60, 60), "", properties={"InkList": ink})
-    a = _roundtrip(doc).pages[0].annotations[0]
-    assert a.subtype == "Ink"
-    assert a.get_property("InkList") == ink
+def test_highlight_generate_appearance_has_extgstate_resource():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add(
+        "Highlight",
+        (100, 100, 300, 140),
+        "",
+        properties={"QuadPoints": [100, 140, 300, 140, 100, 100, 300, 100]},
+    )
+    assert ann.generate_appearance() is True
+    assert b"/GsMul gs" in ann.appearance_normal

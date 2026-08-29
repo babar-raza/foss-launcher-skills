@@ -1,7 +1,7 @@
-def test_square_cloud_border_replaces_rectangle():
-    gen = build_appearance(
-        "Square", _RECT, {"C": [0, 0, 1], "BE": {"S": N("C"), "I": 2}, "BS": {"W": 1}}
-    )
-    assert gen is not None
-    assert b" c\n" in gen.content  # scalloped Bézier edges
-    assert b" re" not in gen.content  # not a plain rectangle
+def test_compute_hash_v5_long_password_truncated(self):
+        """Password should be max 127 bytes as per spec (caller responsibility)."""
+        # Note: The function expects properly prepared password bytes
+        salt = b"12345678"
+        long_pwd = b"x" * 127  # Max allowed
+        result = EncryptionUtils.compute_hash_v5(long_pwd, salt)
+        assert len(result) == 32

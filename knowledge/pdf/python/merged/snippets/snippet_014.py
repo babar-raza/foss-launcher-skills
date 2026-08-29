@@ -1,12 +1,4 @@
-def test_permissions_affect_derived_key(random_file_id):
-    """Different permissions produce different encryption keys."""
-    o_value = EncryptionUtils.compute_owner_key_v4("owner", "user", 16, 4)
-
-    _, key1 = EncryptionUtils.compute_user_key_v4(
-        "user", o_value, -4, random_file_id, 16, 4
-    )
-    _, key2 = EncryptionUtils.compute_user_key_v4(
-        "user", o_value, -100, random_file_id, 16, 4
-    )
-
-    assert key1 != key2, "Different permissions should produce different keys"
+def test_bit_depth_illegal_for_the_colour_type_is_rejected():
+    """ISO 15948 table 11: truecolour has no 1/2/4-bit form."""
+    with pytest.raises(PdfValidationException, match="bit depth"):
+        _decode(_png(4, 4, 2, 4, _rgb_at))

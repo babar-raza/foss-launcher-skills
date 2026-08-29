@@ -1,4 +1,5 @@
-def test_agl_ligature_and_variant_components() -> None:
-    assert glyph_name_to_unicode("f_f_i") == "ffi"
-    assert glyph_name_to_unicode("A.sc") == "A"
-    assert glyph_name_to_unicode("fi") == "ﬁ"  # a real AGL ligature name
+def test_compute_owner_key_v4_empty_owner_uses_user():
+    """Empty owner password defaults to user password."""
+    o1 = EncryptionUtils.compute_owner_key_v4("", "user", 16, 4)
+    o2 = EncryptionUtils.compute_owner_key_v4("user", "user", 16, 4)
+    assert o1 == o2, "Empty owner password should use user password"

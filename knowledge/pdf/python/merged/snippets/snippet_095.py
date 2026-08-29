@@ -1,11 +1,13 @@
-def test_set_property_update_and_delete():
-    doc, page = _new_page()
-    ann = page.annotations.add("Square", (0, 0, 50, 50), "x", properties={"C": [1, 0, 0]})
-    ann.set_property("IC", [0, 0, 1])
-    assert page.annotations[0].get_property("IC") == [0, 0, 1]
-    ann.set_property("C", None)  # delete
-    assert "C" not in page.annotations[0].properties
-
-    a = _roundtrip(doc).pages[0].annotations[0]
-    assert a.get_property("IC") == [0, 0, 1]
-    assert "C" not in a.properties
+def test_generate_appearance_keeps_existing_unless_forced():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add(
+        "Square", (0, 0, 50, 50), "x", appearance_normal=b"0 0 50 50 re f\n"
+    )
+    assert ann.has_appearance
+    original = ann.appearance_normal
+    # Idempotent: an existing appearance is preserved.
+    assert ann.generate_appearance() is True
+    assert ann.appearance_normal == original
+    # force=True regenerates from the annotation geometry.
+    assert ann.generate_appearance(force=True) is True
+    assert ann.appearance_normal != original

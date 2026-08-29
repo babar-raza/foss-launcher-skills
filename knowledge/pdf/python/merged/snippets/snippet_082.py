@@ -1,7 +1,8 @@
-def test_page_generate_appearances_counts_created():
-    doc = _new_page_doc()
-    page = doc.pages[0]
-    page.annotations.add("Square", (0, 0, 50, 50), "")
-    page.annotations.add("Circle", (60, 0, 110, 50), "")
-    page.annotations.add("Text", (0, 60, 20, 80), "")  # unsupported -> skipped
-    assert page.annotations.generate_appearances() == 2
+def test_build_stamp_draws_named_caption_in_red_by_default():
+    gen = build_appearance(
+        "Stamp", (0, 0, 120, 40), {"Name": "NotApproved"}
+    )
+    assert gen is not None
+    assert b"1 0 0 RG" in gen.content  # default rubber-stamp red border
+    assert b"(NOT APPROVED) Tj" in gen.content  # camel-split, upper-cased
+    assert "Helv" in gen.fonts
