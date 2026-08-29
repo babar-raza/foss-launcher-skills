@@ -27,6 +27,7 @@ from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enu
                               run as _production_run,
                               _build_erc_index, _build_page, check_member_doc_coverage,
                               _derive_group_key, _normalize_doc_for_index)
+from commands.content import body_refresh as _body_refresh
 
 
 def run(*args, **kwargs):
@@ -2647,6 +2648,91 @@ def test_shared_method_across_differently_named_classes_generates_cleanly(tmp_pa
     assert result["generated"] == 2, f"Expected both classes to generate, got {result}"
     assert (content_dir / "AlphaRegistry.md").exists()
     assert (content_dir / "BetaRegistry.md").exists()
+
+
+# ── RPR-E-02 self-trigger on generated boilerplate (found live 2026-08-29) ──
+# batch_reference.py --run pdf python blocked 5 brand-new abstract-class
+# reference pages (Action, DataSource, FontSource, PdfPlugin, Shading) with
+# "Reference generation introduced forbidden claims" even though none of
+# their rendered bodies ever discuss the specific forbidden member. Two
+# distinct root causes, both fixed in _record_reference_attempt/_build_page:
+#   1. The forbidden-claims scan ran against the FULL staged file, including
+#      frontmatter -- whose own evidence.apis list legitimately cites the
+#      page's forbidden dotted member verbatim (e.g. "DataSource.read_bytes"),
+#      self-triggering the tier-1 fully-qualified match against metadata that
+#      was never prose making a claim. Fixed by scanning _extract_body() only.
+#   2. The class-overview boilerplate ("This class provides N methods for
+#      working with X objects...", "It can be used with other exported types
+#      when working with X values...") always names the bare class plus a
+#      generic capability verb, self-triggering tier 2 for ANY class with a
+#      forbidden_claims entry -- independent of whether that specific member
+#      is even mentioned. Fixed by rewording to "declares"/"appears among"
+#      (no capability-language trigger words).
+# Test A below covers cause 2 alone (a class with zero public members, only
+# the sparse-type boilerplate is at risk); Test B covers both causes
+# together (a class with a real method matching its own forbidden member),
+# matching the exact shape that blocked pdf/python's DataSource/FontSource/
+# PdfPlugin pages.
+
+def test_sparse_class_not_blocked_by_own_generic_overview_forbidden_claim(tmp_path):
+    """A class with no public members (only the sparse-type Overview
+    boilerplate is generated) must not be blocked just because it has an
+    unrelated forbidden claim about a private member the page never
+    mentions -- mirrors pdf/python's Action/Shading (their only forbidden
+    member, Action._spec / Shading._color_at, is underscore-prefixed and
+    correctly excluded from the public-members table)."""
+    entries = [{
+        "name": "AbstractBase",
+        "kind": "class_declaration",
+        "visibility": "public",
+        "methods": [],
+        "properties": [],
+    }]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+
+    _body_refresh.configure(forbidden_claims=["supports AbstractBase._hidden"])
+    try:
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+    finally:
+        _body_refresh.configure(forbidden_claims=None)
+
+    assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+    assert result["generated"] == 1, f"Expected the class to generate, got {result}"
+    assert (content_dir / "AbstractBase.md").exists()
+
+
+def test_class_with_own_forbidden_member_not_blocked_by_own_boilerplate(tmp_path):
+    """A class whose OWN method is the forbidden one (the real pdf/python
+    shape: DataSource.read_bytes, FontSource.get_font_definitions,
+    PdfPlugin.process are all abstract/NotImplemented members declared
+    directly on the class being generated, not inherited) must still
+    generate -- the method table already carries the correct "Not
+    implemented" caveat; neither the frontmatter evidence.apis citation nor
+    the generic method-count boilerplate should self-trigger the gate."""
+    entries = [{
+        "name": "AbstractSource",
+        "kind": "class_declaration",
+        "visibility": "public",
+        "methods": [
+            {"name": "read_bytes", "params": [], "return_type": "bytes", "doc": "Reads bytes."},
+        ],
+        "properties": [],
+    }]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+
+    _body_refresh.configure(forbidden_claims=["supports AbstractSource.read_bytes"])
+    try:
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+    finally:
+        _body_refresh.configure(forbidden_claims=None)
+
+    assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+    assert result["generated"] == 1, f"Expected the class to generate, got {result}"
+    assert (content_dir / "AbstractSource.md").exists()
 
 
 class TestErcIndexAmbiguousNameExclusion:

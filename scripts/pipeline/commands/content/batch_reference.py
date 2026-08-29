@@ -871,10 +871,20 @@ def _build_page(
             _listed += f", and {len(_all_mnames) - _preview_count} additional methods"
         # TC-SYS-016: use method_count (len(methods)) not len(_all_mnames) to
         # match the frontmatter description count and the methods table row count.
+        # "declares"/"defines", not "provides": RPR-E-02's forbidden-claims
+        # scanner treats a bare class name plus generic capability language
+        # ("provides", "can", "use") on the same line as an affirmative
+        # support claim (by design, for hand-written prose). This boilerplate
+        # line names every generated class regardless of forbidden status, so
+        # a capability verb here self-triggers the scanner against the page's
+        # own class-shape summary -- found live blocking 5 brand-new pdf/python
+        # abstract-class pages (Action, DataSource, FontSource, PdfPlugin,
+        # Shading) whose only forbidden member is a private/unlisted one this
+        # sentence never actually describes.
         _lc10_prose.append(
-            f"This {category.lower()} provides {method_count} "
+            f"This {category.lower()} declares {method_count} "
             f"{'method' if method_count == 1 else 'methods'} "
-            f"for working with {name} objects in {_plat_disp} programs."
+            f"for {name} objects in {_plat_disp} programs."
         )
         _lc10_prose.append(f"Available methods include: {_listed}.")
         _lc10_prose.append(
@@ -908,9 +918,12 @@ def _build_page(
             f"This {category.lower()} is part of the public API of "
             f"Aspose.{_fam_disp} FOSS for {_plat_disp}."
         )
+        # Avoid "can"/"used" for the same reason as the method-count sentence
+        # above -- see comment there (RPR-E-02 self-trigger on sparse-type
+        # boilerplate, found live on the same 5-page batch).
         _lc10_prose.append(
-            f"It can be used with other exported types in the package "
-            f"when working with {name} values in your {_plat_disp} application."
+            f"It appears among the other exported types in the package "
+            f"alongside {name} in your {_plat_disp} application."
         )
     lines.append("")
     for _lp in _lc10_prose:
@@ -2361,10 +2374,18 @@ def run(family: str, platform: str, kind_arg: str = "all",
         new_digest = final_file_hash or hashlib.sha256(
             final_content.encode("utf-8")
         ).hexdigest()
+        # Scan body only, not the full file: the frontmatter evidence.apis list
+        # cites exactly which API members a page discusses (a metadata index,
+        # not a capability claim), so it legitimately contains the same
+        # fully-qualified names forbidden_claims flags in body prose. Found
+        # live: a brand-new abstract-class page's own evidence.apis reproduced
+        # its forbidden dotted member verbatim (e.g. DataSource.read_bytes),
+        # self-triggering RPR-E-02's tier-1 fully-qualified match against
+        # frontmatter YAML the scanner was never meant to read as prose.
         forbidden_violations, forbidden_scan_ok, forbidden_scan_error = (
             _scan_forbidden_claims(
-                before_content,
-                final_content,
+                _extract_body(before_content),
+                _extract_body(final_content),
                 family,
                 platform,
             )
