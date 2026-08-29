@@ -49,17 +49,22 @@ Public API::
     class_reachability(class_entry)               -> bool | None
     live_unreachable(class_name, family, platform, language) -> (bool, str)
 
-TC-MT040-42: the three live-fallback scans below now delegate their real
+TC-MT040-42/20: the four live-fallback scans below now delegate their real
 per-language logic to extraction/lang/<language>.py (the same adapters
 extraction/api_surface.py's scout-time RC-W1-004 signal uses) instead of
 maintaining an independent implementation here. Each wrapper below is
 responsible only for resolving (family, platform) -> (repo, pkg_root) --
-locating the right clone-cache directory and, for python/rust, the right
-sub-root within it -- since the adapters' export_surface() contract takes
-already-resolved Path arguments, not (family, platform) strings. See
-extraction/lang/__init__.py's module docstring for the shared adapter
-contract, including the C# polarity note (its export_surface() returns a
-CONFIRMED-INTERNAL denylist, not a reachable allowlist, unlike python/rust).
+locating the right clone-cache directory and, for python/rust/typescript,
+the right sub-root within it -- since the adapters' export_surface()
+contract takes already-resolved Path arguments, not (family, platform)
+strings. See extraction/lang/__init__.py's module docstring for the shared
+adapter contract, including the C# polarity note (its export_surface()
+returns a CONFIRMED-INTERNAL denylist, not a reachable allowlist, unlike
+python/rust/typescript). TypeScript's own case (TC-MT040-20, G-TS-02c) is
+the evaluator-side counterpart to TC-MT040-17's reference-filter wiring --
+both consume the same lang.typescript.export_surface() barrel resolution,
+so a class flagged unreachable never gets a reference page (TC-17) AND
+never passes silently in a code example (this file).
 """
 
 from __future__ import annotations
@@ -237,6 +242,41 @@ def _rust_reexported_names(family: str, platform: str) -> "frozenset | None":
 
 
 # ---------------------------------------------------------------------------
+# Live fallback: TypeScript/JavaScript — the resolved barrel's export list.
+# ---------------------------------------------------------------------------
+
+@lru_cache(maxsize=64)
+def _typescript_barrel_exports(family: str, platform: str) -> "frozenset | None":
+    """Live-read the resolved entry-point barrel's export list from the clone cache.
+
+    Returns None (unknown -- never flag) when the clone cache is missing or
+    the entry point can't be resolved / its exports can't be safely and
+    fully enumerated (lang.typescript.export_surface()'s own fail-safe --
+    see that function's docstring). Root-finding reuses
+    extraction/package_root.py's detect_package_root() (the same function
+    scout.py itself calls), not a duplicated ad hoc search, since TS/JS
+    package-root detection is already a single shared implementation unlike
+    python/rust above. The real barrel-parsing regex logic is delegated to
+    extraction/lang/typescript.py's export_surface() (TC-MT040-42), used for
+    both typescript and javascript/nodejs platforms (same adapter, no
+    per-platform branch needed).
+    """
+    if platform not in ("typescript", "javascript", "nodejs"):
+        return None
+    try:
+        from core.clone_cache import clone_path
+    except ImportError:
+        return None
+    repo = clone_path(family, platform)
+    if not repo.is_dir():
+        return None
+    from extraction.package_root import detect_package_root
+    pkg_root = detect_package_root(repo, "typescript")
+    names, _entry = lang.typescript.export_surface(repo, pkg_root)
+    return frozenset(names) if names is not None else None
+
+
+# ---------------------------------------------------------------------------
 # Public dispatch
 # ---------------------------------------------------------------------------
 
@@ -274,6 +314,14 @@ def live_unreachable(class_name: str, family: str, platform: str, language: str)
                 f"root — unreachable by any consumer of the crate"
             )
         return False, ""
+    if language in ("typescript", "javascript"):
+        exports = _typescript_barrel_exports(family, platform)
+        if exports is not None and class_name not in exports:
+            return True, (
+                f"`{class_name}` is not exported from the package's resolved "
+                f"entry point — `import {{ {class_name} }} from ...` will fail"
+            )
+        return False, ""
     return False, ""
 
 
@@ -289,6 +337,8 @@ def clear_caches() -> None:
     _csharp_internal_names.cache_clear()
     _python_top_level_all.cache_clear()
     _rust_reexported_names.cache_clear()
+    _typescript_barrel_exports.cache_clear()
     lang.python.clear_cache()
     lang.rust.clear_cache()
     lang.csharp.clear_cache()
+    lang.typescript.clear_cache()
