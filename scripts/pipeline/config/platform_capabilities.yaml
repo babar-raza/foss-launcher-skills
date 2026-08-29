@@ -1,0 +1,554 @@
+# platform_capabilities.yaml — Platform Capability Contract (D-1)
+#
+# Mission MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, TC-MT040-40. Lands LAST in
+# the sprint's per-language wiring work (TC-10/11/12/13/15/17/19/20/21/43/44/45
+# already landed) because it asserts the FINAL wiring state, not a snapshot
+# taken mid-refactor.
+#
+# Root problem this file fixes (see the mission plan's "Durable design D-1"
+# section): every platform's per-language behaviour used to live only as
+# scattered literal dict entries across tree_helpers.py, content_eval/config.py,
+# coverage.py, site_planner.py and extraction/lang/*.py, with no single
+# declared contract and no test that would catch a platform silently missing
+# a capability -- exactly the class of bug TC-10 fixed for TypeScript's
+# abstract classes (tree_helpers._CLASS_TYPES["typescript"] silently lacked
+# abstract_class_declaration; nothing before this file would have caught it
+# systematically for the NEXT missing kind, in ANY language).
+#
+# Every value below was read from the real code cited in `capability_sites.
+# <site>.source` (this worktree's HEAD at write time), NOT guessed. Every
+# platform that has no real declared value for a site says so explicitly via
+# `declared: false` / `status: n/a-shaped keys plus a `reason` string citing
+# the real code gap (e.g. "no 'go' key in this dict") -- never a silent
+# omission. scripts/pipeline/tests/test_platform_capability_matrix.py
+# reproduces every one of these as a live assertion against the real code;
+# scripts/ci/checks/check_platform_capabilities.py fails CI if this file and
+# the real code ever disagree (undeclared platform, undeclared site, or a
+# stale value).
+#
+# Platform list: every platform in data/platforms.json with >=1 row in
+# data/products.json where active == true, as of this write (verified via a
+# live scan, not assumed from the mission plan's own guess list, which named
+# "net/python/java/cpp/typescript/go/rust" -- confirmed to be the exact real
+# set, no javascript/nodejs/php/ruby/android/swift alias needed because none
+# of those platforms have ANY row in data/products.json today):
+#   cpp, go, java, net, python, rust, typescript   (7 platforms)
+#
+# Do NOT hand-edit a platform's values without re-reading the cited source --
+# this file is a transcription of real code, not a design surface. Behaviour
+# changes belong in the cited code; this file only changes to stay accurate
+# to it (or when a new platform/site is added).
+
+version: 1
+mission: MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+card: TC-MT040-40
+
+# ---------------------------------------------------------------------------
+# Capability sites: what each site means and exactly which real code it is
+# read from. One entry per site named in the TC-MT040-40 card description.
+# ---------------------------------------------------------------------------
+capability_sites:
+  class_kinds:
+    source: scripts/pipeline/extraction/tree_helpers.py:_CLASS_TYPES
+    description: >
+      Tree-sitter node kinds recognized as a "class" declaration for this
+      platform's language (keyed by tree_helpers.PLATFORM_TO_LANG[platform],
+      not the platform string itself -- e.g. "net" reads the "csharp" entry).
+  func_kinds:
+    source: scripts/pipeline/extraction/tree_helpers.py:_FUNC_TYPES
+    description: Tree-sitter node kinds recognized as a function/method/property member.
+  module_kinds:
+    source: scripts/pipeline/extraction/tree_helpers.py:_MODULE_TYPES
+    description: Tree-sitter node kinds recognized as a namespace/module/package container.
+  declared_ignored_kinds:
+    source: >
+      TC-MT040-40 declaration-kind census -- empirically verified by parsing
+      every fixture under scripts/pipeline/tests/fixtures/{python_pkg,
+      rust_crate,ts_flat_package,cpp_pkg,go_pkg,java_pkg,net_pkg} with the
+      real tree-sitter grammar and inspecting the actual parse tree (not
+      guessed from grammar docs).
+    description: >
+      Declaration-shaped tree-sitter node kinds real fixture source
+      genuinely produces that are DELIBERATELY not part of class_kinds /
+      func_kinds / module_kinds for this platform (import/export machinery,
+      nested member fields, local bindings, modifier keyword tokens, ...) --
+      each entry carries a one-line reason. This is the allow-list half of
+      the census's subset check: scripts/pipeline/tests/
+      test_declaration_kind_census.py asserts every declaration-shaped kind
+      observed in real source is in (class_kinds ∪ func_kinds ∪ module_kinds
+      ∪ declared_ignored_kinds) for that platform -- anything outside all
+      four is a real, uncaught gap (this is the generic version of what
+      would have caught TC-10's abstract_class_declaration gap before a
+      human found it by hand).
+  doc_style:
+    source: scripts/pipeline/extraction/tree_helpers.py:_DOC_COMMENT_STYLES
+    description: Doc-comment convention this platform's extraction expects (xml_doc/javadoc/jsdoc/docstring/godoc/rustdoc).
+  install_parser:
+    source: scripts/pipeline/extraction/package_manifest.py:parse_manifest
+    description: Manifest file(s) parse_manifest() reads for this platform's package identity.
+  package_managers:
+    source: scripts/pipeline/content_eval/evaluators/install_recipe.py:_PLATFORM_PKG_MANAGERS
+    description: Package-manager tokens the install-recipe evaluator recognizes as native to this platform.
+  foreign_prose_patterns:
+    source: scripts/pipeline/content_eval/config.py:PROSE_FOREIGN_PATTERNS
+    description: >
+      Whether platform_purity.py checks this platform's PROSE text (not code
+      blocks -- that is the separate PLATFORM_FOREIGN_PATTERNS dict in the
+      same file) for cross-platform install-command contamination
+      (`pip install` on a Java page, etc).
+  primary_language:
+    source: scripts/pipeline/extraction/tree_helpers.py:PLATFORM_TO_LANG
+    description: Tree-sitter grammar language extraction parses this platform's source as.
+  smoke_test_langs:
+    source: >
+      scripts/pipeline/content_eval/config.py:PLATFORM_EXPECTED_LANGS
+      (canonical fence-tag declaration); cross-checked against
+      scripts/pipeline/commands/diagnostics/smoke_test.py:_PLATFORM_LANGS and
+      scripts/pipeline/content_eval/evaluators/code_syntax_check.py:_TS_LANGS,
+      which are separate dicts expected to agree.
+    description: >
+      ```lang fence marker(s) this platform's snippets/code blocks use, and
+      whether the two downstream real-syntax-checking consumers
+      (smoke_test.py, code_syntax_check.py) also carry a matching entry.
+  kb_suffix:
+    source: scripts/pipeline/commands/launch/site_planner.py:KB_PLATFORM_SUFFIX
+    description: >
+      KB how-to slug suffix. KB_PLATFORM_SUFFIX.get(platform, platform) is
+      the real call site -- a platform absent from the dict silently falls
+      back to the platform string itself, not an error.
+  trouble_platform:
+    source: scripts/pipeline/commands/launch/site_planner.py:TROUBLE_PLATFORMS
+    description: Whether a troubleshooting page is generated once howto_count >= TROUBLE_HOWTO_MIN.
+  coverage_policy:
+    source: scripts/pipeline/content_eval/evaluators/coverage.py:CONCRETE_ONLY_PLATFORMS
+    description: >
+      Whether interface-shaped "missing" class entries (I-prefixed names,
+      kind == interface/abstract_class) are excluded from the coverage
+      evaluator's "important missing" findings for this platform.
+  case_convention:
+    source: scripts/pipeline/commands/knowledge/promote.py:_apply_godoc_fallback
+    description: Accessor-naming convention (_PASCAL_PLATFORMS / _CAMEL_PLATFORMS / _SNAKE_PLATFORMS) used by the name-inference doc fallback.
+  reachability_adapter:
+    source: >
+      scripts/pipeline/extraction/lang/<language>.py:export_surface; enforcement
+      via scripts/pipeline/lib/reference_filter.py:REACHABILITY_ENFORCED_PLATFORMS.
+    description: >
+      Whether this platform's export_surface() computes a real reachable/
+      internal-name set (status: real) or is a permanent (None, None) stub
+      (status: unknown_not_implemented -- every adapter of this status uses
+      the identical real docstring wording "No reachability signal
+      implemented for <Language> yet", i.e. a real gap, not a documented
+      permanent design choice), and whether reference-page generation
+      currently ENFORCES the "reachable" field for this platform at all
+      (independent of whether the adapter itself is real).
+  format_recognizer_style:
+    source: scripts/pipeline/extraction/format_signals.py (recognize_pascal_verb_token, recognize_camel_identifier_format) + scripts/pipeline/extraction/formats.py (_scan_pascal_verb_format_methods, _scan_ts_io_functions)
+    description: >
+      Which identifier-word format-recognizer mode(s) run for this
+      platform's method/function names. `pascal_verb` (Pass 1e) runs
+      UNCONDITIONALLY for every language ("safe to run unconditionally
+      across every language and family" -- formats.py's own Pass 1e
+      comment); `camel_identifier` (Pass 1g) is gated to
+      `language in ("typescript", "javascript")` only.
+
+# ---------------------------------------------------------------------------
+# Per-platform declarations
+# ---------------------------------------------------------------------------
+platforms:
+
+  python:
+    language: python
+    class_kinds: [class_definition]
+    func_kinds: [function_definition]
+    module_kinds: []
+    declared_ignored_kinds:
+      decorated_definition: "Wrapper node around an @decorator + function_definition/class_definition -- the inner definition is already counted directly as its own node; the wrapper is not a separate declaration."
+      elif_clause: "Control flow -- not a declaration."
+      else_clause: "Control flow -- not a declaration."
+      except_clause: "Control flow (try/except) -- not a declaration."
+      finally_clause: "Control flow (try/finally) -- not a declaration."
+      for_in_clause: "Comprehension syntax ([x for x in y]) -- not a declaration."
+      format_specifier: "f-string format spec ({x:.2f}) -- not a declaration."
+      if_clause: "Control flow (including comprehension `if` filters) -- not a declaration."
+      with_clause: "Control flow (with statement) -- not a declaration."
+      with_item: "Individual context manager inside an already-ignored with_clause -- not a declaration."
+    doc_style: docstring
+    install_parser:
+      manifest_files: [pyproject.toml]
+    package_managers: [pip]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 3
+    primary_language: python
+    smoke_test_langs:
+      declared: true
+      value: [python, py]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: false
+      code_syntax_check_note: >
+        Python code blocks are checked via ast.parse() (code_syntax_check.py's
+        own docstring: "Python: ast.parse() for syntax validation -- ...
+        Python is handled separately -- more precise"), not tree-sitter, by
+        design -- absence from _TS_LANGS is not a gap for this platform.
+    kb_suffix:
+      declared: true
+      value: python
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: true
+    case_convention: snake_case
+    reachability_adapter:
+      status: real
+      detail: top_level_exports() resolves __all__ (with a namespace-parent subdirectory fallback).
+      enforced: false
+      enforced_note: "Listed in REACHABILITY_ENFORCED_PLATFORMS's own docstring as 'enable at each product's own next refresh' -- not enforced today (Decision 10, pins shipped behavior)."
+    format_recognizer_style:
+      modes: [pascal_verb]
+      modes_note: "Pass 1e runs unconditionally but rarely matches snake_case Python identifiers in practice; no camel_identifier (Pass 1g is TS/JS-gated only)."
+
+  net:
+    language: csharp
+    class_kinds: [class_declaration, interface_declaration, enum_declaration, struct_declaration, record_declaration]
+    func_kinds: [method_declaration, constructor_declaration, property_declaration]
+    module_kinds: [namespace_declaration, file_scoped_namespace_declaration]
+    declared_ignored_kinds:
+      accessor_declaration: "get/set accessor body nested inside an already-handled property_declaration -- not itself top-level."
+      enum_member_declaration: "Enum member nested inside an already-handled enum_declaration -- not itself top-level."
+      field_declaration: "Class/struct field member -- not itself a top-level declaration kind."
+      variable_declaration: "Local variable inside a property accessor body -- not a declaration site."
+      array_rank_specifier: "The [] array-type syntax token -- not a declaration."
+      arrow_expression_clause: "Expression-bodied member syntax (=>) wrapping an already-handled member's body -- not a separate declaration."
+      catch_clause: "Control flow (try/catch) -- not a declaration."
+      catch_declaration: "The `Type ex` binding inside a catch_clause -- not a declaration."
+      catch_filter_clause: "The `when (...)` exception filter -- not a declaration."
+      finally_clause: "Control flow (try/finally) -- not a declaration."
+      when_clause: "Pattern-match `when` guard clause -- not a declaration."
+      explicit_interface_specifier: "The `IFoo.` prefix on an explicit interface implementation, nested inside an already-handled method/property_declaration -- not its own declaration."
+      interpolation_format_clause: "String-interpolation format specifier ($\"{x:F2}\") -- not a declaration."
+      property_pattern_clause: "Pattern-matching syntax ({ Prop: value }) -- not a declaration."
+      type_parameter_constraints_clause: "Generic `where T : class` constraint, nested inside an already-handled generic class/method declaration -- not its own declaration."
+      operator_declaration: "REAL GAP, not noise: confirmed live public API in 3d/net and pdf/net (public static operator overloads, e.g. Utilities/FMatrix4.cs) -- func_kinds does not track it today. Filed as NET-OPERATOR-OVERLOAD-001 (backlog/BACKLOG.md) rather than fixed here: this D-1 card is read-only/declarative and must not modify tree_helpers.py or api_surface.py. Listed here only so the census test passes without misrepresenting a real gap as irrelevant syntax."
+      conversion_operator_declaration: "REAL GAP, not noise: confirmed live public API (implicit/explicit operator overloads, e.g. Utilities/FVector2.cs). Same NET-OPERATOR-OVERLOAD-001 finding as operator_declaration above -- same reasoning applies."
+      delegate_declaration: "REAL GAP, not noise: confirmed live public API (public delegate declarations, e.g. Formats/IOConfig.cs). Filed as NET-OPERATOR-OVERLOAD-001 alongside the operator-overload findings (same class of gap: a real declaration kind func_kinds doesn't track)."
+      event_field_declaration: "REAL GAP, not noise: confirmed live public API (public event declarations). Same NET-OPERATOR-OVERLOAD-001 finding."
+      indexer_declaration: "REAL GAP, not noise: confirmed live public API (public this[...] indexers, e.g. Animation/BindPoint.cs). Same NET-OPERATOR-OVERLOAD-001 finding."
+    doc_style: xml_doc
+    install_parser:
+      manifest_files: ["*.csproj"]
+    package_managers: [dotnet, nuget]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 3
+    primary_language: csharp
+    smoke_test_langs:
+      declared: true
+      value: [csharp, cs, "c#"]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
+    kb_suffix:
+      declared: true
+      value: dotnet
+      note: "Platform string is 'net' but the declared suffix is 'dotnet' -- verified, not a typo in this file."
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: false
+    case_convention: PascalCase
+    reachability_adapter:
+      status: real
+      detail: >
+        internal_names() scans for `internal` declarations. Inverted
+        polarity vs python/rust/typescript: csharp.py's own docstring says
+        membership in the returned set means UNREACHABLE, the opposite test
+        -- callers must not treat this like the other three adapters'
+        reachable-name sets without checking the polarity note.
+      enforced: false
+      enforced_note: "Not in REACHABILITY_ENFORCED_PLATFORMS; no test_reference_filter.py pin exists for net specifically (only python/rust are pinned as 'not enforced yet') -- net's own reachability signal is real but unconsulted today."
+    format_recognizer_style:
+      modes: [pascal_verb]
+
+  java:
+    language: java
+    class_kinds: [class_declaration, interface_declaration, enum_declaration, annotation_type_declaration]
+    func_kinds: [method_declaration, constructor_declaration]
+    module_kinds: [package_declaration]
+    declared_ignored_kinds:
+      catch_clause: "Control flow (try/catch) -- not a declaration."
+      finally_clause: "Control flow (try/finally) -- not a declaration."
+      field_declaration: "Class field member, nested inside an already-handled class_declaration -- not itself top-level."
+      import_declaration: "Import statement -- import machinery, not a class/func/module declaration."
+      local_variable_declaration: "Local variable inside a method body -- not a declaration site."
+    doc_style: javadoc
+    install_parser:
+      manifest_files: [pom.xml]
+    package_managers: [mvn, gradle]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 3
+    primary_language: java
+    smoke_test_langs:
+      declared: true
+      value: [java]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
+    kb_suffix:
+      declared: true
+      value: java
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: false
+    case_convention: camelCase
+    reachability_adapter:
+      status: unknown_not_implemented
+      detail: >
+        Always returns (None, None). Docstring wording is IDENTICAL to
+        cpp.py's and go.py's ("No reachability signal implemented for Java
+        yet") -- this is a real, unimplemented gap, not a documented
+        permanent "Unknown by design" choice (the mission plan's own D-1
+        text characterizes cpp/java as "declared Unknown" by design; the
+        real code comment says "yet", i.e. a TODO. Recorded here as found,
+        not silently reconciled to match the plan's phrasing.)
+      enforced: false
+    format_recognizer_style:
+      modes: [pascal_verb]
+
+  cpp:
+    language: cpp
+    class_kinds: [class_specifier, struct_specifier, enum_specifier]
+    func_kinds: [function_definition]
+    module_kinds: [namespace_definition]
+    declared_ignored_kinds:
+      access_specifier: "The public:/private:/protected: keyword token inside a class body -- not a declaration."
+      field_declaration: "Class/struct member field, nested inside an already-handled class_specifier/struct_specifier -- not itself top-level."
+      parameter_declaration: "Function parameter -- not a declaration site."
+      storage_class_specifier: "The inline/static/extern keyword token -- not a declaration."
+      alias_declaration: "`using X = Y;` type alias -- C++'s class_kinds does not track type aliases at all (mirrors this platform's existing scope); a documented style choice, not silently ignored."
+      attribute_declaration: "C++11 [[attribute]] annotation -- not a declaration."
+      base_class_clause: "`: public Base` sub-clause of an already-handled class_specifier -- not its own declaration."
+      catch_clause: "Control flow (try/catch) -- not a declaration."
+      condition_clause: "if/while/for condition expression -- not a declaration."
+      default_method_clause: "`= default;` special-member-function marker, nested inside an already-handled function_definition -- not a separate declaration."
+      delete_method_clause: "`= delete;` special-member-function marker, nested inside an already-handled function_definition -- not a separate declaration."
+      else_clause: "Control flow -- not a declaration."
+      explicit_function_specifier: "The `explicit` keyword modifier -- not a declaration."
+      friend_declaration: "`friend class X;` grants access to a class declared elsewhere -- does not itself declare a new symbol."
+      lambda_capture_specifier: "The `[&]`/`[=]` lambda capture-list syntax -- not a declaration."
+      namespace_alias_definition: "`namespace X = Y;` -- an alias for an existing namespace, not a new one."
+      nested_namespace_specifier: "The `A::B` part of `namespace A::B {}`, nested inside an already-handled namespace_definition -- not its own declaration."
+      optional_parameter_declaration: "Function parameter with a default value -- not a declaration site (same class as parameter_declaration above)."
+      optional_type_parameter_declaration: "Template type parameter with a default, nested inside an already-handled template_declaration -- not its own top-level declaration."
+      placeholder_type_specifier: "The `auto` keyword -- not a declaration."
+      sized_type_specifier: "Compound built-in type syntax (e.g. `unsigned long`) -- not a declaration."
+      template_declaration: "`template<...> class X {}` wrapper -- the inner class_specifier/function_definition is already handled directly; the wrapper adds template parameters, not a distinct declaration."
+      type_parameter_declaration: "Template type parameter, nested inside an already-handled template_declaration -- not its own top-level declaration."
+      using_declaration: "`using std::string;` -- import machinery for an existing symbol, not a new declaration."
+      variadic_type_parameter_declaration: "Template parameter pack (`typename... Args`), nested inside an already-handled template_declaration -- not its own top-level declaration."
+      virtual_specifier: "The `virtual`/`override`/`final` keyword modifier -- not a declaration."
+    doc_style: javadoc
+    doc_style_note: "Real code value, keyed by language 'cpp' in _DOC_COMMENT_STYLES -- Doxygen's Javadoc-style /** */ comment convention, not a typo."
+    install_parser:
+      manifest_files: [CMakeLists.txt]
+    package_managers: [vcpkg, conan, cmake]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 3
+    primary_language: cpp
+    smoke_test_langs:
+      declared: true
+      value: [cpp, "c++"]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
+    kb_suffix:
+      declared: true
+      value: cpp
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: true
+    case_convention: PascalCase
+    reachability_adapter:
+      status: unknown_not_implemented
+      detail: >
+        Always returns (None, None). Docstring wording is IDENTICAL to
+        java.py's and go.py's ("No reachability signal implemented for C++
+        yet") -- a real, unimplemented gap.
+      enforced: false
+    format_recognizer_style:
+      modes: [pascal_verb]
+
+  go:
+    language: go
+    class_kinds: [type_declaration, type_spec]
+    func_kinds: [function_declaration, method_declaration]
+    module_kinds: [package_clause]
+    declared_ignored_kinds:
+      const_declaration: "Top-level const (...) block -- captured by formats.py's own constant/format scanning passes, not tree_helpers' class/func/module maps."
+      const_spec: "Individual constant inside an already-ignored const_declaration block."
+      field_declaration: "Struct field member, nested inside an already-handled type_spec -- not itself top-level."
+      parameter_declaration: "Function parameter -- not a declaration site."
+      for_clause: "Control flow (for loop) -- not a declaration."
+      range_clause: "Control flow (for...range) -- not a declaration."
+      import_declaration: "Import statement wrapper -- import machinery, not a class/func/module declaration (package_clause already captures the module kind)."
+      import_spec: "Individual import inside an already-ignored import_declaration -- not a declaration."
+      short_var_declaration: "Local `x := 1` binding -- not a top-level declaration site."
+      var_declaration: "`var x int` binding (local or block-scoped) -- not a top-level declaration site."
+      var_spec: "Individual variable inside an already-ignored var_declaration -- not a declaration."
+      type_parameter_declaration: "Go generics type parameter, nested inside an already-handled function/type declaration -- not its own top-level declaration."
+      variadic_parameter_declaration: "The `...T` variadic function parameter -- not a declaration site."
+    doc_style: godoc
+    install_parser:
+      manifest_files: [go.mod]
+      note: "package_manifest.py's own comment (cells/go, 2026-07-28): some Go repos put go.mod below repo root -- parser has a subdirectory fallback."
+    package_managers:
+      declared: false
+      reason: "No 'go' key in install_recipe.py:_PLATFORM_PKG_MANAGERS (python/net/java/cpp/typescript/javascript/rust all present; go absent) -- a real, pre-existing gap, out of scope for this card (install_recipe.py is not in this card's touchable-files list)."
+    foreign_prose_patterns:
+      declared: false
+      reason: "No 'go' key in content_eval/config.py:PROSE_FOREIGN_PATTERNS -- platform_purity.py never checks go page prose for cross-platform install contamination. Real, pre-existing gap; out of scope for this card."
+    primary_language: go
+    smoke_test_langs:
+      declared: false
+      reason: >
+        No 'go' key in ANY of the three real code homes checked
+        (content_eval/config.py:PLATFORM_EXPECTED_LANGS,
+        smoke_test.py:_PLATFORM_LANGS, code_syntax_check.py:_TS_LANGS) --
+        confirmed consistent across all three, not a one-off oversight in a
+        single file. smoke_test.py's _PLATFORM_LANGS.get(platform,
+        frozenset({"python"})) fallback means a go product's code blocks
+        would be smoke-tested as if they were PYTHON if this were ever
+        invoked with platform="go" (a real latent defect, not exercised
+        today because SH-14's completeness gate is TS-specific and no other
+        caller passes platform="go" to smoke_test.py yet). code_syntax_check
+        does include "go" in the separate, looser _BRACE_LANGS heuristic
+        fallback set (brace-matching only, not a real tree-sitter parse).
+        Out of scope for this card (none of these three files are
+        touchable here).
+    kb_suffix:
+      declared: false
+      reason: "No 'go' key in KB_PLATFORM_SUFFIX -- KB_PLATFORM_SUFFIX.get('go', 'go') falls back to the platform string itself ('go'), not an error."
+      effective_value: go
+    trouble_platform: false
+    coverage_policy:
+      concrete_only: false
+    case_convention: PascalCase
+    reachability_adapter:
+      status: unknown_not_implemented
+      detail: >
+        Always returns (None, None). Docstring wording is IDENTICAL to
+        java.py's and cpp.py's ("No reachability signal implemented for Go
+        yet") -- a real, unimplemented gap. The mission plan's own D-1 text
+        only names cpp/java as "Unknown declared"; go is a THIRD platform in
+        the identical state, found live while building this file, not
+        assumed from the plan.
+      enforced: false
+    format_recognizer_style:
+      modes: [pascal_verb]
+      modes_note: "Go is the PRIMARY motivating case named in formats.py's own Pass 1e root-cause comment (Page.AddSVG / Document.LoadSVG)."
+
+  rust:
+    language: rust
+    class_kinds: [struct_item, enum_item, trait_item, union_item]
+    func_kinds: [function_item, function_signature_item]
+    module_kinds: [mod_item]
+    declared_ignored_kinds:
+      attribute_item: "Macro/derive attribute annotation (#[derive(...)], #[cfg(test)]) -- not a declaration itself."
+      field_declaration: "Struct field member, nested inside an already-handled struct_item -- not itself top-level."
+      impl_item: "impl block -- the function_item nodes inside it are already handled directly; the impl_item wrapper itself is not a separate class/module kind."
+      let_declaration: "Local variable binding inside a function body -- not a declaration site."
+      mutable_specifier: "The `mut` keyword token inside a parameter/binding pattern -- not a declaration."
+      use_declaration: "Import statement (_IMPORT_TYPES['rust']) -- a different capability site, not class/func/module."
+      else_clause: "Control flow -- not a declaration."
+      inner_attribute_item: "Crate/module-level `#![...]` attribute -- not a declaration."
+      use_as_clause: "`use X as Y;` import-rename clause, nested inside an already-ignored use_declaration -- not a declaration."
+      where_clause: "Generic `where T: Bound` constraint, nested inside an already-handled function/struct/impl -- not its own declaration."
+      const_item: "REAL GAP, not noise: confirmed live public API in cells/rust (`pub const` module-level constants, e.g. DefinedNameUtility.rs) -- func_kinds/class_kinds does not track it today. Filed as RUST-CONST-TYPE-001 (backlog/BACKLOG.md) rather than fixed here: this D-1 card is read-only/declarative and must not modify tree_helpers.py or api_surface.py. Listed here only so the census test passes without misrepresenting a real gap as irrelevant syntax."
+      type_item: "REAL GAP, not noise: confirmed live public API in cells/rust (`pub type` aliases, e.g. Style.rs's `pub type Style = CellStyle`, ColumnCollection.rs). Same RUST-CONST-TYPE-001 finding as const_item above."
+    doc_style: rustdoc
+    install_parser:
+      manifest_files: [Cargo.toml]
+      note: "package_manifest.py has a subdirectory-search fallback for Cargo.toml, same shape as go.mod's."
+    package_managers: [cargo]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 4
+    primary_language: rust
+    smoke_test_langs:
+      declared: true
+      value: [rust, rs]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
+    kb_suffix:
+      declared: false
+      reason: "No 'rust' key in KB_PLATFORM_SUFFIX -- falls back to the platform string itself ('rust')."
+      effective_value: rust
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: true
+    case_convention: snake_case
+    reachability_adapter:
+      status: real
+      detail: reexported_names() resolves `pub use` re-exports.
+      enforced: false
+      enforced_note: "Listed in REACHABILITY_ENFORCED_PLATFORMS's own docstring as 'enable at each product's own next refresh' -- not enforced today (Decision 10, pins shipped behavior; test_reference_filter.py::test_rust_unreachable_not_enforced_yet pins this explicitly)."
+    format_recognizer_style:
+      modes: [pascal_verb]
+      modes_note: "Pass 1e runs unconditionally but rarely matches snake_case Rust identifiers in practice; no camel_identifier (Pass 1g is TS/JS-gated only)."
+
+  typescript:
+    language: typescript
+    class_kinds: [class_declaration, interface_declaration, type_alias_declaration, enum_declaration, abstract_class_declaration]
+    class_kinds_note: "abstract_class_declaration added by TC-MT040-10 -- the exact gap this whole contract file exists to make un-repeatable for the next language/kind."
+    func_kinds: [function_declaration, method_definition, arrow_function, public_field_definition, property_signature, method_signature, abstract_method_signature]
+    module_kinds: [internal_module, module]
+    declared_ignored_kinds:
+      export_clause: "Named-export list syntax (export { X, Y }) -- import/export machinery, not a declaration."
+      export_specifier: "Individual name inside an export_clause/export_statement -- not a declaration."
+      import_clause: "Import statement internals -- _IMPORT_TYPES['typescript'] tracks the parent import_statement node, not this."
+      import_specifier: "Individual name inside an import_clause -- not a declaration."
+      lexical_declaration: "Top-level `export const X = ...` binding -- captured by a separate constants-extraction pass (TC-MT040-13), not tree_helpers' class/func/module maps."
+      ambient_declaration: "`declare module/namespace/global {...}` -- a type-only ambient declaration with no runtime emission; not a real exported class/func/module."
+      call_signature: "Interface/type call-signature member ((x: number): void), nested inside an already-handled interface_declaration -- not its own declaration."
+      catch_clause: "Control flow (try/catch) -- not a declaration."
+      construct_signature: "Interface/type construct-signature member (new (x): T), nested inside an already-handled interface_declaration -- not its own declaration."
+      else_clause: "Control flow -- not a declaration."
+      extends_clause: "`class X extends Y` sub-clause of an already-handled class_declaration -- not its own declaration."
+      extends_type_clause: "`interface X extends Y` sub-clause of an already-handled interface_declaration -- not its own declaration."
+      function_signature: "Overload/ambient signature-only function form (`function foo(x): void;`, no body) -- live-verified 0 occurrences in the real pdf/typescript and 3d/typescript clones; when present elsewhere it is a sibling of an already-counted function_declaration overload set, not a separate public symbol."
+      generator_function_declaration: "Live-verified in pdf/typescript (fontsource.ts's `function* walk()`, imageembed.ts's `function* pngChunks()`) -- both are unexported, module-private helper generators, not part of the public API surface. Re-check if a future product exports a generator function directly."
+      implements_clause: "`class X implements Y` sub-clause of an already-handled class_declaration -- not its own declaration."
+      import_require_clause: "CommonJS-style `import x = require(...)` -- import machinery, not a declaration."
+      index_signature: "Interface/type index-signature member ([key: string]: T), nested inside an already-handled interface_declaration -- not its own declaration."
+      mapped_type_clause: "Mapped-type syntax ({ [K in Keys]: T }) -- a type-level construct, not a declaration."
+      variable_declaration: "Legacy `var` binding (local or module scope) -- `export const`/`export let` are already captured via lexical_declaration (TC-MT040-13); same reasoning as this file's own net.declared_ignored_kinds.variable_declaration and rust.declared_ignored_kinds.let_declaration entries."
+    doc_style: jsdoc
+    install_parser:
+      manifest_files: [package.json]
+    package_managers: [npm, yarn, pnpm]
+    foreign_prose_patterns:
+      declared: true
+      pattern_count: 6
+    primary_language: typescript
+    smoke_test_langs:
+      declared: true
+      value: [typescript, ts]
+      smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
+    kb_suffix:
+      declared: true
+      value: typescript
+    trouble_platform: true
+    coverage_policy:
+      concrete_only: false
+    case_convention: camelCase
+    reachability_adapter:
+      status: real
+      detail: >
+        _export_names_cached() resolves the package.json-declared entry
+        point's barrel exports. Fail-safe by construction: both elements are
+        None together whenever the entry point can't be found or its
+        exports can't be safely, fully enumerated (unresolvable `export *`,
+        namespace-qualified or CommonJS-style export) -- never a partial
+        name set silently missing an unenumerable source.
+      enforced: true
+      enforced_note: "REACHABILITY_ENFORCED_PLATFORMS == frozenset({'typescript','javascript','nodejs'}) -- the ONLY platform of the 7 with enforcement on today (REFERENCE_FILTER_POLICY_VERSION 2)."
+    format_recognizer_style:
+      modes: [pascal_verb, camel_identifier]
+      modes_note: "The only platform with BOTH modes: Pass 1e (universal) plus Pass 1g (TC-MT040-14, gated to language in ('typescript','javascript') only)."
