@@ -872,6 +872,37 @@ scripts:
       barrel resolves, fail-safe None when it doesn't (e.g. 3d/typescript's
       real clone, live-verified 2026-08-29)."
 
+  - path: scripts/pipeline/commands/knowledge/scout_fidelity.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_scout_fidelity.py
+      - scripts/pipeline/tests/extraction/test_validate_scout_output_fidelity.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-41 (D-2 Extraction Fidelity Gate): 5 cheap, language-adapted
+      probes (P1 declaration census, P2 entry-point/barrel coverage, P3
+      doc-comment census, P4 README/manifest format cross-check, P5 snippet
+      provenance) run after scout to catch a scout that misses declaration
+      kinds/doc comments/format signals/curated snippets BEFORE content
+      generation -- the exact gap this mission's own 3d/typescript pre-fix
+      scout output (0/8 abstract classes, 0/142 class docs) proves AGENTS
+      §7d's volume-only gate cannot catch. Every probe is advisory-only
+      today (WARN, never FAIL -- see PROBE_FAIL_ENABLED) until a fleet
+      calibration run (--calibrate; reports/sprint/pdf-typescript-hardening/
+      evidence/fidelity_calibration.json) shows zero false positives per
+      probe (Decision 13). Wired into readiness_gate.py as G-08 (advisory,
+      independent of G-03's unrelated pre-existing DAR-coverage failure) and
+      into extraction/validate_scout_output.py as an additive `fidelity`
+      summary block."
+
   - path: scripts/pipeline/commands/diagnostics/verdict_consistency.py
     kind: entrypoint
     lifecycle: active

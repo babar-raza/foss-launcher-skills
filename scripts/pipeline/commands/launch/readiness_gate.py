@@ -11,6 +11,13 @@ Aggregates all system-level readiness signals into a single pass/fail verdict:
   G-06  Launch gate            -- launch_gate.py {family} {platform} exits 0
   G-07  Cross-platform consistency -- cross_platform_audit.py {family} --json exits 0
   G-07  Cross-platform consistency -- cross_platform_audit.py {family} exits 0
+  G-08  Extraction fidelity (advisory) -- scout_fidelity.py {family} {platform} --json;
+        NEVER produces STATUS_FAIL today (TC-MT040-41 / D-2 Decision 13: no
+        probe may block until a zero-false-positive fleet calibration
+        enables it per probe -- see scout_fidelity.PROBE_FAIL_ENABLED).
+        Evaluated and reported independently of G-03: G-03's DAR-coverage
+        FAIL is a separate, pre-existing, repo-wide condition (MT039 G5-22)
+        that must never suppress or gate G-08's own result.
 
 Usage:
     python scripts/pipeline/commands/launch/readiness_gate.py {family} {platform}
@@ -100,6 +107,10 @@ else:
 STATUS_PASS = "PASS"
 STATUS_FAIL = "FAIL"
 STATUS_SKIP = "SKIP"
+# TC-MT040-41 (D-2/G-08): advisory-only status -- printed like any other
+# gate result but deliberately excluded from the failures list in main()
+# below (only STATUS_FAIL triggers a non-zero exit / NOT READY verdict).
+STATUS_WARN = "WARN"
 
 
 class GateResult:
@@ -254,6 +265,53 @@ def gate_g07_cross_platform(family: str) -> GateResult:
     return GateResult("G-07", "Cross-platform consistency", STATUS_FAIL, summary)
 
 
+def gate_g08_scout_fidelity(family: str, platform: str) -> GateResult:
+    """G-08: scout_fidelity.py's 5 probes (TC-MT040-41 / D-2). ADVISORY ONLY
+    -- this gate can never return STATUS_FAIL today (Decision 13: no probe's
+    FAIL threshold may be enabled until a zero-false-positive fleet
+    calibration proves it out; see scout_fidelity.PROBE_FAIL_ENABLED, all
+    False at present). A findings_count > 0 result is reported as
+    STATUS_WARN, never STATUS_FAIL, so this gate never contributes to
+    readiness_gate.py's NOT READY verdict -- it exists to surface extraction-
+    fidelity gaps for review, not to block a launch on a still-uncalibrated
+    heuristic.
+
+    Evaluated and reported completely independently of G-03 (DAR coverage):
+    G-03 currently FAILs repo-wide for an unrelated, pre-existing reason
+    (MT039 G5-22) -- that failure must never suppress, gate, or be conflated
+    with G-08's own result, and vice versa. Each gate function in this file
+    runs and reports independently; there is no cross-gate short-circuiting
+    here to preserve.
+
+    Passes --no-write-report: a readiness CHECK must not have the side
+    effect of writing into knowledge/{family}/{platform}/scout/ every time
+    it runs (that write only happens on scout_fidelity's normal S-54
+    knowledge-bootstrap invocation, which omits this flag)."""
+    script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "knowledge" / "scout_fidelity.py"
+    rc, out = _run([_PYTHON, str(script), family, platform, "--json", "--no-write-report"])
+    if rc not in (0, 1):
+        return GateResult("G-08", "Extraction fidelity (advisory)", STATUS_SKIP,
+                           f"scout_fidelity exited {rc} unexpectedly: {out[:200]}")
+    try:
+        report = json.loads(out)
+    except (json.JSONDecodeError, ValueError):
+        return GateResult("G-08", "Extraction fidelity (advisory)", STATUS_SKIP,
+                           f"could not parse scout_fidelity --json output: {out[:200]}")
+
+    findings = report.get("findings_count", 0)
+    probe_statuses = report.get("probes", {})
+    if findings == 0:
+        clone_note = "" if report.get("clone_available") else " (no clone cache -- most probes UNAVAILABLE)"
+        return GateResult("G-08", "Extraction fidelity (advisory)", STATUS_PASS,
+                           f"scout_fidelity: 0 findings across {len(probe_statuses)} probes{clone_note}")
+    flagged = "; ".join(
+        f"{pid}={p.get('status')}: {p.get('message', '')}"
+        for pid, p in probe_statuses.items() if p.get("status") in ("WARN", "FAIL")
+    )
+    return GateResult("G-08", "Extraction fidelity (advisory)", STATUS_WARN,
+                       f"scout_fidelity: {findings} advisory finding(s) (never blocking): {flagged}"[:400])
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -279,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     gates.append(gate_g04_knowledge_staleness(family, platform))
     gates.append(gate_g05_proof_index())
     gates.append(gate_g07_cross_platform(family))
+    gates.append(gate_g08_scout_fidelity(family, platform))
 
     if args.skip_launch_gate:
         gates.append(GateResult("G-06", "Launch gate", STATUS_SKIP, "skipped via --skip-launch-gate"))
@@ -302,8 +361,10 @@ def main(argv: list[str] | None = None) -> int:
     else:
         passing = [g for g in gates if g.status == STATUS_PASS]
         skipped = [g for g in gates if g.status == STATUS_SKIP]
+        warned = [g for g in gates if g.status == STATUS_WARN]
         print(f"VERDICT: READY — {len(passing)} gate(s) passed" +
-              (f", {len(skipped)} skipped" if skipped else ""))
+              (f", {len(skipped)} skipped" if skipped else "") +
+              (f", {len(warned)} advisory warning(s)" if warned else ""))
         return 0
 
 

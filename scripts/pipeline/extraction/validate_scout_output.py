@@ -8,6 +8,7 @@ EXTRACTION_FAILURE verdict instead of silently propagating empty knowledge.
 Usage (standalone)::
 
     python -m extraction.validate_scout_output {model_yaml} {repo_path} {platform}
+    python -m extraction.validate_scout_output {model_yaml} {repo_path} {platform} --fidelity-report {path}
 
 Usage (library)::
 
@@ -15,6 +16,17 @@ Usage (library)::
     result = validate_scout_output(model, repo_path, platform)
     if result["verdict"] == "EXTRACTION_FAILURE":
         ...
+
+TC-MT040-41 (D-2): optionally accepts a *fidelity_report* dict -- the same
+shape `commands/knowledge/scout_fidelity.py`'s run_probes() returns / writes
+to `scout/fidelity_report.json` -- and folds a small, purely ADDITIVE
+`fidelity` summary block into the returned verdict dict (a new top-level
+key; every existing key/verdict/tier/exit-code path is untouched). This is
+advisory evidence only: a fidelity finding never changes `verdict` (still
+only EXTRACTION_FAILURE / OK / PRE_ALPHA) and never flips this script's exit
+code -- scout_fidelity's own probes are advisory-only by design (see that
+module's PROBE_FAIL_ENABLED), and this schema-validation gate does not
+second-guess that.
 """
 from __future__ import annotations
 
@@ -81,10 +93,27 @@ def classify_tier(class_count: int, claim_count: int | None = None) -> str:
     return "skip"
 
 
+def _summarize_fidelity(fidelity_report: dict) -> dict:
+    """Reduce a full scout_fidelity report dict (P1-P5, per-probe details)
+    down to the small summary block folded into validate_scout_output()'s
+    return value -- named fields only, no nested probe `details` (those stay
+    in the source fidelity_report.json for anyone who needs them)."""
+    probes = fidelity_report.get("probes", {}) or {}
+    return {
+        "schema_version": fidelity_report.get("schema_version"),
+        "overall_status": fidelity_report.get("overall_status"),
+        "findings_count": fidelity_report.get("findings_count"),
+        "fail_count": fidelity_report.get("fail_count"),
+        "clone_available": fidelity_report.get("clone_available"),
+        "probe_statuses": {pid: p.get("status") for pid, p in probes.items()},
+    }
+
+
 def validate_scout_output(
     model: dict,
     repo_path: Path,
     platform: str,
+    fidelity_report: "dict | None" = None,
 ) -> dict:
     """Validate scout output and return a structured verdict.
 
@@ -95,6 +124,9 @@ def validate_scout_output(
         claim_count: int
         class_bearing_files: int (only if class_count == 0)
         message: str
+        fidelity: dict (only present when *fidelity_report* is passed --
+            see _summarize_fidelity(); purely additive, advisory-only, never
+            affects `verdict` or this function's own semantics)
     """
     stats = model.get("stats", {})
     class_count = stats.get("class_count", 0)
@@ -106,38 +138,43 @@ def validate_scout_output(
 
     if class_count > 0:
         tier = classify_tier(class_count, claim_count)
-        return {
+        result = {
             "verdict": "OK",
             "tier": tier,
             "class_count": class_count,
             "claim_count": claim_count,
             "message": f"{class_count} classes, {claim_count} claims -> tier: {tier}",
         }
+    else:
+        # class_count == 0: check if repo has class-bearing source files
+        class_files = _count_class_bearing_files(repo_path, platform)
 
-    # class_count == 0: check if repo has class-bearing source files
-    class_files = _count_class_bearing_files(repo_path, platform)
+        if class_files > 0:
+            result = {
+                "verdict": "EXTRACTION_FAILURE",
+                "tier": "defer",
+                "class_count": 0,
+                "claim_count": claim_count,
+                "class_bearing_files": class_files,
+                "message": (
+                    f"Scout produced 0 classes but repo contains {class_files} "
+                    f"class-bearing source files. Extraction likely failed silently."
+                ),
+            }
+        else:
+            result = {
+                "verdict": "PRE_ALPHA",
+                "tier": "skip",
+                "class_count": 0,
+                "claim_count": claim_count,
+                "class_bearing_files": 0,
+                "message": "Repository contains no class-bearing source files.",
+            }
 
-    if class_files > 0:
-        return {
-            "verdict": "EXTRACTION_FAILURE",
-            "tier": "defer",
-            "class_count": 0,
-            "claim_count": claim_count,
-            "class_bearing_files": class_files,
-            "message": (
-                f"Scout produced 0 classes but repo contains {class_files} "
-                f"class-bearing source files. Extraction likely failed silently."
-            ),
-        }
+    if fidelity_report is not None:
+        result["fidelity"] = _summarize_fidelity(fidelity_report)
 
-    return {
-        "verdict": "PRE_ALPHA",
-        "tier": "skip",
-        "class_count": 0,
-        "claim_count": claim_count,
-        "class_bearing_files": 0,
-        "message": "Repository contains no class-bearing source files.",
-    }
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -151,10 +188,20 @@ def main(argv: list[str] | None = None) -> int:
                         help="Platform name (e.g. python, net, cpp)")
     parser.add_argument("--json", action="store_true",
                         help="Output as JSON")
+    parser.add_argument("--fidelity-report", type=Path, default=None,
+                        help="Path to a scout_fidelity.py fidelity_report.json "
+                             "(TC-MT040-41 / D-2) to fold into the output as an "
+                             "additive `fidelity` summary block")
     args = parser.parse_args(argv)
 
     model = yaml.safe_load(args.model_yaml.read_text(encoding="utf-8"))
-    result = validate_scout_output(model, args.repo_path, args.platform)
+    fidelity_report = None
+    if args.fidelity_report is not None:
+        try:
+            fidelity_report = json.loads(args.fidelity_report.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            print(f"WARNING: could not read --fidelity-report {args.fidelity_report}: {exc}", file=sys.stderr)
+    result = validate_scout_output(model, args.repo_path, args.platform, fidelity_report)
 
     if args.json:
         print(json.dumps(result, indent=2))
@@ -162,6 +209,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"VERDICT: {result['verdict']}")
         print(f"TIER: {result['tier']}")
         print(f"MESSAGE: {result['message']}")
+        if "fidelity" in result:
+            fid = result["fidelity"]
+            print(f"FIDELITY: {fid['overall_status']} "
+                  f"({fid['findings_count']} findings, {fid['fail_count']} fail) "
+                  f"probes={fid['probe_statuses']}")
 
     if result["verdict"] == "EXTRACTION_FAILURE":
         return 1

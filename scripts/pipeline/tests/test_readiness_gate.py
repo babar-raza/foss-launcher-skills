@@ -118,3 +118,74 @@ def test_g05_pass_empty_proofs_dir(tmp_path):
     _make_index(tmp_path, [])
     result = readiness_gate.gate_g05_proof_index()
     assert result.status == readiness_gate.STATUS_PASS
+
+
+# ---------------------------------------------------------------------------
+# G-08 tests (TC-MT040-41 / D-2: Extraction Fidelity Gate — advisory only)
+#
+# These are REAL subprocess integration tests (no monkeypatching of
+# readiness_gate's own internals such as _run — that would be the banned T2
+# "internal function replacement" pattern). Redirection uses only the
+# module's own documented configure() seam, exactly like the G-05/G-06 tests
+# above.
+# ---------------------------------------------------------------------------
+
+def test_g08_resolves_to_the_real_scout_fidelity_script():
+    """The script path gate_g08_scout_fidelity() constructs must resolve to
+    a real, existing file against the actual repo root."""
+    readiness_gate.configure(repo_root=None)
+    real_root = readiness_gate._REPO_ROOT
+    expected = real_root / "scripts" / "pipeline" / "commands" / "knowledge" / "scout_fidelity.py"
+    assert expected.is_file(), f"scout_fidelity.py not found at {expected}"
+
+
+def test_g08_pass_when_no_findings():
+    """A product with no knowledge/ and no clone cache -> every scout_
+    fidelity probe UNAVAILABLE/SKIP -> 0 findings -> G-08 PASS."""
+    readiness_gate.configure(repo_root=None)
+    result = readiness_gate.gate_g08_scout_fidelity("nonexistent-test-family-xyz", "typescript")
+    assert result.status == readiness_gate.STATUS_PASS
+    assert result.status != readiness_gate.STATUS_FAIL
+
+
+def test_g08_warn_never_fail_on_real_product_with_findings():
+    """This is the whole point of G-08 (Decision 13): 3d/typescript's real,
+    tracked knowledge (0 abstract_class_declaration entries, 0 captured
+    docs, 100/100 test-tier snippets — the exact pre-TC-MT040-10/12 shape)
+    produces a real finding via scout_fidelity's P5 probe even with no clone
+    cache present (index-only signal) — and G-08 must report STATUS_WARN,
+    never STATUS_FAIL, for it."""
+    readiness_gate.configure(repo_root=None)
+    real_root = readiness_gate._REPO_ROOT
+    api_surface = real_root / "knowledge" / "3d" / "typescript" / "merged" / "api_surface.json"
+    if not api_surface.is_file():
+        pytest.skip("knowledge/3d/typescript/merged/api_surface.json not present in this checkout")
+    result = readiness_gate.gate_g08_scout_fidelity("3d", "typescript")
+    assert result.status != readiness_gate.STATUS_FAIL
+    if result.status == readiness_gate.STATUS_WARN:
+        assert "advisory" in result.detail.lower() or "never blocking" in result.detail.lower()
+
+
+def test_g08_skip_on_missing_script(tmp_path):
+    """Redirecting repo_root to an empty tmp_path (via the module's own
+    configure() seam) means scout_fidelity.py genuinely does not exist at
+    the constructed path -- _run's FileNotFoundError path returns
+    non-JSON output, which G-08 must handle as SKIP, not crash."""
+    readiness_gate.configure(repo_root=tmp_path)
+    try:
+        result = readiness_gate.gate_g08_scout_fidelity("fake", "typescript")
+        assert result.status == readiness_gate.STATUS_SKIP
+    finally:
+        readiness_gate.configure(repo_root=None)
+
+
+def test_g08_independent_of_g03_source_coupling():
+    """G-03 (DAR coverage) currently FAILs repo-wide for an unrelated,
+    pre-existing reason (MT039 G5-22). Prove structural independence: G-08's
+    implementation never references G-03's gate function or DAR-coverage
+    internals at all -- there is no code path by which G-03's result could
+    suppress, gate, or otherwise influence G-08's own result."""
+    import inspect
+    source = inspect.getsource(readiness_gate.gate_g08_scout_fidelity)
+    assert "gate_g03" not in source
+    assert "dar_coverage" not in source.lower()
