@@ -119,6 +119,9 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-108 | content-enrich | S-83 | content-enrich | Ported; aspose S-83 |
 | S-109 | seo-review | *(none)* | *(none)* | foss-only governance gate |
 | S-110 | pipeline-harden | *(none)* | pipeline-harden | Ported from aspose.org S-99; foss-new ID to avoid collision with translate-page |
+| S-116 | llms-generate | S-LG-01 | llms-generate | Ported 2026-08-29; generalized to config.yaml sites: block instead of 5 hardcoded subdomains; new backing script (not source's scripts/generator/llms-generator.py) |
+| S-117 | llms-coverage | S-LG-03 | llms-coverage | Ported 2026-08-29; same generalization as S-116 |
+| S-118 | llms-fidelity | S-LG-04 | llms-fidelity | Ported 2026-08-29; same generalization as S-116 |
 
 ---
 
@@ -139,6 +142,8 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | aspose.org ID | Name | Notes |
 |---|---|---|
 | S-100 | blog-migrate | Blog migration workflow (7.65KB); lower relevance for standalone repo |
+| S-LG-02 | llms-verify | Deferred 2026-08-29: live-HTTP deploy-endpoint verification; assumes a deployed site with real URLs, not yet generalized -- see TASK_BACKLOG.md |
+| S-LG-05 | llms-stale | Deferred 2026-08-29: provenance-hash staleness manifest; deferred alongside llms-verify, not a blocker for llms-generate/coverage/fidelity -- see TASK_BACKLOG.md |
 
 ---
 

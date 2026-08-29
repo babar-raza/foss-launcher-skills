@@ -183,3 +183,21 @@ Backing recon: `C:\Users\prora\.claude\plans\bright-singing-harbor.md`
 - [ ] Phase 8: verification evidence + closure report (PAR-013)
 
 ---
+
+## Workstream SYNC-2026-08-29 -- Deferred from lean re-sync
+
+Source: aspose.org @ commit `202e4a7b97f0e4963fedf598ac47ed22bce22181`. Full
+context: `docs/parity/sync-runs/2026-08-29-202e4a7b97.md`. These are
+explicit deferrals, not silent omissions -- each has a reason.
+
+| ID | Task | Reason for deferral | Acceptance |
+|----|------|---------------------|-----------|
+| SYNC-1 | Port aspose.org's concurrency-safety stack (`taskcard_store.py`, `master_plan_index.py`, `git_plumb_commit.py` + its 2 mandatory safety checks, ~2,400 lines) | Largest, highest-value, highest-effort item; needs its own dedicated pass. Compare against this repo's existing `TASK_BACKLOG.md`/`backlog/` mechanism first -- it may already cover part of the same need differently (see `docs/governance/planning-methodology.md`'s honest gap notes) | Generalized modules ported, tested, and either integrated with or explicitly justified as separate from the existing backlog mechanism |
+| SYNC-2 | Evaluate porting `readme-refresh` | Source's own forensic trust audit (2026-08-26) found 172 confirmed defects across 31 products, 12 BLOCKERs, several live in production. Do not port an audited-as-broken capability | Re-evaluate only after source's own remediation lands; track source's fix status before reopening |
+| SYNC-3 | Governance-audit cluster: `workflow-harden`, `plan-health-watchdog`, `blind-spot-audit`, `forensic-heal-sprint`, `regression-classification`, `triage-verdict-gate`, `plan-normalize` | Depends on the concurrency-safety stack (SYNC-1); defer together | Ported as a batch once SYNC-1 lands |
+| SYNC-4 | Content-maintenance cluster: `body-refresh`, `frontmatter-body-consistency`, `semantic-diff`, `mechanism-sweep`, `change-sweep`, `discovery-triage`, `repo-patrol` | Moderate priority, moderate effort each; not part of this pass's lean scope | Each generalized and tested individually or as a small batch |
+| SYNC-5 | Java/Maven-specific cluster: `media-optimize`, `package-publish-watch`, `foss-java-publish`, `baseline-ledger-writer`, `maven-coord`/`maven-gav` Hugo shortcodes | Language/ecosystem-specific; needs a per-ecosystem extension design, not a core-skill port | Document as an example adapter pattern for a future extension mechanism, or implement that mechanism first |
+| SYNC-6 | Port `llms-verify` (S-LG-02) | Live-HTTP deploy-endpoint verification; assumes a deployed site with real, resolvable URLs -- not yet generalized in a config-driven way | Design a `site_base_urls` (or similar) config.yaml extension before porting |
+| SYNC-7 | Port `llms-stale` (S-LG-05) | Provenance-hash staleness manifest; adds a persistent-state-file design question deferred for its own review, not a blocker for `llms-generate`/`llms-coverage`/`llms-fidelity` | Design the manifest format/location deliberately, not as an afterthought |
+| SYNC-8 | Retroactively anchor the ~84 pre-2026-08-29 "parity complete" capabilities in `docs/parity/source-anchors.yaml` | This sync only anchors the 7 artifacts it touched; the rest of the 2026-05-14 closure's parity claims remain exactly as unverifiable as before this sync -- that gap is real and unclosed | Every capability from the 2026-05-14 closure has a `source-anchors.yaml` entry with a real commit SHA, independently re-verified (effectively redoing that audit properly) |
+| SYNC-9 | Behavioral-equivalence testing: run source skill X and target skill X against identical input and diff the actual output | Real methodological gap named in this sync's own report (root cause: "functional parity" claims are prose, not verified). Not attempted this pass | Start with the 7 items this sync ported (smallest surface, already have fixtures) before retrofitting the other ~84 |

@@ -7,7 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Durable upstream-drift-detection system for re-syncing from aspose.org:
+  `docs/parity/source-anchors.yaml` (commit-SHA-pinned provenance ledger),
+  `tools/capability_sync/detect_source_drift.py` (sibling to
+  `detect_adapter_drift.py`, checks upstream drift instead of internal
+  adapter drift), `scripts/ci/checks/check_hardcoded_external_coupling.py`
+  (structural-coupling linter), `scripts/pipeline/commands/ops/compute_source_delta.py`
+  (repeatable git-log-based delta tool). Replaces the prior model of a
+  full manual re-audit per sync with a pinned-SHA, tool-assisted delta.
+- `docs/governance/planning-methodology.md` -- this repo's own binding for
+  the newly-ported `docs/reference/planning-execution-state-machine.md`.
+- Three new skills generalized from aspose.org's llms-* family:
+  `llms-generate` (S-116), `llms-coverage` (S-117), `llms-fidelity`
+  (S-118), plus backing scripts `scripts/llms_generate.py`/`llms_coverage.py`/
+  `llms_fidelity.py` and shared helpers in `scripts/llms_common.py`.
+  Generalized to iterate config.yaml's `sites:` block instead of a
+  hardcoded 5-subdomain list. `llms-verify` and `llms-stale` intentionally
+  not ported this pass -- see TASK_BACKLOG.md Workstream SYNC-2026-08-29.
+- `scripts/pipeline/lib/session_identity.py` (ported near-verbatim) and an
+  additive `caller_identity` field on `session_ledger.py`'s session
+  manifests.
+- `tests/fixtures/generic_hugo_repo/` -- a synthetic, non-Aspose Hugo
+  content fixture used to prove the llms-* skills work against a generic
+  content repo without any aspose.org dependency.
+
 ### Fixed
+- `scripts/content_repo_adapter.py`'s write-safety boundary was hardcoded
+  to a literal aspose.org filesystem path since this repo's first sync,
+  undetected through two prior "parity complete" closures. Now
+  config/env driven (`FORBIDDEN_CONTENT_ROOT`); the old constant is
+  preserved as the documented backward-compatible default, so existing
+  callers and tests are unaffected.
 - Coverage threshold corrected: the v0.2.0 entry incorrectly stated
   `fail_under` was raised to 70%. The actual enforced CI threshold is 12%
   (matching `pyproject.toml`). The 70% target is aspirational and tracked in

@@ -1,8 +1,24 @@
 # Parity Documents
 
 **Program:** Skill Parity Migration — aspose.org to foss-launcher-skills-gitlab
-**Status:** COMPLETE (refreshed 2026-05-14)
-**All current aspose.org capabilities proven functionally covered by standalone implementation.**
+**Status:** See "Current State" immediately below — do not trust the historical "COMPLETE" status alone.
+
+---
+
+## Current State (2026-08-29)
+
+The 2026-05-14 "84/84 FUNCTIONAL parity, 0 gaps" closure below was accurate when written but was never re-verified against aspose.org's actual git history — every comparison to date (this one included, historically) diffed live directories on a session date, never a pinned source commit SHA. 267 aspose.org commits landed between 2026-04-17 and 2026-08-29 with no mechanism that would ever have surfaced that drift.
+
+This sync introduces `docs/parity/source-anchors.yaml` — a commit-SHA-pinned ledger, checked by `tools/capability_sync/detect_source_drift.py --check`, that makes future drift detectable with one command instead of a full manual re-audit.
+
+**Honest scope of what is now anchored:** only the 7 artifacts touched by the 2026-08-29 sync (see the dated section below) have a `source-anchors.yaml` entry. The other ~84 capabilities from the 2026-05-14 closure remain exactly as unpinned/unverifiable as they were before this sync — retroactively anchoring them is tracked as its own item in `TASK_BACKLOG.md` (Workstream SYNC-2026-08-29), not silently assumed done.
+
+```bash
+# Check whether anything anchored has drifted upstream (requires aspose.org
+# checked out locally; SOURCE_REPO_PATH points at it):
+export SOURCE_REPO_PATH=/path/to/aspose-org-checkout
+.venv/bin/python tools/capability_sync/detect_source_drift.py --check
+```
 
 ---
 
@@ -77,3 +93,47 @@ functional parity proven through different implementation: 84
 gap_counts: {}
 standalone_only: 8
 ```
+
+## 2026-08-29 Delta Sync Result
+
+Lean re-sync of the drift accumulated since the 2026-05-14 closure (267
+aspose.org commits, ~44 new skills upstream). Full detail:
+`docs/parity/sync-runs/2026-08-29-202e4a7b97.md`.
+
+**Ported (7 artifacts, each anchored in `source-anchors.yaml` at aspose.org
+commit `202e4a7b97f0e4963fedf598ac47ed22bce22181`):**
+
+- `scripts/pipeline/lib/session_identity.py` (near-verbatim; zero Aspose coupling in source)
+- `scripts/ci/checks/check_stale_file_regression.py` (adapted: session_ledger auto-resolve dropped)
+- `scripts/ci/checks/check_module_consumption.py` (adapted: scan-root note only)
+- `docs/reference/planning-execution-state-machine.md` (copied verbatim, confirmed generic)
+- `skills/llms-generate.md` / `llms-coverage.md` / `llms-fidelity.md` (S-116/117/118; generalized to config.yaml `sites:` instead of 5 hardcoded subdomains)
+
+**New system infrastructure built this sync (not a port -- new in this repo):**
+
+- `docs/parity/source-anchors.yaml` -- commit-SHA-pinned provenance ledger
+- `tools/capability_sync/detect_source_drift.py` -- upstream drift detector, sibling to `detect_adapter_drift.py`
+- `scripts/ci/checks/check_hardcoded_external_coupling.py` -- structural-coupling linter (caught a real pre-existing bug, see below)
+- `scripts/pipeline/commands/ops/compute_source_delta.py` -- repeatable `git log`-based delta tool
+- `docs/governance/planning-methodology.md` -- this repo's own binding for the ported planning doc
+
+**Bug found and fixed by the new linter, not silently left in place:**
+`scripts/content_repo_adapter.py`'s write-safety boundary was hardcoded to
+`D:/onedrive/Documents/GitHub/aspose.org/content` since this repo's very
+first sync -- present through both prior "parity complete" closures,
+undetected because nothing checked for that class of bug. Now config/env
+driven (`FORBIDDEN_CONTENT_ROOT`), with the old constant preserved as the
+documented backward-compatible default (existing tests unchanged, all pass).
+
+**Deferred (see `TASK_BACKLOG.md`, Workstream SYNC-2026-08-29):**
+concurrency-safety stack (taskcard_store.py/master_plan_index.py/git_plumb_commit.py),
+readme-refresh (source's own forensic audit found 172 defects, do not port),
+governance-audit cluster, content-maintenance cluster, Java/Maven cluster,
+llms-verify + llms-stale (live-HTTP + provenance-manifest, out of scope this
+pass), retroactive source-anchor backfill for the pre-2026-08-29 84
+capabilities, behavioral-equivalence testing.
+
+**Final readiness judgment: safe with noted limitations** -- see the sync
+report for the full limitations list (heuristic linter/classifier, no CI
+wiring for source-drift detection, only 7/91 capabilities anchored, no
+behavioral-equivalence testing).
