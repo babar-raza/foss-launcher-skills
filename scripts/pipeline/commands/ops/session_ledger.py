@@ -65,6 +65,18 @@ from tempfile import NamedTemporaryFile
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# 2026-08-29 sync: additive, informational caller identity (agent-harness
+# identity via env vars -- see session_identity.py's own docstring for why
+# this is deliberately NOT wired into this module's session-ID GENERATION,
+# only recorded alongside it).
+_LIB_DIR = _DEFAULT_REPO_ROOT / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+try:
+    import session_identity
+except ImportError:  # pragma: no cover - defensive, must never break session_ledger
+    session_identity = None
+
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _SESSION_DIR = _REPO_ROOT / "reports" / "session-state"
 _ACTIVE_POINTER = _SESSION_DIR / "ACTIVE"
@@ -337,12 +349,19 @@ def init_session(session_id: str | None = None) -> str:
     _clear_active_pointer()
 
     dirty = _git_dirty_files()
+    caller_identity = None
+    if session_identity is not None:
+        try:
+            caller_identity = session_identity.resolve_sanitized()
+        except Exception:  # pragma: no cover - identity resolution must never break init
+            caller_identity = None
     manifest = {
         "session_id": session_id,
         "started_at": _now_iso(),
         "dirty_at_start": dirty,
         "touched_files": {},
         "status": "active",
+        "caller_identity": caller_identity,
     }
 
     path = _session_path(session_id)
