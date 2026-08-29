@@ -1,33 +1,76 @@
 mission_authority:
-  mission_id: MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL
-  mission_summary: "Full-portfolio forensic blind-spot audit and system heal across all 31 registered FOSS products (data/products.json), executed via the real S-122 blind-spot-audit + S-123 forensic-heal-sprint skill chain, per the forensically-hardened plan snoopy-rolling-hellman.md. Preceded by Step 0.5 prior-state reconciliation (2026-08-24): re-verified MT026's 6 systemic regression-test fixes still pass (74 passed, 0 failed, 1 skipped: test_rust_support.py 10/10, test_code_reachability.py, test_duplicate_content.py, test_publish_readiness_review_run.py); and properly finished MT028's abandoned font/python mission end-to-end (re-verified all 4 real fixes live, ran all 4 pilot-check chains to resolution, ran an independent 12-probe adversarial review via a fresh no-context subagent -- zero blockers, but it surfaced and I gave honest dispositions to two previously-silently-dropped items: an orphaned finding with no root cause ever assigned (closed after live re-verification via audit.py + deterministic gap-eval found no reproduction) and half of one fix's original scope that was never executed (marked OUT_OF_SCOPE, explicitly deferred to this new campaign's own Step 2, which is structured to catch that exact cross-product pattern) -- then closed MT028 for real: SYSTEM_HEALED_WITH_LIMITATIONS, ledger row appended to docs/governance/forensic-heal-history.md. Executed in 9 batches, smallest/never-touched product first (tex/python, 34 English-only pages) scaling up to the largest (pdf, 2,267 pages) last, with MT026's 5 already-closed products (cells/rust, barcode/python, html/python, words/python, cells/net) re-audited last of all per this mission's own claims-not-proof principle. Per-batch checkpoint before any healing/content-regen/commit begins for that batch: mandatory for batches 1-3, then the operator chooses whether to continue per-batch or relax to exception-only checkpoints for the rest. Any skill/governance_doc-layer fix requires an explicit human-approved override token (never self-authorized) before it can be marked IMPLEMENTED."
-  governing_plan_path: "C:/Users/prora/.claude/plans/snoopy-rolling-hellman.md"
-  current_phase: "Step 0 and Step 0.5 complete (conflict check clear; MT028 reconciled and closed; MT026 regression tests re-verified). Opening this campaign mission and about to seed Batch 1 (tex/python)."
+  mission_id: MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+  mission_summary: 'Harden the TypeScript-platform content pipeline (scout/reachability/doc-capture/formats/snippets/reference-grouping/prose-purity/install-identity/completeness
+    diagnostics/wiring test, plus the structural layer D-1..D-8: capability contract, extraction fidelity
+    gate, language adapters, module assignment, tiered snippets, format-signal recogniser, product-registry
+    loader, launch execution contract, acceptance bindings) under S-99 pipeline-harden, then launch pdf/typescript
+    (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript) through the hardened /launch-product chain across
+    all 5 aspose.org subdomains to S-90 PUBLISH and READY TO SHIP, then (Phase I) remediate the two already-launched
+    TypeScript products, cells/typescript and 3d/typescript, through a run-bound refresh_run.py --mode
+    combined using the same hardened extractor, resolving cells'' active-vs-excluded liveness contradiction
+    and harvesting 3d''s hand-curated reference index into the generator, all traced through one taskcard.jsonl
+    and one evidence bundle.'
+  governing_plan_path: C:/Users/prora/.claude/plans/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md
   in_scope_outcomes:
-    - "Batch 1 (tex/python, 34 pages): S-122 audit -> checkpoint -> S-123 heal for tex/python -- NEVER_TOUCHED before this mission"
-    - "Batch 2 (note/python, page/python, 265 pages): S-122 audit -> checkpoint -> S-123 heal -- both NEVER_TOUCHED"
-    - "Batch 3 (email/cpp, email/net, email/python, 242 pages): S-122 audit -> checkpoint -> S-123 heal -- all NEVER_TOUCHED"
-    - "Batch 4 (words/net): S-122 audit -> checkpoint -> S-123 heal -- NEVER_TOUCHED (words/python already CLOSED under MT026)"
-    - "Batch 5 (3d/java, 3d/net, 3d/python, 3d/typescript, 990 pages): S-122 audit -> checkpoint -> S-123 heal -- all NEVER_TOUCHED"
-    - "Batch 6 (slides/cpp, slides/java, slides/net, slides/python, 1,260 pages): S-122 audit -> checkpoint -> S-123 heal -- all NEVER_TOUCHED"
-    - "Batch 7 (cells/cpp, cells/go, cells/java, cells/python, cells/typescript): S-122 audit -> checkpoint -> S-123 heal -- all NEVER_TOUCHED (cells/net, cells/rust already CLOSED under MT026)"
-    - "Batch 8 (pdf/cpp, pdf/go, pdf/java, pdf/net, pdf/python, 2,267 pages -- largest family, deliberately last): S-122 audit -> checkpoint -> S-123 heal -- all NEVER_TOUCHED"
-    - "Batch 9 (cells/rust, barcode/python, html/python, words/python, cells/net -- fresh re-audit of MT026's already-CLOSED products, lowest priority, scheduled last): S-122 audit -> checkpoint -> S-123 heal"
-    - "Campaign close: evidence-declaration.yaml + final report produced once all 9 batches reach a terminal state"
+  - 'TypeScript pipeline hardening: 12 G-TS gaps + 6 G-SK skill-doc gaps + structural D-1..D-8 layer,
+    all with dedicated regression tests, landed as C1-C4 commits + skill-doc commit'
+  - pdf/typescript registered, cloned, knowledge-bootstrapped (baseline + authoritative), and launched
+    across products/blog/docs/kb/reference on aspose.org, with websites.aspose.org sync
+  - pdf/typescript passes AGENTS.md §7d, truth-audit 0 FAIL, all 16 launch gates, S-90 PUBLISH verdict,
+    readiness scorecard READY TO SHIP
+  - cells/typescript liveness (active vs excluded) resolved with live evidence; both cells/typescript
+    and 3d/typescript remediated end-to-end via refresh_run --mode combined (re-scout, full reference
+    rebuild, body refresh, locale handoff, bound S-90 verdict)
+  - one taskcard.jsonl (schema 5f) as the sole durable status ledger; one evidence bundle at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
+    validated by validate_evidence_bundle.py
   out_of_scope_items:
-    - "font/python -- already reconciled and closed under its own mission_id (MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL) in this mission's Step 0.5, not re-audited under this campaign's mission_id"
-    - "Hardening S-122's own evidence-persistence gap (the --evidence-file JSON passed to the blind-spots/root-cause phases is not archived verbatim under reports/blind_spot_audit/{run_id}/, discovered during MT028 reconciliation when SFND-font-python-005's full finding content could not be recovered) -- a real system defect worth its own dedicated backlog item / mission, not fixed inline here"
-    - "TC-MT028-TC03-COVERAGE-SWEEP-DEFERRED's original cross-product sweep intent for the unpublished-package-install-claim pattern -- subsumed into this campaign's own Step 2 instruction to check every new finding against MT026's known root causes (including RC-W1-003), not a separate deliverable"
-    - "Any fix requiring a write to skills/, docs/governance/, docs/workflows/, docs/registries/, .claude/, .agents/, or .kilocode/ without an explicit human-approved override_manager.py token -- these are surfaced to the operator, never self-authorized"
-    - "Dangling documentation references discovered live (docs/OPERATOR_BYPASSES.md, docs/BYPASS_REGISTRY.md, docs/GOVERNANCE_QUICKSTART.md -- all cited by check_write_path_hook.sh's error message but none exist in the repo) -- a real governance-documentation gap worth its own backlog item, not fixed inline here"
+  - Building the full run-bound `launch` mode inside refresh_run.py (D-8c) — proposed as a shared card
+    with MT039 TC-MT039-12, not built in this mission
+  - Extending unreachable-class skipping (reference_filter policy) to python/rust products — scheduled
+    for their own future refresh runs
+  - Harvesting TSDoc @example blocks into snippets — deferred until a TS product has >=10 such blocks
+    (filed as a backlog follow-up)
+  - Publishing @asposefoss/pdf to npm — outside this repo's authority; package_registry entry records
+    published:false
+  - Non-English (locale) content generation for the NEW pdf/typescript launch — English-only per MT012/MT013
+    precedent; a /ht-translate-batch follow-up is filed
+  - Fixing MT039's own planning-sprint scope beyond the 4 refresh-chain gap cards (G5-04/06/12/22) this
+    mission needs for Phase I
   mandatory_acceptance_criteria:
-    - "Every taskcard bound to this mission_id reaches CLOSED, or an explicitly documented BLOCKED_EXTERNAL/BLOCKED_LOCAL/DEFERRED(PAUSED)/OUT_OF_SCOPE/SUPERSEDED exception with evidence -- none silently abandoned at TODO/IN_PROGRESS"
-    - "One docs/governance/forensic-heal-history.md row exists per closed batch (9 expected, possibly more if any batch needs a corrective re-close)"
-    - "Every batch's Step 3 checkpoint genuinely paused for operator review before its Step 4 healing began (verifiable by the absence of any healing/content-regen tool call between that batch's bind-taskcards and the operator's next message)"
-    - "No skill/governance_doc-layer taskcard reached IMPLEMENTED without a human-approved override token"
-    - "mission_authority.py close --mission-id MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL run against the archived snapshot once all 9 batches are terminal"
+  - Every G-TS/G-SK/D-1..D-8 taskcard reaches CLOSED with evidence_refs, or an explicit BLOCKED_EXTERNAL/SUPERSEDED/OUT_OF_SCOPE
+    disposition with evidence — none silently abandoned at TODO/IN_PROGRESS
+  - 'pdf/typescript: launch_gate.py reports all 16 gates PASS/SKIP/WARN with zero PASS->FAIL regressions
+    vs the S-99 baseline; S-90 final-verdict.md = PUBLISH; readiness_scorecard.py reports READY TO SHIP'
+  - 'Fleet regression: scout_fidelity calibration re-run over all 31 products shows every product equal-or-better
+    than its pre-mission baseline; extraction goldens for non-TS-opted platforms are byte-identical'
+  - 'cells/typescript and 3d/typescript: refresh_run.py manifests reach COMMITTED (or a recorded BLOCKED_EXTERNAL
+    with exact resume condition), content_coverage_comparison.newly_missing == [] for each, S-90 verdicts
+    bound (R-1) and current'
+  - A single evidence bundle exists at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
+    passes validate_evidence_bundle.py with exit 0, and its absolute path is reported in the final response
+  - mission_authority.py close --mission-id MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH run against the archived
+    snapshot once the mission reaches a terminal state
+  human_authority_boundaries:
+  - Any edit to AGENTS.md itself (§7d wording amendment is proposed in the mission doc, not applied to
+    AGENTS.md by the agent)
+  - KNOWLEDGE_QUALITY_OVERRIDE token issuance
   conflicts_found:
-    - "Checked live via mission_authority.py status (2026-08-24, this session): locks: [] (empty); the only active skill-context session (400003e6-5fb1-4cff-8b82-84975a40e2b4, skill S-76) is scoped to scripts/pipeline/lib/backlink_targets.py and scripts/pipeline/tests/test_backlink_audit.py -- no overlap with this mission's paths (reports/blind_spot_audit/*, reports/plan_state/MT037-.../*, the S-122/S-123 scripts, and the batches' target content/knowledge paths)."
-    - "mission_authority.py list shows concurrent-toasting-biscuit, MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS, backlink-governance-redesign, readme-disposition-remediation-2026-08-18, and readme-refresh-seo-deps-headings-hardening-2026-08-19 all still [open] (root-slot occupant concurrent-toasting-biscuit specifically). No live lock references any of their paths (confirmed via the empty locks[] above). Per this repo's own established precedent (concurrent-toasting-biscuit's own conflicts_found entry for its MT014 predecessor), an [open]-but-lockless prior mission is expected tool behavior -- mission_authority.py close only updates the archive, never the root projection -- and taking over the root slot here does not destroy concurrent-toasting-biscuit's own archived state at reports/plan_state/concurrent-toasting-biscuit/mission_authority.yaml."
-    - "MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL showed as [open] in the same list check (taken before this mission's own Step 0.5 work); it is now genuinely CLOSED as of this mission's Step 0.5 (see mission_summary above) -- the list's [open] tag will read stale until MT028 is separately archived/closed via mission_authority.py, which is a pre-existing tool-usage gap unrelated to this campaign (per the same root-projection-vs-archive distinction noted above)."
+  - 'Checked live at mission open (2026-08-29, this session): mission_authority.py status --json -> locks:
+    [] (empty), sessions: no active session besides this one. Root MISSION_AUTHORITY.yaml was held by
+    MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL (open, mission_locked:false) with an archived snapshot
+    at reports/plan_state/MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL/mission_authority.yaml -- per
+    this repo''s established precedent (mission_authority.py close only updates the archive, never the
+    root projection), taking over the root slot here does not destroy MT037''s own archived state.'
+  - MT039-2026-08-28-PRODUCT-LAUNCH-REFRESH-EXECUTION (19 taskcards, all TODO, mission never opened via
+    mission_authority.py open) shares 5 cards with this mission by design (TC-MT039-13 liveness/exclusions
+    <-> TC-MT040-51; TC-MT039-11 extractor-hash <-> TC-MT040-48; TC-MT039-12 no-op state <-> TC-MT040-53/56;
+    TC-MT039-01/03/04/02 refresh-chain gaps <-> TC-MT040-52). Both mission ids are recorded in the shared
+    cards' source_finding; this mission fixes the 4 refresh-chain gaps and the extractor-hash/liveness
+    items directly (Decision 18a) rather than waiting on MT039.
+  - 'Working tree carries 804 dirty lines (42 files staged, 191 untracked) from other sessions at mission-open
+    time, none overlapping this mission''s allowed_paths (spot-checked: knowledge/pdf/net/**, keywords/*.json,
+    backlog/inbox.md, .claude/commands/{new-docs-index,new-products-page,page-update}.md, data/registry_exclusions.json,
+    data/seo_schema_a_migration_state.json) -- left untouched; all commits in this mission use git_plumb_commit.py''s
+    isolated temp index (never `git add`/`git commit` against the shared real index) so this foreign staged
+    state is never at risk of being swept into a mission commit.'
   mission_locked: false
