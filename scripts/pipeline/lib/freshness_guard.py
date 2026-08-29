@@ -282,6 +282,16 @@ def check_freshness(family: str, platform: str, *, mode: str = "degraded") -> Fr
 
     model = _load_model(family, platform)
     if model is None:
+        # _load_model() collapses "file missing" and "file present but
+        # unparseable" into the same None -- distinguish them here so a
+        # corrupt model.yaml (a much more concerning signal than "knowledge
+        # was never bootstrapped") reports CORRUPT, matching the existing
+        # CORRUPT-on-unparseable-bundle_manifest.json precedent below,
+        # instead of the misleading "not found" message.
+        if _model_path(family, platform).is_file():
+            return FreshnessResult(
+                "CORRUPT", "merged/model.yaml parse error -- file exists but is not valid YAML",
+            )
         return FreshnessResult("PROVENANCE_MISSING", "no merged/model.yaml found for this product")
 
     resolved_sha, resolved_from = resolve_baseline(family, platform)
