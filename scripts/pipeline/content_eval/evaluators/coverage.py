@@ -19,17 +19,29 @@ KNOWLEDGE_ROOT = Path("knowledge")
 INTERFACE_PAGE_PLATFORMS = {"net", "java"}
 # C++ and Python use I-prefixed types as implementation contracts — no pages.
 # Rust has traits (rendered as their own pages), not I-prefixed interfaces.
-CONCRETE_ONLY_PLATFORMS = {"cpp", "python", "rust"}
+# TypeScript/JavaScript added TC-MT040-22 (G-TS-09): interface/type-alias
+# declarations are pervasive TS type-contract vocabulary (cells/typescript
+# alone has 53 interfaces + 25 type aliases) -- without this, every one of
+# them counted as an "important class missing" coverage-gap finding on docs
+# pages, a volume of false positives no other CONCRETE_ONLY platform has.
+CONCRETE_ONLY_PLATFORMS = {"cpp", "python", "rust", "typescript", "javascript"}
 
 
 def _is_interface_entry(name: str, kind: str) -> bool:
     """Return True if this class entry represents an abstract interface.
 
     Detects by:
-    1. kind field set to "interface" or "abstract_class"  (populated by S-Fix-4)
+    1. kind field set to "interface" or "abstract_class" (populated by S-Fix-4),
+       or the real tree-sitter TypeScript kind strings "interface_declaration"/
+       "type_alias_declaration"/"abstract_class_declaration" (TC-MT040-22,
+       G-TS-09) -- verified no extraction code anywhere in this repo ever
+       produces the bare "interface"/"abstract_class" strings this function
+       originally checked for; this addition is what actually makes the
+       check fire for real TypeScript api_surface.json entries.
     2. Name pattern: starts with "I" followed by an uppercase letter (C++ idiom)
     """
-    if kind in ("interface", "abstract_class"):
+    if kind in ("interface", "abstract_class", "interface_declaration",
+                "type_alias_declaration", "abstract_class_declaration"):
         return True
     if len(name) >= 2 and name[0] == "I" and name[1].isupper():
         return True

@@ -1209,6 +1209,20 @@ class TestCoverageInterfaceFiltering:
         assert "java" in self.INTERFACE_PAGE_PLATFORMS
         assert "dotnet" not in self.INTERFACE_PAGE_PLATFORMS
 
+    def test_typescript_real_kind_strings_detected(self):
+        # TC-MT040-22 (G-TS-09): the real tree-sitter kind strings TS
+        # extraction actually produces (not the bare "interface"/
+        # "abstract_class" this function originally checked for, which no
+        # extraction code anywhere produces for any platform).
+        assert self._is_interface_entry("Shape", "interface_declaration") is True
+        assert self._is_interface_entry("Handle", "type_alias_declaration") is True
+        assert self._is_interface_entry("Base", "abstract_class_declaration") is True
+        assert self._is_interface_entry("Document", "class_declaration") is False
+
+    def test_typescript_javascript_in_concrete_only(self):
+        assert "typescript" in self.CONCRETE_ONLY_PLATFORMS
+        assert "javascript" in self.CONCRETE_ONLY_PLATFORMS
+
 
 class TestCoverageSlug:
     """S-Fix-6: Slug generation for enum page lookup."""

@@ -536,7 +536,15 @@ platforms:
       value: typescript
     trouble_platform: true
     coverage_policy:
-      concrete_only: false
+      concrete_only: true
+      concrete_only_note: >
+        Flipped false -> true by TC-MT040-22 (G-TS-09): TS interfaces/type
+        aliases are pervasive type-contract vocabulary (cells/typescript
+        alone has 53 interfaces + 25 type aliases) -- without this every one
+        of them counted as an "important class missing" coverage finding.
+        _is_interface_entry() was also extended to recognize the real
+        interface_declaration/type_alias_declaration/abstract_class_declaration
+        kind strings TS extraction actually produces.
     case_convention: camelCase
     reachability_adapter:
       status: real
