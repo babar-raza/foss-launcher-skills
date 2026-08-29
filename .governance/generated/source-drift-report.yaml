@@ -1,0 +1,8 @@
+drift_entries: []
+generated_at: '2026-08-29T13:49:08.953198Z'
+generator: tools/capability_sync/detect_source_drift.py
+source_repo_label: aspose.org
+summary:
+  drift_detected_count: 0
+  total_anchors_checked: 7
+  verdict: NO_DRIFT

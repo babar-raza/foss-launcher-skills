@@ -1,0 +1,91 @@
+# docs/parity/source-anchors.yaml
+#
+# Source-of-truth anchor ledger for every artifact ported into this repo from
+# aspose.org (or independently re-verified against it). This is what makes a
+# future re-sync a `git diff <commit_sha>..HEAD -- <source_path>` instead of
+# another full manual re-audit.
+#
+# Read by: tools/capability_sync/detect_source_drift.py
+# Written by: an agent/session performing a sync, immediately after porting
+# and testing an artifact -- never speculatively, never before the port is
+# verified working in this repo.
+#
+# `source_repo_label` below is a LABEL only, never a literal filesystem path
+# -- the actual clone location is resolved at check time via the
+# $SOURCE_REPO_PATH environment variable (see detect_source_drift.py). This
+# file must never contain a hardcoded aspose.org filesystem path.
+#
+# Design note (2026-08-29 sync): capability_id is populated only for entries
+# that are also registered skills in skills/registry.yaml. Most ported
+# artifacts (shared libraries, CI checks, reference docs) are not skills and
+# have no capability_id -- capability.schema.json's skill-ID-keyed,
+# additionalProperties:false structure isn't a natural fit for tracking
+# non-skill infrastructure provenance, so this ledger is deliberately a
+# separate, general-purpose file rather than an extension bolted onto the
+# capability contract schema.
+#
+# HONEST LIMITATION: this ledger currently covers only the artifacts ported
+# in the 2026-08-29 sync. The ~84 capabilities from the 2026-05-14 "parity
+# complete" closure predate this mechanism and have NO anchor here -- their
+# parity claims remain exactly as unverifiable as before this file existed.
+# Backfilling them is tracked in TASK_BACKLOG.md (Workstream SYNC-2026-08-29).
+
+schema_version: 1
+source_repo_label: aspose.org
+
+anchors:
+  - target_path: scripts/pipeline/lib/session_identity.py
+    source_path: scripts/pipeline/lib/session_identity.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Near-verbatim port; source file has zero Aspose-specific content.
+
+  - target_path: scripts/ci/checks/check_stale_file_regression.py
+    source_path: scripts/ci/checks/check_stale_file_regression.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Adapted: session_ledger auto-resolve dropped (target session_ledger.py has no get_base_commit_sha); --base-sha explicit mode preserved as-is.
+
+  - target_path: scripts/ci/checks/check_module_consumption.py
+    source_path: scripts/ci/checks/check_module_consumption.py
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Adapted only for target's scan-root scope note; detection logic unchanged.
+
+  - target_path: docs/reference/planning-execution-state-machine.md
+    source_path: docs/reference/planning-execution-state-machine.md
+    capability_id: null
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Copied verbatim; confirmed zero Aspose-specific content before and after copy. Header re-pointed at this repo's own binding doc.
+
+  - target_path: skills/llms-generate.md
+    source_path: .claude/commands/llms-generate.md
+    capability_id: S-116
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Generalized: config.yaml sites: block instead of hardcoded 5 subdomains. New backing script scripts/llms_generate.py (not a port of source's scripts/generator/llms-generator.py). Scope cut: no nested per-product hierarchy, no provenance manifest, no live-HTTP verification.
+
+  - target_path: skills/llms-coverage.md
+    source_path: .claude/commands/llms-coverage.md
+    capability_id: S-117
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Generalized the same way as llms-generate. New backing script scripts/llms_coverage.py.
+
+  - target_path: skills/llms-fidelity.md
+    source_path: .claude/commands/llms-fidelity.md
+    capability_id: S-118
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-29T12:52:01Z"
+    notes: >
+      Generalized the same way as llms-generate. New backing script scripts/llms_fidelity.py.
