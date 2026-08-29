@@ -718,6 +718,44 @@ class TestNameCollisionDedup:
         assert "save" in content
         assert result["generated"] == 1  # only 1 page, not 2
 
+    def test_conventional_class_with_existing_page_stays_eligible_for_rebuild(self, tmp_path):
+        """A conventional-visibility class that already has a PUBLISHED page
+        must stay eligible for --rebuild-all, even though __all__ exports
+        exist (which excludes conventional classes from NEW-candidate
+        generation). Found live 2026-08-29, pdf/python's PdfNumber.md: its
+        class dropped `to_double()`/`to_int()` for a `value` property, but
+        because PdfNumber is "conventional" the unconditional H-04e filter
+        excluded it from every subsequent --rebuild-all pass -- the page
+        kept citing the removed methods indefinitely, caught only by an
+        unrelated validator (truth_audit), never by this generator."""
+        entries = [
+            {"name": "Exported", "kind": "class_definition",
+             "file": "document.py", "visibility": "exported",
+             "methods": [], "properties": []},
+            {"name": "PdfNumber", "kind": "class_definition",
+             "file": "engine/cos.py", "visibility": "conventional",
+             "methods": [{"name": "value", "params": [], "return_type": "float",
+                          "doc": "Gets the value.", "line": 1}],
+             "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "fake", "python")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "python"
+        out_dir.mkdir(parents=True)
+        stale_page = out_dir / "PdfNumber.md"
+        stale_page.write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n\n"
+            "## Overview\n\n`PdfNumber` methods: `to_double`, `to_int`.\n",
+            encoding="utf-8",
+        )
+
+        result = run("fake", "python", rebuild_all=True, confirm_rebuild=True)
+
+        assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+        content = stale_page.read_text(encoding="utf-8")
+        assert "to_double" not in content, "stale method must be removed on rebuild"
+        assert "value" in content
+
     def test_namespace_disambiguated_slugs(self, tmp_path):
         """Same-name classes with different namespaces get separate pages."""
         entries = [

@@ -1939,15 +1939,28 @@ def run(family: str, platform: str, kind_arg: str = "all",
     # H-04e: When __all__ is defined (detected by any "exported" entries),
     # exclude "conventional" classes — they are implementation details not
     # intended for public consumption. Only "exported" and "public" remain.
+    # EXCEPTION: a conventional class that already has a published reference
+    # page stays a candidate, so --rebuild-all can still keep it in sync.
+    # Unconditionally dropping every conventional entry silently orphaned
+    # already-published pages outside this generator's reach forever --
+    # found live 2026-08-29, pdf/python's PdfNumber.md: its class dropped
+    # `to_double()`/`to_int()` for a `value` property at some point, but
+    # since PdfNumber is "conventional" the page was excluded from every
+    # subsequent --rebuild-all candidate set (never regenerated, never
+    # flagged) and kept citing the removed methods indefinitely -- caught
+    # only by a separate, unrelated validator (truth_audit), not this one.
     _has_exports = any(e.get("visibility") == "exported" for e in candidates)
     if _has_exports:
         _conv_before = len(candidates)
-        candidates = [e for e in candidates
-                      if e.get("visibility") != "conventional"]
+        candidates = [
+            e for e in candidates
+            if e.get("visibility") != "conventional"
+            or (CONTENT_ROOT / family / platform / f"{_entry_slug(e)}.md").exists()
+        ]
         _conv_skipped = _conv_before - len(candidates)
         if _conv_skipped:
-            print(f"Skipped {_conv_skipped} conventional class(es) "
-                  f"(package defines __all__).")
+            print(f"Skipped {_conv_skipped} conventional class(es) with no "
+                  f"existing page (package defines __all__).")
 
     scoped_paths: set[str] | None = None
     if explicit_run_root and resolved_run_root is not None:
