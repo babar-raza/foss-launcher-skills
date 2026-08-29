@@ -63,7 +63,10 @@ Each cluster: `name`, `slug`, `claim_count`, `api_method_count`, `snippet_count`
 **KB** (mandatory except placeholder tier):
 - `faq.md` — always
 - `how-to-{verb}-{noun}-{platform}.md` — one per top cluster (max 5) with `claim_count >= 3 AND api_method_count >= 1 AND not in_limitations`
-- `troubleshooting.md` — if `howto_count >= 6 AND platform in {typescript, python, cpp}`
+- `troubleshooting.md` — if `howto_count >= TROUBLE_HOWTO_MIN AND platform in TROUBLE_PLATFORMS`
+  (currently 3 <!-- pin: site_planner.TROUBLE_HOWTO_MIN --> — lowered from 6 by SH-02 — and
+  `TROUBLE_PLATFORMS = {typescript, python, cpp, net, java, rust}`, not just the three
+  named in earlier drafts of this doc)
 - `use-cases.md` — if `claim_count >= 500 AND snippet_count >= 20`
 
 **Reference** (always mandatory): `_index.md` (layout: `reference-home`) + all classes/enums from `api_surface.json` via batch-reference.

@@ -1,9 +1,11 @@
 <!-- CONTRACT: agent-executed
      purpose: orchestrate 5-subdomain full documentation launch (products, blog, docs, kb, reference)
      preconditions: knowledge bootstrapped; clone cache populated
-     postcondition: all 5 subdomains populated, graded, and readiness scorecard produced
+     postcondition: all 5 subdomains populated, graded, readiness scorecard produced,
+                    blog index published, websites.aspose.org products sync run
      idempotent: yes — checkpoint-based resume skips completed stages
-     verified: 2026-04-11
+     verified: 2026-08-29 (TC-MT040-23: TypeScript platform notes, blog-index step,
+               S-69/S-70 backlink caveat, websites-sync stage, 16-gate reference)
 -->
 # S-49: Launch Product — 5-Subdomain Full Documentation Launch
 
@@ -25,7 +27,9 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 ## Stages
 
 ### STAGE 0 — Knowledge Bootstrap
-**Command**: `/knowledge-bootstrap {family} {platform}`
+**Command**: `/knowledge-bootstrap {family} {platform}` (agent-executed per `skills/knowledge-bootstrap.md`
+— that skill's own `.claude/commands/` mirror is deliberately absent, exempted via
+`scripts/pipeline/lib/_skill_constants.py`'s `INTERNAL_SKILLS`; do not create one).
 **Checkpoint**: `knowledge_ready`
 
 **On completion**:
@@ -34,7 +38,57 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
   to review what changed, then re-run `/launch-product {family} {platform}`."
 - Any other status → continue to Stage 0.5
 
+**TypeScript completeness gate** (TC-MT040-22, `platform in {typescript, javascript, nodejs}` only):
+```bash
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/typescript_api_completeness.py {family} {platform}
+```
+Exit 1 ⇒ treat as `KNOWLEDGE: STOP:partial` — the scout has missing/inconsistent barrel-exported
+declarations (`barrel_exports_missing_from_api_surface` or `exported_but_marked_unreachable` in
+the printed report). Also verify `knowledge/{family}/{platform}/scout/scout_report.json`'s
+`ts_entry_point` field is non-empty (the package's barrel/entry point resolved). An empty value is
+**not** a failure by itself — it means this product's reachability signal is `Unknown` (fail-safe;
+see `platform_capabilities.yaml`'s `typescript.reachability_adapter` note) — but record it in the
+launch evidence so a reviewer knows every class on this product will render, including any that
+would otherwise be filtered as unreachable elsewhere.
+
 **Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} knowledge_ready true`
+
+---
+
+### Platform notes — TypeScript/npm
+
+- **Install command**: always the `{{< package-install "{family}" "{platform}" >}}` shortcode,
+  never a literal `npm install ...` line — it reads `data/package_registry.json` (the entry MUST
+  exist before any page referencing it is generated; see Phase D of the launch, or
+  `scripts/pipeline/lib/product_registry.py::get_package_name()` for the resolution order:
+  registry candidate name when published → `naming_convention_candidate()` guess → `None`).
+  For an unpublished package the shortcode renders a "not yet published — build from source"
+  notice; never write `npm install {package}` as prose.
+- **Frontmatter**: `plugin_platform: TypeScript`, and `linkTitle: TypeScript` on all four
+  platform-level `_index.md` files (products/docs/kb/reference) — gate **L-16** enforces this.
+- **Reference page kinds**: `abstract_class_declaration` (TC-MT040-10), interfaces, and
+  type-alias declarations all render; interface/type-alias entries do not force `class_kind`
+  page-count penalties in the coverage evaluator (`CONCRETE_ONLY_PLATFORMS`, TC-MT040-22).
+  FR-14 accessor properties render as ordinary properties.
+- **Unreachable classes get no page, by design** — a class never re-exported through the
+  package's resolved barrel/entry point (`REACHABILITY_ENFORCED_PLATFORMS`, TC-MT040-17) is
+  silently skipped from the grouped reference index, matching the PY-SHIM discard precedent.
+  Do not hand-add a page for a class you notice missing without first checking whether it's
+  genuinely unreachable (`compute_barrel_completeness()`'s `exported_but_marked_unreachable`
+  field distinguishes "genuinely internal" from "a scout inconsistency").
+- **Reference grouping**: `_derive_group_key()` reads a knowledge-layer `module_key`/
+  `module_label` (written by `promote.py`, TC-MT040-43/D-4) when present, falling back to
+  directory-path derivation for older knowledge. For a flat `src/` layout (no subdirectories —
+  common for smaller TS packages) this uses a family-agnostic stem-keyword table
+  (forms/annotations/compliance/conversion/images/text/structure/security/navigation/tables/
+  attachments/redaction, `core` as the fallback) rather than collapsing everything into one
+  "Core API" group.
+- **Snippets are examples-first**: the tiered budget (Tier 0 README ≤10 → Tier 1
+  `examples/`/`samples/` ≤60 → Tier 2 tests, remainder to 100; TC-MT040-44/16) is enabled for
+  `typescript`/`javascript` specifically — leaf-only `it()`/`describe()` blocks, non-test files
+  under a `test`/`tests` dir contribute nothing, `docs/**/*.md` fences are never harvested.
+- **Import form**: `import { X } from "{package}"` per `merged/install.md`'s `canonical_import`
+  field, not a bare require/CommonJS form.
 
 ---
 
@@ -115,6 +169,14 @@ auto-generated content and clears the L-10 gate.
 ### STAGE 2 — Blog Posts
 **Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
 If missing, STOP and re-run Stage 0.5.
+
+**Step 0 — Blog index** (must run before any post — without it Hugo 404s the section route):
+```
+/new-blog-index {family} {platform}
+```
+**Checkpoint**: `blog_index_done` — set with `--artifact content/blog.aspose.org/{family}/{platform}/_index.md`
+(HARDEN-A6 fingerprinting; see Resume Behavior). Skip only if this checkpoint verifies AND the
+file exists.
 
 **Read**: `reports/plans/{family}/{platform}/site_plan.yaml` → `sections.blog.pages`
 
@@ -245,6 +307,18 @@ If any file is missing or malformed:
 re-run the relevant platform-index skill (`/new-docs-index`, `/new-kb-index`, or
 `/new-reference-index`) which will create the family index in its step 5.
 
+**Backlink caveat** (PDFPY-SKILLGAP-001): S-69/S-70/S-71's own generation of these
+section-home `_index.md` pages does not run a backlink pass on them — Stage 8's
+`backlink_audit.py`/`backlink_backfill.py` invocation covers per-class and per-post
+pages, but section-home pages created in this stage are a separate population. After
+this stage's verification passes, run:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py --write \n  --family {family} --platform {platform}
+```
+then re-run `backlink_audit.py` for the same family/platform before Stage 8's own
+audit — this catches a missing/anchor-non-compliant backlink on a section-home page
+before it reaches Stage 8's readiness gate.
+
 **Checkpoint**: `family_indexes_verified`
 
 ---
@@ -320,8 +394,20 @@ READY TO SHIP if:
 ### STAGE 8.5 — Governed Review Gates (H-01 through H-05, executed by S-90)
 
 > **Updated 2026-04-17** — H-gates are now executed by S-90 (`/publish-readiness-review`)
-> per §7c and §7a (full detail: [docs/governance/launch-gates.md](../docs/governance/launch-gates.md)). The agent performs all 5 gate equivalents. Real human escalation only
+> per §7c and §7a (full detail: [docs/_archive/pre-refactor/governance/launch-gates.md](../docs/_archive/pre-refactor/governance/launch-gates.md) — moved from `docs/governance/` per AGENTS.md §7a/§10, the link was stale before this update). The agent performs all 5 gate equivalents. Real human escalation only
 > per §7c conditions (see AGENTS.md §7c).
+>
+> The prior stage's `launch_gate.py` runs 16 <!-- pin: launch_gate.len(_ALL_GATES) -->
+> automated gates, L-01 through L-16 — not 15; the module's own docstring undercounted
+> L-12 through L-15 (denominator reconciliation, cross-subdomain build, grade
+> non-regression, snippet syntax) until this update. Of particular note for a new
+> launch: **L-10** (no "coming soon" placeholder — Stage 1.5 clears it), **L-11**
+> (canonical family display name), **L-12** (generation-manifest denominator gap must
+> be 0 — a real page/claim must exist for everything the site plan counted), and
+> **L-16** (platform `linkTitle` must exactly match `data/platforms.json` —
+> TypeScript's canonical value is `TypeScript`) are the four gates most likely to trip
+> on a first-time platform launch; the other twelve are steady-state regressions the
+> earlier stages already guard against.
 
 **Step 1 — Invoke S-90 as the governed H-gate executor:**
 ```
@@ -356,6 +442,40 @@ actioned by S-90's fix-skill invocations). If S-90 verdict is BLOCKED, the launc
 
 ---
 
+### STAGE 8.6 — websites.aspose.org Products Sync
+
+**Purpose**: `websites.aspose.org`'s own `products:` block (English + all 36 locale copies of
+`content/websites.aspose.org/.../aspose/org/_index.md`) is generated independently from
+`data/products.json`/`data/families.json`/ordering data + a live check that this launch's
+products page actually exists, has `layout: plugin`, and is not `draft: true` — it is **not**
+regenerated automatically by any earlier stage. Missed once (MT012); shipped as an extra,
+separate commit on MT013's launch (`f480548ac0`) rather than being part of the launch skill
+itself. This stage exists so it is never missed again.
+
+**Pre-condition**: Stage 1 (`products_done`) and Stage 1.5 (`family_sync_done`) must be
+`true` — this stage's own live check will otherwise correctly find the platform not yet
+published and skip it, silently producing a no-op sync.
+
+**Requires an override token** (`websites.aspose.org` content is outside this launch's normal
+per-family write scope):
+```bash
+.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create \n  --paths "content/websites.aspose.org/**" --reason "{family}/{platform} launch Stage 8.6" \n  --plan "<this launch's plan/mission reference>"
+```
+
+**Command**:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/websites/sync_domain_products.py --write
+```
+Run without `--domain` (syncs all locales) unless explicitly scoped. Dry-run first
+(`--dry-run` in place of `--write`) to review the diff before writing.
+
+**Checkpoint**: `websites_sync_done`
+
+**Skip condition**: checkpoint already `true` AND a `--dry-run` re-run shows no diff for this
+family/platform's entry.
+
+---
+
 ## Resume Behavior
 
 On re-run, read checkpoint state:
@@ -386,11 +506,13 @@ Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.
 
 Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_site_plan_done`,
 `{family}_{platform}_products_done`, `{family}_{platform}_family_sync_done`,
-`{family}_{platform}_blog_done`,
+`{family}_{platform}_blog_index_done`, `{family}_{platform}_blog_done`,
 `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
 `{family}_{platform}_products_faq_done`,
-`{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
-`{family}_{platform}_quality_done`
+`{family}_{platform}_reference_done`, `{family}_{platform}_family_indexes_verified`,
+`{family}_{platform}_truth_audit_done`,
+`{family}_{platform}_quality_done`, `{family}_{platform}_readiness_done`,
+`{family}_{platform}_websites_sync_done`
 
 ## Error Handling
 

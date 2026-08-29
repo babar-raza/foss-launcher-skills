@@ -23,6 +23,14 @@ Gates:
     L-10  No coming-soon        -- family _index.md must not contain 'coming soon' placeholder
     L-11  Family display name   -- family root _index.md must use canonical "Aspose.{Product} FOSS"
                                   title and must not have linkTitle
+    L-12  Denominator reconciliation -- generation manifest's denominator_gap must be 0
+                                  (reports/generation/{family}-{platform}.yaml)
+    L-13  Cross-subdomain build -- Hugo build must exit 0 for every local-theme site, not just
+                                  products.aspose.org (extends L-09)
+    L-14  Grade non-regression  -- no page grade decreased vs the baseline snapshot in
+                                  grade_manifest.json
+    L-15  Snippet syntax        -- every snippet file in merged/snippets/ passes a basic
+                                  syntax-validity check
     L-16  Platform linkTitle    -- platform _index.md must have canonical linkTitle matching
                                   data/platforms.json; fails on missing, wrong, or forbidden labels
 

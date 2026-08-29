@@ -76,6 +76,14 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
    Verify `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
    Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
+   **TypeScript completeness gate** (TC-MT040-22, `platform in {typescript, javascript, nodejs}`
+   only, same check `launch-product.md`'s Stage 0 runs for a first launch):
+   ```
+   .venv/Scripts/python scripts/pipeline/commands/diagnostics/typescript_api_completeness.py {family} {platform}
+   ```
+   Exit 1 ⇒ treat this refresh as incomplete — do not clear `stale_since` or proceed to
+   content regeneration until the barrel-export gap the report names is resolved.
+
 3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
    ```
    .venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
