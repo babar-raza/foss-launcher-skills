@@ -472,6 +472,45 @@ class TestClaimTextTokensPrecision:
         section = {"claims": [{"sentence": "Use the PdfConverter class to transform documents."}]}
         assert bi._keyword_in_section(change, section) is True
 
+    def test_keyword_in_section_does_not_match_token_as_substring_of_unrelated_word(self):
+        """Regression test for a confirmed, live content-loss defect
+        (2026-08-28, 3d/python): the token "tension" -- extracted from an
+        unrelated claim's own text ("Tension-Continuity-Bias spline
+        interpolation") -- matched as a bare substring inside the completely
+        unrelated word "extensions" in installation.md's own prose ("no
+        native extensions to compile"), via a naive `token in sentence`
+        check with no word-boundary requirement. That false HIGHLY_LIKELY
+        match drove a SECTION_REMOVAL that deleted the page's entire body
+        (the section it landed on happened to be the wrapping H2 for every
+        other section), leaving only a "See Also" stub."""
+        change = _make_claim_change(
+            "CLM-3d-python-x",
+            old_text="Interpolation.TCB_SPLINE represents Tension-Continuity-Bias "
+                     "spline interpolation for adjustable curve shaping.",
+        )
+        section = {
+            "claims": [{
+                "sentence": "Aspose.3D FOSS for Python is distributed as a pure-Python "
+                            "package on PyPI. There are no native extensions to compile, "
+                            "no system libraries to install, and no Microsoft Office or "
+                            "other third-party runtime required.",
+            }]
+        }
+        assert bi._keyword_in_section(change, section) is False
+
+    def test_symbol_in_section_does_not_match_symbol_as_substring_of_unrelated_word(self):
+        """Same word-boundary fix, for the DEFINITE-impact-level sibling
+        check (_symbol_in_section's raw-sentence fallback) -- a short symbol
+        name must not match merely because it's a substring of an unrelated
+        word in the section's prose."""
+        section = {
+            "claims": [{
+                "sentence": "Configure the extension points before calling save.",
+                "detected_symbols": [],
+            }]
+        }
+        assert bi._symbol_in_section("Tension", section) is False
+
 
 # ── Task 19 (§9.14, closes G12): format changes reach general body-prose
 # review, not only format_table_handler.py's narrow table path ──────────────

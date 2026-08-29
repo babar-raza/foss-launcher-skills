@@ -120,6 +120,46 @@ def _normalise_symbol(s: str) -> str:
     return re.sub(r"\([^)]*\)", "", s).lower().strip()
 
 
+def _word_boundary_match(token: str, original_text: str) -> bool:
+    """Return True if lowercase *token* genuinely appears in *original_text*
+    (case PRESERVED, not pre-lowered) -- either as a standalone word, or as
+    a capitalized segment glued inside a larger CamelCase-compound
+    identifier (the mirror image of how _claim_text_tokens/the symbol
+    tokenizer PRODUCED this token, by inserting a space before every
+    uppercase letter and lowercasing each resulting piece).
+
+    Found live 2026-08-28 (3d/python): a naive ``token in text.lower()``
+    check let the token "tension" -- extracted from an unrelated claim's
+    own text ("Tension-Continuity-Bias spline interpolation") -- match
+    inside the completely unrelated word "extensions" in installation.md's
+    own prose ("no native extensions to compile"), classifying that page's
+    opening section as HIGHLY_LIKELY impacted by a removed enum value it
+    never mentioned. The resulting SECTION_REMOVAL strategy deleted the
+    page's entire body (the H2 this false match landed on happened to wrap
+    every other section as nested H3s), leaving only a "See Also" stub --
+    a real, silent content-loss defect.
+
+    A blanket case-insensitive \\btoken\\b requirement (the first fix
+    attempted) broke a genuine, already-tested match: "converter"
+    (extracted from "PdfConverter") is deliberately meant to match inside
+    "PdfConverter" elsewhere in a section's prose, and "PdfConverter" has
+    no internal word boundary for \\b to find (regex sees one glued token).
+    The correct distinguishing signal is CASE, not word boundaries: a
+    capitalized fragment appearing as a substring of a larger identifier
+    ("Converter" inside "PdfConverter") is exactly the shape this
+    tokenizer produces tokens FOR, while an all-lowercase token matching
+    mid-word inside an unrelated all-lowercase English word ("tension"
+    inside "extensions") has neither a word boundary nor a case signal --
+    real prose essentially never capitalizes a substring like that by
+    coincidence, so requiring the substring form to be capitalized is a
+    precise fix with no observed loss of true positives.
+    """
+    if re.search(rf"\b{re.escape(token)}\b", original_text, re.IGNORECASE):
+        return True
+    capitalized = token[0].upper() + token[1:]
+    return capitalized in original_text
+
+
 def _symbol_in_section(symbol: str, section: dict) -> bool:
     """Return True if symbol appears in any section claim."""
     norm = _normalise_symbol(symbol)
@@ -128,7 +168,7 @@ def _symbol_in_section(symbol: str, section: dict) -> bool:
             if norm in _normalise_symbol(detected):
                 return True
         # Also check raw sentence for the symbol
-        if norm in claim.get("sentence", "").lower():
+        if _word_boundary_match(norm, claim.get("sentence", "")):
             return True
     return False
 
@@ -188,9 +228,9 @@ def _keyword_in_section(change: dict, section: dict) -> bool:
         tokens = [t.lower() for t in all_parts if len(t) >= 4]
 
     for claim in section.get("claims", []):
-        sentence = claim.get("sentence", "").lower()
+        sentence = claim.get("sentence", "")
         for token in tokens:
-            if token in sentence:
+            if _word_boundary_match(token, sentence):
                 return True
     return False
 
