@@ -121,11 +121,29 @@ _PKG_NAME_RE = re.compile(
 _VERSION_SPECIFIER_RE = re.compile(r"[<>=!~].*$")
 _EXTRAS_RE = re.compile(r"\[[^\]]*\]")
 
+# TC-MT040-46: _VERSION_SPECIFIER_RE's character class ([<>=!~]) has no "@" in
+# it, so it never strips npm's own trailing "@version" suffix (e.g.
+# "@asposefoss/pdf@0.1.0") -- that token never normalized down to equal its
+# own registered candidate.name ("@asposefoss/pdf"), a false mismatch.
+# (?<=.) requires at least one character before the "@" being stripped, which
+# excludes a leading bare "@" at token position 0 -- and even without that
+# guard, a scoped package's leading "@" is always followed by a "/" before
+# end-of-string, which [^@/]+$ (no "/" allowed in the stripped suffix) can
+# never match through, so a version-less scoped name ("@asposefoss/pdf")
+# survives unchanged either way. Order relative to the two strips above does
+# not matter -- "@" never appears inside PEP 508 extras ("[...]", pip-only)
+# or after a "<>=!~" version specifier (also pip-only); npm's "@version"
+# shape and pip's "[extras]>=version" shape never co-occur in the same real
+# token -- but it's applied last here, grouped with the final
+# strip/lowercase normalization step.
+_NPM_VERSION_SUFFIX_RE = re.compile(r"(?<=.)@[^@/]+$")
+
 
 def _normalize_pkg_token(token: str) -> str:
     token = token.strip("'\"")
     token = _EXTRAS_RE.sub("", token)
     token = _VERSION_SPECIFIER_RE.sub("", token)
+    token = _NPM_VERSION_SUFFIX_RE.sub("", token)
     return token.strip().lower()
 
 # H-16: Platform → expected package managers

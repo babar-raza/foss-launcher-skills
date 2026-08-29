@@ -87,11 +87,24 @@ def test_no_hardcoded_com_aspose_groupid_literal_in_source():
 
 def test_non_java_platforms_unaffected():
     """Regression control: the java fix must not touch any other platform's
-    output at all."""
+    output at all.
+
+    NOTE (TC-MT040-46): the original ("cells", "typescript",
+    "npm install @aspose/cells") row was removed from this table -- see
+    test_typescript_platform_is_registry_backed_not_hardcoded below for its
+    direct replacement. That hardcoded expectation was itself the bug this
+    taskcard fixes: PACKAGE_NAMES[("cells","typescript")] carried a guessed
+    override display name ("@aspose/cells") that disagreed with
+    data/package_registry.json's own scouted candidate ("excel-cells" --
+    see data/registry_exclusions.json's cells/typescript entry, which
+    documents package.json's real name is "excel-cells", not an official
+    Aspose identifier). typescript now resolves through
+    lib/product_registry.py instead of this dict, so it needs its own
+    registry fixture rather than fitting this dict-only assertion table.
+    """
     cases = [
         ("cells", "python", "pip install aspose-cells"),
         ("cells", "net", "dotnet add package Aspose.Cells.Foss"),
-        ("cells", "typescript", "npm install @aspose/cells"),
         ("email", "cpp", "aspose-email-cpp"),
     ]
     for family, platform, expected_substring in cases:
@@ -99,3 +112,33 @@ def test_non_java_platforms_unaffected():
         out = sut.gen_docs(pi, _API, _SHA)
         assert expected_substring in out, f"{family}/{platform}: expected {expected_substring!r} in output"
         assert "maven-coord" not in out and "maven-gav" not in out
+
+
+def test_typescript_platform_is_registry_backed_not_hardcoded(tmp_path):
+    """TC-MT040-46: replaces the removed ("cells", "typescript",
+    "npm install @aspose/cells") row above with the new, registry-backed
+    behavior, using a fixture registry entry this test controls (NOT the
+    real repo's cells entry, which may change independently). Full
+    coverage (including the "no PACKAGE_NAMES fallback ever fires for
+    typescript" anti-regression check) lives in
+    test_typescript_install_command.py; this is the direct row-for-row
+    replacement colocated with test_non_java_platforms_unaffected above."""
+    import json
+    from lib import product_registry
+
+    registry_path = tmp_path / "package_registry.json"
+    registry_path.write_text(json.dumps({
+        "cells": {"typescript": {
+            "registry_type": "npm",
+            "candidate": {"name": "excel-cells"},
+            "verification": {"published": False},
+        }}
+    }), encoding="utf-8")
+    product_registry.configure(package_registry_path=registry_path)
+    try:
+        pi = {"family": "cells", "platform": "typescript", "slug": "developer-guide/working-with-x", "weight": 10}
+        out = sut.gen_docs(pi, _API, _SHA)
+        assert "npm install excel-cells" in out
+        assert "@aspose/cells" not in out
+    finally:
+        product_registry.configure(package_registry_path=None)

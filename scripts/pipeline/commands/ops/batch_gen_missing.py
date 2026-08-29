@@ -20,9 +20,9 @@ FAMILY_FOSS = {
 
 PACKAGE_NAMES = {
     ("3d","net"): "Aspose.3D.Foss",
-    ("3d","python"): "aspose-3d", ("3d","typescript"): "@aspose/3d",
+    ("3d","python"): "aspose-3d",
     ("cells","net"): "Aspose.Cells.Foss",
-    ("cells","python"): "aspose-cells", ("cells","typescript"): "@aspose/cells",
+    ("cells","python"): "aspose-cells",
     ("email","net"): "Aspose.Email.Foss", ("email","cpp"): "aspose-email-cpp",
     ("email","python"): "aspose-email",
     ("font","python"): "aspose-font", ("note","python"): "aspose-note",
@@ -36,7 +36,41 @@ PACKAGE_NAMES = {
     # D-04): a hardcoded `com.aspose:aspose-{family}-foss` table lived here for
     # 3 months and was the primary source of the wrong-groupId defect across
     # KB/docs/blog content. Do not re-add Java entries to this dict.
+    #
+    # NOTE: no ("{family}","typescript") entries here either, deliberately,
+    # for the SAME reason -- Mission MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+    # (TC-MT040-46). ("3d","typescript"): "@aspose/3d" and
+    # ("cells","typescript"): "@aspose/cells" hardcoded a guessed/override
+    # display name here, disagreeing with data/package_registry.json's own
+    # scouted candidate (cells/typescript's real, still-unpublished manifest
+    # name is "excel-cells", not "@aspose/cells" -- see
+    # data/registry_exclusions.json's cells/typescript entry). See
+    # _resolve_package_name() below, which now resolves typescript through
+    # lib/product_registry.py instead. Do not re-add typescript entries to
+    # this dict.
 }
+
+
+def _resolve_package_name(fam, plat, foss):
+    """Resolve the 'pkg' identifier used throughout gen_docs/gen_kb/gen_blog.
+
+    For every platform except typescript, this is byte-identical to the
+    original `PACKAGE_NAMES.get((fam, plat), foss.lower())` lookup -- do not
+    change that behavior. For typescript specifically (TC-MT040-46),
+    PACKAGE_NAMES no longer carries any entries at all (see its own docstring
+    comment above), so resolve through the shared lib/product_registry.py
+    loader instead, falling back to foss.lower() -- this module's existing
+    generic fallback for every platform without a PACKAGE_NAMES entry -- only
+    when that loader has nothing to offer either.
+    """
+    if plat == "typescript":
+        import sys as _sys
+        _pipeline_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if _pipeline_root not in _sys.path:
+            _sys.path.insert(0, _pipeline_root)
+        from lib import product_registry
+        return product_registry.get_package_name(fam, "typescript", "npm") or foss.lower()
+    return PACKAGE_NAMES.get((fam, plat), foss.lower())
 
 
 def _install_block(fam, plat, pc, pkg):
@@ -127,7 +161,7 @@ def gen_docs(pi, api, sha):
     slug, weight, cluster = pi["slug"], pi["weight"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     page_name = slug.split("/")[-1]
     title = make_page_title(page_name)
     classes = find_classes(api, cluster or page_name)
@@ -255,7 +289,7 @@ def gen_kb(pi, api, sha):
     fam, plat = pi["family"], pi["platform"]
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     if slug == "use-cases":
         return _use_cases(fam, plat, pc, foss, pkg, sha)
     if slug == "troubleshooting":
@@ -268,7 +302,7 @@ def _howto(pi, api, sha):
     slug, weight, cluster = pi["slug"], pi["weight"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     title = slug_to_title(slug)
     classes = find_classes(api, cluster or slug)
     entry = classes[0] if classes else ""
@@ -344,7 +378,7 @@ def gen_blog(pi, api, sha):
     slug, cluster = pi["slug"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     title = slug_to_title(slug)
     classes = find_classes(api, cluster or slug)
     cls_lines = ""

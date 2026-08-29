@@ -130,7 +130,20 @@ def _parse_install_md(install_path: Path) -> dict[str, str]:
         return result
 
     # JavaScript: npm install {name}@{version}
-    m = re.match(r"npm install\s+([A-Za-z0-9@._/-]+)(?:@([A-Za-z0-9._-]+))?", block)
+    # TC-MT040-46: the old character class ([A-Za-z0-9@._/-]) included "@"
+    # inside group 1 itself, so for a real scoped-package command like
+    # "npm install @asposefoss/pdf@0.1.0" group 1 greedily swallowed the
+    # ENTIRE string including the trailing "@0.1.0" version, leaving
+    # version empty and package_name wrong ("@asposefoss/pdf@0.1.0" instead
+    # of "@asposefoss/pdf"). Fixed to structurally separate an optional
+    # leading "@scope/" segment (which itself contains no further "@") from
+    # the package's base name, so the trailing "(?:@version)?" group is the
+    # ONLY place a second "@" can be consumed from. Verified against all
+    # three real shapes: a scoped name with a version
+    # ("@asposefoss/pdf@0.1.0" -> name="@asposefoss/pdf", version="0.1.0"),
+    # the pre-existing unscoped case ("aspose-3d@24.12.0" -> unchanged), and
+    # a scoped name with no version ("@asposefoss/pdf" -> version="").
+    m = re.match(r"npm install\s+((?:@[A-Za-z0-9._-]+/)?[A-Za-z0-9._-]+)(?:@([A-Za-z0-9._-]+))?", block)
     if m:
         result["package_name"] = m.group(1)
         result["version"] = m.group(2) or ""

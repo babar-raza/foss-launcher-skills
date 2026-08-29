@@ -95,12 +95,50 @@ def test_hardcoded_com_aspose_groupid_literal_is_gone():
 
 @pytest.mark.parametrize("platform,expected_substring", [
     ("python", "pip install aspose-cells-foss"),
-    ("typescript", "npm install aspose-cells-foss"),
     ("net", "dotnet add package aspose.cells.foss"),
     ("go", "go get github.com/aspose-cells-foss/aspose-cells-foss-for-go"),
 ])
 def test_non_java_platforms_unaffected_by_the_java_fix(tmp_path, platform, expected_substring):
     """Regression control for TC-MT008-03: fixing the Java branch must not
-    touch the python/typescript/net/go branches."""
+    touch the python/net/go branches.
+
+    NOTE (TC-MT040-46): "typescript" was removed from this parametrize. This
+    fixture's autouse isolate_paths() points foss_packages_path at a tmp file
+    that is never written for python/net/go (they don't read it at all), but
+    typescript now DOES read it (see _typescript_install_command) -- so it
+    structurally needs its own registry fixture, not a shared no-file
+    assumption. See test_typescript_platform_is_registry_backed_not_hardcoded
+    below for the direct replacement of the old
+    ("typescript", "npm install aspose-cells-foss") row (that hardcoded
+    expectation was itself the bug -- see scripts/pipeline/tests/
+    test_typescript_install_command.py for full published/unpublished/
+    missing-entry/missing-file coverage).
+    """
     result = sut._install_command("cells", platform)
     assert result == expected_substring
+
+
+def test_typescript_platform_is_registry_backed_not_hardcoded(tmp_path):
+    """TC-MT040-46: replaces the old, wrong pre-existing assertion that
+    _install_command("cells", "typescript") always returns the hardcoded
+    "npm install aspose-cells-foss" shape (never a real npm-scoped package
+    name, and never grounded in data/package_registry.json at all). The
+    typescript branch now resolves through lib/product_registry.py exactly
+    like the java branch resolves through data/package_registry.json
+    directly -- proven here with a fixture registry entry this test
+    controls (NOT the real repo's cells entry, which may change
+    independently). Full published/unpublished/missing-entry/missing-file
+    coverage lives in test_typescript_install_command.py; this is the
+    single "the behavior changed, here's what it looks like now" pin in
+    this file, colocated with the other _install_command platform rows for
+    easy comparison."""
+    _write_packages(tmp_path, {
+        "cells": {"typescript": {
+            "registry_type": "npm",
+            "candidate": {"name": "excel-cells"},
+            "verification": {"published": True},
+        }}
+    })
+    result = sut._install_command("cells", "typescript")
+    assert result == "npm install excel-cells"
+    assert "aspose-cells-foss" not in result

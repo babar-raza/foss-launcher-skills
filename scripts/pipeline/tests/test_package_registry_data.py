@@ -78,10 +78,20 @@ def test_all_31_launched_products_are_registered():
     full backfill closed the coverage gap MT015 left open (only 7 of 31
     launched products were ever registered). Pin the complete, correct
     state so a future regression (e.g. someone reverting the backfill) is
-    caught immediately."""
+    caught immediately.
+
+    Updated 2026-08-29 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-24):
+    31 -> 32. pdf/typescript's package identity was backfilled into this
+    registry AHEAD of its own site launch (still in progress in that
+    mission) -- this file legitimately tracks package identity for a
+    product before it is fully launched, the same way words/net's own entry
+    below predates that product's real NuGet publish. The test's name keeps
+    saying "31" for history/traceability; the assertion is the real,
+    current, honest count.
+    """
     data = _load()
     total_pairs = sum(len(platforms) for family, platforms in data.items() if not family.startswith("_"))
-    assert total_pairs == 31
+    assert total_pairs == 32
 
 
 def test_words_net_uses_naming_convention_fallback_and_is_unpublished():

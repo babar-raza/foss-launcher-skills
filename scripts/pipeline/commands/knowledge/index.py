@@ -73,13 +73,62 @@ def _java_install_command(family):
     )
 
 
+def _typescript_install_command(family):
+    """Generate the npm install command from data/package_registry.json.
+
+    Mirrors _java_install_command's pattern: never fabricate a real command
+    for an unpublished/unconfirmed npm package. Mission
+    MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH (TC-MT040-46): replaces the old
+    unconditional `npm install aspose-{family}-foss` hardcode, which was the
+    wrong shape for a real npm-scoped package name and ignored
+    data/package_registry.json entirely.
+
+    Package-NAME resolution goes through lib/product_registry.py's
+    get_package_name() (the shared loader this taskcard introduced -- also
+    used by commands/ops/batch_gen_missing.py). That function deliberately
+    returns a bare name with no opinion on publish state -- it prefers the
+    registry's own candidate name (even unpublished, e.g. cells/typescript's
+    real candidate "excel-cells") over a generic naming-convention guess,
+    because a scouted/recorded name is more truthful than a guess even
+    before it's confirmed live. This function is therefore the one place
+    that decides "safe to render as a live command" vs. "not yet published"
+    placeholder, by independently checking verification.published on the
+    SAME registry file -- exactly as _java_install_command already does for
+    Maven.
+    """
+    import sys as _sys
+    _pipeline_root = str(Path(__file__).resolve().parents[2])  # -> pipeline/
+    if _pipeline_root not in _sys.path:
+        _sys.path.insert(0, _pipeline_root)
+    from lib import product_registry
+
+    product_registry.configure(package_registry_path=FOSS_PACKAGES_PATH)
+    name = product_registry.get_package_name(family, "typescript", "npm")
+
+    try:
+        packages = json.loads(FOSS_PACKAGES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "<!-- npm package unavailable: data/package_registry.json missing or invalid -->"
+
+    entry = packages.get(family, {}).get("typescript")
+    published = bool(entry and entry.get("verification", {}).get("published"))
+    if not name or not published:
+        return f"<!-- aspose-{family}-foss is not yet published on npm -- build from source -->"
+
+    candidate = entry.get("candidate") or {}
+    version = candidate.get("version", "")
+    if version:
+        return f"npm install {name}@{version}"
+    return f"npm install {name}"
+
+
 def _install_command(family, platform, version=""):
     """Generate platform-appropriate install command."""
     pkg = f"aspose-{family}-foss"
     if platform == "python":
         return f"pip install {pkg}"
     elif platform == "typescript":
-        return f"npm install {pkg}"
+        return _typescript_install_command(family)
     elif platform in ("net", "dotnet"):
         return f"dotnet add package {pkg.replace('-', '.')}"
     elif platform == "java":
