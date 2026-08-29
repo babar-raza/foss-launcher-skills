@@ -1075,6 +1075,63 @@ class TestExtractorHashDetection:
         h2 = _rk._compute_extractor_hash()
         assert h1 == h2
 
+    def test_compute_extractor_hash_covers_all_extraction_modules(self):
+        """D-8(d) / TC-MT040-48: the hash must react to every .py file under
+        scripts/pipeline/extraction/, not just the original 4-file allowlist.
+
+        Regression for the historical gap where tree_helpers.py, snippets.py,
+        package_manifest.py, package_root.py, claims.py,
+        validate_scout_output.py, and outputs.py could each change extraction
+        behavior with zero effect on the "should this product re-scout?"
+        signal. Verified generically (glob over every real file currently in
+        the package) so a NEW file added later is automatically covered
+        without editing this test.
+
+        Deliberately uses _rk._DEFAULT_REPO_ROOT (the real repository root),
+        NOT the module-global REPO_ROOT this file's own autouse fixture
+        redirects to a tmp_path for every other test -- this test's whole
+        point is to inspect the real extraction/ directory's real files, the
+        same directory _compute_extractor_hash() itself resolves against
+        outside of test isolation.
+        """
+        # This file's autouse fixture points REPO_ROOT at a tmp_path for every
+        # test; point it back at the real repo for this test's duration only
+        # (the fixture's own teardown re-resets it after the test regardless).
+        _rk.configure(repo_root=_rk._DEFAULT_REPO_ROOT)
+        extraction_dir = _rk.REPO_ROOT / "scripts" / "pipeline" / "extraction"
+        real_files = sorted(extraction_dir.glob("*.py"))
+        # Sanity: the fixture set this regression cares about actually exists.
+        watched_names = {f.name for f in real_files}
+        for must_watch in (
+            "tree_helpers.py", "snippets.py", "package_manifest.py",
+            "package_root.py", "claims.py", "validate_scout_output.py",
+            "outputs.py", "formats.py", "api_surface.py", "scout.py",
+        ):
+            assert must_watch in watched_names, (
+                f"expected {must_watch} under extraction/ for this test's own "
+                f"premise to hold -- extraction/ contents changed unexpectedly"
+            )
+
+        baseline = _rk._compute_extractor_hash()
+
+        # Mutate ONE byte of tree_helpers.py (a file the OLD 4-file allowlist
+        # never watched) and confirm the hash changes.
+        target = extraction_dir / "tree_helpers.py"
+        original_bytes = target.read_bytes()
+        try:
+            target.write_bytes(original_bytes + b"\n# extractor-hash-coverage-probe\n")
+            mutated = _rk._compute_extractor_hash()
+        finally:
+            target.write_bytes(original_bytes)
+
+        assert mutated != baseline, (
+            "tree_helpers.py must be a real input to _compute_extractor_hash "
+            "-- editing it changed nothing, meaning the old 4-file allowlist "
+            "regressed back in"
+        )
+        # Restoring the original bytes must reproduce the original hash exactly.
+        assert _rk._compute_extractor_hash() == baseline
+
     def test_extractor_changed_triggers_refresh(self, tmp_path):
         """When repo SHA matches but extractor hash differs, refresh proceeds (not 'current')."""
         with _patch_clone_dir(tmp_path), _patch_head("same_sha"), _patch_model("same_sha"), \

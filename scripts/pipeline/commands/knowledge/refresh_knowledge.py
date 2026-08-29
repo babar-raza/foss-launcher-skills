@@ -165,15 +165,37 @@ def _compute_extractor_hash() -> str:
     When extraction or promotion logic changes, knowledge should be rebuilt
     even if the upstream repo SHA hasn't changed. Promotion changes can alter
     merged claims and deltas without changing scout output.
+
+    D-8(d) (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-48, shared with
+    MT039 TC-MT039-11): the original 4-file list (formats.py, api_surface.py,
+    scout.py, promote.py) silently missed every other module in
+    scripts/pipeline/extraction/ -- tree_helpers.py (per-language declaration
+    maps), snippets.py (snippet selection), package_manifest.py,
+    package_root.py, claims.py, validate_scout_output.py, and outputs.py all
+    directly change extraction behavior but never bumped this hash, so a
+    change to any of them left every product's "unchanged" no-op signal
+    silently wrong. Fixed generically (not per-file) by hashing every ``.py``
+    file under ``extraction/`` in sorted order, plus ``promote.py`` (outside
+    that directory but still part of the extraction contract). This makes a
+    new file added to ``extraction/`` automatically covered without another
+    hand-maintained list -- the same "declared once, consumed everywhere"
+    principle used elsewhere in this hardening pass (see D-1 in
+    reports/sprint/pdf-typescript-hardening/preflight/design.md).
+
+    One-time cost: this widens what counts as "changed" for every already-
+    scouted product, so the very next ``refresh_knowledge.py`` run for a
+    fleet product may report ``extractor_changed: true`` even with no
+    behavior-relevant edit in its own history since promotion (e.g. a
+    docstring-only change to a file it never previously watched). This is the
+    correct, honest signal, not a regression -- recorded in
+    docs/workflows/change-trigger-matrix.md as a fleet-wide one-time
+    "extractor_hash changed" event tied to this commit.
     """
     import hashlib
     extraction_dir = REPO_ROOT / "scripts" / "pipeline" / "extraction"
-    extractor_files = sorted([
-        extraction_dir / "formats.py",
-        extraction_dir / "api_surface.py",
-        extraction_dir / "scout.py",
+    extractor_files = sorted(extraction_dir.glob("*.py")) + [
         REPO_ROOT / "scripts" / "pipeline" / "commands" / "knowledge" / "promote.py",
-    ])
+    ]
     h = hashlib.sha256()
     for fp in extractor_files:
         if fp.exists():
