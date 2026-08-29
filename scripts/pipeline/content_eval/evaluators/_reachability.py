@@ -48,11 +48,22 @@ Public API::
 
     class_reachability(class_entry)               -> bool | None
     live_unreachable(class_name, family, platform, language) -> (bool, str)
+
+TC-MT040-42: the three live-fallback scans below now delegate their real
+per-language logic to extraction/lang/<language>.py (the same adapters
+extraction/api_surface.py's scout-time RC-W1-004 signal uses) instead of
+maintaining an independent implementation here. Each wrapper below is
+responsible only for resolving (family, platform) -> (repo, pkg_root) --
+locating the right clone-cache directory and, for python/rust, the right
+sub-root within it -- since the adapters' export_surface() contract takes
+already-resolved Path arguments, not (family, platform) strings. See
+extraction/lang/__init__.py's module docstring for the shared adapter
+contract, including the C# polarity note (its export_surface() returns a
+CONFIRMED-INTERNAL denylist, not a reachable allowlist, unlike python/rust).
 """
 
 from __future__ import annotations
 
-import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -60,6 +71,8 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent.parent.parent  # scripts/pipeline
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+
+from extraction import lang  # noqa: E402
 
 
 def class_reachability(class_entry: dict | None) -> "bool | None":
@@ -84,6 +97,13 @@ def _csharp_internal_names(family: str, platform: str) -> frozenset:
     """Scan the clone cache once per (family, platform) for every type name
     declared `internal` (not `public`) at the top level. Returns an empty
     frozenset (never raises) if the clone cache is unavailable or unreadable.
+
+    Real scan logic lives in extraction/lang/csharp.py's export_surface()
+    (moved there, TC-MT040-42) -- this wrapper's own @lru_cache layer is
+    kept (in addition to that module's own internal cache, keyed by Path)
+    so a repeated (family, platform) lookup never re-pays the clone_path()
+    resolution step either, matching this function's pre-TC-MT040-42
+    caching characteristics exactly.
     """
     try:
         from core.clone_cache import clone_path
@@ -92,21 +112,8 @@ def _csharp_internal_names(family: str, platform: str) -> frozenset:
     repo = clone_path(family, platform)
     if not repo.is_dir():
         return frozenset()
-    pattern = re.compile(
-        r"\binternal\s+(?:sealed\s+|abstract\s+|static\s+|partial\s+)*"
-        r"(?:class|struct|interface|enum)\s+(\w+)\b"
-    )
-    names: set[str] = set()
-    try:
-        for f in repo.rglob("*.cs"):
-            try:
-                text = f.read_text(encoding="utf-8", errors="ignore")
-            except OSError:
-                continue
-            names.update(pattern.findall(text))
-    except OSError:
-        pass
-    return frozenset(names)
+    names, _ = lang.csharp.export_surface(repo, repo)
+    return frozenset(names) if names is not None else frozenset()
 
 
 # ---------------------------------------------------------------------------
@@ -156,9 +163,6 @@ def _find_python_pkg_init(repo: Path) -> "Path | None":
     return None
 
 
-_ALL_ASSIGN_RE = re.compile(r"^__all__\s*=\s*[\[\(]([^\]\)]*)[\]\)]", re.MULTILINE | re.DOTALL)
-
-
 @lru_cache(maxsize=64)
 def _python_top_level_all(family: str, platform: str) -> "frozenset | None":
     """Live-read the real top-level package's __all__ from the clone cache.
@@ -166,6 +170,19 @@ def _python_top_level_all(family: str, platform: str) -> "frozenset | None":
     Returns None (unknown -- never flag) when the clone cache is missing, no
     __init__.py with a recognizable __all__ can be found, or platform isn't
     python.
+
+    Root-finding (locating the right __init__.py within *repo*) stays here
+    via _find_python_pkg_init() -- this is a distinct, standalone-scoped
+    algorithm from extraction/lang/python.py's own subdir-fallback search
+    (that one operates on an ALREADY-RESOLVED pkg_root handed to it by
+    scout's package_root.py; this one has only a bare clone-cache repo to
+    start from and must find pkg_root itself). Once found, the real
+    "read __all__ from this exact directory" logic is delegated to
+    extraction/lang/python.py's export_surface() (TC-MT040-42) -- passing
+    the located __init__.py's own parent directory as pkg_root guarantees
+    that function reads __all__ directly from the very file this already
+    found, reproducing the original behavior exactly without duplicating
+    the __all__-parsing regex here a second time.
     """
     if platform != "python":
         return None
@@ -179,24 +196,13 @@ def _python_top_level_all(family: str, platform: str) -> "frozenset | None":
     init_path = _find_python_pkg_init(repo)
     if init_path is None:
         return None
-    try:
-        text = init_path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return None
-    m = _ALL_ASSIGN_RE.search(text)
-    if not m:
-        return None
-    return frozenset(re.findall(r'["\'](\w+)["\']', m.group(1)))
+    names, _root = lang.python.export_surface(repo, init_path.parent)
+    return frozenset(names) if names is not None else None
 
 
 # ---------------------------------------------------------------------------
 # Live fallback: Rust — lib.rs's `pub use` re-export list.
 # ---------------------------------------------------------------------------
-
-_RUST_PUB_USE_BRACE_RE = re.compile(r"pub\s+use\s+[\w:]+::\{([^}]*)\}\s*;", re.DOTALL)
-_RUST_PUB_USE_SINGLE_RE = re.compile(r"pub\s+use\s+[\w:]+::(\w+)(?:\s+as\s+\w+)?\s*;")
-_RUST_PUB_USE_GLOB_RE = re.compile(r"pub\s+use\s+[\w:]+::\*\s*;")
-
 
 @lru_cache(maxsize=64)
 def _rust_reexported_names(family: str, platform: str) -> "frozenset | None":
@@ -205,6 +211,11 @@ def _rust_reexported_names(family: str, platform: str) -> "frozenset | None":
     Returns None (unknown -- never flag) when the clone cache or lib.rs is
     missing, a glob re-export defeats enumeration, or no `pub use` statement
     is found at all.
+
+    Root-finding (preferring src/lib.rs over a top-level lib.rs, matching
+    the original glob-concatenation order exactly) stays here; the real
+    `pub use` regex-scan logic is delegated to extraction/lang/rust.py's
+    export_surface() (TC-MT040-42).
     """
     if platform != "rust":
         return None
@@ -215,30 +226,14 @@ def _rust_reexported_names(family: str, platform: str) -> "frozenset | None":
     repo = clone_path(family, platform)
     if not repo.is_dir():
         return None
-    lib_rs_candidates = list(repo.glob("src/lib.rs")) + list(repo.glob("lib.rs"))
-    if not lib_rs_candidates:
+    if (repo / "src" / "lib.rs").is_file():
+        pkg_root = repo / "src"
+    elif (repo / "lib.rs").is_file():
+        pkg_root = repo
+    else:
         return None
-    try:
-        text = lib_rs_candidates[0].read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return None
-    if _RUST_PUB_USE_GLOB_RE.search(text):
-        return None
-    names: set[str] = set()
-    found_any = False
-    for m in _RUST_PUB_USE_BRACE_RE.finditer(text):
-        found_any = True
-        for item in m.group(1).split(","):
-            item = item.strip()
-            if not item or item == "self":
-                continue
-            names.add(item.split(" as ")[0].strip())
-    for m in _RUST_PUB_USE_SINGLE_RE.finditer(text):
-        found_any = True
-        names.add(m.group(1).strip())
-    if not found_any:
-        return None
-    return frozenset(names)
+    names, _root = lang.rust.export_surface(repo, pkg_root)
+    return frozenset(names) if names is not None else None
 
 
 # ---------------------------------------------------------------------------
@@ -283,7 +278,17 @@ def live_unreachable(class_name: str, family: str, platform: str, language: str)
 
 
 def clear_caches() -> None:
-    """Test-only: reset the lru_cache-memoized clone-cache scans."""
+    """Test-only: reset the lru_cache-memoized clone-cache scans.
+
+    Clears both this module's own (family, platform)-keyed cache layer AND
+    the underlying extraction/lang/ adapters' own Path-keyed cache layer
+    (TC-MT040-42) -- a mutated fixture between two calls with the same
+    (family, platform) would otherwise still see a stale adapter-level
+    cache hit even after this module's own cache was cleared.
+    """
     _csharp_internal_names.cache_clear()
     _python_top_level_all.cache_clear()
     _rust_reexported_names.cache_clear()
+    lang.python.clear_cache()
+    lang.rust.clear_cache()
+    lang.csharp.clear_cache()

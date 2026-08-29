@@ -96,6 +96,31 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
 }
 
 # ---------------------------------------------------------------------------
+# TC-MT040-42: reachability-enforcement wiring point (declared, not yet
+# populated)
+# ---------------------------------------------------------------------------
+#
+# extraction/api_surface.py's RC-W1-004 "reachable" signal (see
+# extraction/lang/__init__.py's module docstring for the full per-language
+# adapter contract) has never been consulted by reference-page generation --
+# an entry can be filtered into a grouped reference index here even when the
+# scout-time signal already marked it unreachable. REACHABILITY_ENFORCED_PLATFORMS
+# is the wiring point a LATER taskcard (TC-MT040-17) populates with
+# {"typescript", "javascript", "nodejs"} once TypeScript's real
+# export_surface() implementation (TC-MT040-11) exists to back it. Starting
+# empty here means _passes_platform_scope()'s new check below is a no-op for
+# every platform today -- this card proves the wiring point exists without
+# changing any shipped platform's filtering behavior.
+REACHABILITY_ENFORCED_PLATFORMS: "frozenset[str]" = frozenset()
+
+# Bumped by a later card when reachability-enforcement policy changes (e.g.
+# when TC-MT040-17 populates REACHABILITY_ENFORCED_PLATFORMS above) --
+# mirrors GROUPED_INDEX_GENERATOR_VERSION's own staleness-fingerprint
+# pattern later in this file, giving this file's OWN filter-policy contract
+# an equivalent version marker. No consumer reads this yet as of this card.
+REFERENCE_FILTER_POLICY_VERSION = 1
+
+# ---------------------------------------------------------------------------
 # Filter implementation
 # ---------------------------------------------------------------------------
 
@@ -113,6 +138,14 @@ def _passes_platform_scope(entry: dict, platform: str) -> bool:
     """
     kind = entry.get("kind", "")
     name = entry.get("name", "")
+
+    # TC-MT040-42: reachability-enforcement wiring point. REACHABILITY_ENFORCED_PLATFORMS
+    # starts empty (see its own docstring above) so this is a no-op for every
+    # platform today -- a later card (TC-MT040-17) populates it once
+    # TypeScript's real export_surface() (TC-MT040-11) exists to back the
+    # scout-time "reachable" signal this reads.
+    if platform in REACHABILITY_ENFORCED_PLATFORMS and entry.get("reachable") is False:
+        return False
 
     # C++ uses name-based exclusion rules; no internal-path check.
     if platform == "cpp":

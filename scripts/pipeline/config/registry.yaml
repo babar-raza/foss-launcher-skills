@@ -5212,3 +5212,146 @@ scripts:
     requires_test: true
     deprecated_since: null
     notes: "MT025 Wave 5: computes (never accepts as an asserted field) human_readiness_verdict, agentic_consumption_verdict, and final_verdict from sprint state + gate + pilot + adversarial results. BLOCKED_EXTERNAL always outranks every other signal; any adversarial BLOCKER or a failed gate forces SYSTEM_NOT_READY_REWORK_REQUIRED; an unaided-first override, an unresolved pilot chain, a REPAIRED probe, or a non-CLOSED sprint aggregate all cap the outcome at *_WITH_LIMITATIONS. Backs forensic_heal_sprint_run.py's compute-verdict and close."
+
+  # ── Tier — extraction/lang/ per-language adapters (TC-MT040-42) ───────────
+  # Not scanned by check_pipeline_registration.py's CHECK 1 completeness pass
+  # (that pass only walks commands/, lib/, and pipeline root -- see
+  # scripts/pipeline/PIPELINE.md's "New File Protocol" and
+  # scripts/ci/checks/check_pipeline_registration.py's own CHECK 1 docstring);
+  # registered anyway per PIPELINE.md's New File Protocol for every new
+  # scripts/pipeline/**/*.py file.
+
+  - path: scripts/pipeline/extraction/lang/__init__.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+      - scripts/pipeline/tests/test_extraction_goldens.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, D-3): package root for the 7 per-language extraction adapters (declaration_kinds/doc_anchor/parse_doc/export_surface/clear_cache), declaring the shared contract api_surface.py, content_eval/evaluators/_reachability.py, and lib/reference_filter.py now consult instead of scattering language==X inline branches. LANGUAGES dict + get()/clear_all_caches() convenience helpers."
+
+  - path: scripts/pipeline/extraction/lang/python.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+      - scripts/pipeline/tests/test_extraction_goldens.py
+      - scripts/pipeline/tests/test_api_surface_reachability.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: Python adapter. export_surface()/top_level_exports() is the exact, behavior-preserving relocation of api_surface.py's former _python_top_level_exports (RC-W1-004) -- verbatim algorithm, now lru_cache-memoized (matching content_eval/evaluators/_reachability.py's pre-refactor caching characteristics for this same logic). api_surface.py keeps _python_top_level_exports/_extract_all_from_init as thin re-exporting wrappers for backward-compatible imports (scout.py, tests)."
+
+  - path: scripts/pipeline/extraction/lang/rust.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+      - scripts/pipeline/tests/test_extraction_goldens.py
+      - scripts/pipeline/tests/test_api_surface_reachability.py
+      - scripts/pipeline/tests/test_rust_extraction.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: Rust adapter. export_surface()/reexported_names() is the exact, behavior-preserving relocation of api_surface.py's former _rust_reexported_names (RC-W1-004) -- verbatim algorithm, now lru_cache-memoized. api_surface.py keeps _rust_reexported_names as a thin re-exporting wrapper for backward-compatible imports."
+
+  - path: scripts/pipeline/extraction/lang/csharp.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+      - scripts/pipeline/tests/content_eval/test_code_reachability.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: C# adapter. export_surface()/internal_names() relocates content_eval/evaluators/_reachability.py's former _csharp_internal_names -- the first time this signal is importable from the scout side, not just the evaluator side (NOT wired into api_surface._compute_reachable's dispatch yet -- is_public() already excludes non-public C# classes before that dispatch runs, so wiring it there today would be inert; see extraction/lang/__init__.py's module docstring). Polarity is INVERTED vs python/rust: returns a CONFIRMED-INTERNAL denylist, not a reachable allowlist -- C# has no positive export-list mechanism."
+
+  - path: scripts/pipeline/extraction/lang/typescript.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: TypeScript adapter placeholder for the pdf/typescript launch + 3d/typescript+cells/typescript remediation mission (MT040). export_surface() returns (None, None) unconditionally -- the real implementation is TC-MT040-11 (a later taskcard). doc_anchor() is the trivial identity function -- TC-MT040-12 specializes it once TSDoc/export-wrapper node shapes are analyzed."
+
+  - path: scripts/pipeline/extraction/lang/java.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: Java adapter. export_surface() returns (None, None) unconditionally -- no reachability signal implemented for Java (out of this mission's TypeScript-hardening scope); declared for adapter-set uniformity."
+
+  - path: scripts/pipeline/extraction/lang/cpp.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: C++ adapter. export_surface() returns (None, None) unconditionally -- no reachability signal implemented for C++ (out of this mission's TypeScript-hardening scope); declared for adapter-set uniformity."
+
+  - path: scripts/pipeline/extraction/lang/go.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/extraction/test_language_adapters.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-42: Go adapter. doc_anchor() is the one non-trivial case in this card: relocates the pre-existing SFX-2 special case (type_spec -> parent type_declaration for godoc comment lookup) out of api_surface.py's inline `if language == \"go\"` branch and into this module, where api_surface._extract_doc_comment now calls it unconditionally for every language. export_surface() returns (None, None) unconditionally -- no reachability signal implemented for Go yet."

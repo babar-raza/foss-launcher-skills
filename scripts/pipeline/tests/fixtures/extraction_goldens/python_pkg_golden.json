@@ -1,0 +1,130 @@
+{
+  "classes": [
+    {
+      "bases": [],
+      "canonical_namespace": "aspose_core.document",
+      "class_import": "aspose_core.document.Document",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "Represents a document.",
+      "exported_via_package_init": true,
+      "file": "aspose_core/document.py",
+      "kind": "class_definition",
+      "line": 4,
+      "methods": [
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "",
+          "file": "aspose_core/document.py",
+          "is_constructor": true,
+          "line": 7,
+          "name": "__init__",
+          "params": [],
+          "return_type": ""
+        },
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "Save the document to the given path.",
+          "file": "aspose_core/document.py",
+          "is_constructor": false,
+          "line": 10,
+          "name": "save",
+          "params": [
+            {
+              "name": "path",
+              "type": "str"
+            }
+          ],
+          "return_type": "None"
+        }
+      ],
+      "name": "Document",
+      "properties": [],
+      "public_import_module": "aspose_core",
+      "reachable": true,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "canonical_namespace": "aspose_core.writer",
+      "class_import": "aspose_core.writer.UnexportedType",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "A syntactically public class that is NOT in aspose_core's __all__.",
+      "file": "aspose_core/writer.py",
+      "kind": "class_definition",
+      "line": 13,
+      "methods": [],
+      "name": "UnexportedType",
+      "properties": [],
+      "reachable": false,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "canonical_namespace": "aspose_core.writer",
+      "class_import": "aspose_core.writer.Writer",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "Writes documents to disk.",
+      "exported_via_package_init": true,
+      "file": "aspose_core/writer.py",
+      "kind": "class_definition",
+      "line": 5,
+      "methods": [
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "Write the document, returning True on success.",
+          "file": "aspose_core/writer.py",
+          "is_constructor": false,
+          "line": 8,
+          "name": "write",
+          "params": [
+            {
+              "name": "doc",
+              "type": ""
+            }
+          ],
+          "return_type": "bool"
+        }
+      ],
+      "name": "Writer",
+      "properties": [],
+      "public_import_module": "aspose_core",
+      "reachable": true,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "doc": "A free function not re-exported via __all__.",
+      "file": "aspose_core/writer.py",
+      "kind": "function",
+      "line": 19,
+      "methods": [],
+      "name": "free_function",
+      "params": [
+        {
+          "name": "x",
+          "type": "int"
+        }
+      ],
+      "properties": [],
+      "reachable": false,
+      "return_type": "int"
+    }
+  ],
+  "packages": [],
+  "report": {
+    "files_attempted": 4,
+    "files_capped": false,
+    "files_parsed": 4,
+    "files_skipped": [],
+    "parse_error_rate": 0.0,
+    "parse_errors": [],
+    "skip_reasons": {},
+    "total_source_files_found": 4
+  }
+}

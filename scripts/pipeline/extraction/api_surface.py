@@ -53,6 +53,7 @@ from extraction.tree_helpers import (
     synthesize_interface_members,
     visibility_tier,
 )
+from extraction import lang
 
 
 # ---------------------------------------------------------------------------
@@ -166,114 +167,40 @@ def _detect_vendor_files(files: list[Path], pkg_root: Path, language: str = "") 
 # never manufacture a false negative.
 
 
+# TC-MT040-42: the per-language algorithms formerly inlined here now live in
+# extraction/lang/python.py and extraction/lang/rust.py (see extraction/lang/
+# __init__.py for the shared adapter contract). These three names are kept
+# as thin re-exporting wrappers -- unchanged names/signatures/behavior --
+# because scout.py and several tests
+# (test_api_surface_reachability.py, test_rust_extraction.py) import them
+# directly from this module. No duplicate logic remains: each wrapper calls
+# straight through to the single real implementation in lang/.
+
 def _extract_all_from_init(init_path: Path) -> "set[str] | None":
     """Return the name set from a single __init__.py's top-level __all__.
 
-    Returns None if the file can't be read or has no recognizable top-level
-    ``__all__`` assignment. Does not handle ``__all__ +=``, conditional
-    assignment, or programmatic construction (same documented limitation as
-    the existing per-file S-1 __all__ scan).
+    See extraction/lang/python.py's ``_extract_all_from_init`` (the real,
+    single implementation this delegates to) for the full docstring.
     """
-    try:
-        text = init_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    m = re.search(r"^__all__\s*=\s*[\[\(]([^\]\)]*)[\]\)]", text, re.MULTILINE | re.DOTALL)
-    if not m:
-        return None
-    return set(re.findall(r'["\'](\w+)["\']', m.group(1)))
+    return lang.python._extract_all_from_init(init_path)
 
 
 def _python_top_level_exports(pkg_root: Path) -> "tuple[set[str] | None, Path | None]":
     """Return (export_names, export_root) for the package's real public surface.
 
-    Tries ``pkg_root/__init__.py`` first (the common case). Some Aspose FOSS
-    Python packages use a namespace-parent layout instead -- ``pkg_root``
-    resolves to an outer directory (e.g. ``aspose/``) whose own
-    ``__init__.py`` is empty, with the real package one level down (e.g.
-    ``aspose/words_foss/``, which declares the actual ``__all__``).
-    Confirmed live: words/python's ``package_root.py`` resolves *pkg_root* to
-    ``aspose/`` (empty ``__init__.py``), not ``aspose/words_foss/``.
-
-    When *pkg_root*'s own ``__init__.py`` has no usable ``__all__``, looks
-    for exactly one direct subdirectory whose ``__init__.py`` does -- an
-    unambiguous single-subpackage case. Multiple or zero matches mean
-    "cannot positively determine," returning ``(None, None)`` so the caller
-    defaults every entry's ``reachable`` to True.
-
-    The returned *export_root* is the directory those names are reachable
-    relative to -- callers must only apply the check to classes whose file
-    lives under it; classes elsewhere are out of scope for this signal.
+    See extraction/lang/python.py's ``top_level_exports`` (the real, single
+    implementation this delegates to) for the full docstring.
     """
-    top_init = pkg_root / "__init__.py"
-    if top_init.is_file():
-        names = _extract_all_from_init(top_init)
-        if names is not None:
-            return names, pkg_root
-    try:
-        subdirs_with_all = []
-        for child in sorted(pkg_root.iterdir()):
-            if not child.is_dir():
-                continue
-            child_init = child / "__init__.py"
-            if not child_init.is_file():
-                continue
-            names = _extract_all_from_init(child_init)
-            if names is not None:
-                subdirs_with_all.append((child, names))
-        if len(subdirs_with_all) == 1:
-            return subdirs_with_all[0][1], subdirs_with_all[0][0]
-    except OSError:
-        pass
-    return None, None
-
-
-_RUST_PUB_USE_BRACE_RE = re.compile(r"pub\s+use\s+[\w:]+::\{([^}]*)\}\s*;", re.DOTALL)
-_RUST_PUB_USE_SINGLE_RE = re.compile(r"pub\s+use\s+[\w:]+::(\w+)(?:\s+as\s+\w+)?\s*;")
-_RUST_PUB_USE_GLOB_RE = re.compile(r"pub\s+use\s+[\w:]+::\*\s*;")
+    return lang.python.top_level_exports(pkg_root)
 
 
 def _rust_reexported_names(pkg_root: Path) -> "set[str] | None":
     """Return the set of names re-exported via `pub use` at the crate root.
 
-    Reads ``pkg_root/lib.rs`` -- ``package_root.py``'s ``_detect_rust_root()``
-    always resolves *pkg_root* to the crate's ``src/`` directory, so this is
-    the crate root for every Rust product onboarded so far.  Returns None
-    when lib.rs is missing, contains a glob re-export (``pub use x::*;``)
-    this regex-only pass cannot enumerate, or has no recognizable `pub use`
-    statement at all -- all three cases mean "cannot positively determine,"
-    so the caller defaults every entry's ``reachable`` to True.
+    See extraction/lang/rust.py's ``reexported_names`` (the real, single
+    implementation this delegates to) for the full docstring.
     """
-    lib_rs = pkg_root / "lib.rs"
-    if not lib_rs.is_file():
-        return None
-    try:
-        text = lib_rs.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
-    if _RUST_PUB_USE_GLOB_RE.search(text):
-        return None  # can't enumerate a glob re-export -- stay safe
-    names: set[str] = set()
-    found_any = False
-    for m in _RUST_PUB_USE_BRACE_RE.finditer(text):
-        found_any = True
-        for item in m.group(1).split(","):
-            item = item.strip()
-            if not item or item == "self":
-                continue
-            # "OrigName" or "OrigName as Alias" -- struct/enum extraction
-            # records the source-side name, so keep the pre-`as` identifier.
-            orig = item.split(" as ")[0].strip()
-            if orig:
-                names.add(orig)
-    for m in _RUST_PUB_USE_SINGLE_RE.finditer(text):
-        found_any = True
-        orig = m.group(1).strip()
-        if orig:
-            names.add(orig)
-    if not found_any:
-        return None  # no recognizable pub-use re-export -- stay safe
-    return names
+    return lang.rust.reexported_names(pkg_root)
 
 
 def _is_excluded_java_package(package: str, excluded_segments: frozenset[str]) -> bool:
@@ -652,7 +579,19 @@ def _strip_string_prefix_and_quotes(text: str) -> str:
 
 
 def _extract_doc_comment(node, language: str) -> str:
-    """Extract the first sentence of a doc comment preceding *node*."""
+    """Extract the first sentence of a doc comment preceding *node*.
+
+    TC-MT040-42: redirects *node* through extraction/lang/<language>.py's
+    doc_anchor() first -- the seam a language's adapter uses when its
+    grammar wraps an exported declaration in a container node whose own
+    prev_named_sibling doesn't hold the doc comment (today this only
+    changes behavior for Go's `type_spec` -> parent `type_declaration`
+    case, SFX-2; every other language's doc_anchor is the identity
+    function, so this redirection is a no-op for them).
+    """
+    lang_mod = lang.get(language)
+    if lang_mod is not None:
+        node = lang_mod.doc_anchor(node)
     style = _DOC_COMMENT_STYLES.get(language, "javadoc")
 
     if style == "rustdoc":
@@ -2615,12 +2554,17 @@ def extract_api_surface(
 
     # RC-W1-004: compute the reachability signal once per extraction run
     # (pkg_root-level, not per-file) instead of once per class.
+    # TC-MT040-42: dispatches through the extraction/lang/ adapters instead
+    # of inline per-language logic. Dispatch scope is unchanged from before
+    # this card (python/rust only) -- see extraction/lang/__init__.py's
+    # module docstring for why csharp's new export_surface() is not wired
+    # in here yet.
     _python_exports: "set[str] | None" = None
     _python_export_root: "Path | None" = None
     _python_export_init_rel = ""
     _rust_reexports: "set[str] | None" = None
     if language == "python":
-        _python_exports, _python_export_root = _python_top_level_exports(pkg_root)
+        _python_exports, _python_export_root = lang.python.export_surface(repo, pkg_root)
         if _python_export_root is not None:
             try:
                 _python_export_init_rel = str(
@@ -2629,7 +2573,7 @@ def extract_api_surface(
             except ValueError:
                 _python_export_init_rel = ""
     elif language == "rust":
-        _rust_reexports = _rust_reexported_names(pkg_root)
+        _rust_reexports, _ = lang.rust.export_surface(repo, pkg_root)
 
     def _compute_reachable(item_name: str, item_fpath: Path, item_rel: str) -> bool:
         """RC-W1-004: reachable=True unless a language-specific check above
@@ -2756,13 +2700,12 @@ def extract_api_surface(
 
             is_enum = cnode.type in ("enum_declaration", "enum_definition",
                                      "enum_specifier", "enum_item")
-            # SFX-2: For Go type_spec nodes, the godoc comment precedes the
-            # parent type_declaration node, not the type_spec itself.  Pass
-            # the parent when available so _extract_doc_comment can find it.
-            if language == "go" and cnode.type == "type_spec" and cnode.parent is not None:
-                cdoc = _extract_doc_comment(cnode.parent, language)
-            else:
-                cdoc = _extract_doc_comment(cnode, language)
+            # SFX-2 (TC-MT040-42: now handled inside _extract_doc_comment via
+            # extraction/lang/go.py's doc_anchor() -- for Go type_spec nodes,
+            # the godoc comment precedes the parent type_declaration node,
+            # not the type_spec itself; doc_anchor() redirects to the parent
+            # so this call site no longer needs its own special case).
+            cdoc = _extract_doc_comment(cnode, language)
             bases = _extract_bases(cnode, language)
 
             # Python: detect enums by base class inheritance

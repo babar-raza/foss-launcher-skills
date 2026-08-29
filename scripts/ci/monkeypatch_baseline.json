@@ -210,6 +210,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/extraction/test_language_adapters.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/extraction/test_max_files_cap.py": {
       "T1": 0,
       "T2": 6,
@@ -793,13 +799,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-24T17:47:12Z",
+  "generated_at": "2026-08-29T09:34:08Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 948,
+    "T2": 949,
     "T3": 108,
     "T4": 15
   }
