@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "694ef75b-543f-4849-949a-4f5625ea3797",
+  "bundle_id": "eb04d46e-12aa-46b8-b5be-ddec17f66bdf",
   "family": "3d",
   "platform": "python",
-  "repo_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
-  "generated_at": "2026-08-21T15:59:47.792783+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "repo_sha": "d9f3bfe50d47e8156266955dda52ec5abf2d9dec",
+  "generated_at": "2026-08-29T11:26:12.597553+00:00",
+  "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "a65f3d6222072fc9323028351cbf56bcb5a55e6f20f3b49a0594535237a68dfe",
+      "sha256": "e259f7c2d36b818d919364f27b7422c233c29e4da5dd1242d4d44d04eb8745a7",
       "bytes": 1214
     },
     "api_surface.json": {
-      "sha256": "3738583bc4f1cb39dd8869ecc46c908e6b6b195f09b6bb2c918a2ea1ef274826",
-      "bytes": 1046929
+      "sha256": "dfabde01411e85658929b287fb6a002a0b8ffca78baae7b9653081e718338f88",
+      "bytes": 1153353
     },
     "api_surface.md": {
-      "sha256": "0f1e120da1b9f24cfc94903e9c9c0a51607cd6e758a9486896ec127bc081ea50",
+      "sha256": "a07f6b7cf564bee88fb03a6a964ba5f07c57688b16158d6f1fed77b6ac6c06ff",
       "bytes": 106197
     },
     "formats.json": {
@@ -25,12 +25,12 @@
       "bytes": 16733
     },
     "formats.md": {
-      "sha256": "f4965b7fae682063714aad25e8449ab9311ad8909829235b0f7df8c233447808",
+      "sha256": "27b7ee8088e7ea1f389203ac3fb8e5c3a073b097e718273147f908892f26aa03",
       "bytes": 1629
     },
     "claims.json": {
-      "sha256": "dc5049bf5bc954b1df4b560b3a47245ab463465ca643f39cf368d4dc07947669",
-      "bytes": 1398743
+      "sha256": "2f06a45de1e009ee23e5435d563c0a6848eb6dd012b2e4ac5fcc7f142e4a3b8d",
+      "bytes": 1401873
     },
     "limitations.md": {
       "sha256": "6fb7c3cd6a20e5d461e314516338ef8113faecb1637cd9f91e5d64e9a35a84a6",
@@ -41,7 +41,7 @@
       "bytes": 166
     },
     "merge_report.md": {
-      "sha256": "0729ace79db5168f79aa1b1ab93c73625bf53792e10f870b26a151b03af0e085",
+      "sha256": "b98ab1159a7ac601529d38fc53f58e821599e48845f179886c68b88a36fdae9f",
       "bytes": 516
     },
     "snippets/snippet_001.py": {
@@ -449,6 +449,6 @@
       "bytes": 47570
     }
   },
-  "promote_run_id": "promote-20260821T155948Z",
+  "promote_run_id": "promote-20260829T112613Z",
   "status": "COMPLETE"
 }

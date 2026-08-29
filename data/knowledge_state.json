@@ -171,23 +171,30 @@
   },
   "3d/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-21T15:59:47.987054+00:00",
-      "repo_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
-      "run_id": "promote-20260821T155948Z",
+      "accepted_at": "2026-08-29T11:26:12.783866+00:00",
+      "repo_sha": "d9f3bfe50d47e8156266955dda52ec5abf2d9dec",
+      "run_id": "promote-20260829T112612Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\Token.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T15:59:50.680275Z"
+        "recorded_at": "2026-08-29T11:26:17.743653Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\3d\\python\\TokenType.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-21T15:59:50.689513Z"
+        "recorded_at": "2026-08-29T11:26:17.753555Z"
       }
     },
     "family": "3d",
-    "platform": "python"
+    "platform": "python",
+    "truth_audit": {
+      "fail_count": 2,
+      "recorded_at": "2026-08-29T11:35:55.671480Z",
+      "report_path": "reports\\audit\\3d-python-truth-20260829.md",
+      "verdict": "FAIL",
+      "warn_count": 0
+    }
   },
   "3d/typescript": {
     "accepted_baseline": {
@@ -896,9 +903,9 @@
   },
   "pdf/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-17T14:49:30.290828+00:00",
-      "repo_sha": "537b8273b185e4f7440b201cacad56567e55b2f0",
-      "run_id": "promote-20260817T144930Z",
+      "accepted_at": "2026-08-29T10:38:12.008513+00:00",
+      "repo_sha": "2c89b3f812e31e59d0cd85036bb018a9f3262758",
+      "run_id": "promote-20260829T103812Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
@@ -922,11 +929,11 @@
     "family": "pdf",
     "platform": "python",
     "truth_audit": {
-      "fail_count": 3,
-      "recorded_at": "2026-08-17T16:55:05.207850Z",
-      "report_path": "reports\\audit\\pdf-python-truth-20260817.md",
-      "verdict": "FAIL",
-      "warn_count": 21
+      "fail_count": 0,
+      "recorded_at": "2026-08-29T10:57:07.702229Z",
+      "report_path": "reports\\audit\\pdf-python-truth-20260829.md",
+      "verdict": "PASS",
+      "warn_count": 18
     }
   },
   "slides/cpp": {

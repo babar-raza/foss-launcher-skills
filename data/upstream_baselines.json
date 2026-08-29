@@ -1,7 +1,7 @@
 {
   "3d/java": "e308de58888635956cd66e5b0e2994dd42cd4356",
   "3d/net": "70933ab13eb0e313d9b160c55845011d366b1599",
-  "3d/python": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
+  "3d/python": "d9f3bfe50d47e8156266955dda52ec5abf2d9dec",
   "3d/typescript": "7b959706f2ad976db929f26ec079f43a07d578e1",
   "barcode/python": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
   "cells/cpp": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
@@ -22,7 +22,7 @@
   "pdf/go": "4a8d9cd1df39dce3f05d6ede8fb06c4ce39f2096",
   "pdf/java": "099e70a8b309fdd6ce349607dd589dfde96f2989",
   "pdf/net": "663783d18ec1c00efbd9b56a0a6ea20e4671d92b",
-  "pdf/python": "537b8273b185e4f7440b201cacad56567e55b2f0",
+  "pdf/python": "2c89b3f812e31e59d0cd85036bb018a9f3262758",
   "slides/cpp": "25adb25c8796f06d9b89cd5f8093e490091195ef",
   "slides/java": "9968c5b42525919f50bca3cdbcedd3ae1dc382c4",
   "slides/net": "bd19e16057b628310b4a04330585d366cb40e9b7",

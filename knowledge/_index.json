@@ -25,7 +25,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 329,
-      "claim_count": 3590
+      "claim_count": 3561
     },
     {
       "family": "3d",
@@ -106,7 +106,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 101,
-      "claim_count": 770
+      "claim_count": 1102
     },
     {
       "family": "email",
@@ -160,7 +160,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 39,
-      "claim_count": 333
+      "claim_count": 721
     },
     {
       "family": "page",
@@ -213,8 +213,17 @@
       "display_name": "Aspose.Pdf for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 236,
-      "claim_count": 2425
+      "class_count": 256,
+      "claim_count": 2838
+    },
+    {
+      "family": "pdf",
+      "platform": "typescript",
+      "display_name": "Aspose.Pdf for Typescript",
+      "api_confidence": "medium",
+      "stale": false,
+      "class_count": 898,
+      "claim_count": 8142
     },
     {
       "family": "slides",
@@ -277,7 +286,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 189,
-      "claim_count": 1268
+      "claim_count": 2041
     }
   ]
 }
