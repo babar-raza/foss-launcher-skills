@@ -302,6 +302,89 @@ def test_python_stdlib_bytesio_is_allowed(tmp_path):
     assert findings == []
 
 
+def test_python_stdlib_pathlib_path_is_allowed(tmp_path):
+    """Python stdlib pathlib.Path used as a type annotation/return type in a
+    real save()/save_as_image() signature is not an aspose-pdf-foss API
+    class and is absent from api_surface.json by design. Found live
+    2026-08-29, pdf/python: 5 independent reference pages (Document, Page,
+    RasterizedPage, ImagePlacement, SimplePdf) hit this identically."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`save(path: str | Path)` returns `Path` pointing at the written file.\n",
+    )
+    api_surface = {"Document", "Document.save"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_dotnet_parity_cross_reference_is_allowed(tmp_path):
+    """Real source doc text sometimes cites the .NET SDK's own member name
+    for cross-language parity ("Alias of dispose (matches .NET Close)") --
+    a genuine, useful migration note, not a claim that the .NET name exists
+    in THIS (Python) api_surface. Found live 2026-08-29, pdf/python's
+    Document.close and PdfExtractor.password."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Alias of dispose (matches .NET `Close`). Maps .NET `Password`.\n",
+    )
+    api_surface = {"Document"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_pdf_font_dictionary_spec_keys_are_allowed(tmp_path):
+    """PDF font-dictionary spec key names (ISO 32000-1 Table 111's
+    /BaseFont, /FontName entries) cited in real source doc text describing
+    what a property returns are never importable Python classes. Found
+    live 2026-08-29, pdf/python's AuthoredFont.md."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Return the exact current PDF `BaseFont`/`FontName` value.\n",
+    )
+    api_surface = {"AuthoredFont"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_pdf_structure_type_and_xmp_container_vocabulary_is_allowed(tmp_path):
+    """PDF/UA structure-type tag names (`Figure`) and XMP/RDF standard
+    container-type vocabulary (`Seq`/`Bag`/`Alt`) are string-literal spec
+    values cited in real source doc text, never aspose-pdf-foss API
+    classes. Found live 2026-08-29, pdf/python's StructureElement.md and
+    XmpPacket.md."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Set the structure type to `Figure`. Arrays use `Seq`, `Bag`, or `Alt`.\n",
+    )
+    api_surface = {"StructureElement", "XmpPacket"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_cms_signeddata_term_is_allowed(tmp_path):
+    """ASN.1/CMS (RFC 5652) structure name SignedData is the cryptographic
+    message-syntax term a PDF digital-signature class parses, cited in real
+    source doc text -- not an aspose-pdf-foss API class. Found live
+    2026-08-29, pdf/python's SignedDataInfo.md."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Everything we need from a parsed CMS `SignedData`.\n",
+    )
+    api_surface = {"SignedDataInfo"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_pdf_content_stream_operator_codes_are_allowed(tmp_path):
     """PDF content-stream operator codes (ISO 32000-1 SS A.2) are raw format
     syntax tokens explaining the spec itself, never Java class names.

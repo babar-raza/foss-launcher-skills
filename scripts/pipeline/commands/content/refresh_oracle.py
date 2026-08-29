@@ -347,6 +347,22 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # describing those methods, not an aspose-note-foss API class.
         # Found live 2026-08-29, note/python's blog and reference content.
         "BytesIO",
+        # Python stdlib pathlib.Path -- multiple pdf/python reference pages'
+        # own generated Methods tables (save/save_as_image/save_page_as_image)
+        # genuinely take `str | Path` and return `Path` for on-disk output
+        # locations; the real source's api_surface.json doc text uses it as a
+        # type annotation, not an aspose-pdf-foss API class. Found live
+        # 2026-08-29, pdf/python: 5 reference pages (Document, Page,
+        # RasterizedPage, ImagePlacement, SimplePdf) independently hit this.
+        "Path",
+        # Two real api_surface.json doc strings cite the .NET SDK's own
+        # member name for cross-language parity ("Alias of :meth:`dispose`
+        # (matches .NET ``Close``)"; "maps .NET ``Password``)") -- a genuine,
+        # useful reference for readers migrating from the .NET SDK, not a
+        # claim that Close/Password exist in THIS (Python) api_surface.
+        # Found live 2026-08-29, pdf/python's Document.close and
+        # PdfExtractor.password.
+        "Close", "Password",
     }
     content_tokens = {
         "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",
@@ -391,6 +407,29 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         # page -- same operator table in prose on both.
         "Tf", "Tj", "BT", "ET", "Td", "TD", "Tm", "TJ", "Tc", "Tw", "Tz",
         "TL", "Tr", "Ts",
+        # PDF font-dictionary spec key names (ISO 32000-1 Table 111's
+        # /BaseFont, /FontName entries), cited in real source doc text
+        # describing what a property returns -- never importable Python
+        # classes. Found live 2026-08-29, pdf/python's AuthoredFont.md.
+        "BaseFont", "FontName",
+        # PDF/UA structure-type tag names (ISO 32000-1 §14.8.4), e.g. `P` for
+        # paragraph, `Figure` for a figure element -- string-literal values
+        # of the `structure_type` property, same shape as the existing
+        # Annotation Subtype set above ("P" already covered by the bare
+        # single-letter A-Z entries). Found live 2026-08-29, pdf/python's
+        # StructureElement.md.
+        "Figure",
+        # XMP/RDF standard container-type vocabulary (rdf:Seq ordered list,
+        # rdf:Bag unordered set, rdf:Alt alternatives) -- cited by
+        # XmpPacket.set_array's real doc text describing which container
+        # kind an array property uses, not aspose-pdf-foss API classes.
+        # Found live 2026-08-29, pdf/python's XmpPacket.md.
+        "Seq", "Bag", "Alt",
+        # ASN.1/CMS (RFC 5652) structure name SignedData -- the cryptographic
+        # message-syntax term a PDF digital-signature class parses, cited in
+        # real source doc text, not an aspose-pdf-foss API class. Found live
+        # 2026-08-29, pdf/python's SignedDataInfo.md.
+        "SignedData",
     }
     for i, line in enumerate(body.splitlines(), start=1):
         for m in _BACKTICK_API_RE.finditer(line):
