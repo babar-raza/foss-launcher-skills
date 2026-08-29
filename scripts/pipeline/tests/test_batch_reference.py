@@ -756,6 +756,41 @@ class TestNameCollisionDedup:
         assert "to_double" not in content, "stale method must be removed on rebuild"
         assert "value" in content
 
+    def test_resolved_collision_survivor_updates_its_legacy_suffixed_page(self, tmp_path):
+        """A class that is the sole survivor of a past name collision (its
+        same-named sibling was removed/consolidated upstream) must update
+        its own existing namespace-suffixed page, not create a brand-new
+        unsuffixed duplicate. Found live 2026-08-29, pdf/python: `Color`
+        (tracked as `Color-types.md` from when a second "Color" existed)
+        and `PageCollection` (tracked as `PageCollection-pages.md`) each
+        got a duplicate `Color.md`/`PageCollection.md` created alongside
+        their real page once they were the only "Color"/"PageCollection"
+        left in api_surface.json."""
+        entries = [{
+            "name": "Color",
+            "kind": "class_definition",
+            "visibility": "public",
+            "canonical_namespace": "engine.data.types",
+            "methods": [{"name": "red", "params": [], "return_type": "", "doc": "", "line": 1}],
+            "properties": [],
+        }]
+        _make_api_surface(tmp_path, entries, "fake", "python")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "python"
+        out_dir.mkdir(parents=True)
+        legacy_page = out_dir / "Color-types.md"
+        legacy_page.write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n\n## Overview\n\nStale.\n",
+            encoding="utf-8",
+        )
+
+        result = run("fake", "python", rebuild_all=True, confirm_rebuild=True)
+
+        assert result["errors"] == 0, f"Expected 0 errors, got {result}"
+        assert not (out_dir / "Color.md").exists(), "must not create an unsuffixed duplicate"
+        assert legacy_page.exists()
+        assert "red" in legacy_page.read_text(encoding="utf-8")
+
     def test_namespace_disambiguated_slugs(self, tmp_path):
         """Same-name classes with different namespaces get separate pages."""
         entries = [

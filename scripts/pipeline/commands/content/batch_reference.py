@@ -2146,6 +2146,27 @@ def run(family: str, platform: str, kind_arg: str = "all",
         existing = _existing_normalized.get(norm)
         if existing is not None and existing.stem != sanitized:
             return existing
+        # An entry with no CURRENT same-name collision computes an
+        # unsuffixed slug (_entry_slug returns the bare name), but its own
+        # tracked page may still carry a namespace suffix from a past
+        # collision that has since resolved -- e.g. a same-named sibling
+        # class was removed/consolidated upstream, so this entry is now the
+        # sole survivor. Match against the suffix THIS entry's OWN
+        # namespace would produce if it still collided, so the existing
+        # page is recognized as an update target instead of a duplicate.
+        # Found live 2026-08-29, pdf/python: `Color` (now the only "Color"
+        # class, still tracked as `Color-types.md` from when a second
+        # "Color" existed) and `PageCollection` (tracked as
+        # `PageCollection-pages.md`) each got a brand-new, unsuffixed
+        # duplicate page created alongside their real, existing one.
+        if not entry.get("_slug_suffix"):
+            ns = _effective_namespace(entry)
+            if ns:
+                own_suffix = _sanitize_slug(ns.rsplit(".", 1)[-1])
+                suffixed_norm = f"{sanitized}-{own_suffix}".lower().replace("-", "_")
+                existing = _existing_normalized.get(suffixed_norm)
+                if existing is not None:
+                    return existing
         return None
 
     def _resolve_page_path(entry: dict) -> Path:
