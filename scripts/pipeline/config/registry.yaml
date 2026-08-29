@@ -852,10 +852,25 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
-    test_exempt_reason: "Diagnostic script for coverage reporting"
+    test_targets:
+      - scripts/pipeline/tests/test_typescript_api_completeness.py
+    requires_test: true
     deprecated_since: null
-    notes: "SH-14: 3d/typescript api_surface completeness check"
+    notes: "SH-14: TypeScript api_surface completeness check. Hardened
+      TC-MT040-22 (G-TS-10/G-TS-09, half a: the completeness checker itself
+      -- the wiring test half, test_typescript_platform_maps.py, lands as
+      its own later card since it asserts the FINAL wiring state across all
+      TS cards): configure() test seam added; node_modules/dist/build/test
+      dirs now excluded from the regex source-export fallback scan
+      (previously unfiltered -- produced false 'missing from api_surface'
+      findings from vendored .d.ts files); api_surface kind counts now
+      include functions/constants, not just classes; new
+      compute_barrel_completeness() uses the G-TS-02a adapter
+      (extraction/lang/typescript.py's export_surface(), the same one
+      TC-MT040-17's reference filter and TC-MT040-20's evaluator
+      live-fallback both consume) as the authoritative signal when the
+      barrel resolves, fail-safe None when it doesn't (e.g. 3d/typescript's
+      real clone, live-verified 2026-08-29)."
 
   - path: scripts/pipeline/commands/diagnostics/verdict_consistency.py
     kind: entrypoint

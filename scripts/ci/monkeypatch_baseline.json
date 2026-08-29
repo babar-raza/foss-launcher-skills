@@ -792,6 +792,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_typescript_api_completeness.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_update_product_registry.py": {
       "T1": 0,
       "T2": 11,
@@ -817,13 +823,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-29T11:10:38Z",
+  "generated_at": "2026-08-29T11:18:03Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 951,
+    "T2": 952,
     "T3": 113,
     "T4": 15
   }
