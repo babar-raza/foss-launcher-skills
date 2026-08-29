@@ -435,6 +435,22 @@ scripts:
     deprecated_since: null
     notes: "Stage 8 readiness scorecard for launch-product; collects grades and translation coverage"
 
+  - path: scripts/pipeline/commands/launch/product_acceptance_state.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: launch-product
+    test_targets:
+      - scripts/pipeline/tests/test_product_acceptance_state.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-49 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, R-1): read-only acceptance-state projection for one product — reads readiness.md + S-90 final-verdict.md + H-gate sample files' bindings blocks (lib/acceptance_bindings.py) and reports whether they agree and are current, without writing anything. Named product_acceptance_state.py (not product_state.py) to avoid colliding with the pre-existing, unrelated lib/product_state.py pipeline-lifecycle state machine."
+
   - path: scripts/pipeline/commands/launch/readiness_gate.py
     kind: entrypoint
     lifecycle: active
@@ -4289,6 +4305,22 @@ scripts:
     test_exempt_reason: "Shared filter library with no standalone CLI; covered indirectly by batch_reference tests"
     deprecated_since: null
     notes: "Two-step API surface filter shared by batch_reference.py and check_reference_index_structure.py (TC-REF-09)"
+
+  - path: scripts/pipeline/lib/acceptance_bindings.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_acceptance_bindings.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-MT040-49 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, R-1): computes and compares the model_sha/extractor_hash/evaluator_logic_version an acceptance artifact (readiness.md, S-90 final-verdict.md, H-gate sample files) was judged against vs the product's current knowledge state. Consumed by readiness_scorecard.py, human_review_sampler.py, and product_acceptance_state.py."
 
   - path: scripts/pipeline/lib/api_table_dupes.py
     kind: library

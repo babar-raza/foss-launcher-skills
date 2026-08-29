@@ -194,14 +194,49 @@ def _collect_grades(family: str, platform: str) -> dict:
     return grades
 
 
+def _import_acceptance_bindings():
+    """Lazy sys.path-qualified import of lib/acceptance_bindings.py, matching
+    this file's own existing lazy-import convention (see
+    _verify_checkpoint_integrity's commands.ops.project_phase_store import
+    above).
+
+    Propagates THIS module's own (possibly test-configured) _ROOT into the
+    imported module every call -- acceptance_bindings.py has its own
+    independent configure() seam/global, so without this a test that calls
+    readiness_scorecard.configure(repo_root=tmp_path) would silently read
+    bindings from the REAL repo's knowledge/ instead of the fixture (found
+    live while writing this card's own tests).
+    """
+    lib_dir = str(_ROOT / "scripts" / "pipeline" / "lib")
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    import acceptance_bindings
+    acceptance_bindings.configure(repo_root=_ROOT)
+    return acceptance_bindings
+
+
 def _read_hgate_signoffs(family: str, platform: str) -> dict[str, str]:
     """Read human review gate sign-off results.
 
-    Returns dict mapping gate id (h01..h05) to result (PASS/FAIL/CONDITIONAL/"").
-    Empty string means no sign-off file found or sign-off not completed.
+    Returns dict mapping gate id (h01..h05) to result
+    (PASS/FAIL/CONDITIONAL/STALE/""). Empty string means no sign-off file
+    found or sign-off not completed.
+
+    R-1 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-49): a PASS result
+    is downgraded to "STALE" when the sample file carries a ``bindings:``
+    block (see lib/acceptance_bindings.py) that no longer matches the
+    product's CURRENT knowledge/evaluator state -- e.g. a reviewer signed
+    off H-01 against one model_sha, and the knowledge model was re-promoted
+    since, without a fresh review. A sample file with no bindings block at
+    all (every file generated before this card existed) is "unverifiable"
+    and its bare PASS/FAIL/CONDITIONAL is returned unchanged -- this is an
+    additive check, not a retroactive one; it never invents staleness for an
+    artifact that predates this signal.
     """
     review_dir = _ROOT / "reports" / "human-review"
     results: dict[str, str] = {}
+    bindings_mod = None
+    current_bindings = None
     for gate in _HGATES:
         sample_file = review_dir / f"{family}-{platform}-{gate}-sample.md"
         if not sample_file.is_file():
@@ -221,7 +256,18 @@ def _read_hgate_signoffs(family: str, platform: str) -> dict[str, str]:
             text,
             re.MULTILINE | re.IGNORECASE,
         )
-        results[gate] = m.group(1).upper() if m else ""
+        result = m.group(1).upper() if m else ""
+        if result == "PASS":
+            try:
+                if bindings_mod is None:
+                    bindings_mod = _import_acceptance_bindings()
+                    current_bindings = bindings_mod.compute_bindings(family, platform)
+                stored = bindings_mod.parse_bindings_yaml(text)
+                if bindings_mod.bindings_status(stored, current_bindings) == "stale":
+                    result = "STALE"
+            except Exception:  # noqa: BLE001 -- staleness check is additive, never fatal
+                pass
+        results[gate] = result
     return results
 
 
@@ -361,6 +407,17 @@ def compute_verdict(
                 blockers.append(f"{_HGATE_NAMES[gate]} ({gate.upper()}): FAIL")
             elif result == "CONDITIONAL":
                 blockers.append(f"{_HGATE_NAMES[gate]} ({gate.upper()}): CONDITIONAL — requires follow-up")
+            elif result == "STALE":
+                # R-1 (TC-MT040-49): this gate WAS signed off PASS, but the
+                # sign-off's own bindings block no longer matches current
+                # knowledge/evaluator state — treat it the same as an
+                # unreviewed gate (never silently accept a stale PASS), with
+                # a message that tells the operator WHY, not just that it's
+                # missing.
+                blockers.append(
+                    f"{_HGATE_NAMES[gate]} ({gate.upper()}): STALE — signed off PASS against "
+                    f"older knowledge/evaluator state; re-review required"
+                )
             else:
                 blockers.append(
                     f"{_HGATE_NAMES[gate]} ({gate.upper()}): not reviewed."
@@ -503,9 +560,26 @@ def main():
     report_dir = _ROOT / "reports" / family / platform
     report_dir.mkdir(parents=True, exist_ok=True)
     report_path = report_dir / "readiness.md"
+    # R-1 (TC-MT040-49): this run just recomputed every grade/checkpoint/
+    # hgate signal fresh, so the bindings this readiness.md is written
+    # against are, by construction, the CURRENT ones — a later reader
+    # (product_state.py, or a human) compares this block's own values
+    # against a fresh compute_bindings() call to tell whether THIS file has
+    # since gone stale.
+    try:
+        bindings_mod = _import_acceptance_bindings()
+        current_bindings = bindings_mod.compute_bindings(family, platform)
+        bindings_yaml = bindings_mod.format_bindings_yaml(current_bindings)
+    except Exception as exc:  # noqa: BLE001 -- bindings are additive, never block the report
+        current_bindings = None
+        bindings_yaml = f"bindings: null  # unavailable: {exc}"
+
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(f"# Readiness Scorecard: {family}/{platform}\n\n")
         f.write(f"**Verdict**: {verdict}\n\n")
+        f.write("```yaml\n")
+        f.write(bindings_yaml + "\n")
+        f.write("```\n\n")
         f.write("## Translation Coverage (informational — not a launch blocker)\n\n")
         f.write("| Subdomain | Locales | Coverage | Files |\n")
         f.write("|-----------|---------|----------|-------|\n")

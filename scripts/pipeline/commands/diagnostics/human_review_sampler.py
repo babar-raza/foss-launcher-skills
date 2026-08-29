@@ -132,13 +132,41 @@ def _relative(page: Path) -> str:
         return str(page)
 
 
+def _compute_bindings_for(family: str, platform: str) -> "dict | None":
+    """Best-effort current bindings for a fresh sample file. Never raises --
+    a missing/unavailable knowledge model just means an unbound sample, not
+    a generation failure."""
+    try:
+        lib_dir = str(_ROOT / "scripts" / "pipeline" / "lib")
+        if lib_dir not in sys.path:
+            sys.path.insert(0, lib_dir)
+        import acceptance_bindings
+        # Propagate this module's own (possibly test-configured) _ROOT --
+        # acceptance_bindings.py has its own independent configure() seam;
+        # see readiness_scorecard.py's _import_acceptance_bindings() for the
+        # identical fix and the live bug it closes.
+        acceptance_bindings.configure(repo_root=_ROOT)
+        return acceptance_bindings.compute_bindings(family, platform)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _signoff_block(
     *,
     logic_version: str = "",
     pages_hash: str = "",
     evaluator_version: str = "",
+    bindings: "dict | None" = None,
 ) -> str:
-    """Generate the YAML sign-off block with integrity binding fields."""
+    """Generate the YAML sign-off block with integrity binding fields.
+
+    R-1 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-49): *bindings*
+    (see lib/acceptance_bindings.py) records the knowledge/evaluator state
+    THIS sample was generated against -- distinct from *pages_hash* (which
+    only binds to which pages were sampled). readiness_scorecard.py's
+    _read_hgate_signoffs() reads this block back and downgrades a PASS to
+    STALE when it no longer matches the product's current state.
+    """
     integrity = ""
     if logic_version:
         integrity += f"\nlogic_version: \"{logic_version}\""
@@ -146,6 +174,16 @@ def _signoff_block(
         integrity += f"\npages_hash: \"{pages_hash}\""
     if evaluator_version:
         integrity += f"\nevaluator_version: \"{evaluator_version}\""
+    bindings_block = ""
+    if bindings:
+        try:
+            lib_dir = str(_ROOT / "scripts" / "pipeline" / "lib")
+            if lib_dir not in sys.path:
+                sys.path.insert(0, lib_dir)
+            import acceptance_bindings
+            bindings_block = "\n" + acceptance_bindings.format_bindings_yaml(bindings)
+        except Exception:  # noqa: BLE001 -- bindings are additive, never block sample generation
+            bindings_block = ""
     return f"""
 ---
 
@@ -156,7 +194,7 @@ def _signoff_block(
 reviewer: ""
 date: ""
 result: ""  # PASS | FAIL | CONDITIONAL
-notes: ""{integrity}
+notes: ""{integrity}{bindings_block}
 ```
 
 **Instructions**: Fill in the sign-off block above after completing the review.
@@ -223,7 +261,7 @@ def generate_h01(family: str, platform: str) -> Path:
         lines.append(f"| {i} | `{rel}` | {grade} | {site} | {verdict} |")
 
     lines.append("")
-    lines.append(_signoff_block(pages_hash=pages_hash))
+    lines.append(_signoff_block(pages_hash=pages_hash, bindings=_compute_bindings_for(family, platform)))
 
     out.write_text("\n".join(lines), encoding="utf-8")
     return out
@@ -281,7 +319,7 @@ def generate_h02(family: str, platform: str) -> Path:
         lines.append(f"| {i} | `{rel}` | {grade} | {complexity} | {verdict} |")
 
     lines.append("")
-    lines.append(_signoff_block(pages_hash=pages_hash))
+    lines.append(_signoff_block(pages_hash=pages_hash, bindings=_compute_bindings_for(family, platform)))
 
     out.write_text("\n".join(lines), encoding="utf-8")
     return out
@@ -317,7 +355,7 @@ def generate_h03_h04_h05(family: str, platform: str) -> list[Path]:
             f"# {title}: {family}/{platform}\n\n"
             f"**Generated**: {now}\n\n"
             f"## Review Checklist\n\n{checklist}\n"
-            f"{_signoff_block()}"
+            f"{_signoff_block(bindings=_compute_bindings_for(family, platform))}"
         )
         out.write_text(content, encoding="utf-8")
         outputs.append(out)

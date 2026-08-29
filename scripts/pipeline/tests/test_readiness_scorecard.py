@@ -669,3 +669,103 @@ class TestSignoffParserHardening:
                     break
         data = json.loads(output[start:end])
         assert data["skip_human_review"] is True
+
+
+class TestHGateBindingsStaleness:
+    """R-1 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-49): a PASS
+    sign-off whose own bindings block no longer matches the product's
+    CURRENT knowledge state must be downgraded to STALE, never silently
+    treated as a current PASS."""
+
+    def _write_model(self, tmp_path, family, platform, repo_sha):
+        d = tmp_path / "knowledge" / family / platform / "merged"
+        d.mkdir(parents=True)
+        (d / "model.yaml").write_text(f"repo_sha: {repo_sha}\n", encoding="utf-8")
+
+    def test_pass_with_matching_bindings_stays_pass(self, tmp_path):
+        self._write_model(tmp_path, "3d", "java", "current_sha")
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "PASS"\nbindings:\n'
+            '  model_sha: "current_sha"\n```\n'
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_pass_with_stale_bindings_downgrades_to_stale(self, tmp_path):
+        self._write_model(tmp_path, "3d", "java", "new_sha_after_promotion")
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "PASS"\nbindings:\n'
+            '  model_sha: "old_sha_at_review_time"\n```\n'
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "STALE"
+
+    def test_pass_with_no_bindings_block_is_unverifiable_stays_pass(self, tmp_path):
+        """Legacy sample file predating this card -- no bindings block at
+        all. Must NOT be flagged stale (nothing to compare); bare PASS is
+        returned unchanged, matching every pre-existing test above this
+        class in this same file."""
+        self._write_model(tmp_path, "3d", "java", "current_sha")
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "PASS"\n```\n'
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_fail_result_never_gets_stale_downgrade(self, tmp_path):
+        """Staleness downgrade only applies to PASS -- a FAIL result means
+        the reviewer already found a problem; that verdict stands regardless
+        of bindings."""
+        self._write_model(tmp_path, "3d", "java", "new_sha")
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "FAIL"\nbindings:\n'
+            '  model_sha: "old_sha"\n```\n'
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "FAIL"
+
+    def test_stale_gate_produces_blocker_and_blocks_verdict(self, tmp_path):
+        """End-to-end: a STALE gate must reach compute_verdict() as a real
+        blocker (not silently pass through as if it were PASS)."""
+        grades = {"A": 5, "B": 0, "C": 0, "D": 0, "F": 0, "ungraded": 0}
+        coverage = {}
+        checkpoints = {"truth_audit_done": True}
+        hgate_results = {"h01": "STALE", "h02": "PASS", "h03": "PASS",
+                          "h04": "PASS", "h05": "PASS"}
+        ready, blockers = readiness_scorecard.compute_verdict(
+            grades, coverage, checkpoints, hgate_results,
+        )
+        assert ready is False
+        assert any("STALE" in b and "h01" in b.lower().replace("h-01", "h01") or "H-01" in b
+                   for b in blockers), blockers
+
+    def test_readiness_md_includes_bindings_block(self, tmp_path, monkeypatch):
+        """The written readiness.md must carry a fresh bindings: block
+        (this run's own knowledge state) -- proves the write side of R-1,
+        not just the read side tested above."""
+        self._write_model(tmp_path, "3d", "python", "written_sha")
+        helper = TestExitCodes()
+        helper._patch_main(monkeypatch, tmp_path, ready=True)
+        # T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=PERMANENT
+        monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
+                                         "--family", "3d", "--platform", "python",
+                                         "--skip-human-review"])
+        with pytest.raises(SystemExit):
+            readiness_scorecard.main()
+        report_path = tmp_path / "reports" / "3d" / "python" / "readiness.md"
+        assert report_path.is_file()
+        text = report_path.read_text(encoding="utf-8")
+        assert "bindings:" in text
+        assert "written_sha" in text
