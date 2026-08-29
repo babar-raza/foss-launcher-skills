@@ -102,29 +102,43 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# TC-MT040-42: reachability-enforcement wiring point (declared, not yet
-# populated)
+# TC-MT040-17: reachability-enforcement policy (D-3)
 # ---------------------------------------------------------------------------
 #
 # extraction/api_surface.py's RC-W1-004 "reachable" signal (see
 # extraction/lang/__init__.py's module docstring for the full per-language
-# adapter contract) has never been consulted by reference-page generation --
-# an entry can be filtered into a grouped reference index here even when the
-# scout-time signal already marked it unreachable. REACHABILITY_ENFORCED_PLATFORMS
-# is the wiring point a LATER taskcard (TC-MT040-17) populates with
-# {"typescript", "javascript", "nodejs"} once TypeScript's real
-# export_surface() implementation (TC-MT040-11) exists to back it. Starting
-# empty here means _passes_platform_scope()'s new check below is a no-op for
-# every platform today -- this card proves the wiring point exists without
-# changing any shipped platform's filtering behavior.
-REACHABILITY_ENFORCED_PLATFORMS: "frozenset[str]" = frozenset()
+# adapter contract) is now consulted by reference-page generation for the
+# platforms below -- an entry marked unreachable at scout time (e.g. a
+# TypeScript class never re-exported through the package's resolved barrel)
+# no longer gets a reference page, matching the PY-SHIM discard precedent.
+# TC-MT040-42/11 built the real export_surface() barrel/entry-point resolver
+# that backs this; TC-MT040-42's own wiring point started this frozenset
+# empty (a deliberate no-op landing) specifically so this card could turn it
+# on without also being the commit that introduces the underlying resolver.
+#
+# python/rust are NOT in this set: they have their own reachable signals
+# (via lang.python/lang.rust's export_surface()) but enforcing them here
+# would change shipped products' page counts outside of their own refresh
+# runs. They are scheduled to opt in at each product's *next* refresh
+# (Decision 10) -- not now, and not silently.
+#
+# Fail-safe: when a platform's entry point cannot be resolved (no dist/
+# build output and no bare index.ts/index.tsx -- e.g. 3d/typescript's real
+# clone, live-verified 2026-08-29), lang.typescript.export_surface() returns
+# None and api_surface.py's _compute_reachable leaves every entry
+# reachable=True for that product. This set only ever REMOVES pages relative
+# to today; it can never fabricate an unreachable=True verdict from a
+# resolver that gave up.
+REACHABILITY_ENFORCED_PLATFORMS: "frozenset[str]" = frozenset(
+    {"typescript", "javascript", "nodejs"}
+)
 
-# Bumped by a later card when reachability-enforcement policy changes (e.g.
-# when TC-MT040-17 populates REACHABILITY_ENFORCED_PLATFORMS above) --
-# mirrors GROUPED_INDEX_GENERATOR_VERSION's own staleness-fingerprint
-# pattern later in this file, giving this file's OWN filter-policy contract
-# an equivalent version marker. No consumer reads this yet as of this card.
-REFERENCE_FILTER_POLICY_VERSION = 1
+# Bumped whenever reachability-enforcement policy changes (this card: 1 -> 2,
+# enabling TS/JS/nodejs) -- mirrors GROUPED_INDEX_GENERATOR_VERSION's own
+# staleness-fingerprint pattern later in this file. Not yet read by any
+# consumer as a staleness trigger (that wiring is a future card); it exists
+# so one exists before a second policy change needs to invalidate anything.
+REFERENCE_FILTER_POLICY_VERSION = 2
 
 # ---------------------------------------------------------------------------
 # Filter implementation

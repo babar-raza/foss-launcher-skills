@@ -452,3 +452,72 @@ class TestNetExclusions:
              "file": "src/CacheManager.java",
              "class_import": "Aspose.Slides.Internal.CacheManager"}, "java"
         )
+
+
+class TestReachabilityEnforcement:
+    """TC-MT040-17 (D-3/G-TS-02b): unreachable-class skipping for TS/JS/nodejs.
+
+    REACHABILITY_ENFORCED_PLATFORMS is now {typescript, javascript, nodejs}
+    (was empty as of TC-MT040-42's wiring-only landing). python/rust have
+    their own "reachable" signal but are deliberately NOT enforced here yet
+    (Decision 10: opt in at each product's own next refresh, not silently
+    today) -- pinning today's shipped behavior for both.
+    """
+
+    def test_typescript_unreachable_class_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Lexer",
+             "file": "src/lexer.ts", "reachable": False}, "typescript"
+        )
+
+    def test_typescript_reachable_class_passes(self):
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Document",
+             "file": "src/document.ts", "reachable": True}, "typescript"
+        )
+
+    def test_typescript_missing_reachable_key_unaffected(self):
+        # Entries with no "reachable" key at all (e.g. knowledge promoted
+        # before TC-MT040-11 landed) must not be filtered by this check --
+        # only an explicit reachable: False excludes.
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Shape", "file": "src/shape.ts"}, "typescript"
+        )
+
+    def test_javascript_unreachable_class_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Internal",
+             "file": "src/internal.js", "reachable": False}, "javascript"
+        )
+
+    def test_nodejs_unreachable_class_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Internal",
+             "file": "src/internal.js", "reachable": False}, "nodejs"
+        )
+
+    def test_python_unreachable_not_enforced_yet(self):
+        # python has its own "reachable" signal (lang.python.export_surface's
+        # __all__ resolution) but is NOT in REACHABILITY_ENFORCED_PLATFORMS --
+        # pins today's shipped behavior: reachable:False is not consulted.
+        # (Name deliberately avoids python's separate I-prefix exclusion rule
+        # -- this test is only about the reachability check.)
+        assert _passes_platform_scope(
+            {"kind": "class_definition", "name": "HelperUtil",
+             "file": "src/helper.py", "reachable": False}, "python"
+        )
+
+    def test_rust_unreachable_not_enforced_yet(self):
+        # Same pin for rust (lang.rust.export_surface's pub-use resolution).
+        assert _passes_platform_scope(
+            {"kind": "struct_item", "name": "Internal",
+             "file": "src/internal.rs", "reachable": False}, "rust"
+        )
+
+    def test_enforced_platforms_frozenset_contents(self):
+        from scripts.pipeline.lib.reference_filter import REACHABILITY_ENFORCED_PLATFORMS
+        assert REACHABILITY_ENFORCED_PLATFORMS == frozenset({"typescript", "javascript", "nodejs"})
+
+    def test_policy_version_bumped(self):
+        from scripts.pipeline.lib.reference_filter import REFERENCE_FILTER_POLICY_VERSION
+        assert REFERENCE_FILTER_POLICY_VERSION == 2
