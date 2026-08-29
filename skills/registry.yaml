@@ -618,3 +618,21 @@ skills:
     description: Create a new capability with canonical contract, registry entry, Claude command adapter, and agent skill adapter
     internal: false
     script: null
+
+  - id: S-116
+    name: llms-generate
+    description: Generate llms-output/ .txt files and per-site llms.txt indexes for LLM consumption
+    internal: false
+    script: scripts/llms_generate.py
+
+  - id: S-117
+    name: llms-coverage
+    description: Audit coverage gap between content/ and llms-output/
+    internal: false
+    script: scripts/llms_coverage.py
+
+  - id: S-118
+    name: llms-fidelity
+    description: Score content fidelity between source pages and generated llms-output/ text
+    internal: false
+    script: scripts/llms_fidelity.py

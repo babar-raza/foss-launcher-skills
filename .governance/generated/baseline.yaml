@@ -1809,7 +1809,63 @@ capabilities:
   name: scaffold-capability
   operation_type: generate
   script: null
+- adapters:
+    agent_skill: .agents\skills\llms-generate\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\llms-generate.md
+    canonical_exists: true
+    claude_command: .claude\commands\llms-generate.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\llms-generate\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate llms-output/ .txt files and per-site llms.txt indexes for
+    LLM consumption
+  id: S-116
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: llms-generate
+  operation_type: unknown
+  script: scripts/llms_generate.py
+- adapters:
+    agent_skill: .agents\skills\llms-coverage\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\llms-coverage.md
+    canonical_exists: true
+    claude_command: .claude\commands\llms-coverage.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\llms-coverage\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Audit coverage gap between content/ and llms-output/
+  id: S-117
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: llms-coverage
+  operation_type: unknown
+  script: scripts/llms_coverage.py
+- adapters:
+    agent_skill: .agents\skills\llms-fidelity\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\llms-fidelity.md
+    canonical_exists: true
+    claude_command: .claude\commands\llms-fidelity.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\llms-fidelity\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Score content fidelity between source pages and generated llms-output/
+    text
+  id: S-118
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: llms-fidelity
+  operation_type: unknown
+  script: scripts/llms_fidelity.py
 internal_capabilities: 7
-public_capabilities: 91
+public_capabilities: 94
 schema_version: 1
-total_capabilities: 98
+total_capabilities: 101

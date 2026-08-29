@@ -1,0 +1,13 @@
+# Minimal config.yaml for the generic (non-Aspose) test fixture repo.
+# Used only by tests/test_llms_generate.py's CLI-level end-to-end proof.
+content_repo: "REPLACED_AT_TEST_TIME"
+knowledge_root: "knowledge"
+reports_path: "reports"
+
+sites:
+  docs:
+    content_path: "content/docs.example.org/en/{family}/{platform}/"
+    type: docs
+  blog:
+    content_path: "content/blog.example.org/{family}/{platform}/"
+    type: blog

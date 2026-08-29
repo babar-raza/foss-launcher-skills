@@ -881,14 +881,41 @@ capabilities:
   kilo_adapter_hash: fdc18b9b14d8e3ec
   name: scaffold-capability
   parity_status: FULL_PARITY
+- agent_adapter_hash: 89078ef28296a693
+  canonical_hash: 89078ef28296a693
+  capability_id: S-116
+  claude_adapter_hash: 89078ef28296a693
+  gaps: []
+  internal: false
+  kilo_adapter_hash: 89078ef28296a693
+  name: llms-generate
+  parity_status: FULL_PARITY
+- agent_adapter_hash: cccb8232357943b3
+  canonical_hash: cccb8232357943b3
+  capability_id: S-117
+  claude_adapter_hash: cccb8232357943b3
+  gaps: []
+  internal: false
+  kilo_adapter_hash: cccb8232357943b3
+  name: llms-coverage
+  parity_status: FULL_PARITY
+- agent_adapter_hash: d81cd2c761586b12
+  canonical_hash: d81cd2c761586b12
+  capability_id: S-118
+  claude_adapter_hash: d81cd2c761586b12
+  gaps: []
+  internal: false
+  kilo_adapter_hash: d81cd2c761586b12
+  name: llms-fidelity
+  parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-07-04T08:54:57.717919Z'
+generated_at: '2026-08-29T13:59:14.978197Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0
   claude_adapter_missing: 0
-  full_parity: 98
+  full_parity: 101
   gaps_total: 0
   internal_skipped: 7
   semantic_drift: 0
-  total_capabilities: 98
+  total_capabilities: 101
