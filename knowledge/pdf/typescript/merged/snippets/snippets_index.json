@@ -1,0 +1,2149 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 72,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.ToDocx",
+      "Document.ToHtml",
+      "Document.ToMarkdown",
+      "Page.ToDocx",
+      "Page.ToHtml",
+      "Page.ToImage",
+      "Page.ToMarkdown",
+      "Page.ToSvg"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "docx",
+      "html",
+      "markdown",
+      "md",
+      "pdf",
+      "png",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 123,
+    "classes_used": [
+      "Document",
+      "Metadata",
+      "Open",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.RemovePage",
+      "Document.Reorder",
+      "Document.Save",
+      "Document.SetMetadata",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 147,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Document.AddPage",
+      "Document.New",
+      "Document.WriteTo",
+      "Page.AddText",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 158,
+    "classes_used": [
+      "Document",
+      "InvalidPasswordError",
+      "Open",
+      "Pass"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 172,
+    "classes_used": [
+      "Document",
+      "Metadata",
+      "Open",
+      "Pass"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 192,
+    "classes_used": [
+      "Document",
+      "Enc",
+      "Open",
+      "Permissions"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 217,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Append",
+      "Document.ExtractPages",
+      "Document.InsertPage",
+      "Document.Merge",
+      "Document.Split"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 228,
+    "classes_used": [
+      "Page",
+      "PdfObject",
+      "Stream"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 241,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.WriteTo",
+      "Page.AddText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 275,
+    "classes_used": [
+      "Block",
+      "TextBlock"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.ts",
+    "source_file": "examples/feature-showcase/annotations.ts",
+    "source_function": "addAnnotations",
+    "source_line": 13,
+    "classes_used": [
+      "Annotation",
+      "Attachment",
+      "Box",
+      "Enc",
+      "Form",
+      "Open",
+      "Page",
+      "Poly",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddCaret",
+      "Page.AddCircle",
+      "Page.AddFileAttachment",
+      "Page.AddFreeText",
+      "Page.AddHighlight",
+      "Page.AddInk",
+      "Page.AddLine",
+      "Page.AddLink",
+      "Page.AddPolygon",
+      "Page.AddPolyline",
+      "Page.AddSquare",
+      "Page.AddSquiggly",
+      "Page.AddStamp",
+      "Page.AddStrikeOut",
+      "Page.AddTextNote",
+      "Page.AddUnderline",
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.ts",
+    "source_file": "examples/feature-showcase/assets.ts",
+    "source_function": "assetPath",
+    "source_line": 8,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.ts",
+    "source_file": "examples/feature-showcase/barcodes.ts",
+    "source_function": "addBarcodeShowcase",
+    "source_line": 21,
+    "classes_used": [
+      "EA",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddBarcode"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.ts",
+    "source_file": "examples/feature-showcase/bill.ts",
+    "source_function": "addRestaurantBill",
+    "source_line": 5,
+    "classes_used": [
+      "ColumnWidth",
+      "Item",
+      "Page",
+      "Row",
+      "Table",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.ts",
+    "source_file": "examples/feature-showcase/compliance.ts",
+    "source_function": "addComplianceShowcase",
+    "source_line": 37,
+    "classes_used": [
+      "ColumnWidth",
+      "Comp",
+      "Document",
+      "EA",
+      "Page",
+      "Pass",
+      "Row",
+      "Rule",
+      "Severity",
+      "Table",
+      "Val",
+      "ValidationReport",
+      "der"
+    ],
+    "methods_used": [
+      "Document.ConvertToPdfA",
+      "Document.ExtractPages",
+      "Document.Save",
+      "Document.ValidatePdfA",
+      "Document.ValidatePdfUa",
+      "Document.ValidatePdfX",
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.ts",
+    "source_file": "examples/feature-showcase/contents.ts",
+    "source_function": "addTOC",
+    "source_line": 6,
+    "classes_used": [
+      "Page",
+      "PageLabel",
+      "Section",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTOC"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.ts",
+    "source_file": "examples/feature-showcase/contents.ts",
+    "source_function": "addBookmarks",
+    "source_line": 52,
+    "classes_used": [
+      "Document",
+      "Item",
+      "Open",
+      "OutlineItem",
+      "Section"
+    ],
+    "methods_used": [
+      "Document.SetOutlines"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.ts",
+    "source_file": "examples/feature-showcase/cover.ts",
+    "source_function": "addCoverPage",
+    "source_line": 9,
+    "classes_used": [
+      "Box",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddLink",
+      "Page.AddSVGObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.ts",
+    "source_file": "examples/feature-showcase/flatten.ts",
+    "source_function": "addFlattenDemo",
+    "source_line": 6,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "TextField",
+      "der"
+    ],
+    "methods_used": [
+      "Annotation.Flatten",
+      "Form.AddCheckbox",
+      "Form.AddTextField",
+      "Page.AddCheckbox",
+      "Page.AddFreeText",
+      "Page.AddTextField",
+      "TextField.Flatten"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.ts",
+    "source_file": "examples/feature-showcase/flowshowcase.ts",
+    "source_function": "addFlowShowcase",
+    "source_line": 9,
+    "classes_used": [
+      "Box",
+      "ColumnBreak",
+      "Document",
+      "EmbeddedFont",
+      "FloatingBox",
+      "Flow",
+      "Form",
+      "Page",
+      "PageFormat",
+      "der"
+    ],
+    "methods_used": [
+      "Document.NewFloatingBox",
+      "Document.NewFlow",
+      "FloatingBox.AddImage",
+      "FloatingBox.AddParagraph",
+      "Flow.AddColumnBreak",
+      "Flow.AddFloatBox",
+      "Flow.AddFloatingBox",
+      "Flow.AddHeading",
+      "Flow.AddImage",
+      "Flow.AddList",
+      "Flow.AddParagraph",
+      "Flow.Render",
+      "Page.AddImage",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.ts",
+    "source_file": "examples/feature-showcase/forms.ts",
+    "source_function": "addFormFields",
+    "source_line": 7,
+    "classes_used": [
+      "Box",
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "Pass",
+      "Plan",
+      "Row",
+      "TextField",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Form.AddCheckbox",
+      "Form.AddComboBox",
+      "Form.AddListBox",
+      "Form.AddPushButton",
+      "Form.AddRadioGroup",
+      "Form.AddTextField",
+      "Page.AddCheckbox",
+      "Page.AddComboBox",
+      "Page.AddListBox",
+      "Page.AddPushButton",
+      "Page.AddTextField"
+    ],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "pdf",
+      "png"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.ts",
+    "source_file": "examples/feature-showcase/furniture.ts",
+    "source_function": "stampLogoOnEveryPage",
+    "source_line": 10,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.AddSVGObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.ts",
+    "source_file": "examples/feature-showcase/furniture.ts",
+    "source_function": "addCenteredWatermark",
+    "source_line": 32,
+    "classes_used": [
+      "Document",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Document.AddWatermark"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.ts",
+    "source_file": "examples/feature-showcase/htmlexport.ts",
+    "source_function": "addHtmlShowcase",
+    "source_line": 24,
+    "classes_used": [
+      "Box",
+      "Document",
+      "Open",
+      "Page",
+      "Table",
+      "der"
+    ],
+    "methods_used": [
+      "Document.ToHtml",
+      "Page.ToHtml"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "ot",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.ts",
+    "source_file": "examples/feature-showcase/image.ts",
+    "source_function": "addPageImage",
+    "source_line": 5,
+    "classes_used": [
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddImage"
+    ],
+    "formats_referenced": [
+      "jpeg",
+      "png"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.ts",
+    "source_file": "examples/feature-showcase/landscape.ts",
+    "source_function": "addLandscapeChart",
+    "source_line": 4,
+    "classes_used": [
+      "Form",
+      "Page",
+      "PageFormat",
+      "Step",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.ts",
+    "source_file": "examples/feature-showcase/layers.ts",
+    "source_function": "addLayerShowcase",
+    "source_line": 13,
+    "classes_used": [
+      "Document",
+      "Layer",
+      "OptionalContent",
+      "Page",
+      "PageGraphics",
+      "Plan",
+      "Tag",
+      "der"
+    ],
+    "methods_used": [
+      "OptionalContent.AddLayer",
+      "Page.AddBarcode",
+      "Page.AddImage",
+      "Page.Graphics",
+      "PageGraphics.BeginLayer",
+      "PageGraphics.EndLayer",
+      "PageGraphics.apply",
+      "PageGraphics.arc",
+      "PageGraphics.circle",
+      "PageGraphics.drawLine",
+      "PageGraphics.fillStroke",
+      "PageGraphics.moveTo",
+      "PageGraphics.rect",
+      "PageGraphics.restore",
+      "PageGraphics.save",
+      "PageGraphics.setDash",
+      "PageGraphics.setFillColor",
+      "PageGraphics.setLineJoin",
+      "PageGraphics.setLineWidth",
+      "PageGraphics.setStrokeColor",
+      "PageGraphics.stroke"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "png"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.ts",
+    "source_file": "examples/feature-showcase/redaction.ts",
+    "source_function": "addRedactionDemo",
+    "source_line": 14,
+    "classes_used": [
+      "Box",
+      "DA",
+      "Page",
+      "Row",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddRedact",
+      "Page.ApplyRedactions"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "renderPageThumb",
+    "source_line": 14,
+    "classes_used": [
+      "Page",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.ToImage"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "imposedSheetThumb",
+    "source_line": 22,
+    "classes_used": [
+      "Document",
+      "Page",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "addRenderShowcase",
+    "source_line": 29,
+    "classes_used": [
+      "Box",
+      "Page",
+      "PageGraphics",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddImage",
+      "Page.Graphics",
+      "PageGraphics.apply",
+      "PageGraphics.rect",
+      "PageGraphics.setLineWidth",
+      "PageGraphics.setStrokeColor",
+      "PageGraphics.stroke"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.ts",
+    "source_file": "examples/feature-showcase/sales.ts",
+    "source_function": "addSalesReport",
+    "source_line": 6,
+    "classes_used": [
+      "ColumnWidth",
+      "Form",
+      "Item",
+      "Page",
+      "Row",
+      "Table",
+      "Tag",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.ts",
+    "source_file": "examples/feature-showcase/signcred.ts",
+    "source_function": "mintSigner",
+    "source_line": 27,
+    "classes_used": [
+      "Signer",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.ts",
+    "source_file": "examples/feature-showcase/signing.ts",
+    "source_function": "addSigningShowcase",
+    "source_line": 15,
+    "classes_used": [
+      "Open",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "md",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.ts",
+    "source_file": "examples/feature-showcase/signing.ts",
+    "source_function": "signSavedDocument",
+    "source_line": 79,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page",
+      "Pass",
+      "Path",
+      "Signer",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Certify",
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.Save",
+      "Document.Sign",
+      "Document.VerifySignatures",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "md",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "runAutoTag",
+    "source_line": 30,
+    "classes_used": [
+      "AutoTagReport",
+      "Document",
+      "Tag"
+    ],
+    "methods_used": [
+      "Document.AutoTag"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "handTagPage",
+    "source_line": 40,
+    "classes_used": [
+      "Document",
+      "Page",
+      "Tag"
+    ],
+    "methods_used": [
+      "Document.Append",
+      "Document.GetStructTree",
+      "Page.GetStructuredText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "addTaggedShowcase",
+    "source_line": 68,
+    "classes_used": [
+      "AutoTagReport",
+      "Document",
+      "ImageEvent",
+      "Page",
+      "StructElement",
+      "StructTreeRoot",
+      "Table",
+      "Tag",
+      "der"
+    ],
+    "methods_used": [
+      "Document.GetStructTree",
+      "StructElement.MarkContent",
+      "StructTreeRoot.Append"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.ts",
+    "source_file": "examples/feature-showcase/text.ts",
+    "source_function": "addPageText",
+    "source_line": 5,
+    "classes_used": [
+      "Block",
+      "Decoration",
+      "EmbeddedFont",
+      "Page",
+      "TextBlock",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTextBlock"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "xywh",
+    "source_line": 24,
+    "classes_used": [
+      "Box"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "rectToQuads",
+    "source_line": 30,
+    "classes_used": [
+      "Box"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "centeredRect",
+    "source_line": 36,
+    "classes_used": [
+      "Box",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "pageWidth",
+    "source_line": 42,
+    "classes_used": [
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "pageHeight",
+    "source_line": 46,
+    "classes_used": [
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "addText",
+    "source_line": 77,
+    "classes_used": [
+      "Block",
+      "Box",
+      "Page",
+      "TextBlock",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTextBlock"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "sectionHeader",
+    "source_line": 96,
+    "classes_used": [
+      "Page",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "cardGrid",
+    "source_line": 136,
+    "classes_used": [
+      "Box",
+      "Page",
+      "Pass",
+      "Rect"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "addUnifiedFooter",
+    "source_line": 177,
+    "classes_used": [
+      "Page"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.ts",
+    "source_file": "examples/feature-showcase/vector.ts",
+    "source_function": "addVectorShowcase",
+    "source_line": 5,
+    "classes_used": [
+      "Box",
+      "Gradient",
+      "Page",
+      "Path",
+      "Poly",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.ts",
+    "source_file": "examples/feature-showcase/verify.ts",
+    "source_function": "verifySavedDocument",
+    "source_line": 38,
+    "classes_used": [
+      "Annotation",
+      "DA",
+      "Document",
+      "Field",
+      "Form",
+      "Item",
+      "Layer",
+      "NamedDest",
+      "NamedDestination",
+      "Names",
+      "Open",
+      "OptionalContent",
+      "OutlineItem",
+      "Page",
+      "Path",
+      "Plan",
+      "Section",
+      "StructTreeRoot",
+      "Tag",
+      "Val",
+      "der"
+    ],
+    "methods_used": [
+      "Document.GetNamedDestinations",
+      "Document.GetOutlines",
+      "Document.GetStructTree",
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.resolve",
+      "OptionalContent.GetLayer",
+      "Page.GetPaths",
+      "Page.GetText",
+      "StructTreeRoot.GetText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "gif",
+      "html",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.ts",
+    "source_file": "examples/feature-showcase/verify.ts",
+    "source_function": "verifySignedDocument",
+    "source_line": 197,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.VerifySignatures"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "gif",
+      "md",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes a URI action",
+    "source_line": 17,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes a GoTo action with a destination array",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes SubmitForm with a URL filespec and no flags by defau",
+    "source_line": 30,
+    "classes_used": [
+      "Field",
+      "Form",
+      "PdfDict"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "maps each submit format to its specification flag bit",
+    "source_line": 41,
+    "classes_used": [
+      "Form"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "html",
+      "pdf",
+      "xfdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "sets IncludeExclude and writes the field-name list",
+    "source_line": 51,
+    "classes_used": [
+      "Field"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes ResetForm",
+    "source_line": 59,
+    "classes_used": [
+      "Field",
+      "Form"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes JavaScript",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "rejects malformed actions",
+    "source_line": 74,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "round-trips every action type",
+    "source_line": 92,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "xfdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "reports fdf when no format bit is set",
+    "source_line": 107,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "accepts a bare string /F, which some producers write",
+    "source_line": 113,
+    "classes_used": [
+      "Enc",
+      "Form",
+      "PdfDict",
+      "PdfObject",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "fdf",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "returns undefined with no /A, a non-dict /A, or an unmodelle",
+    "source_line": 124,
+    "classes_used": [
+      "PdfDict",
+      "PdfObject"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still round-trips a URI link",
+    "source_line": 135,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still round-trips a GoTo link",
+    "source_line": 143,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "now parses a submit action that previously read back as unde",
+    "source_line": 152,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "keeps rejecting a malformed link action",
+    "source_line": 163,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "reads a stream /JS, not just a string",
+    "source_line": 175,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New",
+      "Document.allocObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still reads a string /JS",
+    "source_line": 189,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "returns undefined for a /JS that is neither",
+    "source_line": 199,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "carries every non-widget annotation to the right page",
+    "source_line": 45,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "never carries the widget annotation",
+    "source_line": 53,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "preserves properties on the highlight",
+    "source_line": 59,
+    "classes_used": [
+      "Annotation",
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "preserves the text note author and contents",
+    "source_line": 68,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "carries a subtype with no typed class (Sound) through unchan",
+    "source_line": 75,
+    "classes_used": [
+      "Annotation",
+      "Page",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "preserves an appearance stream byte-for-byte",
+    "source_line": 82,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "regenerates an appearance for an annotation that arrived wit",
+    "source_line": 102,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "leaves a generator-less subtype without an appearance, witho",
+    "source_line": 108,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "relinks the popup and the reply",
+    "source_line": 115,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "is idempotent: importing twice does not duplicate",
+    "source_line": 123,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "carries no annotations when the export flag is off",
+    "source_line": 133,
+    "classes_used": [
+      "Document",
+      "Open"
+    ],
+    "methods_used": [
+      "Document.Open"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "ignores annotations in the file when the import flag is off",
+    "source_line": 141,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "still carries field values alongside the annotations",
+    "source_line": 150,
+    "classes_used": [
+      "Document",
+      "Open"
+    ],
+    "methods_used": [
+      "Document.Open"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "reports an out-of-range page rather than throwing",
+    "source_line": 158,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.RemovePage"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.ts",
+    "source_file": "test/annot-roundtrip.test.ts",
+    "source_function": "survives a Save/Open cycle",
+    "source_line": 170,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "finds text in /Contents and names the entry",
+    "source_line": 26,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "finds text in /T, which a /Contents-only search would miss",
+    "source_line": 34,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "finds text in /Subj",
+    "source_line": 44,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "reports every entry that matches, in Contents/T/Subj order",
+    "source_line": 50,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "Stream",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddTextNote",
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "applies a RegExp globally within one value",
+    "source_line": 58,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "Stream"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddTextNote",
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "searches a HIDDEN annotation, unlike SearchAnnotations",
+    "source_line": 66,
+    "classes_used": [
+      "Annotation",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "returns [] for a page with no annotations",
+    "source_line": 76,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "Stream"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "does not search page content",
+    "source_line": 81,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "carries no geometry — a hit must not be feedable to Redact",
+    "source_line": 85,
+    "classes_used": [
+      "Annotation",
+      "Page",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "is disjoint from SearchAnnotations, in both directions",
+    "source_line": 95,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.SearchAnnotationText",
+      "Page.SearchAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "searches the TEXT of /RC, not its markup",
+    "source_line": 122,
+    "classes_used": [
+      "Annotation",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "does not match a tag name",
+    "source_line": 132,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "does not join two blocks into a word that was never written",
+    "source_line": 139,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "reports the REDUCED text as the match value, not the markup",
+    "source_line": 144,
+    "classes_used": [
+      "Annotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.ts",
+    "source_file": "test/annot-search-text.test.ts",
+    "source_function": "reads the stream shape as well as the string shape",
+    "source_line": 153,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Enc",
+      "Open",
+      "Page",
+      "PdfObject",
+      "Stream",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddTextNote",
+      "Page.SearchAnnotationText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout"
+  }
+]

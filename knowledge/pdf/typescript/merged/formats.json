@@ -1,0 +1,298 @@
+[
+  {
+    "format": "Byte",
+    "enum": "",
+    "value": "",
+    "file": "src/dfont.ts",
+    "line": 19,
+    "direction": "import"
+  },
+  {
+    "format": "Huffman",
+    "enum": "",
+    "value": "",
+    "file": "src/jbig2huffman.ts",
+    "line": 18,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/mdexport.ts",
+    "line": 20,
+    "direction": "export"
+  },
+  {
+    "format": "Ot",
+    "enum": "",
+    "value": "",
+    "file": "src/otlayout.ts",
+    "line": 25,
+    "direction": "import"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/raster.ts",
+    "line": 1255,
+    "direction": "export"
+  },
+  {
+    "format": "Svg",
+    "enum": "",
+    "value": "",
+    "file": "src/svgrender.ts",
+    "line": 43,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/tiff.ts",
+    "line": 38,
+    "direction": "import"
+  },
+  {
+    "format": "Byte",
+    "enum": "",
+    "value": "",
+    "file": "src/tiffencode.ts",
+    "line": 94,
+    "direction": "export"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/document.ts",
+    "line": 1641,
+    "direction": "import"
+  },
+  {
+    "format": "SVG",
+    "enum": "",
+    "value": "",
+    "file": "src/page.ts",
+    "line": 651,
+    "direction": "import"
+  },
+  {
+    "format": "bmp",
+    "enum": "",
+    "value": "",
+    "file": "src/bmp.ts",
+    "line": 38,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "bmp",
+    "enum": "",
+    "value": "",
+    "file": "src/bmpencode.ts",
+    "line": 40,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "doc",
+    "enum": "",
+    "value": "",
+    "file": "src/docmdp.ts",
+    "line": 78,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/document.ts",
+    "line": 437,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "docx",
+    "enum": "",
+    "value": "",
+    "file": "src/docxexport.ts",
+    "line": 257,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "epub",
+    "enum": "",
+    "value": "",
+    "file": "src/epub.ts",
+    "line": 105,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "fdf",
+    "enum": "",
+    "value": "",
+    "file": "src/fdf.ts",
+    "line": 31,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "fdf",
+    "enum": "",
+    "value": "",
+    "file": "src/fdf.ts",
+    "line": 130,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "gif",
+    "enum": "",
+    "value": "",
+    "file": "src/gifencode.ts",
+    "line": 128,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "src/html.ts",
+    "line": 122,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "jpeg",
+    "enum": "",
+    "value": "",
+    "file": "src/jpegencode.ts",
+    "line": 5,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/markdown.ts",
+    "line": 20,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/mdexport.ts",
+    "line": 270,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "md",
+    "enum": "",
+    "value": "",
+    "file": "src/mdexport.ts",
+    "line": 11,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/metadata.ts",
+    "line": 42,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xfdf",
+    "enum": "",
+    "value": "",
+    "file": "src/node.ts",
+    "line": 119,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xfdf",
+    "enum": "",
+    "value": "",
+    "file": "src/node.ts",
+    "line": 143,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "png",
+    "enum": "",
+    "value": "",
+    "file": "src/pngencode.ts",
+    "line": 3,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "tiff",
+    "enum": "",
+    "value": "",
+    "file": "src/raster.ts",
+    "line": 1281,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "svg",
+    "enum": "",
+    "value": "",
+    "file": "src/svgembed.ts",
+    "line": 183,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "svg",
+    "enum": "",
+    "value": "",
+    "file": "src/svgrender.ts",
+    "line": 443,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xml",
+    "enum": "",
+    "value": "",
+    "file": "src/xml.ts",
+    "line": 41,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xml",
+    "enum": "",
+    "value": "",
+    "file": "src/xml.ts",
+    "line": 138,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "zip",
+    "enum": "",
+    "value": "",
+    "file": "src/zip.ts",
+    "line": 40,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "scout": {
+    "completed_at": "2026-08-29T12:53:10Z",
+    "success": true,
+    "repo_path": "runs\\.clone_cache\\aspose_pdf_typescript",
+    "output_dir": "knowledge\\pdf\\typescript\\scout",
+    "class_count": 3604,
+    "claim_count": 8776
+  },
+  "promote": {
+    "completed_at": "2026-08-29T14:54:26Z",
+    "success": true,
+    "scout_claims": 8776,
+    "enriched_claims": 46,
+    "supplemental_claims": 0,
+    "total_claims": 8341,
+    "class_count": 1055
+  },
+  "index": {
+    "completed_at": "2026-08-29T14:54:51Z",
+    "success": true,
+    "class_count": 1002,
+    "claim_count": 8341,
+    "api_confidence": "medium"
+  }
+}

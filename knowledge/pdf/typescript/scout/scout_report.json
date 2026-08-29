@@ -1,0 +1,25 @@
+{
+  "files_attempted": 300,
+  "files_parsed": 300,
+  "files_skipped": [],
+  "skip_reasons": {},
+  "parse_errors": [],
+  "parse_error_rate": 0.0,
+  "total_source_files_found": 300,
+  "files_capped": false,
+  "ts_entry_point": "src/index.ts",
+  "fidelity_summary": {
+    "schema_version": 1,
+    "generated_at": "2026-08-29T14:55:22.411109+00:00",
+    "overall_status": "WARN",
+    "findings_count": 1,
+    "fail_count": 0,
+    "probe_statuses": {
+      "P1": "OK",
+      "P2": "OK",
+      "P3": "OK",
+      "P4": "WARN",
+      "P5": "OK"
+    }
+  }
+}

@@ -1,0 +1,676 @@
+{
+  "generated_at": "2026-08-29T13:20:52.459399+00:00",
+  "model": "professionalize/gpt-oss",
+  "source": "enrich.py (S-37)",
+  "family": "pdf",
+  "platform": "typescript",
+  "api_surface_sha": "3c603558b54fee49",
+  "claim_count": 46,
+  "claims": [
+    {
+      "claim_id": "ERC-pdf-typescript-8445c101",
+      "text": "Class **ALPHA** defines the alpha ramp projection using a single /DeviceGray component, where the luminosity of a gray value *g* equals *g*.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.91,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: ALPHA\n  Docstring: The alpha ramp's projection: one /DeviceGray component, since the luminosity  of a gray value g is g."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-dbb3caf6",
+      "text": "Constant **ANGLE_EPS** (~0.29°) is used to decide when a PDF page is treated as axis‑aligned; angles below this threshold are considered aligned.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: ANGLE_EPS\n  Docstring: ~0.29°: below this, a page is treated as axis-aligned."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-09ec8b79",
+      "text": "**AES_WRAP_OID** provides the object identifier for the AES key‑wrap algorithm used in PDF encryption.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AES_WRAP_OID"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-d5708136",
+      "text": "The library includes low‑level graphics primitives such as **A**, **ALPHA**, and **ANGLE_EPS** to give developers precise control over transparency and page orientation.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.85,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: A\nClass: ALPHA\nClass: ANGLE_EPS"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-5fa7f836",
+      "text": "The library is a zero‑dependency TypeScript package and only requires Node.js to use classes like **A**, **ALPHA**, and **ANGLE_EPS**.",
+      "kind": "install",
+      "page_role": "product",
+      "confidence": 0.86,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "README.md",
+          "snippet": "A zero-dependency TypeScript library for reading, manipulating, and writing PDF files in Node.js."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-0b00436b",
+      "text": "The **ANGLE_EPS** threshold may cause pages rotated by less than 0.29° to be treated as axis‑aligned, which can affect layout calculations.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: ANGLE_EPS\n  Docstring: ~0.29°: below this, a page is treated as axis-aligned."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-ed368905",
+      "text": "The AP_FONT_KEY constant identifies the /Resources /Font dictionary entry where each annotation appearance registers its Standard‑14 font face.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.93,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api.ts",
+          "snippet": "Class: AP_FONT_KEY\n  Docstring: The /Resources /Font key every annotation appearance registers its Standard-14  face under."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-351c83c8",
+      "text": "AUTHORING_FONTS lists the twelve Latin Standard‑14 fonts (WinAnsi‑encodable) that the library supports for authoring PDF text.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.94,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api.ts",
+          "snippet": "Class: AUTHORING_FONTS\n  Docstring: The 12 Latin Standard-14 fonts authoring supports (WinAnsi-encodable)."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-014f3be2",
+      "text": "Create an Accumulator with `new Accumulator(width, height)` to prepare a raster grid for computing per‑cell signed trapezoidal area.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.95,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Class: Accumulator\n  Methods: constructor(w, h);"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-c4ab66ca",
+      "text": "Call `line(x0, y0, x1, y1)` on an Accumulator to add a line segment whose contribution is integrated into the area coverage of the underlying cells.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.94,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Methods: line(x0, y0, x1, y1) -> void;"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-04f5c73a",
+      "text": "The `composite(canvas, ox, oy, color, evenOdd, paint)` method blends the accumulated coverage onto a target canvas at the given offset, using the specified fill color and winding rule.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.93,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Methods: composite(canvas, ox, oy, color, evenOdd, paint) -> void;"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-78f0b7b5",
+      "text": "`coverage(evenOdd)` returns a Float32Array containing the fractional coverage of each cell, optionally applying the even‑odd fill rule.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.94,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Methods: coverage(evenOdd) -> Float32Array"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-2bc73577",
+      "text": "Using Accumulator you can compute precise fractional coverage for complex vector shapes, enabling high‑quality rasterization of PDF graphics.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Docstring: Accumulates signed trapezoidal area per cell; a horizontal prefix sum per row  yields fractional coverage."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-135a7fc0",
+      "text": "ActiveFloat represents a floating element that occupies a horizontal band on one side of a column, extending down to a specified bottom coordinate in PDF user space.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.93,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "activefloat.ts",
+          "snippet": "Class: ActiveFloat\n  Docstring: A float occupying a horizontal band on one side of the column, down to  `bottom` (PDF user space, y up)."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-e3a6c952",
+      "text": "The `side` property indicates which side of the column the float resides on, `band` defines its horizontal extent, and `bottom` specifies the vertical limit.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.92,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "activefloat.ts",
+          "snippet": "Properties: side, band, bottom"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-ba161edb",
+      "text": "When using Accumulator, ensure the canvas dimensions match the accumulator’s width and height; mismatched sizes can cause out‑of‑bounds errors during `composite`.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "accumulator.ts",
+          "snippet": "Docstring: Accumulates signed trapezoidal area per cell; a horizontal prefix sum per row  yields fractional coverage."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-0b6ee5ca",
+      "text": "ActiveFloat does not automatically reflow surrounding content; developers must manually adjust column layout to accommodate the float’s band and bottom.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.87,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "activefloat.ts",
+          "snippet": "Docstring: A float occupying a horizontal band on one side of the column, down to  `bottom` (PDF user space, y up)."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-e169a3ba",
+      "text": "The **AddBarcodeOptions** class lets developers configure barcode rendering when adding a barcode to a PDF, exposing properties such as **render**, **color**, **quietZone**, **text**, **layer**, **tag**, **alt**, and **artifact**.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.92,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddBarcodeOptions\n  Properties: render, color, quietZone, text, layer, tag, alt, artifact"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-12f9f16e",
+      "text": "Using **AddBarcodeOptions**, developers can customize visual aspects of barcodes—such as color and quiet zone—to achieve precise placement and styling within PDF documents.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddBarcodeOptions\n  Properties: render, color, quietZone, text, layer, tag, alt, artifact"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-c945a47e",
+      "text": "The **AddFontOptions** class provides options for embedding fonts, allowing you to set **shape** for complex‑script shaping and **faceIndex** to select a specific face from a font collection.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.91,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddFontOptions\n  Properties: shape, faceIndex"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-d4fbc4ad",
+      "text": "With **AddFontOptions**, you can embed TrueType/OpenType fonts and enable shaping for languages that require glyph substitution and positioning, improving multilingual PDF text rendering.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.87,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddFontOptions\n  Properties: shape, faceIndex"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-88fdba62",
+      "text": "The **AddImageOptions** class controls image insertion, offering **opacity**, **format**, **page**, **tag**, and **layer** properties to adjust transparency, image format, target page, and layering order.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.93,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddImageOptions\n  Properties: opacity, format, page, tag, layer"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-bb4694f4",
+      "text": "By setting **AddImageOptions.format**, developers can import common image formats (e.g., PNG, JPEG) and have them correctly encoded when the PDF is saved.",
+      "kind": "format",
+      "page_role": "product",
+      "confidence": 0.85,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddImageOptions\n  Properties: opacity, format, page, tag, layer"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-bc603aff",
+      "text": "The **AddImagePagesOptions** class enables bulk addition of image pages, with **frames** (image buffers), **dpi**, and **format** properties to define the source images, resolution, and output image format.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddImagePagesOptions\n  Properties: frames, dpi, format"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-e138dbdc",
+      "text": "After adding image pages, the **AddImagePagesResult** object reports the operation outcome via its **pages** (list of added page numbers) and **skipped** (count of pages not added) properties.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.89,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddImagePagesResult\n  Properties: pages, skipped"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-59a618b5",
+      "text": "If **AddImageOptions.opacity** is set to 0, the inserted image becomes fully transparent and will not be visible in the rendered PDF; use a value greater than 0 to ensure visibility.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.84,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddImageOptions\n  Properties: opacity, format, page, tag, layer"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-fd6a4b3d",
+      "text": "The library provides structured result types so you can programmatically determine how much content was placed and what remained to be processed.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddMarkdownResult: usedHeight, remainder\nAddSVGResult: skipped, rasterized\nAddTOCResult: pages, drawn, endY, remainder, struct"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-580ab3de",
+      "text": "All layer, markdown, SVG, and TOC operations expose fine‑grained control through option objects that map directly to PDF properties.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.87,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddLayerOptions: parent, visible, intent\nAddSVGOptions: fit, font, filterScale, resolveImage, tag, alt, artifact"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-89f80fab",
+      "text": "Use AddLayerOptions.parent to specify the parent layer when calling OptionalContent.AddLayer, and set visible and intent to control its initial state.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.92,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "Class: AddLayerOptions\nDocstring: Options for {@link OptionalContent.AddLayer}.\nProperties: parent, visible, intent"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-eea9e9a6",
+      "text": "When adding markdown with Page.AddMarkdown, inspect the returned AddMarkdownResult.usedHeight to know the vertical space consumed and remainder to retrieve any leftover text.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.91,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "Class: AddMarkdownResult\nDocstring: What {@link Page.AddMarkdown} reports.\nProperties: usedHeight, remainder"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-f1736e57",
+      "text": "Pass an AddSVGOptions instance to Page.AddSVGObject to control fitting, font substitution, image resolution, and tagging of the inserted SVG.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "Class: AddSVGOptions\nDocstring: Options for {@link Page.AddSVGObject}.\nProperties: fit, font, filterScale, resolveImage, tag, alt, artifact"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-efc55595",
+      "text": "After inserting an SVG, examine AddSVGResult.skipped to see which elements were omitted and rasterized to know which parts were converted to bitmap.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.89,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "Class: AddSVGResult\nDocstring: The outcome of {@link Page.AddSVGObject}.\nProperties: skipped, rasterized"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-80675511",
+      "text": "When generating a table of contents with drawTOC or page.AddTOC, the AddTOCResult provides the number of pages added, the drawn flag, the final Y coordinate, any remainder, and the underlying structure object.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "Class: AddTOCResult\nDocstring: The outcome of {@link drawTOC} / `page.AddTOC`.\nProperties: pages, drawn, endY, remainder, struct"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-7bbf53f0",
+      "text": "If AddMarkdownResult.remainder is non‑empty, it indicates that the markdown text exceeded the page height; you should create a new page and call Page.AddMarkdown again with the remainder.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.85,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddMarkdownResult properties: usedHeight, remainder"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-d70558e4",
+      "text": "When AddSVGOptions.filterScale is set too high, the rasterized flag in AddSVGResult may become true, meaning complex SVG elements were rasterized; lower the scale to keep vector fidelity.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.84,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddSVGOptions property: filterScale\nAddSVGResult property: rasterized"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-c62dee44",
+      "text": "AddTOCResult.struct contains the hierarchical TOC structure generated by drawTOC, allowing further customization before saving the document.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddTOCResult property: struct"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-c5124949",
+      "text": "AddLayerOptions.intent corresponds to the PDF optional‑content intent dictionary, letting you define the purpose of the new layer (e.g., View, Design, or All).",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.86,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "api_definitions.ts",
+          "snippet": "AddLayerOptions property: intent"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-e72dc536",
+      "text": "The AddTableOptions class lets developers configure table drawing parameters such as width, cell padding, automatic pagination, margins, tagging, and structure parent when invoking page.AddTable.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.92,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddTableOptions\n  Docstring: Options for {@link drawTable} / `page.AddTable`.\n  Properties: width, cellPadding, autoPaginate, bottomMargin, topMargin, tagged, structParent"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-049d50c4",
+      "text": "Together, AddTableOptions and AddTableResult enable programmatic generation of complex, multi‑page tables within PDFs.",
+      "kind": "feature",
+      "page_role": "product",
+      "confidence": 0.88,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AddTableOptions ... Class: AddTableResult ..."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-84e015a4",
+      "text": "Set the `autoPaginate` property of AddTableOptions to true to have the library automatically continue a table onto subsequent pages.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.91,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Properties: ... autoPaginate, ..."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-829e2de6",
+      "text": "Enable PDF/UA accessibility for tables by setting the `tagged` property of AddTableOptions to true.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Properties: ... tagged, ..."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-00291d18",
+      "text": "Use the `structParent` property in AddTableOptions to associate the generated table with a specific structure parent node in the PDF's logical structure tree.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.89,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Properties: ... structParent"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-19b83473",
+      "text": "Alloc allocates a new object inside the PDF document and returns an indirect reference that can be used elsewhere in the file.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.93,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: Alloc\n  Docstring: Allocate an object in the document and return an indirect reference to it."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-809f58ed",
+      "text": "AlphaChannel specifies which alpha channel(s) an ExtGState affects: `ca` for fill operations, `CA` for stroke operations, or both.",
+      "kind": "api",
+      "page_role": "reference",
+      "confidence": 0.94,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: AlphaChannel\n  Docstring: Which alpha channel(s) an /ExtGState sets: `ca` (fill), `CA` (stroke), or  both."
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-07d56b00",
+      "text": "The Anchor class represents a fixed point on a page with `x` and `y` coordinates, useful for positioning tables, images, or annotations.",
+      "kind": "api",
+      "page_role": "docs",
+      "confidence": 0.9,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Class: Anchor\n  Properties: x, y"
+        }
+      ]
+    },
+    {
+      "claim_id": "ERC-pdf-typescript-9a5d26d8",
+      "text": "AlphaChannel only accepts the values `ca`, `CA`, or both; any other value is ignored and will not affect the graphics state.",
+      "kind": "troubleshoot",
+      "page_role": "kb",
+      "confidence": 0.85,
+      "claim_source": "llm_enriched",
+      "evidence": [
+        {
+          "source_file": "verified_facts.txt",
+          "snippet": "Docstring: Which alpha channel(s) an /ExtGState sets: `ca` (fill), `CA` (stroke), or  both."
+        }
+      ]
+    }
+  ],
+  "run_stats": {
+    "batches_attempted": 6,
+    "batches_succeeded": 5,
+    "batches_failed": 1,
+    "claims_raw": 56,
+    "claims_rejected": 10,
+    "claims_deduplicated": 37,
+    "claims_accepted": 9,
+    "claims_stub_demoted": 0,
+    "claims_final": 46,
+    "model_used": "professionalize/gpt-oss",
+    "preflight": {
+      "professionalize": "ok",
+      "ollama": "unreachable"
+    },
+    "preserved_existing": false,
+    "preserved_stale": false,
+    "duration_seconds": 184.6,
+    "cache_hits": 4,
+    "cache_misses": 2
+  }
+}

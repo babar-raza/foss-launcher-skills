@@ -1,0 +1,1 @@
+{"run_id": "promote-20260829T083739Z", "family": "pdf", "platform": "typescript", "prior_repo_sha": null, "new_repo_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f", "sha_source": "scout", "orphaned_sha": null, "attempt_started_at": "2026-08-29T08:37:39.854124Z", "accepted_at": "2026-08-29T08:37:39.853411Z", "superseded_by": null, "status": "accepted"}

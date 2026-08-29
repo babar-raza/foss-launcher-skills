@@ -936,6 +936,16 @@
       "warn_count": 18
     }
   },
+  "pdf/typescript": {
+    "accepted_baseline": {
+      "accepted_at": "2026-08-29T14:54:25.870206+00:00",
+      "repo_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f",
+      "run_id": "promote-20260829T145425Z",
+      "sha_source": "model.yaml"
+    },
+    "family": "pdf",
+    "platform": "typescript"
+  },
   "slides/cpp": {
     "accepted_baseline": {
       "accepted_at": "2026-07-17T00:00:00Z",
