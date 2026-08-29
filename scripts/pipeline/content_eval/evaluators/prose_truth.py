@@ -137,6 +137,39 @@ def _is_technical_strong_wording(line_text: str) -> bool:
 _BACKTICK_SPAN_RE = re.compile(r"`[^`]*`")
 
 
+def _lines_inside_multiline_backtick_span(
+    prose_lines: list[tuple[int, str]],
+) -> set[int]:
+    """Return line numbers that fall inside a backtick span opened on an
+    earlier prose line and not yet closed on the current one.
+
+    `_has_prose_strong_wording`'s same-line backtick exclusion (below) is
+    blind to a type-signature table cell that wraps across several physical
+    lines -- batch_reference.py emits exactly this shape for complex
+    TypeScript union/object types, e.g. a `Type` column opening `` `: { ``
+    on one line and closing `` }` `` several lines later. Confirmed live
+    2026-08-29 on pdf/typescript's ListAttributes.md/MarkdownStyle.md: a
+    continuation line reading `'None' | 'Disc' | ...` or a wrapped JSDoc
+    comment ("Exactly six positive numbers", "Padding inside every cell")
+    is real, source-verbatim type documentation -- not bare prose -- but
+    carries no backtick pair of its OWN, so the per-line check alone reads
+    it as an unbacked marketing claim.
+
+    Approximated by backtick-count parity carried across prose_lines in
+    document order -- a heuristic, like the rest of this evaluator: nested
+    same-line open+close pairs net to even and don't toggle state, matching
+    the one-line case `_has_prose_strong_wording` already handles alone.
+    """
+    in_span = False
+    result: set[int] = set()
+    for line_no, line_text in prose_lines:
+        if in_span:
+            result.add(line_no)
+        if line_text.count("`") % 2 == 1:
+            in_span = not in_span
+    return result
+
+
 def _has_prose_strong_wording(line_text: str) -> bool:
     """Return True if a strong word appears outside any backtick-quoted span.
 
@@ -321,8 +354,9 @@ class ProseTruthEvaluator(BaseEvaluator):
             return None
 
         # Check format claims in prose
+        _multiline_span_lines = _lines_inside_multiline_backtick_span(page.prose_lines)
         for line_no, line_text in page.prose_lines:
-            if _is_markdown_table_row(line_text):
+            if _is_markdown_table_row(line_text) or line_no in _multiline_span_lines:
                 continue
 
             # ST-023: resolve directional "<verb> ... to/into/from <FORMAT>"
