@@ -10,6 +10,7 @@ Public API::
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 from pathlib import Path
@@ -31,6 +32,40 @@ LOG = logging.getLogger(__name__)
 MAX_SNIPPETS = 100
 
 _NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
+
+# TC-MT040-44 (D-5): platforms opted into the deterministic tiered snippet
+# budget (_extract_snippets_tiered below) instead of the legacy cap-by-
+# iteration-order path. Scoped narrowly so every other platform's snippet
+# output/order is provably byte-identical before/after this change (see
+# test_typescript_snippet_ordering.py's golden-parity test).
+#
+# `platform_capabilities.yaml` (D-1/TC-MT040-40) does not exist yet in this
+# tree -- once it lands, this set should migrate to a declared capability
+# row there (e.g. `snippet_budget: tiered`) instead of a hard-coded literal.
+_TIERED_SNIPPET_PLATFORMS = {"typescript", "javascript"}
+
+# Legacy (non-tiered) directory scan order -- iteration-order dependent by
+# construction, unchanged for every platform not in _TIERED_SNIPPET_PLATFORMS.
+# Hoisted to module scope (previously an inline literal inside
+# extract_snippets) purely so tests can pin the literal without needing to
+# re-run extraction; the *values* and *order* are untouched.
+_DEFAULT_SNIPPET_DIRS = ["tests", "test", "examples", "example", "samples",
+                         "demo", "ApiExamples", "api_examples", "_examples"]
+_EXAMPLE_DIR_NAMES = {"examples", "example", "samples", "demo",
+                      "ApiExamples", "api_examples", "_examples"}
+
+# TC-MT040-44 tier directory groups (TS/JS tiered path only).
+_TIER1_EXAMPLE_DIR_NAMES = ["examples", "example", "samples", "demo",
+                            "ApiExamples", "api_examples", "_examples"]
+_TIER2_TEST_DIR_NAMES = ["tests", "test"]
+
+# TC-MT040-16 (G-TS-04b): a file living under a test/tests directory that is
+# NOT itself named like a test file (*.test.ts, *.spec.ts, test_*.ts,
+# *_test.ts) contributes nothing to snippets -- e.g. `test/helpers/util.ts`
+# holds shared test scaffolding, not API-usage evidence, even though an
+# `export`ed helper function inside it would otherwise look exactly like a
+# legitimate exported-function snippet candidate.
+_TS_TEST_FILE_RE = re.compile(r"(?:\.test|\.spec)$|^test_|_test$", re.IGNORECASE)
 
 
 def _dir_name_matches_pattern(dirname: str, pattern: str) -> bool:
@@ -77,6 +112,43 @@ def _is_product_affine(dirname: str, pkg_name: str) -> bool:
     dl = dirname.lower()
     pl = pkg_name.lower()
     return dl == pl or dl.startswith(pl + ".") or dl.startswith(pl + "_") or dl.startswith(pl + "-")
+
+
+def _leaf_test_blocks(
+    blocks: list[tuple[str, Any, int]],
+) -> list[tuple[str, Any, int]]:
+    """Drop any test/describe block whose byte range strictly CONTAINS
+    another collected block, keeping only leaf blocks.
+
+    TC-MT040-16 (G-TS-04a): a nested ``describe()`` that wraps one or more
+    ``it()``/``test()`` blocks is dropped as a snippet in its own right --
+    it mostly just repeats what its inner blocks already show, so capturing
+    both is a near-duplicate. A ``describe()`` with no collected children
+    (nothing nested, or its children were filtered out upstream) is kept,
+    since it is then the leaf itself.
+
+    Pure and order-independent: given the SAME set of blocks in any input
+    order, the returned leaf set is identical (each block's "is this a
+    wrapper" question is answered purely from its own byte range against
+    every other block's, never from position in *blocks*).
+    """
+    def _byte_range(node) -> tuple[int, int]:
+        return (node.start_byte, node.end_byte)
+
+    leaves: list[tuple[str, Any, int]] = []
+    for name, node, line in blocks:
+        s, e = _byte_range(node)
+        is_wrapper = False
+        for _other_name, other_node, _other_line in blocks:
+            if other_node is node:
+                continue
+            os_, oe = _byte_range(other_node)
+            if s <= os_ and e >= oe and (s, e) != (os_, oe):
+                is_wrapper = True
+                break
+        if not is_wrapper:
+            leaves.append((name, node, line))
+    return leaves
 
 
 def _collect_snippet_functions(
@@ -170,6 +242,15 @@ def _collect_snippet_functions(
                 results.append((fname, fn, fn.start_point[0] + 1))
 
     elif language in ("typescript", "javascript"):
+        # TC-MT040-16 (G-TS-04b): a file under a test/tests directory
+        # (is_example_dir False) that is NOT itself named like a test file
+        # contributes nothing -- e.g. `test/helpers/util.ts` holds shared
+        # scaffolding, not API-usage evidence, even though its exported
+        # helper functions would otherwise look exactly like legitimate
+        # exported-function snippet candidates below.
+        if not is_example_dir and file_stem and not _TS_TEST_FILE_RE.search(file_stem):
+            return results
+
         for fn in collect_nodes(root, func_types):
             fname = _node_name(fn, language)
             if not fname:
@@ -183,6 +264,7 @@ def _collect_snippet_functions(
                 results.append((fname, fn, fn.start_point[0] + 1))
 
         _test_block_names = {"test", "it", "describe"}
+        _blocks: list[tuple[str, Any, int]] = []
         for call_node in collect_nodes(root, {"call_expression"}):
             fn_part = child_by_field(call_node, "function")
             if fn_part and node_text(fn_part) in _test_block_names:
@@ -194,9 +276,13 @@ def _collect_snippet_functions(
                             desc = node_text(ch).strip("'\"` ")
                             break
                     block_name = desc[:60] or node_text(fn_part)
-                    results.append(
+                    _blocks.append(
                         (block_name, call_node,
                          call_node.start_point[0] + 1))
+        # TC-MT040-16 (G-TS-04a): leaf-only -- drop a describe() wrapper
+        # that strictly contains other collected it()/test() blocks so it
+        # is never captured as a near-duplicate of its own children.
+        results.extend(_leaf_test_blocks(_blocks))
 
     elif language == "go":
         # Go testable examples: ExampleXxx functions in *_test.go files.
@@ -252,7 +338,17 @@ def extract_snippets(
     blocks as whole-file snippets.  Capped at MAX_SNIPPETS per product.
 
     Returns a list of snippet dicts.
+
+    TC-MT040-44 (D-5): platforms in _TIERED_SNIPPET_PLATFORMS (TypeScript/
+    JavaScript today) are dispatched to the deterministic tiered budget
+    (_extract_snippets_tiered) instead of this legacy cap-by-iteration-order
+    path. Every other platform's code below is completely untouched --
+    verified byte-identical by test_typescript_snippet_ordering.py's golden
+    parity test.
     """
+    if language in _TIERED_SNIPPET_PLATFORMS:
+        return _extract_snippets_tiered(parser, language, pkg_root, repo, classes, formats)
+
     # Build lookup sets from already-extracted api_surface
     api_class_names: set[str] = set()
     api_method_index: dict[str, set[str]] = {}
@@ -273,10 +369,8 @@ def extract_snippets(
         if fname:
             format_names.add(fname.lower())
 
-    snippet_dirs = ["tests", "test", "examples", "example", "samples", "demo",
-                     "ApiExamples", "api_examples", "_examples"]
-    _example_dirs = {"examples", "example", "samples", "demo",
-                     "ApiExamples", "api_examples", "_examples"}
+    snippet_dirs = list(_DEFAULT_SNIPPET_DIRS)
+    _example_dirs = set(_EXAMPLE_DIR_NAMES)
     ext = _FILE_EXTENSIONS.get(language, ".py")
     func_types = _FUNC_TYPES.get(language, set())
     class_types = _CLASS_TYPES.get(language, set())
@@ -593,5 +687,375 @@ def extract_snippets(
                 })
                 snippet_counter += 1
             break
+
+    return snippets
+
+
+# ---------------------------------------------------------------------------
+# TC-MT040-44 (D-5): deterministic tiered snippet budget
+# ---------------------------------------------------------------------------
+#
+# Tier 0 -- README code fences (<=10)
+# Tier 1 -- curated examples/samples directories (<=60)
+# Tier 2 -- tests (remainder up to MAX_SNIPPETS, unchanged total cap)
+#
+# Applies only to languages in _TIERED_SNIPPET_PLATFORMS. Within each tier,
+# candidates are sorted deterministically by (source path, then source line)
+# -- NEVER by filesystem/directory-listing iteration order -- so re-running
+# scout on an unchanged repo always produces an identical snippet set and
+# order. "Product-affinity" (the words/net Aspose.Words.Tests-vs-
+# Aspose.JavaMs.Tests problem _is_product_affine solves) is already applied
+# one layer up, at directory-selection time in _discover_snippet_dir_files
+# (identical rule to the legacy path); once a directory is selected as a
+# genuine candidate, ordering the affinity question is settled, and the
+# remaining tie-break is exactly the plan's stated fallback: path, then
+# line number.
+
+
+def _normalize_snippet_code(code: str) -> str:
+    """Normalize snippet code for `snippet_key` hashing: strip leading/
+    trailing whitespace on every line, and collapse runs of consecutive
+    blank lines down to a single blank line. Deliberately simple/stable --
+    the goal is a key that survives incidental re-indentation or blank-line
+    churn upstream, not a semantic/AST-level normalization."""
+    normalized_lines: list[str] = []
+    prev_blank = False
+    for raw_line in code.splitlines():
+        line = raw_line.strip()
+        if line == "":
+            if prev_blank:
+                continue
+            prev_blank = True
+        else:
+            prev_blank = False
+        normalized_lines.append(line)
+    return "\n".join(normalized_lines)
+
+
+def _compute_snippet_key(source_file: str, source_function: str, code: str) -> str:
+    """sha256 of `source_file|source_function|normalized_code` -- an
+    additive identity for a snippet's CONTENT, independent of its
+    positional `snippet_NNN` id (which promote.py renumbers on merge
+    anyway). Its purpose is to make additions/evictions show up as an
+    explicit diff (e.g. in merge_report.md) even though ids are positional.
+    """
+    normalized = _normalize_snippet_code(code)
+    payload = f"{source_file}|{source_function}|{normalized}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _snippet_cross_refs(
+    code: str,
+    api_class_names: set[str],
+    api_method_index: dict[str, set[str]],
+    format_names: set[str],
+) -> tuple[list[str], list[str], list[str]]:
+    """Same classes_used/methods_used/formats_referenced logic as the
+    legacy per-snippet blocks in extract_snippets, factored out as a pure
+    helper for the tiered path (kept separate from -- not shared with --
+    the legacy code so the legacy path is never at risk of an accidental
+    behavior change from this refactor)."""
+    classes_used: list[str] = []
+    methods_used: list[str] = []
+    for cname in api_class_names:
+        if cname in code:
+            classes_used.append(cname)
+            for mname in api_method_index.get(cname, set()):
+                if f"{cname}.{mname}" in code or f".{mname}(" in code:
+                    methods_used.append(f"{cname}.{mname}")
+    code_lower = code.lower()
+    formats_ref = [f for f in format_names if f in code_lower]
+    return sorted(set(classes_used)), sorted(set(methods_used)), sorted(set(formats_ref))
+
+
+def _search_base_list(pkg_root: Path, repo: Path) -> list[Path]:
+    """Walk from pkg_root up to repo, collecting every directory in between
+    (inclusive) as a search base -- identical logic to the inline block in
+    extract_snippets, factored out for reuse by the tiered path."""
+    search_bases: list[Path] = []
+    cur = pkg_root
+    while True:
+        try:
+            cur.relative_to(repo)
+            search_bases.append(cur)
+        except ValueError:
+            pass
+        if cur == repo or cur.parent == cur:
+            break
+        cur = cur.parent
+    if repo not in search_bases:
+        search_bases.append(repo)
+    return search_bases
+
+
+def _discover_snippet_dir_files(
+    sdir_names: list[str],
+    search_bases: list[Path],
+    repo: Path,
+    ext: str,
+    pkg_name: str,
+    *,
+    is_example_dir: bool,
+) -> list[tuple[Path, bool]]:
+    """Find every *ext file under any directory matching a name in
+    *sdir_names* (exact match, or a product-affine token match -- the same
+    directory-resolution rules as the legacy path's nested loop, see
+    _dir_name_matches_pattern / _is_product_affine), across every search
+    base. Returns (file_path, is_example_dir) pairs.
+
+    The RETURN ORDER of this function is intentionally not the final
+    snippet order -- callers must sort explicitly (see the callers in
+    _extract_snippets_tiered) before assigning snippet ids. This is the
+    determinism seam: a caller/test may pass `sdir_names`/`search_bases` in
+    any order, or shuffle the returned list, and the final tiered output is
+    unaffected because ordering is decided later by an explicit sort key,
+    never by this function's (or the filesystem's) iteration order.
+    """
+    found: list[tuple[Path, bool]] = []
+    visited: set[Path] = set()
+    for sdir in sdir_names:
+        for base in search_bases:
+            candidate_dirs: list[Path] = []
+            exact = base / sdir
+            if exact.is_dir():
+                candidate_dirs.append(exact)
+            if base.is_dir():
+                try:
+                    children = list(base.iterdir())
+                except OSError:
+                    children = []
+                token_matches = [
+                    c for c in children
+                    if c != exact and c.is_dir() and _dir_name_matches_pattern(c.name, sdir)
+                ]
+                if token_matches:
+                    affine = [c for c in token_matches if _is_product_affine(c.name, pkg_name)]
+                    if affine:
+                        candidate_dirs.extend(sorted(affine))
+                    else:
+                        if len(token_matches) > 1:
+                            LOG.warning(
+                                "_discover_snippet_dir_files: %d directories "
+                                "token-match %r under %s with no clear "
+                                "product-affine match (pkg_root=%s) -- using "
+                                "all of them: %s.",
+                                len(token_matches), sdir, base, pkg_name,
+                                [c.name for c in token_matches],
+                            )
+                        candidate_dirs.extend(sorted(token_matches))
+            for d in candidate_dirs:
+                if d in visited:
+                    continue
+                visited.add(d)
+                for fpath in sorted(d.rglob(f"*{ext}"))[:MAX_FILES]:
+                    found.append((fpath, is_example_dir))
+    return found
+
+
+def _collect_tier_candidates(
+    files: list[tuple[Path, bool]],
+    parser,
+    language: str,
+    func_types: set,
+    class_types: set,
+    repo: Path,
+    api_class_names: set[str],
+    api_method_index: dict[str, set[str]],
+    format_names: set[str],
+) -> list[dict]:
+    """Parse every file in *files* (in WHATEVER order they arrive -- see
+    _discover_snippet_dir_files), collect candidate snippet functions/blocks
+    from each (hygiene-filtered and leaf-only-filtered by
+    _collect_snippet_functions itself), and return them sorted
+    deterministically by (source path, source line, source function). This
+    sort is what makes the tier's output independent of *files*' input
+    order -- the determinism seam TC-MT040-44 requires: a test can pass
+    `files` shuffled and still get an identical result.
+    """
+    raw: list[dict] = []
+    seen: set[Path] = set()
+    for fpath, is_example_dir in files:
+        if fpath in seen:
+            continue
+        seen.add(fpath)
+        try:
+            src = fpath.read_bytes()
+        except OSError:
+            continue
+        tree = parser.parse(src)
+        text = src.decode("utf-8", errors="replace")
+        root = tree.root_node
+        func_nodes = _collect_snippet_functions(
+            root, language, func_types, class_types, text,
+            is_example_dir=is_example_dir, file_stem=fpath.stem)
+        if not func_nodes:
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        for fn_name, fn_node, fn_line in func_nodes:
+            code = node_text(fn_node)
+            if not code.strip():
+                continue
+            classes_used, methods_used, formats_ref = _snippet_cross_refs(
+                code, api_class_names, api_method_index, format_names)
+            raw.append({
+                "source_file": rel,
+                "source_function": fn_name,
+                "source_line": fn_line,
+                "language": language,
+                "code": code,
+                "valid": not fn_node.has_error,
+                "classes_used": classes_used,
+                "methods_used": methods_used,
+                "formats_referenced": formats_ref,
+            })
+    raw.sort(key=lambda e: (e["source_file"].lower(), e["source_line"], e["source_function"]))
+    return raw
+
+
+def _collect_readme_fence_entries(
+    parser,
+    language: str,
+    repo: Path,
+    api_class_names: set[str],
+    api_method_index: dict[str, set[str]],
+    format_names: set[str],
+) -> list[dict]:
+    """Tier 0 candidates: README code fences in the product's own language,
+    in document order (already deterministic -- a single file, read once)."""
+    entries: list[dict] = []
+    for readme_name in ("README.md", "readme.md", "README.rst"):
+        readme = repo / readme_name
+        if not readme.exists():
+            continue
+        try:
+            text = readme.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        lang_names = {language}
+        if language == "javascript":
+            lang_names.update({"javascript", "js"})
+        if language == "typescript":
+            lang_names.update({"typescript", "ts"})
+        fence_pattern = re.compile(
+            r"```(" + "|".join(re.escape(n) for n in lang_names)
+            + r")\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+        for m in fence_pattern.finditer(text):
+            code = m.group(2)
+            t = parser.parse(code.encode("utf-8"))
+            valid = not t.root_node.has_error
+            classes_used, methods_used, formats_ref = _snippet_cross_refs(
+                code, api_class_names, api_method_index, format_names)
+            entries.append({
+                "source_file": readme_name,
+                "source_function": "(readme_block)",
+                "source_line": text[:m.start()].count("\n") + 1,
+                "language": language,
+                "code": code,
+                "valid": valid,
+                "classes_used": classes_used,
+                "methods_used": methods_used,
+                "formats_referenced": formats_ref,
+            })
+        break
+    return entries
+
+
+def _finalize_snippet(payload: dict, counter: int, ext: str) -> dict:
+    """Assign the positional snippet_NNN id/file plus the additive
+    snippet_key, truncate code to the 5000-char cap -- the same shape the
+    legacy path emits, plus `snippet_key`."""
+    snippet_id = f"snippet_{counter:03d}"
+    key = _compute_snippet_key(
+        payload["source_file"], payload["source_function"], payload["code"])
+    return {
+        "id": snippet_id,
+        "file": f"{snippet_id}{ext}",
+        "source_file": payload["source_file"],
+        "source_function": payload["source_function"],
+        "source_line": payload["source_line"],
+        "language": payload["language"],
+        "code": payload["code"][:5000],
+        "valid": payload["valid"],
+        "classes_used": payload["classes_used"],
+        "methods_used": payload["methods_used"],
+        "formats_referenced": payload["formats_referenced"],
+        "snippet_key": key,
+    }
+
+
+def _extract_snippets_tiered(
+    parser,
+    language: str,
+    pkg_root: Path,
+    repo: Path,
+    classes: list[dict],
+    formats: list[dict],
+) -> list[dict]:
+    """TC-MT040-44 (D-5) tiered snippet budget for platforms in
+    _TIERED_SNIPPET_PLATFORMS (TypeScript/JavaScript today). See the module
+    docstring block above this function for the tier definitions.
+    """
+    api_class_names: set[str] = set()
+    api_method_index: dict[str, set[str]] = {}
+    for cls in classes:
+        cname = cls.get("name", "")
+        if not cname or cls.get("kind") == "function":
+            continue
+        api_class_names.add(cname)
+        meths: set[str] = set()
+        for m in cls.get("methods", []):
+            if isinstance(m, dict) and m.get("name"):
+                meths.add(m["name"])
+        api_method_index[cname] = meths
+
+    format_names: set[str] = set()
+    for fmt in formats:
+        fname = fmt.get("format", "")
+        if fname:
+            format_names.add(fname.lower())
+
+    ext = _FILE_EXTENSIONS.get(language, ".ts")
+    func_types = _FUNC_TYPES.get(language, set())
+    class_types = _CLASS_TYPES.get(language, set())
+    search_bases = _search_base_list(pkg_root, repo)
+    pkg_name = pkg_root.name
+
+    snippets: list[dict] = []
+    counter = 0
+
+    # ---- Tier 0: README code fences (<=10) ----
+    readme_entries = _collect_readme_fence_entries(
+        parser, language, repo, api_class_names, api_method_index, format_names)
+    for entry in readme_entries[:10]:
+        if counter >= MAX_SNIPPETS:
+            break
+        counter += 1
+        snippets.append(_finalize_snippet(entry, counter, ext))
+
+    # ---- Tier 1: curated examples/samples (<=60) ----
+    if counter < MAX_SNIPPETS:
+        tier1_files = _discover_snippet_dir_files(
+            _TIER1_EXAMPLE_DIR_NAMES, search_bases, repo, ext, pkg_name,
+            is_example_dir=True)
+        tier1_candidates = _collect_tier_candidates(
+            tier1_files, parser, language, func_types, class_types, repo,
+            api_class_names, api_method_index, format_names)
+        tier1_budget = min(60, MAX_SNIPPETS - counter)
+        for entry in tier1_candidates[:tier1_budget]:
+            counter += 1
+            snippets.append(_finalize_snippet(entry, counter, ext))
+
+    # ---- Tier 2: tests (remainder up to MAX_SNIPPETS) ----
+    if counter < MAX_SNIPPETS:
+        tier2_files = _discover_snippet_dir_files(
+            _TIER2_TEST_DIR_NAMES, search_bases, repo, ext, pkg_name,
+            is_example_dir=False)
+        tier2_candidates = _collect_tier_candidates(
+            tier2_files, parser, language, func_types, class_types, repo,
+            api_class_names, api_method_index, format_names)
+        tier2_budget = MAX_SNIPPETS - counter
+        for entry in tier2_candidates[:tier2_budget]:
+            counter += 1
+            snippets.append(_finalize_snippet(entry, counter, ext))
 
     return snippets
