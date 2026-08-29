@@ -311,6 +311,20 @@ _PLATFORM_TO_LANG: dict[str, str] = {
     "rust": "rust",
 }
 
+# Found live 2026-08-29 (pdf/typescript representative-qualification pass):
+# a SECOND, local platform-display dict inside _build_page() (the per-class
+# page builder) duplicated this exact lookup but never had a "typescript"
+# entry, so every generated TS class page fell through to
+# platform.capitalize() -> "Typescript" (wrong capitalization) while the
+# grouped-index page (which already used a module-scoped copy of this same
+# table) rendered "TypeScript" correctly. One canonical table, used by both
+# call sites, closes the gap for this platform and any future one.
+_PLAT_DISPLAY: dict[str, str] = {
+    "net": ".NET", "java": "Java", "python": "Python",
+    "cpp": "C++", "typescript": "TypeScript", "go": "Go",
+    "nodejs": "Node.js",
+}
+
 # ERC-* claim kinds treated as prose-eligible for reference page descriptions
 _ERC_PROSE_KINDS: frozenset[str] = frozenset({"api", "feature"})
 
@@ -843,7 +857,7 @@ def _build_page(
     lines.append("")
     # LC-11 FIX: use correct display name for "pdf" family ("PDF" not "Pdf")
     _fam_disp = {"3d": "3D", "pdf": "PDF"}.get(family, family.capitalize())
-    _plat_disp = {"net": ".NET", "cpp": "C++"}.get(platform, platform.capitalize())
+    _plat_disp = _PLAT_DISPLAY.get(platform, platform.capitalize())
     product_line = f"`{name}` is a {category.lower()} in Aspose.{_fam_disp} FOSS for {_plat_disp}."
     lines.append(product_line)
     if bases:
@@ -1715,11 +1729,6 @@ def generate_grouped_index(
         )
 
     # Build intro paragraph
-    _PLAT_DISPLAY = {
-        "net": ".NET", "java": "Java", "python": "Python",
-        "cpp": "C++", "typescript": "TypeScript", "go": "Go",
-        "nodejs": "Node.js",
-    }
     plat_display = _PLAT_DISPLAY.get(platform, platform.capitalize())
     version_str = f" v{model_version}" if model_version else ""
     intro = (f"API reference for **Aspose.{family.capitalize()} FOSS for "
