@@ -301,3 +301,122 @@ class TestConsume:
 
         rc = override_manager.cmd_consume(Args())
         assert rc == 1
+
+
+# ---------------------------------------------------------------------------
+# consume_token / consume_for_commit — scoped post-commit consumption
+# (2026-08-29 stale-guard plan, Phase 0a / T8: the post-commit hook previously
+# consumed EVERY pending token on ANY commit; sampled live, 3 of the 40 most
+# recently archived tokens were attributed to commits that never touched
+# their paths)
+# ---------------------------------------------------------------------------
+import subprocess
+
+
+def _init_git_repo(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    for args in (
+        ["init", "-q", "-b", "main"],
+        ["config", "user.email", "t@t"],
+        ["config", "user.name", "t"],
+    ):
+        subprocess.run(["git", *args], cwd=str(path), check=True, capture_output=True)
+
+
+def _commit_file(repo: Path, name: str, content: str = "x") -> str:
+    p = repo / name
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", name], cwd=str(repo), check=True, capture_output=True)
+    subprocess.run(["git", "commit", "-q", "-m", f"touch {name}"],
+                   cwd=str(repo), check=True, capture_output=True)
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=str(repo), capture_output=True,
+        text=True, encoding="utf-8", check=True,
+    ).stdout.strip()
+
+
+class TestConsumeToken:
+    def test_moves_pending_to_archived_and_stamps_sha(self, tmp_path):
+        override_manager.configure(repo_root=tmp_path)
+        pending = tmp_path / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-move", ["scripts/ci/foo.py"]))
+
+        assert override_manager.consume_token("tok-move", "deadbeef") is True
+
+        assert not (pending / "tok-move.json").exists()
+        archived = tmp_path / "reports" / "overrides" / "archived" / "tok-move.json"
+        data = json.loads(archived.read_text(encoding="utf-8"))
+        assert data["consumed_by_commit"] == "deadbeef"
+
+    def test_missing_token_returns_false(self, tmp_path):
+        override_manager.configure(repo_root=tmp_path)
+        assert override_manager.consume_token("no-such-token", "deadbeef") is False
+
+
+class TestConsumeForCommit:
+    def test_consumes_only_intersecting_tokens(self, tmp_path):
+        override_manager.configure(repo_root=tmp_path)
+        pending = tmp_path / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-hit", ["scripts/ci"]))
+        _write_token(pending, _make_token("tok-miss", ["docs/other.md"]))
+
+        consumed, skipped = override_manager.consume_for_commit(
+            "cafebabe", ["scripts/ci/checks/x.py", "README.md"]
+        )
+
+        assert consumed == ["tok-hit"]
+        assert skipped == ["tok-miss"]
+        assert not (pending / "tok-hit.json").exists()
+        assert (pending / "tok-miss.json").exists()  # left for its own commit
+
+    def test_exact_path_match_consumes(self, tmp_path):
+        override_manager.configure(repo_root=tmp_path)
+        pending = tmp_path / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-exact", ["scripts/pre-commit-audit.sh"]))
+        consumed, _ = override_manager.consume_for_commit(
+            "cafebabe", ["scripts/pre-commit-audit.sh"]
+        )
+        assert consumed == ["tok-exact"]
+
+    def test_prefix_does_not_match_lookalike_sibling(self, tmp_path):
+        """'scripts/ci' must not cover 'scripts/ci-other/x.py' (the rstrip+'/'
+        boundary, mirroring find_valid_token_for_path exactly)."""
+        override_manager.configure(repo_root=tmp_path)
+        pending = tmp_path / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-pfx", ["scripts/ci"]))
+        consumed, skipped = override_manager.consume_for_commit(
+            "cafebabe", ["scripts/ci-other/x.py"]
+        )
+        assert consumed == []
+        assert skipped == ["tok-pfx"]
+
+    def test_cmd_reads_commit_files_end_to_end(self, tmp_path):
+        repo = tmp_path / "repo"
+        _init_git_repo(repo)
+        sha = _commit_file(repo, "covered/a.txt")
+        override_manager.configure(repo_root=repo)
+        pending = repo / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-e2e-hit", ["covered/a.txt"]))
+        _write_token(pending, _make_token("tok-e2e-miss", ["unrelated/b.txt"]))
+
+        rc = override_manager.main(["consume-for-commit", "--commit-sha", sha])
+
+        assert rc == 0
+        assert not (pending / "tok-e2e-hit.json").exists()
+        assert (pending / "tok-e2e-miss.json").exists()
+        archived = repo / "reports" / "overrides" / "archived" / "tok-e2e-hit.json"
+        assert json.loads(archived.read_text(encoding="utf-8"))["consumed_by_commit"] == sha
+
+    def test_cmd_bad_sha_is_best_effort_exit_zero(self, tmp_path):
+        repo = tmp_path / "repo"
+        _init_git_repo(repo)
+        _commit_file(repo, "a.txt")
+        override_manager.configure(repo_root=repo)
+        pending = repo / "reports" / "overrides" / "pending"
+        _write_token(pending, _make_token("tok-safe", ["a.txt"]))
+
+        rc = override_manager.main(["consume-for-commit", "--commit-sha", "0" * 40])
+
+        assert rc == 0  # post-commit hook path: never fail the commit flow
+        assert (pending / "tok-safe.json").exists()  # and never guess-consume

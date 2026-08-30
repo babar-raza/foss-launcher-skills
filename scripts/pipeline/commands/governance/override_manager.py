@@ -235,22 +235,98 @@ def cmd_validate_for_path(args: argparse.Namespace) -> int:
     return 2
 
 
-def cmd_consume(args: argparse.Namespace) -> int:
-    """Move a pending token to archived and record the commit SHA."""
-    pending_path = _PENDING_DIR / _token_filename(args.token_id)
+def consume_token(token_id: str, commit_sha: str) -> bool:
+    """Importable single-token consume: move pending -> archived, stamp the
+    commit SHA. Returns False if the token is not pending. Extracted from
+    cmd_consume (2026-08-29 stale-guard plan) so git_plumb_commit.py and
+    consume_for_commit() can consume by exact id instead of shelling out or
+    sweeping."""
+    pending_path = _PENDING_DIR / _token_filename(token_id)
     if not pending_path.exists():
-        print(f"ERROR: token {args.token_id} not found in pending/", file=sys.stderr)
-        return 1
+        return False
 
     token = _load_token(pending_path)
-    token["consumed_by_commit"] = args.commit_sha
+    token["consumed_by_commit"] = commit_sha
     token["consumed_at"] = datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
     _ARCHIVED_DIR.mkdir(parents=True, exist_ok=True)
-    archived_path = _ARCHIVED_DIR / _token_filename(args.token_id)
-    _save_token(archived_path, token)
+    _save_token(_ARCHIVED_DIR / _token_filename(token_id), token)
     pending_path.unlink()
+    return True
+
+
+def cmd_consume(args: argparse.Namespace) -> int:
+    """Move a pending token to archived and record the commit SHA."""
+    if not consume_token(args.token_id, args.commit_sha):
+        print(f"ERROR: token {args.token_id} not found in pending/", file=sys.stderr)
+        return 1
     print(f"Consumed token {args.token_id} -> archived, linked to commit {args.commit_sha}")
+    return 0
+
+
+def _token_covers_any(token: dict, changed_paths: "list[str]") -> bool:
+    """Same prefix-directory coverage semantics as find_valid_token_for_path,
+    evaluated against a commit's changed-path list."""
+    token_paths = [_normalize(p) for p in token.get("paths", [])]
+    for changed in changed_paths:
+        c = _normalize(changed)
+        for t in token_paths:
+            if c == t or c.startswith(t.rstrip("/") + "/"):
+                return True
+    return False
+
+
+def consume_for_commit(commit_sha: str, changed_paths: "list[str]") -> "tuple[list[str], list[str]]":
+    """Consume ONLY the pending tokens whose paths intersect changed_paths.
+
+    2026-08-29 stale-guard plan (T8): the post-commit hook previously consumed
+    EVERY pending token on ANY successful commit -- sampled live: 3 of the 40
+    most recently archived tokens were attributed to commits that never
+    touched their paths, and a concurrent session's still-needed token could
+    be swept out from under its pending commit. Returns (consumed_ids,
+    skipped_ids); never raises for a malformed token file."""
+    consumed: "list[str]" = []
+    skipped: "list[str]" = []
+    if not _PENDING_DIR.exists():
+        return consumed, skipped
+    for token_file in sorted(_PENDING_DIR.glob("*.json")):
+        try:
+            token = _load_token(token_file)
+        except (json.JSONDecodeError, OSError):
+            continue
+        token_id = token.get("override_id", token_file.stem)
+        if _token_covers_any(token, changed_paths):
+            if consume_token(token_id, commit_sha):
+                consumed.append(token_id)
+        else:
+            skipped.append(token_id)
+    return consumed, skipped
+
+
+def cmd_consume_for_commit(args: argparse.Namespace) -> int:
+    """Consume pending tokens that intersect the given commit's changed paths.
+    Best-effort by design (always exit 0): this runs from the post-commit
+    hook, where a failure must never be able to fail the commit flow."""
+    import subprocess
+
+    result = subprocess.run(
+        ["git", "show", "--name-only", "--format=", "--diff-merges=first-parent",
+         args.commit_sha],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        cwd=str(_REPO_ROOT),
+    )
+    if result.returncode != 0:
+        print(f"consume-for-commit: could not read commit {args.commit_sha}: "
+              f"{(result.stderr or '').strip()}", file=sys.stderr)
+        return 0
+    changed = [ln.strip() for ln in (result.stdout or "").splitlines() if ln.strip()]
+    consumed, skipped = consume_for_commit(args.commit_sha, changed)
+    for token_id in consumed:
+        print(f"Consumed token {token_id} -> archived, linked to commit {args.commit_sha}")
+    if skipped:
+        print(f"consume-for-commit: left {len(skipped)} pending token(s) untouched "
+              f"(paths do not intersect commit {args.commit_sha[:10]}): "
+              f"{', '.join(skipped)}")
     return 0
 
 
@@ -325,6 +401,12 @@ def main(argv: list[str] | None = None) -> int:
     p_consume.add_argument("--token-id", required=True)
     p_consume.add_argument("--commit-sha", required=True)
 
+    # consume-for-commit (2026-08-29: scoped replacement for the post-commit
+    # hook's consume-everything sweep)
+    p_cfc = sub.add_parser("consume-for-commit",
+                            help="Consume only pending tokens whose paths intersect the commit's changed files")
+    p_cfc.add_argument("--commit-sha", required=True)
+
     # list-pending
     sub.add_parser("list-pending", help="List all pending override tokens")
 
@@ -337,6 +419,7 @@ def main(argv: list[str] | None = None) -> int:
         "create": cmd_create,
         "validate-for-path": cmd_validate_for_path,
         "consume": cmd_consume,
+        "consume-for-commit": cmd_consume_for_commit,
         "list-pending": cmd_list_pending,
         "audit": cmd_audit,
     }

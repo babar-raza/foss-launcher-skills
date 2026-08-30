@@ -1232,3 +1232,114 @@ class TestSessionIsolationA2:
         assert not errors, f"worker errors: {errors}"
         touched = session_ledger.get_touched_files("session-shared")
         assert len(touched) == 40
+
+
+# ---------------------------------------------------------------------------
+# resolve_context (pure) + closed-env-id resolution fix
+# (2026-08-29 stale-guard plan, Phase 0a / TC-SG-01)
+# ---------------------------------------------------------------------------
+
+class TestResolveContextPure:
+    def test_no_ledger_dir(self, isolate_session_dir):
+        assert session_ledger.resolve_context().status == "no_ledger_dir"
+
+    def test_none_when_dir_empty(self, isolate_session_dir):
+        isolate_session_dir.mkdir(parents=True, exist_ok=True)
+        assert session_ledger.resolve_context().status == "none"
+
+    def test_single_active_resolves_via_scan(self, isolate_session_dir):
+        sid = session_ledger.init_session("ctx-single")
+        ctx = session_ledger.resolve_context()
+        assert (ctx.status, ctx.session_id, ctx.source) == ("resolved", sid, "scan")
+
+    def test_two_active_is_ambiguous_with_candidates(self, isolate_session_dir):
+        session_ledger.init_session("ctx-a")
+        session_ledger.init_session("ctx-b")
+        ctx = session_ledger.resolve_context()
+        assert ctx.status == "ambiguous"
+        assert set(ctx.candidates) == {"ctx-a", "ctx-b"}
+
+    def test_env_id_resolves_as_env_source(self, isolate_session_dir, monkeypatch):
+        session_ledger.init_session("ctx-env")
+        monkeypatch.setenv("AGENT_SESSION_ID", "ctx-env")
+        ctx = session_ledger.resolve_context()
+        assert (ctx.status, ctx.session_id, ctx.source) == ("resolved", "ctx-env", "env")
+
+    def test_env_id_closed_reports_closed_never_the_scan(self, isolate_session_dir, monkeypatch):
+        session_ledger.init_session("ctx-mine")
+        session_ledger.close_session("ctx-mine")
+        session_ledger.init_session("ctx-other")  # one other live session exists
+        monkeypatch.setenv("AGENT_SESSION_ID", "ctx-mine")
+        ctx = session_ledger.resolve_context()
+        assert ctx.status == "closed"
+        assert ctx.session_id == "ctx-mine"
+
+    def test_explicit_closed_reports_closed(self, isolate_session_dir):
+        session_ledger.init_session("ctx-x")
+        session_ledger.close_session("ctx-x")
+        ctx = session_ledger.resolve_context("ctx-x")
+        assert (ctx.status, ctx.session_id, ctx.source) == ("closed", "ctx-x", "explicit")
+
+    def test_resolved_context_carries_base_sha(self, isolate_session_dir):
+        session_ledger.init_session("ctx-base")
+        manifest_path = isolate_session_dir / "ctx-base.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["base_commit_sha"] = "cafebabe" * 5
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        ctx = session_ledger.resolve_context("ctx-base")
+        assert ctx.base_sha == "cafebabe" * 5
+
+    def test_resolve_context_is_pure(self, isolate_session_dir):
+        """No stale sweep, no ACTIVE-pointer write, no manifest mtime changes
+        (adversarial finding B3: _resolve_session writes on every read; the
+        typed resolver must be safe to call from hooks and Tier-1 checks)."""
+        session_ledger.init_session("ctx-p1")
+        session_ledger.init_session("ctx-p2")
+        pointer = isolate_session_dir / "ACTIVE"
+        pointer_before = pointer.read_text(encoding="utf-8") if pointer.exists() else None
+        mtimes_before = {
+            f.name: f.stat().st_mtime_ns for f in isolate_session_dir.glob("*.json")
+        }
+
+        ctx = session_ledger.resolve_context()
+
+        assert ctx.status == "ambiguous"
+        mtimes_after = {
+            f.name: f.stat().st_mtime_ns for f in isolate_session_dir.glob("*.json")
+        }
+        pointer_after = pointer.read_text(encoding="utf-8") if pointer.exists() else None
+        assert mtimes_after == mtimes_before
+        assert pointer_after == pointer_before
+
+
+class TestClosedEnvIdResolutionFix:
+    def test_resolve_session_env_closed_returns_none_not_other_session(
+        self, isolate_session_dir, monkeypatch
+    ):
+        """B2 (2026-08-29): an env id naming a CLOSED manifest used to fall
+        through to the directory scan and silently ADOPT the single other
+        live session's identity -- a subsequent write then landed in THAT
+        session's manifest. An ended session must resolve to no session."""
+        session_ledger.init_session("mine-closed")
+        session_ledger.close_session("mine-closed")
+        session_ledger.init_session("other-live")
+        monkeypatch.setenv("AGENT_SESSION_ID", "mine-closed")
+
+        assert session_ledger._resolve_session(None) is None
+        assert session_ledger.record_file("some/file.md", action="modified") is False
+
+        other = json.loads(
+            (isolate_session_dir / "other-live.json").read_text(encoding="utf-8")
+        )
+        assert other["touched_files"] == {}
+
+    def test_env_id_with_no_manifest_still_falls_through_to_scan(
+        self, isolate_session_dir, monkeypatch
+    ):
+        """Documented parity: a missing manifest for the env id remains a
+        hint-only fall-through (single-session legacy flows depend on it)."""
+        session_ledger.init_session("scan-target")
+        monkeypatch.setenv("AGENT_SESSION_ID", "never-inited-id")
+        resolved = session_ledger._resolve_session(None)
+        assert resolved is not None
+        assert resolved[0] == "scan-target"

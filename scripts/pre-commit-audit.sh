@@ -449,7 +449,7 @@ for staged_file in "${changed[@]}"; do
     # Pass file path via sys.argv to avoid shell quoting issues.
     head_info=$(git show HEAD:"$staged_file" 2>/dev/null | "$_HOOK_PYTHON" -c "
 import sys, yaml, re
-text = sys.stdin.read()
+text = sys.stdin.buffer.read().decode('utf-8', 'replace')  # locale-codec stdin silently died on cp1252-unmappable bytes inside 2>/dev/null (ST-096 class, fixed 2026-08-29)
 m = re.match(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
 if m:
     try:
@@ -1464,6 +1464,25 @@ if [ ${#staged_non_content_files[@]} -gt 0 ]; then
         _sfr_out=$(printf '%s\n' "${staged_non_content_files[@]}" | PYTHONPATH=scripts/pipeline \
             "$_HOOK_PYTHON" scripts/ci/checks/check_stale_file_regression.py 2>&1)
         _sfr_exit=$?
+        # Strip CRs from native-Windows python stdout via parameter expansion,
+        # NOT a pipe (a trailing `| tr` would make $? report tr's exit, not the
+        # checker's) -- third instance of the Step-16 CRLF bug class, fixed
+        # 2026-08-29 (stale-guard plan Phase 0a).
+        _sfr_out=${_sfr_out//$'\r'/}
+        # Exit >=3 means the checker COULD NOT RUN (3 = ambiguous session
+        # identity, 4 = infrastructure error) -- these are not findings, and
+        # before 2026-08-29 they surfaced as a Python traceback whose
+        # '  File "..."' lines the override-token parser below misread as
+        # file names, producing an unbypassable block with a misleading
+        # "silent revert" diagnostic (ST-095). Fail with the real reason.
+        if [ $_sfr_exit -ge 3 ]; then
+            echo "$_sfr_out" | sed 's/^/[Step 34] /'
+            echo "[Step 34] BLOCKED: stale-file guard could not run (exit $_sfr_exit -- identity/" >&2
+            echo "[Step 34] infrastructure, NOT a finding). Fix the reported condition (e.g. pass" >&2
+            echo "[Step 34] AGENT_SESSION_ID=<id> git commit ...); no override token applies here." >&2
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
         if [ $_sfr_exit -ne 0 ]; then
             # File-name lines are exactly "  <path>" (2-space indent, then a
             # non-space char); detail lines are 4-space indented -- this

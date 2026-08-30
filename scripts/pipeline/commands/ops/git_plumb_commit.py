@@ -117,6 +117,14 @@ _REPO_ROOT = _DEFAULT_REPO_ROOT
 _SKILL_RUN_MANAGER = _DEFAULT_SKILL_RUN_MANAGER
 _COMMAND_RUNNER: Callable[..., "subprocess.CompletedProcess"] = subprocess.run
 
+# Explicit encoding on every text-mode subprocess call: the locale default
+# (cp1252 on this repo's Windows production platform) let a single
+# cp1252-unmappable byte kill the reader thread -> stdout=None -> a Tier-1
+# failure surfacing as a raw TypeError and, on the success path, an
+# AttributeError AFTER the push but BEFORE the skill-run record (ST-096
+# containment, 2026-08-29). errors="replace" never raises on decode.
+_TEXT_KW = dict(text=True, encoding="utf-8", errors="replace")
+
 
 def configure(
     *,
@@ -384,7 +392,7 @@ def _redact_credentials(text: str) -> str:
 
 def _git(args: list[str], *, repo_root: Path, check: bool = True) -> "subprocess.CompletedProcess":
     result = _COMMAND_RUNNER(
-        ["git", *args], cwd=str(repo_root), capture_output=True, text=True,
+        ["git", *args], cwd=str(repo_root), capture_output=True, **_TEXT_KW,
     )
     if check and result.returncode != 0:
         safe_args = _redact_credentials(" ".join(args))
@@ -561,7 +569,7 @@ def _resolve_git_bash() -> "str | None":
             continue
         try:
             probe = _COMMAND_RUNNER(
-                [candidate, "-c", "uname -s"], capture_output=True, text=True, timeout=10,
+                [candidate, "-c", "uname -s"], capture_output=True, **_TEXT_KW, timeout=10,
             )
         except (OSError, subprocess.TimeoutExpired):
             continue
@@ -641,7 +649,7 @@ def _verify_index_isolation(
     add_result = _COMMAND_RUNNER(
         ["git", "update-index", "--add", "--cacheinfo",
          f"100644,{_EMPTY_BLOB_SHA},{_ISOLATION_CANARY_SENTINEL}"],
-        cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+        cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_isolated,
     )
     if add_result.returncode != 0:
         return (
@@ -652,7 +660,7 @@ def _verify_index_isolation(
     try:
         isolated_check = _COMMAND_RUNNER(
             [bash_path, "-c", "git ls-files"],
-            cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+            cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_isolated,
         )
         if _ISOLATION_CANARY_SENTINEL not in isolated_check.stdout:
             return (
@@ -665,7 +673,7 @@ def _verify_index_isolation(
         env_real = {k: v for k, v in os.environ.items() if k != "GIT_INDEX_FILE"}
         real_check = _COMMAND_RUNNER(
             [bash_path, "-c", "git ls-files"],
-            cwd=str(repo_root), capture_output=True, text=True, env=env_real,
+            cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_real,
         )
         if _ISOLATION_CANARY_SENTINEL in real_check.stdout:
             return (
@@ -678,7 +686,7 @@ def _verify_index_isolation(
     finally:
         _COMMAND_RUNNER(
             ["git", "update-index", "--force-remove", _ISOLATION_CANARY_SENTINEL],
-            cwd=str(repo_root), capture_output=True, text=True, env=env_isolated,
+            cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_isolated,
         )
 
     _ISOLATION_CANARY_VERIFIED[bash_path] = True
@@ -712,7 +720,7 @@ def _real_index_snapshot(files: list[str], *, repo_root: Path) -> str:
         chunk = files[i:i + _REAL_INDEX_SNAPSHOT_CHUNK_SIZE]
         result = _COMMAND_RUNNER(
             ["git", "ls-files", "--stage", "--", *chunk],
-            cwd=str(repo_root), capture_output=True, text=True,
+            cwd=str(repo_root), capture_output=True, **_TEXT_KW,
         )
         lines.extend(result.stdout.splitlines())
     return "\n".join(sorted(lines))
@@ -811,10 +819,19 @@ def _run_tier1_checks(
         # ally here; never set by an operator or any other caller.
         "PC_AUDIT_NO_MUTATE": "1",
     }
-    return _COMMAND_RUNNER(
+    tier1_result = _COMMAND_RUNNER(
         [bash_path, "scripts/pre-commit-audit.sh"],
-        cwd=str(repo_root), capture_output=True, text=True, env=env,
+        cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env,
     )
+    # Normalize: a reader failure must surface as empty text, never None --
+    # None turned a Tier-1 FAIL into a raw TypeError, and a Tier-1 PASS into
+    # an AttributeError in main() AFTER the push but BEFORE the skill-run
+    # record was filed (ST-096 containment, 2026-08-29).
+    if tier1_result.stdout is None:
+        tier1_result.stdout = ""
+    if tier1_result.stderr is None:
+        tier1_result.stderr = ""
+    return tier1_result
 
 
 def _is_non_fast_forward(stderr: str) -> bool:
@@ -923,7 +940,7 @@ def reconcile(
 
         def _git_indexed(args: list[str]) -> "subprocess.CompletedProcess":
             result = _COMMAND_RUNNER(
-                ["git", *args], cwd=str(root), capture_output=True, text=True, env=env_index,
+                ["git", *args], cwd=str(root), capture_output=True, **_TEXT_KW, env=env_index,
             )
             if result.returncode != 0:
                 safe_args = _redact_credentials(" ".join(args))
@@ -1106,16 +1123,29 @@ def plumb_commit(
 
     head_sha = _git(["rev-parse", "HEAD"], repo_root=root).stdout.strip()
 
-    if not skip_stale_check:
-        resolved_base_sha = sfr.resolve_base_sha(base_sha, session_id)
-        uncovered = _check_for_regressions(files, resolved_base_sha, repo_root=root)
-        if uncovered:
-            raise PlumbCommitBlocked(uncovered)
+    # ST-095 containment (2026-08-29): >=2 live session ledgers with no
+    # explicit identity used to escape as a raw AmbiguousSessionError --
+    # not a PlumbCommitError, so main() printed a traceback and exited 1
+    # with nothing actionable. Surface it as a clear, catchable refusal
+    # instead. (Phase 1 of the approved plan replaces this with the
+    # lookback-window CommitContext so ambiguity stops blocking at all.)
+    try:
+        if not skip_stale_check:
+            resolved_base_sha = sfr.resolve_base_sha(base_sha, session_id)
+            uncovered = _check_for_regressions(files, resolved_base_sha, repo_root=root)
+            if uncovered:
+                raise PlumbCommitBlocked(uncovered)
 
-    if not skip_ledger_check:
-        ledger_findings = _check_ledger_candidates(files, session_id, repo_root=root)
-        if ledger_findings:
-            raise PlumbCommitLedgerBlocked(ledger_findings)
+        if not skip_ledger_check:
+            ledger_findings = _check_ledger_candidates(files, session_id, repo_root=root)
+            if ledger_findings:
+                raise PlumbCommitLedgerBlocked(ledger_findings)
+    except session_ledger.AmbiguousSessionError as exc:
+        raise PlumbCommitError(
+            f"session identity is AMBIGUOUS -- {exc}. Pass --session-id <id> "
+            f"and/or --base-sha <sha> (or export AGENT_SESSION_ID=<id> for this "
+            f"invocation); refusing to guess between live sessions (ST-095)."
+        ) from exc
 
     gitignore_warnings = [f for f in _gitignored_files(files, repo_root=root) if f not in ack_set]
     for f in gitignore_warnings:
@@ -1134,7 +1164,7 @@ def plumb_commit(
 
         def _git_indexed(args: list[str]) -> "subprocess.CompletedProcess":
             result = _COMMAND_RUNNER(
-                ["git", *args], cwd=str(root), capture_output=True, text=True, env=env_index,
+                ["git", *args], cwd=str(root), capture_output=True, **_TEXT_KW, env=env_index,
             )
             if result.returncode != 0:
                 safe_args = _redact_credentials(" ".join(args))
@@ -1234,7 +1264,7 @@ def plumb_commit(
     if push:
         push_result = _COMMAND_RUNNER(
             ["git", "push", remote, f"{commit_sha}:refs/heads/{branch}"],
-            cwd=str(root), capture_output=True, text=True,
+            cwd=str(root), capture_output=True, **_TEXT_KW,
         )
         if push_result.returncode == 0:
             pushed = True
@@ -1305,7 +1335,7 @@ def _file_skill_run_record(
     create = _COMMAND_RUNNER(
         [sys.executable, str(_SKILL_RUN_MANAGER), "create",
          "--skills", *skills, "--plan", plan, "--retroactive", "--run-type", "targeted"],
-        cwd=str(repo_root), capture_output=True, text=True,
+        cwd=str(repo_root), capture_output=True, **_TEXT_KW,
     )
     if create.returncode != 0:
         print(f"WARNING: retroactive skill-run record creation failed: {create.stderr}",
@@ -1323,7 +1353,7 @@ def _file_skill_run_record(
     finalize = _COMMAND_RUNNER(
         [sys.executable, str(_SKILL_RUN_MANAGER), "finalize",
          "--run-id", run_id, "--outcome", "success", "--commit-sha", commit_sha],
-        cwd=str(repo_root), capture_output=True, text=True,
+        cwd=str(repo_root), capture_output=True, **_TEXT_KW,
     )
     if finalize.returncode != 0:
         print(f"WARNING: retroactive skill-run record finalize failed: {finalize.stderr}",
@@ -1432,7 +1462,7 @@ def main(argv: "list[str] | None" = None) -> int:
     if result.get("reconciled_against"):
         print(f"reconciled_against={result['reconciled_against']} "
               f"(non-fast-forward push auto-resolved via a merge commit)")
-    if result["tier1_output"].strip():
+    if (result.get("tier1_output") or "").strip():
         print("--- Tier 1 output ---")
         print(result["tier1_output"])
 

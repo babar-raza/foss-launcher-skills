@@ -43,6 +43,12 @@ Exit codes:
        fails OPEN, since this check's own infrastructure being unavailable
        must never itself block an unrelated commit)
   1 -- at least one regression detected
+  3 -- session identity AMBIGUOUS (>=2 live ledgers, no explicit identity) --
+       a clear one-line message, never a traceback (ST-095 containment,
+       2026-08-29; the full JSON/exit-code contract lands in Phase 1)
+  4 -- infrastructure error (git subprocess failure, undecodable state) --
+       previously indistinguishable from "regression found" (exit 1 via
+       traceback) or from "clean" (exit 0 via a dead reader thread)
 """
 from __future__ import annotations
 
@@ -54,10 +60,34 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _PIPELINE_OPS_DIR = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops"
 
 
+class StaleCheckInfraError(RuntimeError):
+    """The check itself could not run (git failure, no captured output).
+
+    Deliberately distinct from both "clean" and "regression found": ST-096
+    (2026-08-28) proved a subprocess reader-thread death produced stdout=None
+    and a silent exit 0 -- an infrastructure failure must never be readable
+    as a verdict in either direction."""
+
+
 def _run_git(args: list[str], *, repo_root: Path) -> "subprocess.CompletedProcess":
-    return subprocess.run(
-        ["git", *args], capture_output=True, text=True, cwd=str(repo_root), timeout=30,
+    # encoding= is explicit because subprocess text-mode otherwise decodes
+    # with the locale codec (cp1252 on Windows): content bytes cp1252 cannot
+    # map killed the reader thread (stdout=None -> silent pass, ST-096), and
+    # mappable non-ASCII bytes decoded DIFFERENTLY from the UTF-8 worktree
+    # read in check_file(), making the comparison silently inert for any
+    # non-ASCII file (reproduced 2026-08-28). errors="replace" keeps both
+    # sides of every comparison in the same codec, so equality semantics are
+    # preserved exactly (both blobs pass through the identical decode).
+    result = subprocess.run(
+        ["git", *args], capture_output=True, text=True,
+        encoding="utf-8", errors="replace", cwd=str(repo_root), timeout=30,
     )
+    if result.stdout is None or result.stderr is None:
+        raise StaleCheckInfraError(
+            f"git {' '.join(args)}: subprocess returned no captured output "
+            f"(reader failure) -- refusing to treat missing output as a verdict"
+        )
+    return result
 
 
 def find_intervening_commit(
@@ -168,13 +198,33 @@ def main(argv: "list[str] | None" = None) -> int:
                         help="Compare working-tree content instead of the git INDEX (staged) content")
     args = parser.parse_args(argv)
 
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     files = args.files
     if files is None:
         files = [line.strip() for line in sys.stdin if line.strip()]
     if not files:
         return 0
 
-    base_sha = resolve_base_sha(args.base_sha, args.session_id)
+    try:
+        base_sha = resolve_base_sha(args.base_sha, args.session_id)
+    except Exception as exc:
+        # session_ledger.AmbiguousSessionError reaches here as a duck-typed
+        # name check (importing it eagerly would couple this module to the
+        # ops package even when --base-sha is explicit). Before this guard,
+        # >=2 live session ledgers produced a raw traceback with exit 1 --
+        # which pre-commit Step 34 then misparsed as file-name findings
+        # needing override tokens (an unbypassable deadlock, ST-095).
+        if type(exc).__name__ == "AmbiguousSessionError":
+            print(f"check_stale_file_regression: AMBIGUOUS session identity -- {exc}",
+                  file=sys.stderr)
+            print("Fix: pass --session-id <id> or --base-sha <sha>, or export "
+                  "AGENT_SESSION_ID=<id> for this invocation.", file=sys.stderr)
+            return 3
+        print(f"check_stale_file_regression: INFRASTRUCTURE ERROR resolving baseline: "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        return 4
     if not base_sha:
         # Advisory: this check's own infrastructure being unavailable (no
         # session ledger, fresh repo, etc.) must never itself block an
@@ -192,10 +242,15 @@ def main(argv: "list[str] | None" = None) -> int:
     repo_root = Path.cwd()
 
     findings = []
-    for f in files:
-        result = check_file(f, base_sha, repo_root=repo_root, use_staged=not args.working_tree)
-        if result:
-            findings.append(result)
+    try:
+        for f in files:
+            result = check_file(f, base_sha, repo_root=repo_root, use_staged=not args.working_tree)
+            if result:
+                findings.append(result)
+    except (StaleCheckInfraError, subprocess.TimeoutExpired, OSError) as exc:
+        print(f"check_stale_file_regression: INFRASTRUCTURE ERROR while checking files: "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        return 4
 
     if findings:
         print(f"STALE FILE REGRESSION: {len(findings)} file(s) look like a silent revert "

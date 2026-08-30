@@ -36,20 +36,12 @@ if [ -z "$COMMIT_SHA" ]; then
     exit 0
 fi
 
-consumed=0
-for token_file in $token_files; do
-    token_id=$(basename "$token_file" .json)
-    echo "Consuming override token: $token_id"
-    "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py consume \
-        --token-id "$token_id" \
-        --commit-sha "$COMMIT_SHA"
-    if [ $? -eq 0 ]; then
-        consumed=$((consumed + 1))
-    else
-        echo "post-commit-override: failed to consume token $token_id" >&2
-    fi
-done
-
-if [ $consumed -gt 0 ]; then
-    echo "post-commit-override: consumed $consumed override token(s). Archived locally (not staged)."
-fi
+# 2026-08-29 (stale-guard plan T8): consume ONLY tokens whose paths intersect
+# this commit's changed files. The previous per-token loop consumed EVERY
+# pending token on ANY successful commit -- sampled live: 3 of the 40 most
+# recently archived tokens were attributed to commits that never touched
+# their paths, and a concurrent session's still-needed token could be swept
+# out from under its own pending commit. The path-intersection decision lives
+# in override_manager.py (consume-for-commit, unit-tested), not in bash.
+"$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py consume-for-commit \
+    --commit-sha "$COMMIT_SHA"

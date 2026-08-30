@@ -139,7 +139,7 @@ def cmd_create(args: argparse.Namespace) -> int:
         "outcome": "pending",
         "started_at": now.isoformat().replace("+00:00", "Z"),
         "completed_at": None,
-        "commit_sha": None,
+        "commit_sha": getattr(args, "commit_sha", "") or None,
         "retroactive": args.retroactive,
         "run_type": getattr(args, "run_type", None) or "unknown",
     }
@@ -322,6 +322,12 @@ def main(argv: list[str] | None = None) -> int:
     p_create.add_argument("--plan", default="", help="Plan reference")
     p_create.add_argument("--retroactive", action="store_true",
                           help="Mark as retroactive (documents a past execution)")
+    p_create.add_argument("--commit-sha", dest="commit_sha", default="",
+                          help="Known commit SHA at creation time (2026-08-29 stale-guard "
+                               "plan, T4): lets git_plumb_commit.py file the record with the "
+                               "built commit's sha BEFORE pushing, so a crash between push "
+                               "and finalize still leaves a sha-linked, discoverable record "
+                               "(outcome stays 'pending' until finalize).")
     p_create.add_argument(
         "--run-type",
         dest="run_type",

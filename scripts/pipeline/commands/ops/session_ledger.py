@@ -93,6 +93,7 @@ import json
 import secrets
 import subprocess
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -440,9 +441,17 @@ def _resolve_session(session_id: str | None = None) -> tuple[str, Path] | None:
     if env_id:
         p = _session_path(env_id)
         m = _load_manifest(p)
-        if m and m.get("status") != "closed":
+        if m:
+            if m.get("status") == "closed":
+                # The env names THIS caller's own, ended session. Falling
+                # through to the scan here silently adopted the single other
+                # live session's identity (and wrote into ITS manifest) --
+                # adversarial finding B2 of the 2026-08-29 stale-guard plan.
+                # An ended session must resolve to "no session", never to
+                # someone else's.
+                return None
             return env_id, p
-        # env names a missing/closed manifest — treat as a hint only, fall through
+        # env id has no manifest at all — treat as a hint only, fall through
 
     if not _SESSION_DIR.exists():
         return None
@@ -470,6 +479,84 @@ def _resolve_session(session_id: str | None = None) -> tuple[str, Path] | None:
 def _find_active_session() -> tuple[str, Path] | None:
     """Back-compat wrapper over _resolve_session (no explicit identity)."""
     return _resolve_session(None)
+
+
+@dataclass(frozen=True)
+class SessionContext:
+    """Typed, side-effect-free view of 'which session is this?' for callers
+    that must not raise, sweep, or write (2026-08-29 stale-guard plan, T3).
+
+    status: "resolved" | "none" | "closed" | "ambiguous" | "no_ledger_dir"
+    source: "explicit" | "env" | "scan" | "none"
+    """
+    status: str
+    session_id: "str | None" = None
+    manifest_path: "Path | None" = None
+    base_sha: "str | None" = None
+    source: str = "none"
+    candidates: "tuple[str, ...]" = ()
+
+
+def resolve_context(session_id: "str | None" = None) -> SessionContext:
+    """PURE resolver: never runs the stale sweep, never writes the ACTIVE
+    pointer, never raises. Liveness is computed from manifest mtime against
+    stale_after_hours exactly as _sweep_stale would, but read-only.
+
+    Unlike _resolve_session, an explicit/env identity naming a CLOSED
+    manifest reports status="closed" for that identity rather than falling
+    anywhere else -- an ended session is never resolved to another live
+    session's identity (adversarial finding B2).
+    """
+    import time as _time
+
+    def _ctx_for(sid: str, source: str) -> SessionContext:
+        p = _session_path(sid)
+        m = _load_manifest(p)
+        if not m:
+            return SessionContext(status="none", session_id=sid, source=source)
+        if m.get("status") == "closed":
+            return SessionContext(status="closed", session_id=sid, manifest_path=p,
+                                  base_sha=m.get("base_commit_sha"), source=source)
+        return SessionContext(status="resolved", session_id=sid, manifest_path=p,
+                              base_sha=m.get("base_commit_sha"), source=source)
+
+    if session_id:
+        return _ctx_for(session_id, "explicit")
+
+    env_id = session_identity.resolve()
+    if env_id:
+        ctx = _ctx_for(env_id, "env")
+        if ctx.status != "none":
+            return ctx
+        # env id has no manifest at all — hint only, fall through to the scan
+        # (parity with _resolve_session).
+
+    if not _SESSION_DIR.exists():
+        return SessionContext(status="no_ledger_dir")
+
+    now = _time.time()
+    live: list[tuple[str, Path, dict]] = []
+    for f in sorted(_SESSION_DIR.glob("*.json"), reverse=True):
+        if f.name.endswith(".tmp"):
+            continue
+        m = _load_manifest(f)
+        if not m or m.get("status") != "active":
+            continue
+        try:
+            age_hours = (now - f.stat().st_mtime) / 3600.0
+        except OSError:
+            continue
+        if age_hours <= _stale_ttl_hours(m):
+            live.append((m.get("session_id", f.stem), f, m))
+
+    if not live:
+        return SessionContext(status="none")
+    if len(live) == 1:
+        sid, p, m = live[0]
+        return SessionContext(status="resolved", session_id=sid, manifest_path=p,
+                              base_sha=m.get("base_commit_sha"), source="scan")
+    return SessionContext(status="ambiguous",
+                          candidates=tuple(sid for sid, _p, _m in live))
 
 
 # ---------------------------------------------------------------------------
