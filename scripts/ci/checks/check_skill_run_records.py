@@ -146,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
     validated: list[str] = []
     no_declaration: list[str] = []
     reconciled: list[str] = []
+    pending_finalize: list[str] = []
 
     for sha in commits:
         msg = _get_commit_message(sha)
@@ -168,10 +169,23 @@ def main(argv: list[str] | None = None) -> int:
             if record is not None:
                 skills = record.get("skills_invoked", [])
                 retro = " (retroactive)" if record.get("retroactive") else ""
-                reconciled.append(
-                    f"  RECONCILED: {sha[:10]} has no message-level declaration but a "
-                    f"skill run record exists{retro}: {sorted(skills)}"
-                )
+                if record.get("outcome") == "pending":
+                    # 2026-08-30 (stale-guard plan T9/TC-SG-04): a sha-linked
+                    # record whose outcome is still 'pending' means the process
+                    # died between push and finalize (git_plumb_commit.py now
+                    # files the record BEFORE pushing) -- previously this state
+                    # was reported as fully RECONCILED, hiding the crash.
+                    pending_finalize.append(
+                        f"  PENDING_FINALIZE: {sha[:10]} has a sha-linked record{retro} "
+                        f"still 'pending' -- finish it: skill_run_manager.py finalize "
+                        f"--run-id {record.get('run_id')} --outcome success "
+                        f"--commit-sha {sha}"
+                    )
+                else:
+                    reconciled.append(
+                        f"  RECONCILED: {sha[:10]} has no message-level declaration but a "
+                        f"skill run record exists{retro}: {sorted(skills)}"
+                    )
             else:
                 no_declaration.append(f"  NO DECLARATION: {sha[:10]} has no 'Skills invoked:' field")
             continue
@@ -206,6 +220,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nCommits reconciled via a retroactive skill run record ({len(reconciled)}):")
         for r in reconciled:
             print(r)
+
+    if pending_finalize:
+        print(f"\nCommits with a sha-linked record awaiting finalize ({len(pending_finalize)}):")
+        for p in pending_finalize:
+            print(p)
+        print("  Advisory: the commit is accounted for, but its record was never")
+        print("  finalized (crash between push and finalize).")
 
     if no_declaration:
         print(f"\nCommits with NO 'Skills invoked:' field ({len(no_declaration)}):")

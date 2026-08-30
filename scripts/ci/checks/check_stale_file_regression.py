@@ -1,205 +1,178 @@
 """check_stale_file_regression.py — detects a commit silently reverting a
-MORE RECENT commit made by someone else since this session's own baseline.
+MORE RECENT commit (thin CLI over scripts/pipeline/lib/stale_file_regression.py
+since 2026-08-30; stale-guard plan T2 / TC-SG-04).
 
-Found live 2026-08-01: TC-MT018-06's commit d2dce37de5 silently reverted an
-unrelated fix to fetch_aspose_com_targets.py / data/aspose_com_targets.json
-committed by another session hours earlier -- byte-exact regression of
-corrected entries back to known-wrong values (e.g. pdf/go's URL reverted from
-the corrected bundled-page redirect target back to a 404), with the reverting
-commit's own message never mentioning either file. This is the general
-mechanism, not a one-off: every protection built in the production
-concurrency redesign (session_identity.py, taskcard_store.py,
-master_plan_index.py) guards governance METADATA or shared coordination
-artifacts -- none of them ever inspected ordinary file CONTENT for regression
-at commit time. This check closes that gap.
+Found live 2026-08-01 (TC-MT018-06's commit d2dce37de5) and again 2026-08-07
+(`55586b637c` reverting 19 keyword files to a 5-day-old state): a commit whose
+own message never mentions a file can land byte-exact stale content for it.
+The engine now compares git blob OIDs (clean-filtered for worktree mode, so
+core.autocrlf worktrees compare correctly) over a window that is the OLDEST of
+the caller's explicit base, the session ledger's base, and a bounded lookback
+(14 days / 5000 first-parent commits) — session identity is helpful for
+classing findings, but no longer required for the check to run (the 08-07
+revert predated the committing session entirely).
 
-Requires session_ledger.py's base_commit_sha (added alongside this check --
-the HEAD sha recorded at the committing session's init_session() time). For
-each candidate file:
-  1. Find its most recent commit on HEAD (git log -1 --format=%H -- <file>).
-  2. If that commit is a strict descendant of base_sha (i.e. genuinely
-     happened DURING this session, not before it) -- an "intervening commit"
-     this session may not know about -- compare the file's proposed content
-     against that commit's blob and its PARENT's blob for the same path.
-  3. If proposed content matches the PARENT (the state the intervening
-     commit specifically replaced) and does NOT match the intervening
-     commit itself, this is a silent revert: report it.
-
-Deliberately a byte-exact match, not a fuzzy/similarity heuristic (honest
-limit, not an oversight): a session that reverts AND makes some further
-legitimate edit to the same file in the same commit would not be caught by
-this check. Exact match is the high-confidence, low-false-positive signal
-that matches the actual incident this check exists to prevent; a fuzzier
-heuristic was deliberately not attempted here to avoid false-positive risk
-without first observing whether partial-revert cases occur in practice.
+Finding classes: `session` (inside the resolved session window — always
+blocking, today's guarantee) and `lookback` (visible only through the wider
+window — WARN by default during the soak, `--wide-findings=block` to enforce;
+the flip is plan taskcard TC-SG-07).
 
 Usage:
-    git diff --cached --name-only | python check_stale_file_regression.py --base-sha <sha>
+    git diff --cached --name-only | python check_stale_file_regression.py
     python check_stale_file_regression.py --files a.py b.py --base-sha <sha>
-    python check_stale_file_regression.py --files a.py --session-id <id>   # resolves base-sha via session_ledger
+    python check_stale_file_regression.py --files a.py --session-id <id>
+    ... --format json          # machine consumers (pre-commit Step 34)
+    ... --working-tree         # compare worktree content instead of the index
+
+Env tier (tool-set only; honoured ONLY when GIT_INDEX_FILE and
+PC_AUDIT_NO_MUTATE are also present — the git_plumb_commit.py Tier-1
+signature, so `PC_AUDIT_BASE_SHA=... git commit` cannot bypass the gate):
+PC_AUDIT_SESSION_ID, PC_AUDIT_BASE_SHA.
 
 Exit codes:
-  0 -- no regressions detected (including: base sha unresolvable -- advisory,
-       fails OPEN, since this check's own infrastructure being unavailable
-       must never itself block an unrelated commit)
-  1 -- at least one regression detected
-  3 -- session identity AMBIGUOUS (>=2 live ledgers, no explicit identity) --
-       a clear one-line message, never a traceback (ST-095 containment,
-       2026-08-29; the full JSON/exit-code contract lands in Phase 1)
-  4 -- infrastructure error (git subprocess failure, undecodable state) --
-       previously indistinguishable from "regression found" (exit 1 via
-       traceback) or from "clean" (exit 0 via a dead reader thread)
+  0 -- clean; or no window computable (advisory); or every finding is
+       token-covered / lookback-class under the default warn policy
+  1 -- at least one blocking, uncovered finding
+  2 -- usage error
+  3 -- an EXPLICIT --session-id names a missing/closed manifest (caller error;
+       ambient ambiguity does NOT exit 3 -- the lookback window covers it)
+  4 -- infrastructure error (git failure, missing capture) -- never a verdict
 """
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_PIPELINE_OPS_DIR = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops"
+_PIPELINE_DIR = _REPO_ROOT / "scripts" / "pipeline"
+_PIPELINE_OPS_DIR = _PIPELINE_DIR / "commands" / "ops"
+for _p in (str(_PIPELINE_DIR), str(_PIPELINE_OPS_DIR)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from lib import stale_file_regression as slib  # noqa: E402
+
+StaleCheckInfraError = slib.StaleCheckInfraError
 
 
-class StaleCheckInfraError(RuntimeError):
-    """The check itself could not run (git failure, no captured output).
-
-    Deliberately distinct from both "clean" and "regression found": ST-096
-    (2026-08-28) proved a subprocess reader-thread death produced stdout=None
-    and a silent exit 0 -- an infrastructure failure must never be readable
-    as a verdict in either direction."""
-
-
-def _run_git(args: list[str], *, repo_root: Path) -> "subprocess.CompletedProcess":
-    # encoding= is explicit because subprocess text-mode otherwise decodes
-    # with the locale codec (cp1252 on Windows): content bytes cp1252 cannot
-    # map killed the reader thread (stdout=None -> silent pass, ST-096), and
-    # mappable non-ASCII bytes decoded DIFFERENTLY from the UTF-8 worktree
-    # read in check_file(), making the comparison silently inert for any
-    # non-ASCII file (reproduced 2026-08-28). errors="replace" keeps both
-    # sides of every comparison in the same codec, so equality semantics are
-    # preserved exactly (both blobs pass through the identical decode).
-    result = subprocess.run(
-        ["git", *args], capture_output=True, text=True,
-        encoding="utf-8", errors="replace", cwd=str(repo_root), timeout=30,
-    )
-    if result.stdout is None or result.stderr is None:
-        raise StaleCheckInfraError(
-            f"git {' '.join(args)}: subprocess returned no captured output "
-            f"(reader failure) -- refusing to treat missing output as a verdict"
-        )
-    return result
-
-
-def find_intervening_commit(
-    file_path: str, base_sha: str, *, repo_root: Path = _REPO_ROOT
-) -> "str | None":
-    """Return the SHA of file_path's most recent commit on HEAD, if it is a
-    STRICT descendant of base_sha (a genuine intervening commit this session
-    may not know about). Returns None if the file hasn't changed since
-    base_sha, or if base_sha isn't an ancestor of that commit at all
-    (unrelated/rewritten history -- nothing meaningful to compare)."""
-    last = _run_git(["log", "-1", "--format=%H", "HEAD", "--", file_path], repo_root=repo_root)
-    if last.returncode != 0:
-        return None
-    last_sha = last.stdout.strip()
-    if not last_sha or last_sha == base_sha:
-        return None
-    ancestor_check = _run_git(
-        ["merge-base", "--is-ancestor", base_sha, last_sha], repo_root=repo_root,
-    )
-    if ancestor_check.returncode != 0:
-        return None
-    return last_sha
-
-
-def get_blob_at(commit_sha: str, file_path: str, *, repo_root: Path = _REPO_ROOT) -> "str | None":
-    """Return file_path's text content at commit_sha, or None if the path
-    didn't exist there (or isn't decodable as UTF-8 text -- binary files are
-    out of scope for this check, treated as 'nothing to compare')."""
-    result = _run_git(["show", f"{commit_sha}:{file_path}"], repo_root=repo_root)
-    if result.returncode != 0:
-        return None
-    return result.stdout
-
-
-def get_staged_content(file_path: str, *, repo_root: Path = _REPO_ROOT) -> "str | None":
-    """Return file_path's currently STAGED (index) content -- what will
-    actually be committed -- or None if not staged / doesn't exist there."""
-    result = _run_git(["show", f":{file_path}"], repo_root=repo_root)
-    if result.returncode != 0:
-        return None
-    return result.stdout
-
+# ---------------------------------------------------------------------------
+# Back-compat wrappers (import surface used by git_plumb_commit.py history and
+# the pre-existing test suite; the OID engine lives in the lib)
+# ---------------------------------------------------------------------------
 
 def detect_regression(
     proposed_content: "str | None",
     parent_content: "str | None",
     intervening_content: "str | None",
 ) -> bool:
-    """Pure comparison, no I/O. True if proposed_content looks like a silent
-    revert of the intervening commit: matches the PARENT's (pre-intervening)
-    state and does not match the intervening commit's own state."""
+    """Pure predicate on already-obtained states (content or OIDs alike):
+    True iff proposed matches the PARENT of the intervening change and not
+    the intervening change itself."""
     if intervening_content is None:
-        return False  # intervening commit didn't leave a comparable text blob here
+        return False
     if parent_content is None:
-        return False  # file was newly created by the intervening commit -- no older state to revert to
+        return False
     if proposed_content == intervening_content:
-        return False  # already incorporates the intervening commit -- fine
+        return False
     return proposed_content == parent_content
+
+
+def find_intervening_commit(
+    file_path: str, base_sha: str, *, repo_root: Path = _REPO_ROOT
+) -> "str | None":
+    """Newest commit in base..HEAD touching file_path (membership semantics --
+    a side-branch commit merged after base counts; the old ancestry predicate
+    missed those). None when the range is empty/invalid."""
+    try:
+        head = slib._rev_parse("HEAD", repo_root=Path(repo_root))
+        if head is None or slib._rev_parse(base_sha, repo_root=Path(repo_root)) is None:
+            return None
+        found = slib.intervening_commits(base_sha, head, [file_path], repo_root=Path(repo_root))
+    except StaleCheckInfraError:
+        return None
+    return found.get(file_path.replace("\\", "/"))
 
 
 def check_file(
     file_path: str, base_sha: str, *, repo_root: Path = _REPO_ROOT, use_staged: bool = True
 ) -> "dict | None":
-    """Check one file. Returns a finding dict if a regression is detected,
-    else None."""
-    intervening = find_intervening_commit(file_path, base_sha, repo_root=repo_root)
-    if intervening is None:
+    """Single-file compatibility check with the ORIGINAL semantics (explicit
+    base = the whole window; every finding blocking). Returns a finding dict
+    or None."""
+    root = Path(repo_root)
+    head = slib._rev_parse("HEAD", repo_root=root)
+    if head is None:
         return None
-
-    intervening_content = get_blob_at(intervening, file_path, repo_root=repo_root)
-    parent_content = get_blob_at(f"{intervening}^", file_path, repo_root=repo_root)
-    proposed_content = (
-        get_staged_content(file_path, repo_root=repo_root)
-        if use_staged
-        else (repo_root / file_path).read_text(encoding="utf-8", errors="replace")
-        if (repo_root / file_path).is_file()
-        else None
-    )
-
-    if detect_regression(proposed_content, parent_content, intervening_content):
-        return {
-            "file": file_path,
-            "intervening_commit": intervening,
-        }
+    baseline = slib.Baseline(window_sha=base_sha, source="explicit",
+                             session_sha=base_sha, session_id=None)
+    try:
+        report = slib.detect_regressions(
+            [file_path], baseline=baseline, head=head,
+            mode="index" if use_staged else "worktree", repo_root=root,
+            content_prefix_session_only=False,
+        )
+    except StaleCheckInfraError:
+        return None
+    for finding in report.findings:
+        return {"file": finding.path, "intervening_commit": finding.intervening_commit}
     return None
 
 
 def resolve_base_sha(explicit: "str | None", session_id: "str | None") -> "str | None":
     if explicit:
         return explicit
-    if str(_PIPELINE_OPS_DIR) not in sys.path:
-        sys.path.insert(0, str(_PIPELINE_OPS_DIR))
     import session_ledger  # noqa: E402 (repo layout requires the sys.path insert above)
     return session_ledger.get_base_commit_sha(session_id)
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def _resolve_repo_root(explicit: "str | None") -> Path:
+    if explicit:
+        return Path(explicit)
+    probe = subprocess.run(["git", "rev-parse", "--show-toplevel"],
+                           capture_output=True, text=True, encoding="utf-8",
+                           errors="replace")
+    top = (probe.stdout or "").strip()
+    return Path(top) if probe.returncode == 0 and top else Path.cwd()
+
+
+def _override_lookup(repo_root: Path):
+    try:
+        from commands.governance import override_manager  # noqa: E402
+    except Exception:
+        return None
+    override_manager.configure(repo_root=repo_root)
+    return override_manager.find_valid_token_for_path
 
 
 def main(argv: "list[str] | None" = None) -> int:
     import argparse
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--files", nargs="*", default=None,
-                        help="Files to check (default: read newline-delimited paths from stdin)")
-    parser.add_argument("--base-sha", default=None,
-                        help="Session's base commit sha (default: resolve via session_ledger)")
-    parser.add_argument("--session-id", default=None,
-                        help="Explicit session id for base-sha resolution (default: env/unambiguous scan)")
-    parser.add_argument("--working-tree", action="store_true",
-                        help="Compare working-tree content instead of the git INDEX (staged) content")
-    args = parser.parse_args(argv)
-
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--files", nargs="*", default=None,
+                        help="Files to check (default: newline-delimited paths on stdin)")
+    parser.add_argument("--base-sha", default=None,
+                        help="Explicit window anchor (must be an ancestor of HEAD)")
+    parser.add_argument("--session-id", default=None,
+                        help="Explicit session identity for baseline classing")
+    parser.add_argument("--working-tree", action="store_true",
+                        help="Compare working-tree content instead of the index")
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--wide-findings", choices=["warn", "block"], default="warn",
+                        help="Policy for lookback-class findings (soak default: warn; "
+                             "the flip to block is plan taskcard TC-SG-07)")
+    parser.add_argument("--repo-root", default=None)
+    parser.add_argument("--head", default=None)
+    args = parser.parse_args(argv)
 
     files = args.files
     if files is None:
@@ -207,62 +180,65 @@ def main(argv: "list[str] | None" = None) -> int:
     if not files:
         return 0
 
-    try:
-        base_sha = resolve_base_sha(args.base_sha, args.session_id)
-    except Exception as exc:
-        # session_ledger.AmbiguousSessionError reaches here as a duck-typed
-        # name check (importing it eagerly would couple this module to the
-        # ops package even when --base-sha is explicit). Before this guard,
-        # >=2 live session ledgers produced a raw traceback with exit 1 --
-        # which pre-commit Step 34 then misparsed as file-name findings
-        # needing override tokens (an unbypassable deadlock, ST-095).
-        if type(exc).__name__ == "AmbiguousSessionError":
-            print(f"check_stale_file_regression: AMBIGUOUS session identity -- {exc}",
-                  file=sys.stderr)
-            print("Fix: pass --session-id <id> or --base-sha <sha>, or export "
-                  "AGENT_SESSION_ID=<id> for this invocation.", file=sys.stderr)
-            return 3
-        print(f"check_stale_file_regression: INFRASTRUCTURE ERROR resolving baseline: "
-              f"{type(exc).__name__}: {exc}", file=sys.stderr)
-        return 4
-    if not base_sha:
-        # Advisory: this check's own infrastructure being unavailable (no
-        # session ledger, fresh repo, etc.) must never itself block an
-        # unrelated commit.
-        print("check_stale_file_regression: no base commit sha available -- skipping (advisory).",
-              file=sys.stderr)
-        return 0
+    repo_root = _resolve_repo_root(args.repo_root)
 
-    # Resolve repo_root from CWD, not the module-level _REPO_ROOT default --
-    # a function default parameter is bound once at def time, so relying on
-    # it here would silently ignore the caller's actual working directory
-    # (the pre-commit hook and every git-plumbing caller always run with CWD
-    # at the repo root; hardcoding the module's own on-disk location would
-    # be wrong for anyone invoking this against a different checkout).
-    repo_root = Path.cwd()
+    # Env tier: honoured only alongside the plumb tool's Tier-1 signature.
+    env_session = env_base = None
+    if os.environ.get("PC_AUDIT_NO_MUTATE") and os.environ.get("GIT_INDEX_FILE"):
+        env_session = os.environ.get("PC_AUDIT_SESSION_ID") or None
+        env_base = os.environ.get("PC_AUDIT_BASE_SHA") or None
+    session_id = args.session_id or env_session
+    explicit_base = args.base_sha or env_base
 
-    findings = []
+    ctx = None
     try:
-        for f in files:
-            result = check_file(f, base_sha, repo_root=repo_root, use_staged=not args.working_tree)
-            if result:
-                findings.append(result)
+        import session_ledger  # noqa: E402
+        ctx = session_ledger.resolve_context(session_id)
+    except Exception as exc:  # ledger infrastructure unavailable: proceed windowed
+        print(f"check_stale_file_regression: note: session ledger unavailable "
+              f"({type(exc).__name__}) -- using the lookback window.", file=sys.stderr)
+
+    if args.session_id and ctx is not None and ctx.status in ("none", "closed"):
+        print(f"check_stale_file_regression: explicit --session-id "
+              f"{args.session_id!r} names a {ctx.status or 'missing'} manifest -- "
+              f"fix the identity or pass --base-sha.", file=sys.stderr)
+        return 3
+
+    try:
+        head = args.head or slib._rev_parse("HEAD", repo_root=repo_root)
+        if head is None:
+            raise StaleCheckInfraError("HEAD does not resolve")
+        baseline = slib.resolve_baseline(explicit_sha=explicit_base, session_ctx=ctx,
+                                         head=head, repo_root=repo_root)
+        report = slib.detect_regressions(
+            files, baseline=baseline, head=head,
+            mode="worktree" if args.working_tree else "index",
+            repo_root=repo_root, override_lookup=_override_lookup(repo_root),
+        )
     except (StaleCheckInfraError, subprocess.TimeoutExpired, OSError) as exc:
-        print(f"check_stale_file_regression: INFRASTRUCTURE ERROR while checking files: "
+        print(f"check_stale_file_regression: INFRASTRUCTURE ERROR: "
               f"{type(exc).__name__}: {exc}", file=sys.stderr)
         return 4
 
-    if findings:
-        print(f"STALE FILE REGRESSION: {len(findings)} file(s) look like a silent revert "
-              f"of a more recent commit:")
-        for f in findings:
-            print(f"  {f['file']}")
-            print(f"    matches the state BEFORE commit {f['intervening_commit'][:10]}, "
-                  f"which changed this file after your session began.")
-            print(f"    Re-read the current file and reapply your own change on top of it, "
-                  f"or if this revert is intentional, say so explicitly in the commit message.")
-        return 1
+    if args.format == "json":
+        payload = report.to_dict()
+        payload["wide_findings_policy"] = args.wide_findings
+        payload["blocking"] = [f.to_dict() for f in report.blocking(wide_findings=args.wide_findings)]
+        print(json.dumps(payload, ensure_ascii=False))
+    else:
+        print(slib.format_text(report, wide_findings=args.wide_findings))
 
+    blocking = report.blocking(wide_findings=args.wide_findings)
+    if blocking:
+        print(f"STALE FILE REGRESSION: {len(blocking)} blocking file(s) look like a "
+              f"silent revert of a more recent commit. Re-read the current file and "
+              f"reapply your change on top of it, or create a governed override: "
+              f"override_manager.py create --paths <file> --reason '...' --plan '...'",
+              file=sys.stderr)
+        return 1
+    if report.status == "no_baseline":
+        print("check_stale_file_regression: no window computable -- advisory pass.",
+              file=sys.stderr)
     return 0
 
 

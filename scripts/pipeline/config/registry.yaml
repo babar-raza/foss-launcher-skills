@@ -5522,3 +5522,26 @@ scripts:
       and object-level-merge recipes in CLAUDE.md) and `report` (read-only
       residue listing, surfaced at /session-start). See the lib entry for the
       RC-1 rationale."
+
+  - path: scripts/pipeline/lib/stale_file_regression.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_stale_file_regression_lib.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: OID-based stale-file revert engine (2026-08-30 stale-guard
+      plan, T1/TC-SG-04). Replaces the text-comparison engine inside
+      scripts/ci/checks/check_stale_file_regression.py (locale-decoded content
+      was inert for non-ASCII files, ST-096) and the session-only window
+      (missed the 2026-08-07 55586b637c revert of pre-session commits, RC0).
+      Window = oldest(explicit/session base, 14-day/5000-commit lookback);
+      findings classed session (blocking) vs lookback (soak: warn). Consumed
+      by the checker CLI and git_plumb_commit.py (temp-index mode)."

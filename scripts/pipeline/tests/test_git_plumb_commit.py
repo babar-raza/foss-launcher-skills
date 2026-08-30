@@ -477,16 +477,35 @@ def test_skip_stale_check_bypasses_the_check_entirely(tmp_path):
     assert result["pushed"] is True
 
 
-def test_no_base_sha_and_no_skip_is_advisory_pass(tmp_path):
-    """No base_sha resolvable (and not explicitly skipped) -- same fail-open
-    policy as check_stale_file_regression.py itself: never block on missing
-    infrastructure."""
+def test_explicit_bogus_session_id_raises_identity_unresolved(tmp_path):
+    """Phase 1 contract (TC-SG-04 / adversarial E4): an EXPLICIT session id
+    naming a missing manifest is a caller error, not something to silently
+    reinterpret -- previously it degraded to 'no baseline -> advisory pass',
+    i.e. the flag being wrong turned the guard off."""
     work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    with pytest.raises(gpc.PlumbCommitIdentityUnresolved):
+        gpc.plumb_commit(
+            ["f.txt"], "bogus id", repo_root=work, branch="main", remote=str(bare),
+            base_sha=None, session_id="no-such-session-anywhere",
+        )
+
+
+def test_no_identity_at_all_runs_via_lookback_and_passes_clean(tmp_path, monkeypatch):
+    """No identity, no ledger: the check now RUNS with the lookback window
+    (RC0: staleness does not respect session boundaries) and a clean commit
+    still pushes -- absence of infrastructure never blocks."""
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+    work, bare = _init_repo_with_remote(tmp_path)
+    session_ledger.configure(repo_root=work)
     (work / "f.txt").write_text("v", encoding="utf-8")
 
     result = gpc.plumb_commit(
-        ["f.txt"], "no base sha", repo_root=work, branch="main", remote=str(bare),
-        base_sha=None, session_id="no-such-session-anywhere",
+        ["f.txt"], "no identity, clean", repo_root=work, branch="main", remote=str(bare),
     )
     assert result["pushed"] is True
 
@@ -613,7 +632,7 @@ def test_ledger_check_is_advisory_pass_with_no_active_session(tmp_path):
     result = gpc.plumb_commit(
         ["f.txt"], "no session at all",
         repo_root=work, branch="main", remote=str(bare),
-        skip_stale_check=True, session_id="no-such-session-anywhere",
+        skip_stale_check=True,
     )
     assert result["pushed"] is True
 

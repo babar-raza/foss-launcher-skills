@@ -126,25 +126,48 @@ def test_tier1_failure_with_unmappable_byte_raises_tier1failed_not_typeerror(tmp
     assert "❌" in str(exc_info.value)
 
 
-def test_ambiguous_ledger_raises_plumb_commit_error_not_raw_ambiguous(tmp_path):
-    """ST-095 containment: the outer stale/ledger checks wrap
-    AmbiguousSessionError into a PlumbCommitError with an actionable message,
-    so main() exits 2 with a clear line instead of a traceback."""
+def test_ambiguous_ledger_proceeds_and_lookback_still_protects(tmp_path, capsys):
+    """ST-095 endgame (Phase 1): >=2 live ledgers no longer block or crash the
+    tool -- it proceeds on the lookback window with a loud warning, and a real
+    byte-exact revert of a commit nobody's session covers is STILL caught
+    (warn-class under the soak default; blocking under wide_findings="block")."""
     work, bare = _init_repo_with_remote(tmp_path)
-    (work / "f.txt").write_text("v", encoding="utf-8")
-
     session_ledger.configure(repo_root=work)
     session_ledger.init_session("plumb-amb-a")
     session_ledger.init_session("plumb-amb-b")
 
-    with pytest.raises(gpc.PlumbCommitError) as exc_info:
+    # A fix commit lands; this session's worktree then reverts it byte-exactly.
+    (work / "data.txt").write_text("wrong", encoding="utf-8")
+    _git(work, "add", "data.txt")
+    _git(work, "commit", "-q", "-m", "seed wrong")
+    (work / "data.txt").write_text("right", encoding="utf-8")
+    _git(work, "add", "data.txt")
+    _git(work, "commit", "-q", "-m", "fix nobody saw")
+    _git(work, "push", "-q", "origin", "main")
+    (work / "data.txt").write_text("wrong", encoding="utf-8")
+
+    # Soak default: proceeds (warn-class), never a raw AmbiguousSessionError.
+    result = gpc.plumb_commit(
+        ["data.txt"], "ambiguous identity, soak policy", repo_root=work,
+        branch="main", remote=str(bare), skip_tier1_checks=True,
+    )
+    assert result["pushed"] is True
+    err = capsys.readouterr().err
+    assert "ambiguous" in err.lower()
+    assert "lookback" in err.lower()
+
+    # Enforced policy: the same shape blocks.
+    (work / "data.txt").write_text("right", encoding="utf-8")
+    _git(work, "add", "data.txt")
+    _git(work, "commit", "-q", "-m", "re-fix")
+    _git(work, "push", "-q", "origin", "main")
+    (work / "data.txt").write_text("wrong", encoding="utf-8")
+    with pytest.raises(gpc.PlumbCommitBlocked):
         gpc.plumb_commit(
-            ["f.txt"], "ambiguous identity", repo_root=work, branch="main",
-            remote=str(bare), push=False, skip_tier1_checks=True,
+            ["data.txt"], "ambiguous identity, block policy", repo_root=work,
+            branch="main", remote=str(bare), skip_tier1_checks=True,
+            wide_findings="block",
         )
-    assert not isinstance(exc_info.value, session_ledger.AmbiguousSessionError)
-    assert "AMBIGUOUS" in str(exc_info.value)
-    assert "--session-id" in str(exc_info.value)
 
 
 def test_explicit_identity_still_works_under_ambiguity(tmp_path):
@@ -165,3 +188,107 @@ def test_explicit_identity_still_works_under_ambiguity(tmp_path):
         skip_tier1_checks=True,
     )
     assert result["pushed"] is True
+
+
+# ---------------------------------------------------------------------------
+# Governance-trail ordering + scoped token consumption (Phase 1, TC-SG-04)
+# ---------------------------------------------------------------------------
+
+def test_record_created_pending_before_push_and_finalized_after(tmp_path, monkeypatch):
+    """The record carries the built commit's sha BEFORE the push (created
+    pending), and is finalized success after -- so a crash between push and
+    finalize leaves a sha-linked PENDING_FINALIZE record instead of no trail
+    (the TC-SG-18 class, which fired live on this plan's own Phase 0a commit)."""
+    import json
+    records_dir = tmp_path / "runs"
+    monkeypatch.setenv("SKILL_RUN_RECORDS_DIR", str(records_dir))
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["f.txt"], "record ordering", repo_root=work, branch="main",
+        remote=str(bare), skip_stale_check=True, skip_ledger_check=True,
+        skip_tier1_checks=True, skills=["S-99"], plan="ordering test",
+    )
+
+    assert result["skill_run_id"]
+    record = json.loads(
+        (records_dir / f"{result['skill_run_id']}.json").read_text(encoding="utf-8"))
+    assert record["outcome"] == "success"
+    assert record["commit_sha"] == result["commit_sha"]
+
+
+def test_crash_during_push_leaves_sha_linked_pending_record(tmp_path, monkeypatch):
+    import json
+    records_dir = tmp_path / "runs"
+    monkeypatch.setenv("SKILL_RUN_RECORDS_DIR", str(records_dir))
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+
+    import subprocess as _sp
+
+    def _runner_that_dies_on_push(cmd, **kwargs):
+        if len(cmd) >= 2 and cmd[0] == "git" and cmd[1] == "push":
+            raise RuntimeError("simulated crash mid-push")
+        return _sp.run(cmd, **kwargs)
+
+    gpc.configure(repo_root=work, command_runner=_runner_that_dies_on_push)
+    with pytest.raises(RuntimeError, match="simulated crash"):
+        gpc.plumb_commit(
+            ["f.txt"], "crash mid-push", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True, skip_ledger_check=True,
+            skip_tier1_checks=True, skills=["S-99"], plan="crash test",
+        )
+
+    records = list(records_dir.glob("retroactive-*.json"))
+    assert len(records) == 1
+    record = json.loads(records[0].read_text(encoding="utf-8"))
+    assert record["outcome"] == "pending"       # PENDING_FINALIZE, discoverable
+    assert record["commit_sha"]                 # sha-linked despite the crash
+
+
+def test_relied_override_token_consumed_by_id_after_push(tmp_path):
+    """A finding allowed through by a token consumes exactly THAT token after
+    the push -- plumbed commits never fire the porcelain post-commit hook, so
+    the token previously lingered and was swept by an unrelated commit."""
+    import json
+    work, bare = _init_repo_with_remote(tmp_path)
+    base_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+    (work / "data.txt").write_text("wrong", encoding="utf-8")
+    _git(work, "add", "data.txt")
+    _git(work, "commit", "-q", "-m", "seed wrong")
+    (work / "data.txt").write_text("right", encoding="utf-8")
+    _git(work, "add", "data.txt")
+    _git(work, "commit", "-q", "-m", "fix")
+    _git(work, "push", "-q", "origin", "main")
+    (work / "data.txt").write_text("wrong", encoding="utf-8")  # intentional revert
+
+    class Args:
+        paths = ["data.txt"]
+        reason = "intentional revert"
+        plan = "token consumption test"
+        scope = ""
+        operation = "edit"
+        retroactive = False
+
+    override_manager.cmd_create(Args())
+    pending = list(override_manager._PENDING_DIR.glob("*.json"))
+    assert len(pending) == 1
+    token_id = json.loads(pending[0].read_text(encoding="utf-8"))["override_id"]
+    unrelated = override_manager._PENDING_DIR / "zz-unrelated.json"
+    unrelated.write_text(
+        '{"override_id": "zz-unrelated", "paths": ["docs/elsewhere.md"],'
+        ' "operation": "edit", "reason": "someone else", '
+        '"authorized_at": "2099-01-01T00:00:00Z", "retroactive": false,'
+        ' "consumed_by_commit": null}\n', encoding="utf-8")
+
+    result = gpc.plumb_commit(
+        ["data.txt"], "governed revert", repo_root=work, branch="main",
+        remote=str(bare), base_sha=base_sha, skip_tier1_checks=True,
+    )
+    assert result["pushed"] is True
+
+    assert not (override_manager._PENDING_DIR / f"{token_id}.json").exists()
+    archived = override_manager._ARCHIVED_DIR / f"{token_id}.json"
+    assert json.loads(archived.read_text(encoding="utf-8"))["consumed_by_commit"] == result["commit_sha"]
+    assert unrelated.exists()   # the other session's token was NOT swept

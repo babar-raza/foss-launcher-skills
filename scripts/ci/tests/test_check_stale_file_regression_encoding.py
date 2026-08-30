@@ -154,22 +154,46 @@ def test_clean_state_still_exits_zero_under_hostile_locale(tmp_path):
     assert "Traceback" not in result.stderr
 
 
-def test_ambiguous_identity_is_exit_3_with_message_not_traceback(tmp_path, monkeypatch, capsys):
-    """ST-095: >=2 live session ledgers and no explicit identity used to
-    escape as a raw AmbiguousSessionError traceback with exit 1 -- which
-    Step 34's 2-space-indent parser then misread as file-name findings.
-    The contained contract: exit 3 with a one-line actionable message."""
+def test_ambient_ambiguity_proceeds_via_lookback_never_a_traceback(tmp_path, monkeypatch, capsys):
+    """ST-095 endgame (Phase 1): >=2 live session ledgers and no explicit
+    identity used to escape as a raw AmbiguousSessionError traceback (exit 1)
+    that Step 34's parser misread as file-name findings. Now the check simply
+    RUNS with the lookback window -- ambiguity cannot block, cannot skip, and
+    a real revert is still caught (warn-class in the soak, block under
+    --wide-findings=block)."""
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
     monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
     monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
     session_ledger.configure(repo_root=tmp_path)
     session_ledger.init_session("amb-a")
     session_ledger.init_session("amb-b")
-    monkeypatch.chdir(tmp_path)
+
+    repo, _base = _repo_with_staged_revert(tmp_path, b"wrong\n", b"correct\n")
+    monkeypatch.chdir(repo)
 
     rc = sfr.main(["--files", "f.md"])  # no --base-sha, no --session-id
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.err
+    assert rc == 0                       # warn-class during the soak
+    assert "WARN(lookback)" in captured.out
+
+    rc_block = sfr.main(["--files", "f.md", "--wide-findings", "block"])
+    assert rc_block == 1                 # the widened window genuinely protects
+
+
+def test_explicit_bad_session_id_is_exit_3_with_message(tmp_path, monkeypatch, capsys):
+    """An EXPLICIT --session-id naming a missing manifest is a caller error
+    (exit 3, one actionable line) -- distinct from ambient ambiguity above."""
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+    session_ledger.configure(repo_root=tmp_path)
+    repo, _base = _repo_with_staged_revert(tmp_path, b"wrong\n", b"correct\n")
+    monkeypatch.chdir(repo)
+
+    rc = sfr.main(["--files", "f.md", "--session-id", "no-such-session"])
 
     err = capsys.readouterr().err
     assert rc == 3
-    assert "AMBIGUOUS" in err
+    assert "no-such-session" in err
     assert "Traceback" not in err

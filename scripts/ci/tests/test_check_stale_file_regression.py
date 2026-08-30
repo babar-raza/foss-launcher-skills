@@ -88,32 +88,15 @@ def test_no_intervening_commit_when_base_not_ancestor(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# get_blob_at / get_staged_content
+# get_blob_at / get_staged_content: RETIRED 2026-08-30 (stale-guard plan
+# TC-SG-04) -- locale-decoded content readers were the ST-096 defect itself.
+# The OID engine (lib/stale_file_regression.py) has its own suite; the import
+# surface below asserts the retirement is real, not accidental.
 # ---------------------------------------------------------------------------
 
-def test_get_blob_at_returns_content(tmp_path):
-    repo = _init_repo(tmp_path)
-    sha = _commit_file(repo, "f.txt", "hello", "c1")
-    assert sfr.get_blob_at(sha, "f.txt", repo_root=repo) == "hello"
-
-
-def test_get_blob_at_returns_none_for_nonexistent_path(tmp_path):
-    repo = _init_repo(tmp_path)
-    sha = _commit_file(repo, "f.txt", "hello", "c1")
-    assert sfr.get_blob_at(sha, "does_not_exist.txt", repo_root=repo) is None
-
-
-def test_get_blob_at_parent_returns_none_for_newly_created_file(tmp_path):
-    repo = _init_repo(tmp_path)
-    sha = _commit_file(repo, "f.txt", "hello", "c1")
-    assert sfr.get_blob_at(f"{sha}^", "f.txt", repo_root=repo) is None
-
-
-def test_get_staged_content_returns_index_content(tmp_path):
-    repo = _init_repo(tmp_path)
-    _commit_file(repo, "f.txt", "v1", "c1")
-    _stage(repo, "f.txt", "v2-staged")
-    assert sfr.get_staged_content("f.txt", repo_root=repo) == "v2-staged"
+def test_content_readers_are_retired():
+    assert not hasattr(sfr, "get_blob_at")
+    assert not hasattr(sfr, "get_staged_content")
 
 
 # ---------------------------------------------------------------------------
@@ -265,20 +248,54 @@ def test_main_no_files_is_a_noop(tmp_path, monkeypatch):
     assert sfr.main([]) == 0
 
 
-def test_main_advisory_pass_when_base_sha_unresolvable(tmp_path, monkeypatch, capsys):
-    """Infrastructure unavailable (no session ledger, no base sha) must never
-    itself block an unrelated commit -- fails OPEN, advisory.
+def test_main_without_identity_runs_via_lookback_and_passes_clean(tmp_path, monkeypatch, capsys):
+    """2026-08-30 contract change (RC0): missing identity no longer skips the
+    check -- it runs with the bounded lookback window (the 2026-08-07 revert
+    predated the committing session entirely, so 'no session -> no check' was
+    itself a defect). Clean state stays exit 0; the session_ledger is pointed
+    at an empty tmp root so live concurrent sessions cannot leak in."""
+    import session_ledger
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+    session_ledger.configure(repo_root=tmp_path)
+    try:
+        repo = _init_repo(tmp_path)
+        _commit_file(repo, "f.txt", "v1", "base")
+        _stage(repo, "f.txt", "v2-own-edit")
 
-    resolve_base_sha itself is monkeypatched rather than relying on the
-    REAL repo's absence of an active session_ledger session: this test
-    suite runs inside the actual aspose.org checkout, where other live
-    sessions frequently ARE active, so falling through to the real
-    session_ledger module here would make this test non-deterministic."""
-    repo = _init_repo(tmp_path)
-    _commit_file(repo, "f.txt", "v1", "base")
-    monkeypatch.setattr(sfr, "resolve_base_sha", lambda explicit, session_id: None)
+        monkeypatch.chdir(repo)
+        rc = sfr.main(["--files", "f.txt"])  # no --base-sha, no --session-id
 
-    monkeypatch.chdir(repo)
-    rc = sfr.main(["--files", "f.txt"])  # no --base-sha, no --session-id
-    assert rc == 0
-    assert "advisory" in capsys.readouterr().err.lower()
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "source=lookback" in out
+    finally:
+        session_ledger.configure()
+
+
+def test_main_without_identity_still_warns_on_a_lookback_revert(tmp_path, monkeypatch, capsys):
+    """The widened window actually protects: a revert of a commit the session
+    never saw is REPORTED (warn-class during the soak; --wide-findings=block
+    enforces -- the flip is TC-SG-07)."""
+    import session_ledger
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+    session_ledger.configure(repo_root=tmp_path)
+    try:
+        repo = _init_repo(tmp_path)
+        _commit_file(repo, "f.txt", "wrong", "base")
+        _commit_file(repo, "f.txt", "right", "fix nobody in this session saw")
+        _stage(repo, "f.txt", "wrong")
+
+        monkeypatch.chdir(repo)
+        rc_warn = sfr.main(["--files", "f.txt"])
+        out = capsys.readouterr().out
+        assert rc_warn == 0
+        assert "WARN(lookback)" in out
+
+        rc_block = sfr.main(["--files", "f.txt", "--wide-findings", "block"])
+        assert rc_block == 1
+    finally:
+        session_ledger.configure()

@@ -97,17 +97,15 @@ from typing import Any, Callable
 _PIPELINE_ROOT = Path(__file__).resolve().parents[2]
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
-_CI_CHECKS_DIR = _PIPELINE_ROOT.parent / "ci" / "checks"
-if str(_CI_CHECKS_DIR) not in sys.path:
-    sys.path.insert(0, str(_CI_CHECKS_DIR))
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
 
-import check_stale_file_regression as sfr  # noqa: E402
 import session_ledger  # noqa: E402
 from commands.governance import override_manager  # noqa: E402
+from commands.governance import path_guard  # noqa: E402
 from lib import checkout_sync  # noqa: E402
+from lib import stale_file_regression as slib  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_SKILL_RUN_MANAGER = (
@@ -224,8 +222,8 @@ class PlumbCommitTier1Failed(PlumbCommitError):
     concurrent-session-safe commits, used repeatedly across this very session -- the
     gap was total, not partial, for every commit that ever went through it.
 
-    Step 30 of pre-commit-audit.sh (this repo's Tier 1 script) and this module's own
-    `_check_for_regressions()` both call the SAME `check_stale_file_regression.py`
+    Step 34 of pre-commit-audit.sh (this repo's Tier 1 script) and this module's own
+    temp-index stale check both consume the SAME lib/stale_file_regression engine
     function -- neither is a "re-implemented copy" of the other, an earlier version
     of this docstring's own wording notwithstanding (corrected 2026-08-20,
     reports/skill-gaps/2026-08-20-git-plumb-commit-tier1-mutation-safety.md). They
@@ -445,24 +443,25 @@ def _gitignored_files(files: list[str], *, repo_root: Path) -> list[str]:
     return [p.decode("utf-8") for p in result.stdout.split(b"\x00") if p]
 
 
-def _check_for_regressions(
-    files: list[str], base_sha: "str | None", *, repo_root: Path,
-) -> list[dict]:
-    """Run the stale-file regression check against every file (working-tree
-    content, since nothing is staged yet -- git_plumb_commit builds its own
-    isolated index). Returns findings NOT covered by a valid override token.
-    """
-    if not base_sha:
-        return []  # advisory: no base_sha available, same fail-open policy as the check itself
-    uncovered = []
-    for f in files:
-        finding = sfr.check_file(f, base_sha, repo_root=repo_root, use_staged=False)
-        if finding is None:
-            continue
-        if override_manager.find_valid_token_for_path(finding["file"]) is not None:
-            continue  # governed, audited exception -- allowed through
-        uncovered.append(finding)
-    return uncovered
+class PlumbCommitIdentityUnresolved(PlumbCommitBlocked):
+    """Raised ONLY when an EXPLICIT --session-id names a missing or closed
+    manifest -- a caller error that must not be silently reinterpreted.
+    Ambient ambiguity or absent identity does NOT raise (Phase 1, TC-SG-04):
+    the stale check runs on the lookback window regardless, and the ledger
+    cross-check degrades to a loud warning -- ST-095's failure mode (blocked
+    exactly when concurrency is highest) is structurally gone."""
+
+    def __init__(self, session_id: str, status: str):
+        self.session_id = session_id
+        self.status = status
+        self.findings: list = []
+        PlumbCommitError.__init__(
+            self,
+            f"explicit --session-id {session_id!r} names a "
+            f"{status or 'missing'} manifest. Fix the identity "
+            f"(session_ledger.py init --session-id {session_id}), or drop the "
+            f"flag -- unknown identity is covered by the lookback window."
+        )
 
 
 def _check_ledger_candidates(
@@ -747,6 +746,7 @@ def _real_content_snapshot(files: list[str], *, repo_root: Path) -> "dict[str, s
 
 def _run_tier1_checks(
     tmp_index_path: str, message: str, *, repo_root: Path, strict_isolation: bool = False,
+    context_env: "dict[str, str] | None" = None,
 ) -> "subprocess.CompletedProcess | None":
     """Run scripts/pre-commit-audit.sh (Tier 1) against the isolated temp index --
     NOT the real .git/index -- by setting GIT_INDEX_FILE for the subprocess. Every
@@ -819,6 +819,12 @@ def _run_tier1_checks(
         # report findings instead of mutating real repo state. Set uncondition-
         # ally here; never set by an operator or any other caller.
         "PC_AUDIT_NO_MUTATE": "1",
+        # Phase 1 (TC-SG-04): Tier-1's Step 13/34 consume the SAME commit
+        # context this tool already resolved (ST-095's root: four independent
+        # ambient re-resolutions per commit). PYTHONUTF8 keeps every hook
+        # Python child's stdout round-trippable (the U+FFFD noise class).
+        "PYTHONUTF8": "1",
+        **(context_env or {}),
     }
     tier1_result = _COMMAND_RUNNER(
         [bash_path, "scripts/pre-commit-audit.sh"],
@@ -1087,6 +1093,9 @@ def plumb_commit(
     auto_reconcile: bool = True,
     ack_gitignored: "list[str] | None" = None,
     sync_state: bool = True,
+    wide_findings: str = "warn",
+    skills: "list[str] | None" = None,
+    plan: "str | None" = None,
 ) -> dict[str, Any]:
     """Perform the full isolated git-plumbing commit sequence atomically:
     stale-file regression check -> temp-index build -> Tier 1 checks
@@ -1163,29 +1172,39 @@ def plumb_commit(
 
     head_sha = _git(["rev-parse", "HEAD"], repo_root=root).stdout.strip()
 
-    # ST-095 containment (2026-08-29): >=2 live session ledgers with no
-    # explicit identity used to escape as a raw AmbiguousSessionError --
-    # not a PlumbCommitError, so main() printed a traceback and exited 1
-    # with nothing actionable. Surface it as a clear, catchable refusal
-    # instead. (Phase 1 of the approved plan replaces this with the
-    # lookback-window CommitContext so ambiguity stops blocking at all.)
+    # CommitContext (Phase 1, TC-SG-04): identity resolved ONCE, side-effect
+    # free; ambiguity/absence informs the baseline classing but can no longer
+    # block or crash this tool (ST-095's failure mode -- unusable exactly when
+    # concurrency was highest -- is structurally gone: the lookback window
+    # covers unknown identity, per the 2026-08-07 `55586b637c` evidence that
+    # staleness does not respect session boundaries).
+    ctx = None
     try:
-        if not skip_stale_check:
-            resolved_base_sha = sfr.resolve_base_sha(base_sha, session_id)
-            uncovered = _check_for_regressions(files, resolved_base_sha, repo_root=root)
-            if uncovered:
-                raise PlumbCommitBlocked(uncovered)
+        ctx = session_ledger.resolve_context(session_id)
+    except Exception as exc:  # ledger infrastructure itself unavailable
+        print(f"WARNING: session ledger unavailable ({type(exc).__name__}: {exc}) "
+              f"-- proceeding with the lookback window only.", file=sys.stderr)
+    if session_id and ctx is not None and ctx.status in ("none", "closed"):
+        raise PlumbCommitIdentityUnresolved(session_id, ctx.status)
+    if ctx is not None and ctx.status == "ambiguous":
+        print(f"WARNING: session identity is ambiguous "
+              f"({', '.join(ctx.candidates)}) -- stale check runs on the "
+              f"lookback window; the session-ledger cross-check is skipped "
+              f"for this commit.", file=sys.stderr)
 
-        if not skip_ledger_check:
-            ledger_findings = _check_ledger_candidates(files, session_id, repo_root=root)
-            if ledger_findings:
-                raise PlumbCommitLedgerBlocked(ledger_findings)
-    except session_ledger.AmbiguousSessionError as exc:
-        raise PlumbCommitError(
-            f"session identity is AMBIGUOUS -- {exc}. Pass --session-id <id> "
-            f"and/or --base-sha <sha> (or export AGENT_SESSION_ID=<id> for this "
-            f"invocation); refusing to guess between live sessions (ST-095)."
-        ) from exc
+    baseline = slib.resolve_baseline(
+        explicit_sha=base_sha, session_ctx=ctx, head=head_sha, repo_root=root,
+    )
+
+    if not skip_ledger_check and ctx is not None and ctx.status == "resolved":
+        try:
+            ledger_findings = _check_ledger_candidates(
+                files, ctx.session_id, repo_root=root,
+            )
+        except session_ledger.AmbiguousSessionError:  # defensive; explicit id given
+            ledger_findings = []
+        if ledger_findings:
+            raise PlumbCommitLedgerBlocked(ledger_findings)
 
     gitignore_warnings = [f for f in _gitignored_files(files, repo_root=root) if f not in ack_set]
     for f in gitignore_warnings:
@@ -1227,6 +1246,36 @@ def plumb_commit(
         finally:
             os.unlink(_pathspec_path)
 
+        # Stale-file regression check on the TEMP INDEX -- exactly the tree
+        # that will become the commit (Phase 1, TC-SG-04; closes the TOCTOU
+        # between a pre-index worktree read and `git add -f`, adversarial W8).
+        relied_token_ids: "list[str]" = []
+        if not skip_stale_check:
+            stale_report = slib.detect_regressions(
+                files, baseline=baseline, head=head_sha, mode="index",
+                repo_root=root, index_file=tmp_index_path,
+                override_lookup=override_manager.find_valid_token_for_path,
+            )
+            relied_token_ids = sorted({
+                f.override_token_id for f in stale_report.findings
+                if f.override_token_id
+            })
+            print(f"stale-check: base={(baseline.window_sha or 'none')[:12]} "
+                  f"source={baseline.source} checked={stale_report.files_checked} "
+                  f"intervening={stale_report.window_paths}")
+            blocking = stale_report.blocking(wide_findings=wide_findings)
+            blocking_ids = {id(f) for f in blocking}
+            for f in stale_report.findings:
+                if f.override_token_id is not None:
+                    print(f"stale-check: {f.path} matches a reverted state but is "
+                          f"permitted by override token {f.override_token_id}")
+                elif id(f) not in blocking_ids:
+                    print(f"WARNING (lookback window, soak policy): {f.path} matches "
+                          f"the state before {f.intervening_commit[:10]} -- would "
+                          f"block under --wide-findings=block", file=sys.stderr)
+            if blocking:
+                raise PlumbCommitBlocked([f.to_dict() for f in blocking])
+
         tier1_output = ""
         if not skip_tier1_checks:
             # Postcondition safety net: snapshot real state scoped to exactly
@@ -1243,6 +1292,13 @@ def plumb_commit(
 
             tier1_result = _run_tier1_checks(
                 tmp_index_path, message, repo_root=root, strict_isolation=strict_isolation,
+                context_env={
+                    "PC_AUDIT_SESSION_ID": (ctx.session_id if ctx is not None
+                                            and ctx.status == "resolved"
+                                            and ctx.session_id else ""),
+                    "PC_AUDIT_BASE_SHA": baseline.window_sha or "",
+                    "PC_AUDIT_BASELINE_SOURCE": baseline.source,
+                },
             )
 
             _post_index = _real_index_snapshot(files, repo_root=root)
@@ -1299,6 +1355,17 @@ def plumb_commit(
     # only because the caller happened to manually re-verify parent SHAs.
     _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
 
+    # Governance trail, pending-before-push (Phase 1, TC-SG-04): the record is
+    # created with the built commit's sha BEFORE any push, so a crash anywhere
+    # downstream leaves a sha-linked, discoverable record (PENDING_FINALIZE in
+    # check_skill_run_records.py) instead of no trail at all -- the class that
+    # fired live on this very plan's Phase 0a commit (TC-SG-18).
+    run_id = None
+    if skills:
+        run_id = _create_pending_record(
+            skills=skills, plan=plan or "", commit_sha=commit_sha, repo_root=root,
+        )
+
     pushed = False
     reconciled_against: "str | None" = None
     if push:
@@ -1309,6 +1376,8 @@ def plumb_commit(
         if push_result.returncode == 0:
             pushed = True
             _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
+            _finalize_record(run_id, "success", commit_sha, repo_root=root)
+            _consume_relied_tokens(relied_token_ids, files, commit_sha, root=root)
         elif auto_reconcile and _is_non_fast_forward(push_result.stderr):
             try:
                 reconcile_result = reconcile(
@@ -1317,10 +1386,14 @@ def plumb_commit(
                     old_parent_sha=head_sha, push=True,
                 )
             except PlumbCommitError as reconcile_exc:
+                _finalize_record(run_id, "failure", commit_sha, repo_root=root)
                 raise PlumbCommitPushRejected(
                     commit_sha, tree_sha, list(files),
                     f"non-fast-forward push, then reconcile() itself failed: {reconcile_exc}",
                 ) from reconcile_exc
+            _finalize_record(run_id, "success", reconcile_result["commit_sha"], repo_root=root)
+            _consume_relied_tokens(relied_token_ids, files,
+                                   reconcile_result["commit_sha"], root=root)
             # The reconciled (merge) commit is now the real result of this
             # call -- it superseded commit_sha as HEAD of `branch`.
             if sync_state:
@@ -1345,6 +1418,7 @@ def plumb_commit(
                 "gitignore_warnings": gitignore_warnings,
                 "tier1_output": tier1_output,
                 "reconciled_against": reconcile_result["reconciled_against"],
+                "skill_run_id": run_id,
             }
         else:
             safe_args = _redact_credentials(f"push {remote} {commit_sha}:refs/heads/{branch}")
@@ -1363,7 +1437,14 @@ def plumb_commit(
                 else f"'git {safe_args}' failed for a reason reconcile() cannot "
                      f"help with (exit {push_result.returncode}): {safe_stderr}"
             )
+            _finalize_record(run_id, "failure", commit_sha, repo_root=root)
             raise PlumbCommitPushRejected(commit_sha, tree_sha, list(files), reason)
+
+    if not push:
+        # --no-push: the commit exists locally and the local branch advanced;
+        # the record is finalized against it now (previously the whole record
+        # step lived on the push path only -- the ST-058 gotcha).
+        _finalize_record(run_id, "success", commit_sha, repo_root=root)
 
     if sync_state:
         _sync_local_state(head_sha, commit_sha, files, root=root)
@@ -1377,45 +1458,83 @@ def plumb_commit(
         "gitignore_warnings": gitignore_warnings,
         "tier1_output": tier1_output,
         "reconciled_against": reconciled_against,
+        "skill_run_id": run_id,
     }
 
 
-def _file_skill_run_record(
+def _create_pending_record(
     *, skills: list[str], plan: str, commit_sha: str, repo_root: Path,
 ) -> "str | None":
-    """Create + finalize the mandatory retroactive skill-run record for a
-    git-plumbed commit. Returns the run_id, or None if creation failed
-    (printed to stderr, never raised -- a governance-bookkeeping failure
-    must not make the caller believe the commit itself failed, since by
-    this point it has already been pushed)."""
+    """Create the retroactive skill-run record BEFORE the push, carrying the
+    built commit's sha with outcome=pending (Phase 1, TC-SG-04). Never raises:
+    a governance-bookkeeping failure must not fail the commit flow. The
+    `retroactive-` run-id prefix keeps the pending record invisible to
+    `skill_run_manager.py find-pending`, so it can never be claimed by an
+    unrelated porcelain commit's commit-msg hook."""
     create = _COMMAND_RUNNER(
         [sys.executable, str(_SKILL_RUN_MANAGER), "create",
-         "--skills", *skills, "--plan", plan, "--retroactive", "--run-type", "targeted"],
+         "--skills", *skills, "--plan", plan, "--retroactive",
+         "--run-type", "targeted", "--commit-sha", commit_sha],
         cwd=str(repo_root), capture_output=True, **_TEXT_KW,
     )
     if create.returncode != 0:
-        print(f"WARNING: retroactive skill-run record creation failed: {create.stderr}",
+        print(f"WARNING: skill-run record creation failed: {create.stderr}",
               file=sys.stderr)
         return None
-    run_id = None
-    for line in create.stdout.splitlines():
+    for line in (create.stdout or "").splitlines():
         if "Created skill run record:" in line:
-            run_id = line.split(":", 1)[1].strip()
-            break
+            return line.split(":", 1)[1].strip()
+    print("WARNING: could not parse run_id from skill_run_manager.py create output",
+          file=sys.stderr)
+    return None
+
+
+def _finalize_record(
+    run_id: "str | None", outcome: str, commit_sha: str, *, repo_root: Path,
+) -> None:
+    """Finalize the pending record (success/failure). Never raises."""
     if not run_id:
-        print("WARNING: could not parse run_id from skill_run_manager.py create output",
-              file=sys.stderr)
-        return None
+        return
     finalize = _COMMAND_RUNNER(
         [sys.executable, str(_SKILL_RUN_MANAGER), "finalize",
-         "--run-id", run_id, "--outcome", "success", "--commit-sha", commit_sha],
+         "--run-id", run_id, "--outcome", outcome, "--commit-sha", commit_sha],
         cwd=str(repo_root), capture_output=True, **_TEXT_KW,
     )
     if finalize.returncode != 0:
-        print(f"WARNING: retroactive skill-run record finalize failed: {finalize.stderr}",
-              file=sys.stderr)
-        return run_id
-    return run_id
+        print(f"WARNING: skill-run record finalize ({outcome}) failed: "
+              f"{finalize.stderr}", file=sys.stderr)
+
+
+def _consume_relied_tokens(
+    token_ids: "list[str]", files: "list[str]", commit_sha: str, *, root: Path,
+) -> None:
+    """Consume exactly the override tokens this commit relied on, by id
+    (Phase 1, TC-SG-04): the stale-check findings' tokens plus the token
+    covering each path_guard-DENYed path in --files (what Tier-1's own
+    forbidden-path gate relied on). Plumbed commits never fire the porcelain
+    post-commit hook, so without this the tokens lingered in pending/ and
+    were swept -- mis-attributed -- by the next unrelated porcelain commit
+    (sampled live: 3 of the last 40 archived tokens). Never raises."""
+    ids = set(token_ids)
+    for f in files:
+        try:
+            verdict, _reason = path_guard.check_path(f)
+        except Exception:
+            continue
+        if verdict == "DENY":
+            try:
+                token = override_manager.find_valid_token_for_path(f)
+            except Exception:
+                token = None
+            if token and token.get("override_id"):
+                ids.add(token["override_id"])
+    for token_id in sorted(t for t in ids if t):
+        try:
+            if override_manager.consume_token(token_id, commit_sha):
+                print(f"consumed override token {token_id} -> {commit_sha[:10]}")
+        except Exception as exc:  # noqa: BLE001 -- bookkeeping must not fail the commit
+            print(f"WARNING: could not consume override token {token_id}: {exc}",
+                  file=sys.stderr)
 
 
 def main(argv: "list[str] | None" = None) -> int:
@@ -1472,6 +1591,11 @@ def main(argv: "list[str] | None" = None) -> int:
                              "a two-parent merge commit against the current remote tip). "
                              "Raises immediately instead if the push is rejected.")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
+    parser.add_argument("--wide-findings", choices=["warn", "block"], default="warn",
+                        dest="wide_findings",
+                        help="Policy for lookback-class stale findings (older than "
+                             "this session's own window). Soak default: warn; the "
+                             "flip to block is plan taskcard TC-SG-07.")
     parser.add_argument("--no-sync", action="store_true", dest="no_sync",
                         help="Skip the post-advance real-index/worktree sync "
                              "(checkout_sync, RC-1 source fix). The residue the "
@@ -1521,7 +1645,12 @@ def main(argv: "list[str] | None" = None) -> int:
             auto_reconcile=not args.no_auto_reconcile,
             ack_gitignored=args.ack_gitignored,
             sync_state=not args.no_sync,
+            wide_findings=args.wide_findings,
+            skills=args.skills, plan=args.plan,
         )
+    except PlumbCommitIdentityUnresolved as exc:
+        print(f"IDENTITY: {exc}", file=sys.stderr)
+        return 3
     except PlumbCommitBlocked as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)
         return 1
@@ -1539,13 +1668,8 @@ def main(argv: "list[str] | None" = None) -> int:
         print("--- Tier 1 output ---")
         print(result["tier1_output"])
 
-    if result["pushed"]:
-        run_id = _file_skill_run_record(
-            skills=args.skills, plan=args.plan,
-            commit_sha=result["commit_sha"], repo_root=_REPO_ROOT,
-        )
-        if run_id:
-            print(f"skill_run_id={run_id}")
+    if result.get("skill_run_id"):
+        print(f"skill_run_id={result['skill_run_id']}")
 
     return 0
 

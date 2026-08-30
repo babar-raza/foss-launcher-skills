@@ -575,8 +575,12 @@ if [ -f "reports/session-state/ACTIVE" ]; then
     if [ "${SKIP_SESSION_CHECK:-0}" != "1" ]; then
         _staged_content=$(git diff --cached --name-only --diff-filter=ACM | grep '^content/.*\.md$')
         if [ -n "$_staged_content" ] && [ -n "$_HOOK_PYTHON" ]; then
+            # PC_AUDIT_SESSION_ID: git_plumb_commit.py's already-resolved
+            # identity (2026-08-30, TC-SG-04) -- Step 13 was the fourth
+            # independent ambient identity resolution per plumbed commit.
             _session_check_result=$(echo "$_staged_content" | \
-                "$_HOOK_PYTHON" scripts/pipeline/commands/ops/session_ledger.py check-staged 2>&1)
+                "$_HOOK_PYTHON" scripts/pipeline/commands/ops/session_ledger.py check-staged \
+                ${PC_AUDIT_SESSION_ID:+--session-id "$PC_AUDIT_SESSION_ID"} 2>&1)
             _session_check_status=$?
             if [ $_session_check_status -ne 0 ]; then
                 echo ""
@@ -1426,7 +1430,8 @@ _pc_step_end "PASS"
 # ---------------------------------------------------------------------------
 _pc_step_start "stale file regression"
 # ---------------------------------------------------------------------------
-# Step 30 (2026-08-01): stale-file regression guard. Detects staged content
+# Step 34: stale-file regression guard (2026-08-01; OID/window redesign
+# 2026-08-30, stale-guard plan TC-SG-04). Detects staged content
 # that silently reverts a MORE RECENT commit made by someone else since this
 # session began -- found live via TC-MT018-06's commit d2dce37de5, which
 # reverted an unrelated fetch_aspose_com_targets.py fix (and corrected
@@ -1461,58 +1466,89 @@ while IFS= read -r _sfline; do staged_non_content_files+=("$_sfline"); done < <(
 )
 if [ ${#staged_non_content_files[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_stale_file_regression.py" ]; then
-        _sfr_out=$(printf '%s\n' "${staged_non_content_files[@]}" | PYTHONPATH=scripts/pipeline \
-            "$_HOOK_PYTHON" scripts/ci/checks/check_stale_file_regression.py 2>&1)
+        # 2026-08-30 (TC-SG-04): JSON contract, no prose parsing. The old
+        # consumer treated ANY non-zero exit as findings and recovered file
+        # names by line shape -- a checker traceback's '  File "..."' lines
+        # became "files needing override tokens" (an unbypassable deadlock,
+        # ST-095). Override tokens are evaluated INSIDE the checker now
+        # (same find_valid_token_for_path the plumb tool uses), so verdicts
+        # cannot drift between the two consumers. PC_AUDIT_SESSION_ID /
+        # PC_AUDIT_BASE_SHA carry git_plumb_commit.py's already-resolved
+        # commit context (the checker itself only honours them alongside the
+        # full Tier-1 signature, so they are not an env bypass for porcelain
+        # commits).
+        _sfr_args=(--format json)
+        [ -n "${PC_AUDIT_SESSION_ID:-}" ] && _sfr_args+=(--session-id "$PC_AUDIT_SESSION_ID")
+        [ -n "${PC_AUDIT_BASE_SHA:-}" ] && _sfr_args+=(--base-sha "$PC_AUDIT_BASE_SHA")
+        _sfr_errf=$(mktemp)
+        _sfr_json=$(printf '%s\n' "${staged_non_content_files[@]}" | PYTHONPATH=scripts/pipeline \
+            "$_HOOK_PYTHON" scripts/ci/checks/check_stale_file_regression.py "${_sfr_args[@]}" 2>"$_sfr_errf")
         _sfr_exit=$?
-        # Strip CRs from native-Windows python stdout via parameter expansion,
-        # NOT a pipe (a trailing `| tr` would make $? report tr's exit, not the
-        # checker's) -- third instance of the Step-16 CRLF bug class, fixed
-        # 2026-08-29 (stale-guard plan Phase 0a).
-        _sfr_out=${_sfr_out//$'\r'/}
-        # Exit >=3 means the checker COULD NOT RUN (3 = ambiguous session
-        # identity, 4 = infrastructure error) -- these are not findings, and
-        # before 2026-08-29 they surfaced as a Python traceback whose
-        # '  File "..."' lines the override-token parser below misread as
-        # file names, producing an unbypassable block with a misleading
-        # "silent revert" diagnostic (ST-095). Fail with the real reason.
-        if [ $_sfr_exit -ge 3 ]; then
-            echo "$_sfr_out" | sed 's/^/[Step 34] /'
-            echo "[Step 34] BLOCKED: stale-file guard could not run (exit $_sfr_exit -- identity/" >&2
-            echo "[Step 34] infrastructure, NOT a finding). Fix the reported condition (e.g. pass" >&2
-            echo "[Step 34] AGENT_SESSION_ID=<id> git commit ...); no override token applies here." >&2
-            _pc_step_end "FAIL"
-            _pc_exit 1
-        fi
-        if [ $_sfr_exit -ne 0 ]; then
-            # File-name lines are exactly "  <path>" (2-space indent, then a
-            # non-space char); detail lines are 4-space indented -- this
-            # pattern captures only the former.
-            _sfr_files=$(printf '%s\n' "$_sfr_out" | sed -n 's/^  \([^ ].*\)$/\1/p')
-            _sfr_override_ok=1
-            if [ -z "$_sfr_files" ]; then
-                _sfr_override_ok=0
-            else
-                while IFS= read -r _sfr_f; do
-                    [ -z "$_sfr_f" ] && continue
-                    if ! "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py \
-                            validate-for-path "$_sfr_f" >/dev/null 2>&1; then
-                        _sfr_override_ok=0
-                        break
-                    fi
-                done <<< "$_sfr_files"
-            fi
-            if [ $_sfr_override_ok -eq 1 ]; then
-                echo "[Step 34] Stale-file regression permitted by pending override token(s)." >&2
-            else
-                echo "$_sfr_out" | sed 's/^/[Step 34] /'
-                echo "[Step 34] BLOCKED: staged content looks like a silent revert of a more" >&2
-                echo "[Step 34] recent commit. Re-read the current file and reapply your change" >&2
-                echo "[Step 34] on top of it, or if this revert is intentional, create a governed" >&2
-                echo "[Step 34]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+        # CR-strip via parameter expansion, never a pipe (a trailing `| tr`
+        # would make $? report tr's exit -- the Step-16 CRLF bug class).
+        _sfr_json=${_sfr_json//$'\r'/}
+        case "$_sfr_exit" in
+            0|1)
+                printf '%s' "$_sfr_json" | "$_HOOK_PYTHON" -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    print('[Step 34] checker exited $_sfr_exit without parseable JSON -- treating as infrastructure failure.', file=sys.stderr)
+    sys.exit(4)
+print('[Step 34] baseline=%s source=%s checked=%s intervening=%s' % (
+    (d.get('base_sha') or 'none')[:12], d.get('source'),
+    d.get('files_checked'), d.get('window_paths')))
+blocking_files = {b.get('file') for b in d.get('blocking', [])}
+for f in d.get('findings', []):
+    token = f.get('override_token_id')
+    tag = 'BLOCK' if f.get('file') in blocking_files else (
+        'ALLOW(token %s)' % token if token else 'WARN(lookback)')
+    print('[Step 34]   %s %s (reverts %s)' % (tag, f.get('file'),
+                                              (f.get('intervening_commit') or '')[:10]))
+sys.exit(1 if blocking_files else 0)
+"
+                _sfr_verdict=$?
+                if [ $_sfr_verdict -eq 1 ]; then
+                    echo "[Step 34] BLOCKED: staged content silently reverts a more recent commit." >&2
+                    echo "[Step 34] Re-read the current file and reapply your change on top of it, or" >&2
+                    echo "[Step 34] create a governed override:" >&2
+                    echo "[Step 34]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+                    rm -f "$_sfr_errf"
+                    _pc_step_end "FAIL"
+                    _pc_exit 1
+                elif [ $_sfr_verdict -ge 2 ]; then
+                    sed 's/^/[Step 34] /' "$_sfr_errf" >&2
+                    rm -f "$_sfr_errf"
+                    _pc_step_end "FAIL"
+                    _pc_exit 1
+                fi
+                ;;
+            3)
+                sed 's/^/[Step 34] /' "$_sfr_errf" >&2
+                echo "[Step 34] BLOCKED: explicit session identity invalid (exit 3) -- fix the" >&2
+                echo "[Step 34] identity or drop it; no override token applies here." >&2
+                rm -f "$_sfr_errf"
                 _pc_step_end "FAIL"
                 _pc_exit 1
-            fi
-        fi
+                ;;
+            *)
+                sed 's/^/[Step 34] /' "$_sfr_errf" >&2
+                if [ -d "reports/session-state" ]; then
+                    # A ledger exists, so a check was expected -- an
+                    # infrastructure failure must fail CLOSED here, with the
+                    # real reason (never the override-token path).
+                    echo "[Step 34] BLOCKED: stale-file guard could not run (exit $_sfr_exit --" >&2
+                    echo "[Step 34] infrastructure, NOT a finding); no override token applies." >&2
+                    rm -f "$_sfr_errf"
+                    _pc_step_end "FAIL"
+                    _pc_exit 1
+                fi
+                echo "[Step 34] WARN: guard could not run (exit $_sfr_exit) and no ledger" >&2
+                echo "[Step 34] infrastructure exists (fresh clone/CI) -- advisory pass." >&2
+                ;;
+        esac
+        rm -f "$_sfr_errf"
     else
         echo "[Step 34] SKIP: .venv not found or check_stale_file_regression.py missing." >&2
     fi
