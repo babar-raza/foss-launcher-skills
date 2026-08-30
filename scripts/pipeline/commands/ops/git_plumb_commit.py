@@ -107,6 +107,7 @@ if str(_OPS_DIR) not in sys.path:
 import check_stale_file_regression as sfr  # noqa: E402
 import session_ledger  # noqa: E402
 from commands.governance import override_manager  # noqa: E402
+from lib import checkout_sync  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_SKILL_RUN_MANAGER = (
@@ -834,6 +835,44 @@ def _run_tier1_checks(
     return tier1_result
 
 
+def _sync_local_state(
+    old_head: str, new_head: str, files: "list[str]", *, root: Path,
+    remote_touched: "list[str] | None" = None,
+) -> None:
+    """Post-advance real-state sync (RC-1 source fix, 2026-08-29 plan T11).
+
+    Every commit this tool builds advances refs/heads/<branch> while the real
+    .git/index keeps the PRE-commit blob for each committed path -- residue
+    that the next porcelain `git commit` by ANY session sweeps into history as
+    a byte-exact silent revert (reproduced; 17 live entries measured at plan
+    time). Sync exactly this commit's paths (index only; the worktree already
+    holds the committed content), and after a reconcile() also the
+    remote-touched paths (index+worktree -- their old content otherwise poses
+    as a staged local modification). Every path is gated inside checkout_sync
+    on being provably the untouched pre-advance state. Best-effort by
+    contract: a failure here must never make a pushed commit look failed."""
+    try:
+        report = checkout_sync.sync_after_ref_advance(
+            old_head, new_head, paths=list(files), repo_root=root, mode="index",
+        )
+        reports = [report]
+        if remote_touched:
+            reports.append(checkout_sync.sync_after_ref_advance(
+                old_head, new_head, paths=remote_touched, repo_root=root,
+                mode="index+worktree",
+            ))
+        for rep in reports:
+            print(rep.summary())
+            for skipped in rep.skipped_dirty[:5]:
+                print(f"  checkout_sync left untouched (not provably pre-advance state): {skipped}")
+            if rep.index_locked:
+                print("  checkout_sync: index.lock held by another process -- run "
+                      "'git restore --staged -- <your files>' after their operation finishes")
+    except Exception as exc:  # noqa: BLE001 -- deliberate: post-push best-effort
+        print(f"WARNING: checkout_sync failed (commit itself is unaffected): "
+              f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+
 def _is_non_fast_forward(stderr: str) -> bool:
     """True if a `git push` failure's stderr looks like a non-fast-forward
     rejection (the remote branch has advanced past the local push's base)
@@ -1047,6 +1086,7 @@ def plumb_commit(
     push: bool = True,
     auto_reconcile: bool = True,
     ack_gitignored: "list[str] | None" = None,
+    sync_state: bool = True,
 ) -> dict[str, Any]:
     """Perform the full isolated git-plumbing commit sequence atomically:
     stale-file regression check -> temp-index build -> Tier 1 checks
@@ -1283,6 +1323,19 @@ def plumb_commit(
                 ) from reconcile_exc
             # The reconciled (merge) commit is now the real result of this
             # call -- it superseded commit_sha as HEAD of `branch`.
+            if sync_state:
+                remote_diff = _COMMAND_RUNNER(
+                    ["git", "diff", "--name-only", "-z", head_sha,
+                     reconcile_result["reconciled_against"]],
+                    cwd=str(root), capture_output=True, **_TEXT_KW,
+                )
+                remote_touched = [
+                    p for p in (remote_diff.stdout or "").split("\0") if p
+                ] if remote_diff.returncode == 0 else []
+                _sync_local_state(
+                    head_sha, reconcile_result["commit_sha"], files, root=root,
+                    remote_touched=remote_touched,
+                )
             return {
                 "head_sha": head_sha,
                 "tree_sha": reconcile_result["tree_sha"],
@@ -1311,6 +1364,9 @@ def plumb_commit(
                      f"help with (exit {push_result.returncode}): {safe_stderr}"
             )
             raise PlumbCommitPushRejected(commit_sha, tree_sha, list(files), reason)
+
+    if sync_state:
+        _sync_local_state(head_sha, commit_sha, files, root=root)
 
     return {
         "head_sha": head_sha,
@@ -1363,6 +1419,16 @@ def _file_skill_run_record(
 
 
 def main(argv: "list[str] | None" = None) -> int:
+    # TC-SG-18 (found live during this plan's own Phase 0a dogfood commit,
+    # 2026-08-30): main() crashed with UnicodeEncodeError while PRINTING
+    # Tier-1 output to a cp1252 console -- AFTER the push, BEFORE the
+    # skill-run record was filed. Output must never be able to kill the
+    # governance trail.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--files", nargs="*", default=None)
     parser.add_argument("--files-from", dest="files_from", metavar="FILE",
@@ -1406,6 +1472,12 @@ def main(argv: "list[str] | None" = None) -> int:
                              "a two-parent merge commit against the current remote tip). "
                              "Raises immediately instead if the push is rejected.")
     parser.add_argument("--no-push", action="store_true", dest="no_push")
+    parser.add_argument("--no-sync", action="store_true", dest="no_sync",
+                        help="Skip the post-advance real-index/worktree sync "
+                             "(checkout_sync, RC-1 source fix). The residue the "
+                             "commit leaves behind then WILL be swept into the "
+                             "next porcelain commit as a byte-exact revert unless "
+                             "cleared by hand (git restore --staged -- <files>).")
     parser.add_argument("--ack-gitignored", nargs="+", default=None,
                         help="Paths in --files that are intentionally .gitignore-matched "
                              "(e.g. a legitimate override precedent) -- silences the "
@@ -1448,6 +1520,7 @@ def main(argv: "list[str] | None" = None) -> int:
             strict_isolation=args.strict_isolation, push=not args.no_push,
             auto_reconcile=not args.no_auto_reconcile,
             ack_gitignored=args.ack_gitignored,
+            sync_state=not args.no_sync,
         )
     except PlumbCommitBlocked as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)

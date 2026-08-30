@@ -66,6 +66,27 @@ For batches large enough to risk OS argument-list-too-long errors (roughly 450-5
 files on this repo's Windows/MSYS setup), pass `--files-from <listfile>` (one path
 per line) instead of expanding paths into `--files` directly.
 
+**Post-commit state sync is automatic (2026-08-30, RC-1 fix).** Every ref advance the
+plumbing performs used to leave the real `.git/index` holding the PRE-commit blobs for
+the committed paths — residue that the next porcelain commit from ANY session swept
+into history as byte-exact silent reverts (this, not bad luck, was the MT018 and
+2026-08-07 keyword-revert mechanism; it is NOT cosmetic). `git_plumb_commit.py` now
+runs a scoped, clean-verified sync (`scripts/pipeline/lib/checkout_sync.py`) for
+exactly its own committed paths after every commit it builds (`--no-sync` opts out,
+loudly). If you use the RAW manual sequence or an object-level merge
+(`merge-tree`/`commit-tree` + `update-ref`), that sync is YOUR third mandatory paired
+step:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/checkout_sync.py \
+  sync --old "$HEAD_SHA" --new <new-sha> [--paths <exact files...>]
+```
+
+(`--mode index+worktree` additionally restores worktree content for remote-advance
+paths, gated on the on-disk bytes provably equalling the pre-advance state.) To see
+the traps currently sitting in the real index:
+`checkout_sync.py report` (read-only).
+
 If you must fall back to the raw manual sequence (e.g. the tool itself is broken),
 both paired steps below are still mandatory — the tool exists to make them
 impossible to forget, not to make them optional:

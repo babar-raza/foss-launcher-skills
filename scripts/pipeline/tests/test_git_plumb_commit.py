@@ -142,34 +142,39 @@ def test_commits_and_pushes_real_new_file(tmp_path):
 
 
 def test_does_not_touch_real_index_or_other_staged_files(tmp_path):
-    """The core safety property: another file staged in the real index
-    (simulating another session's in-flight work) must survive untouched.
-
-    Verifies via `git ls-files --stage` (the real index's own content),
-    not `git diff --cached` -- after a successful plumb_commit, `update-ref`
-    moves the local branch pointer forward past the real (untouched, now
-    stale-relative-to-new-HEAD) index, so `git diff --cached` naturally
-    shows the newly-committed file as a spurious "D" (deleted) entry -- an
-    already-documented, expected artifact of this exact technique (see this
-    session's other commits' own "post-commit index staleness" notes), not
-    evidence of a bug. `git ls-files --stage` reports the index's actual
-    entries directly, unaffected by which commit HEAD happens to point at.
+    """The core safety property, restated 2026-08-29 (stale-guard plan T11):
+    another session's staged entry in the real index must survive
+    BYTE-IDENTICALLY -- while this tool's OWN committed paths are now synced
+    into the real index at their committed OIDs (checkout_sync, RC-1 source
+    fix). The old letter of this test asserted mine.txt was absent from the
+    real index; that very absence was the residue that made the next
+    porcelain commit silently delete/revert plumbed changes (reproduced:
+    the MT018 / 2026-08-07 incident class), so "never touches the real
+    index" became "never touches any path it did not commit, and never
+    overwrites state that is not provably the untouched pre-advance state".
     """
     work, bare = _init_repo_with_remote(tmp_path)
     (work / "mine.txt").write_text("mine", encoding="utf-8")
     (work / "someone_elses.txt").write_text("their staged content", encoding="utf-8")
     _git(work, "add", "someone_elses.txt")  # staged in the REAL index, not by us
+    their_entry_before = _git(work, "ls-files", "--stage", "--", "someone_elses.txt").stdout
 
     gpc.plumb_commit(
         ["mine.txt"], "add mine.txt", repo_root=work, branch="main",
         remote=str(bare), skip_stale_check=True,
     )
 
-    # The real index must still show exactly someone_elses.txt -- mine.txt
-    # was never added to it.
-    real_index = _git(work, "ls-files", "--stage").stdout
-    assert "someone_elses.txt" in real_index
-    assert "mine.txt" not in real_index
+    # The other session's staged entry: byte-identical, still staged.
+    their_entry_after = _git(work, "ls-files", "--stage", "--", "someone_elses.txt").stdout
+    assert their_entry_after == their_entry_before
+    assert "someone_elses.txt" in their_entry_after
+
+    # My own path: synced to the committed OID (no deletion-residue trap) --
+    # index == HEAD for it, i.e. clean status, nothing staged-looking.
+    head_oid = _git(work, "rev-parse", "HEAD:mine.txt").stdout.strip()
+    mine_entry = _git(work, "ls-files", "--stage", "--", "mine.txt").stdout
+    assert head_oid in mine_entry
+    assert _git(work, "status", "--porcelain", "--", "mine.txt").stdout.strip() == ""
 
     head_files = _git(work, "show", "--stat", "--format=", "HEAD").stdout
     assert "mine.txt" in head_files
