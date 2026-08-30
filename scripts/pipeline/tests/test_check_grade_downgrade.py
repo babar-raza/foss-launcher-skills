@@ -185,3 +185,34 @@ class TestNoDowngradePasses:
 
         result = _run_checker(repo, files_from=["page.md"])
         assert result.returncode == 0, result.stderr
+
+
+class TestBlockedFilesOutHasNoCarriageReturns:
+    """Found live 2026-08-30 (MT040 Phase I): --blocked-files-out was written
+    via Path.write_text() with no `newline=` pin, so Windows Python's default
+    universal-newlines translation turned every "\\n" into "\\r\\n". The file
+    is consumed by pre-commit-audit.sh's `while IFS= read -r _gd_f` loop,
+    which -- unlike Python's text-mode readers -- does NOT strip a trailing
+    \\r, so `_gd_f` carried a trailing carriage return into
+    `override_manager.py validate-for-path "$_gd_f"`. That exact-string path
+    match then always failed against a token created for the clean path,
+    silently defeating every override for this gate on Windows. Must never
+    regress: the file must contain LF-only line endings regardless of the
+    platform running the check."""
+
+    def test_blocked_files_out_uses_lf_only(self, tmp_path):
+        repo = _init_repo(tmp_path)
+        p = _commit_file(repo, "page.md", FRONTMATTER_GRADE_A)
+        _mark_as_origin_main(repo)
+
+        p.write_text(FRONTMATTER_GRADE_F, encoding="utf-8")
+
+        blocked_out = repo / "_blocked.txt"
+        result = _run_checker(
+            repo, files_from=["page.md"],
+            extra_args=["--blocked-files-out", str(blocked_out)],
+        )
+        assert result.returncode == 2, result.stdout + result.stderr
+        raw = blocked_out.read_bytes()
+        assert b"\r" not in raw, f"blocked-files-out contains a carriage return: {raw!r}"
+        assert raw == b"page.md\n"

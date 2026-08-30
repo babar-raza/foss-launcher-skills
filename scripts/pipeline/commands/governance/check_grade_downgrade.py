@@ -171,8 +171,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {f}: {old} → {new}", file=sys.stderr)
 
     if args.blocked_files_out:
+        # newline="\n" pins LF regardless of platform: this file is read by
+        # pre-commit-audit.sh's `while read -r` loop, and Windows Python's
+        # default write_text() translates \n -> os.linesep (\r\n) here,
+        # leaving a trailing \r on every path that silently breaks the
+        # downstream override_manager.py validate-for-path exact-match check.
         Path(args.blocked_files_out).write_text(
-            "".join(f"{f}\n" for f, _old, _new in blocks), encoding="utf-8")
+            "".join(f"{f}\n" for f, _old, _new in blocks), encoding="utf-8", newline="\n")
 
     if warns:
         print(f"WARN: {len(warns)} grade degradation(s):", file=sys.stderr)
