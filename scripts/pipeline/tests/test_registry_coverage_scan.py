@@ -149,12 +149,14 @@ def test_real_repo_scan_matches_manual_audit():
     """Regression pin against the real repo (no fixture). Originally pinned
     the pre-backfill state (31 discovered, 7 registered, 24 uncovered); as
     of TC-MT018-06's full backfill (2026-08-01), coverage is complete --
-    updated to pin that instead. cells/typescript's exclusion-drift finding
-    is unaffected by the backfill (it's a content-vs-exclusion-list
-    discrepancy, not a registry-coverage one) and must still be flagged."""
+    updated to pin that instead. Bumped again 31->32 (2026-08-30, MT040):
+    pdf/typescript registered as the mission's 32nd product. cells/typescript's
+    exclusion-drift finding is unaffected by either change (it's a
+    content-vs-exclusion-list discrepancy, not a registry-coverage one) and
+    must still be flagged."""
     sut.configure(repo_root=None)
     report = sut.scan_coverage()
-    assert report["total_discovered"] == 31
-    assert report["total_registered"] == 31
+    assert report["total_discovered"] == 32
+    assert report["total_registered"] == 32
     assert report["uncovered_pairs"] == []
     assert "cells/typescript" in report["excluded_but_still_live"]
