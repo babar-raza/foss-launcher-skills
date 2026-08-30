@@ -48,7 +48,7 @@ def _read_git_blob(ref: str, path: str, repo_root: Path) -> str | None:
     try:
         result = subprocess.run(
             ["git", "show", f"{ref}:{path}"],
-            cwd=str(repo_root), capture_output=True, text=True, timeout=30,
+            cwd=str(repo_root), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
         )
         if result.returncode != 0:
             return None

@@ -1668,4 +1668,41 @@ else
     _pc_step_end "SKIP"
 fi
 
+# ---------------------------------------------------------------------------
+_pc_step_start "subprocess encoding parity"
+# Step 38: subprocess encoding parity ratchet (2026-08-30, stale-guard plan
+# TC-SG-06). Blocks a staged .py/.sh file that ADDS a text-mode subprocess
+# call without encoding= (the ST-096 class: locale-decoded git output made
+# the stale-file guard silently inert on Windows) relative to
+# scripts/ci/subprocess_encoding_baseline.json. Existing sites are
+# grandfathered; counts may only decrease. Regenerate the baseline
+# deliberately (check_subprocess_encoding_parity.py --baseline) and commit
+# the diff with a note -- never to make a new violation fit.
+# ---------------------------------------------------------------------------
+staged_enc_files=()
+while IFS= read -r _sepline; do staged_enc_files+=("$_sepline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(py|sh)$' || true
+)
+if [ ${#staged_enc_files[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_subprocess_encoding_parity.py" ]; then
+        _sep_out=$(printf '%s\n' "${staged_enc_files[@]}" | \
+            "$_HOOK_PYTHON" scripts/ci/checks/check_subprocess_encoding_parity.py \
+                --compare-baseline scripts/ci/subprocess_encoding_baseline.json 2>&1)
+        _sep_exit=$?
+        _sep_out=${_sep_out//$'\r'/}
+        if [ -n "$_sep_out" ]; then
+            echo "$_sep_out" | sed 's/^/[Step 38] /'
+        fi
+        if [ $_sep_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 38] SKIP: .venv not found or check_subprocess_encoding_parity.py missing." >&2
+    fi
+else
+    echo "[Step 38] No staged .py/.sh files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

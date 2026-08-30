@@ -55,7 +55,7 @@ SKIP_FILES = {
 def get_en_files():
     result = subprocess.run(
         ["git", "status", "--short", "--", "content/"],
-        capture_output=True, text=True, cwd=REPO
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO
     )
     files = []
     for line in result.stdout.splitlines():
@@ -68,7 +68,7 @@ def get_en_files():
 def verify_nothing_staged():
     r = subprocess.run(
         ["git", "diff", "--cached", "--name-only"],
-        capture_output=True, text=True, cwd=REPO
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO
     )
     staged = [l for l in r.stdout.splitlines() if l.strip()]
     if staged:
@@ -94,7 +94,7 @@ for i in range(0, len(en_files), BATCH_SIZE):
         subprocess.run(["git", "reset", "HEAD", "--", "."], capture_output=True, cwd=REPO)
 
     # Stage exactly this batch
-    r = subprocess.run(["git", "add", "--"] + batch, capture_output=True, text=True, cwd=REPO)
+    r = subprocess.run(["git", "add", "--"] + batch, capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO)
     if r.returncode != 0:
         print(f"Stage error batch {batch_num}: {r.stderr}")
         sys.exit(1)
@@ -102,7 +102,7 @@ for i in range(0, len(en_files), BATCH_SIZE):
     # Verify staged count matches batch
     r_check = subprocess.run(
         ["git", "diff", "--cached", "--name-only"],
-        capture_output=True, text=True, cwd=REPO
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO
     )
     staged_count = len([l for l in r_check.stdout.splitlines() if l.strip()])
     if staged_count != len(batch):
@@ -114,7 +114,7 @@ for i in range(0, len(en_files), BATCH_SIZE):
         "Skills invoked: S-52, S-53\n\n"
         "Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
     )
-    r2 = subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True, cwd=REPO)
+    r2 = subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO)
     if r2.returncode != 0:
         print(f"Commit error batch {batch_num}:")
         # Show last 800 chars of stdout for context
@@ -127,7 +127,7 @@ for i in range(0, len(en_files), BATCH_SIZE):
         for f in batch:
             r3 = subprocess.run(
                 [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/commands/content/audit.py", "--files", f],
-                capture_output=True, text=True, cwd=REPO
+                capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO
             )
             if r3.returncode != 0:
                 print(f"  FAIL: {f}")

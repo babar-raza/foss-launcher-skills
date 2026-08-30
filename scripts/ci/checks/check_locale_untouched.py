@@ -63,7 +63,7 @@ def check_git_diff(family: str, platform: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "diff", "--name-only"],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", check=True,
         )
         files = result.stdout.strip().split("\n") if result.stdout.strip() else []
     except subprocess.CalledProcessError:
@@ -77,7 +77,7 @@ def check_staged(family: str, platform: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only"],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", check=True,
         )
         files = result.stdout.strip().split("\n") if result.stdout.strip() else []
     except subprocess.CalledProcessError:
@@ -91,7 +91,7 @@ def check_untracked(family: str, platform: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "status", "--porcelain"],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", check=True,
         )
         lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
     except subprocess.CalledProcessError:

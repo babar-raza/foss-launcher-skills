@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             result = subprocess.run(
                 ["git", "log", "origin/main...HEAD", "--format=%B", "--", "content/**/*.md"],
-                capture_output=True, text=True, cwd=REPO_ROOT
+                capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=REPO_ROOT
             )
             declared_ids_from_args = extract_skill_ids(result.stdout)
         except (subprocess.SubprocessError, FileNotFoundError):

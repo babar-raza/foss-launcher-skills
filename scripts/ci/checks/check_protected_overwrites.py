@@ -99,9 +99,7 @@ def _was_protected_before(filepath: str) -> bool:
             ["git", "show", f"HEAD:{filepath}"],
             cwd=REPO_ROOT,
             capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
+            text=True, encoding="utf-8", errors="replace",
             timeout=10,
         )
         if result.returncode != 0:
@@ -139,8 +137,7 @@ def _get_protected_in_head() -> frozenset[str]:
             ],
             cwd=REPO_ROOT,
             capture_output=True,
-            text=True,
-            encoding="utf-8",
+            text=True, encoding="utf-8", errors="replace",
             timeout=60,
         )
         # git grep exits 1 when there are no matches (not an error).
@@ -171,7 +168,7 @@ def _get_staged_files() -> list[str]:
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
             cwd=REPO_ROOT,
             capture_output=True,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             timeout=15,
         )
         if result.returncode != 0:

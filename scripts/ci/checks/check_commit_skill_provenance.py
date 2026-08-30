@@ -47,7 +47,7 @@ def _get_commits(commit_range: str) -> list[str]:
     """Get commit SHAs in a range."""
     result = subprocess.run(
         ["git", "log", "--format=%H", commit_range],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     if result.returncode != 0:
         return []
@@ -58,7 +58,7 @@ def _commit_touches_content(sha: str) -> bool:
     """Check if a commit touches content files."""
     result = subprocess.run(
         ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", sha],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     if result.returncode != 0:
         return False
@@ -71,7 +71,7 @@ def _commit_touches_content(sha: str) -> bool:
 def _get_commit_message(sha: str) -> str:
     result = subprocess.run(
         ["git", "log", "-1", "--format=%B", sha],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     return result.stdout if result.returncode == 0 else ""
 

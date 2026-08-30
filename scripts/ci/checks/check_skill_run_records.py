@@ -101,7 +101,7 @@ def _get_commit_message(sha: str) -> str:
     try:
         result = subprocess.run(
             ["git", "log", "-1", "--format=%B", sha],
-            capture_output=True, text=True, cwd=str(_REPO_ROOT)
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(_REPO_ROOT)
         )
         return result.stdout
     except (subprocess.SubprocessError, OSError):
