@@ -144,6 +144,17 @@ FORBIDDEN_EXACT: frozenset[str] = frozenset({
     "scripts/ci/hooks/check_destructive_bash_hook.sh",
     "scripts/ci/hooks/find_python.sh",
     "scripts/ci/hooks/check_venv.sh",
+    # 2026-08-30 (stale-guard plan TC-SG-05): the session-lifecycle hooks and
+    # the five hook scripts that were added after the original TC-08 list but
+    # never self-protected (found during the plan's exploration pass).
+    "scripts/ci/hooks/session_start_ledger_hook.sh",
+    "scripts/ci/hooks/session_end_ledger_hook.sh",
+    "scripts/ci/hooks/session_heartbeat_hook.sh",
+    "scripts/ci/hooks/check_ledger_init_hook.sh",
+    "scripts/ci/hooks/check_commit_bash_hook.sh",
+    "scripts/ci/hooks/check_add_bash_hook.sh",
+    "scripts/ci/hooks/check_plan_origination_capture_hook.sh",
+    "scripts/ci/hooks/check_plan_origination_gate_hook.sh",
 })
 
 

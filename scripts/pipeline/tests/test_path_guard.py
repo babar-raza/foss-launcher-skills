@@ -147,6 +147,16 @@ class TestForbiddenExactFiles:
         "scripts/ci/hooks/check_skill_context_hook.sh",
         "scripts/ci/hooks/check_venv_bash_hook.sh",
         "scripts/ci/hooks/check_venv.sh",
+        # 2026-08-30 (stale-guard plan TC-SG-05): lifecycle hooks + the five
+        # later-added hook scripts that were never self-protected.
+        "scripts/ci/hooks/session_start_ledger_hook.sh",
+        "scripts/ci/hooks/session_end_ledger_hook.sh",
+        "scripts/ci/hooks/session_heartbeat_hook.sh",
+        "scripts/ci/hooks/check_ledger_init_hook.sh",
+        "scripts/ci/hooks/check_commit_bash_hook.sh",
+        "scripts/ci/hooks/check_add_bash_hook.sh",
+        "scripts/ci/hooks/check_plan_origination_capture_hook.sh",
+        "scripts/ci/hooks/check_plan_origination_gate_hook.sh",
     ])
     def test_hook_scripts_self_protected(self, path):
         """PG-01..03: All hook governance scripts must be in FORBIDDEN_EXACT (DR-05 / TC-08).

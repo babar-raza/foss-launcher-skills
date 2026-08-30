@@ -617,6 +617,23 @@ def init_session(session_id: str | None = None, force: bool = False) -> str:
     return session_id
 
 
+def reopen_session(session_id: str) -> bool:
+    """closed -> active (SessionStart resume, 2026-08-30 stale-guard plan T3):
+    keeps base_commit_sha and touched_files -- an older base means a wider
+    stale-check window, the safe direction. Returns False if no manifest or
+    not closed."""
+    p = _session_path(session_id)
+    with _manifest_lock(p):
+        m = _load_manifest(p)
+        if not m or m.get("status") != "closed":
+            return False
+        m["status"] = "active"
+        m["reopened_at"] = _now_iso()
+        m.pop("closed_at", None)
+        _save_manifest(p, m)
+    return True
+
+
 def close_session(session_id: str) -> bool:
     """Close the named session. A session is only ever closed by name —
     there is no 'close whatever is active' operation (HARDEN-A2).
@@ -1006,6 +1023,28 @@ def adopt_by_group(
 
 def cmd_init(args: argparse.Namespace) -> int:
     _sweep_stale()
+    if getattr(args, "if_missing", False) and args.session_id:
+        # SessionStart-hook path (2026-08-30, T3): idempotent by design --
+        # active is a no-op, stale reactivates, closed reopens (resume), and
+        # only a genuinely missing manifest falls through to a real init.
+        p = _session_path(args.session_id)
+        m = _load_manifest(p)
+        if m:
+            status = m.get("status")
+            if status == "active":
+                print(f"session={args.session_id} base="
+                      f"{(m.get('base_commit_sha') or 'none')[:12]} already-active")
+                return 0
+            if status == "stale":
+                _mutate_manifest((args.session_id, p), lambda mm: None)
+                print(f"session={args.session_id} base="
+                      f"{(m.get('base_commit_sha') or 'none')[:12]} reactivated")
+                return 0
+            if status == "closed":
+                if reopen_session(args.session_id):
+                    print(f"session={args.session_id} base="
+                          f"{(m.get('base_commit_sha') or 'none')[:12]} reopened")
+                    return 0
     try:
         session_id = init_session(args.session_id,
                                   force=bool(getattr(args, "force_reinit", False)))
@@ -1551,6 +1590,10 @@ def main(argv: list[str] | None = None) -> int:
     # init
     p_init = sub.add_parser("init", help="Initialize a new session with dirty-file snapshot")
     p_init.add_argument("--session-id", default=None, help="Override session ID (default: auto-generated)")
+    p_init.add_argument("--if-missing", action="store_true", dest="if_missing",
+                        help="Idempotent init (SessionStart hook): active manifest is a "
+                             "no-op, stale reactivates, closed reopens; only a missing "
+                             "manifest performs a real init. Requires --session-id.")
     p_init.add_argument("--force-reinit", action="store_true", dest="force_reinit",
                         help="Re-init an id whose manifest is ACTIVE (wipes its ledger — audited)")
 
