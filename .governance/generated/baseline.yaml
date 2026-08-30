@@ -1920,7 +1920,26 @@ capabilities:
   name: workflow-harden
   operation_type: unknown
   script: null
+- adapters:
+    agent_skill: .agents\skills\plan-health-watchdog\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\plan-health-watchdog.md
+    canonical_exists: true
+    claude_command: .claude\commands\plan-health-watchdog.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\plan-health-watchdog\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Detect stalled taskcards and plan-markdown prose that contradicts the
+    structured taskcards.jsonl store
+  id: S-122
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: plan-health-watchdog
+  operation_type: unknown
+  script: scripts/pipeline/commands/ops/plan_health_watchdog.py
 internal_capabilities: 7
-public_capabilities: 97
+public_capabilities: 98
 schema_version: 1
-total_capabilities: 104
+total_capabilities: 105

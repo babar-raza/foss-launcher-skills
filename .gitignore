@@ -79,3 +79,4 @@ coverage.json
 /reports/skill-context/
 /reports/overrides/pretooluse-audit.log
 *.zip
+/reports

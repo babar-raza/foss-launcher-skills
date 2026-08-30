@@ -935,14 +935,23 @@ capabilities:
   kilo_adapter_hash: d5df2be869679554
   name: workflow-harden
   parity_status: FULL_PARITY
+- agent_adapter_hash: d708f373fb12933b
+  canonical_hash: d708f373fb12933b
+  capability_id: S-122
+  claude_adapter_hash: d708f373fb12933b
+  gaps: []
+  internal: false
+  kilo_adapter_hash: d708f373fb12933b
+  name: plan-health-watchdog
+  parity_status: FULL_PARITY
 final_verdict: FULL_PARITY
-generated_at: '2026-08-29T15:53:56.540900Z'
+generated_at: '2026-08-30T15:17:11.224987Z'
 generator: tools/capability_sync/validate_semantic_parity.py
 summary:
   agent_skill_adapter_missing: 0
   claude_adapter_missing: 0
-  full_parity: 104
+  full_parity: 105
   gaps_total: 0
   internal_skipped: 7
   semantic_drift: 0
-  total_capabilities: 104
+  total_capabilities: 105

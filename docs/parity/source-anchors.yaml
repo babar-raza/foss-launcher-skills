@@ -1086,3 +1086,31 @@ anchors:
       SLICE: only validate_taskcard_record and its direct dependencies.
       Source's file also validates other schemas (fact graphs, etc.)
       specific to its own knowledge pipeline, deliberately not ported.
+
+  - target_path: skills/plan-health-watchdog.md
+    source_path: skills/plan-health-watchdog.md
+    capability_id: S-122
+    commit_sha: 202e4a7b97f0e4963fedf598ac47ed22bce22181
+    verified_at: "2026-08-30T15:13:49Z"
+    notes: >
+      Ported 2026-08-30 (TASK_BACKLOG.md SYNC-3-remaining). Generalized:
+      dropped source's schema-revision tag and incident-specific plan
+      name; kept structured-field stall detection and markdown/store
+      parity checking; dropped the optional LLM-assisted judgment step
+      (no LLM-router equivalent wired to this skill in target). Backing
+      script scripts/pipeline/commands/ops/plan_health_watchdog.py is NEW
+      -- source's own stall-query step 2 is described in prose only, with
+      no dedicated script at any path in source. Its sibling
+      scripts/ci/checks/check_taskcard_plan_parity.py went through two
+      real iterations: an initial version built without reading source's
+      actual file threw 8 false positives out of 10 findings on its first
+      real dogfooding run (against this repo's own
+      plans/plan-hardening-addendum-from-latest-audit.md); rewritten same
+      day to match source's real design (explicit [STATUS: ...] tag
+      required for any claim, DONE/PARTIAL/NOT_STARTED bucketing,
+      infer_task_id_pattern() instead of a hardcoded prefix) after reading
+      source's file in full -- this is now a real, near-verbatim port of
+      source's design (not its exact bytes; target's version has no
+      RPR-only legacy-prefix fallback since target has no such legacy
+      convention to carry over). Full findings and the fix are logged in
+      the plan doc's own §1 Change Log and §11 Anti-Overclaim rule 6.

@@ -170,3 +170,24 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 2. **S-52/S-53 post-diverge**: foss has `new-blog-post`/`new-kb-howto`; aspose has `translate-page`/`translate-batch`
 3. **S-55 post-diverge**: aspose S-55 = `no-downgrade-guard` (internal); foss S-55 = `new-reference-page` (user-callable)
 4. **S-56**: foss-new ID for `no-downgrade-guard` (ported from aspose S-55; assigned new ID to avoid collision)
+
+## 2026-08-30 decision: `ht-translate`/`ht-translate-batch` NOT adopted (TASK_BACKLOG.md SYNC-10)
+
+aspose.org's `ht-translate`/`ht-translate-batch` (S-HT-01/02) are thin wrappers around an
+**external, separate repository** (`hugo-translator`), hardcoded to an absolute path on one
+specific machine (`C:/Users/prora/OneDrive/Documents/GitHub/hugo-translator/`), with its own
+venv and site-profile YAML configuration system (`docs.aspose.org`/`kb.aspose.org`/etc. as
+literal profile IDs). This is not a generalized evolution of the translate system — it's a
+different architecture entirely (external tool + site profiles) than aspose.org's own prior
+internal translator backend.
+
+`translate-page`/`translate-batch` (S-99/S-100, this repo) already use that prior
+architecture — an internal `scripts/translator/` backend package with LLM/Ollama/M2M100
+adapters, ported and working (37 Python files, per `docs/parity/README.md`'s original
+2026-05-14 closure). Adopting `ht-translate` would mean either porting an entire unrelated
+external repository (out of scope — it isn't even part of aspose.org), or abandoning this
+repo's own working, already-ported backend for no demonstrated benefit.
+
+**Decision: keep this repo's own `translate-page`/`translate-batch` as-is. Not revisiting
+unless `hugo-translator` itself becomes something this repo needs to depend on for an
+unrelated reason.**

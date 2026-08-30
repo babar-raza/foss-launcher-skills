@@ -654,3 +654,9 @@ skills:
     description: Audit and harden CI workflow files (GitHub Actions and/or GitLab CI) via a fixed 8-dimension probe
     internal: false
     script: null
+
+  - id: S-122
+    name: plan-health-watchdog
+    description: Detect stalled taskcards and plan-markdown prose that contradicts the structured taskcards.jsonl store
+    internal: false
+    script: scripts/pipeline/commands/ops/plan_health_watchdog.py
