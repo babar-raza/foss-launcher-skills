@@ -102,11 +102,37 @@ class ApiCompletenessEvaluator(BaseEvaluator):
             stem = page.filepath.stem
             suffix = stem[len(class_name) + 1:] if stem.startswith(class_name + "-") else ""
             if suffix:
+                matched = None
                 for c in candidates:
                     ns_slug = re.sub(r"[^A-Za-z0-9]+", "_", c.get("canonical_namespace", "")).strip("_")
                     if ns_slug == suffix:
-                        cls_entry = c
+                        matched = c
                         break
+                if matched is None:
+                    # ST-121: the namespace-collision disambiguation above only
+                    # matches C++'s multi-segment canonical_namespace shape
+                    # (e.g. "Aspose::Pdf::Drawing::Rectangle" -> exact slug
+                    # match). batch_reference.py's OTHER collision-suffix
+                    # convention -- flat TypeScript packages disambiguating by
+                    # SOURCE FILE STEM (e.g. Style-types.md / Style-style.md
+                    # for a same-named interface in types.ts vs a class in
+                    # style.ts) -- names the suffix after just the last
+                    # dot-segment of canonical_namespace (or equivalently the
+                    # source file's own stem), which never equals the FULL
+                    # normalized namespace. Confirmed live 2026-08-30
+                    # (MT040 Phase I, cells/typescript refresh): this silently
+                    # fell through to candidates[0], reporting the class
+                    # Style's 36 methods as "missing" from the interface
+                    # Style's page (which only ever had 6 real properties).
+                    for c in candidates:
+                        ns = c.get("canonical_namespace", "")
+                        last_segment = re.sub(r"[^A-Za-z0-9]+", "_", ns.rsplit(".", 1)[-1]) if ns else ""
+                        file_stem = Path(c.get("file", "")).stem if c.get("file") else ""
+                        if suffix in (last_segment, file_stem):
+                            matched = c
+                            break
+                if matched is not None:
+                    cls_entry = matched
 
         # Collect all public members expected
         expected_members: set[str] = set()

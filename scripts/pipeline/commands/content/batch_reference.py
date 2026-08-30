@@ -904,8 +904,19 @@ def _build_page(
             f"for {name} objects in {_plat_disp} programs."
         )
         _lc10_prose.append(f"Available methods include: {_listed}.")
+        # ST-120: was "All public members are accessible..." -- the leading
+        # "All" is prose_truth's strong-wording trigger (_STRONG_WORDS), and
+        # this exact sentence renders on every generated reference page for
+        # every product. It only self-suppresses when a product's claims.json
+        # has enough token overlap with this boilerplate to read as "backed"
+        # -- confirmed live: pdf/typescript's rich claim set masks it (0
+        # FAIL), cells/typescript's sparser one doesn't (29 FAIL, one per
+        # class page). The word carries no real information (a public-API
+        # reference page listing public members is public by definition), so
+        # dropping it removes the risk everywhere rather than special-casing
+        # one more product's claim density.
         _lc10_prose.append(
-            f"All public members are accessible to any {_plat_disp} application "
+            f"Public members are accessible to any {_plat_disp} application "
             f"after installing the Aspose.{_fam_disp} FOSS for {_plat_disp} package."
         )
     if _all_pnames:
