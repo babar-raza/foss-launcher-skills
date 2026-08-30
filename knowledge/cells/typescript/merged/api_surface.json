@@ -94,7 +94,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chartLoader",
-    "class_import": "aspose_cells.chartLoader.ChartLoader"
+    "class_import": "aspose_cells.chartLoader.ChartLoader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormat",
@@ -178,7 +180,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.conditionalformat",
-    "class_import": "aspose_cells.conditionalformat.ConditionalFormat"
+    "class_import": "aspose_cells.conditionalformat.ConditionalFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormatCollection",
@@ -271,7 +275,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.conditionalformat",
-    "class_import": "aspose_cells.conditionalformat.ConditionalFormatCollection"
+    "class_import": "aspose_cells.conditionalformat.ConditionalFormatCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HtmlExporter",
@@ -344,7 +350,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlExporter",
-    "class_import": "aspose_cells.html.htmlExporter.HtmlExporter"
+    "class_import": "aspose_cells.html.htmlExporter.HtmlExporter",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlReader",
@@ -486,45 +494,45 @@
       {
         "name": "tagName",
         "type": ": string",
-        "doc": "Gets the tag name.",
+        "doc": "Gets or sets the tag name.",
         "line": 7,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "isStartTag",
         "type": ": boolean",
-        "doc": "Gets the is start tag.",
+        "doc": "Gets or sets the is start tag.",
         "line": 8,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "isEndTag",
         "type": ": boolean",
-        "doc": "Gets the is end tag.",
+        "doc": "Gets or sets the is end tag.",
         "line": 9,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "isSelfClosing",
         "type": ": boolean",
-        "doc": "Gets the is self closing.",
+        "doc": "Gets or sets the is self closing.",
         "line": 10,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "text",
         "type": ": string",
-        "doc": "Gets the text.",
+        "doc": "Gets or sets the text.",
         "line": 11,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/html/htmlReader.ts",
         "doc_source": "name_inference"
       },
@@ -544,7 +552,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlReader",
-    "class_import": "aspose_cells.html.htmlReader.HtmlReader"
+    "class_import": "aspose_cells.html.htmlReader.HtmlReader",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlWriter",
@@ -601,7 +611,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlWriter",
-    "class_import": "aspose_cells.html.htmlWriter.HtmlWriter"
+    "class_import": "aspose_cells.html.htmlWriter.HtmlWriter",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "workbookToHtml",
@@ -623,7 +635,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "worksheetToHtml",
@@ -645,7 +659,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "tableToHtml",
@@ -667,7 +683,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "workbookToHtmlFull",
@@ -685,7 +703,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "AutoFilter",
@@ -801,7 +821,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.autofilter",
-    "class_import": "aspose_cells.autofilter.AutoFilter"
+    "class_import": "aspose_cells.autofilter.AutoFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cell",
@@ -952,9 +974,10 @@
       {
         "name": "sharedStringMap",
         "type": ": Map<string, number>",
-        "doc": "Gets the shared string map.",
+        "doc": "Gets or sets the shared string map.",
         "line": 11,
-        "writable": false,
+        "writable": true,
+        "is_static": true,
         "file": "aspose_cells/cell.ts",
         "doc_source": "name_inference"
       },
@@ -1044,7 +1067,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.cell",
-    "class_import": "aspose_cells.cell.Cell"
+    "class_import": "aspose_cells.cell.Cell",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cells",
@@ -1161,7 +1186,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.cell",
-    "class_import": "aspose_cells.cell.Cells"
+    "class_import": "aspose_cells.cell.Cells",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "dateToExcelSerial",
@@ -1179,7 +1206,9 @@
       }
     ],
     "return_type": "number",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Chart",
@@ -1352,63 +1381,63 @@
       {
         "name": "chartType",
         "type": ": ChartType",
-        "doc": "Gets the chart type.",
+        "doc": "Gets or sets the chart type.",
         "line": 5,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "title",
         "type": ": string",
-        "doc": "Gets the title.",
+        "doc": "Gets or sets the title.",
         "line": 6,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "series",
         "type": ": ChartSeries[]",
-        "doc": "Gets the series.",
+        "doc": "Gets or sets the series.",
         "line": 7,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "legendPosition",
         "type": ": \"left\" | \"right\" | \"top\" | \"bottom\"",
-        "doc": "Gets the legend position.",
+        "doc": "Gets or sets the legend position.",
         "line": 8,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "categoryAxisPosition",
         "type": ": \"left\" | \"right\" | \"top\" | \"bottom\"",
-        "doc": "Gets the category axis position.",
+        "doc": "Gets or sets the category axis position.",
         "line": 9,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "valueAxisPosition",
         "type": ": \"left\" | \"right\" | \"top\" | \"bottom\"",
-        "doc": "Gets the value axis position.",
+        "doc": "Gets or sets the value axis position.",
         "line": 10,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "plotArea",
         "type": ": { x: number; y: number; width: number; height: number }",
-        "doc": "Gets the plot area.",
+        "doc": "Gets or sets the plot area.",
         "line": 11,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
@@ -1451,198 +1480,198 @@
       {
         "name": "fromRow",
         "type": ": number",
-        "doc": "Gets the from row.",
+        "doc": "Gets or sets the from row.",
         "line": 12,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "fromCol",
         "type": ": number",
-        "doc": "Gets the from col.",
+        "doc": "Gets or sets the from col.",
         "line": 13,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "toRow",
         "type": ": number",
-        "doc": "Gets the to row.",
+        "doc": "Gets or sets the to row.",
         "line": 14,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "toCol",
         "type": ": number",
-        "doc": "Gets the to col.",
+        "doc": "Gets or sets the to col.",
         "line": 15,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "fromRowOff",
         "type": ": number",
-        "doc": "Gets the from row off.",
+        "doc": "Gets or sets the from row off.",
         "line": 16,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "fromColOff",
         "type": ": number",
-        "doc": "Gets the from col off.",
+        "doc": "Gets or sets the from col off.",
         "line": 17,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "toRowOff",
         "type": ": number",
-        "doc": "Gets the to row off.",
+        "doc": "Gets or sets the to row off.",
         "line": 18,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "toColOff",
         "type": ": number",
-        "doc": "Gets the to col off.",
+        "doc": "Gets or sets the to col off.",
         "line": 19,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "originalX",
         "type": ": number",
-        "doc": "Gets the original x.",
+        "doc": "Gets or sets the original x.",
         "line": 20,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "originalY",
         "type": ": number",
-        "doc": "Gets the original y.",
+        "doc": "Gets or sets the original y.",
         "line": 21,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "sheetIndex",
         "type": ": number",
-        "doc": "Gets the sheet index.",
+        "doc": "Gets or sets the sheet index.",
         "line": 22,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "type",
         "type": ": string",
-        "doc": "Gets the type.",
+        "doc": "Gets or sets the type.",
         "line": 23,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "name",
         "type": ": string",
-        "doc": "Gets the name.",
+        "doc": "Gets or sets the name.",
         "line": 24,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "originalChartXml",
         "type": ": string",
-        "doc": "Gets the original chart xml.",
+        "doc": "Gets or sets the original chart xml.",
         "line": 25,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "originalStyleXml",
         "type": ": string",
-        "doc": "Gets the original style xml.",
+        "doc": "Gets or sets the original style xml.",
         "line": 26,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "originalColorsXml",
         "type": ": string",
-        "doc": "Gets the original colors xml.",
+        "doc": "Gets or sets the original colors xml.",
         "line": 27,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "x",
         "type": ": number",
-        "doc": "Gets the x.",
+        "doc": "Gets or sets the x.",
         "line": 28,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "y",
         "type": ": number",
-        "doc": "Gets the y.",
+        "doc": "Gets or sets the y.",
         "line": 29,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "width",
         "type": ": number",
-        "doc": "Gets the width.",
+        "doc": "Gets or sets the width.",
         "line": 30,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "height",
         "type": ": number",
-        "doc": "Gets the height.",
+        "doc": "Gets or sets the height.",
         "line": 31,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "dataRange",
         "type": ": string",
-        "doc": "Gets the data range.",
+        "doc": "Gets or sets the data range.",
         "line": 32,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "dataIsVertical",
         "type": ": boolean",
-        "doc": "Gets the data is vertical.",
+        "doc": "Gets or sets the data is vertical.",
         "line": 33,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/chart.ts",
         "doc_source": "name_inference"
       }
@@ -1652,7 +1681,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chart",
-    "class_import": "aspose_cells.chart.Chart"
+    "class_import": "aspose_cells.chart.Chart",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartCollection",
@@ -1921,7 +1952,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.chartCollection",
-    "class_import": "aspose_cells.chartCollection.ChartCollection"
+    "class_import": "aspose_cells.chartCollection.ChartCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Comment",
@@ -2048,7 +2081,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.comment",
-    "class_import": "aspose_cells.comment.Comment"
+    "class_import": "aspose_cells.comment.Comment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CommentCollection",
@@ -2178,7 +2213,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.comment",
-    "class_import": "aspose_cells.comment.CommentCollection"
+    "class_import": "aspose_cells.comment.CommentCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DataRelationship",
@@ -2248,7 +2285,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.dataRelationship",
-    "class_import": "aspose_cells.dataRelationship.DataRelationship"
+    "class_import": "aspose_cells.dataRelationship.DataRelationship",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExpDrawing",
@@ -2415,7 +2454,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.expDrawing",
-    "class_import": "aspose_cells.expDrawing.ExpDrawing"
+    "class_import": "aspose_cells.expDrawing.ExpDrawing",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartArea",
@@ -2468,7 +2509,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.ChartArea"
+    "class_import": "aspose_cells.html.chartRenderer.ChartArea",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "PlotArea",
@@ -2521,7 +2564,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.PlotArea"
+    "class_import": "aspose_cells.html.chartRenderer.PlotArea",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "SeriesInfo",
@@ -2565,7 +2610,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.SeriesInfo"
+    "class_import": "aspose_cells.html.chartRenderer.SeriesInfo",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "LegendInfo",
@@ -2600,7 +2647,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.LegendInfo"
+    "class_import": "aspose_cells.html.chartRenderer.LegendInfo",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "AxisInfo",
@@ -2689,7 +2738,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.AxisInfo"
+    "class_import": "aspose_cells.html.chartRenderer.AxisInfo",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "ChartRenderer",
@@ -2726,7 +2777,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.chartRenderer",
-    "class_import": "aspose_cells.html.chartRenderer.ChartRenderer"
+    "class_import": "aspose_cells.html.chartRenderer.ChartRenderer",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlParseOptions",
@@ -2761,7 +2814,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
-    "class_import": "aspose_cells.html.htmlDocument.HtmlParseOptions"
+    "class_import": "aspose_cells.html.htmlDocument.HtmlParseOptions",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "ShapeAnchor",
@@ -2868,7 +2923,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
-    "class_import": "aspose_cells.html.htmlDocument.ShapeAnchor"
+    "class_import": "aspose_cells.html.htmlDocument.ShapeAnchor",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlDocument",
@@ -3096,7 +3153,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlDocument",
-    "class_import": "aspose_cells.html.htmlDocument.HtmlDocument"
+    "class_import": "aspose_cells.html.htmlDocument.HtmlDocument",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlSaveOptions",
@@ -3131,7 +3190,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
-    "class_import": "aspose_cells.html.htmlTable.HtmlSaveOptions"
+    "class_import": "aspose_cells.html.htmlTable.HtmlSaveOptions",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "CellStyle",
@@ -3355,7 +3416,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
-    "class_import": "aspose_cells.html.htmlTable.CellStyle"
+    "class_import": "aspose_cells.html.htmlTable.CellStyle",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "PictureInfo",
@@ -3453,7 +3516,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
-    "class_import": "aspose_cells.html.htmlTable.PictureInfo"
+    "class_import": "aspose_cells.html.htmlTable.PictureInfo",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "HtmlTable",
@@ -3781,7 +3846,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.html.htmlTable",
-    "class_import": "aspose_cells.html.htmlTable.HtmlTable"
+    "class_import": "aspose_cells.html.htmlTable.HtmlTable",
+    "module_key": "html",
+    "module_label": "Html"
   },
   {
     "name": "Hyperlink",
@@ -3922,7 +3989,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.hyperlink",
-    "class_import": "aspose_cells.hyperlink.Hyperlink"
+    "class_import": "aspose_cells.hyperlink.Hyperlink",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "HyperlinkCollection",
@@ -4056,7 +4125,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.hyperlink",
-    "class_import": "aspose_cells.hyperlink.HyperlinkCollection"
+    "class_import": "aspose_cells.hyperlink.HyperlinkCollection",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "ImpDrawing",
@@ -4143,7 +4214,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.impDrawing",
-    "class_import": "aspose_cells.impDrawing.ImpDrawing"
+    "class_import": "aspose_cells.impDrawing.ImpDrawing",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Style",
@@ -4692,54 +4765,54 @@
       {
         "name": "font",
         "type": ": Font",
-        "doc": "Gets the font.",
+        "doc": "Gets or sets the font.",
         "line": 4,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "fill",
         "type": ": Fill",
-        "doc": "Gets the fill.",
+        "doc": "Gets or sets the fill.",
         "line": 5,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "border",
         "type": ": Border",
-        "doc": "Gets the border.",
+        "doc": "Gets or sets the border.",
         "line": 6,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "alignment",
         "type": ": Alignment",
-        "doc": "Gets the alignment.",
+        "doc": "Gets or sets the alignment.",
         "line": 7,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "numberFormat",
         "type": ": string",
-        "doc": "Gets the number format.",
+        "doc": "Gets or sets the number format.",
         "line": 8,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       },
       {
         "name": "protection",
         "type": ": Protection",
-        "doc": "Gets the protection.",
+        "doc": "Gets or sets the protection.",
         "line": 9,
-        "writable": false,
+        "writable": true,
         "file": "aspose_cells/style.ts",
         "doc_source": "name_inference"
       }
@@ -4749,7 +4822,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.style",
-    "class_import": "aspose_cells.style.Style"
+    "class_import": "aspose_cells.style.Style",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValue",
@@ -4765,7 +4840,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CellValue"
+    "class_import": "aspose_cells.types.CellValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellCoordinates",
@@ -4800,7 +4877,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CellCoordinates"
+    "class_import": "aspose_cells.types.CellCoordinates",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellRange",
@@ -4853,7 +4932,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CellRange"
+    "class_import": "aspose_cells.types.CellRange",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Style",
@@ -4924,7 +5005,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Style"
+    "class_import": "aspose_cells.types.Style",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Font",
@@ -5004,7 +5087,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Font"
+    "class_import": "aspose_cells.types.Font",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Fill",
@@ -5048,7 +5133,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Fill"
+    "class_import": "aspose_cells.types.Fill",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Border",
@@ -5101,7 +5188,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Border"
+    "class_import": "aspose_cells.types.Border",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BorderLine",
@@ -5136,7 +5225,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BorderLine"
+    "class_import": "aspose_cells.types.BorderLine",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Alignment",
@@ -5180,7 +5271,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Alignment"
+    "class_import": "aspose_cells.types.Alignment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Protection",
@@ -5215,7 +5308,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Protection"
+    "class_import": "aspose_cells.types.Protection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DataValidation",
@@ -5340,7 +5435,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.DataValidation"
+    "class_import": "aspose_cells.types.DataValidation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Comment",
@@ -5393,7 +5490,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Comment"
+    "class_import": "aspose_cells.types.Comment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Hyperlink",
@@ -5455,7 +5554,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Hyperlink"
+    "class_import": "aspose_cells.types.Hyperlink",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "FilterColumn",
@@ -5499,7 +5600,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.FilterColumn"
+    "class_import": "aspose_cells.types.FilterColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormatRule",
@@ -5588,7 +5691,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ConditionalFormatRule"
+    "class_import": "aspose_cells.types.ConditionalFormatRule",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColorScaleRule",
@@ -5632,7 +5737,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ColorScaleRule"
+    "class_import": "aspose_cells.types.ColorScaleRule",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IconSetRule",
@@ -5667,7 +5774,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.IconSetRule"
+    "class_import": "aspose_cells.types.IconSetRule",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DataBarRule",
@@ -5720,7 +5829,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.DataBarRule"
+    "class_import": "aspose_cells.types.DataBarRule",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveFormat",
@@ -5758,7 +5869,9 @@
       }
     ],
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.SaveFormat"
+    "class_import": "aspose_cells.types.SaveFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EncryptionType",
@@ -5780,7 +5893,9 @@
       }
     ],
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.EncryptionType"
+    "class_import": "aspose_cells.types.EncryptionType",
+    "module_key": "security",
+    "module_label": "Security"
   },
   {
     "name": "ShapeFill",
@@ -5887,7 +6002,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ShapeFill"
+    "class_import": "aspose_cells.types.ShapeFill",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShapeInfo",
@@ -6138,7 +6255,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ShapeInfo"
+    "class_import": "aspose_cells.types.ShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StraightConnectorShapeType",
@@ -6154,7 +6273,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.StraightConnectorShapeType"
+    "class_import": "aspose_cells.types.StraightConnectorShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BentConnectorShapeType",
@@ -6170,7 +6291,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BentConnectorShapeType"
+    "class_import": "aspose_cells.types.BentConnectorShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CurvedConnectorShapeType",
@@ -6186,7 +6309,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CurvedConnectorShapeType"
+    "class_import": "aspose_cells.types.CurvedConnectorShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LineShapeType",
@@ -6202,7 +6327,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.LineShapeType"
+    "class_import": "aspose_cells.types.LineShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StraightConnectorShapeInfo",
@@ -6246,7 +6373,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.StraightConnectorShapeInfo"
+    "class_import": "aspose_cells.types.StraightConnectorShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BentConnectorShapeInfo",
@@ -6290,7 +6419,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BentConnectorShapeInfo"
+    "class_import": "aspose_cells.types.BentConnectorShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CurvedConnectorShapeInfo",
@@ -6334,7 +6465,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CurvedConnectorShapeInfo"
+    "class_import": "aspose_cells.types.CurvedConnectorShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LineShapeInfo",
@@ -6378,7 +6511,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.LineShapeInfo"
+    "class_import": "aspose_cells.types.LineShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AllConnectorShapeInfo",
@@ -6394,7 +6529,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.AllConnectorShapeInfo"
+    "class_import": "aspose_cells.types.AllConnectorShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangleShapeType",
@@ -6410,7 +6547,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.RectangleShapeType"
+    "class_import": "aspose_cells.types.RectangleShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangleShapeInfo",
@@ -6436,7 +6575,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.RectangleShapeInfo"
+    "class_import": "aspose_cells.types.RectangleShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EllipseShapeType",
@@ -6452,7 +6593,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.EllipseShapeType"
+    "class_import": "aspose_cells.types.EllipseShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EllipseShapeInfo",
@@ -6478,7 +6621,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.EllipseShapeInfo"
+    "class_import": "aspose_cells.types.EllipseShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TriangleShapeType",
@@ -6494,7 +6639,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.TriangleShapeType"
+    "class_import": "aspose_cells.types.TriangleShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "QuadrilateralShapeType",
@@ -6510,7 +6657,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.QuadrilateralShapeType"
+    "class_import": "aspose_cells.types.QuadrilateralShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PolygonShapeType",
@@ -6526,7 +6675,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.PolygonShapeType"
+    "class_import": "aspose_cells.types.PolygonShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TriangleShapeInfo",
@@ -6552,7 +6703,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.TriangleShapeInfo"
+    "class_import": "aspose_cells.types.TriangleShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "QuadrilateralShapeInfo",
@@ -6578,7 +6731,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.QuadrilateralShapeInfo"
+    "class_import": "aspose_cells.types.QuadrilateralShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PolygonShapeInfo",
@@ -6604,7 +6759,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.PolygonShapeInfo"
+    "class_import": "aspose_cells.types.PolygonShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ArrowShapeType",
@@ -6620,7 +6777,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ArrowShapeType"
+    "class_import": "aspose_cells.types.ArrowShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ArrowShapeInfo",
@@ -6646,7 +6805,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ArrowShapeInfo"
+    "class_import": "aspose_cells.types.ArrowShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StarShapeType",
@@ -6662,7 +6823,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.StarShapeType"
+    "class_import": "aspose_cells.types.StarShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StarShapeInfo",
@@ -6688,7 +6851,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.StarShapeInfo"
+    "class_import": "aspose_cells.types.StarShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangleVariantShapeType",
@@ -6704,7 +6869,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.RectangleVariantShapeType"
+    "class_import": "aspose_cells.types.RectangleVariantShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangleVariantShapeInfo",
@@ -6730,7 +6897,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.RectangleVariantShapeInfo"
+    "class_import": "aspose_cells.types.RectangleVariantShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CircleVariantShapeType",
@@ -6746,7 +6915,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CircleVariantShapeType"
+    "class_import": "aspose_cells.types.CircleVariantShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CircleVariantShapeInfo",
@@ -6772,7 +6943,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.CircleVariantShapeInfo"
+    "class_import": "aspose_cells.types.CircleVariantShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BraceShapeType",
@@ -6788,7 +6961,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BraceShapeType"
+    "class_import": "aspose_cells.types.BraceShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BraceShapeInfo",
@@ -6814,7 +6989,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BraceShapeInfo"
+    "class_import": "aspose_cells.types.BraceShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MathSymbolShapeType",
@@ -6830,7 +7007,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.MathSymbolShapeType"
+    "class_import": "aspose_cells.types.MathSymbolShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MathSymbolShapeInfo",
@@ -6856,7 +7035,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.MathSymbolShapeInfo"
+    "class_import": "aspose_cells.types.MathSymbolShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SpecialShapeType",
@@ -6872,7 +7053,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.SpecialShapeType"
+    "class_import": "aspose_cells.types.SpecialShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SpecialShapeInfo",
@@ -6898,7 +7081,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.SpecialShapeInfo"
+    "class_import": "aspose_cells.types.SpecialShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SealShapeType",
@@ -6914,7 +7099,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.SealShapeType"
+    "class_import": "aspose_cells.types.SealShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SealShapeInfo",
@@ -6940,7 +7127,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.SealShapeInfo"
+    "class_import": "aspose_cells.types.SealShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape3DType",
@@ -6956,7 +7145,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Shape3DType"
+    "class_import": "aspose_cells.types.Shape3DType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape3DInfo",
@@ -6982,7 +7173,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.Shape3DInfo"
+    "class_import": "aspose_cells.types.Shape3DInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BasicShapeSubType",
@@ -6998,7 +7191,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BasicShapeSubType"
+    "class_import": "aspose_cells.types.BasicShapeSubType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BasicShapeInfoType",
@@ -7024,7 +7219,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.BasicShapeInfoType"
+    "class_import": "aspose_cells.types.BasicShapeInfoType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartType",
@@ -7040,7 +7237,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ChartType"
+    "class_import": "aspose_cells.types.ChartType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartSeries",
@@ -7084,7 +7283,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ChartSeries"
+    "class_import": "aspose_cells.types.ChartSeries",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartInfo",
@@ -7290,7 +7491,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ChartInfo"
+    "class_import": "aspose_cells.types.ChartInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AllShapeInfo",
@@ -7306,7 +7509,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.AllShapeInfo"
+    "class_import": "aspose_cells.types.AllShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageInfo",
@@ -7368,7 +7573,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.ImageInfo"
+    "class_import": "aspose_cells.types.ImageInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PictureShapeInfo",
@@ -7403,7 +7610,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.types",
-    "class_import": "aspose_cells.types.PictureShapeInfo"
+    "class_import": "aspose_cells.types.PictureShapeInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValue",
@@ -7419,7 +7628,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
-    "class_import": "aspose_cells.util.CellValue"
+    "class_import": "aspose_cells.util.CellValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellCoordinates",
@@ -7454,7 +7665,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
-    "class_import": "aspose_cells.util.CellCoordinates"
+    "class_import": "aspose_cells.util.CellCoordinates",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellRange",
@@ -7507,7 +7720,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.util",
-    "class_import": "aspose_cells.util.CellRange"
+    "class_import": "aspose_cells.util.CellRange",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "colToIndex",
@@ -7525,7 +7740,9 @@
       }
     ],
     "return_type": "number",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "indexToCol",
@@ -7543,7 +7760,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "cellRef",
@@ -7565,7 +7784,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "parseCellRef",
@@ -7583,7 +7804,9 @@
       }
     ],
     "return_type": "CellCoordinates",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "parseRange",
@@ -7601,7 +7824,9 @@
       }
     ],
     "return_type": "CellRange",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "readZipEntry",
@@ -7623,7 +7848,9 @@
       }
     ],
     "return_type": "Promise<string | null>",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "filename",
@@ -7636,7 +7863,9 @@
     "properties": [],
     "params": [],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "openZip",
@@ -7654,7 +7883,9 @@
       }
     ],
     "return_type": "",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "escapeXml",
@@ -7672,7 +7903,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "unescapeXml",
@@ -7690,7 +7923,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "generateUuid",
@@ -7703,7 +7938,9 @@
     "properties": [],
     "params": [],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "createZipWriter",
@@ -7716,7 +7953,9 @@
     "properties": [],
     "params": [],
     "return_type": "",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "fixZipFile",
@@ -7734,7 +7973,9 @@
       }
     ],
     "return_type": "Uint8Array",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "addZipEntry",
@@ -7760,7 +8001,9 @@
       }
     ],
     "return_type": "",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "finalizeZip",
@@ -7778,7 +8021,9 @@
       }
     ],
     "return_type": "Promise<Uint8Array>",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "deriveKey",
@@ -7800,7 +8045,9 @@
       }
     ],
     "return_type": "Buffer",
-    "reachable": true
+    "reachable": true,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "encryptData",
@@ -7822,7 +8069,9 @@
       }
     ],
     "return_type": "Uint8Array",
-    "reachable": true
+    "reachable": true,
+    "module_key": "security",
+    "module_label": "Security"
   },
   {
     "name": "decryptData",
@@ -7844,7 +8093,9 @@
       }
     ],
     "return_type": "Uint8Array",
-    "reachable": true
+    "reachable": true,
+    "module_key": "security",
+    "module_label": "Security"
   },
   {
     "name": "DataValidation",
@@ -8021,7 +8272,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.validation",
-    "class_import": "aspose_cells.validation.DataValidation"
+    "class_import": "aspose_cells.validation.DataValidation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DataValidationCollection",
@@ -8114,7 +8367,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.validation",
-    "class_import": "aspose_cells.validation.DataValidationCollection"
+    "class_import": "aspose_cells.validation.DataValidationCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Workbook",
@@ -8517,7 +8772,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.workbook",
-    "class_import": "aspose_cells.workbook.Workbook"
+    "class_import": "aspose_cells.workbook.Workbook",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Worksheet",
@@ -9181,7 +9438,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.worksheet",
-    "class_import": "aspose_cells.worksheet.Worksheet"
+    "class_import": "aspose_cells.worksheet.Worksheet",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetCollection",
@@ -9508,7 +9767,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose_cells.worksheetCollection",
-    "class_import": "aspose_cells.worksheetCollection.WorksheetCollection"
+    "class_import": "aspose_cells.worksheetCollection.WorksheetCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DOMParser",
@@ -9555,7 +9816,9 @@
     "reachable": true,
     "deprecated": false,
     "deprecated_reason": "",
-    "canonical_namespace": "aspose_cells.xmldom.d",
-    "class_import": "aspose_cells.xmldom.d.DOMParser"
+    "canonical_namespace": "\"@xmldom/xmldom\".aspose_cells.xmldom.d",
+    "class_import": "\"@xmldom/xmldom\".aspose_cells.xmldom.d.DOMParser",
+    "module_key": "core",
+    "module_label": "Core API"
   }
 ]

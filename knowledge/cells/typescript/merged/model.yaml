@@ -1,33 +1,34 @@
-bundle_generated_at: '2026-08-28T05:14:29.470333+00:00'
-bundle_id: b508d800-3fe5-4358-b1ff-a91dc6ab25e4
+bundle_generated_at: '2026-08-30T14:30:29.229351+00:00'
+bundle_id: 9a4b6abb-c942-4da8-8d31-b620f0661869
 config_sha: 5676a5ada3d9dda2
 enrichment_status: full
-extractor_hash: 662d97a270edc5c5
+extractor_hash: 5ba0b78e72b1f3df
 family: cells
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
+generator_fingerprint: 1589f6af218c9f4b25b31690d44d0dc4e485d12ac9d61e27185dfe1209c21c5e
 generator_semver: 2.0.0
 has_conflicts: false
 input_hashes:
   enriched_claims_sha: fcd95b776205a14d73b3645406bf1f8da56c41121fdd19450c95aff3f3148348
   extractor_config_sha: 5676a5ada3d9dda2
-  products_json_entry_sha: 553a458371d91f95231ca3e9a81734061baa499c2879ff161446bd947138d04b
-  scout_api_surface_sha: 532c4ffe5770d0c1620a15028d45661d353fe34219fd6efc40232dd13b7c07b9
-  scout_claims_sha: 28400f4deb8a512da54a0194f5c4a2388c7e6507e88fc6bd87c3dce700cc39c3
+  products_json_entry_sha: e50230416ea54d3cf51e29e788509be0751042060ff7b11758351e9898f834b2
+  scout_api_surface_sha: 1f3f3a4168046a7c25459b470329a66cfcb45be05f29f6648e36c3de9b61e171
+  scout_claims_sha: de4b5f48198aa3dc0a4cab74886563c48f9e499070327e1f67be3b737d0ec28b
 license: MIT
+module_assignment_version: 1
 platform: typescript
-product_name: '@aspose/cells'
-promoted_at: '2026-08-28T05:14:29.518362+00:00'
+product_name: excel-cells
+promoted_at: '2026-08-30T14:30:29.279071+00:00'
 repo_sha: fc186507e5b7124f4664aa6035f25cfd3112367d
 repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git
 schema_version: 2
-source: scout_and_enriched
+source: scout_only
 stale_since: null
 stats:
   class_count: 108
-  enriched_claims: 332
+  enriched_claims: 0
   forbidden_count: 0
-  scout_claims: 775
+  scout_claims: 779
   snippet_count: 27
   supplemental_claims: 0
-  total_claims: 1102
+  total_claims: 774
 version: 1.0.0

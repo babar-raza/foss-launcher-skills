@@ -1,12 +1,12 @@
-# Install @aspose/cells
+# Install excel-cells
 
 ```
-npm install @aspose/cells@1.0.0
+npm install excel-cells@1.0.0
 ```
 
 ## Verify
 
 ```
-import { ... } from "@aspose/cells";
+import { ... } from "excel-cells";
 ```
 

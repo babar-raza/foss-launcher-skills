@@ -1,9 +1,23 @@
-async function testWorkbookProtection() {
-  console.log("Testing workbook protection...");
+async function testHtmlImport() {
+  console.log("Testing HTML import...");
 
-  const workbook = new Workbook();
-  workbook.protect(true, "password");
+  const html = `
+<table>
+  <thead>
+    <tr><th>Name</th><th>Age</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Alice</td><td>25</td></tr>
+    <tr><td>Bob</td><td>30</td></tr>
+  </tbody>
+</table>
+`;
 
-  await workbook.save("outputfiles/test_workbook_protection.xlsx");
-  console.log("Saved to outputfiles/test_workbook_protection.xlsx");
+  const doc = HtmlDocument.parse(html);
+  console.log("Tables:", doc.tables.length);
+  console.log("Rows:", doc.tables[0]?.rows);
+
+  const workbook = doc.toWorkbook();
+  console.log("Worksheets:", workbook.worksheets.length);
+  console.log("A1:", workbook.worksheets[0]!.getCell(0, 0)?.value);
 }

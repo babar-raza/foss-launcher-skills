@@ -1,27 +1,24 @@
-async function testAutoFilter() {
-  console.log("Testing auto filter...");
-
-  const workbook = new Workbook();
-  const worksheet = workbook.worksheets[0]!;
-
-  worksheet.putValue("A1", "Name");
-  worksheet.putValue("B1", "Age");
-  worksheet.putValue("C1", "City");
-
-  worksheet.putValue("A2", "Alice");
-  worksheet.putValue("B2", "25");
-  worksheet.putValue("C2", "New York");
-
-  worksheet.putValue("A3", "Bob");
-  worksheet.putValue("B3", "30");
-  worksheet.putValue("C3", "London");
-
-  worksheet.putValue("A4", "Charlie");
-  worksheet.putValue("B4", "35");
-  worksheet.putValue("C4", "Paris");
-
-  worksheet.setAutoFilter("A1:C4");
-
-  await workbook.save("outputfiles/test_auto_filter.xlsx");
-  console.log("Saved to outputfiles/test_auto_filter.xlsx");
-}
+import { Workbook, Style } from "./aspose_cells";
+
+const workbook = new Workbook();
+const sheet = workbook.worksheets.get(0)!;
+
+sheet.name = "Products";
+sheet.putValue("A1", "Product");
+sheet.putValue("B1", "Price");
+sheet.putValue("A2", "Apple");
+sheet.putValue("B2", 2.99);
+sheet.putValue("A3", "Orange");
+sheet.putValue("B3", 1.99);
+const cellB4 = sheet.getCell2("B4");
+cellB4.setFormula("=SUM(B2:B3)");
+
+const headerStyle = new Style();
+headerStyle.setBold(true);
+headerStyle.setFontColor("FFFFFFFF");
+headerStyle.setForegroundColor("FF2278D4");
+
+sheet.getCell2("A1").setStyle(headerStyle);
+sheet.getCell2("B1").setStyle(headerStyle);
+
+await workbook.save("products.xlsx");

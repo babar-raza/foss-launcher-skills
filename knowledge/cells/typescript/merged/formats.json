@@ -83,5 +83,52 @@
     "file": "aspose_cells/workbook.ts",
     "line": 52,
     "direction": "import"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlExporter.ts",
+    "line": 8,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlReader.ts",
+    "line": 2,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "zip",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/util.ts",
+    "line": 73,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "XLSX",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 390,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier",
+    "functional": true
+  },
+  {
+    "format": "CSV",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 0,
+    "direction": "export",
+    "functional": true,
+    "evidence_kind": "ts_io_identifier_manual_correction"
   }
 ]

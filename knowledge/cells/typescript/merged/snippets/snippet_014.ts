@@ -1,18 +1,19 @@
-async function testHyperlinks() {
-  console.log("Testing hyperlinks...");
+async function testMarkdownExport() {
+  console.log("Testing Markdown export...");
 
   const workbook = new Workbook();
   const worksheet = workbook.worksheets[0]!;
 
-  worksheet.putValue("A1", "Click here");
-  worksheet.getCell2("A1").setHyperlink("https://www.google.com");
+  worksheet.putValue("A1", "Name");
+  worksheet.putValue("B1", "Age");
+  worksheet.putValue("A2", "Alice");
+  worksheet.putValue("B2", 25);
+  worksheet.putValue("A3", "Bob");
+  worksheet.putValue("B3", 30);
 
-  worksheet.putValue("A3", "Send email");
-  worksheet.getCell2("A3").setHyperlink("mailto:test@example.com");
+  const markdown = workbook.toMarkdown();
+  console.log("Markdown:\n", markdown);
 
-  worksheet.putValue("A5", "Internal link");
-  worksheet.getCell2("A5").setHyperlink("#Sheet1!A1");
-
-  await workbook.save("outputfiles/test_hyperlinks.xlsx");
-  console.log("Saved to outputfiles/test_hyperlinks.xlsx");
+  await workbook.save("outputfiles/test_markdown_export.md");
+  console.log("Saved to outputfiles/test_markdown_export.md");
 }

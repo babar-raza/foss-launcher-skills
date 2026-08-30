@@ -1,23 +1,19 @@
-async function testHtmlImport() {
-  console.log("Testing HTML import...");
+async function testJsonExport() {
+  console.log("Testing JSON export...");
 
-  const html = `
-<table>
-  <thead>
-    <tr><th>Name</th><th>Age</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>Alice</td><td>25</td></tr>
-    <tr><td>Bob</td><td>30</td></tr>
-  </tbody>
-</table>
-`;
+  const workbook = new Workbook();
+  const worksheet = workbook.worksheets[0]!;
 
-  const doc = HtmlDocument.parse(html);
-  console.log("Tables:", doc.tables.length);
-  console.log("Rows:", doc.tables[0]?.rows);
+  worksheet.putValue("A1", "Name");
+  worksheet.putValue("B1", "Age");
+  worksheet.putValue("A2", "Alice");
+  worksheet.putValue("B2", 25);
+  worksheet.putValue("A3", "Bob");
+  worksheet.putValue("B3", 30);
 
-  const workbook = doc.toWorkbook();
-  console.log("Worksheets:", workbook.worksheets.length);
-  console.log("A1:", workbook.worksheets[0]!.getCell(0, 0)?.value);
+  const json = workbook.toJson();
+  console.log("JSON:", json);
+
+  await workbook.save("outputfiles/test_json_export.json");
+  console.log("Saved to outputfiles/test_json_export.json");
 }

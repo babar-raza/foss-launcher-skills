@@ -1,19 +1,22 @@
-async function testCellProtection() {
-  console.log("Testing cell protection...");
+async function testHtmlExport() {
+  console.log("Testing HTML export...");
 
   const workbook = new Workbook();
   const worksheet = workbook.worksheets[0]!;
 
-  const style = new Style();
-  style.setLocked(true);
-  style.setHidden(false);
+  worksheet.putValue("A1", "Name");
+  worksheet.putValue("B1", "Age");
+  worksheet.putValue("C1", "City");
+  worksheet.putValue("A2", "Alice");
+  worksheet.putValue("B2", 25);
+  worksheet.putValue("C2", "New York");
+  worksheet.putValue("A3", "Bob");
+  worksheet.putValue("B3", 30);
+  worksheet.putValue("C3", "London");
 
-  const cell = worksheet.getCell2("A1");
-  cell.putValue("Protected Cell");
-  cell.setStyle(style);
+  const html = worksheetToHtml(worksheet);
+  console.log("HTML:\n", html);
 
-  worksheet.putValue("A2", "Unprotected Cell");
-
-  await workbook.save("outputfiles/test_cell_protection.xlsx");
-  console.log("Saved to outputfiles/test_cell_protection.xlsx");
+  await workbook.save("outputfiles/test_html_export.xlsx");
+  console.log("Saved to outputfiles/test_html_export.xlsx");
 }

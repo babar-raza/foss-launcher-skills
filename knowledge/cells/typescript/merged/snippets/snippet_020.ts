@@ -1,21 +1,20 @@
-async function testAlignment() {
-  console.log("Testing alignment...");
+async function testFontSettings() {
+  console.log("Testing font settings...");
 
   const workbook = new Workbook();
   const worksheet = workbook.worksheets[0]!;
   const style = new Style();
 
-  style.setHorizontalAlignment("center");
-  style.setVerticalAlignment("center");
-  style.setWrapText(true);
+  style.setFontName("Arial");
+  style.setFontSize(14);
+  style.setBold(true);
+  style.setItalic(true);
+  style.setFontColor("FF0000");
 
   const cell = worksheet.getCell2("A1");
-  cell.putValue("Centered Text\nWith Wrap");
+  cell.putValue("Styled Text");
   cell.setStyle(style);
 
-  worksheet.setColumnWidth(0, 20);
-  worksheet.setRowHeight(0, 40);
-
-  await workbook.save("outputfiles/test_alignment.xlsx");
-  console.log("Saved to outputfiles/test_alignment.xlsx");
+  await workbook.save("outputfiles/test_font_settings.xlsx");
+  console.log("Saved to outputfiles/test_font_settings.xlsx");
 }

@@ -1,20 +1,18 @@
-async function testFontSettings() {
-  console.log("Testing font settings...");
+async function testHyperlinks() {
+  console.log("Testing hyperlinks...");
 
   const workbook = new Workbook();
   const worksheet = workbook.worksheets[0]!;
-  const style = new Style();
 
-  style.setFontName("Arial");
-  style.setFontSize(14);
-  style.setBold(true);
-  style.setItalic(true);
-  style.setFontColor("FF0000");
+  worksheet.putValue("A1", "Click here");
+  worksheet.getCell2("A1").setHyperlink("https://www.google.com");
 
-  const cell = worksheet.getCell2("A1");
-  cell.putValue("Styled Text");
-  cell.setStyle(style);
+  worksheet.putValue("A3", "Send email");
+  worksheet.getCell2("A3").setHyperlink("mailto:test@example.com");
 
-  await workbook.save("outputfiles/test_font_settings.xlsx");
-  console.log("Saved to outputfiles/test_font_settings.xlsx");
+  worksheet.putValue("A5", "Internal link");
+  worksheet.getCell2("A5").setHyperlink("#Sheet1!A1");
+
+  await workbook.save("outputfiles/test_hyperlinks.xlsx");
+  console.log("Saved to outputfiles/test_hyperlinks.xlsx");
 }

@@ -1,13 +1,44 @@
-async function testWorksheetAccess() {
+async function testWorksheetManagement() {
+  console.log("Testing worksheet management...");
+
   const workbook = new Workbook();
 
-  workbook.worksheets.addWorksheet("FirstSheet");
-  workbook.worksheets.addWorksheet("SecondSheet");
-  workbook.worksheets.addWorksheet("ThirdSheet");
+  const ws1 = workbook.worksheets.addWorksheet();
+  console.log("Created worksheet:", ws1.name);
 
-  console.log("Worksheet 0:", workbook.worksheets[0]?.name);
-  console.log("Worksheet 1:", workbook.worksheets[1]?.name);
-  console.log("Worksheet 2:", workbook.worksheets[2]?.name);
+  const ws2 = workbook.worksheets.addWorksheet("CustomSheet1");
+  console.log("Created worksheet:", ws2.name);
 
-  await workbook.save("outputfiles/test_worksheet_access.xlsx");
+  console.log("Total worksheets:", workbook.worksheets.length);
+
+  workbook.worksheets.removeWorksheet(1);
+  console.log("After delete:", workbook.worksheets.length);
+
+  const wsMain = workbook.worksheets.addWorksheet("MainSheet");
+  wsMain.putValue("A1", "Main Worksheet");
+  wsMain.putValue("A2", "This is the primary worksheet");
+
+  const wsData = workbook.worksheets.addWorksheet("DataSheet");
+  wsData.putValue("A1", "Data Worksheet");
+  wsData.putValue("A2", "Contains data tables");
+
+  const wsReport = workbook.worksheets.addWorksheet("ReportSheet");
+  wsReport.putValue("A1", "Report Worksheet");
+  wsReport.putValue("A2", "Contains reports");
+
+  console.log(
+    "Worksheets:",
+    workbook.worksheets.worksheets.map((w) => w.name),
+  );
+
+  await workbook.save("outputfiles/test_worksheet_management.xlsx");
+  console.log("Saved to outputfiles/test_worksheet_management.xlsx");
+
+  const loaded = await Workbook.load(
+    "outputfiles/test_worksheet_management.xlsx",
+  );
+  console.log(
+    "Loaded worksheets:",
+    loaded.worksheets.worksheets.map((w) => w.name),
+  );
 }

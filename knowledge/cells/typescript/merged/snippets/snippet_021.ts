@@ -1,44 +1,17 @@
-async function testWorksheetManagement() {
-  console.log("Testing worksheet management...");
+async function testFillSettings() {
+  console.log("Testing fill settings...");
 
   const workbook = new Workbook();
+  const worksheet = workbook.worksheets[0]!;
+  const style = new Style();
 
-  const ws1 = workbook.worksheets.addWorksheet();
-  console.log("Created worksheet:", ws1.name);
+  style.setForegroundColor("FFFF00");
+  style.setBackgroundColor("FF0000");
 
-  const ws2 = workbook.worksheets.addWorksheet("CustomSheet1");
-  console.log("Created worksheet:", ws2.name);
+  const cell = worksheet.getCell2("A1");
+  cell.putValue("Colored Cell");
+  cell.setStyle(style);
 
-  console.log("Total worksheets:", workbook.worksheets.length);
-
-  workbook.worksheets.removeWorksheet(1);
-  console.log("After delete:", workbook.worksheets.length);
-
-  const wsMain = workbook.worksheets.addWorksheet("MainSheet");
-  wsMain.putValue("A1", "Main Worksheet");
-  wsMain.putValue("A2", "This is the primary worksheet");
-
-  const wsData = workbook.worksheets.addWorksheet("DataSheet");
-  wsData.putValue("A1", "Data Worksheet");
-  wsData.putValue("A2", "Contains data tables");
-
-  const wsReport = workbook.worksheets.addWorksheet("ReportSheet");
-  wsReport.putValue("A1", "Report Worksheet");
-  wsReport.putValue("A2", "Contains reports");
-
-  console.log(
-    "Worksheets:",
-    workbook.worksheets.worksheets.map((w) => w.name),
-  );
-
-  await workbook.save("outputfiles/test_worksheet_management.xlsx");
-  console.log("Saved to outputfiles/test_worksheet_management.xlsx");
-
-  const loaded = await Workbook.load(
-    "outputfiles/test_worksheet_management.xlsx",
-  );
-  console.log(
-    "Loaded worksheets:",
-    loaded.worksheets.worksheets.map((w) => w.name),
-  );
+  await workbook.save("outputfiles/test_fill_settings.xlsx");
+  console.log("Saved to outputfiles/test_fill_settings.xlsx");
 }

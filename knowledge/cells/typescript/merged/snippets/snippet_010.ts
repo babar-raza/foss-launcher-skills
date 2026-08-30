@@ -1,19 +1,18 @@
-async function testJsonExport() {
-  console.log("Testing JSON export...");
-
+async function testNumberValidation() {
   const workbook = new Workbook();
   const worksheet = workbook.worksheets[0]!;
 
-  worksheet.putValue("A1", "Name");
-  worksheet.putValue("B1", "Age");
-  worksheet.putValue("A2", "Alice");
-  worksheet.putValue("B2", 25);
-  worksheet.putValue("A3", "Bob");
-  worksheet.putValue("B3", 30);
+  worksheet.putValue("A1", 10);
+  worksheet.putValue("A2", 20);
+  worksheet.putValue("A3", 30);
 
-  const json = workbook.toJson();
-  console.log("JSON:", json);
+  const validation = new DataValidation();
+  validation.type = "whole";
+  validation.operator = "between";
+  validation.formula1 = "1";
+  validation.formula2 = "100";
+  worksheet.addDataValidation(validation, "B1:B5");
 
-  await workbook.save("outputfiles/test_json_export.json");
-  console.log("Saved to outputfiles/test_json_export.json");
+  await workbook.save("outputfiles/test_number_validation.xlsx");
+  console.log("Saved to outputfiles/test_number_validation.xlsx");
 }

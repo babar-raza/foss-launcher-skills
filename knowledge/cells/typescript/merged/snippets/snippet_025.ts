@@ -1,24 +1,9 @@
-import { Workbook, Style } from "./aspose_cells";
-
-const workbook = new Workbook();
-const sheet = workbook.worksheets.get(0)!;
-
-sheet.name = "Products";
-sheet.putValue("A1", "Product");
-sheet.putValue("B1", "Price");
-sheet.putValue("A2", "Apple");
-sheet.putValue("B2", 2.99);
-sheet.putValue("A3", "Orange");
-sheet.putValue("B3", 1.99);
-const cellB4 = sheet.getCell2("B4");
-cellB4.setFormula("=SUM(B2:B3)");
-
-const headerStyle = new Style();
-headerStyle.setBold(true);
-headerStyle.setFontColor("FFFFFFFF");
-headerStyle.setForegroundColor("FF2278D4");
-
-sheet.getCell2("A1").setStyle(headerStyle);
-sheet.getCell2("B1").setStyle(headerStyle);
-
-await workbook.save("products.xlsx");
+async function testWorksheetRename() {
+  const workbook = new Workbook();
+
+  workbook.worksheets[0]!.name = "RenamedSheet";
+  console.log("Renamed to:", workbook.worksheets[0]!.name);
+
+  await workbook.save("outputfiles/test_worksheet_rename.xlsx");
+  console.log("Saved to outputfiles/test_worksheet_rename.xlsx");
+}

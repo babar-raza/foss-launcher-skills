@@ -1,18 +1,21 @@
-async function testWorksheetCopy() {
+async function testAlignment() {
+  console.log("Testing alignment...");
+
   const workbook = new Workbook();
+  const worksheet = workbook.worksheets[0]!;
+  const style = new Style();
 
-  const ws1 = workbook.worksheets[0]!;
-  ws1.putValue("A1", "Original Data");
-  ws1.putValue("A2", "Row 2");
+  style.setHorizontalAlignment("center");
+  style.setVerticalAlignment("center");
+  style.setWrapText(true);
 
-  const ws2 = workbook.worksheets.addWorksheet("CopySheet");
-  ws2.putValue("A1", "Copied Data");
+  const cell = worksheet.getCell2("A1");
+  cell.putValue("Centered Text\nWith Wrap");
+  cell.setStyle(style);
 
-  console.log(
-    "Worksheets:",
-    workbook.worksheets.worksheets.map((w) => w.name),
-  );
+  worksheet.setColumnWidth(0, 20);
+  worksheet.setRowHeight(0, 40);
 
-  await workbook.save("outputfiles/test_worksheet_copy.xlsx");
-  console.log("Saved to outputfiles/test_worksheet_copy.xlsx");
+  await workbook.save("outputfiles/test_alignment.xlsx");
+  console.log("Saved to outputfiles/test_alignment.xlsx");
 }
