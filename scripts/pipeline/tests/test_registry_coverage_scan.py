@@ -151,12 +151,16 @@ def test_real_repo_scan_matches_manual_audit():
     of TC-MT018-06's full backfill (2026-08-01), coverage is complete --
     updated to pin that instead. Bumped again 31->32 (2026-08-30, MT040):
     pdf/typescript registered as the mission's 32nd product. cells/typescript's
-    exclusion-drift finding is unaffected by either change (it's a
-    content-vs-exclusion-list discrepancy, not a registry-coverage one) and
-    must still be flagged."""
+    exclusion-drift finding cleared 2026-08-30 (MT040 TC-MT040-51, R-6):
+    live-reverified via GitHub API that 2 of 3 original blockers no longer
+    hold (LICENSE now present, README now legitimate; only the unpublished
+    package.json name "excel-cells" remains), so the exclusion entry was
+    removed from data/registry_exclusions.json (Outcome A) -- cells/typescript
+    is no longer excluded-but-live, it is simply live, matching shipped
+    precedent (tex/python, words/net, slides/net, slides/cpp, pdf/python)."""
     sut.configure(repo_root=None)
     report = sut.scan_coverage()
     assert report["total_discovered"] == 32
     assert report["total_registered"] == 32
     assert report["uncovered_pairs"] == []
-    assert "cells/typescript" in report["excluded_but_still_live"]
+    assert report["excluded_but_still_live"] == []
