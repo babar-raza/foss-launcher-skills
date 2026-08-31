@@ -4838,6 +4838,108 @@ def test_bind_commit_tolerates_preexisting_crlf_committed_content(
     )  # must not raise
 
 
+def test_bind_commit_tolerates_extra_allowed_crlf_gap_in_hash_mismatches_check(
+    tmp_path: Path,
+):
+    """ST-150 follow-up (2026-08-31, MT040 Phase I TC-MT040-56): the SAME
+    CRLF/--filters gap as the missing-decision-row exemption also affects
+    the per-row hash_mismatches check's extra_allowed fallback --
+    committed_raw_hash (from cat-file --filters, LF-only on this
+    CRLF-checkout system) never lands in extra_allowed_for_bind (recorded
+    from a raw CRLF disk read), so a genuinely-authorized, genuinely-correct
+    CRLF page was rejected. The fallback must additionally accept via
+    _committed_text_matches_disk when the page is registered in
+    extra_allowed_hashes at all, regardless of which literal hash it holds."""
+    import hashlib as _hashlib
+    from commands.content.body_refresh import _frontmatter_hash, _normalized_body_hash
+
+    commit_sha = "e" * 40
+    page_path = "content/docs.aspose.org/en/pdf/net/page.md"
+    lf_text = "---\ntitle: Test\n---\n\nGrounded body.\n"
+    # cat-file returns LF (the --filters gap); the on-disk file and the
+    # registered extra_allowed hash are both the real CRLF checkout bytes --
+    # genuinely different raw bytes, genuinely identical text.
+    crlf_text = lf_text.replace("\n", "\r\n")
+    crlf_disk_hash = "sha256:" + _hashlib.sha256(crlf_text.encode("utf-8")).hexdigest()
+
+    def commit_runner(args: list[str], **kwargs: object):
+        binary = kwargs.get("text") is False
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA + "\n"
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha + "\n"
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\n"
+                "Refresh-Run: RUN-CRLF-EXTRA-ALLOWED\n"
+                f"Refresh-Base: {HEAD_SHA}\n"
+                f"Refresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            output = page_path + "\n"
+        elif args[:3] == ["git", "cat-file", "--filters"]:
+            if binary:
+                return subprocess.CompletedProcess(args, 0, lf_text.encode("utf-8"), b"")
+            output = lf_text
+        else:
+            output = ""
+        rendered = output.encode("utf-8") if binary else output
+        empty = b"" if binary else ""
+        return subprocess.CompletedProcess(args, 0, rendered, empty)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream",
+        run_id="RUN-CRLF-EXTRA-ALLOWED", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["paths"] = [page_path]
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["validation"] = {
+        field: "PASS" for field in refresh_run.VALIDATION_FIELDS
+    }
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest, include_validation=True)
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-CRLF-EXTRA-ALLOWED"
+    # Real CRLF checkout bytes on disk -- the on-disk text (decoded)
+    # normalizes to the same content as the LF cat-file output.
+    disk_page = tmp_path / page_path
+    disk_page.write_bytes(crlf_text.encode("utf-8"))
+    receipt_path = run_root / "receipts/RCP-001.yaml"
+    receipt_doc = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))
+    # Deliberately stale/wrong receipt hash -- an earlier authorized S-73
+    # edit changed the page after the receipt was written, matching the
+    # scenario the surrounding "later authorized out-of-band edit" comment
+    # already documents; only the extra_allowed + text-match fallback saves it.
+    receipt_doc["content_refresh_receipt"]["new_hash"] = "sha256:" + "0" * 64
+    receipt_path.write_text(yaml.safe_dump(receipt_doc, sort_keys=False), encoding="utf-8")
+    decisions_path = run_root / "page_decisions.jsonl"
+    rows = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    for row in rows:
+        row["body_hash_after"] = "sha256:" + "1" * 64
+        row["frontmatter_hash_after"] = "sha256:" + "2" * 64
+        row["receipt_digest"] = refresh_run._file_digest(receipt_path)
+    decisions_path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(decisions_path)
+    manifest["output_digests"]["receipts"] = "sha256:" + _hashlib.sha256(
+        f"{receipt_path.name}:{refresh_run._file_digest(receipt_path)}".encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+    refresh_run._record_extra_allowed_hash(run_root, page_path, crlf_disk_hash)
+    refresh_run._transition(manifest, "VALIDATING")
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+
+    refresh_run.bind_commit(
+        "pdf", "net", "RUN-CRLF-EXTRA-ALLOWED", commit_sha, session_id="session-1",
+    )  # must not raise
+
+
 def test_bind_commit_tolerates_out_of_scope_additive_generated_page(
     tmp_path: Path,
 ):

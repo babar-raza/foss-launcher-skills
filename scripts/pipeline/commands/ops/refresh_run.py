@@ -3106,6 +3106,44 @@ def _commit_trailer_values(message: str) -> dict[str, list[str]]:
     return values
 
 
+def _committed_text_matches_disk(resolved: str, page_path: str) -> bool:
+    """True when `resolved`'s git-tracked content for `page_path`, normalized
+    to universal newlines, equals the current on-disk file's content.
+
+    `git cat-file --filters` applies only .gitattributes-driven clean/smudge
+    filters, NOT core.autocrlf's own EOL conversion (a separate git
+    mechanism) -- on a CRLF-checkout system a CRLF-committed page's cat-file
+    output can come back LF-only even though the page is genuinely
+    clean/unmodified (git status agrees) and the working-tree file is CRLF.
+    Comparing raw bytes across that filter boundary produces a false
+    mismatch; comparing universal-newline TEXT (matching the same \\r\\n ->
+    \\n normalization every other text read in this module already applies)
+    does not. Confirmed live 2026-08-31, 3d/typescript (MT040 Phase I,
+    TC-MT040-56): several CRLF-committed pages were byte-for-byte identical
+    to disk on every line except EOL style.
+    """
+    result = _command_runner(
+        ["git", "cat-file", "--filters", f"--path={page_path}",
+         f"{resolved}:{page_path}"],
+        cwd=str(_repo_root),
+        capture_output=True,
+        text=False,
+        timeout=30,
+    )
+    disk_path = _repo_root / page_path
+    if result.returncode != 0 or not disk_path.is_file():
+        return False
+    committed_bytes = result.stdout
+    if not isinstance(committed_bytes, bytes):
+        committed_bytes = str(committed_bytes).encode("utf-8")
+    try:
+        committed_text = committed_bytes.decode("utf-8").replace("\r\n", "\n")
+        disk_text = disk_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return False
+    return committed_text == disk_text
+
+
 def bind_commit(
     family: str,
     platform: str,
@@ -3263,54 +3301,12 @@ def bind_commit(
             extra_allowed = _load_extra_allowed_hashes(
                 _run_root(family, platform, run_id)
             )
-            still_missing: set[str] = set()
-            for page_path in missing_changed_set:
-                if page_path not in extra_allowed:
-                    still_missing.add(page_path)
-                    continue
-                result = _command_runner(
-                    ["git", "cat-file", "--filters", f"--path={page_path}",
-                     f"{resolved}:{page_path}"],
-                    cwd=str(_repo_root),
-                    capture_output=True,
-                    text=False,
-                    timeout=30,
-                )
-                disk_path = _repo_root / page_path
-                if result.returncode != 0 or not disk_path.is_file():
-                    still_missing.add(page_path)
-                    continue
-                committed_bytes = result.stdout
-                if not isinstance(committed_bytes, bytes):
-                    committed_bytes = str(committed_bytes).encode("utf-8")
-                # `--filters` applies .gitattributes-driven clean/smudge
-                # filters only, NOT core.autocrlf's own EOL conversion (a
-                # separate git mechanism) -- on a CRLF-checkout system a
-                # CRLF-committed page's cat-file output can come back LF-only
-                # even though the identical page is genuinely clean/unmodified
-                # (git status agrees) and the working-tree file is CRLF.
-                # Compare universal-newline TEXT, matching the same
-                # \r\n -> \n normalization the per-row hash_mismatches check
-                # below already applies for exactly this reason, rather than
-                # raw bytes across the git-filter boundary (confirmed live
-                # 2026-08-31, 3d/typescript: byte-for-byte content identical,
-                # every line differed only in EOL style). The disk file (not
-                # the stored extra_allowed hash, which was itself recorded
-                # from raw disk bytes and would carry the same false
-                # mismatch) is the trustworthy comparison side here --
-                # membership in extra_allowed already proves the write was
-                # authorized; this step only proves it actually landed.
-                try:
-                    committed_text = committed_bytes.decode("utf-8").replace(
-                        "\r\n", "\n"
-                    )
-                    disk_text = disk_path.read_text(encoding="utf-8")
-                except (UnicodeDecodeError, OSError):
-                    still_missing.add(page_path)
-                    continue
-                if committed_text != disk_text:
-                    still_missing.add(page_path)
-            missing_changed_set = still_missing
+            missing_changed_set = {
+                page_path
+                for page_path in missing_changed_set
+                if page_path not in extra_allowed
+                or not _committed_text_matches_disk(resolved, page_path)
+            }
         if missing_changed_set or unexpected_changed_set:
             raise RefreshRunError(
                 "Refresh commit paths do not exactly match change decisions: "
@@ -3405,7 +3401,20 @@ def bind_commit(
                 # committed content matches the SUBSEQUENT authorization, not
                 # merely because an extra_allowed entry exists for the path
                 # (confirmed live 2026-08-14, 3d/java).
-                if committed_raw_hash not in extra_allowed_for_bind.get(page_path, set()):
+                accepted = committed_raw_hash in extra_allowed_for_bind.get(page_path, set())
+                if (
+                    not accepted
+                    and page_path in extra_allowed_for_bind
+                    and _committed_text_matches_disk(resolved, page_path)
+                ):
+                    # Same CRLF/--filters gap _committed_text_matches_disk's
+                    # own docstring explains: committed_raw_hash never
+                    # reflects core.autocrlf's EOL smudging, so a
+                    # CRLF-committed, genuinely-authorized page's raw hash
+                    # never lands in extra_allowed_for_bind either (that
+                    # sidecar was itself recorded from a raw disk read).
+                    accepted = True
+                if not accepted:
                     hash_mismatches.append(page_path)
         if hash_mismatches:
             raise RefreshRunError(
