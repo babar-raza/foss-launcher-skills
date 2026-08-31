@@ -4,6 +4,7 @@ Uses monkeypatching throughout; no real git clones, no network calls.
 """
 import subprocess
 import sys
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -190,3 +191,92 @@ def test_cache_root_env_foss_underscore_launcher_rejected(monkeypatch):
     monkeypatch.setenv("ASPOSE_CLONE_CACHE", "/some/path/foss_launcher/runs/.clone_cache")  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
     with pytest.raises(ValueError, match="obsolete foss-launcher"):
         cache_root()
+
+
+# ---------------------------------------------------------------------------
+# RC-clone-cache-directory-lock (readme-refresh-hardening-and-regen-2026-08-30):
+# update_clone() now serializes its fetch+reset critical section via a FileLock
+# scoped per family/platform, closing a real 5-caller concurrent-write race.
+# ---------------------------------------------------------------------------
+
+def _run_git(args, cwd):
+    result = subprocess.run(
+        ["git", *args], cwd=str(cwd), capture_output=True,
+        encoding="utf-8", errors="replace", timeout=30,
+    )
+    assert result.returncode == 0, f"git {args} failed: {result.stderr}"
+    return result.stdout.strip()
+
+
+def _make_upstream_and_clone(tmp_path, family, platform, monkeypatch):
+    """A real local upstream repo + a real shallow clone standing in for the cache,
+    matching test_readme_refresh_run.py's own established real-git-repo convention
+    (never mocked git subprocess calls for this kind of test)."""
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "cache"))
+    upstream = tmp_path / "upstream"
+    upstream.mkdir()
+    (upstream / "README.md").write_text("v1\n", encoding="utf-8")
+    _run_git(["init", "-q", "-b", "main"], upstream)
+    _run_git(["config", "user.email", "test@example.com"], upstream)
+    _run_git(["config", "user.name", "Test"], upstream)
+    _run_git(["add", "."], upstream)
+    _run_git(["commit", "-q", "-m", "initial"], upstream)
+
+    from core.clone_cache import clone_path
+    clone_dir = clone_path(family, platform)
+    clone_dir.parent.mkdir(parents=True, exist_ok=True)
+    _run_git(["clone", "--quiet", "--depth", "2", str(upstream), str(clone_dir)], tmp_path)
+    return upstream, clone_dir
+
+
+def _clear_test_lock(family, platform):
+    import core.clone_cache as cc
+    lock_path = cc._clone_lock_path(family, platform)
+    lock_path.unlink(missing_ok=True)
+
+
+def test_update_clone_happy_path_still_works_with_lock_wrapper(tmp_path, monkeypatch):
+    """The FileLock wrapper must not change update_clone()'s real, uncontended behavior."""
+    from core.clone_cache import update_clone
+    family, platform = "lockfam", "lockplat1"
+    upstream, clone_dir = _make_upstream_and_clone(tmp_path, family, platform, monkeypatch)
+    try:
+        (upstream / "README.md").write_text("v2\n", encoding="utf-8")
+        _run_git(["add", "."], upstream)
+        _run_git(["commit", "-q", "-m", "update"], upstream)
+        expected_sha = _run_git(["rev-parse", "HEAD"], upstream)
+
+        new_sha = update_clone(family, platform)
+        assert new_sha == expected_sha
+        assert (clone_dir / "README.md").read_text(encoding="utf-8") == "v2\n"
+    finally:
+        _clear_test_lock(family, platform)
+
+
+def test_update_clone_returns_none_promptly_when_lock_already_held(tmp_path, monkeypatch):
+    """A second caller racing the same family/platform must degrade to update_clone()'s
+    own documented None-on-failure contract -- never hang, never interleave with the
+    lock holder's fetch+reset."""
+    import core.clone_cache as cc
+    from core.clone_cache import update_clone
+    from advisory_lock import FileLock
+
+    family, platform = "lockfam", "lockplat2"
+    _make_upstream_and_clone(tmp_path, family, platform, monkeypatch)
+    # AGENTS.md 16: monkeypatch.setattr on module internals is a banned T2 pattern --
+    # cc.configure() is the sanctioned seam for shrinking the real 120s default.
+    cc.configure(lock_timeout_seconds=0.3)
+    try:
+        cc._LOCK_DIR.mkdir(parents=True, exist_ok=True)
+        holder = FileLock(cc._clone_lock_path(family, platform), timeout=5.0)
+        with holder:
+            start = time.monotonic()
+            result = update_clone(family, platform)
+            elapsed = time.monotonic() - start
+        assert result is None
+        # Bounded, not hung -- comfortably under the real 120s default, proving the
+        # configured short timeout was actually honored by the lock acquisition path.
+        assert elapsed < 5.0
+    finally:
+        cc.configure()  # reset to the real default for subsequent tests
+        _clear_test_lock(family, platform)

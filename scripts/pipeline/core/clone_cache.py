@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -32,6 +33,42 @@ from typing import Optional
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _DEFAULT_CACHE = _REPO_ROOT / "runs" / ".clone_cache"
 _PRODUCTS_JSON = _REPO_ROOT / "data" / "products.json"
+
+# sibling-import guard, matching core/knowledge.py's own established pattern.
+_HERE = Path(__file__).resolve().parent.parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from advisory_lock import FileLock, LockTimeout  # noqa: E402
+
+_LOCK_DIR = _REPO_ROOT / "reports" / "locks" / "clone_cache"
+_DEFAULT_CLONE_LOCK_TIMEOUT_SECONDS = 120.0
+_cfg_clone_lock_timeout_seconds = _DEFAULT_CLONE_LOCK_TIMEOUT_SECONDS
+
+
+def configure(*, lock_timeout_seconds: Optional[float] = None) -> None:
+    """Override external-boundary knobs for tests; call without arguments to reset.
+
+    AGENTS.md 16 (Tiered Monkeypatch Policy): a bare ``monkeypatch.setattr`` on this
+    module's private ``_cfg_*`` state is a T2 violation (caught live by
+    scripts/pipeline/tests/content_eval's monkeypatch lint, RC-clone-cache-directory-lock,
+    2026-08-30) -- this configure() seam is the sanctioned way for a test to shrink the
+    real 120s lock-acquisition timeout to something fast, matching the exact
+    module-global + configure() + reset pattern readme_refresh_run.py/refresh_run.py
+    already use for their own external-boundary knobs.
+    """
+    global _cfg_clone_lock_timeout_seconds
+    _cfg_clone_lock_timeout_seconds = (
+        lock_timeout_seconds if lock_timeout_seconds is not None
+        else _DEFAULT_CLONE_LOCK_TIMEOUT_SECONDS
+    )
+
+
+def _clone_lock_path(family: str, platform: str) -> Path:
+    return _LOCK_DIR / f"{family}-{platform}.lock"
 
 
 def cache_root() -> Path:
@@ -139,16 +176,41 @@ def update_clone(family: str, platform: str) -> Optional[str]:
     """Fetch the latest commits from upstream and reset the clone to origin/HEAD.
 
     Uses ``git fetch --depth=1 origin`` to stay shallow (avoids downloading full
-    history) then ``git reset --hard origin/HEAD`` to advance the local HEAD.
+    history) then a hard reset to advance the local HEAD to origin/HEAD.
 
     Returns the new HEAD commit SHA on success, or ``None`` if the fetch fails
     (clone missing, network unavailable, or git error).  Never raises — callers
     can treat ``None`` as "could not refresh; use existing clone".
+
+    RC-clone-cache-directory-lock (readme-refresh-hardening-and-regen-2026-08-30):
+    at least 5 independent call sites (repo_patrol.py, enrich.py, promote.py,
+    mechanism_sweep.py, typescript_api_completeness.py) can invoke this for the
+    SAME family/platform concurrently -- nothing serialized the fetch+reset
+    sequence against a second caller doing the identical thing to the same
+    directory at the same time, a real interleaving hazard (a reset mid-fetch,
+    or two resets racing against different fetched refs) confirmed structurally
+    possible by direct code read, not previously guarded anywhere in this
+    function or any caller. A FileLock scoped per family/platform, matching the
+    exact pattern readme_refresh_run.py's own `_product_guard` already uses for
+    the identical class of problem, serializes this specific critical section
+    without changing this function's contract (still never raises to the
+    caller; a lock timeout degrades to the same `None` "could not refresh"
+    return every other failure mode already produces).
     """
     p = clone_path(family, platform)
     if not clone_exists(family, platform):
         return None
 
+    _LOCK_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        with FileLock(_clone_lock_path(family, platform), timeout=_cfg_clone_lock_timeout_seconds):
+            return _update_clone_locked(family, platform, p)
+    except LockTimeout:
+        return None
+
+
+def _update_clone_locked(family: str, platform: str, p: Path) -> Optional[str]:
+    """The real fetch+reset body of update_clone(), run only while its FileLock is held."""
     # Safety guard: verify git will operate on the clone, not a parent repo.
     try:
         toplevel = subprocess.run(
