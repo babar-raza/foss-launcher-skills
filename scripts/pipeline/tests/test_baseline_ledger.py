@@ -208,3 +208,60 @@ def test_lock_released_after_failed_append(tmp_path):
     with pytest.raises(ValueError):
         ledger.append(new_repo_sha="sha1", sha_source="INVALID", run_id="RUN-001")
     assert not ledger.lock_path.exists()
+
+
+# --- RC-baseline-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-10) ----------
+
+
+def test_append_records_repo_tree_sha_when_supplied(tmp_path):
+    ledger = BaselineLedger("pdf", "net", repo_root=tmp_path)
+    entry = ledger.append(
+        new_repo_sha="sha1", sha_source="scout", run_id="RUN-001",
+        status="accepted", accepted_at="2026-08-31T00:00:00Z", repo_tree_sha="tree1",
+    )
+    assert entry["repo_tree_sha"] == "tree1"
+    assert ledger.head()["repo_tree_sha"] == "tree1"
+
+
+def test_append_repo_tree_sha_defaults_to_none_when_not_supplied():
+    # Additive field: existing callers that never pass it must not be forced to.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        ledger = BaselineLedger("pdf", "net", repo_root=Path(td))
+        entry = ledger.append(new_repo_sha="sha1", sha_source="scout", run_id="RUN-001")
+        assert entry["repo_tree_sha"] is None
+
+
+def test_mark_orphaned_appends_a_new_entry_without_changing_head(tmp_path):
+    ledger = BaselineLedger("pdf", "net", repo_root=tmp_path)
+    accepted = ledger.append(
+        new_repo_sha="sha1", sha_source="scout", run_id="RUN-001",
+        status="accepted", accepted_at="2026-08-31T00:00:00Z", repo_tree_sha="tree1",
+    )
+    orphan_entry = ledger.mark_orphaned(
+        orphaned_sha="sha1", orphan_class="content_identical", run_id="RUN-002",
+        detected_at="2026-09-01T00:00:00Z",
+    )
+    assert orphan_entry["orphaned_sha"] == "sha1"
+    assert orphan_entry["orphan_class"] == "content_identical"
+    assert orphan_entry["orphan_detected_at"] == "2026-09-01T00:00:00Z"
+    assert orphan_entry["sha_source"] == "orphaned-recovered"
+    # head() is unchanged -- mark_orphaned is a side-channel fact, not a new current baseline.
+    assert ledger.head()["new_repo_sha"] == accepted["new_repo_sha"]
+    assert ledger.head()["status"] == "accepted"
+    # But it IS visible in full history -- an append-only fact, never lost.
+    history = ledger.history()
+    assert len(history) == 2
+    assert history[-1]["orphan_class"] == "content_identical"
+
+
+def test_mark_orphaned_rejects_invalid_orphan_class(tmp_path):
+    ledger = BaselineLedger("pdf", "net", repo_root=tmp_path)
+    with pytest.raises(ValueError, match="orphan_class"):
+        ledger.mark_orphaned(orphaned_sha="sha1", orphan_class="bogus", run_id="RUN-001")
+
+
+def test_mark_orphaned_content_changed_class(tmp_path):
+    ledger = BaselineLedger("pdf", "net", repo_root=tmp_path)
+    entry = ledger.mark_orphaned(orphaned_sha="sha1", orphan_class="content_changed", run_id="RUN-001")
+    assert entry["orphan_class"] == "content_changed"

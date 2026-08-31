@@ -176,11 +176,27 @@ class BaselineLedger:
         accepted_at: str | None = None,
         orphaned_sha: str | None = None,
         attempt_started_at: str | None = None,
+        repo_tree_sha: str | None = None,
     ) -> dict[str, Any]:
         """Append one schema-validated entry. Idempotent: a no-op if new_repo_sha
         already matches the current ACCEPTED head (returns that head unchanged,
         appends nothing new) — prevents duplicate rows when a refresh is safely
         re-run against an unchanged upstream commit.
+
+        `repo_tree_sha` (RC-baseline-tree-identity, readme-refresh-hardening-and-
+        regen-2026-08-30 TC-10): the git TREE sha (`git rev-parse {commit}^{tree}`,
+        content-addressed, independent of history/parentage) at `new_repo_sha`,
+        optional and additive — existing readers ignore an absent field, existing
+        entries are never rewritten. This is the fix for the confirmed live case a
+        commit-SHA-only baseline cannot express: `font/python`'s upstream repo is a
+        GitLab-canonical -> GitHub-mirror architecture that periodically rewrites
+        history (a real, reproduced zero-parent orphan commit, twice), yet the real
+        file content at each "release" was verified byte-identical to the prior
+        one (`git diff --stat` empty). A commit-SHA-only baseline can only ever
+        answer "reachable or not"; recording the tree SHA here lets a freshness
+        check the ACTUAL question — "did the real content change" — a distinction
+        `slides/python`'s own, structurally identical-LOOKING orphaned-baseline case
+        proved is NOT the same case: its tree SHA genuinely differs.
 
         Raises ValueError if the constructed entry fails schema validation, and
         LedgerLockTimeout if the per-product lock cannot be acquired.
@@ -206,6 +222,7 @@ class BaselineLedger:
                 "platform": self.platform,
                 "prior_repo_sha": resolved_prior,
                 "new_repo_sha": new_repo_sha,
+                "repo_tree_sha": repo_tree_sha,
                 "sha_source": sha_source,
                 "orphaned_sha": orphaned_sha,
                 "attempt_started_at": attempt_started_at or _now_iso(),
@@ -223,6 +240,59 @@ class BaselineLedger:
                 f.write(json.dumps(entry) + "\n")
 
             self.head_path.write_text(json.dumps(entry, indent=2), encoding="utf-8")
+            return entry
+        finally:
+            self._release_lock()
+
+    def mark_orphaned(
+        self,
+        *,
+        orphaned_sha: str,
+        orphan_class: str,
+        run_id: str,
+        detected_at: str | None = None,
+    ) -> dict[str, Any]:
+        """Append a new entry recording that a PREVIOUSLY accepted baseline
+        (`orphaned_sha`) is no longer reachable from the product's live clone-cache
+        HEAD — an append-only fact, never a mutation of the original accepted entry
+        (matching this ledger's whole append-only design). `orphan_class` is one of
+        `"content_identical"` (the tree SHA at `orphaned_sha` matches the tree SHA
+        now at HEAD — a history rewrite with no real content change, e.g. `font/
+        python`'s repeated GitLab-mirror-sync case) or `"content_changed"` (the
+        trees genuinely differ — e.g. `slides/python`'s case; real staleness, not
+        just a rewritten history).
+
+        Does not itself change what `head()`/`last_accepted()` return (this is
+        intentionally a side-channel fact for freshness_guard to consult, not a new
+        "current baseline") — a real replacement baseline is still recorded via a
+        normal `append(..., status="accepted")` call.
+        """
+        if orphan_class not in ("content_identical", "content_changed"):
+            raise ValueError(f"orphan_class must be 'content_identical' or 'content_changed', got {orphan_class!r}")
+        self._acquire_lock()
+        try:
+            entry: dict[str, Any] = {
+                "run_id": run_id,
+                "family": self.family,
+                "platform": self.platform,
+                "prior_repo_sha": None,
+                "new_repo_sha": orphaned_sha,
+                "repo_tree_sha": None,
+                "sha_source": "orphaned-recovered",
+                "orphaned_sha": orphaned_sha,
+                "orphan_detected_at": detected_at or _now_iso(),
+                "orphan_class": orphan_class,
+                "attempt_started_at": _now_iso(),
+                "accepted_at": None,
+                "superseded_by": None,
+                "status": "attempted",
+            }
+            errors = validate_baseline_ledger_entry(entry)
+            if errors:
+                raise ValueError(f"invalid baseline ledger orphan entry, refusing to write: {errors}")
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
             return entry
         finally:
             self._release_lock()
