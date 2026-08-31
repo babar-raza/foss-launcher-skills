@@ -253,6 +253,28 @@ def _make_scratch_repo(tmp_path):
     clone_cache_dir.parent.mkdir(parents=True)
     _run_git(["clone", "--quiet", str(upstream_dir), str(clone_cache_dir)], tmp_path)
 
+    # RC-readme-refresh-freshness-guard-compliance (2026-08-30): plan_run() now hard-gates on
+    # freshness_guard.is_generation_allowed() (degraded mode) before doing any work -- without a
+    # real model.yaml here, every test through this shared fixture would BLOCK at plan_run with
+    # PROVENANCE_MISSING. Mirrors test_refresh_run.py's own established _isolate-fixture
+    # precedent for the identical FRESH-001 migration (family/platform/repo_sha/stale_since is
+    # the minimum freshness_guard.check_freshness needs to resolve CURRENT in degraded mode --
+    # degraded mode never verifies repo_sha against the clone, so the real HEAD sha here is for
+    # authenticity, not correctness).
+    real_head = _run_git(["rev-parse", "HEAD"], upstream_dir)
+    (knowledge_dir / "model.yaml").write_text(
+        f"family: testfam\nplatform: testplat\nrepo_sha: {real_head}\nstale_since: null\n",
+        encoding="utf-8",
+    )
+
+    # RC-banner-asset-existence (readme-refresh-hardening-and-regen-2026-08-30): the new
+    # check_banner_asset_exists hard gate needs a real file on disk at the path _GOOD_CANDIDATE's
+    # own banner line names -- without this, every test through this shared fixture would report
+    # a spurious banner_asset_exists finding.
+    banner_dir = repo_root / "static" / "media" / "testfam" / "testplat"
+    banner_dir.mkdir(parents=True)
+    (banner_dir / "banner-readme.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+
     return repo_root, upstream_dir
 
 

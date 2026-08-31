@@ -18,6 +18,8 @@ import argparse
 import json
 import re
 import sys
+
+import yaml
 from pathlib import Path
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
@@ -99,8 +101,34 @@ def _extract_id_from_content(text: str) -> str | None:
     return None
 
 
-def _extract_description(text: str) -> str:
-    """Extract first sentence after ## Purpose as a description."""
+def _extract_description(text: str, frontmatter: str = "") -> str:
+    """RC-skill-description-placeholder-fix (readme-refresh-hardening-and-regen-2026-08-30):
+    prefer the frontmatter's own curated `description:` field first -- every skill already
+    writes one (it is a required field per the skill-authoring convention), and it is the
+    actual source of truth the registry's own docstring/CONTRACT block promises ("machine-
+    readable skill catalog"). The prior body-only `## Purpose`-heading scan silently produced
+    "Skill description pending" for any skill whose body doesn't happen to use that exact
+    heading -- confirmed live for S-120 (readme-refresh.md has no `## Purpose` section at all;
+    its structure is `## Official execution contract` / `## Steps` / etc.), not a content gap
+    in that skill doc, a scope gap in this extractor. Falls back to the original `## Purpose`
+    body-scan only when frontmatter has no description, so skills relying on that convention
+    are unaffected.
+    """
+    if frontmatter:
+        try:
+            fm_data = yaml.safe_load(frontmatter.strip().strip("-").strip()) or {}
+        except yaml.YAMLError:
+            fm_data = {}
+        fm_description = fm_data.get("description")
+        if isinstance(fm_description, str) and fm_description.strip():
+            # Frontmatter descriptions are often a folded YAML block (`description: >`) --
+            # normalize embedded newlines/indentation to a single sentence-flow string, then
+            # truncate at the first sentence boundary, matching the body-scan branch's own
+            # truncation convention below.
+            flat = " ".join(fm_description.split())
+            if ". " in flat:
+                return flat[:flat.index(". ") + 1]
+            return flat
     m = _PURPOSE_RE.search(text)
     if not m:
         return "Skill description pending"
@@ -275,14 +303,14 @@ def generate_registry(dry_run: bool = False) -> bool:
             continue
 
         raw = canonical_path.read_text(encoding="utf-8", errors="replace")
-        _, content = _extract_frontmatter(raw)
+        fm, content = _extract_frontmatter(raw)
 
         skill_id = _extract_id_from_content(content)
         if skill_id is None:
             continue
 
         title = _extract_title(content)
-        description = _extract_description(content)
+        description = _extract_description(content, frontmatter=fm)
         args = _extract_args(content)
         internal = slug in INTERNAL_SKILLS
 

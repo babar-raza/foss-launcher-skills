@@ -1702,6 +1702,50 @@ def check_banner_links_to_homepage(readme_text: str, homepage: "dict | None") ->
     return []
 
 
+def check_banner_asset_exists(
+    readme_text: str, family: str, platform: str, repo_root: "str | Path | None" = None,
+) -> list[dict]:
+    """Hard gate (RC-banner-asset-existence, readme-refresh-hardening-and-regen-2026-08-30).
+
+    `check_banner_present` (above) validates the banner LINE's shape and family/platform match
+    against the README text alone -- it has never verified the referenced image file actually
+    exists on disk at `static/media/{family}/{platform}/banner-readme.png`. Confirmed live during
+    this mission's own investigation (2026-08-30): the URL is pure regex-validated string shape;
+    a brand-new product with no media package at all (`pdf/typescript`'s `static/media/pdf/
+    typescript/` did not exist) would produce a candidate that passes `check_banner_present`
+    while shipping a broken hero image on GitHub -- the worst possible time for this gate to be
+    silent, since a first-launch candidate is exactly when the asset is least likely to already
+    exist. `repo_root` defaults to this file's own repo root (four parents up from
+    `commands/foss/`) when not supplied, matching `_find_class_source_files`'s own
+    `clone_cache_root` parameter convention -- an explicit path in, no module-level global state.
+
+    Deliberately independent of `check_banner_present`'s own line-shape validation: a malformed
+    or absent banner LINE is that function's finding to raise, not duplicated here. This check
+    fires only when a well-formed banner line names an asset path that does not exist on disk --
+    including the case where `check_banner_present` already found zero problems with the line
+    itself, which is exactly the blind spot this closes.
+    """
+    idx, line = _find_banner_line(readme_text)
+    if idx is None:
+        return []
+    linked_match = _LINKED_BANNER_LINE_RE.match(line)
+    unlinked_match = None if linked_match else _BANNER_LINE_RE.match(line)
+    match = linked_match or unlinked_match
+    if not match:
+        return []
+    url_family, url_platform = match.group(3), match.group(4)
+    root = Path(repo_root) if repo_root is not None else Path(__file__).resolve().parents[3]
+    asset_path = root / "static" / "media" / url_family / url_platform / "banner-readme.png"
+    if not asset_path.is_file():
+        return [{
+            "reason": f"banner references static/media/{url_family}/{url_platform}/"
+                      f"banner-readme.png but no such file exists on disk -- the README would "
+                      f"ship a broken hero image",
+            "expected_path": str(asset_path.relative_to(root)) if asset_path.is_relative_to(root) else str(asset_path),
+        }]
+    return []
+
+
 def surgical_diff_check(declared_file_set: list[str], changed_files: list[str]) -> list[str]:
     """Return any path in changed_files not present in declared_file_set -- an undeclared
     change. Hard gate at push time: the file set is fixed at plan time and shown during

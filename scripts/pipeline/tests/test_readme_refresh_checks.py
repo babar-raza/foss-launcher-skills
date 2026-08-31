@@ -2841,6 +2841,51 @@ def test_banner_links_to_homepage_no_banner_line_is_vacuous():
     assert checks.check_banner_links_to_homepage(text, {"url": "x", "verified": True}) == []
 
 
+# --- check_banner_asset_exists (readme-refresh-hardening-and-regen-2026-08-30) -----------------
+
+
+def test_banner_asset_exists_passes_when_file_present(tmp_path):
+    (tmp_path / "static" / "media" / "cells" / "cpp").mkdir(parents=True)
+    (tmp_path / "static" / "media" / "cells" / "cpp" / "banner-readme.png").write_bytes(b"\x89PNG")
+    text = _readme_with_badge_and_banner("cells", "cpp")
+    assert checks.check_banner_asset_exists(text, "cells", "cpp", repo_root=tmp_path) == []
+
+
+def test_banner_asset_exists_flags_missing_file(tmp_path):
+    # No static/media directory created at all -- the pdf/typescript reproduction case this
+    # check exists for.
+    text = _readme_with_badge_and_banner("pdf", "typescript")
+    findings = checks.check_banner_asset_exists(text, "pdf", "typescript", repo_root=tmp_path)
+    assert findings and "no such file exists on disk" in findings[0]["reason"]
+    assert "pdf" in findings[0]["expected_path"] and "typescript" in findings[0]["expected_path"]
+
+
+def test_banner_asset_exists_checks_the_urls_own_family_platform_not_the_caller_args(tmp_path):
+    # Cross-product contamination case: check_banner_present already flags this on its own
+    # grounds (URL family/platform != caller's family/platform); this check independently
+    # verifies the asset the URL actually names, which is the OTHER product's path, not the
+    # caller's -- confirming the two checks are checking genuinely different things, not
+    # duplicating each other.
+    (tmp_path / "static" / "media" / "email" / "net").mkdir(parents=True)
+    (tmp_path / "static" / "media" / "email" / "net" / "banner-readme.png").write_bytes(b"\x89PNG")
+    text = _readme_with_badge_and_banner("email", "net")
+    assert checks.check_banner_asset_exists(text, "cells", "cpp", repo_root=tmp_path) == []
+
+
+def test_banner_asset_exists_vacuous_without_a_banner_line():
+    text = "# Test Product\n\nNo badge row or banner here.\n"
+    assert checks.check_banner_asset_exists(text, "cells", "cpp", repo_root="/nonexistent") == []
+
+
+def test_banner_asset_exists_vacuous_on_malformed_banner_line():
+    text = _readme_with_badge_and_banner(
+        "cells", "cpp", banner_line="![Test Product](not-a-real-banner-url.png)",
+    )
+    # check_banner_present's own job to flag the malformed line -- this check is a no-op here,
+    # same convention as check_banner_links_to_homepage above.
+    assert checks.check_banner_asset_exists(text, "cells", "cpp", repo_root="/nonexistent") == []
+
+
 # --- MT027 (2026-08-09): ground API Reference in reference.aspose.org's own graded content ----
 
 # Real content shape, captured from a direct read of content/reference.aspose.org/en/tex/python/

@@ -72,6 +72,7 @@ import session_identity  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write  # noqa: E402
 import backlink_targets  # noqa: E402
+import freshness_guard  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
 import dependency_extract  # noqa: E402
@@ -159,6 +160,12 @@ def configure(
     _command_runner = command_runner or subprocess.run
     _now = now or (lambda: datetime.now(timezone.utc))
     _verification_runner = verification_runner
+    # RC-readme-refresh-freshness-guard-compliance (2026-08-30): keep freshness_guard's
+    # module-level repo_root in lockstep with this module's own configure() -- the exact
+    # FRESH-001 precedent in refresh_run.py/batch_reference.py. Without this, a test that
+    # points this module at a tmp_path would still have freshness_guard resolving against
+    # the real repo's knowledge/ tree underneath it.
+    freshness_guard.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -1863,6 +1870,33 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
         if manifest["session_owner"] != owner:
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
 
+        # RC-readme-refresh-freshness-guard-compliance (2026-08-30): AGENTS.md 5a requires
+        # every generation skill to hard-stop on stale/missing knowledge before writing any
+        # content. readme_refresh_run.py had zero references to freshness_guard despite 4
+        # sibling generation skills (batch_reference.py, refresh_run.py, launch_gate.py,
+        # readiness_gate.py) already gating on it -- confirmed by exhaustive grep before this
+        # fix. Degraded mode only (no network call), matching this function's prior no-network
+        # behavior and the identical precedent in refresh_run.py's own knowledge-model loader.
+        # This alone does NOT make font/python's orphaned-but-content-identical baseline
+        # correctly permissive -- that requires the tree-identity states this same mission's
+        # Phase 3 adds to freshness_guard itself; until then, degraded mode's PROVENANCE_MISSING/
+        # STALE verdicts are still the only ones this call can produce for a genuinely absent or
+        # explicitly-flagged-stale knowledge bundle.
+        allowed, fresh_result = freshness_guard.is_generation_allowed(family, platform, mode="degraded")
+        if not allowed:
+            _block(
+                manifest,
+                f"knowledge freshness gate failed (state={fresh_result.state}): {fresh_result.reason}",
+            )
+            raise ReadmeRefreshRunError(
+                f"plan BLOCKED for {family}/{platform}: knowledge freshness state="
+                f"{fresh_result.state} ({fresh_result.reason}). Run {run_id} is now BLOCKED "
+                f"(resume_state={manifest['resume_state']!r}). Refresh knowledge first "
+                f"(/repo-scout -> /knowledge-enrich -> /truth-merge), then call `recover` to "
+                f"retry `plan`. AGENTS.md 5a: generation must never proceed on stale/missing "
+                f"knowledge."
+            )
+
         clone_cache = _product_clone_cache(family, platform)
         pinned_revision = manifest.get("pinned_inputs", {}).get("clone_cache_head")
         # Thirty-First incident / MT041 (2026-08-14): real dependency extraction, fail-closed.
@@ -2044,6 +2078,13 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["banner_links_to_homepage"] = {
         "hard_gate": True,
         "findings": checks.check_banner_links_to_homepage(text, _detect_homepage_link(family, platform)),
+    }
+    # RC-banner-asset-existence (readme-refresh-hardening-and-regen-2026-08-30): banner_present
+    # (above) only ever validated the banner LINE's shape; the referenced image file's actual
+    # existence on disk was never checked by anything in this battery until now.
+    result["banner_asset_exists"] = {
+        "hard_gate": True,
+        "findings": checks.check_banner_asset_exists(text, family, platform, repo_root=_repo_root),
     }
     result["no_excluded_domain_links"] = {
         "hard_gate": True, "findings": checks.check_no_excluded_domain_links(text),
