@@ -3386,6 +3386,77 @@ def test_api_reference_table_completeness_ignores_content_after_detailed_member_
     assert findings == []
 
 
+def test_api_reference_public_type_count_matches_table_clean_when_counts_agree():
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section() + "\nThis package ships 3 public types.\n",
+    )
+    assert checks.check_api_reference_public_type_count_matches_table(text) == []
+
+
+def test_api_reference_public_type_count_matches_table_flags_mismatch():
+    # Real, confirmed live defect: font/python's Documentation & Resources section states
+    # "the complete, browsable reference for all 139 public types" while its own README API
+    # Reference table lists a different number of distinct classes -- reproduced here with the
+    # default 3-class fixture table standing in for font/python's real (smaller) table.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section() + (
+            "\n- **[Full API reference](https://reference.aspose.org/font/python/)** -- the "
+            "complete, browsable reference for all 139 public types (the [API reference]"
+            "(#api-reference) section above covers the essentials).\n"
+        ),
+    )
+    findings = checks.check_api_reference_public_type_count_matches_table(text)
+    assert findings == [{
+        "claimed_count": 139, "actual_table_count": 3,
+        "reason": "prose claims 139 public types, but the README's own API Reference table "
+                  "lists 3 distinct classes -- these two candidate-authored numbers must "
+                  "agree with each other",
+    }]
+
+
+def test_api_reference_public_type_count_matches_table_noop_when_no_claim_present():
+    text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
+    assert checks.check_api_reference_public_type_count_matches_table(text) == []
+
+
+def test_api_reference_public_type_count_matches_table_noop_when_no_section():
+    text = _wrap("flowchart TD\n  A --> B") + "\nThis package ships 139 public types.\n"
+    assert checks.check_api_reference_public_type_count_matches_table(text) == []
+
+
+def test_api_reference_public_type_count_matches_table_noop_when_table_has_zero_rows():
+    # No ground truth to check the prose claim against -- stays a vacuous, non-blocking
+    # silence rather than a false positive, matching check_api_reference_table_completeness's
+    # own established discipline for the same situation.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section(core_rows=[], interfaces_rows=[]) + (
+            "\nThis package ships 139 public types.\n"
+        ),
+    )
+    assert checks.check_api_reference_public_type_count_matches_table(text) == []
+
+
+def test_api_reference_public_type_count_matches_table_checks_every_restatement_independently():
+    # A product may restate the count in more than one place; each restatement is checked on
+    # its own, so a correct restatement elsewhere does not mask a wrong one.
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=_api_table_section() + (
+            "\nThis package ships 3 public types. Elsewhere, docs claim 5 public types.\n"
+        ),
+    )
+    findings = checks.check_api_reference_public_type_count_matches_table(text)
+    assert findings == [{
+        "claimed_count": 5, "actual_table_count": 3,
+        "reason": "prose claims 5 public types, but the README's own API Reference table "
+                  "lists 3 distinct classes -- these two candidate-authored numbers must "
+                  "agree with each other",
+    }]
+
+
 def test_api_reference_table_no_duplicate_rows_clean_table():
     text = _wrap("flowchart TD\n  A --> B", extra_section=_api_table_section())
     assert checks.check_api_reference_table_no_duplicate_rows(text) == []

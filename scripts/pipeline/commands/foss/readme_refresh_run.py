@@ -2816,6 +2816,15 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_api_reference_table_no_duplicate_rows(text),
     }
+    # RC-candidate-self-consistency-checks remaining sub-item 1 (TC-24, readme-refresh-
+    # hardening-and-regen-2026-08-30): a candidate's own "N public types" prose claim must
+    # agree with its own API Reference table's distinct-class count -- confirmed live, real
+    # on font/python (its Documentation & Resources section's "139 public types" claim
+    # disagrees with its own table).
+    result["api_reference_public_type_count_matches_table"] = {
+        "hard_gate": True,
+        "findings": checks.check_api_reference_public_type_count_matches_table(text),
+    }
     result["api_reference_generic_description"] = {
         "hard_gate": False,
         "findings": checks.check_no_generic_class_description(text),

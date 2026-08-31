@@ -3349,6 +3349,58 @@ def _parse_readme_api_tables(section_text: str) -> dict[str, list[str]]:
     return tables
 
 
+_PUBLIC_TYPE_COUNT_CLAIM_RE = re.compile(r"\b(\d+)\s+public\s+types?\b", re.IGNORECASE)
+
+
+def check_api_reference_public_type_count_matches_table(readme_text: str) -> list[dict]:
+    """Hard gate (RC-candidate-self-consistency-checks remaining sub-item 1,
+    readme-refresh-hardening-and-regen-2026-08-30, TC-24). No prior check cross-referenced a
+    candidate's own numeric self-report prose claim against a count the same document can
+    compute for itself from its own `## API Reference` table (`_parse_readme_api_tables`,
+    reused rather than forked -- the same parser `check_api_reference_table_completeness`
+    already relies on).
+
+    Confirmed live, real: font/python's Documentation & Resources section states "the
+    complete, browsable reference for all 139 public types" while its own README API
+    Reference table lists a different number of distinct classes -- the claim and the table
+    the SAME candidate presents disagree, a real, mechanically checkable self-consistency
+    defect independent of any external source (this check never reads reference_index or the
+    clone cache -- it only asks whether the candidate agrees with itself).
+
+    Only fires when the candidate's own table parses to a non-zero class count -- a product
+    with no `## API Reference` table yet has nothing to cross-check the prose claim against,
+    so this stays a vacuous, non-blocking silence rather than a false positive, matching this
+    module's own established discipline for a check with no ground truth to compare against
+    (see check_api_reference_table_completeness's identical `if not reference_index: return []`
+    precedent).
+
+    Every `N public types` occurrence in the full candidate text is checked independently -- a
+    product may restate the count in more than one place (e.g. Introduction AND Documentation
+    & Resources), and each restatement must independently agree with the table.
+    """
+    claims = [int(match.group(1)) for match in _PUBLIC_TYPE_COUNT_CLAIM_RE.finditer(readme_text)]
+    if not claims:
+        return []
+    section_match = _FULL_API_REF_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    tables = _parse_readme_api_tables(section_match.group(1))
+    actual_count = len({cls for classes in tables.values() for cls in classes})
+    if actual_count == 0:
+        return []
+    findings: list[dict] = []
+    for claimed in claims:
+        if claimed != actual_count:
+            findings.append({
+                "claimed_count": claimed,
+                "actual_table_count": actual_count,
+                "reason": f"prose claims {claimed} public types, but the README's own API "
+                          f"Reference table lists {actual_count} distinct classes -- these "
+                          f"two candidate-authored numbers must agree with each other",
+            })
+    return findings
+
+
 def check_api_reference_table_completeness(
     readme_text: str, reference_index: dict[str, list[dict]] | None,
     exclusions: "set[str] | None" = None,
