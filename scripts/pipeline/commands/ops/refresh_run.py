@@ -2100,7 +2100,21 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
             )
         decision_rows.append(row)
     scope_paths_list = list(manifest.get("scope", {}).get("paths") or [])
-    initial_hashes = _assert_pinned_scope(manifest).get("initial_hashes") or {}
+    # HARDEN-extra-allowed-apply-reconcile (2026-08-31, MT040 Phase I TC-56):
+    # unlike the sibling reconciliation call in verify()/run() (~L793), this
+    # apply_run() post-write check used the RAW initial_hashes with no
+    # _augment_initial_hashes_with_extra_allowed() call -- so an authorized
+    # out-of-band write (_record_extra_allowed_hash(), e.g. a governed
+    # retire_page.py retirement of a stale collision page done between
+    # PLANNED and apply) always showed up as a "real_missing" scope/decision
+    # violation here even though it is exactly the class of write this
+    # sidecar exists to authorize. Confirmed live retiring 3d/typescript's
+    # BoundingBoxExtent.md: registering the extra-allowed hash satisfied
+    # bind_commit's own check (which already called this helper) but
+    # apply_run's reconciliation still blocked on the same page.
+    initial_hashes = _augment_initial_hashes_with_extra_allowed(
+        _assert_pinned_scope(manifest).get("initial_hashes") or {}, run_root
+    )
     real_missing, real_unexpected = _reconcile_scope_and_decisions(
         scope_paths_list, decision_rows, initial_hashes
     )

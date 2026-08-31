@@ -1891,6 +1891,52 @@ def test_apply_reconciliation_still_blocks_real_violations(tmp_path: Path):
         refresh_run.apply_run(manifest)
 
 
+def test_apply_reconciliation_honors_extra_allowed_hash(tmp_path: Path):
+    """HARDEN-extra-allowed-apply-reconcile (2026-08-31, MT040 Phase I
+    TC-56): apply_run()'s own post-write reconciliation used the RAW
+    initial_hashes with no _augment_initial_hashes_with_extra_allowed()
+    call, unlike the sibling reconciliation in verify()/run() -- so a
+    governed out-of-band write authorized via _record_extra_allowed_hash()
+    (e.g. retire_page.py retiring a stale collision page between PLANNED
+    and apply, exactly the class of write this sidecar exists to
+    authorize) still raised here. Confirmed live retiring 3d/typescript's
+    BoundingBoxExtent.md: registering the extra-allowed hash satisfied
+    bind_commit's own check but apply_run's own reconciliation still
+    blocked on the identical page."""
+    retired = "content/reference.aspose.org/en/pdf/net/Retired.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [retired], "RUN-EXTRA-ALLOWED-APPLY")
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-EXTRA-ALLOWED-APPLY"
+
+    def retiring_runner(args: list[str], **_: object):
+        # Retired is a content/reference.aspose.org/... page -- its governed
+        # writer is batch_reference.py, not body_refresh.py.
+        if any("batch_reference.py" in str(a) for a in args):
+            # Simulate a governed retire_page.py write: content changes,
+            # NO decision row (retire_page.py is not a run writer), but the
+            # hash is registered as an authorized out-of-band write. The
+            # ledger file itself must still exist (a real multi-page run's
+            # writers always create it, even when THIS page needed no row).
+            (tmp_path / retired).write_text(
+                "---\ndraft: true\nretired_at: '2026-08-31'\n---\n\noriginal\n",
+                encoding="utf-8",
+            )
+            new_hash = refresh_run._path_hash(retired)
+            refresh_run._record_extra_allowed_hash(run_root, retired, new_hash)
+            (run_root / "page_decisions.jsonl").touch()
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=retiring_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)  # must not raise
+    assert result["state"] == "VALIDATING"
+
+
 def test_apply_reconciliation_blocks_generated_over_existing_content(tmp_path: Path):
     """Negative control, narrower than the one above: a GENERATED row for an
     out-of-scope page whose body_hash_before is explicitly non-empty (proof
