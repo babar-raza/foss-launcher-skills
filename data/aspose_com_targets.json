@@ -556,6 +556,13 @@
           "inventory_completeness": "synthesized",
           "last_verified": "2026-08-21T20:36:09.644106+00:00"
         },
+        "pdf/typescript": {
+          "url": "https://products.aspose.com/pdf/typescript/",
+          "http_status": 404,
+          "redirect_chain": [],
+          "inventory_completeness": "manually-verified",
+          "last_verified": "2026-08-31T17:23:36Z"
+        },
         "cells/cpp": {
           "url": "https://products.aspose.com/cells/cpp/",
           "http_status": 200,
