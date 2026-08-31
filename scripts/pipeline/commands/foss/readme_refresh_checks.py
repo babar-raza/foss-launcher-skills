@@ -7572,6 +7572,76 @@ def check_structural_unit_disposition_coverage(
     return findings
 
 
+_MIN_SECTION_BODY_CHARS_FOR_TRACEABILITY = 40
+
+
+def check_candidate_section_disposition_traceability(
+    readme_text: str, content_dispositions: list[dict], structural_dispositions: list[dict],
+) -> list[dict]:
+    """Advisory (RC-disposition-bidirectional-coverage, readme-refresh-hardening-and-
+    regen-2026-08-30, TC-22). `check_content_unit_disposition_coverage` and `check_structural_
+    unit_disposition_coverage` are both provably one-directional -- they only ever walk units
+    `extract_old_readme_content_units`/`extract_old_readme_structural_units` find in the OLD
+    README, so a required template section whose candidate content is substantially NEW (never
+    derived from any old unit) has no `unit_id` to check against, and is structurally invisible
+    to both checks no matter how large or how factual its claims are. This is the closed audit's
+    own confirmed finding (`RC-disposition-bidirectional-coverage`, 2026-08-26): "13/31 products
+    (42%) have new candidate content -- overwhelmingly a Dependencies section... with zero
+    disposition-ledger trace of any kind." Independently re-swept against this session's own
+    current candidates (2026-08-31): 13 of 31 real products, Dependencies the large majority --
+    the exact same count, confirming the gap is still live and unchanged.
+
+    Deliberately scoped to `_REQUIRED_SECTIONS` only (the closed template list) -- a candidate's
+    own genuinely novel heading is out of scope for a different reason entirely (nothing requires
+    it to trace back to anything), not this check's concern.
+
+    Deliberately ADVISORY, never a hard gate, for a reason confirmed by that same real sweep: a
+    required section can legitimately and correctly have zero disposition trace when its content
+    is entirely sourced from and verified by a DIFFERENT mechanism outside the disposition system
+    -- Installation from the package registry (`check_dependency_snapshot_completeness` and
+    friends), API Reference from reference.aspose.org's own graded index
+    (`check_api_reference_table_completeness` and friends). This check has no way yet to tell
+    that legitimate case apart from the real gap (Dependencies prose that makes an unverified
+    claim with no disposition AND no other check covering it) -- which is exactly why a
+    `new_content` disposition classification with its own required evidence_ref (the schema
+    extension this taskcard's own title names) is real, larger, disclosed follow-on scope, not
+    attempted here. This check is the safe, honest, zero-false-block first step: real visibility
+    into which sections are actually undertraced, portfolio-wide, without claiming certainty
+    about which of them are genuine defects.
+
+    A section counts as having "real candidate content" once its body (the text after the `##`
+    heading line, before the next `##` heading) is at least
+    `_MIN_SECTION_BODY_CHARS_FOR_TRACEABILITY` (40) characters after stripping -- filtering out
+    a trivial stub like "## Dependencies\n\nNone." that genuinely has nothing to trace.
+    """
+    sections = _split_into_sections(readme_text)
+    targeted_sections = {
+        entry.get("target_section")
+        for entry in (content_dispositions or []) + (structural_dispositions or [])
+        if entry.get("target_section")
+    }
+    findings: list[dict] = []
+    for heading in _REQUIRED_SECTIONS:
+        section_text = sections.get(heading)
+        if section_text is None:
+            continue
+        body_lines = section_text.splitlines()[1:]  # drop the "## Heading" line itself
+        body_text = "\n".join(body_lines).strip()
+        if len(body_text) < _MIN_SECTION_BODY_CHARS_FOR_TRACEABILITY:
+            continue
+        if heading not in targeted_sections:
+            findings.append({
+                "heading": heading,
+                "reason": f"'{heading}' has real candidate content but zero disposition entries "
+                          f"(content or structural) target it -- may be candidate-authored new "
+                          f"content with no traceability to the old README, or may be legitimately "
+                          f"sourced from and verified by a different mechanism entirely (package "
+                          f"registry, reference.aspose.org); advisory only -- verify which case "
+                          f"this is before treating it as a defect",
+            })
+    return findings
+
+
 def check_structural_unit_disposition_text_diff(
     structural_units: list[dict], dispositions: list[dict], candidate_text: str,
 ) -> list[dict]:

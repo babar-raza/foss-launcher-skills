@@ -2577,6 +2577,18 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
                 structural_units, structure_dispositions, str(clone_cache)
             ),
         }
+        # RC-disposition-bidirectional-coverage (readme-refresh-hardening-and-regen-2026-08-30,
+        # TC-22): the two coverage checks above are both one-directional (old-README-unit-driven
+        # only) -- a required section that's substantially new candidate content has no unit_id
+        # to check against and is invisible to both. Advisory, not a hard gate -- see the check's
+        # own docstring for why a real "zero disposition trace" finding can be either a genuine
+        # gap or a section legitimately sourced/verified elsewhere entirely.
+        result["candidate_section_disposition_traceability"] = {
+            "hard_gate": False,
+            "findings": checks.check_candidate_section_disposition_traceability(
+                text, dispositions, structure_dispositions,
+            ),
+        }
 
         # Thirty-Seventh incident / MT047 (2026-08-15): code-example (fenced-code) preservation
         # -- extract_old_readme_content_units strips ALL fenced code before segmenting by design,

@@ -7202,6 +7202,72 @@ def test_structural_tree_paths_plausible_clean_when_resolved(tmp_path):
     assert checks.check_structural_unit_tree_paths_plausible([unit], dispositions, str(tmp_path)) == []
 
 
+# --- check_candidate_section_disposition_traceability (advisory) ---------------------------
+
+
+_TRACEABILITY_DEPENDENCIES_SECTION = (
+    "## Dependencies\n\n"
+    "This package requires the real, substantial third-party runtime described here in "
+    "enough detail to clear the minimum body-length threshold for this check.\n"
+)
+
+
+def test_candidate_section_disposition_traceability_clean_when_content_disposition_targets_it():
+    text = "# Product\n\n" + _TRACEABILITY_DEPENDENCIES_SECTION
+    content_dispositions = [{"unit_id": "u0001", "target_section": "Dependencies"}]
+    assert checks.check_candidate_section_disposition_traceability(text, content_dispositions, []) == []
+
+
+def test_candidate_section_disposition_traceability_clean_when_structural_disposition_targets_it():
+    text = "# Product\n\n" + _TRACEABILITY_DEPENDENCIES_SECTION
+    structural_dispositions = [{"unit_id": "s0001", "target_section": "Dependencies"}]
+    assert checks.check_candidate_section_disposition_traceability(text, [], structural_dispositions) == []
+
+
+def test_candidate_section_disposition_traceability_flags_untracked_section():
+    # Real, confirmed live: 13 of 31 real candidates (2026-08-31 re-sweep, exactly matching the
+    # closed audit's own 2026-08-26 count) have a required section -- overwhelmingly Dependencies
+    # -- with zero disposition entries of any kind targeting it.
+    text = "# Product\n\n" + _TRACEABILITY_DEPENDENCIES_SECTION
+    findings = checks.check_candidate_section_disposition_traceability(text, [], [])
+    assert findings == [{
+        "heading": "Dependencies",
+        "reason": "'Dependencies' has real candidate content but zero disposition entries "
+                  "(content or structural) target it -- may be candidate-authored new content "
+                  "with no traceability to the old README, or may be legitimately sourced from "
+                  "and verified by a different mechanism entirely (package registry, "
+                  "reference.aspose.org); advisory only -- verify which case this is before "
+                  "treating it as a defect",
+    }]
+
+
+def test_candidate_section_disposition_traceability_ignores_trivial_stub_section():
+    text = "# Product\n\n## Dependencies\n\nNone.\n"
+    assert checks.check_candidate_section_disposition_traceability(text, [], []) == []
+
+
+def test_candidate_section_disposition_traceability_ignores_absent_section():
+    text = "# Product\n\n## Key Capabilities\n\n- Does a thing.\n"
+    assert checks.check_candidate_section_disposition_traceability(text, [], []) == []
+
+
+def test_candidate_section_disposition_traceability_ignores_non_required_heading():
+    text = (
+        "# Product\n\n## Some Novel Candidate-Authored Heading\n\n"
+        "Real, substantial prose under a heading that is not one of this skill's required "
+        "template sections at all -- out of scope for this check by design.\n"
+    )
+    assert checks.check_candidate_section_disposition_traceability(text, [], []) == []
+
+
+def test_candidate_section_disposition_traceability_ignores_unrelated_target_section():
+    # A disposition targeting a DIFFERENT section must not accidentally satisfy Dependencies.
+    text = "# Product\n\n" + _TRACEABILITY_DEPENDENCIES_SECTION
+    content_dispositions = [{"unit_id": "u0001", "target_section": "License"}]
+    findings = checks.check_candidate_section_disposition_traceability(text, content_dispositions, [])
+    assert [f["heading"] for f in findings] == ["Dependencies"]
+
+
 # --- extract_badges / classify_badge --------------------------------------------------------
 
 
