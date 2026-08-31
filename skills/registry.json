@@ -488,7 +488,7 @@
       "id": "S-79",
       "slug": "launch-rollback",
       "name": "Launch Rollback — Revert One Product's Generated Content",
-      "description": "Revert all generated content files for a specific `{family}/{platform}` product back to their",
+      "description": "Revert one product's generated content files without touching system scripts",
       "internal": false,
       "canonical_path": "skills/launch-rollback.md"
     },
@@ -496,7 +496,7 @@
       "id": "S-80",
       "slug": "coverage-reconcile",
       "name": "Coverage Reconcile — Knowledge Unit Disposition Report",
-      "description": "Produce a full disposition table for every knowledge unit (claim from claims.json,",
+      "description": "Trace every knowledge unit (claim, API member) to a page disposition",
       "internal": false,
       "canonical_path": "skills/coverage-reconcile.md"
     },
@@ -528,7 +528,7 @@
       "id": "S-84",
       "slug": "refresh-product",
       "name": "Refresh Product",
-      "description": "Re-generate content for a single product after a knowledge update.",
+      "description": "Start, resume, inspect, verify, recover, bind, or abandon one production product refresh through the registered run-bound refresh_run.py state machine.",
       "internal": false,
       "canonical_path": "skills/refresh-product.md"
     },
@@ -544,7 +544,7 @@
       "id": "S-86",
       "slug": "refresh-product-page",
       "name": "Refresh Product Page — Re-generate Product Landing Page",
-      "description": "Re-generate a single `products.aspose.org` landing page when the generation template",
+      "description": "Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection.",
       "internal": false,
       "canonical_path": "skills/refresh-product-page.md"
     },
@@ -691,7 +691,7 @@
       "id": "S-104",
       "slug": "semantic-diff",
       "name": "Semantic Diff",
-      "description": "Skill description pending",
+      "description": "Convert knowledge_delta.json into typed semantic change objects.",
       "internal": false,
       "canonical_path": "skills/semantic-diff.md"
     },
@@ -699,7 +699,7 @@
       "id": "S-105",
       "slug": "body-refresh",
       "name": "Body Refresh",
-      "description": "Skill description pending",
+      "description": "Execute body prose updates for docs/KB/blog pages based on semantic changes.",
       "internal": false,
       "canonical_path": "skills/body-refresh.md"
     },
@@ -707,7 +707,7 @@
       "id": "S-106",
       "slug": "refresh-oracle",
       "name": "Refresh Oracle",
-      "description": "Skill description pending",
+      "description": "Validate refreshed content against source truth after body_refresh execution.",
       "internal": false,
       "canonical_path": "skills/refresh-oracle.md"
     },
@@ -715,7 +715,7 @@
       "id": "S-107",
       "slug": "locale-refresh-handoff",
       "name": "Locale Refresh Handoff",
-      "description": "Skill description pending",
+      "description": "Queue locale equivalents for re-translation after body refresh updates.",
       "internal": false,
       "canonical_path": "skills/locale-refresh-handoff.md"
     },
@@ -723,7 +723,7 @@
       "id": "S-108",
       "slug": "frontmatter-body-consistency",
       "name": "Frontmatter Body Consistency",
-      "description": "Skill description pending",
+      "description": "Detect contradictions between frontmatter evidence fields and body prose.",
       "internal": false,
       "canonical_path": "skills/frontmatter-body-consistency.md"
     },
@@ -812,7 +812,7 @@
       "id": "S-120",
       "slug": "readme-refresh",
       "name": "README Refresh",
-      "description": "Skill description pending",
+      "description": "Generate, verify, and (on explicit approval) push a production-grade README.md refresh for one FOSS product repository, through the registered run-bound readme_refresh_run.py state machine.",
       "internal": false,
       "canonical_path": "skills/readme-refresh.md"
     },
@@ -820,7 +820,7 @@
       "id": "S-121",
       "slug": "root-docs-refresh",
       "name": "Root Docs Refresh",
-      "description": "Skill description pending",
+      "description": "Repeatable, deterministic-check-driven refresh of the seven root-level operator/governance docs (OPERATOR_GUIDE.md, RUNBOOK.md, CODEX.md, GRADE_CONTRACT.md, LAYMAN_SYSTEM_STATUS_REVIEW.md, TASK_BACKLOG.md, TASK_BACKLOG_20260521.md) through the registered run-bound root_docs_refresh_run.py state machine.",
       "internal": false,
       "canonical_path": "skills/root-docs-refresh.md",
       "args": "none — always operates on the fixed seven-file set."
@@ -829,7 +829,7 @@
       "id": "S-122",
       "slug": "blind-spot-audit",
       "name": "Blind-Spot Audit",
-      "description": "Skill description pending",
+      "description": "Read-only, unaided (no-tooling) dual-pass review of one or more products' cloned FOSS repos and generated content, sealed before any system tooling runs, then a system-tooling pass, a manual-vs-system blind-spot comparison matrix, root-cause analysis, solution- options fix planning, and schema-5f taskcard emission via the registered run-bound blind_spot_audit_run.py state machine.",
       "internal": false,
       "canonical_path": "skills/blind-spot-audit.md",
       "args": "`--products family/platform [family/platform ...] --mission-id ID`"
@@ -838,7 +838,7 @@
       "id": "S-123",
       "slug": "forensic-heal-sprint",
       "name": "Forensic Heal Sprint",
-      "description": "Skill description pending",
+      "description": "Consumes a mission's schema-5f taskcards (typically emitted by S-122 blind-spot-audit) and drives them through system-heal, content-regen, verify, harden, reverify, a 7-link pilot chain, 12 named adversarial probes, and computed (never asserted) dual verdicts, appending one tracked row to docs/governance/forensic-heal-history.md on close.",
       "internal": false,
       "canonical_path": "skills/forensic-heal-sprint.md",
       "args": "`--mission-id ID [--task-ids ID [ID ...]]`"

@@ -1276,10 +1276,11 @@ mechanically fail to verify** until the knowledge pipeline has run at least once
 
 - `AWAITING_REVIEW`: candidate has passed every hard-gate deterministic check and every code
   block has a named verification status.
-- `PUSHED`: a draft PR is open against the product's real default branch, with `README.md` as
-  the only changed file, evidence recorded at `reports/readme_refresh_runs/{family}/{platform}/
-  {run_id}/` and `reports/repo_presenter_actions.jsonl` (once that shared ledger is built —
-  not yet wired into this pass).
+- `PUSHED`: a non-draft PR is open against the product's real default branch (MT032, 2026-08-10/11
+  — the `--draft` flag was removed from `_do_push`; re-confirmed live 2026-08-30), with
+  `README.md` as the only changed file, evidence recorded at
+  `reports/readme_refresh_runs/{family}/{platform}/{run_id}/` and
+  `reports/repo_presenter_actions.jsonl` (the shared cross-run ledger — wired and live).
 
 ## Error handling
 
