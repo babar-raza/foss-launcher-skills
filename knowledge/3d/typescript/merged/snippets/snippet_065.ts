@@ -1,21 +1,27 @@
-describe('testImports', () => {
-    it('testModuleImports', () => {
-        const { Scene, Node, Light } = require('../src/aspose/threed');
-        const { Vector3, Matrix4 } = require('../src/aspose/threed/utilities');
+test('test_groups', () => {
+        const objContent = `# Groups
+o MyObject
+g Group1
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+v 1.0 1.0 0.0
+v 0.0 1.0 0.0
+f 1 2 3 4
 
+g Group2
+v 2.0 0.0 0.0
+v 3.0 0.0 0.0
+v 3.0 1.0 0.0
+v 2.0 1.0 0.0
+f 5 6 7 8
+`;
         const scene = new Scene();
-        const node = new Node("test_node");
-
-        const vec = new Vector3(1.0, 2.0, 3.0);
-
-        const mat = new Matrix4();
-
-        const light = new Light("test_light");
-
-        expect(scene).toBeDefined();
-        expect(node).toBeDefined();
-        expect(vec).toBeDefined();
-        expect(mat).toBeDefined();
-        expect(light).toBeDefined();
-    });
-})
+        const stream = { read: () => objContent, close: () => {} };
+        const options = new ObjLoadOptions();
+        options.fileName = "test.obj";
+        
+        const importer = new ObjImporter();
+        importer.importScene(scene, stream, options);
+        
+        expect(scene.rootNode.childNodes.length).toBeGreaterThan(0);
+    })

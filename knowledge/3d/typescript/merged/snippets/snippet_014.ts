@@ -1,21 +1,9 @@
-it('testExportWithMaterial', () => {
+it('testMaterialImport', () => {
         const scene = new Scene();
-        const mesh = new Mesh('TestMesh');
+        const options = plugin.createLoadOptions();
+        const filePath = '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf';
 
-        mesh.controlPoints.push(new Vector4(0.0, 0.0, 0.0, 1.0));
-        mesh.controlPoints.push(new Vector4(1.0, 0.0, 0.0, 1.0));
-        mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
-        mesh.createPolygon(0, 1, 2);
+        scene.open(filePath, options);
 
-        const material = new PhongMaterial('RedMaterial');
-        material.diffuseColor = new Vector3(1.0, 0.0, 0.0);
-        material.specularColor = new Vector3(1.0, 1.0, 1.0);
-        material.shininess = 32.0;
-
-        const node = scene.rootNode.createChildNode('TestNode');
-        node.entity = mesh;
-        node.material = material;
-
-        scene.save('/tmp/test_material.dae', ColladaFormat.getInstance());
-        expect(true).toBe(true);
+        expect(scene.rootNode.childNodes.length).toBeGreaterThanOrEqual(1);
     })

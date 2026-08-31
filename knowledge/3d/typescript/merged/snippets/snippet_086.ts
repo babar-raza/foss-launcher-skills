@@ -1,23 +1,25 @@
-test('test_disable_materials', () => {
-        const objContent = `# Test disable materials
-o TestMesh
-usemtl MyMaterial
-v 0.0 0.0 0.0
-v 1.0 0.0 0.0
-f 1 2 3
-`;
+test('triangulate_with_scene', () => {
         const scene = new Scene();
-        const stream = { read: () => objContent, close: () => {} };
-        const options = new ObjLoadOptions();
-        options.enableMaterials = false;
+        const meshNode = new Node('mesh_node');
         
-        const importer = new ObjImporter();
-        importer.importScene(scene, stream, options);
-        
-        if (scene.rootNode.childNodes.length > 0) {
-            const node = scene.rootNode.childNodes[0];
-            expect(node.material).toBeNull();
-        } else {
-            fail("No child nodes created");
-        }
+        const mesh2 = new Mesh('test_multi');
+        (mesh2 as any)._controlPoints = [
+            new Vector4(0, 0, 0, 1),
+            new Vector4(1, 0, 0, 1),
+            new Vector4(0, 1, 0, 1),
+            new Vector4(1, 1, 0, 1),
+            new Vector4(0.5, 0.5, 1, 1),
+            new Vector4(1.5, 0.5, 1, 1),
+            new Vector4(0.5, 1.5, 1, 1),
+            new Vector4(1.5, 1.5, 1, 1)
+        ];
+        mesh2.createPolygon(0, 1, 2);
+        mesh2.createPolygon(1, 3, 2);
+        mesh2.createPolygon(4, 5, 7, 6);
+        mesh2.createPolygon(0, 1, 5, 4);
+        meshNode.entity = mesh2;
+        scene.rootNode.addChildNode(meshNode);
+
+        PolygonModifier.triangulate(scene);
+        expect((meshNode.entity as Mesh).polygonCount).toBe(6);
     })

@@ -1,14 +1,26 @@
-it('testSimpleTriangleExport', () => {
+it('testExportObjectMaterial', () => {
         const scene = new Scene();
-        const mesh = new Mesh('TestMesh');
+        const options = plugin.createSaveOptions();
+        options.enableCompression = false;
 
-        mesh.controlPoints.push(new Vector4(0.0, 0.0, 0.0, 1.0));
-        mesh.controlPoints.push(new Vector4(1.0, 0.0, 0.0, 1.0));
-        mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
+        const mesh = new Mesh('cube');
+
+        mesh.controlPoints.push(new Vector4(0, 0, 0, 1));
+        mesh.controlPoints.push(new Vector4(1, 0, 0, 1));
+        mesh.controlPoints.push(new Vector4(1, 1, 0, 1));
+        mesh.controlPoints.push(new Vector4(0, 1, 0, 1));
+
         mesh.createPolygon(0, 1, 2);
+        mesh.createPolygon(0, 2, 3);
 
-        scene.rootNode.createChildNode('TestNode').entity = mesh;
+        const node = new Node('cube');
+        node.entity = mesh;
+        node.parentNode = scene.rootNode;
 
-        scene.save('/tmp/test_simple.dae', ColladaFormat.getInstance());
+        const material = new LambertMaterial('RedMaterial');
+        material.diffuseColor = new Vector3(1.0, 0.0, 0.0);
+        node.material = material;
+
+        scene.save('/tmp/test_material.3mf', options);
         expect(true).toBe(true);
     })

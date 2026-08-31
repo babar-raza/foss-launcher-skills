@@ -1,29 +1,42 @@
-it('testMaterialImportFromBoombox', () => {
+it('testExportMultipleMeshes', () => {
         const scene = new Scene();
-        const options = new GltfLoadOptions();
-        const file_path = '../foss.3d.python/examples/gltf2/BoomBox/glTF/BoomBox.gltf';
 
-        if (fs.existsSync(file_path)) {
-            const buffer = fs.readFileSync(file_path);
-            scene.openFromBuffer(buffer, options);
+        const mesh1 = new Mesh("mesh1");
+        mesh1.controlPoints = [
+            new Vector4(0.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 1.0, 0.0, 1.0),
+        ];
+        mesh1.createPolygon(0, 1, 2);
 
-            expect(scene.rootNode.childNodes.length).toBe(1);
+        const node1 = new Node("node1");
+        node1.entity = mesh1;
+        node1.parentNode = scene.rootNode;
 
-            const node = scene.rootNode.childNodes[0];
-            expect(node.material).toBeDefined();
-            expect(node.material instanceof PbrMaterial).toBe(true);
+        const mesh2 = new Mesh("mesh2");
+        mesh2.controlPoints = [
+            new Vector4(2.0, 0.0, 0.0, 1.0),
+            new Vector4(3.0, 0.0, 0.0, 1.0),
+            new Vector4(3.0, 1.0, 0.0, 1.0),
+        ];
+        mesh2.createPolygon(0, 1, 2);
 
-            const material = node.material as PbrMaterial;
-            expect(material.name).toBe('BoomBox_Mat');
-            if (material.albedo) {
-                expect(material.albedo.x).toBe(1.0);
-                expect(material.albedo.y).toBe(1.0);
-                expect(material.albedo.z).toBe(1.0);
-            }
-            expect(material.metallicFactor).toBe(0.0);
-            expect(material.roughnessFactor).toBe(1.0);
-            expect(material.transparency).toBe(0.0);
-        } else {
-            pending(`File not found: ${file_path}`);
-        }
+        const node2 = new Node("node2");
+        node2.entity = mesh2;
+        node2.parentNode = scene.rootNode;
+
+        const mesh3 = new Mesh("mesh3");
+        mesh3.controlPoints = [
+            new Vector4(4.0, 0.0, 0.0, 1.0),
+            new Vector4(5.0, 0.0, 0.0, 1.0),
+            new Vector4(5.0, 1.0, 0.0, 1.0),
+        ];
+        mesh3.createPolygon(0, 1, 2);
+
+        const node3 = new Node("node3");
+        node3.entity = mesh3;
+        node3.parentNode = scene.rootNode;
+
+        scene.save('/tmp/test_multiple.stl', StlFormat);
+        expect(fs.existsSync('/tmp/test_multiple.stl')).toBe(true);
     })

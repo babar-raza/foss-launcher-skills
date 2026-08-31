@@ -1,26 +1,27 @@
-describe('TestColladaImporterMultipleFiles', () => {
-    it('testImportMultipleFiles', () => {
+it('testMaterialsDisabled', () => {
         const options = new ColladaLoadOptions();
+        options.enableMaterials = false;
 
-        const examples_dir = path.join(__dirname, '../../foss.3d.python/examples/collada');
+        const file_path = '../foss.3d.python/examples/collada/cube_triangulate.dae';
 
-        if (fs.existsSync(examples_dir)) {
-            const dae_files = fs.readdirSync(examples_dir)
-                .filter(file => file.endsWith('.dae'))
-                .slice(0, 5)
-                .map(file => path.join(examples_dir, file));
+        if (require('fs').existsSync(file_path)) {
+            const scene = new Scene();
+            scene.open(file_path, options);
 
-            for (const dae_file of dae_files) {
-                expect(() => {
-                    const scene = new Scene();
-                    scene.open(dae_file, options);
+            expect(scene.rootNode).toBeDefined();
 
-                    expect(scene.rootNode).toBeDefined();
-                    expect(scene.rootNode.childNodes.length > 0).toBe(true);
-                }).not.toThrow(`Failed to import ${path.basename(dae_file)}`);
+            let boxNode: Node | null = null;
+            for (const node of scene.rootNode.childNodes) {
+                if (node.name === 'Box') {
+                    boxNode = node;
+                    break;
+                }
             }
+
+            expect(boxNode).toBeDefined();
+            expect(boxNode).not.toBeNull();
+            expect(boxNode!.material).toBeNull();
         } else {
-            pending(`Examples directory not found: ${examples_dir}`);
+            pending(`File not found: ${file_path}`);
         }
-    });
-})
+    })

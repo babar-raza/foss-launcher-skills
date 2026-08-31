@@ -1,4 +1,4 @@
-it('testExportWithNormals', () => {
+it('testExportWithTransparentMaterial', () => {
         const scene = new Scene();
         const mesh = new Mesh('TestMesh');
 
@@ -7,12 +7,15 @@ it('testExportWithNormals', () => {
         mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
         mesh.createPolygon(0, 1, 2);
 
-        const normalElement = new VertexElementNormal();
-        mesh.vertexElements.push(normalElement);
+        const material = new PbrMaterial('TransparentMaterial');
+        material.albedo = new Vector3(1.0, 1.0, 1.0);
+        material.transparency = 0.6;
 
-        scene.rootNode.createChildNode('TestNode').entity = mesh;
+        const node = scene.rootNode.createChildNode('TestNode');
+        node.entity = mesh;
+        node.material = material;
 
-        scene.save('/tmp/test_normales.gltf', GltfFormat.getInstance());
+        scene.save('/tmp/test_transparent.gltf', GltfFormat.getInstance());
 
-        expect(fs.existsSync('/tmp/test_normales.gltf')).toBe(true);
+        expect(fs.existsSync('/tmp/test_transparent.gltf')).toBe(true);
     })

@@ -1,22 +1,21 @@
-test('test_plugin_registers_components', () => {
-        const ioService = IOService.instance;
-        
-        const objPlugin = ioService.getPluginForExtension('.obj')!;
-        const stlPlugin = ioService.getPluginForExtension('.stl')!;
-        
-        const objImporter = objPlugin.getImporter();
-        const objExporter = objPlugin.getExporter();
-        const objDetector = objPlugin.getFormatDetector();
-        
-        const stlImporter = stlPlugin.getImporter();
-        const stlExporter = stlPlugin.getExporter();
-        const stlDetector = stlPlugin.getFormatDetector();
-        
-        expect(objImporter).not.toBeNull();
-        expect(objExporter).not.toBeNull();
-        expect(objDetector).not.toBeNull();
-        
-        expect(stlImporter).not.toBeNull();
-        expect(stlExporter).not.toBeNull();
-        expect(stlDetector).not.toBeNull();
+it('testBasicTriangleExportBinary', () => {
+        const scene = new Scene();
+        const mesh = new Mesh("test_mesh");
+        mesh.controlPoints = [
+            new Vector4(0.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 1.0, 0.0, 1.0),
+        ];
+        mesh.createPolygon(0, 1, 2);
+
+        const node = new Node("test_node");
+        node.entity = mesh;
+        node.parentNode = scene.rootNode;
+
+        const options = new StlSaveOptions();
+        options.binaryMode = true;
+
+        scene.save('/tmp/test_basic_binary.stl', StlFormat, options);
+
+        expect(fs.existsSync('/tmp/test_basic_binary.stl')).toBe(true);
     })

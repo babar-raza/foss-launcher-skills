@@ -1,11 +1,18 @@
-test('test_plugin_creates_save_options', () => {
-        const ioService = IOService.instance;
-        const objPlugin = ioService.getPluginForExtension('.obj')!;
-        const stlPlugin = ioService.getPluginForExtension('.stl')!;
-        
-        const objSaveOpts = objPlugin.createSaveOptions();
-        const stlSaveOpts = stlPlugin.createSaveOptions();
-        
-        expect(objSaveOpts).not.toBeNull();
-        expect(stlSaveOpts).not.toBeNull();
+it('testBasicTriangleExportAscii', () => {
+        const scene = new Scene();
+        const mesh = new Mesh("test_mesh");
+        mesh.controlPoints = [
+            new Vector4(0.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 1.0, 0.0, 1.0),
+        ];
+        mesh.createPolygon(0, 1, 2);
+
+        const node = new Node("test_node");
+        node.entity = mesh;
+        node.parentNode = scene.rootNode;
+
+        scene.save('/tmp/test_basic_ascii.stl', StlFormat);
+
+        expect(fs.existsSync('/tmp/test_basic_ascii.stl')).toBe(true);
     })

@@ -1,4 +1,4 @@
-it('testSimpleTriangleBinary', () => {
+it('testExportWithMaterial', () => {
         const scene = new Scene();
         const mesh = new Mesh('TestMesh');
 
@@ -7,17 +7,16 @@ it('testSimpleTriangleBinary', () => {
         mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
         mesh.createPolygon(0, 1, 2);
 
-        scene.rootNode.createChildNode('TestNode').entity = mesh;
+        const albedo = new Vector3(0.8, 0.2, 0.3);
+        const material = new PbrMaterial('RedMaterial', albedo);
+        material.metallicFactor = 0.5;
+        material.roughnessFactor = 0.7;
 
-        const options = new GltfSaveOptions();
-        options.binaryMode = true;
+        const node = scene.rootNode.createChildNode('TestNode');
+        node.entity = mesh;
+        node.material = material;
 
-        scene.save('/tmp/test_simple.glb', GltfFormat.getInstance(), options);
+        scene.save('/tmp/test_material.gltf', GltfFormat.getInstance());
 
-        expect(fs.existsSync('/tmp/test_simple.glb')).toBe(true);
-
-        if (fs.existsSync('/tmp/test_simple.glb')) {
-            const content = fs.readFileSync('/tmp/test_simple.glb');
-            expect(content.length).toBeGreaterThan(0);
-        }
+        expect(fs.existsSync('/tmp/test_material.gltf')).toBe(true);
     })

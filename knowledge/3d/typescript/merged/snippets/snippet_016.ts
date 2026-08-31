@@ -1,13 +1,14 @@
-it('testColladaSaveOptions', () => {
-        const options = new ColladaSaveOptions();
+it('testSimpleTriangleExport', () => {
+        const scene = new Scene();
+        const mesh = new Mesh('TestMesh');
 
-        expect(options.flipCoordinateSystem).toBe(false);
-        expect(options.enableMaterials).toBe(true);
-        expect(options.indented).toBe(true);
+        mesh.controlPoints.push(new Vector4(0.0, 0.0, 0.0, 1.0));
+        mesh.controlPoints.push(new Vector4(1.0, 0.0, 0.0, 1.0));
+        mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
+        mesh.createPolygon(0, 1, 2);
 
-        options.flipCoordinateSystem = true;
-        expect(options.flipCoordinateSystem).toBe(true);
+        scene.rootNode.createChildNode('TestNode').entity = mesh;
 
-        options.indented = false;
-        expect(options.indented).toBe(false);
+        scene.save('/tmp/test_simple.dae', ColladaFormat.getInstance());
+        expect(true).toBe(true);
     })

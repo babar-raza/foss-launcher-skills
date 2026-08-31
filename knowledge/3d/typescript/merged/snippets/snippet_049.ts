@@ -1,4 +1,5 @@
-it('testGltfFormatCanExport', () => {
-        const gltfFormat = GltfFormat;
-        expect(gltfFormat.canExport).toBe(true);
+it('testGltfLoadOptionsFlipProperty', () => {
+        const options = new GltfLoadOptions();
+        options.flipTexCoordV = false;
+        expect(options.flipTexCoordV).toBe(false);
     })

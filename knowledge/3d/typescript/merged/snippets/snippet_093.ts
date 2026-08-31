@@ -1,9 +1,23 @@
-test('test_get_plugin_by_extension_case_insensitive', () => {
-        const ioService = IOService.instance;
-        const objPlugin1 = ioService.getPluginForExtension('.obj');
-        const objPlugin2 = ioService.getPluginForExtension('.OBJ');
-        const objPlugin3 = ioService.getPluginForExtension('.Obj');
-        
-        expect(objPlugin1).toBe(objPlugin2);
-        expect(objPlugin1).toBe(objPlugin3);
+it('testSceneSaveToFileBinary', () => {
+        const scene = new Scene();
+        const mesh = new Mesh("test_mesh");
+        mesh.controlPoints = [
+            new Vector4(0.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 0.0, 0.0, 1.0),
+            new Vector4(1.0, 1.0, 0.0, 1.0),
+        ];
+        mesh.createPolygon(0, 1, 2);
+
+        const node = new Node("test_node");
+        node.entity = mesh;
+        node.parentNode = scene.rootNode;
+
+        const options = new StlSaveOptions();
+        options.binaryMode = true;
+
+        scene.save('/tmp/test_scene_binary.stl', StlFormat, options);
+
+        expect(fs.existsSync('/tmp/test_scene_binary.stl')).toBe(true);
+        const content = fs.readFileSync('/tmp/test_scene_binary.stl');
+        expect(content.length).toBeGreaterThan(0);
     })

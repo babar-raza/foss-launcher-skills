@@ -1,32 +1,19 @@
-describe('TestColladaImporter', () => {
-    it('testImportRealCube', () => {
+it('testExportLambertMaterial', () => {
         const scene = new Scene();
-        const options = new ColladaLoadOptions();
+        const mesh = new Mesh('TestMesh');
 
-        const file_path = '../foss.3d.python/examples/collada/cube_triangulate.dae';
+        mesh.controlPoints.push(new Vector4(0.0, 0.0, 0.0, 1.0));
+        mesh.controlPoints.push(new Vector4(1.0, 0.0, 0.0, 1.0));
+        mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
+        mesh.createPolygon(0, 1, 2);
 
-        if (require('fs').existsSync(file_path)) {
-            scene.open(file_path, options);
+        const material = new LambertMaterial('BlueMaterial');
+        material.diffuseColor = new Vector3(0.0, 0.0, 1.0);
 
-            expect(scene.rootNode).toBeDefined();
-            expect(scene.rootNode.childNodes.length).toBeGreaterThan(0);
-        } else {
-            pending(`File not found: ${file_path}`);
-        }
-    });
+        const node = scene.rootNode.createChildNode('TestNode');
+        node.entity = mesh;
+        node.material = material;
 
-    it('testColladaLoadOptions', () => {
-        const options = new ColladaLoadOptions();
-
-        expect(options.flipCoordinateSystem).toBe(false);
-        expect(options.enableMaterials).toBe(true);
-        expect(options.scale).toBe(1.0);
-        expect(options.normalizeNormal).toBe(true);
-
-        options.flipCoordinateSystem = true;
-        expect(options.flipCoordinateSystem).toBe(true);
-
-        options.scale = 2.0;
-        expect(options.scale).toBe(2.0);
-    });
-})
+        scene.save('/tmp/test_lambert.dae', ColladaFormat.getInstance());
+        expect(true).toBe(true);
+    })

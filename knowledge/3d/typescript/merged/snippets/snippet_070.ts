@@ -1,24 +1,23 @@
-it('testMeshClass', () => {
-        const m = new Mesh("test_mesh");
+test('test_smoothing_groups', () => {
+        const objContent = `# Test smoothing groups
+o TestMesh
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+v 1.0 1.0 0.0
+v 0.0 1.0 0.0
+f 1 2 3 4
 
-        m.controlPoints.push(new Vector4(0, 0, 0, 1));
-        m.controlPoints.push(new Vector4(1, 0, 0, 1));
-        m.controlPoints.push(new Vector4(0, 1, 0, 1));
-
-        expect(m.controlPoints.length).toBe(3);
-
-        m.createPolygon(0, 1, 2);
-        expect(m.polygonCount).toBe(1);
-
-        m.createPolygon(0, 1, 2, 3);
-        expect(m.polygonCount).toBe(2);
-
-        m.createPolygon([4, 5, 6, 7, 8]);
-        expect(m.polygonCount).toBe(3);
-
-        m.createElement(VertexElementType.NORMAL, MappingMode.CONTROL_POINT, null);
-        expect(m.vertexElements.length).toBe(1);
-
-        const uvElem = m.createElementUV(TextureMapping.DIFFUSE);
-        expect(uvElem.textureMapping).toBe(TextureMapping.DIFFUSE);
+s 1
+v 2.0 0.0 0.0
+v 3.0 0.0 0.0
+f 5 6 7 8
+`;
+        const scene = new Scene();
+        const stream = { read: () => objContent, close: () => {} };
+        const options = new ObjLoadOptions();
+        
+        const importer = new ObjImporter();
+        importer.importScene(scene, stream, options);
+        
+        expect(scene.rootNode.childNodes.length).toBeGreaterThan(0);
     })

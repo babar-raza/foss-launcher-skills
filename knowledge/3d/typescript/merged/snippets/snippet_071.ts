@@ -1,49 +1,23 @@
-describe('testMeshTriangulate', () => {
-    it('testTriangleMeshAlreadyTriangulated', () => {
-        const triangleMesh = new Mesh("triangle");
-        triangleMesh.controlPoints = [
-            new Vector4(0, 0, 0, 1),
-            new Vector4(1, 0, 0, 1),
-            new Vector4(0, 1, 0, 1)
-        ];
-        triangleMesh.createPolygon(0, 1, 2);
-
-        expect(triangleMesh.polygonCount).toBe(1);
-
-        const triangulated = triangleMesh.triangulate();
-        expect(triangulated.polygonCount).toBe(1);
-    });
-
-    it('testQuadMesh', () => {
-        const quadMesh = new Mesh("quad");
-        quadMesh.controlPoints = [
-            new Vector4(0, 0, 0, 1),
-            new Vector4(1, 0, 0, 1),
-            new Vector4(0, 1, 0, 1),
-            new Vector4(1, 1, 0, 1)
-        ];
-        quadMesh.createPolygon(0, 1, 3, 2);
-
-        expect(quadMesh.polygonCount).toBe(1);
-
-        const triangulated = quadMesh.triangulate();
-        expect(triangulated.polygonCount).toBe(2);
-    });
-
-    it('testPentagonMesh', () => {
-        const pentMesh = new Mesh("pentagon");
-        pentMesh.controlPoints = [
-            new Vector4(0, 0, 0, 1),
-            new Vector4(1, 0, 0, 1),
-            new Vector4(1.5, 0.5, 0, 1),
-            new Vector4(1, 1, 0, 1),
-            new Vector4(0, 1, 0, 1)
-        ];
-        pentMesh.createPolygon([0, 1, 2, 3, 4]);
-
-        expect(pentMesh.polygonCount).toBe(1);
-
-        const triangulated = pentMesh.triangulate();
-        expect(triangulated.polygonCount).toBe(3);
-    });
-})
+test('test_disable_materials', () => {
+        const objContent = `# Test disable materials
+o TestMesh
+usemtl MyMaterial
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+f 1 2 3
+`;
+        const scene = new Scene();
+        const stream = { read: () => objContent, close: () => {} };
+        const options = new ObjLoadOptions();
+        options.enableMaterials = false;
+        
+        const importer = new ObjImporter();
+        importer.importScene(scene, stream, options);
+        
+        if (scene.rootNode.childNodes.length > 0) {
+            const node = scene.rootNode.childNodes[0];
+            expect(node.material).toBeNull();
+        } else {
+            fail("No child nodes created");
+        }
+    })

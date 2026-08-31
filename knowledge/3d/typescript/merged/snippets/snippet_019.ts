@@ -1,15 +1,13 @@
-it('testImportRealCube', () => {
-        const scene = new Scene();
-        const options = new ColladaLoadOptions();
+it('testColladaSaveOptions', () => {
+        const options = new ColladaSaveOptions();
 
-        const file_path = '../foss.3d.python/examples/collada/cube_triangulate.dae';
+        expect(options.flipCoordinateSystem).toBe(false);
+        expect(options.enableMaterials).toBe(true);
+        expect(options.indented).toBe(true);
 
-        if (require('fs').existsSync(file_path)) {
-            scene.open(file_path, options);
+        options.flipCoordinateSystem = true;
+        expect(options.flipCoordinateSystem).toBe(true);
 
-            expect(scene.rootNode).toBeDefined();
-            expect(scene.rootNode.childNodes.length).toBeGreaterThan(0);
-        } else {
-            pending(`File not found: ${file_path}`);
-        }
+        options.indented = false;
+        expect(options.indented).toBe(false);
     })

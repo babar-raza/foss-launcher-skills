@@ -1,4 +1,4 @@
-it('testExportWithUvs', () => {
+it('testExportWithBlendMaterial', () => {
         const scene = new Scene();
         const mesh = new Mesh('TestMesh');
 
@@ -7,12 +7,15 @@ it('testExportWithUvs', () => {
         mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
         mesh.createPolygon(0, 1, 2);
 
-        const uvElement = new VertexElementUV();
-        mesh.vertexElements.push(uvElement);
+        const material = new PbrMaterial('BlendMaterial');
+        material.albedo = new Vector3(1.0, 1.0, 1.0);
+        material.transparency = 1.0;
 
-        scene.rootNode.createChildNode('TestNode').entity = mesh;
+        const node = scene.rootNode.createChildNode('TestNode');
+        node.entity = mesh;
+        node.material = material;
 
-        scene.save('/tmp/test_uvs.gltf', GltfFormat.getInstance());
+        scene.save('/tmp/test_blend.gltf', GltfFormat.getInstance());
 
-        expect(fs.existsSync('/tmp/test_uvs.gltf')).toBe(true);
+        expect(fs.existsSync('/tmp/test_blend.gltf')).toBe(true);
     })

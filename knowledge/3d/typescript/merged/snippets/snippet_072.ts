@@ -1,14 +1,7 @@
-it('testTriangleMeshAlreadyTriangulated', () => {
-        const triangleMesh = new Mesh("triangle");
-        triangleMesh.controlPoints = [
-            new Vector4(0, 0, 0, 1),
-            new Vector4(1, 0, 0, 1),
-            new Vector4(0, 1, 0, 1)
-        ];
-        triangleMesh.createPolygon(0, 1, 2);
-
-        expect(triangleMesh.polygonCount).toBe(1);
-
-        const triangulated = triangleMesh.triangulate();
-        expect(triangulated.polygonCount).toBe(1);
+test('test_obj_format_detection', () => {
+        const objFormat = new ObjFormat();
+        expect(objFormat.canImport).toBe(true);
+        expect(objFormat.canExport).toBe(false);
+        expect(objFormat.extension).toBe("obj");
+        expect(objFormat.extensions).toContain("obj");
     })

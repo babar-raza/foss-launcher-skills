@@ -1,4 +1,4 @@
-it('testExportWithPositions', () => {
+it('testExportWithEmissiveMaterial', () => {
         const scene = new Scene();
         const mesh = new Mesh('TestMesh');
 
@@ -7,9 +7,15 @@ it('testExportWithPositions', () => {
         mesh.controlPoints.push(new Vector4(0.0, 1.0, 0.0, 1.0));
         mesh.createPolygon(0, 1, 2);
 
-        scene.rootNode.createChildNode('TestNode').entity = mesh;
+        const material = new PbrMaterial('GlowMaterial');
+        material.albedo = new Vector3(1.0, 1.0, 1.0);
+        material.emissiveColor = new Vector3(0.5, 0.2, 0.1);
 
-        scene.save('/tmp/test_positions.gltf', GltfFormat.getInstance());
+        const node = scene.rootNode.createChildNode('TestNode');
+        node.entity = mesh;
+        node.material = material;
 
-        expect(fs.existsSync('/tmp/test_positions.gltf')).toBe(true);
+        scene.save('/tmp/test_emissive.gltf', GltfFormat.getInstance());
+
+        expect(fs.existsSync('/tmp/test_emissive.gltf')).toBe(true);
     })
