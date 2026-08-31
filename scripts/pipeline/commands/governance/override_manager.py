@@ -153,11 +153,20 @@ def cmd_create(args: argparse.Namespace) -> int:
 
 
 def cmd_validate_for_path(args: argparse.Namespace) -> int:
-    """Check that a valid (non-expired, non-consumed) pending token covers the given path."""
+    """Check that a valid (non-expired, non-consumed) pending token covers the given path.
+
+    Checks ALL pending tokens that cover the path, not just the first one a
+    directory glob happens to return -- an expired token covering the same
+    path (e.g. an old, unrelated change that incidentally listed this path
+    among several) must never shadow a separately-created, still-valid one
+    for the same path. Only report EXPIRED if every covering token is
+    expired; a single valid match wins regardless of glob order.
+    """
     target = _normalize(args.path)
     _PENDING_DIR.mkdir(parents=True, exist_ok=True)
 
-    for token_file in _PENDING_DIR.glob("*.json"):
+    expired_match: str | None = None
+    for token_file in sorted(_PENDING_DIR.glob("*.json")):
         try:
             token = _load_token(token_file)
         except (json.JSONDecodeError, OSError):
@@ -169,12 +178,17 @@ def cmd_validate_for_path(args: argparse.Namespace) -> int:
             continue
 
         if _is_expired(token) and not token.get("retroactive", False):
-            print(f"EXPIRED: token {token['override_id']} is older than {_TOKEN_TTL_DAYS} days",
-                  file=sys.stderr)
-            return 2
+            if expired_match is None:
+                expired_match = token["override_id"]
+            continue
 
         print(f"VALID: token {token['override_id']} covers path '{target}'")
         return 0
+
+    if expired_match is not None:
+        print(f"EXPIRED: token {expired_match} is older than {_TOKEN_TTL_DAYS} days "
+              f"(no other pending token covers this path)", file=sys.stderr)
+        return 2
 
     print(f"NO VALID TOKEN: no pending override token covers path '{target}'", file=sys.stderr)
     return 2

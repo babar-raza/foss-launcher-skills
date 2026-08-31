@@ -1,0 +1,60 @@
+name: Sync to GitLab
+
+# GHGL-1: mirrors `main` from GitHub to GitLab (gitlab.recruitize.ai project 490),
+# fast-forward-only. See docs/adr/ADR-007-github-gitlab-sync.md.
+#
+# SECURITY: triggers on push / schedule / workflow_dispatch ONLY. Never add a
+# pull_request_target trigger here -- that would expose the gitlab_token
+# secret to code from forks. See scripts/ci/sync_remotes.py's module
+# docstring for the full safety rationale (no force-push, no auto-merge).
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Safety net for missed push-event deliveries -- not a replacement for
+    # the push trigger above. Bounds worst-case drift to <= 1 hour.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report what would sync without pushing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: sync-to-gitlab-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Sync main to GitLab
+        env:
+          # GitHub Actions forces secret names to uppercase on storage --
+          # this is the one platform-forced exception to the GHGL-1 naming
+          # rule (gitlab_token, lowercase, everywhere else). Mapped back to
+          # the canonical lowercase name here so sync_remotes.py's own
+          # contract never has to know about the exception.
+          gitlab_token: ${{ secrets.GITLAB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          ARGS="--platform github --branch main"
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          python scripts/ci/sync_remotes.py $ARGS

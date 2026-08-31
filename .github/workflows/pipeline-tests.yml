@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # required: git push for release receipt commit on main
+      issues: write     # required: sync_remotes.py may file a divergence issue (GHGL-1)
     steps:
       - uses: actions/checkout@v4
 
@@ -56,10 +57,28 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add docs/release-receipts/
-          git diff --staged --quiet || git commit -m "chore(receipt): update release receipt [skip ci]"
-          git push origin HEAD:main
+          if git diff --staged --quiet; then
+            echo "no receipt changes to commit"
+          else
+            git commit -m "chore(receipt): update release receipt [skip ci]"
+            git push origin HEAD:main
+            # GHGL-1 / ADR-007: a push made with the default GITHUB_TOKEN does
+            # NOT trigger other push-based workflows (GitHub's documented
+            # anti-recursion behavior), so sync-to-gitlab.yml's push trigger
+            # would never see this commit -- only the hourly safety net would,
+            # up to an hour later, wide enough for GitLab to diverge in the
+            # meantime (this happened for real during GHGL-1's own rollout).
+            # Close the gap at the source: sync this commit immediately,
+            # in the same job that created it, rather than depending on a
+            # separate trigger. Any future bot that commits to main should
+            # follow the same pattern.
+            python scripts/ci/sync_remotes.py --platform github --branch main
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gitlab_token: ${{ secrets.GITLAB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Upload coverage artifact
         if: always()

@@ -4,6 +4,7 @@
 stages:
   - validate
   - test
+  - sync
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -191,4 +192,20 @@ security-scan:
         - scripts/**/*
         - pyproject.toml
     - if: $CI_PIPELINE_SOURCE == "web"
+
+# ── Stage: sync (GHGL-1) ─────────────────────────────────────────────────────
+# Mirrors main to GitHub, fast-forward-only. See
+# docs/adr/ADR-007-github-gitlab-sync.md and scripts/ci/sync_remotes.py.
+# github_token (lowercase) is a masked+protected GitLab CI/CD variable
+# holding a GitHub-authenticating credential -- it is NOT set up by this
+# file; a human adds it under Settings > CI/CD > Variables (GHGL-1-T8).
+
+sync-to-github:
+  stage: sync
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - python scripts/ci/sync_remotes.py --platform gitlab --branch main
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
 
