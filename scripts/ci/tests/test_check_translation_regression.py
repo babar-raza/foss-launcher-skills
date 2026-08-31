@@ -17,6 +17,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci" / "checks"))
 
 from check_translation_regression import (  # noqa: E402
     check_pair,
+    english_counterpart_path,
     locale_of,
     looks_english,
 )
@@ -130,3 +131,60 @@ class TestCheckPair:
         old = _page(DE_DESC) + "\n```xml\n<a/>\n```\n```xml\n<b/>\n```\n"
         cur = _page(DE_DESC) + '\n<a/>\n```\n{{< maven-coord "cells" "java" >}}\n'
         assert check_pair(cur, old, "de") == ["R3"]
+
+
+class TestEnglishCounterpartPath:
+    def test_docs_locale(self):
+        assert english_counterpart_path(
+            "content/docs.aspose.org/ar/3d/typescript/features.md"
+        ) == "content/docs.aspose.org/en/3d/typescript/features.md"
+
+    def test_already_english_returns_none(self):
+        assert english_counterpart_path("content/docs.aspose.org/en/3d/typescript/features.md") is None
+
+    def test_unexpected_shape_returns_none(self):
+        assert english_counterpart_path("README.md") is None
+
+    def test_backslash_path(self):
+        assert english_counterpart_path(
+            r"content\docs.aspose.org\ar\3d\typescript\features.md"
+        ) == "content/docs.aspose.org/en/3d/typescript/features.md"
+
+
+class TestR3EnglishCounterpartOverride:
+    """ST-153: a locale page catching up to a removal that already happened
+    on English must not be blocked as fence-stripping, but a locale that is
+    still behind English's own current fence count must still fail -- the
+    exact live incident this was hardened from (an Arabic page correctly
+    received a marker for a code example already removed from English)."""
+
+    def test_fence_drop_matching_current_english_count_passes(self):
+        # English currently has 1 fence pair (2 markers); the locale page
+        # drops from 2 fences to 1, matching the corresponding real incident
+        # exactly -- catching up, not diverging.
+        old = _page(DE_DESC) + "\n```csharp\nA();\n```\n\n<!-- removed -->\n\n```csharp\nB();\n```\n"
+        cur = _page(DE_DESC) + "\n<!-- removed -->\n\n<!-- removed -->\n\n```csharp\nB();\n```\n"
+        assert check_pair(cur, old, "de", english_fence_count=2) == []
+
+    def test_fence_drop_below_current_english_count_still_blocks(self):
+        # English currently has 2 fence pairs (4 markers) -- the locale
+        # page drops below that, so it is NOT merely catching up; still a
+        # real divergence and must fail.
+        old = _page(DE_DESC) + "\n```csharp\nA();\n```\n```csharp\nB();\n```\n"
+        cur = _page(DE_DESC) + "\nA();\n```\n```csharp\nB();\n```\n"  # opener stripped
+        assert check_pair(cur, old, "de", english_fence_count=4) == ["R3"]
+
+    def test_no_english_fence_count_preserves_prior_behavior(self):
+        # english_fence_count defaults to None (English counterpart missing
+        # or unreadable) -- behaves exactly as before this fix, still fails.
+        old = _page(DE_DESC) + "\n```csharp\ncode();\n```\n"
+        cur = _page(DE_DESC) + "\n\ncode();\n```\n"
+        assert check_pair(cur, old, "de") == ["R3"]
+        assert check_pair(cur, old, "de", english_fence_count=None) == ["R3"]
+
+    def test_clean_shortcode_substitution_unaffected_by_english_count(self):
+        # The pre-existing shortcode-substitution exemption still applies
+        # independently of english_fence_count.
+        old = _page(DE_DESC) + "\n```xml\n<dependency/>\n```\n"
+        cur = _page(DE_DESC) + '\n{{< maven-coord "cells" "java" >}}\n'
+        assert check_pair(cur, old, "de", english_fence_count=0) == []

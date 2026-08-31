@@ -13,7 +13,13 @@ Rules (per staged non-English content/*.md file):
   R2 (FAIL) — staged content contains a known translation-prompt leak phrase
   R3 (FAIL) — staged body has FEWER code-fence lines than the HEAD version
               (wave-3 fence-stripping; added 2026-07-14 after the pilot
-              negative-control showed fence-only damage passed all gates)
+              negative-control showed fence-only damage passed all gates).
+              Not flagged when the reduction is a clean fence-pair-for-
+              shortcode substitution, or (ST-153, 2026-08-31) when the
+              staged page's own fence count is still >= its English
+              counterpart's current fence count -- i.e. the locale page is
+              catching up to a removal that already happened on English,
+              not introducing new divergence.
 
 The check compares the STAGED blob against HEAD, so it only fires on commits
 that make a translated field worse — pre-existing English descriptions
@@ -93,6 +99,17 @@ def locale_of(path: str) -> str:
     return parts[2] if len(parts) > 2 and parts[0] == "content" else "en"
 
 
+def english_counterpart_path(path: str) -> str | None:
+    """content/<site>/<locale>/<rest> -> content/<site>/en/<rest>, or None
+    when `path` doesn't have the expected shape or is already English."""
+    parts = path.replace("\\", "/").split("/")
+    if len(parts) > 2 and parts[0] == "content" and parts[2] != "en":
+        parts = list(parts)
+        parts[2] = "en"
+        return "/".join(parts)
+    return None
+
+
 def _fence_count(text: str) -> int:
     return sum(1 for ln in text.splitlines() if ln.lstrip().startswith("```"))
 
@@ -111,8 +128,18 @@ def _shortcode_call_count(text: str) -> int:
     return len(_BLOCK_REPLACING_SHORTCODE_RE.findall(text))
 
 
-def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
-    """Pure core: return failure codes for one (current, previous) pair."""
+def check_pair(
+    cur_text: str,
+    old_text: str | None,
+    locale: str,
+    *,
+    english_fence_count: int | None = None,
+) -> list[str]:
+    """Pure core: return failure codes for one (current, previous) pair.
+
+    `english_fence_count` (ST-153) is the CURRENT fence count of this page's
+    English counterpart, when available -- see its use in R3 below.
+    """
     failures = []
     if LEAK_RE.search(cur_text):
         failures.append("R2")
@@ -132,7 +159,28 @@ def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
             # content left orphaned) -- so it always fails, regardless of
             # shortcode count.
             new_shortcode_calls = _shortcode_call_count(cur_text) - _shortcode_call_count(old_text)
-            if fence_reduction % 2 != 0 or new_shortcode_calls < fence_reduction // 2:
+            shortcode_substitution = not (
+                fence_reduction % 2 != 0 or new_shortcode_calls < fence_reduction // 2
+            )
+            # ST-153: a staged locale body can also legitimately be catching
+            # up to a fence removal that ALREADY happened on the English
+            # source (e.g. an upstream API's example was deleted from
+            # English first, and a later locale patch just propagates that
+            # same removal) -- not a new divergence introduced here. Confirmed
+            # live 2026-08-31 (MT040 Phase I): an Arabic page correctly
+            # received a "<!-- Example removed -->" marker that was already
+            # present, unchanged, in the current English source. Only
+            # suppress when the locale's OWN post-edit fence count is not
+            # BELOW the English counterpart's OWN current fence count -- i.e.
+            # this locale page is not left any further out of structural sync
+            # with English than English's own current state already is. A
+            # locale that starts out below English's fence count and drops
+            # further still fails, same as before.
+            caught_up_to_english = (
+                english_fence_count is not None
+                and _fence_count(cur_text) >= english_fence_count
+            )
+            if not shortcode_substitution and not caught_up_to_english:
                 failures.append("R3")
     return failures
 
@@ -176,7 +224,16 @@ def main() -> int:
             old = _git_show(f"{args.base}:{path}")
         if cur is None:
             continue  # deleted / not in this diff side
-        for code in check_pair(cur, old, locale):
+
+        english_fence_count = None
+        english_path = english_counterpart_path(path)
+        if english_path:
+            english_ref = f":0:{english_path}" if args.staged else f"HEAD:{english_path}"
+            english_text = _git_show(english_ref)
+            if english_text is not None:
+                english_fence_count = _fence_count(english_text)
+
+        for code in check_pair(cur, old, locale, english_fence_count=english_fence_count):
             fail_count += 1
             if code == "R1":
                 print(f"R1 FAIL {path}: description regressed to English "

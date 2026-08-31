@@ -15,6 +15,7 @@ import yaml
 # ---------------------------------------------------------------------------
 from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
 from content_eval.config import CANONICAL_EVALUATORS  # needed for canonical-only grade computation
+from lib.content_discovery import LOCALE_CODES  # canonical locale-code set (matches infer_product())
 _CODE_FENCE_RE = re.compile(r"^```(\w*)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
 
@@ -101,6 +102,7 @@ class Page:
     # Inferred metadata
     family: str = ""
     platform: str = ""
+    locale: str = ""         # en, ar, de, fr, ... -- the site-relative locale segment
     subdomain: str = ""     # docs, blog, kb, reference, products
     page_role: str = ""     # howto, faq, docs, blog, reference, products
 
@@ -187,15 +189,38 @@ class Page:
                 self.prose_lines.append((abs_line, stripped))
 
     def _infer_metadata(self):
-        """Infer family, platform, subdomain, page_role from path."""
+        """Infer locale, family, platform, subdomain, page_role from path.
+
+        docs/kb/products/reference pages sit at content/{site}/{locale}/
+        {family}/{platform}/... with the locale segment ALWAYS present
+        (English pages carry "en" explicitly). blog.aspose.org is the one
+        site that omits the locale directory for English and keeps it only
+        for translations -- content/blog.aspose.org/{family}/{platform}/...
+        (English) vs content/blog.aspose.org/{locale}/{family}/{platform}/...
+        (translated). Mirrors content_discovery.py's own infer_product(),
+        which already solves this exact ambiguity via the same LOCALE_CODES
+        membership check -- reused here rather than re-deriving it.
+
+        This used to strip the leading segment only when it equaled "en",
+        so every OTHER locale (ar, de, fr, ...) left the locale code itself
+        misread as `family` and the real family misread as `platform` (e.g.
+        content/docs.aspose.org/ar/3d/typescript/... -> family="ar",
+        platform="3d"). `discover_content()` (the batch/production grading
+        route) only ever returns English paths, so this never affected
+        fleet grading -- only ad-hoc single-file locale evaluation, e.g.
+        S-73's own post-edit re-grade step on a translated page.
+        """
         parts = self.filepath.parts
         for i, p in enumerate(parts):
             if p in ("products.aspose.org", "reference.aspose.org",
                       "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
                 self.subdomain = p.split(".")[0]
                 remaining = list(parts[i + 1:])
-                if remaining and remaining[0] == "en":
+                if remaining and (remaining[0] == "en" or remaining[0] in LOCALE_CODES):
+                    self.locale = remaining[0]
                     remaining = remaining[1:]
+                else:
+                    self.locale = "en"
                 if len(remaining) >= 2:
                     self.family = remaining[0]
                     self.platform = remaining[1]
