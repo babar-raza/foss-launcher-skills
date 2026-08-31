@@ -20,8 +20,19 @@ import freshness_guard as fg
 
 
 @pytest.fixture(autouse=True)
-def _configure(tmp_path):
+def _configure(tmp_path, monkeypatch):
     fg.configure(repo_root=tmp_path)
+    # RC-freshness-guard-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-11):
+    # the new reachability check reads core.clone_cache, which has no configure() seam of its
+    # own -- it resolves purely from ASPOSE_CLONE_CACHE (or the real repo's runs/.clone_cache/
+    # as an unwanted default). Without this, every EXISTING test in this file would have the
+    # new check silently reach into the real repo's clone cache looking for whatever family/
+    # platform string the test happens to use -- a real cross-contamination risk, not a
+    # hypothetical one (this repo has real clones for common test names like "cells/net").
+    # Pointing it at an empty tmp_path subdir makes clone_exists() reliably False for every
+    # test that doesn't explicitly set up its own clone cache, which is the correct, safe
+    # default (falls through to the pre-existing stale_since-only logic, unchanged).
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "_no_clone_cache"))
     yield
     fg.configure(repo_root=None)
 
@@ -205,6 +216,203 @@ class TestCheckFreshnessStates:
     def test_invalid_mode_raises(self, tmp_path):
         with pytest.raises(ValueError):
             fg.check_freshness("cells", "net", mode="not-a-real-mode")
+
+
+def _run_git(args, cwd):
+    import subprocess
+    r = subprocess.run(["git", *args], cwd=str(cwd), capture_output=True,
+                        encoding="utf-8", errors="replace", timeout=30)
+    assert r.returncode == 0, f"git {args} failed: {r.stderr}"
+    return r.stdout.strip()
+
+
+def _make_clone_cache(tmp_path, family, platform, monkeypatch):
+    """A real local git repo standing in for the clone cache, matching this plan's
+    established real-git-repo testing convention (never a mocked subprocess for
+    this class of test)."""
+    clone_cache_root = tmp_path / "clone_cache"
+    clone_dir = clone_cache_root / f"aspose_{family}_{platform}"
+    clone_dir.mkdir(parents=True)
+    (clone_dir / "README.md").write_text("v1\n", encoding="utf-8")
+    _run_git(["init", "-q", "-b", "main"], clone_dir)
+    _run_git(["config", "user.email", "test@example.com"], clone_dir)
+    _run_git(["config", "user.name", "Test"], clone_dir)
+    _run_git(["add", "."], clone_dir)
+    _run_git(["commit", "-q", "-m", "initial"], clone_dir)
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(clone_cache_root))
+    return clone_dir
+
+
+def _rewrite_history_with_fresh_root_commit(clone_dir, *, content: "str | None" = None):
+    """Faithfully reproduces the real font/python incident's mechanism -- a mirror sync
+    that replaces the entire history with a fresh, zero-parent commit -- NOT
+    `git commit --amend`, which leaves the old commit object dangling but still
+    physically present (`cat-file -e` visible) in the same repo's object store.
+    `update_clone()`'s real `git fetch --depth=2` against a genuinely rewritten
+    remote never downloads objects unreachable from the new tip at all, so the old
+    object is truly ABSENT afterward, not merely unreferenced -- this rebuilds that
+    exact condition by re-initializing the repo from scratch. `content=None` means
+    "same file content as before" (the content-identical rewrite case);
+    a real string means "genuinely different content" (the content-changed case).
+    """
+    existing = (clone_dir / "README.md").read_text(encoding="utf-8")
+    keep = existing if content is None else content
+    import os
+    import shutil
+    import stat
+
+    def _force_remove_readonly(func, path, exc_info):
+        # Windows stores real git object files read-only; shutil.rmtree can't
+        # delete them without clearing that bit first (a well-known Windows/git
+        # rmtree gotcha, not specific to this test).
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+
+    shutil.rmtree(clone_dir / ".git", onexc=_force_remove_readonly)
+    (clone_dir / "README.md").write_text(keep, encoding="utf-8")
+    _run_git(["init", "-q", "-b", "main"], clone_dir)
+    _run_git(["config", "user.email", "test@example.com"], clone_dir)
+    _run_git(["config", "user.name", "Test"], clone_dir)
+    _run_git(["add", "."], clone_dir)
+    _run_git(["commit", "-q", "-m", "mirror resync"], clone_dir)
+
+
+def _record_ledger_entry(tmp_path, family, platform, *, new_repo_sha, repo_tree_sha):
+    sys.path.insert(0, str(_LIB_DIR))
+    from baseline_ledger import BaselineLedger
+    ledger = BaselineLedger(family, platform, repo_root=tmp_path)
+    ledger.append(
+        new_repo_sha=new_repo_sha, sha_source="scout", run_id="RUN-TEST",
+        status="accepted", accepted_at="2026-08-31T00:00:00Z", repo_tree_sha=repo_tree_sha,
+    )
+
+
+class TestBaselineTreeIdentity:
+    """RC-1 / TC-11 (readme-refresh-hardening-and-regen-2026-08-30): the reachability
+    + tree-identity check, using real local git repos throughout -- no mocked git
+    subprocess calls for this mechanism specifically, since the whole point is
+    proving real git plumbing (cat-file -e, rev-parse ^{tree}) behaves as designed."""
+
+    def test_reachable_baseline_falls_through_unchanged(self, tmp_path, monkeypatch):
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        head_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        _write_model(tmp_path, "cells", "net", repo_sha=head_sha, stale_since=None)
+        result = fg.check_freshness("cells", "net", mode="degraded")
+        # A reachable baseline must produce the ordinary CURRENT verdict -- the new
+        # check is invisible on the (common) non-orphaned path.
+        assert result.state == "CURRENT"
+
+    def test_unreachable_with_identical_tree_is_history_rewritten(self, tmp_path, monkeypatch):
+        """The font/python reproduction: the recorded baseline commit is gone (a real
+        history rewrite), but the real content is byte-identical."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        _record_ledger_entry(tmp_path, "cells", "net", new_repo_sha=orphaned_sha, repo_tree_sha=tree_sha)
+        _rewrite_history_with_fresh_root_commit(clone_dir)  # content=None -> identical
+        new_head = _run_git(["rev-parse", "HEAD"], clone_dir)
+        new_tree = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        assert new_head != orphaned_sha  # the commit genuinely changed
+        assert new_tree == tree_sha  # but the tree (real content) did not
+        _write_model(tmp_path, "cells", "net", repo_sha=orphaned_sha, stale_since=None)
+
+        result = fg.check_freshness("cells", "net", mode="degraded")
+        assert result.state == "HISTORY_REWRITTEN_CONTENT_IDENTICAL"
+        allowed, _ = fg.is_generation_allowed("cells", "net", mode="degraded")
+        assert allowed is True
+
+    def test_unreachable_with_different_tree_is_stale_orphaned(self, tmp_path, monkeypatch):
+        """The slides/python reproduction: same orphaned-baseline SHAPE, but the tree
+        genuinely differs -- real content drift, must NOT be treated as safe."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        _record_ledger_entry(tmp_path, "cells", "net", new_repo_sha=orphaned_sha, repo_tree_sha=tree_sha)
+        _rewrite_history_with_fresh_root_commit(clone_dir, content="v2 -- a real change\n")
+        new_tree = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        assert new_tree != tree_sha
+        _write_model(tmp_path, "cells", "net", repo_sha=orphaned_sha, stale_since=None)
+
+        result = fg.check_freshness("cells", "net", mode="degraded")
+        assert result.state == "STALE_ORPHANED"
+        allowed, _ = fg.is_generation_allowed("cells", "net", mode="degraded")
+        assert allowed is False
+
+    def test_the_falsifiable_test_one_mechanism_two_opposite_correct_answers(self, tmp_path, monkeypatch):
+        """The plan's own acceptance criterion, verbatim: one freshness mechanism must
+        return 'proceed' for a font/python-shaped case and 'block' for a
+        slides/python-shaped case -- both are 'baseline commit unreachable', the
+        ONLY thing distinguishing them is real tree-content identity. Exercises both
+        shapes in a single test to prove it's the same function, same code path,
+        producing opposite verdicts from the same structural input."""
+        for platform, real_change, expected_state, expected_allowed in [
+            ("identical_case", False, "HISTORY_REWRITTEN_CONTENT_IDENTICAL", True),
+            ("changed_case", True, "STALE_ORPHANED", False),
+        ]:
+            clone_dir = _make_clone_cache(tmp_path, "family", platform, monkeypatch)
+            orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+            tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+            _record_ledger_entry(tmp_path, "family", platform, new_repo_sha=orphaned_sha, repo_tree_sha=tree_sha)
+            _rewrite_history_with_fresh_root_commit(
+                clone_dir, content=("changed\n" if real_change else None),
+            )
+            _write_model(tmp_path, "family", platform, repo_sha=orphaned_sha, stale_since=None)
+
+            result = fg.check_freshness("family", platform, mode="degraded")
+            allowed, _ = fg.is_generation_allowed("family", platform, mode="degraded")
+            assert result.state == expected_state, f"{platform}: {result.state} != {expected_state}"
+            assert allowed is expected_allowed, f"{platform}: allowed={allowed} != {expected_allowed}"
+
+    def test_unreachable_with_no_recorded_tree_sha_is_conservatively_stale_orphaned(self, tmp_path, monkeypatch):
+        """A pre-TC-10 baseline (or a promote that ran without clone-cache access) has
+        no repo_tree_sha recorded at all -- must never be silently treated as safe."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        # Deliberately no _record_ledger_entry call -- nothing in the ledger for this sha.
+        _rewrite_history_with_fresh_root_commit(clone_dir)
+        _write_model(tmp_path, "cells", "net", repo_sha=orphaned_sha, stale_since=None)
+
+        result = fg.check_freshness("cells", "net", mode="degraded")
+        assert result.state == "STALE_ORPHANED"
+        assert "no recorded tree SHA" in result.reason
+
+    def test_no_clone_cache_falls_through_to_old_behavior(self, tmp_path, monkeypatch):
+        """No clone cache reachable at all (cold-start / CI without a clone) must not
+        break -- falls through to the pre-existing stale_since-only degraded logic."""
+        monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "_never_created"))
+        _write_model(tmp_path, "cells", "net", repo_sha="sha-with-no-clone", stale_since=None)
+        result = fg.check_freshness("cells", "net", mode="degraded")
+        assert result.state == "CURRENT"
+
+    def test_offline_mode_ignores_orphaned_baseline_by_contract(self, tmp_path, monkeypatch):
+        """offline mode must never touch the filesystem beyond resolve_baseline() --
+        an orphaned/content-changed baseline must not surface here at all."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        _record_ledger_entry(tmp_path, "cells", "net", new_repo_sha=orphaned_sha, repo_tree_sha=tree_sha)
+        _rewrite_history_with_fresh_root_commit(clone_dir, content="changed\n")
+        _write_model(tmp_path, "cells", "net", repo_sha=orphaned_sha, stale_since=None)
+
+        result = fg.check_freshness("cells", "net", mode="offline")
+        assert result.state == "CURRENT"  # unchanged offline-mode contract, orphan check never runs
+
+    def test_strict_mode_short_circuits_before_the_live_network_call(self, tmp_path, monkeypatch):
+        """The orphan check must run BEFORE strict mode's live ls-remote comparison --
+        a raw SHA-string mismatch against a live remote is exactly the wrong signal
+        once the baseline is already known to be a content-identical orphan."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        _record_ledger_entry(tmp_path, "cells", "net", new_repo_sha=orphaned_sha, repo_tree_sha=tree_sha)
+        _rewrite_history_with_fresh_root_commit(clone_dir)
+        _write_model(tmp_path, "cells", "net", repo_sha=orphaned_sha, stale_since=None)
+        _write_products_json(tmp_path, "cells", "net")
+
+        with patch.object(fg, "_live_upstream_sha") as mock_live:
+            result = fg.check_freshness("cells", "net", mode="strict")
+        mock_live.assert_not_called()
+        assert result.state == "HISTORY_REWRITTEN_CONTENT_IDENTICAL"
 
 
 class TestIsGenerationAllowed:

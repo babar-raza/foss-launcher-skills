@@ -61,8 +61,16 @@ def _make_api_surface(tmp_path: Path, entries: list[dict], family: str = "fake",
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
-def _isolate_paths(tmp_path):
+def _isolate_paths(tmp_path, monkeypatch):
     _br.configure(repo_root=tmp_path)
+    # RC-freshness-guard-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-11):
+    # freshness_guard's new reachability check reads core.clone_cache, which has no configure()
+    # seam of its own (unlike freshness_guard itself, correctly synced above) -- it resolves
+    # purely from ASPOSE_CLONE_CACHE (or the real repo's runs/.clone_cache/ as an unwanted
+    # default). Without this, a synthetic test repo_sha for a real product name (e.g.
+    # words/python) is checked for reachability against that REAL clone and reported
+    # STALE_ORPHANED instead of the intended CURRENT/degraded-mode result.
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "_no_clone_cache"))
     yield
     _br.configure()
 

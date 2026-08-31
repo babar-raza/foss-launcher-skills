@@ -27,8 +27,17 @@ import freshness_guard as fg
 
 
 @pytest.fixture(autouse=True)
-def _configure(tmp_path):
+def _configure(tmp_path, monkeypatch):
     fg.configure(repo_root=tmp_path)
+    # RC-freshness-guard-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-11):
+    # without this, the new reachability check would resolve core.clone_cache against the REAL
+    # repo's runs/.clone_cache/ (no configure() seam of its own) -- this file's tests use real
+    # product names like "cells/net", which really do have real clones on this machine, so a
+    # synthetic test repo_sha would be reported STALE_ORPHANED against real, unrelated clone
+    # content instead of falling through to the pre-existing stale_since-only logic these tests
+    # exist to prove is unchanged. See test_freshness_guard.py's identical fixture fix for the
+    # full rationale.
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "_no_clone_cache"))
     yield
     fg.configure(repo_root=None)
 

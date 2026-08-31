@@ -292,6 +292,13 @@ def _isolate(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     # test_start_requires_stable_session_identity below silently passes for
     # the wrong reason only when run inside an actual Claude Code session.
     monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
+    # RC-freshness-guard-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-11):
+    # freshness_guard's new reachability check reads core.clone_cache, which has no configure()
+    # seam of its own -- it resolves purely from ASPOSE_CLONE_CACHE (or the real repo's runs/
+    # .clone_cache/ as an unwanted default). Without this, MODEL_SHA (a synthetic constant) is
+    # checked for reachability against the REAL pdf/net clone on this machine and reported
+    # STALE_ORPHANED, breaking every test in this suite that reaches the freshness gate.
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "_no_clone_cache"))
     refresh_run.configure(
         repo_root=tmp_path,
         command_runner=_runner,
@@ -1442,7 +1449,9 @@ def test_abandon_before_any_output_is_a_safe_noop(tmp_path: Path):
     must remain a harmless no-op restore, not an error -- this is the exact
     shape test_abandon_is_terminal_and_clears_active_pointer already
     exercises; this test makes the no-op restore behavior explicit."""
-    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=_runner, source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
     refresh_run.create_run(
         "pdf",
         "net",
@@ -1475,7 +1484,9 @@ def test_abandon_succeeds_even_when_evidence_digests_are_unverifiable(tmp_path: 
     only abandon_run must degrade to a best-effort, unverified restore.
     """
     page_path = "content/docs.aspose.org/en/pdf/net/page.md"
-    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=_runner, source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
     page = tmp_path / page_path
     page.parent.mkdir(parents=True)
     page.write_text("---\ntitle: Test\n---\n\nBody.\n", encoding="utf-8")
@@ -1601,7 +1612,9 @@ def test_abandon_deletes_a_generated_page_absent_from_the_pinned_base(tmp_path: 
     abandoned runs this same session, both after a real G17 full rebuild had
     generated hundreds of new pages."""
     page_path = "content/reference.aspose.org/en/pdf/net/NewClass.md"
-    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=_runner, source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
     manifest = refresh_run.create_run(
         "pdf",
         "net",
@@ -1672,7 +1685,10 @@ def test_abandon_with_mixed_generated_and_preexisting_pages_restores_both(
             )
         return subprocess.CompletedProcess(args, 0, "", "")
 
-    refresh_run.configure(repo_root=tmp_path, command_runner=mixed_runner)
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=mixed_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
     manifest = refresh_run.create_run(
         "pdf",
         "net",

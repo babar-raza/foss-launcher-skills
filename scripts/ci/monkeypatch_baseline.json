@@ -116,7 +116,7 @@
     },
     "scripts/ci/tests/test_check_stale_file_regression.py": {
       "T1": 0,
-      "T2": 1,
+      "T2": 0,
       "T3": 2,
       "T4": 0
     },
@@ -440,7 +440,7 @@
     },
     "scripts/pipeline/tests/test_freshness_guard.py": {
       "T1": 0,
-      "T2": 8,
+      "T2": 9,
       "T3": 0,
       "T4": 0
     },
@@ -835,7 +835,7 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-30T15:00:08Z",
+  "generated_at": "2026-08-31T10:37:13Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,

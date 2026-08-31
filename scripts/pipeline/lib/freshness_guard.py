@@ -6,7 +6,7 @@ CONTRACT: scripts/pipeline/lib/freshness_guard.py
            `model.yaml["stale_since"]` and treated `None` as "safe to use" — a cached
            boolean that is only ever updated by a human/agent remembering to run
            `/knowledge-diff`, never a live-provable relationship to upstream. This module
-           is the one place that state gets computed, in 8 explicit states with
+           is the one place that state gets computed, in 10 explicit states with
            strict/degraded/offline modes, so every gate can be migrated to call the same
            function instead of re-deriving the same (previously wrong) assumption.
   resolution order: merged/model.yaml is now git-tracked (T0/T2) and is the single
@@ -17,9 +17,16 @@ CONTRACT: scripts/pipeline/lib/freshness_guard.py
            fast-lookup fallback (and to detect CORRUPT — see below), and the pre-existing
            local ledger / content-frontmatter fallbacks (baseline_resolver.py's
            `_sample_content_model_sha`) remain the last resort for cold-start products.
+  reachability (RC-1 / TC-11, readme-refresh-hardening-and-regen-2026-08-30): a resolved
+           baseline SHA is now also checked for git reachability against the product's
+           local clone cache (local-only, no network — safe in degraded AND strict modes,
+           deliberately skipped in offline mode) — see _check_baseline_reachability()'s own
+           docstring for the full rationale (font/python vs. slides/python: two orphaned-
+           baseline cases requiring OPPOSITE verdicts, which a commit-SHA-only check could
+           never distinguish).
   states:  CURRENT, STALE, REFRESHING, REFRESH_FAILED, UPSTREAM_UNAVAILABLE,
-           PROVENANCE_MISSING, CORRUPT, LAST_KNOWN_GOOD — see check_freshness()'s
-           docstring for the full semantics of each.
+           PROVENANCE_MISSING, CORRUPT, LAST_KNOWN_GOOD, HISTORY_REWRITTEN_CONTENT_IDENTICAL,
+           STALE_ORPHANED — see check_freshness()'s docstring for the full semantics of each.
   modes:   strict (requires a live upstream comparison + bundle self-verification;
            network failure -> UPSTREAM_UNAVAILABLE, never a silent downgrade),
            degraded (no network call — the default for high-volume generation-time
@@ -74,6 +81,7 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
 STATES = frozenset({
     "CURRENT", "STALE", "REFRESHING", "REFRESH_FAILED",
     "UPSTREAM_UNAVAILABLE", "PROVENANCE_MISSING", "CORRUPT", "LAST_KNOWN_GOOD",
+    "HISTORY_REWRITTEN_CONTENT_IDENTICAL", "STALE_ORPHANED",
 })
 MODES = frozenset({"strict", "degraded", "offline"})
 
@@ -219,6 +227,116 @@ def _repo_url(family: str, platform: str) -> "str | None":
 
 
 # ---------------------------------------------------------------------------
+# Baseline tree identity (RC-1: identity by content, not mutable pointer)
+# ---------------------------------------------------------------------------
+
+
+def _resolve_recorded_tree_sha(family: str, platform: str, resolved_sha: str) -> "str | None":
+    """The repo_tree_sha the baseline ledger recorded for `resolved_sha`, if any
+    (TC-10 — additive field, absent on any entry written before this feature or by
+    a caller that couldn't compute it at promote time). Searches history newest-
+    first since the same commit sha is only ever recorded once in practice, but a
+    duplicate would resolve to the most recent write, matching this ledger's own
+    append-only "latest wins" read convention elsewhere."""
+    try:
+        from baseline_ledger import BaselineLedger
+    except Exception:
+        return None
+    try:
+        ledger = BaselineLedger(family, platform, repo_root=REPO_ROOT)
+        for entry in reversed(ledger.history()):
+            if entry.get("new_repo_sha") == resolved_sha and entry.get("repo_tree_sha"):
+                return entry["repo_tree_sha"]
+    except Exception:
+        return None
+    return None
+
+
+def _clone_head_tree_sha(repo_path: Path) -> "str | None":
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "rev-parse", "HEAD^{tree}"],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=10,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip() or None
+    except Exception:
+        pass
+    return None
+
+
+def _check_baseline_reachability(
+    family: str, platform: str, resolved_sha: "str | None",
+) -> "tuple[str, str] | None":
+    """RC-1 (the closed forensic audit's own unifying root cause): "is this the same
+    thing as before?" was answered everywhere in this pipeline by comparing a
+    mutable pointer (a commit SHA) that can change without the underlying content
+    changing, or by never checking reachability at all in degraded mode (this
+    module's own prior behavior — confirmed by direct code read before this fix:
+    resolve_baseline() never tested reachability, only `_durable_sources_agree()`
+    and a local `stale_since` flag).
+
+    Live-reproduced why this matters (readme-refresh-hardening-and-regen-2026-08-30):
+    font/python's upstream is a GitLab-canonical -> GitHub-mirror architecture that
+    periodically rewrites history (a real zero-parent orphan commit, twice) with
+    BYTE-IDENTICAL content each time (`git diff --stat` empty; tree SHAs equal).
+    slides/python has the structurally IDENTICAL-LOOKING orphaned-baseline shape —
+    same "commit unreachable" signal — but its tree SHA genuinely differs (a real
+    747-line README change, a real source change). One mechanism must produce two
+    OPPOSITE correct answers from these two cases; a commit-SHA-only check cannot.
+
+    Returns `(state, reason)` when an orphan condition was actually determined
+    (`HISTORY_REWRITTEN_CONTENT_IDENTICAL` or `STALE_ORPHANED`), or `None` when this
+    check could not run (no clone cache reachable for this product — the common case
+    for CI/cold-start callers) or the baseline IS reachable (the common case in
+    steady-state operation) — `None` means "fall through to the pre-existing
+    stale_since-only logic, unchanged", never "assume current" or "assume stale".
+    Local-only (a `git cat-file`/`rev-parse` against the already-fetched clone
+    cache, never a network call) — safe to run in both degraded and strict modes;
+    deliberately NOT run in offline mode, which must never touch the filesystem
+    beyond resolve_baseline() by contract.
+    """
+    if not resolved_sha:
+        return None
+    try:
+        from core.clone_cache import clone_path, clone_exists
+    except Exception:
+        return None
+    if not clone_exists(family, platform):
+        return None
+    repo_path = clone_path(family, platform)
+    try:
+        from baseline_resolver import git_reachable
+    except Exception:
+        return None
+    if git_reachable(repo_path)(resolved_sha):
+        return None
+
+    recorded_tree_sha = _resolve_recorded_tree_sha(family, platform, resolved_sha)
+    live_tree_sha = _clone_head_tree_sha(repo_path)
+    if recorded_tree_sha and live_tree_sha and recorded_tree_sha == live_tree_sha:
+        return (
+            "HISTORY_REWRITTEN_CONTENT_IDENTICAL",
+            f"baseline commit {resolved_sha[:10]} is unreachable from the clone-cache HEAD, "
+            f"but its recorded tree SHA ({recorded_tree_sha[:10]}) matches the tree SHA now at "
+            f"HEAD -- a content-identical history rewrite (e.g. a GitLab-canonical -> GitHub-"
+            f"mirror resync), not real staleness",
+        )
+    return (
+        "STALE_ORPHANED",
+        f"baseline commit {resolved_sha[:10]} is unreachable from the clone-cache HEAD, and "
+        + (
+            "its tree SHA genuinely differs from HEAD's -- real content drift, not just a "
+            "rewritten history"
+            if recorded_tree_sha and live_tree_sha
+            else "no recorded tree SHA is available to prove the content is unchanged (a "
+                 "pre-TC-10 baseline, or a promote that ran without clone-cache access) -- "
+                 "treated as stale rather than assumed safe"
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
 # Regen lock / failure-marker inspection
 # ---------------------------------------------------------------------------
 
@@ -328,6 +446,21 @@ def check_freshness(family: str, platform: str, *, mode: str = "degraded") -> Fr
     # at all"; a v1 model.yaml with no bundle_manifest.json is legacy-but-usable in
     # degraded mode. Strict mode's network check below is still the real gate.
 
+    # RC-1 / TC-11 (readme-refresh-hardening-and-regen-2026-08-30): local-only (no
+    # network), so safe to run in both degraded and strict modes -- deliberately
+    # BEFORE strict mode's live upstream comparison below, since a raw SHA-string
+    # mismatch against a live remote is exactly the wrong signal once the baseline
+    # is already known to be an orphan; running that check first would just
+    # reproduce the bug this one exists to fix, in a different disguise. Returns
+    # None (fall through, unchanged) for the common case -- reachable baseline, or
+    # no clone cache available to check against at all.
+    orphan_result = _check_baseline_reachability(family, platform, resolved_sha)
+    if orphan_result is not None:
+        orphan_state, orphan_reason = orphan_result
+        return FreshnessResult(
+            orphan_state, orphan_reason, resolved_sha=resolved_sha, resolved_from=resolved_from,
+        )
+
     if mode == "degraded":
         # Stale local model_yaml stale_since is still an authored signal (set by
         # /knowledge-diff) worth honoring even without a live check.
@@ -375,13 +508,19 @@ def is_generation_allowed(
     """The function every gate should call instead of reading model.yaml['stale_since']
     directly. Returns (allowed, result).
 
-    allowed=True only for CURRENT, or for LAST_KNOWN_GOOD when the caller explicitly
-    opts in AND a prior successfully-generated bundle exists. Every LAST_KNOWN_GOOD
-    use is appended to reports/freshness_guard/last_known_good.log.jsonl for audit.
-    Launch/readiness gates must never pass allow_last_known_good=True.
+    allowed=True only for CURRENT, for HISTORY_REWRITTEN_CONTENT_IDENTICAL (TC-11 —
+    the baseline commit is unreachable, but its real content is proven, via tree
+    SHA, unchanged; forcing a re-scout here would be pure waste, not caution), or
+    for LAST_KNOWN_GOOD when the caller explicitly opts in AND a prior successfully-
+    generated bundle exists. Every LAST_KNOWN_GOOD use is appended to
+    reports/freshness_guard/last_known_good.log.jsonl for audit. Launch/readiness
+    gates must never pass allow_last_known_good=True. STALE_ORPHANED is
+    deliberately NOT allowed by default and NOT LAST_KNOWN_GOOD-eligible — real
+    content drift, or a baseline old enough to predate tree-SHA recording, must be
+    treated the same as ordinary STALE, not assumed safe.
     """
     result = check_freshness(family, platform, mode=mode)
-    if result.state == "CURRENT":
+    if result.state in ("CURRENT", "HISTORY_REWRITTEN_CONTENT_IDENTICAL"):
         return True, result
 
     if allow_last_known_good and result.state in ("UPSTREAM_UNAVAILABLE", "REFRESH_FAILED"):
