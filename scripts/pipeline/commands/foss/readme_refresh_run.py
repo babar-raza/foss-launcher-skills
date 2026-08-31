@@ -2932,6 +2932,18 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": False,
         "findings": _checks_currency_findings(family, platform),
     }
+    # RC-dead-code-depmatrix-resolution (readme-refresh-hardening-and-regen-2026-08-30):
+    # build_dependency_verification_matrix was implemented and tested but never called from
+    # anywhere -- confirmed by exhaustive grep before this fix. Wired in here (not removed) per
+    # this mission's plan: it is a genuinely useful, already-correct reviewer artifact (per-
+    # dependency corroboration across the Dependencies section, prose, and claims.json), it is
+    # never a gate itself (no "hard_gate" key -- ingest_candidate's own hard-gate predicate
+    # `r.get("hard_gate") and r.get("findings")` structurally ignores it), and computing it here
+    # means it fires identically from ingest_candidate, recheck, and audit_portfolio, the same
+    # single-entry-point discipline every other shared signal in this function already follows.
+    result["dependency_verification_matrix"] = checks.build_dependency_verification_matrix(
+        dependency_snapshot, text, dependency_claims_raw.get("claims"),
+    )
     return result
 
 

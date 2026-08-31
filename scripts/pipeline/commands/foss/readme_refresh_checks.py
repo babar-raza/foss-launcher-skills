@@ -2497,6 +2497,67 @@ _CLASS_SOURCE_EXTENSIONS = frozenset({
     ".php", ".kt", ".kts", ".rb", ".swift",
 })
 
+_SKIP_SOURCE_SCAN_DIRS = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
+_ROOT_SOURCE_FILE_TEXT_CACHE: "dict[str, dict[Path, str]] | None" = None
+
+
+def _indexed_source_files(root: Path) -> "dict[Path, str]":
+    """RC-audit-portfolio-runtime-variance-fix (readme-refresh-hardening-and-regen-2026-08-30):
+    the confirmed root cause of the reproduced runtime-variance bug (slides/python:
+    176s, page/python: 0.7s on the same machine seconds apart). Profiling
+    (`cProfile` against a real `audit-portfolio` call) showed 95% of slides/python's
+    176s inside `check_api_reference_class_internal_only` -> `_module_internal_fan_in`,
+    which called `_find_class_source_files` once PER CLASS CITATION (256 times for this
+    product) -- and every one of those 256 calls, plus `_module_internal_fan_in`'s own
+    separate `.py`-only scan, independently re-walked the ENTIRE clone-cache tree via
+    `root.rglob()` and re-read every matching file from disk (318,956 total file reads;
+    64s of that alone was Windows `_getfinalpathname`/`nt.stat` path-resolution overhead,
+    plausibly amplified by this repo living under a synced OneDrive tree). O(classes x
+    tree_size) instead of O(tree_size) -- classic uncached-repeated-scan.
+
+    This builds the {path: text} index ONCE per resolved root (every file under
+    `_CLASS_SOURCE_EXTENSIONS`, same `_SKIP_SOURCE_SCAN_DIRS` exclusions every source-
+    scanning function in this module already applies), cached for the process's
+    lifetime, and reused by every caller (`_find_class_source_files`,
+    `_module_internal_fan_in`, and anything else that needs this product's source text)
+    instead of each doing its own independent filesystem walk. Behavior-preserving: same
+    extension filter, same skip-dirs, same read-with-errors-ignore semantics, same file
+    set and iteration order as the walks it replaces -- only the redundant re-walking is
+    removed. A real CLI invocation is one process per verb (never long-running across a
+    clone-cache mutation), so process-lifetime caching is safe by construction; see
+    `clear_source_file_index_cache()` for the one legitimate reason to reset it (tests
+    reusing a root, or a future long-running caller).
+    """
+    global _ROOT_SOURCE_FILE_TEXT_CACHE
+    if _ROOT_SOURCE_FILE_TEXT_CACHE is None:
+        _ROOT_SOURCE_FILE_TEXT_CACHE = {}
+    key = str(root.resolve())
+    cached = _ROOT_SOURCE_FILE_TEXT_CACHE.get(key)
+    if cached is not None:
+        return cached
+    index: "dict[Path, str]" = {}
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix not in _CLASS_SOURCE_EXTENSIONS:
+            continue
+        if _SKIP_SOURCE_SCAN_DIRS & set(path.parts):
+            continue
+        try:
+            index[path] = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+    _ROOT_SOURCE_FILE_TEXT_CACHE[key] = index
+    return index
+
+
+def clear_source_file_index_cache() -> None:
+    """Test/CLI seam: reset the module-level source-file index cache (AGENTS.md 16 configure()
+    pattern -- never monkeypatch the private dict directly). Never needed by the real CLI (one
+    process per invocation); tests that reuse the same root across cases with different on-disk
+    content, or write files to a root AFTER a prior call already indexed it, must call this
+    explicitly."""
+    global _ROOT_SOURCE_FILE_TEXT_CACHE
+    _ROOT_SOURCE_FILE_TEXT_CACHE = None
+
 
 def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) -> list[Path]:
     """Locate up to max_files real source files plausibly DEFINING class_name (not merely
@@ -2535,19 +2596,15 @@ def _find_class_source_files(root: Path, class_name: str, max_files: int = 5) ->
     declare_re = re.compile(
         rf"\b(?:class|struct|interface|def|enum|type)\s+{re.escape(class_name)}\b(?!\s*;)"
     )
-    skip_dirs = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
     found: list[Path] = []
-    for path in root.rglob("*"):
+    # RC-audit-portfolio-runtime-variance-fix: reads the cached, process-lifetime source-file
+    # index (built once per root, see _indexed_source_files' own docstring) instead of walking
+    # and re-reading the entire clone-cache tree on every call -- this function was previously
+    # called once per class citation (256 times for a real product in the confirmed
+    # reproduction), each doing its own independent O(tree_size) walk.
+    for path, text in _indexed_source_files(root).items():
         if len(found) >= max_files:
             break
-        if not path.is_file() or path.suffix not in _CLASS_SOURCE_EXTENSIONS:
-            continue
-        if skip_dirs & set(path.parts):
-            continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
-            continue
         if declare_re.search(text):
             found.append(path)
     return found
@@ -3023,18 +3080,21 @@ def _module_internal_fan_in(clone_cache_root: str, class_name: str) -> "int | No
     defining_files = _find_class_source_files(root, class_name)
     if not defining_files:
         return None
-    defining = {p.resolve() for p in defining_files}
+    defining = set(defining_files)
     reference_re = re.compile(rf"\b{re.escape(class_name)}\b")
-    skip_dirs = {".git", "node_modules", "__pycache__", "target", "build", "dist", "bin", "obj"}
+    # RC-audit-portfolio-runtime-variance-fix: shares the same cached index
+    # _find_class_source_files just populated for this root (same skip-dirs, same read
+    # semantics) instead of its own independent root.rglob("*.py") walk + per-file read --
+    # this was the single largest contributor to the confirmed 176s slides/python reproduction
+    # (called once per class citation, 256 times, each re-walking the whole tree). `defining`
+    # is drawn from the identical cache, so plain `==` comparison is correct without the
+    # `.resolve()` calls the original used (a further, separately-confirmed cost: ~64s of
+    # Windows path-resolution overhead across the two profiled functions combined).
     fan_in = 0
-    for path in root.rglob("*.py"):
-        if not path.is_file() or skip_dirs & set(path.parts):
+    for path, text in _indexed_source_files(root).items():
+        if path.suffix != ".py":
             continue
-        if path.resolve() in defining:
-            continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
+        if path in defining:
             continue
         if reference_re.search(text):
             fan_in += 1

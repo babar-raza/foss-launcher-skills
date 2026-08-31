@@ -3654,6 +3654,64 @@ def test_find_class_source_files_still_ignores_unlisted_extensions(tmp_path):
     assert found == []
 
 
+# --- RC-audit-portfolio-runtime-variance-fix: source-file index cache ---------------------------
+
+
+def test_source_file_index_cache_is_reused_across_calls(tmp_path):
+    checks.clear_source_file_index_cache()
+    (tmp_path / "widget.py").write_text("class Widget:\n    pass\n", encoding="utf-8")
+    assert checks._find_class_source_files(tmp_path, "Widget") == [tmp_path / "widget.py"]
+    # A file added AFTER the root was first indexed must NOT be picked up -- proves the second
+    # call reused the cached index rather than re-walking the filesystem (the whole point of
+    # this fix), not merely that both calls happen to return the same answer.
+    (tmp_path / "gadget.py").write_text("class Gadget:\n    pass\n", encoding="utf-8")
+    assert checks._find_class_source_files(tmp_path, "Gadget") == []
+    checks.clear_source_file_index_cache()
+
+
+def test_clear_source_file_index_cache_forces_a_fresh_scan(tmp_path):
+    checks.clear_source_file_index_cache()
+    (tmp_path / "widget.py").write_text("class Widget:\n    pass\n", encoding="utf-8")
+    checks._find_class_source_files(tmp_path, "Widget")  # populate the cache for this root
+    (tmp_path / "gadget.py").write_text("class Gadget:\n    pass\n", encoding="utf-8")
+    checks.clear_source_file_index_cache()
+    assert checks._find_class_source_files(tmp_path, "Gadget") == [tmp_path / "gadget.py"]
+    checks.clear_source_file_index_cache()
+
+
+def test_source_file_index_cache_is_isolated_per_root(tmp_path):
+    checks.clear_source_file_index_cache()
+    root_a = tmp_path / "a"
+    root_b = tmp_path / "b"
+    root_a.mkdir()
+    root_b.mkdir()
+    (root_a / "widget.py").write_text("class Widget:\n    pass\n", encoding="utf-8")
+    (root_b / "gadget.py").write_text("class Gadget:\n    pass\n", encoding="utf-8")
+    assert checks._find_class_source_files(root_a, "Widget") == [root_a / "widget.py"]
+    assert checks._find_class_source_files(root_b, "Gadget") == [root_b / "gadget.py"]
+    # Cross-root leakage would show up as either finding the other root's class or missing
+    # its own -- neither happened, proving the cache key is genuinely per-root.
+    assert checks._find_class_source_files(root_a, "Gadget") == []
+    assert checks._find_class_source_files(root_b, "Widget") == []
+    checks.clear_source_file_index_cache()
+
+
+def test_module_internal_fan_in_uses_the_same_cached_index_as_find_class_source_files(tmp_path):
+    # Regression guard for the defining-file-exclusion logic: _module_internal_fan_in switched
+    # from `.resolve()`-based comparison to plain Path equality against the shared cache -- this
+    # proves the defining file is still correctly excluded from its own fan-in count.
+    checks.clear_source_file_index_cache()
+    (tmp_path / "widget.py").write_text(
+        "class Widget:\n    pass\n\ndef make() -> Widget:\n    return Widget()\n", encoding="utf-8",
+    )
+    (tmp_path / "caller.py").write_text("from widget import Widget\nw = Widget()\n", encoding="utf-8")
+    fan_in = checks._module_internal_fan_in(str(tmp_path), "Widget")
+    # widget.py itself references "Widget" twice more (in make()'s signature/body) but must be
+    # excluded as the defining file; only caller.py counts.
+    assert fan_in == 1
+    checks.clear_source_file_index_cache()
+
+
 # --- check_installation_matches_package_registry (TC-HARDEN-32, MT035) --------------------------
 # A heuristic, not a hard gate -- confirmed by direct live evidence the moment this check was
 # first run against real content: data/package_registry.json was found independently wrong, in
