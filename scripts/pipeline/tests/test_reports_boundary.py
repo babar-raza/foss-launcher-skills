@@ -54,8 +54,23 @@ class TestGitBoundary:
 
 
 # ---------------------------------------------------------------------------
-# Pre-commit hook source contains Step 0 guard
+# Pre-commit hook source contains the reports/ boundary guard
 # ---------------------------------------------------------------------------
+
+def _step_block_by_name(content: str, name: str) -> str:
+    """One step's code block, located by its stable ``_pc_step_start`` name.
+
+    Keyed on the step NAME, never the ``# Step N:`` header: the 2026-08-26
+    renumbering silently retargeted every number-keyed lookup in this file
+    (some tests failed outright; test_step3/7/15 kept PASSING against the
+    WRONG step's block — found 2026-08-31, stale-guard plan TC-SG-20(b)).
+    Names survive renumbering; a removed/renamed step fails loudly here.
+    Same pattern TestNewLocalChecksWiredUp below already used.
+    """
+    start = content.index(f'_pc_step_start "{name}"')
+    end = content.index("_pc_step_start", start + 1)
+    return content[start:end]
+
 
 class TestPreCommitGuard:
     """scripts/pre-commit-audit.sh must contain the reports/ boundary guard."""
@@ -63,46 +78,46 @@ class TestPreCommitGuard:
     _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
     _INSTALLED = _REPO_ROOT / ".git" / "hooks" / "pre-commit"
 
-    def test_source_contains_step0_guard(self):
+    def test_source_contains_reports_guard(self):
         content = self._SOURCE.read_text(encoding="utf-8")
-        assert "Step 0" in content, (
-            "scripts/pre-commit-audit.sh is missing the Step 0 reports/ guard"
+        assert '_pc_step_start "reports/ boundary"' in content, (
+            "scripts/pre-commit-audit.sh is missing the reports/ boundary guard step"
         )
-        assert "reports/ boundary" in content or "local-only artifacts" in content, (
-            "Step 0 guard text not found in pre-commit-audit.sh"
+        assert "local-only artifacts" in content, (
+            "reports/ boundary guard text not found in pre-commit-audit.sh"
         )
 
     def test_source_checks_diff_filter_acm(self):
         """Guard must use --diff-filter=ACM to allow staged deletions (git rm --cached)."""
-        content = self._SOURCE.read_text(encoding="utf-8")
-        # Find the Step 0 block — look for the diff-filter line near the reports/ grep
-        assert "--diff-filter=ACM" in content, (
-            "Pre-commit Step 0 guard must use --diff-filter=ACM to allow deletions"
+        block = _step_block_by_name(
+            self._SOURCE.read_text(encoding="utf-8"), "reports/ boundary")
+        assert "--diff-filter=ACM" in block, (
+            "The reports/ boundary guard must use --diff-filter=ACM to allow deletions"
         )
 
     def test_source_blocks_reports_additions(self):
         """Guard must grep for staged reports/ additions (blocks — see
         test_source_reports_guard_is_blocking: restored 2026-08-14, TC-CIR-01)."""
-        content = self._SOURCE.read_text(encoding="utf-8")
-        # The guard greps for '^reports/' and blocks if found
-        assert "grep '^reports/'" in content or "grep \"^reports/\"" in content, (
-            "Step 0 guard must grep for staged files under reports/"
+        block = _step_block_by_name(
+            self._SOURCE.read_text(encoding="utf-8"), "reports/ boundary")
+        assert "grep '^reports/'" in block or 'grep "^reports/"' in block, (
+            "The reports/ boundary guard must grep for staged files under reports/"
         )
 
     def test_source_reports_guard_is_blocking(self):
-        """Step 0 was downgraded to WARN on 2026-08-08 (CI rules audit), then restored to
-        BLOCK on 2026-08-14 (TC-CIR-01, CI reliability reassessment): content-audit.yml's
+        """The guard was downgraded to WARN on 2026-08-08 (CI rules audit), then restored
+        to BLOCK on 2026-08-14 (TC-CIR-01, CI reliability reassessment): content-audit.yml's
         identical whole-tree copy is pull_request-only and never fires under this repo's
         direct-to-main push model, so the WARN window left this defect class with zero
         live enforcement, not enforcement merely relocated to CI. The guard must detect
         the violation and exit the commit."""
-        content = self._SOURCE.read_text(encoding="utf-8")
-        start = content.index("# Step 0:")
-        end = content.index("_pc_step_start", start + 1)
-        step0_block = content[start:end]
-        assert "BLOCKED" in step0_block, "Step 0 must surface the violation as a blocking error"
-        assert "_pc_exit" in step0_block, (
-            "Step 0 must call _pc_exit — it is blocking, not warn-only"
+        block = _step_block_by_name(
+            self._SOURCE.read_text(encoding="utf-8"), "reports/ boundary")
+        assert "BLOCKED" in block, (
+            "The reports/ boundary guard must surface the violation as a blocking error"
+        )
+        assert "_pc_exit" in block, (
+            "The reports/ boundary guard must call _pc_exit — blocking, not warn-only"
         )
 
 
@@ -115,86 +130,81 @@ class TestPreCommitGuard:
 # ---------------------------------------------------------------------------
 
 class TestTierOneRestoredSteps:
-    """Steps 1b, 3, 7, 9b, 15 must be blocking again (TC-CIR-01)."""
+    """The filename-conventions, forbidden-path, Python-placement, root-docs and
+    blog-post-standards steps must be blocking again (TC-CIR-01); onboarding
+    integrity is the one deliberate warn-only exception. Keyed on step NAMES
+    (TC-SG-20(b)) — the old '# Step N:' keys broke (or silently retargeted)
+    on the 2026-08-26 renumbering."""
 
     _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
 
-    @staticmethod
-    def _step_block(content: str, start_marker: str, end_marker: str = "_pc_step_start") -> str:
-        start = content.index(start_marker)
-        end = content.index(end_marker, start + 1)
-        return content[start:end]
+    def _block(self, name: str) -> str:
+        return _step_block_by_name(self._SOURCE.read_text(encoding="utf-8"), name)
 
-    def test_step1b_filename_conventions_is_blocking(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 1b:")
-        assert "_pc_exit" in block, "Step 1b must call _pc_exit — it is blocking"
+    def test_filename_conventions_is_blocking(self):
+        block = self._block("filename conventions")
+        assert "_pc_exit" in block, "filename conventions must call _pc_exit — blocking"
         assert "BLOCKED" in block
 
-    def test_step3_plugin_platform_is_blocking(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 3:")
-        assert "_pc_exit" in block, "Step 3 must call _pc_exit — it is blocking"
+    def test_plugin_platform_is_blocking(self):
+        block = self._block("plugin_platform")
+        assert "_pc_exit" in block, "plugin_platform must call _pc_exit — blocking"
         assert "BLOCKED" in block
 
-    def test_step7_python_placement_is_blocking(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 7:")
-        assert "_pc_exit" in block, "Step 7 must call _pc_exit — it is blocking"
+    def test_python_placement_is_blocking(self):
+        block = self._block("Python placement")
+        assert "_pc_exit" in block, "Python placement must call _pc_exit — blocking"
         assert "BLOCKED" in block
 
-    def test_step9_onboarding_integrity_stays_warn(self):
-        """Step 9 is the one deliberate, working exception — must NOT be reverted."""
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 9:", end_marker="# Step 9b:")
+    def test_onboarding_integrity_stays_warn(self):
+        """The one deliberate, working exception — must NOT be reverted to blocking."""
+        block = self._block("onboarding integrity")
         assert "_pc_exit" not in block, (
-            "Step 9 must stay warn-only — ci-eval-consistency.yml's onboarding-integrity "
-            "job is a genuine, disclosed, working CI backstop (push-triggered + weekly "
-            "schedule), unlike the other 6 restored steps"
+            "onboarding integrity must stay warn-only — ci-eval-consistency.yml's "
+            "onboarding-integrity job is a genuine, disclosed, working CI backstop "
+            "(push-triggered + weekly schedule), unlike the other restored steps"
         )
 
-    def test_step9b_root_docs_truth_is_blocking(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 9b:")
-        assert "_pc_exit" in block, "Step 9b must call _pc_exit — it is blocking"
+    def test_root_docs_truth_is_blocking(self):
+        block = self._block("root docs truth")
+        assert "_pc_exit" in block, "root docs truth must call _pc_exit — blocking"
         assert "BLOCKED" in block
 
-    def test_step15_blog_post_standards_is_blocking(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        block = self._step_block(content, "# Step 15:")
-        assert "_pc_exit" in block, "Step 15 must call _pc_exit — it is blocking"
+    def test_blog_post_standards_is_blocking(self):
+        block = self._block("Blog post standards")
+        assert "_pc_exit" in block, "Blog post standards must call _pc_exit — blocking"
         assert "BLOCKED" in block
 
 
 # ---------------------------------------------------------------------------
-# TC-CIR-10 (2026-08-14): Step 5 must not silently auto-stage corrected content
+# TC-CIR-10 (2026-08-14): content_hash normalization must not silently
+# auto-stage corrected content
 # ---------------------------------------------------------------------------
 
-class TestStep5NoSilentAutoStage:
+class TestContentHashNoSilentAutoStage:
     _SOURCE = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
 
-    def test_step5_does_not_pass_auto_stage_flag(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        start = content.index("# Step 5:")
-        end = content.index("_pc_step_start", start + 1)
-        step5_block = content[start:end]
+    def test_normalize_does_not_pass_auto_stage_flag(self):
+        block = _step_block_by_name(
+            self._SOURCE.read_text(encoding="utf-8"), "content_hash normalization")
         invocation_lines = [
-            ln for ln in step5_block.splitlines()
+            ln for ln in block.splitlines()
             if "provenance_normalize_hash.py" in ln
         ]
-        assert invocation_lines, "Step 5 must invoke provenance_normalize_hash.py"
+        assert invocation_lines, (
+            "content_hash normalization must invoke provenance_normalize_hash.py"
+        )
         assert not any("--auto-stage" in ln for ln in invocation_lines), (
-            "Step 5's actual invocation must not pass --auto-stage — corrected content "
+            "the normalize invocation must not pass --auto-stage — corrected content "
             "must be reviewed and staged by the operator, not silently committed (TC-CIR-10)"
         )
 
-    def test_step5_blocks_when_files_were_updated(self):
-        content = self._SOURCE.read_text(encoding="utf-8")
-        start = content.index("# Step 5:")
-        end = content.index("_pc_step_start", start + 1)
-        step5_block = content[start:end]
-        assert "_pc_exit 1" in step5_block, (
-            "Step 5 must block the commit when content_hash was stale, not silently continue"
+    def test_normalize_blocks_when_files_were_updated(self):
+        block = _step_block_by_name(
+            self._SOURCE.read_text(encoding="utf-8"), "content_hash normalization")
+        assert "_pc_exit 1" in block, (
+            "content_hash normalization must block the commit when content_hash was "
+            "stale, not silently continue"
         )
 
 

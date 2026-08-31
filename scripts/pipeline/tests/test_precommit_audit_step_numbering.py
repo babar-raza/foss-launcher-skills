@@ -62,7 +62,9 @@ _REPO_ROOT = _TESTS_DIR.parents[2]
 _PRECOMMIT_AUDIT_SH = _REPO_ROOT / "scripts" / "pre-commit-audit.sh"
 
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops"))
-import git_plumb_commit as gpc  # noqa: E402
+import git_plumb_commit as gpc  # noqa: E402,F401  (guard shares its resolver)
+
+from _git_bash_guard import require_git_bash  # noqa: E402
 
 _START_RE = re.compile(r'^\s*_pc_step_start\s+"')
 _END_RE = re.compile(r'^_pc_step_end\s+"(PASS|FAIL|WARN|SKIP)"')  # column-0 only
@@ -249,9 +251,7 @@ def _tracking_functions_block() -> str:
 
 
 def _bash_path() -> str:
-    bash_path = gpc._resolve_git_bash()
-    assert bash_path is not None, "no working Git Bash found on this machine"
-    return bash_path
+    return require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
 
 
 def _run_tracking_scenario(scenario: str) -> subprocess.CompletedProcess:

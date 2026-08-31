@@ -32,6 +32,7 @@ if str(_OPS_DIR) not in sys.path:
 
 import git_plumb_commit as gpc  # noqa: E402
 import session_ledger  # noqa: E402
+from _git_bash_guard import require_git_bash  # noqa: E402
 from commands.governance import override_manager  # noqa: E402
 
 
@@ -99,6 +100,7 @@ _CROSS_LINE = b'echo "[Step X] \xe2\x9d\x8c marker line"'
 
 
 def test_tier1_output_with_unmappable_byte_is_string_not_none(tmp_path):
+    require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
     work, bare = _init_repo_with_remote(tmp_path)
     (work / "f.txt").write_text("v", encoding="utf-8")
     _write_fake_tier1(work, _CROSS_LINE, exit_code=0)
@@ -114,6 +116,7 @@ def test_tier1_output_with_unmappable_byte_is_string_not_none(tmp_path):
 
 
 def test_tier1_failure_with_unmappable_byte_raises_tier1failed_not_typeerror(tmp_path):
+    require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
     work, bare = _init_repo_with_remote(tmp_path)
     (work / "g.txt").write_text("v", encoding="utf-8")
     _write_fake_tier1(work, _CROSS_LINE, exit_code=1)

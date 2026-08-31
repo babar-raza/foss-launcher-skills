@@ -15,6 +15,7 @@ import pytest
 
 import git_plumb_commit as gpc
 import session_ledger
+from _git_bash_guard import require_git_bash
 from commands.governance import override_manager
 
 
@@ -756,8 +757,7 @@ class TestGitBashResolver:
 
     def test_resolves_a_real_working_git_bash(self):
         gpc._GIT_BASH_RESOLVED = False  # bypass this-process's cached result
-        resolved = gpc._resolve_git_bash()
-        assert resolved is not None, "no working Git Bash found on this machine"
+        resolved = require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
         result = subprocess.run([resolved, "-c", "uname -s"], capture_output=True, text=True)
         uname = result.stdout.strip().lower()
         assert any(tag in uname for tag in ("mingw", "msys", "cygwin")), (
@@ -783,6 +783,13 @@ class TestGitBashResolver:
 
 
 class TestTier1Checks:
+
+    @pytest.fixture(autouse=True)
+    def _needs_real_git_bash(self):
+        # Every test here exercises Tier-1 semantics through a real bash run
+        # (or would pass VACUOUSLY via the resolver's fail-open path without
+        # one) -- an honest skip beats a vacuous pass (TC-SG-20a).
+        require_git_bash()
 
     def test_missing_precommit_script_fails_open(self, tmp_path):
         """No scripts/pre-commit-audit.sh at repo_root (this fixture's default
@@ -1066,6 +1073,10 @@ def test_multiple_gitignored_files_all_detected(tmp_path):
 
 class TestIsolationCanary:
 
+    @pytest.fixture(autouse=True)
+    def _needs_real_git_bash(self):
+        require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
+
     def test_canary_verified_and_cached_on_the_real_isolated_bash(self, tmp_path):
         """The happy path is already implicitly exercised by every other real
         Tier1 test in this file (the canary runs before every one of them) --
@@ -1161,6 +1172,10 @@ class TestIsolationCanary:
 
 class TestPostconditionSafetyNet:
 
+    @pytest.fixture(autouse=True)
+    def _needs_real_git_bash(self):
+        require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
+
     def test_postcondition_catches_a_plain_non_git_worktree_mutation_non_strict(self, tmp_path, capsys):
         """Simulates pre-commit-audit.sh Step 5's actual mutation shape (a
         plain, non-git file write during the Tier 1 window, confirmed live in
@@ -1251,6 +1266,7 @@ def test_tier1_output_threaded_through_result_on_success(tmp_path):
     """plumb_commit()'s successful-path result must carry Tier 1's stdout,
     not discard it -- otherwise a Step 5/Step 10 check-only-mode FINDING has
     no observable effect on the caller (2026-08-20 assessment finding)."""
+    require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
     work, bare = _init_repo_with_remote(tmp_path)
     (work / "f.txt").write_text("v", encoding="utf-8")
     _write_fake_precommit_script(

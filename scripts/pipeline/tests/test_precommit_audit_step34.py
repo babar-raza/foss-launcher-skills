@@ -26,16 +26,16 @@ _OPS_DIR = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops"
 if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
 
-import git_plumb_commit as gpc  # noqa: E402  (for the self-verified bash resolver)
+import git_plumb_commit as gpc  # noqa: E402,F401  (guard shares its resolver)
+
+from _git_bash_guard import require_git_bash  # noqa: E402
 
 _START = '_pc_step_start "stale file regression"'
 _END = '_pc_step_start "media asset size"'
 
 
 def _bash_path() -> str:
-    bash = gpc._resolve_git_bash()
-    assert bash is not None, "no working Git Bash found on this machine"
-    return bash
+    return require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
 
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
