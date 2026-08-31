@@ -34,6 +34,58 @@ class CrossPlatformAuditTests(unittest.TestCase):
             self.assertEqual(report["issue_count"], 1)
             self.assertEqual(report["issues"][0]["format"], "fbx")
 
+    def test_same_platform_multiple_entries_aggregate_not_last_write_wins(self):
+        """ST-144: a format with separate Importer/Exporter (or Load/Save) entries
+        for the SAME platform must aggregate to "both", not silently drop all but
+        whichever entry the dict comprehension happened to read last."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "knowledge" / "fake"
+            net = root / "net" / "merged"
+            typescript = root / "typescript" / "merged"
+            net.mkdir(parents=True)
+            typescript.mkdir(parents=True)
+            (net / "formats.json").write_text(
+                json.dumps([{"format": "Fbx", "direction": "both"}]),
+                encoding="utf-8",
+            )
+            # Two separate entries for the same format+platform, export listed
+            # first, import listed last -- the pre-fix code kept only "import".
+            (typescript / "formats.json").write_text(
+                json.dumps([
+                    {"format": "Fbx", "file": "FbxExporter.ts", "direction": "export"},
+                    {"format": "Fbx", "file": "FbxImporter.ts", "direction": "import"},
+                ]),
+                encoding="utf-8",
+            )
+            report = compare_family("fake", knowledge_root=root.parent)
+            self.assertEqual(report["issue_count"], 0, report["issues"])
+
+    def test_genuine_cross_platform_mismatch_still_detected_after_aggregation(self):
+        """Aggregation must not mask a REAL discrepancy: one platform only ever
+        exports a format while another genuinely supports both directions."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "knowledge" / "fake"
+            net = root / "net" / "merged"
+            typescript = root / "typescript" / "merged"
+            net.mkdir(parents=True)
+            typescript.mkdir(parents=True)
+            (net / "formats.json").write_text(
+                json.dumps([{"format": "Fbx", "direction": "export"}]),
+                encoding="utf-8",
+            )
+            (typescript / "formats.json").write_text(
+                json.dumps([
+                    {"format": "Fbx", "file": "FbxExporter.ts", "direction": "export"},
+                    {"format": "Fbx", "file": "FbxImporter.ts", "direction": "import"},
+                ]),
+                encoding="utf-8",
+            )
+            report = compare_family("fake", knowledge_root=root.parent)
+            self.assertEqual(report["issue_count"], 1)
+            platforms = report["issues"][0]["platforms"]
+            self.assertEqual(platforms["net"], "export")
+            self.assertEqual(platforms["typescript"], "both")
+
 
 if __name__ == "__main__":
     unittest.main()

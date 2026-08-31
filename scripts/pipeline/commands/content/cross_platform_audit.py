@@ -9,6 +9,28 @@ import sys
 from pathlib import Path
 
 
+def _normalize_directions(tokens: set[str]) -> str:
+    """Collapse a set of per-entry direction/support tokens into one comparable value.
+
+    A format is commonly represented by multiple formats.json entries (a separate
+    *Importer and *Exporter file, or separate Load/Save option classes) -- each
+    contributes its own "import"/"export" token for the SAME format. Aggregate
+    them instead of picking whichever entry happened to be read last: {"import",
+    "export"} (in either order, with or without a literal "both" already present)
+    normalizes to "both", matching the literal "both" value some extractors already
+    write directly (e.g. a single class handling both directions).
+    """
+    tokens = {t for t in tokens if t}
+    if not tokens:
+        return ""
+    if "both" in tokens or {"import", "export"} <= tokens:
+        rest = tokens - {"import", "export", "both"}
+        return "both" if not rest else "both+" + "+".join(sorted(rest))
+    if len(tokens) == 1:
+        return next(iter(tokens))
+    return "+".join(sorted(tokens))
+
+
 def compare_family(family: str, *, knowledge_root: Path = Path("knowledge")) -> dict:
     family_root = knowledge_root / family
     if not family_root.exists():
@@ -22,11 +44,15 @@ def compare_family(family: str, *, knowledge_root: Path = Path("knowledge")) -> 
         if not fmt_path.exists():
             continue
         data = json.loads(fmt_path.read_text(encoding="utf-8"))
+        raw: dict[str, set[str]] = {}
+        for item in data:
+            fmt = (item.get("format") or item.get("ext") or "").lower()
+            if not fmt:
+                continue
+            token = (item.get("direction") or item.get("support") or "").lower()
+            raw.setdefault(fmt, set()).add(token)
         platform_formats[platform_dir.name] = {
-            (item.get("format") or item.get("ext") or "").lower():
-            (item.get("direction") or item.get("support") or "").lower()
-            for item in data
-            if (item.get("format") or item.get("ext"))
+            fmt: _normalize_directions(tokens) for fmt, tokens in raw.items()
         }
 
     issues = []
