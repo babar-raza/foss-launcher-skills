@@ -1,9 +1,9 @@
 {
   "version": "0.2.0",
-  "generated_at": "2026-08-31T03:33:55.329347+00:00",
-  "git_sha_short": "edec024",
+  "generated_at": "2026-08-31T05:15:22.562701+00:00",
+  "git_sha_short": "1064120",
   "git_ref": "main",
-  "ci_run_url": "https://github.com/babar-raza/foss-launcher-skills/actions/runs/33354184223",
+  "ci_run_url": "https://github.com/babar-raza/foss-launcher-skills/actions/runs/33359810639",
   "evidence": {
     "coverage_xml_present": true,
     "coverage_percentage": "16.0%",
