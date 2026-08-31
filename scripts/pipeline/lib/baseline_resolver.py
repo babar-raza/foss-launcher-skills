@@ -83,7 +83,24 @@ class BaselineResolution:
 
 
 def git_reachable(repo_path: Path | str) -> Callable[[str], bool]:
-    """Build a callable(sha) -> bool testing whether sha is a commit in repo_path."""
+    """Build a callable(sha) -> bool testing whether sha is reachable from HEAD in
+    repo_path -- i.e. whether it is an ancestor of (or equal to) the current tip,
+    not merely whether the commit OBJECT still exists somewhere in the object
+    database.
+
+    RC-1 follow-up (readme-refresh-hardening-and-regen-2026-08-30, found live
+    during the font/python TC-27b canary): this previously ran `git cat-file -e
+    <sha>^{commit}`, which only tests object EXISTENCE. A history-rewritten orphan
+    commit (font/python's real GitLab-canonical -> GitHub-mirror resync) remains a
+    dangling-but-present loose object in the local clone cache until garbage-
+    collected, so `cat-file -e` wrongly reported it reachable -- silently defeating
+    `_check_baseline_reachability`'s entire orphan-detection mechanism for exactly
+    the production case it was built to catch (confirmed live: `cat-file -e` exited
+    0, `merge-base --is-ancestor` exited 1, for the same SHA against the same real
+    clone). `merge-base --is-ancestor sha HEAD` tests true reachability: exit 0 =
+    ancestor of HEAD, exit 1 = not an ancestor, any other exit (invalid/missing
+    object) also correctly resolves to False here.
+    """
     repo = str(repo_path)
 
     def _check(sha: str) -> bool:
@@ -91,7 +108,7 @@ def git_reachable(repo_path: Path | str) -> Callable[[str], bool]:
             return False
         try:
             result = subprocess.run(
-                ["git", "-C", repo, "cat-file", "-e", f"{sha}^{{commit}}"],
+                ["git", "-C", repo, "merge-base", "--is-ancestor", sha, "HEAD"],
                 capture_output=True,
                 timeout=30,
             )

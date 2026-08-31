@@ -247,6 +247,58 @@ def test_git_reachable_against_real_repo(tmp_path):
     assert probe("") is False
 
 
+def test_git_reachable_rejects_dangling_but_object_present_commit(tmp_path):
+    """RC-1 follow-up (readme-refresh-hardening-and-regen-2026-08-30, found live
+    during the font/python TC-27b canary): a history-rewritten orphan commit
+    remains a dangling-but-present loose object in the local clone cache until
+    garbage-collected -- `git cat-file -e <sha>^{commit}` (the old implementation)
+    wrongly reports such a commit "reachable" because it only tests OBJECT
+    EXISTENCE, not ancestry from HEAD. `git commit --amend` reproduces this exact
+    real-world shape (the old commit is dangling but still `cat-file -e` visible,
+    unlike a full history re-init which actually removes the object) -- confirmed
+    live against font/python's real clone cache before this fix: `cat-file -e`
+    exited 0, `merge-base --is-ancestor` exited 1, for the same orphaned SHA
+    against the same repo. `git_reachable` must return False for it."""
+    repo = tmp_path / "clone"
+    repo.mkdir()
+
+    def git(*args):
+        subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+
+    try:
+        git("init", "-q")
+        git("config", "user.email", "t@t")
+        git("config", "user.name", "t")
+    except (OSError, subprocess.CalledProcessError):
+        pytest.skip("git not available")
+    (repo / "f.txt").write_text("hello", encoding="utf-8")
+    git("add", "f.txt")
+    git("commit", "-q", "-m", "original")
+    original_head = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        capture_output=True, encoding="utf-8", errors="replace",
+    ).stdout.strip()
+
+    git("commit", "--amend", "-q", "-m", "rewritten")
+    new_head = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        capture_output=True, encoding="utf-8", errors="replace",
+    ).stdout.strip()
+    assert new_head != original_head  # the commit genuinely changed identity
+
+    # Sanity: the old commit object is still physically present (dangling), the
+    # exact real-world condition that defeated the pre-fix `cat-file -e` check.
+    still_present = subprocess.run(
+        ["git", "-C", str(repo), "cat-file", "-e", f"{original_head}^{{commit}}"],
+        capture_output=True,
+    )
+    assert still_present.returncode == 0
+
+    probe = git_reachable(repo)
+    assert probe(new_head) is True
+    assert probe(original_head) is False  # dangling, not an ancestor of HEAD -- must be False
+
+
 def test_git_reachable_end_to_end_resolution_with_real_repo(tmp_path):
     """resolve_baseline_sha wired to the real git probe: an unreachable recorded head
     falls back to a reachable earlier commit."""

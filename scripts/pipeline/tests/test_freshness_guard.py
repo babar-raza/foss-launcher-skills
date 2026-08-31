@@ -376,6 +376,39 @@ class TestBaselineTreeIdentity:
         assert result.state == "STALE_ORPHANED"
         assert "no recorded tree SHA" in result.reason
 
+    def test_dangling_but_present_orphan_with_no_ledger_entry_is_still_history_rewritten(
+        self, tmp_path, monkeypatch,
+    ):
+        """RC-1 follow-up (found live during the font/python TC-27b canary, not a
+        synthesized case): reproduces the REAL font/python shape using `git commit
+        --amend` (the old commit stays dangling-but-`cat-file -e`-visible), not
+        `_rewrite_history_with_fresh_root_commit`'s full re-init (which genuinely
+        removes the object) -- the two prior tests above never exercised git's
+        actual object-retention behavior on a real mirror-resync-shaped rewrite.
+        Deliberately NO ledger entry recorded for the orphaned sha (pre-TC-10-style
+        baseline, exactly font/python's real live state): before this fix, the pre-
+        existing `git_reachable` bug (`cat-file -e` instead of `merge-base
+        --is-ancestor`) made this silently resolve CURRENT; the fix's live-git
+        fallback (`_orphaned_commit_tree_sha`) must still correctly classify it
+        HISTORY_REWRITTEN_CONTENT_IDENTICAL because the dangling object is directly
+        `rev-parse`-able, with no ledger record needed."""
+        clone_dir = _make_clone_cache(tmp_path, "font", "python", monkeypatch)
+        orphaned_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        tree_sha = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        _run_git(["commit", "--amend", "-q", "-m", "mirror resync"], clone_dir)
+        new_head = _run_git(["rev-parse", "HEAD"], clone_dir)
+        new_tree = _run_git(["rev-parse", "HEAD^{tree}"], clone_dir)
+        assert new_head != orphaned_sha  # the commit genuinely changed identity
+        assert new_tree == tree_sha  # content is byte-identical (amend didn't touch files)
+        # No _record_ledger_entry call -- the real font/python ledger entry pre-dates TC-10.
+        _write_model(tmp_path, "font", "python", repo_sha=orphaned_sha, stale_since=None)
+
+        result = fg.check_freshness("font", "python", mode="degraded")
+        assert result.state == "HISTORY_REWRITTEN_CONTENT_IDENTICAL"
+        assert "live" in result.reason  # provenance disclosed: not a ledger-recorded value
+        allowed, _ = fg.is_generation_allowed("font", "python", mode="degraded")
+        assert allowed is True
+
     def test_no_clone_cache_falls_through_to_old_behavior(self, tmp_path, monkeypatch):
         """No clone cache reachable at all (cold-start / CI without a clone) must not
         break -- falls through to the pre-existing stale_since-only degraded logic."""

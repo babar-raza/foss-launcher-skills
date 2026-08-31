@@ -265,6 +265,33 @@ def _clone_head_tree_sha(repo_path: Path) -> "str | None":
     return None
 
 
+def _orphaned_commit_tree_sha(repo_path: Path, orphaned_sha: str) -> "str | None":
+    """Live fallback for `_resolve_recorded_tree_sha` (readme-refresh-hardening-and-
+    regen-2026-08-30, TC-27b canary): an orphaned commit produced by a history
+    rewrite (font/python's real GitLab-canonical -> GitHub-mirror resync) remains a
+    dangling-but-present loose object in the local clone cache until garbage-
+    collected -- `git rev-parse <sha>^{tree}` still resolves directly against it,
+    with no need for a prior `baseline_ledger.jsonl` write. This is intentionally
+    the SECOND choice, tried only when the ledger has no durably recorded
+    `repo_tree_sha` for this sha (`_resolve_recorded_tree_sha` returned None): the
+    ledger value survives a `git gc`/fresh clone-cache reset that this live lookup
+    would not, so it stays authoritative when present. Returns None (never raises)
+    on any git failure, including the case where the object has since been
+    garbage-collected -- callers correctly fall through to STALE_ORPHANED, the
+    same fail-closed behavior as an absent ledger record.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "rev-parse", f"{orphaned_sha}^{{tree}}"],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=10,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip() or None
+    except Exception:
+        pass
+    return None
+
+
 def _check_baseline_reachability(
     family: str, platform: str, resolved_sha: "str | None",
 ) -> "tuple[str, str] | None":
@@ -313,14 +340,18 @@ def _check_baseline_reachability(
         return None
 
     recorded_tree_sha = _resolve_recorded_tree_sha(family, platform, resolved_sha)
+    tree_sha_source = "recorded"
+    if not recorded_tree_sha:
+        recorded_tree_sha = _orphaned_commit_tree_sha(repo_path, resolved_sha)
+        tree_sha_source = "live (object still present, not yet garbage-collected)"
     live_tree_sha = _clone_head_tree_sha(repo_path)
     if recorded_tree_sha and live_tree_sha and recorded_tree_sha == live_tree_sha:
         return (
             "HISTORY_REWRITTEN_CONTENT_IDENTICAL",
             f"baseline commit {resolved_sha[:10]} is unreachable from the clone-cache HEAD, "
-            f"but its recorded tree SHA ({recorded_tree_sha[:10]}) matches the tree SHA now at "
-            f"HEAD -- a content-identical history rewrite (e.g. a GitLab-canonical -> GitHub-"
-            f"mirror resync), not real staleness",
+            f"but its {tree_sha_source} tree SHA ({recorded_tree_sha[:10]}) matches the tree SHA "
+            f"now at HEAD -- a content-identical history rewrite (e.g. a GitLab-canonical -> "
+            f"GitHub-mirror resync), not real staleness",
         )
     return (
         "STALE_ORPHANED",
