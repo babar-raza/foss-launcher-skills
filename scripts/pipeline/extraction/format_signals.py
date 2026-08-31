@@ -82,7 +82,7 @@ _KNOWN_FORMAT_TOKENS: frozenset[str] = frozenset({
     "zip", "tar", "gz",
     "eml", "msg", "mbox", "vcf", "ics",
     "fbx", "obj", "gltf", "glb", "stl", "dae", "3ds", "u3d", "amf",
-    "ply", "x3d", "dxf",
+    "ply", "x3d", "dxf", "3mf",
     "mp3", "mp4", "wav", "avi", "mov", "webm",
     "ttf", "otf", "woff", "woff2",
     "cfb", "jbig2", "epub", "mobi", "azw3", "mhtml", "chm", "xps", "djvu",

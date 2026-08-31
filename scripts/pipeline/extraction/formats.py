@@ -207,6 +207,19 @@ _FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
     "barcode": frozenset({"png"}),
 }
 
+# ST-142: legitimate format names whose spelled-out-numeral class-name-suffix
+# form is otherwise indistinguishable from a genuine camelCase compound-word
+# false positive (ChartXml, AutoFilterXML, ...) to _validate_formats's
+# _CAMELCASE_RE heuristic. "threemf" (from ThreeMfExporter/ThreeMfImporter --
+# 3MF, the 3D Manufacturing Format standard) is the confirmed live case:
+# both classes parse correctly and are real, non-stub I/O implementations
+# (runs/.clone_cache/aspose_3d_typescript/src/aspose/threed/formats/threemf/
+# ThreeMf{Exporter,Importer}.ts, 2026-08-31, MT040 Phase I) -- the CamelCase
+# heuristic was the ONLY thing rejecting them. Add future confirmed cases
+# here rather than weakening the heuristic itself, which correctly catches
+# the far more common compound-word false-positive shape.
+_CAMELCASE_FALSE_POSITIVE_EXEMPT: frozenset[str] = frozenset({"threemf"})
+
 
 def _scan_document_ctor_imports(
     files: list[Path],
@@ -1988,8 +2001,10 @@ def _validate_formats(
                 continue
             if "_" in name:
                 continue
-            # Reject CamelCase compound words (ChartXml, PictureXml, etc.)
-            if _CAMELCASE_RE.search(name):
+            # Reject CamelCase compound words (ChartXml, PictureXml, etc.),
+            # except confirmed-real format names that only LOOK like one
+            # (ST-142 -- see _CAMELCASE_FALSE_POSITIVE_EXEMPT's docstring).
+            if _CAMELCASE_RE.search(name) and name.lower() not in _CAMELCASE_FALSE_POSITIVE_EXEMPT:
                 continue
         f["format"] = name
         valid.append(f)

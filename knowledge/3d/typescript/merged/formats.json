@@ -80,6 +80,22 @@
     "direction": "import"
   },
   {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfExporter.ts",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts",
+    "line": 21,
+    "direction": "import"
+  },
+  {
     "format": "Collada",
     "enum": "",
     "value": "",
@@ -160,6 +176,22 @@
     "direction": "export"
   },
   {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfLoadOptions.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfSaveOptions.ts",
+    "line": 3,
+    "direction": "export"
+  },
+  {
     "format": "fbx",
     "enum": "",
     "value": "",
@@ -230,23 +262,5 @@
     "line": 9,
     "direction": "import",
     "evidence_kind": "ts_io_identifier"
-  },
-  {
-    "format": "ThreeMf",
-    "enum": "",
-    "value": "",
-    "file": "src/aspose/threed/formats/threemf/ThreeMfExporter.ts",
-    "line": 1,
-    "direction": "export",
-    "evidence_kind": "manual_correction_ST142"
-  },
-  {
-    "format": "ThreeMf",
-    "enum": "",
-    "value": "",
-    "file": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts",
-    "line": 1,
-    "direction": "import",
-    "evidence_kind": "manual_correction_ST142"
   }
 ]

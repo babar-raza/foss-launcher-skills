@@ -184,7 +184,9 @@
       "ThreeMfSaveOptions"
     ],
     "methods_used": [],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "threemf"
+    ],
     "provenance": "scout"
   },
   {
@@ -210,7 +212,8 @@
     ],
     "methods_used": [],
     "formats_referenced": [
-      "stl"
+      "stl",
+      "threemf"
     ],
     "provenance": "scout"
   },
@@ -278,7 +281,9 @@
       "Scene.open",
       "Scene.save"
     ],
-    "formats_referenced": [],
+    "formats_referenced": [
+      "threemf"
+    ],
     "provenance": "scout"
   },
   {
@@ -1522,7 +1527,8 @@
       "fbx",
       "gltf",
       "obj",
-      "stl"
+      "stl",
+      "threemf"
     ],
     "provenance": "scout"
   },
@@ -1547,7 +1553,8 @@
     ],
     "formats_referenced": [
       "obj",
-      "stl"
+      "stl",
+      "threemf"
     ],
     "provenance": "scout"
   },
