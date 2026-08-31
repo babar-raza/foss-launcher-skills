@@ -7300,6 +7300,32 @@ def test_badge_disposition_coverage_noop_when_no_old_badges():
     assert checks.check_badge_disposition_coverage([], [], []) == []
 
 
+def test_badge_disposition_coverage_reproduces_the_real_tex_python_defect(tmp_path):
+    """RC-badge-disposition-vacuous-pass (readme-refresh-hardening-and-regen-2026-08-30,
+    TC-23): the real, confirmed defect -- tex/python's badge-dispositions.json labels 3
+    badges "preserved" from an original upstream README with zero real badge markdown.
+    Before this fix, `if not old_badges: return []` never even looked at `dispositions`."""
+    dispositions = [
+        _badge_disposition(unit_id="b0001", action="preserved", category="license"),
+        _badge_disposition(unit_id="b0002", action="preserved", category="language_version"),
+        _badge_disposition(unit_id="b0003", action="preserved", category="unknown"),
+    ]
+    findings = checks.check_badge_disposition_coverage([], [], dispositions)
+    assert len(findings) == 3
+    assert all("never existed" in f["reason"] for f in findings)
+
+
+def test_badge_disposition_coverage_still_vacuous_when_dispositions_also_empty():
+    # The genuinely-nothing-to-check case must stay a real vacuous pass, not a false alarm.
+    assert checks.check_badge_disposition_coverage([], [], []) == []
+
+
+def test_badge_disposition_coverage_no_old_badges_tolerates_excluded_entries():
+    # "excluded"/"new" make no claim about an old badge surviving -- must not be flagged.
+    dispositions = [_badge_disposition(unit_id="b0001", action="excluded", excluded_reason="no real old badges to preserve here at all")]
+    assert checks.check_badge_disposition_coverage([], [], dispositions) == []
+
+
 def test_badge_disposition_coverage_flags_missing_entry():
     old_badges = checks.extract_badges(_REAL_CELLS_GO_README)
     findings = checks.check_badge_disposition_coverage(old_badges, [], [])

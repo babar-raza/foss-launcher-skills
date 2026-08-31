@@ -8486,10 +8486,35 @@ def check_badge_disposition_coverage(
     credited_in_candidate` below -- this function only checks the disposition record's own
     internal well-formedness, matching the same division of labor `check_content_unit_
     disposition_coverage`/`check_content_unit_merged_into_target_section` already use).
-    Vacuous pass `[]` when `old_badges` is empty.
+    Vacuous pass `[]` when `old_badges` is empty AND no dispositions exist to account
+    for -- genuinely nothing to check. NOT vacuous when `old_badges` is empty but
+    `dispositions` is non-empty (RC-badge-disposition-vacuous-pass, readme-refresh-
+    hardening-and-regen-2026-08-30, TC-23): every disposition entry is then making a
+    claim about a badge from the old README, and there IS no old README badge for it to
+    be a true claim about. Confirmed live, real: tex/python's `badge-dispositions.json`
+    labels 3 badges `"preserved"` from an original upstream README that has ZERO badge
+    markdown of any kind -- `check_badge_disposition_coverage`'s own pre-existing `if
+    not old_badges: return []` short-circuit meant the disposition file's contents were
+    NEVER validated at all whenever the real upstream has no badges, exactly the class
+    of "vacuous pass indistinguishable from a real pass" this mission's plan (SW-D) was
+    built to close. Only `preserved`/`superseded_by_duplicate` are flagged here --
+    those are the two actions that specifically assert an OLD badge carried forward;
+    an `excluded`/`new` entry makes no such claim and is not contradicted by an empty
+    old-badge list.
     """
     if not old_badges:
-        return []
+        if not dispositions:
+            return []
+        return [
+            {
+                "unit_id": entry.get("unit_id"),
+                "reason": f"disposition action {entry.get('action')!r} claims a badge carried "
+                          f"forward from the old README, but the old README has zero real "
+                          f"badges -- this disposition describes something that never existed",
+            }
+            for entry in dispositions
+            if entry.get("action") in ("preserved", "superseded_by_duplicate")
+        ]
     old_ids = {b["unit_id"] for b in old_badges}
     new_ids = {b["unit_id"] for b in new_badges}
     findings: list[dict] = []
