@@ -58,6 +58,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from core.env_loader import load_env  # noqa: E402
+from core.markdown import parse_frontmatter  # noqa: E402
 load_env()
 
 from lib.knowledge_core import Knowledge  # noqa: E402
@@ -2107,17 +2108,35 @@ def run(family: str, platform: str, kind_arg: str = "all",
     # Never delete a tracked content page from this generator. A stale
     # undisambiguated page requires the governed page-retire workflow (draft:
     # true), with its own run-scoped disposition.
+    #
+    # HARDEN-stale-page-retire-check (2026-08-31, MT040 Phase I TC-56): this
+    # used to test _old.exists() alone -- but retire_page.py (the exact
+    # workflow this error message names) only ever sets draft: true in
+    # frontmatter; it never deletes or renames the file (see its own module
+    # docstring: "Adds draft: true ... without deleting them"). So a page
+    # that HAD been correctly retired through the governed workflow still
+    # existed on disk and still tripped this same block -- the error message
+    # told the operator to do something that could never satisfy the check
+    # that printed it. Confirmed live retiring 3d/typescript's
+    # BoundingBoxExtent.md (a second, newly-appeared upstream declaration of
+    # the same name inside BoundingBox.ts created a genuine new collision):
+    # RuntimeError fired again immediately after retire_page.py reported
+    # RETIRED. Same root-cause family as ST-119 (orphaned bare-name pages
+    # never auto-retired) -- this is the natural, now load-bearing
+    # completion of that gap: a stale page only blocks the run while it is
+    # NOT yet retired.
     if _collisions and not dry_run:
         _ref_dir = CONTENT_ROOT / family / platform
         _stale_pages: list[Path] = []
         for _cname in sorted(_collisions):
             _old = _ref_dir / f"{_sanitize_slug(_cname)}.md"
+            if not _old.exists():
+                continue
+            if parse_frontmatter(_old).get("draft") is True:
+                continue  # already retired through the governed workflow
             if (
-                _old.exists()
-                and (
-                    scoped_paths is None
-                    or _canonical_reference_path(_old).lower() in scoped_paths_lower
-                )
+                scoped_paths is None
+                or _canonical_reference_path(_old).lower() in scoped_paths_lower
             ):
                 _stale_pages.append(_old)
         if _stale_pages:
