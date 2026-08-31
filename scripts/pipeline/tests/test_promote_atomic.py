@@ -92,6 +92,50 @@ class TestPromoteAtomicHappyPath:
         assert second_entry["prior_repo_sha"] == "sha-one"
         assert second_entry["new_repo_sha"] == "sha-two"
 
+    def test_baseline_ledger_records_real_repo_tree_sha_from_clone_cache(self, tmp_path, monkeypatch):
+        """RC-baseline-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-10):
+        an end-to-end proof, not just "didn't crash" -- a real local git repo standing in for
+        the clone cache, promote_atomic() run against its real HEAD sha, and the ledger's
+        repo_tree_sha asserted equal to a directly-computed `git rev-parse HEAD^{tree}`."""
+        import subprocess
+
+        def _git(args, cwd):
+            r = subprocess.run(["git", *args], cwd=str(cwd), capture_output=True,
+                                encoding="utf-8", errors="replace", timeout=30)
+            assert r.returncode == 0, f"git {args} failed: {r.stderr}"
+            return r.stdout.strip()
+
+        clone_cache_root = tmp_path / "clone_cache"
+        clone_dir = clone_cache_root / "aspose_test_python"
+        clone_dir.mkdir(parents=True)
+        (clone_dir / "README.md").write_text("hello\n", encoding="utf-8")
+        _git(["init", "-q", "-b", "main"], clone_dir)
+        _git(["config", "user.email", "test@example.com"], clone_dir)
+        _git(["config", "user.name", "Test"], clone_dir)
+        _git(["add", "."], clone_dir)
+        _git(["commit", "-q", "-m", "initial"], clone_dir)
+        real_head = _git(["rev-parse", "HEAD"], clone_dir)
+        expected_tree = _git(["rev-parse", "HEAD^{tree}"], clone_dir)
+
+        monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(clone_cache_root))
+        kr = _setup_scout(tmp_path, repo_sha=real_head)
+        promote_mod.promote_atomic("test", "python", knowledge_root=str(kr))
+
+        ledger_path = kr / "test" / "python" / "merged" / "baseline_ledger.jsonl"
+        entry = json.loads(ledger_path.read_text(encoding="utf-8").strip().splitlines()[-1])
+        assert entry["new_repo_sha"] == real_head
+        assert entry["repo_tree_sha"] == expected_tree
+
+    def test_baseline_ledger_repo_tree_sha_is_none_without_a_clone_cache(self, tmp_path, monkeypatch):
+        """Fail-open, not fail-closed: no clone cache reachable for this product must not
+        break the (already non-fatal) ledger write -- it just can't know the tree sha yet."""
+        monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "empty_cache"))
+        kr = _setup_scout(tmp_path, repo_sha="sha-one")
+        promote_mod.promote_atomic("test", "python", knowledge_root=str(kr))
+        ledger_path = kr / "test" / "python" / "merged" / "baseline_ledger.jsonl"
+        entry = json.loads(ledger_path.read_text(encoding="utf-8").strip().splitlines()[-1])
+        assert entry["repo_tree_sha"] is None
+
 
 class TestPromoteAtomicFailureIsolation:
     def test_validation_failure_leaves_real_merged_untouched(self, tmp_path, monkeypatch):

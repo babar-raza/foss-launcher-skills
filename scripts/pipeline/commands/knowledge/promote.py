@@ -1818,6 +1818,28 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     # contingent on ledger-write availability.
     try:
         from lib.baseline_ledger import BaselineLedger
+        # RC-baseline-tree-identity (readme-refresh-hardening-and-regen-2026-08-30, TC-10): the
+        # git TREE sha (content-addressed, independent of history/parentage) at the accepted
+        # commit -- see BaselineLedger.append's own docstring for why this matters (a GitLab-
+        # mirror-style history rewrite with byte-identical content vs. a genuine content change
+        # both currently look identical to a commit-SHA-only ledger). Best-effort: a repo_sha
+        # with no reachable clone cache, or a git failure, records repo_tree_sha=None rather
+        # than failing the whole (already-non-fatal) ledger write.
+        _repo_tree_sha = None
+        try:
+            import subprocess
+            from core.clone_cache import clone_path, clone_exists
+            _accepted_repo_sha = merged_model.get("repo_sha", "")
+            if _accepted_repo_sha and clone_exists(family, platform):
+                _tree_result = subprocess.run(
+                    ["git", "rev-parse", f"{_accepted_repo_sha}^{{tree}}"],
+                    cwd=str(clone_path(family, platform)),
+                    capture_output=True, encoding="utf-8", errors="replace", timeout=10,
+                )
+                if _tree_result.returncode == 0:
+                    _repo_tree_sha = _tree_result.stdout.strip() or None
+        except Exception:
+            _repo_tree_sha = None
         _ledger = BaselineLedger(family, platform, merged_dir=merged_dir)
         _ledger.append(
             new_repo_sha=merged_model.get("repo_sha", ""),
@@ -1826,6 +1848,7 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             status="accepted",
             accepted_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             prior_repo_sha=_prior_repo_sha_for_ledger,
+            repo_tree_sha=_repo_tree_sha,
         )
     except Exception as _ledger_exc:
         print(f"WARNING: baseline_ledger append failed (non-fatal): {_ledger_exc}")
