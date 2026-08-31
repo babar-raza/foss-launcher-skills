@@ -31,6 +31,7 @@ def _get_repo_head(repo_root: Path) -> str:
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
             cwd=str(repo_root), timeout=10,
         )
         return result.stdout.strip() if result.returncode == 0 else ""

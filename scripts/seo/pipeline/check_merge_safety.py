@@ -35,7 +35,8 @@ _MIGRATION_STATE_FILE_PATH = "data/seo_schema_a_migration_state.json"
 
 def _git(args, repo_root):
     return subprocess.run(
-        ["git", *args], cwd=repo_root, capture_output=True, text=True, check=True,
+        ["git", *args], cwd=repo_root, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", check=True,
     )
 
 
@@ -48,6 +49,7 @@ def _load_at_ref(ref, rel_path, repo_root):
     result = subprocess.run(
         ["git", "show", f"{ref}:{rel_path}"],
         cwd=repo_root, capture_output=True, text=True,
+        encoding="utf-8", errors="replace",
     )
     if result.returncode != 0:
         return []  # file didn't exist at that ref -- treat as a new, empty file

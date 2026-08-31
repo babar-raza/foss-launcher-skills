@@ -40,7 +40,8 @@ def _check_claude_flow():
     try:
         r = subprocess.run(
             ["claude-flow", "--version"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=10
         )
         return True, (r.stdout.strip() or r.stderr.strip())
     except Exception as exc:

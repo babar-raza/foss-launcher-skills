@@ -399,7 +399,8 @@ img {{ width:{content_size}px; height:{content_size}px; }}
         "--default-background-color=00000000",
         wrapper_html.resolve().as_uri(),
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    result = subprocess.run(cmd, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", timeout=30)
     if not out_png.exists():
         raise RuntimeError(f"rasterize_svg failed for {svg_path}: {result.stderr or result.stdout}")
 
@@ -767,7 +768,8 @@ def backfill_png(family: str, platform: str) -> None:
         str(_REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "optimize_media_assets.py"),
         family, platform, "--apply",
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(_REPO_ROOT))
+    result = subprocess.run(cmd, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", cwd=str(_REPO_ROOT))
     if result.returncode not in (0,):
         raise RuntimeError(f"optimize_media_assets.py failed for {family}/{platform}: {result.stdout}\n{result.stderr}")
 

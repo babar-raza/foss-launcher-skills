@@ -56,6 +56,8 @@ class EvidenceAttachFixer(BaseFixer):
                 [sys.executable, str(script), "--files", str(filepath), "--force"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=60,
             )
         except (subprocess.TimeoutExpired, OSError):

@@ -26,11 +26,13 @@ import seo.pipeline.check_merge_safety as check_merge_safety  # noqa: E402
 
 
 def _git(args, cwd):
-    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True)
+    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True,
+                   encoding="utf-8", errors="replace")
 
 
 def _rev_parse_head(cwd):
-    result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=cwd, capture_output=True, text=True, check=True)
+    result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=cwd, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", check=True)
     return result.stdout.strip()
 
 

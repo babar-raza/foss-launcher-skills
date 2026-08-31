@@ -110,6 +110,8 @@ def git_file_history(rel_path: str) -> list[str]:
         ["git", "log", "--format=%H", "HEAD", "--", rel_path],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=REPO_ROOT,
         check=True,
     ).stdout

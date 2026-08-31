@@ -43,9 +43,6 @@
     "scripts/gap-eval/src/fix_spec.py": 1,
     "scripts/gap-eval/src/origin_map.py": 1,
     "scripts/gap-eval/src/run.py": 3,
-    "scripts/maintenance/generate_missing_product_icons.py": 2,
-    "scripts/maintenance/repair_locale_description_yaml.py": 1,
-    "scripts/maintenance/supervisor/ruflo_export.py": 1,
     "scripts/pipeline/commands/content/content_created_at_backfill.py": 1,
     "scripts/pipeline/commands/content/seo_stability_check.py": 1,
     "scripts/pipeline/commands/content/validate_chain.py": 1,
@@ -84,9 +81,7 @@
     "scripts/pipeline/commands/ops/semantic_source_classifier.py": 1,
     "scripts/pipeline/commands/ops/session_ledger.py": 2,
     "scripts/pipeline/commands/ops/sync_providers.py": 1,
-    "scripts/pipeline/content_eval/remediation/fixers/evidence_attach.py": 1,
     "scripts/pipeline/core/clone_cache.py": 4,
-    "scripts/pipeline/evidence/apply_gate.py": 1,
     "scripts/pipeline/extraction/scout.py": 2,
     "scripts/pipeline/lib/advisory_lock.py": 1,
     "scripts/pipeline/lib/fingerprint_collector.py": 1,
@@ -131,10 +126,7 @@
     "scripts/pipeline/tests/test_skill_contract_paths.py": 1,
     "scripts/pipeline/tests/test_upstream_issue_workflow.py": 1,
     "scripts/pipeline/tools/validate_migration.py": 3,
-    "scripts/pre-commit-audit.sh": 1,
-    "scripts/seo/pipeline/check_merge_safety.py": 2,
-    "scripts/seo/tests/test_check_merge_safety.py": 2,
-    "scripts/website/clean_locales.py": 1
+    "scripts/pre-commit-audit.sh": 1
   },
   "generator": "check_subprocess_encoding_parity.py --baseline",
   "policy": "counts may only decrease; regenerate deliberately, never to fit a new violation"
