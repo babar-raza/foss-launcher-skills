@@ -3243,6 +3243,50 @@ def bind_commit(
         missing_changed_set, unexpected_changed_set = _casefold_path_diff(
             expected_changed, changed_paths
         )
+        if missing_changed_set:
+            # A decision row's own change can legitimately land in an EARLIER
+            # commit than the one being bound (e.g. an S-73/S-90 follow-up
+            # fix committed separately before this run's final consolidation
+            # commit) -- `changed_paths` only sees `resolved`'s own diff
+            # against its immediate parent, so such a page is absent from it
+            # even though `resolved`'s TREE genuinely carries the correct,
+            # already-authorized content. Exempt exactly that case: the page
+            # must be registered in extra_allowed_hashes (proving the write
+            # was authorized) AND that registered hash must match the real
+            # git-tracked content at `resolved` (proving it actually landed,
+            # not just was intended) -- mirrors the sibling extra_allowed
+            # exemption a few lines above, but for decision rows instead of
+            # unconditionally-registered no-op paths. Found live 2026-08-31,
+            # 3d/typescript (MT040 Phase I, TC-MT040-56): 2 docs pages fixed
+            # via an earlier S-73 commit before the run's own 277-file
+            # consolidation commit.
+            extra_allowed = _load_extra_allowed_hashes(
+                _run_root(family, platform, run_id)
+            )
+            still_missing: set[str] = set()
+            for page_path in missing_changed_set:
+                acceptable = extra_allowed.get(page_path)
+                if not acceptable:
+                    still_missing.add(page_path)
+                    continue
+                result = _command_runner(
+                    ["git", "cat-file", "--filters", f"--path={page_path}",
+                     f"{resolved}:{page_path}"],
+                    cwd=str(_repo_root),
+                    capture_output=True,
+                    text=False,
+                    timeout=30,
+                )
+                if result.returncode != 0:
+                    still_missing.add(page_path)
+                    continue
+                committed_bytes = result.stdout
+                if not isinstance(committed_bytes, bytes):
+                    committed_bytes = str(committed_bytes).encode("utf-8")
+                tree_hash = "sha256:" + hashlib.sha256(committed_bytes).hexdigest()
+                if tree_hash not in acceptable:
+                    still_missing.add(page_path)
+            missing_changed_set = still_missing
         if missing_changed_set or unexpected_changed_set:
             raise RefreshRunError(
                 "Refresh commit paths do not exactly match change decisions: "

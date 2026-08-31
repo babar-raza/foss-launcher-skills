@@ -4364,6 +4364,167 @@ def test_bind_commit_tolerates_extra_allowed_hash_for_a_genuinely_unchanged_page
     assert result["commit_sha"] == commit_sha
 
 
+def _bind_commit_multi_commit_fixture(tmp_path: Path, *, tree_matches_registered_hash: bool):
+    """Shared setup for the two tests below: a decision-row page (disposition
+    BODY_UPDATED) whose change already landed in an EARLIER commit than the
+    one being bound -- `changed_paths` (diff-tree against the resolved
+    commit's own immediate parent) never sees it, but the page is registered
+    in extra_allowed_hashes (as it would be after this session's own
+    conflict-resolution registration pass) and the resolved commit's TREE
+    genuinely carries the page's current content either way."""
+    commit_sha = "d" * 40
+    scoped_page = "content/docs.aspose.org/en/pdf/net/page.md"
+    early_page = "content/docs.aspose.org/en/pdf/net/early-fix.md"
+    early_content = "---\ntitle: Early\n---\n\nAlready-correct body.\n"
+    stale_content = "---\ntitle: Early\n---\n\nStale body from before the fix.\n"
+
+    def commit_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\n"
+                "Refresh-Run: RUN-MULTI-COMMIT\n"
+                f"Refresh-Base: {HEAD_SHA}\n"
+                f"Refresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            # early_page deliberately absent: it landed in an EARLIER
+            # commit, so it carries no diff against `resolved`'s own parent.
+            output = scoped_page
+        elif args[:3] == ["git", "cat-file", "--filters"]:
+            path_arg = next(a for a in args if a.startswith("--path="))
+            git_path = path_arg[len("--path="):]
+            if git_path == early_page:
+                body = early_content if tree_matches_registered_hash else stale_content
+                return subprocess.CompletedProcess(args, 0, body, "")
+            return subprocess.CompletedProcess(
+                args, 0, "---\ntitle: Test\n---\n\nGrounded body.\n", ""
+            )
+        else:
+            output = ""
+        return subprocess.CompletedProcess(args, 0, output + "\n", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 8, 31, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-MULTI-COMMIT",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [scoped_page, early_page]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["validation"] = {
+        field: "PASS" for field in refresh_run.VALIDATION_FIELDS
+    }
+    _write_run_evidence(
+        tmp_path,
+        manifest,
+        dispositions={scoped_page: "BODY_UPDATED", early_page: "BODY_UPDATED"},
+        include_validation=True,
+    )
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-MULTI-COMMIT"
+    scoped_content = "---\ntitle: Test\n---\n\nGrounded body.\n"
+    scoped_disk = tmp_path / scoped_page
+    scoped_disk.write_text(scoped_content, encoding="utf-8", newline="")
+    early_disk = tmp_path / early_page
+    early_disk.write_text(early_content, encoding="utf-8", newline="")
+    for page_path, content in (
+        (scoped_page, scoped_content),
+        (early_page, early_content),
+    ):
+        receipt_index = 1 if page_path == scoped_page else 2
+        receipt_path = run_root / "receipts" / f"RCP-{receipt_index:03d}.yaml"
+        doc = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))
+        file_hash = refresh_run._path_hash(page_path)
+        doc["content_refresh_receipt"]["new_hash"] = file_hash
+        receipt_path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    decisions_path = run_root / "page_decisions.jsonl"
+    rows = [
+        json.loads(line)
+        for line in decisions_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    for row in rows:
+        content = scoped_content if row["page_path"] == scoped_page else early_content
+        row["body_hash_after"] = _normalized_body_hash(content)
+        row["frontmatter_hash_after"] = _frontmatter_hash(content)
+        receipt_index = 1 if row["page_path"] == scoped_page else 2
+        row["receipt_digest"] = refresh_run._file_digest(
+            run_root / "receipts" / f"RCP-{receipt_index:03d}.yaml"
+        )
+    decisions_path.write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+    receipts = sorted((run_root / "receipts").glob("*.yaml"))
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(decisions_path)
+    manifest["output_digests"]["receipts"] = "sha256:" + hashlib.sha256(
+        "\n".join(f"{p.name}:{refresh_run._file_digest(p)}" for p in receipts).encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+    # Simulate the conflict-resolution registration pass this session used
+    # live: early_page's change already landed in an ancestor commit, so its
+    # current (correct) hash is registered as an authorized out-of-band
+    # write before binding.
+    refresh_run._record_extra_allowed_hash(
+        run_root, early_page, refresh_run._path_hash(early_page)
+    )
+    refresh_run._transition(manifest, "VALIDATING")
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+    return commit_sha
+
+
+def test_bind_commit_tolerates_decision_row_satisfied_by_an_earlier_commit(
+    tmp_path: Path,
+):
+    """ST-150 (2026-08-31, MT040 Phase I TC-MT040-56): a decision row whose
+    change landed in an earlier commit in the same history (not the commit
+    being bound) must not be rejected as 'missing' when its extra_allowed
+    hash matches the resolved commit's real tree content -- changed_paths
+    only reflects the resolved commit's own diff against its immediate
+    parent, which is blind to work already correctly committed earlier."""
+    commit_sha = _bind_commit_multi_commit_fixture(
+        tmp_path, tree_matches_registered_hash=True
+    )
+    result = refresh_run.bind_commit(
+        "pdf", "net", "RUN-MULTI-COMMIT", commit_sha, session_id="session-1",
+    )
+    assert result["state"] == "COMMITTED"
+    assert result["commit_sha"] == commit_sha
+
+
+def test_bind_commit_still_rejects_decision_row_with_stale_tree_content(
+    tmp_path: Path,
+):
+    """Negative control for the exemption above: registering a hash in
+    extra_allowed_hashes must not blanket-bypass the missing-changed check --
+    if the resolved commit's ACTUAL tree content does not match the
+    registered hash (a genuinely stale/wrong commit was cited), the page
+    must still be reported missing."""
+    commit_sha = _bind_commit_multi_commit_fixture(
+        tmp_path, tree_matches_registered_hash=False
+    )
+    with pytest.raises(refresh_run.RefreshRunError, match="do not exactly match"):
+        refresh_run.bind_commit(
+            "pdf", "net", "RUN-MULTI-COMMIT", commit_sha, session_id="session-1",
+        )
+
+
 def test_bind_commit_rejects_substituted_in_scope_output(tmp_path: Path):
     commit_sha = "c" * 40
     page_path = "content/docs.aspose.org/en/pdf/net/page.md"
