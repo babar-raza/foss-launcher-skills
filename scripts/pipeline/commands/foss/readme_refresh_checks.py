@@ -5909,6 +5909,31 @@ def _extract_salient_tokens(excerpt: str) -> list[str]:
     return ordered
 
 
+def _unit_content_hash(text: str) -> str:
+    """Content-addressed unit identity (RC-disposition-content-addressed-identity,
+    readme-refresh-hardening-and-regen-2026-08-30, TC-19) -- additive alongside every
+    extractor's existing positional `unit_id`, never a replacement for it.
+
+    Same hashing convention `compute_block_fingerprints` already uses for scope-block
+    identity above (`hashlib.sha256(...).hexdigest()`) -- reused, not forked -- truncated
+    to 16 hex chars (64 bits) here specifically because a unit-level ledger runs to
+    hundreds of entries per product (vs. compute_block_fingerprints' ~10-entry scale),
+    where full 64-char hashes would make already-large disposition JSON files
+    materially harder to read; 64 bits of entropy is not a meaningful collision risk at
+    this scale.
+
+    This is the confirmed root-cause fix target the module's own MT056 comment (below,
+    at extract_old_readme_content_units and its 3 siblings) already names: a purely
+    positional `u%04d`/`s%04d`/`c%04d`/`b%04d` id silently remaps every LATER unit's
+    identity the moment an earlier unit is inserted, moved, or removed during a
+    candidate's own composition -- the confirmed root cause of the R-07 disposition-
+    drift regression class. `unit_hash` is stable across exactly that kind of
+    reordering: hashing a unit's own text never depends on what index it happens to
+    land at during THIS extraction pass.
+    """
+    return hashlib.sha256(text.strip().encode("utf-8")).hexdigest()[:16]
+
+
 _ANY_HEADING_LINE_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
 # 2026-08-10, MT030 Phase 2: replaces an earlier flat len(excerpt) < 25 noise filter, which
 # silently dropped real, substantive short bullets. See extract_old_readme_content_units's own
@@ -5960,6 +5985,7 @@ def extract_old_readme_content_units(old_readme_text: str) -> list[dict]:
             continue
         units.append({
             "unit_id": f"u{len(units) + 1:04d}",
+            "unit_hash": _unit_content_hash(excerpt),
             "excerpt": excerpt,
             "salient_tokens": _extract_salient_tokens(excerpt),
             "likely_category_1_prefilter": _likely_category_1_signal(excerpt),
@@ -7365,6 +7391,7 @@ def extract_old_readme_structural_units(
 
         units.append({
             "unit_id": f"s{len(units) + 1:04d}",
+            "unit_hash": _unit_content_hash(heading_text + "\n" + fenced_block_text),
             "heading": heading_text,
             "heading_level": len(match.group(1)),
             "kind": kind,
@@ -7490,6 +7517,54 @@ def check_structural_unit_disposition_coverage(
             findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
         elif not verification.get("evidence_ref"):
             findings.append({"unit_id": uid, "reason": "verification needs a non-empty evidence_ref"})
+    return findings
+
+
+def check_structural_unit_disposition_text_diff(
+    structural_units: list[dict], dispositions: list[dict], candidate_text: str,
+) -> list[dict]:
+    """Hard gate (RC-disposition-text-diff-verification, readme-refresh-hardening-and-
+    regen-2026-08-30, TC-21). Structural-unit mirror of `check_code_example_disposition_
+    text_diff` -- same rationale, same normalization discipline, applied to a structural
+    unit's own `fenced_block_text` instead of a code unit's `code_text`.
+
+    Confirmed live, real: font/python's `structure-dispositions.json` unit `s0002` labels
+    the "Variable Font Discovery" block `merged_verbatim`. Direct comparison of the real
+    old README against the candidate showed the original had 12 `print()` calls including
+    `font.smart_instancer.suggest_axis_values(...)`, `font.get_axis("wght").name(...)`,
+    `font.get_axis("wght").localized_labels(...)`, and `font.variable_presentation(...)`
+    (x2); the candidate's version had only 7, silently dropping all 5 localization/
+    discovery calls -- not verbatim merging, but undisclosed code reduction mislabeled as
+    verbatim preservation. This is the concrete proof that a disposition ledger's own
+    self-reported label cannot be trusted without independent verification -- the exact
+    gap this check closes.
+
+    Only checks `merged_verbatim` -- `merged_reframed`/`excluded` already disclose that
+    the content changed or was dropped, so there is nothing to verify by exact-match
+    against those.
+    """
+    findings: list[dict] = []
+    by_id = {unit["unit_id"]: unit for unit in structural_units}
+    normalized_candidate = " ".join(candidate_text.split())
+    for entry in dispositions:
+        if entry.get("disposition") != "merged_verbatim":
+            continue
+        uid = entry.get("unit_id")
+        unit = by_id.get(uid)
+        if unit is None:
+            continue  # check_structural_unit_disposition_coverage's own finding to raise
+        old_text = (unit.get("fenced_block_text") or "").strip()
+        if not old_text:
+            continue
+        normalized_old = " ".join(old_text.split())
+        if normalized_old not in normalized_candidate:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition claims merged_verbatim but this unit's exact old fenced-"
+                          "block text is not present anywhere in the candidate -- if the content "
+                          "was genuinely changed (even partially, e.g. dropped calls), the "
+                          "correct disposition is 'merged_reframed', not 'merged_verbatim'",
+            })
     return findings
 
 
@@ -7804,6 +7879,7 @@ def extract_old_readme_code_units(old_readme_text: str) -> list[dict]:
             unit_id = f"c{block_number:04d}" + (chr(ord("a") + idx) if multi else "")
             units.append({
                 "unit_id": unit_id,
+                "unit_hash": _unit_content_hash(group_text),
                 "heading_context": heading_context,
                 "language": language,
                 "code_text": group_text,
@@ -7887,6 +7963,60 @@ def check_code_example_disposition_coverage(
             findings.append({"unit_id": uid, "reason": f"invalid verification.status {status!r}"})
         elif not verification.get("evidence_ref"):
             findings.append({"unit_id": uid, "reason": "verification needs a non-empty evidence_ref"})
+    return findings
+
+
+def check_code_example_disposition_text_diff(
+    code_units: list[dict], dispositions: list[dict], candidate_text: str,
+) -> list[dict]:
+    """Hard gate (RC-disposition-text-diff-verification, readme-refresh-hardening-and-
+    regen-2026-08-30, TC-21). `check_code_example_disposition_coverage` (above) validates
+    a disposition's SHAPE (a real enum, a real target_section, a real evidence_ref) but
+    never verifies its CONTENT CLAIM -- a `merged_verbatim` disposition asserts "this
+    exact old code survived into the candidate unchanged", and nothing before this check
+    ever tested whether that is actually true.
+
+    Confirmed live, real: tex/python's `code-example-dispositions.json` unit `c0001`
+    labels `merged_verbatim` a `pip install aspose-tex` command that upstream-issues.md
+    itself documents as broken (no matching PyPI release) -- the candidate correctly
+    REPLACED it with a from-source install (the right editorial call), but the
+    disposition still claims verbatim preservation. Root cause confirmed mechanically:
+    `check_code_example_disposition_coverage` only validates that `disposition` is a
+    member of `_CODE_UNIT_DISPOSITIONS` (which already includes a distinct `"corrected"`
+    value that should have been used here) and that `target_section`/`evidence_ref` are
+    non-empty -- it never compares old-vs-new code text, so a `merged_verbatim` label on
+    a fully-replaced snippet passed every existing hard gate silently.
+
+    Only checks `merged_verbatim` specifically -- `merged_reframed`/`corrected`/
+    `relocated`/`excluded` all already disclose that the text changed or moved, so there
+    is nothing to verify by exact-match against those; running this check against them
+    would produce nothing but false positives. Normalizes whitespace only (never
+    case, never punctuation) before comparing, so a value with different indentation or
+    line-wrapping still counts as verbatim -- deliberately conservative in the direction
+    of NOT over-flagging cosmetic reflow as a content change.
+    """
+    findings: list[dict] = []
+    by_id = {unit["unit_id"]: unit for unit in code_units}
+    normalized_candidate = " ".join(candidate_text.split())
+    for entry in dispositions:
+        if entry.get("disposition") != "merged_verbatim":
+            continue
+        uid = entry.get("unit_id")
+        unit = by_id.get(uid)
+        if unit is None:
+            continue  # check_code_example_disposition_coverage's own finding to raise
+        old_text = (unit.get("code_text") or "").strip()
+        if not old_text:
+            continue
+        normalized_old = " ".join(old_text.split())
+        if normalized_old not in normalized_candidate:
+            findings.append({
+                "unit_id": uid,
+                "reason": "disposition claims merged_verbatim but this unit's exact old code "
+                          "text is not present anywhere in the candidate -- if the content was "
+                          "genuinely changed, the correct disposition is 'corrected' or "
+                          "'merged_reframed', not 'merged_verbatim'",
+            })
     return findings
 
 
@@ -8161,12 +8291,14 @@ def extract_badges(readme_text: str) -> list[dict]:
             if not inner:
                 continue
             alt_text, image_url = inner.groups()
+            raw_markdown = f"[![{alt_text}]({image_url})]({link_url})"
             badges.append({
                 "unit_id": f"b{len(badges) + 1:04d}",
+                "unit_hash": _unit_content_hash(raw_markdown),
                 "alt_text": alt_text,
                 "image_url": image_url,
                 "link_url": link_url,
-                "raw_markdown": f"[![{alt_text}]({image_url})]({link_url})",
+                "raw_markdown": raw_markdown,
             })
     return badges
 

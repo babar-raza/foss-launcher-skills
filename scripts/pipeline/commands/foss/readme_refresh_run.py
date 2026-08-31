@@ -2561,6 +2561,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             "hard_gate": True,
             "findings": checks.check_structural_unit_no_exact_duplicate_merge(structure_dispositions),
         }
+        # RC-disposition-text-diff-verification (readme-refresh-hardening-and-regen-2026-08-30,
+        # TC-21): the coverage check above validates disposition SHAPE, never the CONTENT CLAIM
+        # a merged_verbatim label makes -- see the check's own docstring for the real font/python
+        # s0002 defect this closes.
+        result["structural_unit_disposition_text_diff"] = {
+            "hard_gate": True,
+            "findings": checks.check_structural_unit_disposition_text_diff(
+                structural_units, structure_dispositions, text,
+            ),
+        }
         result["structural_unit_tree_paths_plausible"] = {
             "hard_gate": False,
             "findings": checks.check_structural_unit_tree_paths_plausible(
@@ -2599,6 +2609,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["code_example_no_exact_duplicate_merge"] = {
             "hard_gate": True,
             "findings": checks.check_code_example_no_exact_duplicate_merge(code_example_dispositions),
+        }
+        # RC-disposition-text-diff-verification (readme-refresh-hardening-and-regen-2026-08-30,
+        # TC-21): the coverage check above validates disposition SHAPE, never the CONTENT CLAIM
+        # a merged_verbatim label makes -- see the check's own docstring for the real tex/python
+        # c0001 defect this closes.
+        result["code_example_disposition_text_diff"] = {
+            "hard_gate": True,
+            "findings": checks.check_code_example_disposition_text_diff(
+                code_units, code_example_dispositions, text,
+            ),
         }
         result["code_example_api_coverage_survives"] = {
             "hard_gate": True,

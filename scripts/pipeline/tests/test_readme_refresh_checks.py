@@ -5822,6 +5822,78 @@ def test_extract_old_readme_content_units_splits_pure_bullet_block():
     assert any("pypdf" in u["salient_tokens"] for u in units)
 
 
+# --- unit_hash: content-addressed identity (readme-refresh-hardening-and-regen-2026-08-30, TC-19) --
+
+
+class TestUnitContentHash:
+    """RC-disposition-content-addressed-identity: every one of the 4 extractors now emits
+    an additive unit_hash alongside its existing positional unit_id. The property that
+    matters -- stable identity under reordering -- is what these tests prove, not just
+    "the field exists"."""
+
+    def test_direct_hash_helper_is_deterministic_and_content_sensitive(self):
+        h1 = checks._unit_content_hash("Some real text.")
+        h2 = checks._unit_content_hash("Some real text.")
+        h3 = checks._unit_content_hash("Some DIFFERENT text.")
+        assert h1 == h2
+        assert h1 != h3
+        assert len(h1) == 16  # 64-bit truncated sha256, documented in the helper's own docstring
+
+    def test_content_unit_hash_survives_reordering(self):
+        # This is the exact regression class the module's own MT056 comment names: inserting a
+        # unit earlier in the document must not change a LATER unit's identity.
+        original = "# Title\n\nFirst real technical claim about `Alpha`.\n\nSecond real technical claim about `Beta`.\n"
+        reordered = "# Title\n\nA brand new claim inserted first about `Gamma`.\n\nFirst real technical claim about `Alpha`.\n\nSecond real technical claim about `Beta`.\n"
+        original_units = checks.extract_old_readme_content_units(original)
+        reordered_units = checks.extract_old_readme_content_units(reordered)
+        beta_original = next(u for u in original_units if "Beta" in u["excerpt"])
+        beta_reordered = next(u for u in reordered_units if "Beta" in u["excerpt"])
+        # The positional id DID shift (u0002 -> u0003) -- exactly the confirmed drift bug.
+        assert beta_original["unit_id"] != beta_reordered["unit_id"]
+        # But the content hash did NOT -- the fix this class of test exists to prove.
+        assert beta_original["unit_hash"] == beta_reordered["unit_hash"]
+
+    def test_structural_unit_hash_present_and_content_sensitive(self):
+        text_a = "## Project Structure\n\n```\nsrc/\n  a.py\n```\n"
+        text_b = "## Project Structure\n\n```\nsrc/\n  b.py\n```\n"
+        units_a = checks.extract_old_readme_structural_units(text_a)
+        units_b = checks.extract_old_readme_structural_units(text_b)
+        assert units_a and units_b
+        assert all("unit_hash" in u and len(u["unit_hash"]) == 16 for u in units_a)
+        assert units_a[0]["unit_hash"] != units_b[0]["unit_hash"]
+
+    def test_code_unit_hash_present_and_content_sensitive(self):
+        text_a = "## Quick Start\n\n```python\nimport widget\nwidget.run()\n```\n"
+        text_b = "## Quick Start\n\n```python\nimport gadget\ngadget.run()\n```\n"
+        units_a = checks.extract_old_readme_code_units(text_a)
+        units_b = checks.extract_old_readme_code_units(text_b)
+        assert units_a and units_b
+        assert all("unit_hash" in u and len(u["unit_hash"]) == 16 for u in units_a)
+        assert units_a[0]["unit_hash"] != units_b[0]["unit_hash"]
+
+    def test_badge_unit_hash_present_and_content_sensitive(self):
+        text_a = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n"
+        text_b = "[![Build](https://img.shields.io/badge/Build-passing-green.svg)](CI)\n"
+        badges_a = checks.extract_badges(text_a)
+        badges_b = checks.extract_badges(text_b)
+        assert badges_a and badges_b
+        assert all("unit_hash" in b and len(b["unit_hash"]) == 16 for b in badges_a)
+        assert badges_a[0]["unit_hash"] != badges_b[0]["unit_hash"]
+
+    def test_badge_hash_survives_reordering(self):
+        row_a = "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)"
+        row_b = "[![Build](https://img.shields.io/badge/Build-passing-green.svg)](CI)"
+        original = row_a + " " + row_b + "\n"
+        reordered = row_b + " " + row_a + "\n"
+        original_badges = {b["unit_hash"]: b for b in checks.extract_badges(original)}
+        reordered_badges = {b["unit_hash"]: b for b in checks.extract_badges(reordered)}
+        # Same two hashes present in both, regardless of position -- positional unit_id
+        # differs (b0001/b0002 swap), hash-based identity does not.
+        assert set(original_badges.keys()) == set(reordered_badges.keys())
+        for h in original_badges:
+            assert original_badges[h]["unit_id"] != reordered_badges[h]["unit_id"] or len(original_badges) == 1
+
+
 _NOTE_PYTHON_OFFICIAL_CLAIM = (
     "✅ **Official Aspose project** -- 100% free and open-source, with no hidden costs."
 )
@@ -6706,6 +6778,58 @@ def _structure_disposition(unit_id="s0001", disposition="merged_reframed",
         "claimed_paths": claimed_paths, "excluded_reason": excluded_reason,
         "verification": {"status": evidence_status, "evidence_type": evidence_type, "evidence_ref": evidence_ref},
     }
+
+
+# --- check_structural_unit_disposition_text_diff (RC-disposition-text-diff-verification, TC-21) -
+
+
+def test_structural_text_diff_reproduces_the_real_font_python_s0002_defect():
+    """The exact real defect: a structural disposition claims merged_verbatim for a fenced
+    block that lost 5 of 12 print() calls in the candidate -- silent code reduction
+    mislabeled as verbatim preservation."""
+    old_readme = (
+        "## Variable Font Discovery\n\n"
+        "```python\n"
+        "print(font.smart_instancer.suggest_axis_values(axis))\n"
+        "print(font.get_axis(\"wght\").name((\"fr-CA\", \"en\")))\n"
+        "print(font.get_axis(\"wght\").localized_labels())\n"
+        "print(font.variable_presentation())\n"
+        "print(font.variable_presentation())\n"
+        "```\n"
+    )
+    units = checks.extract_old_readme_structural_units(old_readme)
+    assert len(units) == 1
+    dispositions = [_structure_disposition(unit_id=units[0]["unit_id"], disposition="merged_verbatim")]
+    # The candidate dropped the 2 localization calls -- a real, undisclosed reduction.
+    candidate = (
+        "## Variable Font Discovery\n\n"
+        "```python\n"
+        "print(font.smart_instancer.suggest_axis_values(axis))\n"
+        "print(font.variable_presentation())\n"
+        "print(font.variable_presentation())\n"
+        "```\n"
+    )
+    findings = checks.check_structural_unit_disposition_text_diff(units, dispositions, candidate)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == units[0]["unit_id"]
+    assert "not present anywhere in the candidate" in findings[0]["reason"]
+
+
+def test_structural_text_diff_clean_when_verbatim_claim_is_true():
+    old_readme = "## Project Structure\n\n```\nsrc/\n  main.py\n```\n"
+    units = checks.extract_old_readme_structural_units(old_readme)
+    dispositions = [_structure_disposition(unit_id=units[0]["unit_id"], disposition="merged_verbatim")]
+    candidate = "## Project Structure\n\nSome intro.\n\n```\nsrc/\n  main.py\n```\n"
+    assert checks.check_structural_unit_disposition_text_diff(units, dispositions, candidate) == []
+
+
+def test_structural_text_diff_ignores_non_verbatim_dispositions():
+    old_readme = "## Project Structure\n\n```\nsrc/\n  main.py\n```\n"
+    units = checks.extract_old_readme_structural_units(old_readme)
+    candidate = "## Project Structure\n\n```\nsrc/\n  other.py\n```\n"
+    for disp in ("merged_reframed", "excluded"):
+        dispositions = [_structure_disposition(unit_id=units[0]["unit_id"], disposition=disp)]
+        assert checks.check_structural_unit_disposition_text_diff(units, dispositions, candidate) == []
 
 
 # --- extract_old_readme_structural_units -----------------------------------------------------
@@ -8235,6 +8359,61 @@ def test_check_code_example_no_exact_duplicate_merge_still_flags_identical_finge
     ]
     findings = checks.check_code_example_no_exact_duplicate_merge(dispositions)
     assert findings and set(findings[0]["unit_ids"]) == {"c0021c", "c0021d"}
+
+
+# --- check_code_example_disposition_text_diff (RC-disposition-text-diff-verification, TC-21) ---
+
+
+def test_code_example_text_diff_reproduces_the_real_tex_python_c0001_defect():
+    """The exact real defect this check was built to catch: a disposition claims
+    merged_verbatim for a code unit whose real old text is `pip install aspose-tex`, but
+    the candidate replaced it with a from-source install -- the disposition is wrong,
+    even though the editorial decision (replace the broken command) was correct."""
+    old_readme = "## Installation\n\n```bash\npip install aspose-tex\n```\n"
+    units = checks.extract_old_readme_code_units(old_readme)
+    assert len(units) == 1
+    dispositions = [_code_disposition(unit_id=units[0]["unit_id"], disposition="merged_verbatim")]
+    candidate = "## Installation\n\n```bash\ngit clone https://github.com/example/repo\npip install -e .\n```\n"
+    findings = checks.check_code_example_disposition_text_diff(units, dispositions, candidate)
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == units[0]["unit_id"]
+    assert "not present anywhere in the candidate" in findings[0]["reason"]
+
+
+def test_code_example_text_diff_clean_when_verbatim_claim_is_true():
+    old_readme = "## Installation\n\n```bash\npip install aspose-font\n```\n"
+    units = checks.extract_old_readme_code_units(old_readme)
+    dispositions = [_code_disposition(unit_id=units[0]["unit_id"], disposition="merged_verbatim")]
+    candidate = "## Installation\n\nSome intro text.\n\n```bash\npip install aspose-font\n```\n"
+    assert checks.check_code_example_disposition_text_diff(units, dispositions, candidate) == []
+
+
+def test_code_example_text_diff_tolerates_whitespace_only_reflow():
+    old_readme = "## Installation\n\n```bash\npip install aspose-font\n```\n"
+    units = checks.extract_old_readme_code_units(old_readme)
+    dispositions = [_code_disposition(unit_id=units[0]["unit_id"], disposition="merged_verbatim")]
+    # Different indentation/line-wrapping, same tokens -- must NOT be flagged as a content change.
+    candidate = "## Installation\n\n```bash\n  pip   install   aspose-font  \n```\n"
+    assert checks.check_code_example_disposition_text_diff(units, dispositions, candidate) == []
+
+
+def test_code_example_text_diff_ignores_non_verbatim_dispositions():
+    """merged_reframed/corrected/relocated already disclose the text changed -- this check
+    must never fire against them, even when the old text is genuinely absent."""
+    old_readme = "## Installation\n\n```bash\npip install aspose-tex\n```\n"
+    units = checks.extract_old_readme_code_units(old_readme)
+    candidate = "## Installation\n\n```bash\npip install -e .\n```\n"
+    for disp in ("merged_reframed", "corrected", "relocated", "excluded"):
+        dispositions = [_code_disposition(unit_id=units[0]["unit_id"], disposition=disp)]
+        assert checks.check_code_example_disposition_text_diff(units, dispositions, candidate) == []
+
+
+def test_code_example_text_diff_skips_dangling_unit_id():
+    # A disposition referencing a unit_id absent from the current extraction is
+    # check_code_example_disposition_coverage's own finding to raise -- this check must not
+    # also fire (and must not crash) on it.
+    dispositions = [_code_disposition(unit_id="c9999", disposition="merged_verbatim")]
+    assert checks.check_code_example_disposition_text_diff([], dispositions, "anything") == []
 
 
 def test_code_example_evidence_resolves_reuses_content_unit_evidence_resolves(tmp_path):
