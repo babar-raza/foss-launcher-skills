@@ -158,5 +158,95 @@
     "file": "src/aspose/threed/formats/stl/StlSaveOptions.ts",
     "line": 4,
     "direction": "export"
+  },
+  {
+    "format": "fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxExporter.ts",
+    "line": 8,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/fbx/FbxImporter.ts",
+    "line": 17,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfExporter.ts",
+    "line": 79,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/gltf/GltfImporter.ts",
+    "line": 29,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjExporter.ts",
+    "line": 10,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "obj",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/obj/ObjImporter.ts",
+    "line": 11,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlExporter.ts",
+    "line": 9,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "stl",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/stl/StlImporter.ts",
+    "line": 9,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfExporter.ts",
+    "line": 1,
+    "direction": "export",
+    "evidence_kind": "manual_correction_ST142"
+  },
+  {
+    "format": "ThreeMf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts",
+    "line": 1,
+    "direction": "import",
+    "evidence_kind": "manual_correction_ST142"
   }
 ]
