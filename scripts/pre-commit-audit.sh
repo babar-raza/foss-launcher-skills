@@ -106,12 +106,13 @@ _pc_step_start "python version pin"
 # Step -1 (TC-CIR-11, 2026-08-14 CI reliability reassessment): warn when the
 # active .venv's Python version doesn't match .python-version (repo root),
 # which itself matches every CI workflow's actions/setup-python@v5 pin
-# ('3.12'). Previously there was zero local version pin at all (only
-# docs/QUICKSTART.md's looser "3.11+" floor) — confirmed live this pass that
-# the primary dev machine's .venv actually runs 3.13.2, silently diverged
-# from CI's pinned 3.12 with no warning anywhere. WARN, not BLOCK: a version
-# mismatch is not itself proof of a real defect, only an early-warning signal
-# (Part 3's criticality test (a)-(f) is not met by a mismatch alone).
+# ('3.13' as of 2026-08-31, TC-SG-12 -- re-pinned from '3.12' to match the
+# local reality every dev machine's .venv had already silently drifted to,
+# non-destructively: no interpreter swap under any running session, unlike
+# rebuilding every .venv to match the old pin would have required). WARN,
+# not BLOCK: a version mismatch is not itself proof of a real defect, only
+# an early-warning signal (Part 3's criticality test (a)-(f) is not met by
+# a mismatch alone).
 # ---------------------------------------------------------------------------
 if [ -n "$_HOOK_PYTHON" ] && [ -f ".python-version" ]; then
     _pinned_pyver=$(cat .python-version | tr -d '[:space:]')

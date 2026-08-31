@@ -240,8 +240,8 @@ class TestPythonVersionPin:
     def test_python_version_file_exists_and_matches_ci(self):
         pin_file = _REPO_ROOT / ".python-version"
         assert pin_file.exists(), "TC-CIR-11: .python-version must exist at repo root"
-        assert pin_file.read_text(encoding="utf-8").strip() == "3.12", (
-            "Local Python pin must match CI's actions/setup-python@v5 pin ('3.12')"
+        assert pin_file.read_text(encoding="utf-8").strip() == "3.13", (
+            "Local Python pin must match CI's actions/setup-python@v5 pin ('3.13')"
         )
 
     def test_precommit_source_checks_version_pin(self):
