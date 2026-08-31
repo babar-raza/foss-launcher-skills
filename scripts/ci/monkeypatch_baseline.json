@@ -162,6 +162,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/content_eval/test_api_completeness_base_class_split.py": {
+      "T1": 0,
+      "T2": 4,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/content_eval/test_api_completeness_cpp_destructor.py": {
       "T1": 0,
       "T2": 4,
@@ -835,13 +841,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-08-31T10:37:13Z",
+  "generated_at": "2026-08-31T13:03:40Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 957,
+    "T2": 961,
     "T3": 116,
     "T4": 15
   }

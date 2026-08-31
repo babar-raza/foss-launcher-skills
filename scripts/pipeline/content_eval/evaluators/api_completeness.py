@@ -176,6 +176,23 @@ class ApiCompletenessEvaluator(BaseEvaluator):
         if not missing:
             return []
 
+        # ST-149: a subclass's own api_surface.json entry can list a member
+        # it inherited from a base class (the TS scout duplicates inherited-
+        # and-redeclared names onto every subclass entry rather than only the
+        # base). When that base class also has its own reference page and
+        # genuinely documents the member there, the documentation is
+        # complete -- just correctly split across base/subclass pages
+        # instead of repeated on every subclass page. Confirmed live
+        # 2026-08-31 (MT040 Phase I): 12 subclass pages
+        # ({Collada,Fbx,Gltf,Obj,Stl,ThreeMf}{Load,Save}Options.md) were
+        # false-capped A->C this way. Suppress only members actually found
+        # documented on an ancestor's own page -- a genuinely undocumented
+        # member is still flagged even if it happens to share a name with
+        # something on a base class.
+        missing -= self._documented_on_a_base_page(missing, cls_entry, api_surface, page)
+        if not missing:
+            return []
+
         missing_pct = len(missing) / len(expected_members) * 100
 
         if missing_pct > 30:
@@ -201,6 +218,80 @@ class ApiCompletenessEvaluator(BaseEvaluator):
             suggestion="Add documentation for missing methods/properties",
             evaluator=self.name,
         )]
+
+    def _documented_on_a_base_page(
+        self, missing: set[str], cls_entry: dict, api_surface: list[dict], page: Page,
+    ) -> set[str]:
+        """Return the subset of `missing` that is genuinely documented on
+        some ancestor class's own reference page (walking `bases`, cycle-
+        safe). Best-effort file lookup: tries the plain `{BaseName}.md`
+        sibling first, then a `{BaseName}-*.md` glob for the
+        namespace/collision-suffixed naming convention batch_reference.py
+        also uses -- a base class involved in its own collision is not
+        resolved further here (moderate-scope fix; the exact suffix is a
+        second cross-page lookup this evaluator has no need for otherwise)."""
+        satisfied: set[str] = set()
+        still_missing = set(missing)
+        seen_bases: set[str] = set()
+        queue = list(cls_entry.get("bases") or [])
+        while queue and still_missing:
+            base_name = queue.pop(0)
+            if not base_name or base_name in seen_bases:
+                continue
+            seen_bases.add(base_name)
+            base_entries = [c for c in api_surface if c.get("name") == base_name]
+            for base_entry in base_entries:
+                queue.extend(base_entry.get("bases") or [])
+                base_own_members = self._own_public_members(base_entry)
+                candidates = still_missing & base_own_members
+                if not candidates:
+                    continue
+                base_page = self._find_class_page(page.filepath, base_name)
+                if base_page is None:
+                    continue
+                documented_on_base = self._extract_documented_members(base_page, candidates)
+                satisfied |= documented_on_base
+                still_missing -= documented_on_base
+        return satisfied
+
+    @staticmethod
+    def _own_public_members(cls_entry: dict) -> set[str]:
+        names: set[str] = set()
+        for method in cls_entry.get("methods", []):
+            name = method.get("name", "")
+            if name and not name.startswith("_") and name not in _UNIVERSAL_SKIP:
+                names.add(name)
+        for prop in cls_entry.get("properties", []):
+            name = prop.get("name", "")
+            if name and not name.startswith("_") and name not in _UNIVERSAL_SKIP:
+                names.add(name)
+        return names
+
+    @staticmethod
+    def _find_class_page(sibling_of: Path, class_name: str) -> "Path | None":
+        directory = sibling_of.parent
+        plain = directory / f"{class_name}.md"
+        if plain.is_file() and plain != sibling_of:
+            return plain
+        for candidate in sorted(directory.glob(f"{class_name}-*.md")):
+            if candidate != sibling_of:
+                return candidate
+        return None
+
+    @staticmethod
+    def _extract_documented_members(filepath: Path, candidates: set[str]) -> set[str]:
+        try:
+            raw = filepath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return set()
+        documented: set[str] = set()
+        for m in _TABLE_MEMBER_RE.finditer(raw):
+            documented.add(m.group(1))
+        for m in _SECTION_HEADER_RE.finditer(raw):
+            documented.add(m.group(1))
+        for m in _BACKTICK_MEMBER_RE.finditer(raw):
+            documented.add(m.group(1))
+        return documented & candidates
 
     def _load_api_surface(self, page: Page) -> list[dict]:
         if not page.family or not page.platform:
