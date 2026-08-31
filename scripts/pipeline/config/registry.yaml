@@ -1365,6 +1365,21 @@ scripts:
     deprecated_since: null
     change_impact: "Read-only historical refresh classifier. Requires explicit Git base/end boundaries, reconciles every legacy BODY_UPDATED row, records normalized body/frontmatter hashes, and never labels a current content defect without separate truth-audit evidence."
 
+  - path: scripts/pipeline/commands/ops/refresh_run_bind_recovery.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_refresh_run_bind_recovery.py]
+    deprecated_since: null
+    change_impact: "ST-126 recovery: binds a READY_TO_COMMIT refresh_run to an already-pushed, trailer-less commit by building a separate, non-destructive shadow commit object (never touches refs/heads/main, never rewrites history). Only mutates run-local manifest state (via bind_commit) and, when --push-ref is given, pushes the shadow object to a caller-chosen non-branch ref."
+
   - path: scripts/pipeline/commands/ops/refresh_run_status_scan.py
     kind: entrypoint
     lifecycle: active
