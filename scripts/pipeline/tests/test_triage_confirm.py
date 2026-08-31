@@ -67,6 +67,56 @@ class TestLayer2Detection:
         result = triage_confirm(page, knowledge)
         assert result["stale"] is False
 
+    def test_removed_api_still_present_as_class_name_no_signal(self, tmp_path):
+        """A name in removed_apis that is still a real, current class name
+        must not be flagged -- the delta computation can list a
+        signature-level change under the same class-name key. Filename
+        matches the class itself so the unrelated slug-check signal (a
+        filename-derived slug absent from api_surface) never fires."""
+        page = _page(tmp_path, "Workbook.md", "Use the Workbook to open files.")
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}],
+            "delta": {"removed_apis": ["Workbook"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_removed_api_still_present_as_member_name_no_signal(self, tmp_path):
+        """Found live 2026-08-31, 3d/typescript refresh_run: `removed_apis`
+        can carry a MEMBER name (e.g. an overloaded `constructor`) that is
+        still genuinely present on the current class -- and the same
+        generic member name (constructor/name/clear) recurs across many
+        unrelated classes, so a bare word-boundary match without cross-
+        checking current knowledge false-positived on entirely accurate
+        documentation. `Vector3.md` was flagged for its own real,
+        current `constructor` overloads."""
+        page = _page(
+            tmp_path, "Vector3.md",
+            "Vector3.constructor creates a new Vector3 with given x, y, z components.",
+        )
+        knowledge = {
+            "api_surface": [
+                {"name": "Vector3", "methods": [{"name": "constructor"}, {"name": "constructor"}]},
+            ],
+            "delta": {"removed_apis": ["constructor"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_removed_member_name_absent_everywhere_still_detected(self, tmp_path):
+        """Negative control: a member name genuinely absent from every
+        class's current methods/properties must still be flagged."""
+        page = _page(tmp_path, "Workbook.md", "Call legacySave() to write the file.")
+        knowledge = {
+            "api_surface": [
+                {"name": "Workbook", "methods": [{"name": "save"}], "properties": []},
+            ],
+            "delta": {"removed_apis": ["legacySave"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("legacySave" in r for r in result["reasons"])
+
     def test_modified_api_in_body_is_advisory_not_stale(self, tmp_path):
         page = _page(tmp_path, "page.md", "Call ChangedClass.method() to process data.")
         knowledge = {

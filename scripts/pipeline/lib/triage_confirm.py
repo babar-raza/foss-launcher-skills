@@ -301,8 +301,34 @@ def triage_confirm(
     }
 
     # --- Signal 1: page body mentions APIs that have been removed ---
+    # Found live 2026-08-31 (3d/typescript refresh_run): `removed_apis` comes
+    # from a delta computation upstream and can carry MEMBER names (not just
+    # class names) -- a class's own `constructor`, legitimately present with
+    # multiple overloaded signatures in api_surface.json, can be represented
+    # there as a signature-level removal even though the NAME still exists
+    # in current knowledge. The word-boundary regex below then flags ANY
+    # page whose body happens to contain that bare word, including entirely
+    # unrelated classes that document their OWN, still-current `constructor`/
+    # `name`/`clear` member (generic member names recur across many
+    # classes). current_member_names (every method/property name across the
+    # WHOLE current api_surface) closes this: a member name still present
+    # anywhere in current knowledge was never truly removed in a way that
+    # makes citing it stale prose.
+    current_member_names: set[str] = set()
+    for _entry in api_surface:
+        if not isinstance(_entry, dict):
+            continue
+        for _m in _entry.get("methods") or []:
+            if isinstance(_m, dict) and _m.get("name"):
+                current_member_names.add(_m["name"])
+        for _p in _entry.get("properties") or []:
+            if isinstance(_p, dict) and _p.get("name"):
+                current_member_names.add(_p["name"])
+
     removed_apis: list[str] = delta.get("removed_apis") or []
     for api_name in removed_apis:
+        if api_name in current_api_names or api_name in current_member_names:
+            continue
         # Word-boundary match to avoid false positives (e.g. "Workbook" in "WorkbookSettings")
         if re.search(rf"\b{re.escape(api_name)}\b", body):
             reasons.append(f"body references removed API '{api_name}'")
