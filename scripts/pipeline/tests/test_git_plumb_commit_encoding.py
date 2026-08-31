@@ -292,3 +292,95 @@ def test_relied_override_token_consumed_by_id_after_push(tmp_path):
     archived = override_manager._ARCHIVED_DIR / f"{token_id}.json"
     assert json.loads(archived.read_text(encoding="utf-8"))["consumed_by_commit"] == result["commit_sha"]
     assert unrelated.exists()   # the other session's token was NOT swept
+
+
+# ---------------------------------------------------------------------------
+# TC-SG-19: temp-index robustness (private mkdtemp path + bounded transient
+# retry) -- two consecutive `git read-tree ... unable to write new index file`
+# failures were observed live 2026-08-30 (clean on retry and on a direct
+# probe): an antivirus/indexer race on the old mkstemp->unlink->recreate
+# dance over a flat %TEMP% name.
+# ---------------------------------------------------------------------------
+
+def _passthrough_runner_with(hook):
+    import subprocess as _sp
+
+    def _runner(cmd, **kwargs):
+        intercepted = hook(cmd, kwargs)
+        if intercepted is not None:
+            return intercepted
+        return _sp.run(cmd, **kwargs)
+    return _runner
+
+
+def test_transient_read_tree_failure_retries_and_succeeds(tmp_path, capsys):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    calls = {"read_tree": 0}
+
+    def _fail_first_read_tree(cmd, kwargs):
+        if len(cmd) >= 2 and cmd[0] == "git" and cmd[1] == "read-tree":
+            calls["read_tree"] += 1
+            if calls["read_tree"] == 1:
+                import subprocess as _sp
+                return _sp.CompletedProcess(
+                    cmd, 128, stdout="",
+                    stderr="fatal: unable to write new index file")
+        return None
+
+    gpc.configure(repo_root=work, command_runner=_passthrough_runner_with(_fail_first_read_tree))
+    result = gpc.plumb_commit(
+        ["f.txt"], "transient retry", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, skip_ledger_check=True, skip_tier1_checks=True,
+    )
+
+    assert result["pushed"] is True
+    assert calls["read_tree"] == 2          # failed once, retried once, succeeded
+    assert "transient temp-index failure" in capsys.readouterr().err
+
+
+def test_non_transient_read_tree_fails_fast_without_retry(tmp_path):
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    calls = {"read_tree": 0}
+
+    def _always_fail_read_tree(cmd, kwargs):
+        if len(cmd) >= 2 and cmd[0] == "git" and cmd[1] == "read-tree":
+            calls["read_tree"] += 1
+            import subprocess as _sp
+            return _sp.CompletedProcess(cmd, 128, stdout="",
+                                        stderr="fatal: not a tree object")
+        return None
+
+    gpc.configure(repo_root=work, command_runner=_passthrough_runner_with(_always_fail_read_tree))
+    with pytest.raises(gpc.PlumbCommitError, match="not a tree object"):
+        gpc.plumb_commit(
+            ["f.txt"], "hard failure", repo_root=work, branch="main", remote=str(bare),
+            skip_stale_check=True, skip_ledger_check=True, skip_tier1_checks=True,
+        )
+    assert calls["read_tree"] == 1          # no retry for a non-transient shape
+
+
+def test_temp_index_lives_in_private_never_preexisting_dir(tmp_path):
+    import os as _os
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    seen = {}
+
+    def _capture_index_env(cmd, kwargs):
+        if len(cmd) >= 2 and cmd[0] == "git" and cmd[1] == "read-tree":
+            path = (kwargs.get("env") or {}).get("GIT_INDEX_FILE", "")
+            seen["path"] = path
+            seen["preexisted"] = _os.path.exists(path)
+        return None
+
+    gpc.configure(repo_root=work, command_runner=_passthrough_runner_with(_capture_index_env))
+    gpc.plumb_commit(
+        ["f.txt"], "private dir", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, skip_ledger_check=True, skip_tier1_checks=True,
+    )
+
+    assert seen["path"].replace("\\", "/").split("/")[-1] == "index"
+    assert "git_plumb_" in seen["path"]
+    assert seen["preexisted"] is False      # never created-then-deleted (the AV race)
+    assert not _os.path.exists(_os.path.dirname(seen["path"]))  # cleaned up

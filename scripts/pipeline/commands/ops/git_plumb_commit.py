@@ -91,6 +91,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any, Callable
 
@@ -370,6 +371,59 @@ class PlumbCommitReconcileConflict(PlumbCommitError):
 
 
 _CREDENTIAL_URL_RE = re.compile(r"://[^/\s:@]+:[^/\s@]+@")
+
+# TC-SG-19 (2026-08-31): stderr shapes of TRANSIENT temp-index write failures
+# (antivirus/indexer racing the fresh path in %TEMP%; observed live 2026-08-30
+# as two consecutive `git read-tree ... unable to write new index file`
+# failures that were clean on retry and on a direct probe). Only these shapes
+# are retried; anything else fails fast.
+_TRANSIENT_INDEX_RE = re.compile(
+    r"unable to write new index file|index\.lock|Permission denied", re.IGNORECASE,
+)
+
+
+def _make_private_temp_index() -> "tuple[str, str]":
+    """A temp-index path inside a PRIVATE mkdtemp directory, at a name that
+    has NEVER existed (TC-SG-19). Replaces the old mkstemp -> close ->
+    unlink -> let-git-recreate dance: that create/delete/recreate sequence on
+    a flat %TEMP% name is exactly the window antivirus/indexer hooks race.
+    Returns (tmp_dir, index_path); caller removes tmp_dir with
+    shutil.rmtree(..., ignore_errors=True)."""
+    tmp_dir = tempfile.mkdtemp(prefix="git_plumb_")
+    return tmp_dir, os.path.join(tmp_dir, "index")
+
+
+def _read_tree_with_retry(
+    tree_ish: str, *, env_index: dict, root: Path, tmp_index_path: str,
+    attempts: int = 3,
+) -> None:
+    """`git read-tree` into the temp index, retrying ONLY the transient
+    index-write failure shapes above (bounded backoff, leftover index/lock
+    cleared between attempts, each retry printed loudly). Non-transient
+    failures raise immediately on the first attempt."""
+    delays = (0.2, 0.5)
+    for attempt in range(attempts):
+        result = _COMMAND_RUNNER(
+            ["git", "read-tree", tree_ish], cwd=str(root),
+            capture_output=True, **_TEXT_KW, env=env_index,
+        )
+        if result.returncode == 0:
+            return
+        stderr = _redact_credentials(result.stderr or "")
+        if attempt + 1 < attempts and _TRANSIENT_INDEX_RE.search(stderr):
+            print(f"WARNING: transient temp-index failure "
+                  f"(attempt {attempt + 1}/{attempts}): {stderr.strip()[:160]} "
+                  f"-- retrying", file=sys.stderr)
+            for leftover in (tmp_index_path, tmp_index_path + ".lock"):
+                try:
+                    os.unlink(leftover)
+                except OSError:
+                    pass
+            time.sleep(delays[min(attempt, len(delays) - 1)])
+            continue
+        raise PlumbCommitError(
+            f"git read-tree {tree_ish} (indexed) failed: {stderr}"
+        )
 
 
 def _redact_credentials(text: str) -> str:
@@ -977,9 +1031,7 @@ def reconcile(
     if conflicting:
         raise PlumbCommitReconcileConflict(conflicting, remote_tip)
 
-    tmp_index_fd, tmp_index_path = tempfile.mkstemp(prefix="git_plumb_reconcile_index_")
-    os.close(tmp_index_fd)
-    os.unlink(tmp_index_path)
+    tmp_index_dir, tmp_index_path = _make_private_temp_index()
     try:
         env_index = {**os.environ, "GIT_INDEX_FILE": tmp_index_path}
 
@@ -996,7 +1048,8 @@ def reconcile(
             return result
 
         # Start from the new remote tip's tree...
-        _git_indexed(["read-tree", remote_tip])
+        _read_tree_with_retry(remote_tip, env_index=env_index, root=root,
+                              tmp_index_path=tmp_index_path)
 
         # ...then overlay exactly `files` from commit_sha's own tree, via
         # --cacheinfo (mode,sha,path triples) rather than `--index-info` on
@@ -1038,10 +1091,7 @@ def reconcile(
 
         tree_sha = _git_indexed(["write-tree"]).stdout.strip()
     finally:
-        try:
-            os.unlink(tmp_index_path)
-        except OSError:
-            pass
+        shutil.rmtree(tmp_index_dir, ignore_errors=True)
 
     original_message = _git(
         ["log", "-1", "--format=%B", commit_sha], repo_root=root,
@@ -1215,9 +1265,7 @@ def plumb_commit(
             file=sys.stderr,
         )
 
-    tmp_index_fd, tmp_index_path = tempfile.mkstemp(prefix="git_plumb_index_")
-    os.close(tmp_index_fd)
-    os.unlink(tmp_index_path)  # git read-tree wants a path that doesn't pre-exist as a real index
+    tmp_index_dir, tmp_index_path = _make_private_temp_index()
     try:
         env_index = {**os.environ, "GIT_INDEX_FILE": tmp_index_path}
 
@@ -1233,7 +1281,8 @@ def plumb_commit(
                 )
             return result
 
-        _git_indexed(["read-tree", head_sha])
+        _read_tree_with_retry(head_sha, env_index=env_index, root=root,
+                              tmp_index_path=tmp_index_path)
         # --pathspec-from-file avoids the OS argument-list-too-long limit
         # `git add -f <paths...>` is subject to for large file lists (same
         # class of failure found live in this repo's pre-commit
@@ -1334,10 +1383,7 @@ def plumb_commit(
 
         tree_sha = _git_indexed(["write-tree"]).stdout.strip()
     finally:
-        try:
-            os.unlink(tmp_index_path)
-        except OSError:
-            pass
+        shutil.rmtree(tmp_index_dir, ignore_errors=True)
 
     commit_sha = _git(
         ["commit-tree", tree_sha, "-p", head_sha, "-m", message], repo_root=root,
