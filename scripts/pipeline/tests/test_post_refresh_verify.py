@@ -828,6 +828,22 @@ class TestVerifyCheckStaleReferencePages:
         passed, failures = post_refresh_verify.verify("3d", "python")
         assert not any("Reference page for absent" in f for f in failures)
 
+    def test_api_overview_page_not_flagged(self, tmp_path):
+        """api-overview.md is a recognized hand-curated structural page (3d/
+        typescript, cells/python -- 70 locale copies combined), not a
+        per-class page; it must not be flagged as a stale reference page.
+        Found live 2026-08-31, 3d/typescript refresh_run: this page blocked
+        post_refresh_verify with 'Reference page for absent API class'."""
+        _setup_knowledge(tmp_path, "3d", "python", api_surface=[{"name": "PdfDocument"}])
+
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "api-overview.md").write_text("---\ntitle: API Overview\n---\n")
+        (ref_dir / "PdfDocument.md").write_text("---\ntitle: PdfDocument\n---\n")
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+        assert not any("Reference page for absent" in f for f in failures)
+
     def test_empty_api_surface_skips_check(self, tmp_path):
         """When api_surface.json has no classes, check 3 is silently skipped."""
         _setup_knowledge(tmp_path, "3d", "python", api_surface=[])

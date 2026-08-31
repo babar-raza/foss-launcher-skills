@@ -323,3 +323,80 @@ class TestJavaChainedTypeInference:
         assert "getB" in parts, f"getB must be in chain, got: {result}"
         assert "getC" in parts, f"getC must be in chain, got: {result}"
         assert "getD" in parts, f"getD must be in chain, got: {result}"
+
+
+# ---------------------------------------------------------------------------
+# Test: TypeScript `as` cast narrows a factory method's placeholder return type
+# (found live 2026-08-31, 3d/typescript refresh_run)
+# ---------------------------------------------------------------------------
+
+class TestTypeScriptAsCastNarrowing:
+    """mesh.createElement(...) declares return_type "VertexElement" (the
+    abstract base) in api_surface.json, but real TypeScript code must cast
+    to the concrete subtype to call subtype-only methods -- `as
+    VertexElementNormal` is not optional, it's what makes the example
+    compile. Before this fix, the cast was never read, so
+    normals.setData(...) was flagged as a phantom method on the
+    uncast/base-typed placeholder."""
+
+    def test_single_line_cast_overrides_method_assignment_placeholder(self):
+        var_types = {"mesh": "Mesh"}
+        _extract_from_code_line(
+            "const normals = mesh.createElement(x) as VertexElementNormal;",
+            1, var_types, "typescript",
+        )
+        assert var_types.get("normals") == "VertexElementNormal", (
+            f"Expected the `as` cast to win over the Mesh.createElement placeholder, "
+            f"got: {var_types.get('normals')}"
+        )
+
+    def test_multiline_cast_closes_open_factory_call(self):
+        """The real observed shape: the opening line assigns the placeholder,
+        several argument lines follow, and the closing paren + cast lands on
+        its own line."""
+        var_types = {"mesh": "Mesh"}
+        _extract_from_code_line(
+            "const normals = mesh.createElement(", 1, var_types, "typescript",
+        )
+        assert var_types.get("normals") == "Mesh.createElement"
+        _extract_from_code_line("    VertexElementType.NORMAL,", 2, var_types, "typescript")
+        _extract_from_code_line("    MappingMode.CONTROL_POINT,", 3, var_types, "typescript")
+        _extract_from_code_line(") as VertexElementNormal;", 4, var_types, "typescript")
+        assert var_types.get("normals") == "VertexElementNormal"
+
+    def test_cast_then_setdata_call_resolves_to_concrete_subtype(self):
+        """End-to-end: the resulting token for normals.setData(...) must be
+        attributed to the concrete cast type, not the factory's declared
+        base return type."""
+        md = _make_md(
+            "# Test\n\n"
+            "```typescript\n"
+            "const mesh = new Mesh();\n"
+            "const normals = mesh.createElement(\n"
+            "    VertexElementType.NORMAL,\n"
+            ") as VertexElementNormal;\n"
+            "normals.setData([1, 2, 3]);\n"
+            "```\n"
+        )
+        tokens = extract_tokens(md, "typescript")
+        found = [
+            t for t in tokens
+            if t.member_name == "setData"
+        ]
+        assert found, "normals.setData(...) must produce a token"
+        assert found[0].class_name == "VertexElementNormal", (
+            f"setData token must be attributed to the cast type "
+            f"VertexElementNormal, not the factory's base return_type "
+            f"placeholder, got: {found[0].class_name}"
+        )
+
+    def test_cast_does_not_affect_unrelated_platform(self):
+        """Python has no `as` cast syntax -- the pattern must not fire."""
+        var_types = {"mesh": "Mesh"}
+        _extract_from_code_line(
+            "normals = mesh.create_element(x)", 1, var_types, "python",
+        )
+        _extract_from_code_line(
+            ") as VertexElementNormal", 2, var_types, "python",
+        )
+        assert var_types.get("normals") != "VertexElementNormal"

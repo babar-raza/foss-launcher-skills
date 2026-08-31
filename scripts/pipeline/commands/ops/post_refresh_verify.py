@@ -687,10 +687,19 @@ def check_stale_reference_pages(
     if not ref_root.is_dir() or not valid_api_names:
         return True, []
 
+    # Recognized non-class structural reference pages -- hand-curated
+    # landing/overview pages that intentionally cite MANY classes in their
+    # own evidence.apis rather than documenting exactly one. "api-overview"
+    # is not a generator output (no batch_reference.py/site_planner.py hit
+    # produces it -- confirmed live 2026-08-31); it exists today under
+    # 3d/typescript and cells/python (70 locale copies combined) and was
+    # never previously caught by this check.
+    _STRUCTURAL_REF_STEMS = ("_index", "api-overview")
+
     stale_ref_pages = []
     for ref_page in sorted(ref_root.glob("*.md")):
         class_name = ref_page.stem.lower()
-        if class_name not in valid_api_names and class_name not in ("_index",):
+        if class_name not in valid_api_names and class_name not in _STRUCTURAL_REF_STEMS:
             # Skip namespace-disambiguated pages like Axis-ThreeD.md or Property-GLTF.md.
             # These are valid pages for a class whose base name IS in the api_surface,
             # generated with a namespace suffix to avoid slug collisions.

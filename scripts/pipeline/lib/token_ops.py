@@ -307,6 +307,20 @@ _PY_CONSTRUCTOR = re.compile(r"(?<!\w)(?<!::)([A-Z][A-Za-z0-9]+)\s*\(")
 # The generic _PY_ASSIGNMENT misses this because "new" is not followed by "(" directly.
 _CS_NEW_ASSIGNMENT = re.compile(r"(?:var\s+)?(\w+)\s*=\s*new\s+([A-Z]\w*)\s*\(")
 
+# TypeScript `as` type assertion, e.g. "const x = factory.method(...) as ConcreteType;" —
+# frequently closes a multi-line call whose OWN opening line already matched
+# _PY_METHOD_ASSIGNMENT with a factory method's declared (often abstract/base)
+# return_type, leaving var_types[x] pointed at the wrong class for every
+# subsequent .method() call in the example. `as` is the developer's explicit,
+# authoritative narrowing and always wins. Found live 2026-08-31,
+# 3d/typescript: `mesh.createElement(...) as VertexElementNormal;` followed
+# by `normals.setData(...)` -- setData() only exists on the concrete subtype,
+# not on Mesh.createElement's declared `VertexElement` base return type, so
+# the cast is not optional (real TypeScript would fail to compile without
+# it) -- yet audit.py still flagged setData() as unknown because the `as`
+# clause was never read.
+_TS_AS_CAST = re.compile(r"\)\s*as\s+([A-Z]\w*)\s*;?\s*$")
+
 # C++ scope-resolution enum access: ClassName::MEMBER_NAME
 # C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID).
 #
@@ -427,6 +441,21 @@ def _extract_from_code_line(line: str, line_no: int, var_types: dict, platform: 
             for step in _PY_METHOD_CHAIN_STEP.finditer(rest):
                 chain_parts.append(step.group(1))
             var_types[var_name] = ".".join(chain_parts)  # Placeholder for later resolution
+            var_types["__pending_cast_target__"] = var_name
+
+    # --- TypeScript `as` cast (may close the SAME line as the assignment
+    # above, or a LATER line ending a multi-line factory-call) ---
+    # Checked after the assignment-tracking block so a same-line
+    # "var = obj.method(x) as ConcreteType;" also overrides the placeholder
+    # _PY_METHOD_ASSIGNMENT just set via __pending_cast_target__, not only
+    # the later-line multi-line case.
+    if platform == "typescript":
+        mcast = _TS_AS_CAST.search(stripped)
+        if mcast:
+            pending_var = var_types.get("__pending_cast_target__")
+            if pending_var:
+                var_types[pending_var] = mcast.group(1)
+
     # Track var = obj.prop for property type inference (no parens) — only if not already matched as method call
     elif (m := _PY_PROP_ASSIGNMENT.search(stripped)):
         var_name, obj_name, member = m.group(1), m.group(2), m.group(3)
