@@ -1,76 +1,114 @@
 mission_authority:
-  mission_id: MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
-  mission_summary: 'Harden the TypeScript-platform content pipeline (scout/reachability/doc-capture/formats/snippets/reference-grouping/prose-purity/install-identity/completeness
-    diagnostics/wiring test, plus the structural layer D-1..D-8: capability contract, extraction fidelity
-    gate, language adapters, module assignment, tiered snippets, format-signal recogniser, product-registry
-    loader, launch execution contract, acceptance bindings) under S-99 pipeline-harden, then launch pdf/typescript
-    (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript) through the hardened /launch-product chain across
-    all 5 aspose.org subdomains to S-90 PUBLISH and READY TO SHIP, then (Phase I) remediate the two already-launched
-    TypeScript products, cells/typescript and 3d/typescript, through a run-bound refresh_run.py --mode
-    combined using the same hardened extractor, resolving cells'' active-vs-excluded liveness contradiction
-    and harvesting 3d''s hand-curated reference index into the generator, all traced through one taskcard.jsonl
-    and one evidence bundle.'
-  governing_plan_path: C:/Users/prora/.claude/plans/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md
+  mission_id: MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING
+  mission_summary: "Retroactive .supervisor/ PSL registration (bound 2026-08-31, this session)
+    of a stale-file-guard / git_plumb_commit.py / session-identity commit-path redesign that was
+    already fully executed via a parallel governance track (S-67 CODE classification, S-88 backlog,
+    section-6b gap escalation, and a .claude/plans/ hardened plan file) rather than mission_authority.py
+    open -- discovered only when explicitly asked to bind the already-executed plan into the PSL loop.
+    Original scope: two live defects (ST-095 AmbiguousSessionError at Tier-1 Step 34 under concurrency;
+    ST-096 a Windows cp1252 subprocess-decode bug making the stale-file guard silently exit 0 on
+    unmappable bytes) traced through three deep-reassessment passes to five root causes (RC0 session-scoped
+    window missed a real 2026-08-07 silent revert; RC1 locale-decoded text compare; RC2 four-way ambient
+    identity resolution; RC3 finding/crash/skip exit-code conflation; RC-1 the plumb tool's own commits
+    left real-index residue that porcelain commits swept into history as byte-exact reverts) and executed
+    as a 5-phase redesign (OID-based stale_file_regression lib, checkout_sync RC-1 source fix, session
+    lifecycle hooks, encoding-parity ratchet gate, CI-signal restoration) across 12 pushed commits."
+  governing_plan_path: C:/Users/prora/.claude/plans/plan-based-on-above-foamy-hartmanis.md
   in_scope_outcomes:
-  - 'TypeScript pipeline hardening: 12 G-TS gaps + 6 G-SK skill-doc gaps + structural D-1..D-8 layer,
-    all with dedicated regression tests, landed as C1-C4 commits + skill-doc commit'
-  - pdf/typescript registered, cloned, knowledge-bootstrapped (baseline + authoritative), and launched
-    across products/blog/docs/kb/reference on aspose.org, with websites.aspose.org sync
-  - pdf/typescript passes AGENTS.md §7d, truth-audit 0 FAIL, all 16 launch gates, S-90 PUBLISH verdict,
-    readiness scorecard READY TO SHIP
-  - cells/typescript liveness (active vs excluded) resolved with live evidence; both cells/typescript
-    and 3d/typescript remediated end-to-end via refresh_run --mode combined (re-scout, full reference
-    rebuild, body refresh, locale handoff, bound S-90 verdict)
-  - one taskcard.jsonl (schema 5f) as the sole durable status ledger; one evidence bundle at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
-    validated by validate_evidence_bundle.py
+  - "ST-095 fixed: single CommitContext resolved once and carried explicitly (session_ledger.resolve_context(),
+    pure, no ambient re-resolution); ambiguity degrades the ledger cross-check to a loud WARN instead of
+    raising, and never blocks or skips the stale-file check itself"
+  - "ST-096 fixed at the root: scripts/pipeline/lib/stale_file_regression.py compares git blob OIDs
+    (hash-object / cat-file --batch-check), never locale-decoded text; hostile-locale tests
+    (PYTHONUTF8=0, LC_ALL=C) prove detection under the exact conditions that silently passed before"
+  - "RC0 closed: the window is oldest(lookback boundary, session base) -- a 14-day/5000-commit
+    first-parent lookback -- instead of only commits-since-my-session-started; the replay reproduces
+    the missed 2026-08-07 revert (55586b637c) as a caught finding"
+  - "RC-1 closed at the source: scripts/pipeline/lib/checkout_sync.py performs scoped, clean-verified
+    index/worktree sync after every ref advance git_plumb_commit.py performs, so the tool stops
+    manufacturing the stale-index residue porcelain commits were sweeping into history; live residue
+    measured 42->0 with zero in-flight paths touched"
+  - "Session lifecycle hooks (SessionStart/SessionEnd/Stop) end the >=2-live-manifest steady state;
+    live-verified on this session's own resume (reopen + CLAUDE_ENV_FILE AGENT_SESSION_ID export +
+    residue report into context)"
+  - "Encoding reintroduction prevented: check_subprocess_encoding_parity.py ratchet gate (baseline
+    135->127 files after one burn-down batch) blocks any NEW text=True-without-encoding= subprocess
+    call, wired into pre-commit Step 38 and CI"
+  - "CI signal restored: both skill-governance.yml and content-governance-checks.yml conclude SUCCESS
+    on a real push (33369839689 / 33369839771) -- the first fully green pair since >=2026-08-25;
+    traced 3 root causes (ubuntu git-bash-resolver POSIX mismatch, pre-08-26-renumbering test asserts,
+    3 cross-session repo-state debts) and fixed all three"
+  - "Toolchain consistency closed: repo Python re-pinned 3.12->3.13 to match the drift every local
+    .venv had already made (18 pin sites across 16 workflow files + the pinned test assertion, one
+    commit); full pre-commit-audit.sh integration harness built (real script, real short-circuit proof,
+    sparse-checkout git worktree, its own disposable venv) closing the 2026-08-20 report's own
+    fake-3-line-Tier-1-scripts gap"
   out_of_scope_items:
-  - Building the full run-bound `launch` mode inside refresh_run.py (D-8c) — proposed as a shared card
-    with MT039 TC-MT039-12, not built in this mission
-  - Extending unreachable-class skipping (reference_filter policy) to python/rust products — scheduled
-    for their own future refresh runs
-  - Harvesting TSDoc @example blocks into snippets — deferred until a TS product has >=10 such blocks
-    (filed as a backlog follow-up)
-  - Publishing @asposefoss/pdf to npm — outside this repo's authority; package_registry entry records
-    published:false
-  - Non-English (locale) content generation for the NEW pdf/typescript launch — English-only per MT012/MT013
-    precedent; a /ht-translate-batch follow-up is filed
-  - Fixing MT039's own planning-sprint scope beyond the 4 refresh-chain gap cards (G5-04/06/12/22) this
-    mission needs for Phase I
+  - "wide-findings=block and the Windows-CI-leg continue-on-error:false flip -- deliberately soak-gated
+    to ~2026-09-13 (backlog R-04); CI signal is now trustworthy for judging the soak, but the elapsed-time
+    requirement itself is not something this or any session can shorten"
+  - "content/ lookback-window widening (TC-SG-08) -- decision made (WIDEN, 0 false positives across a
+    1,907-pair 14-day replay) but not yet flipped; bundled into the same R-04 flip commit by design"
+  - "strict-isolation default-on flip (TC-SG-10) -- its precondition (the full-script harness,
+    TC-SG-11) is now met, but the flip itself needs its own separate soak observation, not started"
+  - "The advisory .git/index lock decision (TC-SG-13) -- needs post-checkout_sync soak data not yet
+    available"
+  - "TC-SG-21 (final closeout exercise: full re-run of end-to-end verification 0-8 plus a live
+    two-session exercise) -- structurally sequenced after the R-04 flip, cannot run against pre-flip
+    behavior without testing the wrong configuration"
+  - "Burning the subprocess-encoding baseline fully to zero (only batch 1/N of ~5 done, TC-SG-15) --
+    P3, explicitly staged in small batches after a prior mechanical sweep this campaign double-added
+    kwargs once; remaining ~116 sites are backlog debt (ST-129), not a mission-blocking gap"
+  - "Hook stdout JSON/CRLF contract cleanup (TC-SG-16) -- P3; the encoding-safety half of its risk is
+    already covered once PYTHONUTF8=1 exports as part of the R-04 flip, leaving only cosmetic contract
+    cleanup; deliberately not touched this session (edits to live hooks gating every tool call in every
+    session carry asymmetric risk for P3 payoff -- see the TC-SG-11 incident note below for why that
+    caution is not theoretical)"
   mandatory_acceptance_criteria:
-  - Every G-TS/G-SK/D-1..D-8 taskcard reaches CLOSED with evidence_refs, or an explicit BLOCKED_EXTERNAL/SUPERSEDED/OUT_OF_SCOPE
-    disposition with evidence — none silently abandoned at TODO/IN_PROGRESS
-  - 'pdf/typescript: launch_gate.py reports all 16 gates PASS/SKIP/WARN with zero PASS->FAIL regressions
-    vs the S-99 baseline; S-90 final-verdict.md = PUBLISH; readiness_scorecard.py reports READY TO SHIP'
-  - 'Fleet regression: scout_fidelity calibration re-run over all 31 products shows every product equal-or-better
-    than its pre-mission baseline; extraction goldens for non-TS-opted platforms are byte-identical'
-  - 'cells/typescript and 3d/typescript: refresh_run.py manifests reach COMMITTED (or a recorded BLOCKED_EXTERNAL
-    with exact resume condition), content_coverage_comparison.newly_missing == [] for each, S-90 verdicts
-    bound (R-1) and current'
-  - A single evidence bundle exists at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
-    passes validate_evidence_bundle.py with exit 0, and its absolute path is reported in the final response
-  - mission_authority.py close --mission-id MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH run against the archived
-    snapshot once the mission reaches a terminal state
+  - "Every TC-SG-* taskcard in the governing plan reaches completed_verified, or an explicit
+    valid_deferred/follow_up disposition naming its exact calendar or human-decision gate -- none
+    silently abandoned mid-status"
+  - "ST-095 and ST-096 closed with commit SHAs and reproduced-under-hostile-conditions test evidence
+    (not just should-be-fixed) -- both true and already the case (commit f24e17bc96, TC-SG-04)"
+  - "Both governance CI workflows (skill-governance.yml, content-governance-checks.yml) conclude
+    SUCCESS on a real push, with run IDs recorded -- already true (33369839689 / 33369839771)"
+  - "The Anti-Overclaim discipline this plan itself defines is upheld for this retroactive registration
+    too: this mission summary must name every genuinely open item and its exact gate, not describe the
+    campaign as fully closed when TC-SG-07/10/13/21 remain calendar- or observation-gated"
   human_authority_boundaries:
-  - Any edit to AGENTS.md itself (§7d wording amendment is proposed in the mission doc, not applied to
-    AGENTS.md by the agent)
-  - KNOWLEDGE_QUALITY_OVERRIDE token issuance
+  - Shortening or waiving the ~2026-09-13 soak window for TC-SG-07's flips
+  - "Deciding TC-SG-11's own build authorization retroactively (already given verbally by the operator
+    2026-08-31, Authorize-now, during a direct TC-SG-07/11/12 tradeoffs discussion -- recorded here,
+    not re-litigated)"
+  - "The TC-SG-12 venv-pin direction (already decided by the operator: re-pin to 3.13, not rebuild
+    every .venv to 3.12 -- recorded here, not re-litigated)"
   conflicts_found:
-  - 'Checked live at mission open (2026-08-29, this session): mission_authority.py status --json -> locks:
-    [] (empty), sessions: no active session besides this one. Root MISSION_AUTHORITY.yaml was held by
-    MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL (open, mission_locked:false) with an archived snapshot
-    at reports/plan_state/MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL/mission_authority.yaml -- per
-    this repo''s established precedent (mission_authority.py close only updates the archive, never the
-    root projection), taking over the root slot here does not destroy MT037''s own archived state.'
-  - MT039-2026-08-28-PRODUCT-LAUNCH-REFRESH-EXECUTION (19 taskcards, all TODO, mission never opened via
-    mission_authority.py open) shares 5 cards with this mission by design (TC-MT039-13 liveness/exclusions
-    <-> TC-MT040-51; TC-MT039-11 extractor-hash <-> TC-MT040-48; TC-MT039-12 no-op state <-> TC-MT040-53/56;
-    TC-MT039-01/03/04/02 refresh-chain gaps <-> TC-MT040-52). Both mission ids are recorded in the shared
-    cards' source_finding; this mission fixes the 4 refresh-chain gaps and the extractor-hash/liveness
-    items directly (Decision 18a) rather than waiting on MT039.
-  - 'Working tree carries 804 dirty lines (42 files staged, 191 untracked) from other sessions at mission-open
-    time, none overlapping this mission''s allowed_paths (spot-checked: knowledge/pdf/net/**, keywords/*.json,
-    backlog/inbox.md, .claude/commands/{new-docs-index,new-products-page,page-update}.md, data/registry_exclusions.json,
-    data/seo_schema_a_migration_state.json) -- left untouched; all commits in this mission use git_plumb_commit.py''s
-    isolated temp index (never `git add`/`git commit` against the shared real index) so this foreign staged
-    state is never at risk of being swept into a mission commit.'
+  - "Checked live at mission open (2026-08-31, this session): mission_authority.py status --json ->
+    no active mission lock; mission_authority.py list shows the root slot last held by
+    MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH, status closed. Root MISSION_AUTHORITY.yaml was last
+    committed 2026-08-29 (mission-open time for MT040) and was not locally dirty -- safe to take over."
+  - "A genuine repo-wide mission-ID collision risk was found and avoided while minting this ID: two
+    independent, uncoordinated MT0NN numbering sequences exist in this repo -- (a) the general
+    mission_authority.py / plans/master-plan.md / .supervisor/state/ / reports/plan_state/ track,
+    highest prior use MT040; (b) the /readme-refresh skill's own entirely separate internal incident
+    sequence (docs/readme-refresh/plan-system-forensic-reconciliation.md), independently reaching
+    MT057. Neither counter is aware of the other; MT018 has already been issued twice historically
+    (PACKAGE-IDENTITY-COVERAGE and GOVERNANCE-EVIDENCE-TRUST-FORENSICS) as a direct result. MT058 was
+    chosen only after a repo-wide grep across both sequences (and every registry directory) confirmed
+    it unclaimed anywhere. This finding is real and worth its own backlog row for a future session --
+    not fixed here, out of this mission's scope."
+  - "Working tree carries dirty state from other concurrently active sessions at mission-open time
+    (observed throughout this session: readme-refresh hardening work, MT040 Phase I 3d/typescript
+    completion, ST-126/ST-154 refresh_run trailer-binding work, seo/ workflow files) -- none overlapping
+    this mission's allowed_paths; every commit this mission has made used git_plumb_commit.py's
+    isolated temp index, never the shared real index, so this foreign state was never at risk."
+  - "TC-SG-11 incident (recorded in full in the governing plan's own change log, not summarized away
+    here): while building the full-script integration harness, an early design linked a throwaway
+    git-worktree fixture's .venv to the real repo's shared .venv via an NTFS junction; git worktree
+    remove's internal deletion followed the junction and deleted most of the real, shared venv's
+    installed packages -- a genuine, live-impacting mistake affecting every concurrent session, not a
+    contained one. Recovered same-session (python -m venv + reinstall from all 8 subsystem requirements
+    files, verified via the full scripts/ci/tests/ suite: 1040 passed, 1 skipped, 0 failed, identical
+    to the pre-incident baseline); the shipped harness design never links to anything real as a direct,
+    permanent consequence."
   mission_locked: false
