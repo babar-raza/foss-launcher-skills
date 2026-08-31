@@ -84,6 +84,98 @@ def _isolate_knowledge_state_globally(tmp_path, monkeypatch):
     yield
 
 
+_REPO_ROOT_FOR_GIT_GUARD = _PIPELINE_ROOT.parent.parent
+
+
+def _snapshot_local_git_identity(repo_root=None) -> "tuple[str | None, str | None]":
+    """`repo_root` defaults to the real repo; overridable so the mechanism
+    itself can be exercised against an isolated fixture repo in tests
+    (see test_git_identity_guard.py) without ever touching the real shared
+    .git/config -- doing that for real would risk misattributing a genuine
+    commit from one of this repo's other concurrently active sessions during
+    the test's own brief window of intentional corruption, which is exactly
+    the class of incident this guard exists to prevent."""
+    import subprocess
+
+    root = repo_root if repo_root is not None else _REPO_ROOT_FOR_GIT_GUARD
+
+    def _get(key: str) -> "str | None":
+        result = subprocess.run(
+            ["git", "config", "--local", "--get", key],
+            cwd=str(root), capture_output=True,
+            text=True, encoding="utf-8", errors="replace",
+        )
+        return result.stdout.strip() if result.returncode == 0 else None
+
+    return _get("user.name"), _get("user.email")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _guard_shared_git_identity():
+    """2026-08-31 "Harness" identity incident: precommit_full_run_harness.py's
+    fixture ran bare `git config user.*` inside a `git worktree add` of THIS
+    repo. Per git's own documented worktree semantics, an unscoped `git
+    config` write inside any linked worktree resolves to the single SHARED
+    `$GIT_COMMON_DIR/config` -- the exact same file the main checkout and
+    every other worktree use -- not an isolated per-worktree file. That one
+    fixture silently overwrote the real repo's commit identity for the whole
+    worktree family, and nothing reverted it: 9 consecutive commits across
+    multiple concurrent sessions landed as "Harness <harness@test.local>"
+    before a human/agent noticed via a manual `git log` audit.
+
+    This is the same shape of incident `_isolate_knowledge_state_globally`
+    above already exists for (a test's side effect leaking into a real,
+    shared, persistent repo-root file) -- generalized here to git identity
+    instead of data/knowledge_state.json, because the first incident's fix
+    was never generalized past that one specific file. precommit_full_run_
+    harness.py has since been redesigned to never touch git config at all
+    (env-var-scoped identity only, see its own module docstring) -- this
+    fixture is the structural backstop for every *other*, including future,
+    test that might make the same mistake, not a substitute for fixing the
+    one that actually caused this.
+
+    Session-scoped (not per-test): snapshots the REAL repo's local git
+    identity once before the whole test session, and once after. If any test
+    changed it, restores the original values immediately (self-heals the
+    shared resource so the next session doesn't inherit corruption) and then
+    fails loudly, naming the violation explicitly rather than passing
+    silently -- catching this class of bug in the same run it happens,
+    instead of nine commits later.
+    """
+    before = _snapshot_local_git_identity()
+    yield
+    after = _snapshot_local_git_identity()
+    if after == before:
+        return
+
+    import subprocess
+
+    def _restore(key: str, value: "str | None") -> None:
+        if value is None:
+            subprocess.run(
+                ["git", "config", "--local", "--unset", key],
+                cwd=str(_REPO_ROOT_FOR_GIT_GUARD), capture_output=True,
+                text=True, encoding="utf-8", errors="replace",
+            )
+        else:
+            subprocess.run(
+                ["git", "config", "--local", key, value],
+                cwd=str(_REPO_ROOT_FOR_GIT_GUARD), capture_output=True,
+                text=True, encoding="utf-8", errors="replace",
+            )
+
+    _restore("user.name", before[0])
+    _restore("user.email", before[1])
+    pytest.fail(
+        "TEST ISOLATION VIOLATION: the real repo's local git identity changed "
+        f"during this test session (before={before!r}, after={after!r}). "
+        "Some test wrote to the SHARED .git/config -- restored it to the "
+        "pre-session value, but find and fix the offending test; do not "
+        "rely on this fixture to keep silently healing it.",
+        pytrace=False,
+    )
+
+
 @pytest.fixture
 def fake_knowledge(tmp_path):
     """A Knowledge instance loaded from the synthetic fixtures in tests/fixtures/.

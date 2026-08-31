@@ -1706,4 +1706,54 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+# Step 39 (2026-08-31, "Harness <harness@test.local>" identity incident):
+# every commit into this repo must be authored as Babar Raza
+# <babar.raza@aspose.com> -- the accountable human owner of this repo,
+# regardless of which agent actually did the work (that goes in the
+# Co-authored-by trailer instead, checked separately by
+# scripts/commit-msg-skills.sh). Checked via `git var GIT_AUTHOR_IDENT`,
+# which resolves the EXACT identity the impending commit will actually use
+# (env override > local config > global config, the real git precedence),
+# not just a config-file read -- so this catches a wrong identity regardless
+# of cause: a stale local .git/config override (the actual root cause found
+# live this same day -- see scripts/pipeline/tests/precommit_full_run_
+# harness.py's module docstring for the full mechanism: a test fixture's
+# bare `git config user.*` inside a `git worktree add` of this repo silently
+# wrote to the SHARED common config and went undetected for 9 consecutive
+# commits), a fresh machine with no global identity set, or any other cause
+# not yet seen. Runs unconditionally (not gated on staged content/ files) --
+# identity correctness applies to every commit, content or infra.
+# ---------------------------------------------------------------------------
+_pc_step_start "author identity"
+_EXPECTED_AUTHOR_NAME="Babar Raza"
+_EXPECTED_AUTHOR_EMAIL="babar.raza@aspose.com"
+_author_ident=$(git var GIT_AUTHOR_IDENT 2>/dev/null || true)
+if [[ "$_author_ident" =~ ^(.*)" <"(.*)"> "[0-9]+" "[+-][0-9]{4}$ ]]; then
+    _author_name="${BASH_REMATCH[1]}"
+    _author_email="${BASH_REMATCH[2]}"
+    if [ "$_author_name" != "$_EXPECTED_AUTHOR_NAME" ] || [ "$_author_email" != "$_EXPECTED_AUTHOR_EMAIL" ]; then
+        echo ""
+        echo "BLOCKED: Commit author identity is wrong."
+        echo "REASON:  Resolved identity is '$_author_name <$_author_email>', expected"
+        echo "         '$_EXPECTED_AUTHOR_NAME <$_EXPECTED_AUTHOR_EMAIL>'."
+        echo "FIX:     Check for a stale local git config override:"
+        echo "           git config --local --get user.name"
+        echo "           git config --local --get user.email"
+        echo "         Unset it if present (falls back to the correct global identity):"
+        echo "           git config --local --unset user.name"
+        echo "           git config --local --unset user.email"
+        echo "         Or set it explicitly:"
+        echo "           git config --local user.name \"$_EXPECTED_AUTHOR_NAME\""
+        echo "           git config --local user.email \"$_EXPECTED_AUTHOR_EMAIL\""
+        echo "DOC:     CLAUDE.md (Git Push section)"
+        echo ""
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+else
+    echo "[author identity] WARN: could not parse 'git var GIT_AUTHOR_IDENT' output ('$_author_ident') — skipping check." >&2
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

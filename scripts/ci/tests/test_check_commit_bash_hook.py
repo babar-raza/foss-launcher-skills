@@ -56,7 +56,10 @@ def _run(
     session_ctxs: tuple = (),
     claude_code_session_id: str | None = None,
     codex_thread_id: str | None = None,
-) -> int:
+    init_git_repo: bool = False,
+    author_env: "dict[str, str] | None" = None,
+    return_output: bool = False,
+):
     """Invoke the hook against an isolated root; return exit code.
 
     active_skill: _SENTINEL/None = no legacy ACTIVE.json; "S-76" etc. writes one.
@@ -72,6 +75,18 @@ def _run(
         root = Path(tmp)
         ctx_dir = root / "reports" / "skill-context"
         ctx_dir.mkdir(parents=True)
+
+        if init_git_repo:
+            # Real repo at the override root, so `git -C "$REPO_ROOT" var
+            # GIT_AUTHOR_IDENT` (the identity backstop's own resolution
+            # call) actually succeeds instead of fail-opening on "not a git
+            # repository" -- needed to test the backstop itself, distinct
+            # from every other test in this file which deliberately keeps
+            # the override root a non-repo to stay hermetic against it.
+            subprocess.run(
+                ["git", "init", "-q", "-b", "main", str(root)],
+                capture_output=True, text=True, encoding="utf-8", errors="replace",
+            )
 
         if active_skill not in (_SENTINEL, None):
             record: dict = {"skill_id": active_skill, "scope_patterns": ["*"]}
@@ -110,6 +125,13 @@ def _run(
         else:
             env.pop("SKIP_COMMIT_BASH_CHECK", None)
 
+        # Keep hermetic against a live agent shell's exported identity, same
+        # reasoning as AGENT_SESSION_ID/CLAUDE_CODE_SESSION_ID above.
+        for _key in ("GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"):
+            env.pop(_key, None)
+        if author_env:
+            env.update(author_env)
+
         result = subprocess.run(
             [_BASH, _HOOK_REL],
             env=env,
@@ -117,7 +139,7 @@ def _run(
             capture_output=True,
             text=True,
         )
-        return result.returncode
+        return result if return_output else result.returncode
 
 
 def _run_empty() -> int:
@@ -260,6 +282,60 @@ def test_cb_10_git_commit_with_s76_allowed():
 def test_cb_11_git_commit_amend_with_s76_allowed():
     """CB-11: git commit --amend with S-76 context → exit 0."""
     assert _run("git commit --amend", active_skill="S-76") == 0
+
+
+# ---------------------------------------------------------------------------
+# Author identity backstop (2026-08-31 "Harness <harness@test.local>"
+# incident) -- independent of, and evaluated before, the S-76 check above.
+# ---------------------------------------------------------------------------
+
+def test_cb_identity_wrong_author_blocked_even_with_live_s76():
+    """A wrong git author identity blocks the commit even when S-76 context
+    is live -- the identity backstop is independent of, and takes priority
+    over, the S-76 liveness check."""
+    result = _run(
+        'git commit -m "test"',
+        active_skill="S-76",
+        init_git_repo=True,
+        author_env={
+            "GIT_AUTHOR_NAME": "Harness",
+            "GIT_AUTHOR_EMAIL": "harness@test.local",
+            "GIT_COMMITTER_NAME": "Harness",
+            "GIT_COMMITTER_EMAIL": "harness@test.local",
+        },
+        return_output=True,
+    )
+    assert result.returncode == 2
+    assert "git commit author identity is wrong" in result.stderr
+    assert "Harness <harness@test.local>" in result.stderr
+
+
+def test_cb_identity_correct_author_with_s76_allowed():
+    """The identity backstop must not false-positive-block a genuinely
+    correct identity -- same S-76-live scenario as CB-10, plus a real repo
+    at the override root so the backstop's own git call actually runs
+    (rather than fail-opening), now resolving to the correct identity."""
+    result = _run(
+        'git commit -m "test"',
+        active_skill="S-76",
+        init_git_repo=True,
+        author_env={
+            "GIT_AUTHOR_NAME": "Babar Raza",
+            "GIT_AUTHOR_EMAIL": "babar.raza@aspose.com",
+            "GIT_COMMITTER_NAME": "Babar Raza",
+            "GIT_COMMITTER_EMAIL": "babar.raza@aspose.com",
+        },
+    )
+    assert result == 0
+
+
+def test_cb_identity_no_git_repo_at_root_fails_open():
+    """No regression for every other test in this file: when the override
+    root is NOT a git repo (the default -- init_git_repo=False), the
+    backstop's own `git -C ... var GIT_AUTHOR_IDENT` call fails, and it must
+    fail OPEN (not block), falling through to the ordinary S-76 check."""
+    assert _run('git commit -m "test"', active_skill="S-76") == 0
+    assert _run('git commit -m "test"') == 2  # blocked by S-76 absence, not identity
 
 
 # ---------------------------------------------------------------------------

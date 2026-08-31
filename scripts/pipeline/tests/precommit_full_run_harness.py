@@ -73,6 +73,17 @@ import git_plumb_commit as gpc  # noqa: E402,F401  (guard shares its resolver)
 
 from _git_bash_guard import require_git_bash  # noqa: E402
 
+# Fixture-scoped git identity, supplied via env vars only (never written to any
+# config file, shared or per-worktree) -- see the 2026-08-31 "Harness" identity
+# incident: an earlier version of this file called bare `git config user.*`
+# inside the worktree below, which (per git's own documented worktree
+# semantics) resolves to the SHARED common .git/config, not an isolated file,
+# and silently corrupted every subsequent commit's author across the whole
+# repo/worktree family until caught. Env vars take precedence over any config
+# file and are scoped to exactly the one subprocess call that needs them.
+_CORRECT_AUTHOR_NAME = "Babar Raza"
+_CORRECT_AUTHOR_EMAIL = "babar.raza@aspose.com"
+
 # Sparse-checkout cone: infrastructure every step's self-location or
 # real-repo-state check needs, plus one small content slice (~9 files) so
 # whole-tree content scans see a genuine, non-empty content/ directory
@@ -111,10 +122,20 @@ class FullRunFixture:
         blocks `git reset`/`git clean` for THIS session's interactive
         commands does not gate a test's own subprocess calls; the fixture
         worktree is disposable throwaway state by construction, exactly
-        like every other fixture repo in this test suite)."""
+        like every other fixture repo in this test suite).
+
+        Order matters and was previously wrong (found live 2026-08-31 while
+        adding a new test to this suite): `git checkout -- .` restores
+        tracked files from the INDEX, not HEAD -- running it before
+        unstaging is a no-op on anything already staged. And `git clean -fd`
+        only removes files git doesn't currently track *in the index* --
+        running it before unstaging leaves a `git add`ed new file (still
+        tracked-in-index at that point) sitting untouched, so it silently
+        leaks into whatever test runs next. Unstage FIRST so both later
+        steps operate against an index that already matches HEAD."""
+        _git("reset", cwd=self.worktree, check=False)  # unstage, keep worktree
         _git("checkout", "--", ".", cwd=self.worktree, check=False)
         _git("clean", "-fd", "--", "content", "reports", cwd=self.worktree, check=False)
-        _git("reset", cwd=self.worktree, check=False)  # unstage, keep worktree
 
     def stage_file(self, rel_path: str, content: str, *, force: bool = False) -> None:
         """`force=True` mirrors `git add -f` -- needed for paths under a
@@ -135,7 +156,13 @@ class FullRunFixture:
     def run_precommit(self, *, extra_env: "dict[str, str] | None" = None) -> subprocess.CompletedProcess:
         """Run the REAL, unmodified scripts/pre-commit-audit.sh with cwd
         set to this worktree -- its own HEAD/index, its own disposable
-        .venv, zero interaction with the real repo's git state."""
+        .venv, zero interaction with the real repo's git state.
+
+        Author/committer identity is supplied purely via env vars (never a
+        config file) so it can never leak into the shared repo config --
+        pass `extra_env` with different GIT_AUTHOR_*/GIT_COMMITTER_* values
+        to exercise a wrong-identity scenario (e.g. for a commit-time
+        identity-gate test) without touching this fixture at all."""
         bash = require_git_bash()  # skip on POSIX, fail on Windows (TC-SG-20a)
         env = {**os.environ}
         env.pop("GIT_DIR", None)
@@ -143,6 +170,10 @@ class FullRunFixture:
         env.pop("PC_AUDIT_NO_MUTATE", None)
         env.pop("PC_AUDIT_SESSION_ID", None)
         env.pop("PC_AUDIT_BASE_SHA", None)
+        env["GIT_AUTHOR_NAME"] = _CORRECT_AUTHOR_NAME
+        env["GIT_AUTHOR_EMAIL"] = _CORRECT_AUTHOR_EMAIL
+        env["GIT_COMMITTER_NAME"] = _CORRECT_AUTHOR_NAME
+        env["GIT_COMMITTER_EMAIL"] = _CORRECT_AUTHOR_EMAIL
         if extra_env:
             env.update(extra_env)
         return subprocess.run(
@@ -164,8 +195,9 @@ def _build_fixture(base_dir: Path) -> FullRunFixture:
     _git("sparse-checkout", "init", "--cone", cwd=worktree)
     _git("sparse-checkout", "set", *_SPARSE_CONE, cwd=worktree)
     _git("checkout", cwd=worktree)
-    _git("config", "user.email", "harness@test.local", cwd=worktree)
-    _git("config", "user.name", "Harness", cwd=worktree)
+    # Deliberately no `git config user.*` here -- see the module-level
+    # _CORRECT_AUTHOR_NAME/_EMAIL comment: identity is supplied via env vars
+    # in run_precommit() instead, never written to any config file.
 
     # SAFETY: built DIRECTLY inside the worktree, never linked in -- see
     # the module docstring's incident note. Do not change this to a

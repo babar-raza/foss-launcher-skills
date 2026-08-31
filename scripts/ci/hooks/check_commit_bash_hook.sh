@@ -164,6 +164,38 @@ if [ "$_found_commit" != "true" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# git commit detected — author identity backstop (2026-08-31, "Harness
+# <harness@test.local>" identity incident). Independent of, and in addition
+# to, the S-76 check below: scripts/pre-commit-audit.sh (Step 39) already
+# blocks a wrong commit author identity for a normal `git commit`, but that
+# only fires when core.hooksPath is correctly wired AND the caller didn't
+# pass `--no-verify` (git hooks honor that flag; this PreToolUse hook runs
+# before git ever executes, so it doesn't). Same expected identity, same
+# resolution method (`git var GIT_AUTHOR_IDENT`, which honors the real git
+# precedence — env override > local config > global config — so it's
+# accurate regardless of cause), independent enforcement point.
+#
+# Fail-open if git itself errors — matches this file's existing fail-open
+# philosophy for infra failures, and keeps the CHECK_COMMIT_HOOK_ROOT_OVERRIDE
+# test seam (a fake root with no real .git) from spuriously blocking tests.
+# ---------------------------------------------------------------------------
+_EXPECTED_AUTHOR_NAME="Babar Raza"
+_EXPECTED_AUTHOR_EMAIL="babar.raza@aspose.com"
+_author_ident=$(git -C "$REPO_ROOT" var GIT_AUTHOR_IDENT 2>/dev/null) || _author_ident=""
+if [ -n "$_author_ident" ] && [[ "$_author_ident" =~ ^(.*)" <"(.*)"> "[0-9]+" "[+-][0-9]{4}$ ]]; then
+    _author_name="${BASH_REMATCH[1]}"
+    _author_email="${BASH_REMATCH[2]}"
+    if [ "$_author_name" != "$_EXPECTED_AUTHOR_NAME" ] || [ "$_author_email" != "$_EXPECTED_AUTHOR_EMAIL" ]; then
+        _gov_block "Bash denied — git commit author identity is wrong." \
+            "Resolved identity is '$_author_name <$_author_email>', expected '$_EXPECTED_AUTHOR_NAME <$_EXPECTED_AUTHOR_EMAIL>'." \
+            "Check for a stale local git config override (git config --local --get user.name / user.email) and unset it (git config --local --unset user.name / user.email), or set it explicitly to the correct identity." \
+            "N/A — no operator bypass for this check; fix the identity instead." \
+            "CLAUDE.md (Git Push section)" \
+            '{"violation_type": "wrong_commit_author_identity", "unblock_condition": "git config --local --unset user.name/user.email, or set them to the correct identity"}'
+    fi
+fi
+
+# ---------------------------------------------------------------------------
 # git commit detected — session-identity-aware S-76 check (HARDEN-A3)
 #
 # The old check answered only "is SOME S-76 context active anywhere" — with

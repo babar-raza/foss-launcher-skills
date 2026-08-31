@@ -70,6 +70,31 @@ def test_real_violation_short_circuits_and_blocks(full_run_fixture):
     assert "Step 38" not in summary
 
 
+def test_wrong_author_identity_blocks_at_the_identity_step(full_run_fixture):
+    """2026-08-31 "Harness" identity incident regression test: a wrong git
+    author identity (forced here via extra_env, the same seam a real stale
+    .git/config override would produce via ambient config instead) must
+    BLOCK at the author-identity step, with no staged changes needed at all
+    -- this check is unconditional, unlike most other steps."""
+    fixture = full_run_fixture
+    fixture.reset()
+
+    result = fixture.run_precommit(extra_env={
+        "GIT_AUTHOR_NAME": "Harness",
+        "GIT_AUTHOR_EMAIL": "harness@test.local",
+        "GIT_COMMITTER_NAME": "Harness",
+        "GIT_COMMITTER_EMAIL": "harness@test.local",
+    })
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "BLOCKED: Commit author identity is wrong." in result.stdout
+    assert "Harness <harness@test.local>" in result.stdout
+    summary_start = result.stdout.index("=== Pre-commit Summary ===")
+    summary = result.stdout[summary_start:]
+    assert "author identity" in summary
+    assert "FAIL" in summary
+
+
 def test_reports_boundary_violation_blocks_at_step1_not_step4(full_run_fixture):
     """A DIFFERENT real violation (a staged reports/ file, Step 1) must
     block at ITS OWN step, not Step 4 -- proving the harness distinguishes
