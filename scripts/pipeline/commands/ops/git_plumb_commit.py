@@ -103,6 +103,7 @@ if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
 
 import session_ledger  # noqa: E402
+import refresh_run as _refresh_run  # noqa: E402
 from commands.governance import override_manager  # noqa: E402
 from commands.governance import path_guard  # noqa: E402
 from lib import checkout_sync  # noqa: E402
@@ -1583,6 +1584,47 @@ def _consume_relied_tokens(
                   file=sys.stderr)
 
 
+class RefreshRunTrailerError(RuntimeError):
+    """Raised by --refresh-run when the cited run cannot supply trailers yet."""
+
+
+def _stamp_refresh_run_trailers(message: str, family: str, platform: str, run_id: str) -> str:
+    """Return `message` with the run's Refresh-Run/Refresh-Base/Refresh-Source-SHA
+    trailers appended, unless they are already present and correct.
+
+    ST-154: `bind_commit()` requires a commit's OWN message to carry these 3
+    trailers as its final paragraph (`refresh_run._commit_trailer_values`).
+    Before this flag existed, a session following the documented
+    `refresh_run.py start -> run -> verify -> [commit] -> bind-commit`
+    procedure had to hand-author them, and forgetting to do so left a
+    published, trailer-less commit with no forward-fix path once pushed
+    (ST-126 -- amending is forbidden, an empty follow-up commit is rejected
+    for having no changed paths). This makes the correct trailers the
+    default outcome of citing --refresh-run, not something to remember by
+    hand. Idempotent: a message that already carries the exact required
+    trailers is returned unchanged, so re-running the same commit build
+    (e.g. after a retry) never double-stamps.
+    """
+    manifest = _refresh_run._load_manifest(family, platform, run_id)
+    base_commit_sha = manifest.get("base_commit_sha")
+    target_source_sha = manifest.get("target_source_sha")
+    if not base_commit_sha or not target_source_sha:
+        raise RefreshRunTrailerError(
+            f"Run {family}/{platform}/{run_id} has no target_source_sha pinned yet "
+            "-- run 'refresh_run.py verify' before committing with --refresh-run."
+        )
+    required = {
+        "Refresh-Run": run_id,
+        "Refresh-Base": base_commit_sha,
+        "Refresh-Source-SHA": target_source_sha,
+    }
+    existing = _refresh_run._commit_trailer_values(message)
+    if all(existing.get(key) == [value] for key, value in required.items()):
+        return message
+    trailer_block = "\n".join(f"{key}: {value}" for key, value in required.items())
+    return message.rstrip("\n") + "\n\n" + trailer_block + "\n"
+
+
 def main(argv: "list[str] | None" = None) -> int:
     # TC-SG-18 (found live during this plan's own Phase 0a dogfood commit,
     # 2026-08-30): main() crashed with UnicodeEncodeError while PRINTING
@@ -1652,6 +1694,16 @@ def main(argv: "list[str] | None" = None) -> int:
                         help="Paths in --files that are intentionally .gitignore-matched "
                              "(e.g. a legitimate override precedent) -- silences the "
                              "warning for exactly these paths, not the whole run.")
+    parser.add_argument("--refresh-run", nargs=3, default=None,
+                        metavar=("FAMILY", "PLATFORM", "RUN_ID"), dest="refresh_run",
+                        help="Automatically append this refresh_run's required "
+                             "Refresh-Run/Refresh-Base/Refresh-Source-SHA trailers "
+                             "to --message/--message-file before committing (ST-154 "
+                             "-- makes trailer attachment preventive, not reactive; "
+                             "see refresh_run_bind_recovery.py for recovering an "
+                             "already-pushed commit that skipped this flag). Errors "
+                             "if the run has not reached 'verify' yet (no "
+                             "target_source_sha pinned).")
     args = parser.parse_args(argv)
 
     files = list(args.files) if args.files else []
@@ -1678,6 +1730,14 @@ def main(argv: "list[str] | None" = None) -> int:
     else:
         print("ERROR: --message or --message-file is required", file=sys.stderr)
         return 2
+
+    if args.refresh_run:
+        rr_family, rr_platform, rr_run_id = args.refresh_run
+        try:
+            message = _stamp_refresh_run_trailers(message, rr_family, rr_platform, rr_run_id)
+        except (RefreshRunTrailerError, _refresh_run.RefreshRunError) as exc:
+            print(f"ERROR: --refresh-run trailer stamping failed: {exc}", file=sys.stderr)
+            return 2
 
     try:
         result = plumb_commit(
