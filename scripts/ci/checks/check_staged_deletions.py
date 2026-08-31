@@ -250,6 +250,7 @@ def _get_staged_deletions() -> "list[DeletedPath]":
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-status", "--diff-filter=DR"],
             cwd=REPO_ROOT, capture_output=True, text=True, timeout=15,
+            encoding="utf-8", errors="replace",
         )
     except (subprocess.TimeoutExpired, OSError):
         return []
@@ -264,6 +265,7 @@ def _get_pr_deletions(base_ref: str) -> "list[DeletedPath]":
             ["git", "diff", "--name-status", "--diff-filter=DR",
              f"{base_ref}...HEAD"],
             cwd=REPO_ROOT, capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
         )
     except (subprocess.TimeoutExpired, OSError):
         return []

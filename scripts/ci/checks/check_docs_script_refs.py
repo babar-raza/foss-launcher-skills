@@ -77,6 +77,7 @@ def get_tracked_doc_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "--", "*.md", "*.yml", "*.yaml", "*.json"],
         capture_output=True, text=True, cwd=REPO_ROOT,
+        encoding="utf-8", errors="replace",
     )
     paths = []
     for line in result.stdout.strip().splitlines():

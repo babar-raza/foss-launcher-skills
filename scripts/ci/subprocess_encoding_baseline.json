@@ -1,17 +1,5 @@
 {
   "files": {
-    "scripts/ci/checks/check_docs_script_refs.py": 1,
-    "scripts/ci/checks/check_go_code_blocks.py": 1,
-    "scripts/ci/checks/check_monkeypatch_lint.py": 1,
-    "scripts/ci/checks/check_onboarding_integrity.py": 1,
-    "scripts/ci/checks/check_python_placement.py": 2,
-    "scripts/ci/checks/check_root_docs_truth.py": 1,
-    "scripts/ci/checks/check_script_skill_sync.py": 2,
-    "scripts/ci/checks/check_staged_deletions.py": 2,
-    "scripts/ci/checks/check_upstream_drift.py": 5,
-    "scripts/ci/checks/find_all_fail_files.py": 2,
-    "scripts/ci/checks/repo_doctor.py": 1,
-    "scripts/ci/checks/venv_doctor.py": 1,
     "scripts/ci/hooks/check_add_bash_hook.sh": 1,
     "scripts/ci/hooks/check_commit_bash_hook.sh": 1,
     "scripts/ci/hooks/check_content_edit_hook.sh": 1,

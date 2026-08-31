@@ -103,6 +103,8 @@ def _staged_py_files() -> list[str]:
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
         paths = [p.strip() for p in result.stdout.splitlines() if p.strip().endswith(".py")]
@@ -119,6 +121,8 @@ def _newly_added_staged_files() -> set[str]:
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
         return {p.strip() for p in result.stdout.splitlines() if p.strip()}

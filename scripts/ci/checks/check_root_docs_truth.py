@@ -69,6 +69,7 @@ def _staged_files() -> set[str]:
     result = subprocess.run(
         ["git", "diff", "--cached", "--name-only"],
         cwd=str(REPO_ROOT), capture_output=True, text=True,
+        encoding="utf-8", errors="replace",
     )
     return set(result.stdout.splitlines())
 

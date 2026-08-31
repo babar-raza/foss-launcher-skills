@@ -486,6 +486,7 @@ def get_staged_test_files() -> list[Path]:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
             capture_output=True, text=True, check=True,
+            encoding="utf-8", errors="replace",
         )
         paths = []
         for line in result.stdout.splitlines():

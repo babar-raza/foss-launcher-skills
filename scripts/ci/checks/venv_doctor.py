@@ -66,6 +66,7 @@ def run() -> dict:
         result = subprocess.run(
             [sys.executable, "-m", "pip", "--version"],
             capture_output=True, text=True, timeout=10,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode == 0:
             pip_available = True

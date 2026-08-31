@@ -60,6 +60,8 @@ def get_changed_files(base: str) -> list[str]:
             ["git", "diff", "--name-only", f"{base}...HEAD"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             cwd=_REPO_ROOT,
         )
@@ -70,6 +72,8 @@ def get_changed_files(base: str) -> list[str]:
             ["git", "diff", "--name-only", "HEAD~1", "HEAD"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             cwd=_REPO_ROOT,
         )
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]

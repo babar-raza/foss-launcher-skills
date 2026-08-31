@@ -290,6 +290,8 @@ def _vet_block(
                 [go_exe, "vet", "./..."],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 cwd=str(tmp),
                 timeout=30,
                 env=vet_env,

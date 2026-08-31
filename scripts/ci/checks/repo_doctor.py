@@ -44,7 +44,10 @@ STATUS_ORDER = {"READY": 0, "WARNING": 1, "EXTERNAL_UNAVAILABLE": 1, "BLOCKED": 
 
 def _run(cmd: list[str], timeout: int = 10) -> "subprocess.CompletedProcess | None":
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, cwd=REPO_ROOT)
+        return subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, cwd=REPO_ROOT,
+            encoding="utf-8", errors="replace",
+        )
     except (OSError, subprocess.TimeoutExpired):
         return None
 

@@ -82,6 +82,7 @@ def _gh_api(endpoint: str, *, runner: CommandRunner = subprocess.run) -> "str | 
         result = runner(
             ["gh", "api", endpoint, "--jq", ".sha"],
             capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode == 0:
             return result.stdout.strip()
@@ -96,6 +97,7 @@ def _gh_compare(owner_repo: str, base: str, head: str, *, runner: CommandRunner 
             ["gh", "api", f"repos/{owner_repo}/compare/{base}...{head}",
              "--jq", "[.files[].filename] | join(\"\\n\")"],
             capture_output=True, text=True, timeout=60,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode != 0:
             return "MEDIUM"
@@ -214,6 +216,7 @@ def find_existing_issue(family: str, platform: str, *, repo: str, runner: Comman
              "--label", ISSUE_LABEL, "--label", _product_label(family, platform),
              "--state", "open", "--json", "number", "--limit", "1"],
             capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode != 0:
             return None
@@ -267,6 +270,7 @@ def file_or_update_issue(
             result = runner(
                 ["gh", "issue", "comment", str(existing), "--repo", repo, "--body", body],
                 capture_output=True, text=True, timeout=30,
+                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0:
                 return {"action": "commented", "issue_number": existing}
@@ -280,6 +284,7 @@ def file_or_update_issue(
             ["gh", "issue", "create", "--repo", repo, "--title", title, "--body", body,
              "--label", ISSUE_LABEL, "--label", _product_label(family, platform)],
             capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode == 0:
             # gh issue create prints the issue URL; extract the trailing number.

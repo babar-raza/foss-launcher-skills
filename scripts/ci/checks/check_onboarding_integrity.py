@@ -123,6 +123,8 @@ def check_quickstart_tracked() -> None:
         ["git", "ls-files", "docs/QUICKSTART.md"],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=REPO_ROOT,
     )
     _check(
