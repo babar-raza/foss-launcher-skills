@@ -1625,6 +1625,86 @@ def _stamp_refresh_run_trailers(message: str, family: str, platform: str, run_id
     return message.rstrip("\n") + "\n\n" + trailer_block + "\n"
 
 
+class CommitProvenanceError(RuntimeError):
+    """Raised when a commit's message fails mandatory provenance checks
+    (Skills invoked / Co-authored-by) that scripts/commit-msg-skills.sh
+    would otherwise enforce for a porcelain commit -- except commit-tree
+    never fires git hooks, so THIS tool is the only enforcement point for
+    anything it builds. Found live 2026-08-31: commit 833d9997e6 (built by
+    this exact tool, --skills S-88 S-84) shipped to origin/main with
+    neither a "Skills invoked:" line nor a Co-authored-by trailer --
+    nothing had ever checked the message text itself."""
+
+
+_SKILLS_INVOKED_RE = re.compile(r"(?i)skills?\s*invoked")
+_COAUTHOR_RE = re.compile(r"(?im)^[ \t]*co-authored?-by:\s*(.+?)\s*$")
+
+
+def _ensure_commit_provenance_trailers(
+    message: str, skills: "list[str]", co_author: "str | None",
+) -> str:
+    """Return `message` with a "Skills invoked:" line guaranteed present and
+    a Co-authored-by trailer guaranteed present, or raise CommitProvenanceError.
+
+    Mirrors _stamp_refresh_run_trailers's ST-154 pattern (preventive, not
+    reactive) for a more fundamental gap: this tool bypasses
+    scripts/commit-msg-skills.sh entirely (commit-tree never fires git
+    hooks), so that hook's own checks NEVER run for anything built here --
+    they must be enforced in-process instead.
+
+    "Skills invoked:" is always auto-appended when missing, from `skills`
+    -- the exact same data already used to build this commit's retroactive
+    skill-run record, so the two can never drift (same regex commit-msg-
+    skills.sh itself uses: 'skills?\\s*invoked', no anchoring, no colon
+    required, so an already-present line in any of its accepted shapes is
+    detected and left alone rather than duplicated).
+
+    Co-authored-by is different: this tool cannot safely guess which agent
+    did the work, so it is auto-appended ONLY when the caller supplies
+    `co_author` explicitly; otherwise the message must already carry
+    exactly one (same "one agent, one trailer" rule commit-msg-skills.sh
+    enforces for porcelain commits) or the commit is refused outright.
+    """
+    if not _SKILLS_INVOKED_RE.search(message):
+        skills_line = f"Skills invoked: [{', '.join(skills)}]"
+        message = message.rstrip("\n") + "\n\n" + skills_line + "\n"
+
+    existing = _COAUTHOR_RE.findall(message)
+    if co_author:
+        co_author = co_author.strip()
+        if len(existing) > 1:
+            raise CommitProvenanceError(
+                f"--co-author was given but the message already has "
+                f"{len(existing)} Co-authored-by trailers -- ambiguous. "
+                "Pass a message with at most one, or drop --co-author."
+            )
+        if existing and existing[0] != co_author:
+            raise CommitProvenanceError(
+                f"--co-author={co_author!r} conflicts with the message's "
+                f"existing trailer {existing[0]!r} -- fix one or the other."
+            )
+        if not existing:
+            message = message.rstrip("\n") + "\n\n" + f"Co-Authored-By: {co_author}\n"
+        return message
+
+    if len(existing) == 0:
+        raise CommitProvenanceError(
+            "message has no Co-authored-by trailer and no --co-author was "
+            "given. scripts/commit-msg-skills.sh would normally require "
+            "exactly one for any agent commit, but it never runs for a "
+            "commit built by this tool (commit-tree bypasses all git "
+            "hooks) -- pass --co-author \"Name <email>\", or include the "
+            "trailer in --message/--message-file yourself."
+        )
+    if len(existing) > 1:
+        raise CommitProvenanceError(
+            f"message has {len(existing)} Co-authored-by trailers -- only "
+            "one agent, one trailer is permitted (same rule "
+            "scripts/commit-msg-skills.sh enforces for porcelain commits)."
+        )
+    return message
+
+
 def main(argv: "list[str] | None" = None) -> int:
     # TC-SG-18 (found live during this plan's own Phase 0a dogfood commit,
     # 2026-08-30): main() crashed with UnicodeEncodeError while PRINTING
@@ -1644,6 +1724,18 @@ def main(argv: "list[str] | None" = None) -> int:
                              "large commits.")
     parser.add_argument("--message", default=None)
     parser.add_argument("--message-file", default=None)
+    parser.add_argument("--co-author", default=None, dest="co_author",
+                        help="Co-authored-by trailer value, e.g. "
+                             "'Claude Sonnet 5 <noreply@anthropic.com>' -- "
+                             "appended automatically if the message doesn't "
+                             "already have one (ST-154-style preventive "
+                             "pattern, 2026-08-31 provenance-gap incident: "
+                             "commit-tree bypasses commit-msg-skills.sh "
+                             "entirely, so nothing else ever checks this for "
+                             "a commit built by this tool). If omitted, "
+                             "--message/--message-file must already contain "
+                             "exactly one Co-authored-by trailer, or the "
+                             "commit is refused.")
     parser.add_argument("--skills", nargs="+", required=True)
     parser.add_argument("--plan", required=True)
     parser.add_argument("--branch", default="main")
@@ -1738,6 +1830,12 @@ def main(argv: "list[str] | None" = None) -> int:
         except (RefreshRunTrailerError, _refresh_run.RefreshRunError) as exc:
             print(f"ERROR: --refresh-run trailer stamping failed: {exc}", file=sys.stderr)
             return 2
+
+    try:
+        message = _ensure_commit_provenance_trailers(message, args.skills, args.co_author)
+    except CommitProvenanceError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     try:
         result = plumb_commit(

@@ -378,6 +378,7 @@ def test_cli_ack_gitignored_flag_silences_warning(tmp_path, monkeypatch, capsys)
     rc = gpc.main([
         "--files", "ignored/secret.txt",
         "--message-file", str(msg_file),
+        "--co-author", "Test Agent <test@example.com>",
         "--skills", "S-99", "--plan", "cli ack test",
         "--branch", "main", "--remote", str(bare),
         "--skip-stale-check", "--no-push",
@@ -653,6 +654,7 @@ def test_cli_end_to_end(tmp_path, monkeypatch):
     rc = gpc.main([
         "--files", "f.txt",
         "--message-file", str(msg_file),
+        "--co-author", "Test Agent <test@example.com>",
         "--skills", "S-99",
         "--plan", "cli test",
         "--branch", "main",
@@ -926,6 +928,7 @@ class TestTier1Checks:
 
         rc_blocked = gpc.main([
             "--files", "f.txt", "--message", "chore: should be blocked",
+            "--co-author", "Test Agent <test@example.com>",
             "--skills", "S-99", "--plan", "cli test",
             "--branch", "main", "--remote", str(bare),
             "--skip-stale-check", "--no-push",
@@ -934,6 +937,7 @@ class TestTier1Checks:
 
         rc_bypassed = gpc.main([
             "--files", "f.txt", "--message", "chore: explicit bypass",
+            "--co-author", "Test Agent <test@example.com>",
             "--skills", "S-99", "--plan", "cli test",
             "--branch", "main", "--remote", str(bare),
             "--skip-stale-check", "--skip-tier1-checks", "--no-push",
@@ -961,6 +965,7 @@ def test_cli_files_from_merges_with_files(tmp_path, monkeypatch):
     rc = gpc.main([
         "--files", "a.txt", "--files-from", str(files_from),
         "--message-file", str(msg_file),
+        "--co-author", "Test Agent <test@example.com>",
         "--skills", "S-99", "--plan", "files-from merge test",
         "--branch", "main", "--remote", str(bare),
         "--skip-stale-check",
@@ -987,6 +992,7 @@ def test_cli_files_from_alone_is_sufficient(tmp_path, monkeypatch):
     rc = gpc.main([
         "--files-from", str(files_from),
         "--message-file", str(msg_file),
+        "--co-author", "Test Agent <test@example.com>",
         "--skills", "S-99", "--plan", "files-from alone test",
         "--branch", "main", "--remote", str(bare),
         "--skip-stale-check",
@@ -1279,3 +1285,130 @@ def test_tier1_output_threaded_through_result_on_success(tmp_path):
     )
 
     assert "[Step 10] FINDING: example" in result["tier1_output"]
+
+
+# ---------------------------------------------------------------------------
+# Commit provenance trailers (2026-08-31 gap incident): commit 833d9997e6,
+# built by this exact tool with --skills S-88 S-84, shipped to origin/main
+# with neither a "Skills invoked:" line nor a Co-authored-by trailer.
+# scripts/commit-msg-skills.sh would normally require exactly one
+# Co-authored-by trailer for any agent commit, but commit-tree never fires
+# git hooks, so that check never ran for anything this tool builds. Fixed
+# via _ensure_commit_provenance_trailers(), enforced from main() (the CLI --
+# the sole real-world entry point this repo's own docs use; plumb_commit()
+# itself has no direct production caller, confirmed by repo-wide grep, so
+# the tests above that call it directly with a bare message are unaffected
+# by design, not a coverage gap).
+# ---------------------------------------------------------------------------
+
+def test_provenance_skills_invoked_auto_appended_when_missing():
+    message = gpc._ensure_commit_provenance_trailers(
+        "chore: a message with no trailers at all", ["S-99", "S-12"],
+        "Test Agent <test@example.com>",
+    )
+    assert "Skills invoked: [S-99, S-12]" in message
+    assert "Co-Authored-By: Test Agent <test@example.com>" in message
+
+
+def test_provenance_skills_invoked_left_alone_when_already_present():
+    original = "chore: msg\n\nSkills invoked: [S-99]\n\nCo-authored-by: X <x@example.com>\n"
+    message = gpc._ensure_commit_provenance_trailers(original, ["S-99"], None)
+    assert message.count("Skills invoked") == 1
+    assert "[S-99]" in message
+
+
+def test_provenance_missing_coauthor_and_no_flag_raises():
+    with pytest.raises(gpc.CommitProvenanceError, match="no Co-authored-by trailer"):
+        gpc._ensure_commit_provenance_trailers(
+            "chore: no co-author here", ["S-99"], None,
+        )
+
+
+def test_provenance_existing_coauthor_satisfies_check_without_flag():
+    """The exact real-world case for a caller who, like this session's own
+    earlier commit in this incident, already hand-writes the trailer --
+    must not be forced to also pass --co-author."""
+    message = gpc._ensure_commit_provenance_trailers(
+        "chore: msg\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n",
+        ["S-99"], None,
+    )
+    assert message.count("Co-Authored-By") == 1
+
+
+def test_provenance_multiple_existing_coauthors_without_flag_raises():
+    with pytest.raises(gpc.CommitProvenanceError, match="2 Co-authored-by trailers"):
+        gpc._ensure_commit_provenance_trailers(
+            "chore: msg\n\nCo-authored-by: A <a@example.com>\n"
+            "Co-authored-by: B <b@example.com>\n",
+            ["S-99"], None,
+        )
+
+
+def test_provenance_flag_conflicting_with_existing_trailer_raises():
+    with pytest.raises(gpc.CommitProvenanceError, match="conflicts with"):
+        gpc._ensure_commit_provenance_trailers(
+            "chore: msg\n\nCo-authored-by: A <a@example.com>\n",
+            ["S-99"], "B <b@example.com>",
+        )
+
+
+def test_provenance_flag_matching_existing_trailer_is_idempotent():
+    """Re-running the same commit build (e.g. after a retry) must not
+    double-stamp the trailer -- same idempotency guarantee
+    _stamp_refresh_run_trailers already gives the Refresh-Run trailers."""
+    message = gpc._ensure_commit_provenance_trailers(
+        "chore: msg\n\nCo-Authored-By: A <a@example.com>\n",
+        ["S-99"], "A <a@example.com>",
+    )
+    assert message.count("Co-Authored-By") == 1
+
+
+def test_cli_reproduces_and_blocks_the_actual_2026_08_31_incident(tmp_path, monkeypatch):
+    """End-to-end regression test for the real incident: a message with
+    neither trailer, --skills S-88 S-84 (the actual skills used), and no
+    --co-author must now be refused, not silently committed."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text(
+        "chore(backlog): file ST-158 -- no trailers, reproduces the real incident",
+        encoding="utf-8",
+    )
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--files", "f.txt", "--message-file", str(msg_file),
+        "--skills", "S-88", "S-84", "--plan", "reproduce the incident",
+        "--branch", "main", "--remote", str(bare),
+        "--skip-stale-check", "--no-push",
+    ])
+
+    assert rc == 2
+
+
+def test_cli_co_author_flag_makes_the_same_commit_succeed(tmp_path, monkeypatch):
+    """The same scenario as above, but with --co-author supplied, must
+    succeed and the resulting commit must carry both trailers."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    (work / "f.txt").write_text("v", encoding="utf-8")
+    msg_file = tmp_path / "msg.txt"
+    msg_file.write_text(
+        "chore(backlog): file ST-158 -- with --co-author this time",
+        encoding="utf-8",
+    )
+
+    gpc.configure(repo_root=work)
+    monkeypatch.chdir(work)
+    rc = gpc.main([
+        "--files", "f.txt", "--message-file", str(msg_file),
+        "--co-author", "Claude Sonnet 5 <noreply@anthropic.com>",
+        "--skills", "S-88", "S-84", "--plan", "reproduce the incident, fixed",
+        "--branch", "main", "--remote", str(bare),
+        "--skip-stale-check", "--no-push",
+    ])
+
+    assert rc == 0
+    commit_msg = _git(work, "log", "-1", "--format=%B", "refs/heads/main").stdout
+    assert "Skills invoked: [S-88, S-84]" in commit_msg
+    assert "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>" in commit_msg

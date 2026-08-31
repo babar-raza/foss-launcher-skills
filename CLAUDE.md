@@ -51,8 +51,20 @@ them by hand:
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/git_plumb_commit.py \
   --files <exact paths...> --message "<commit message>" \
+  --co-author "<Agent name> <noreply@anthropic.com>" \
   --skills S-xx [S-yy ...] --plan "<what this commit does>"
 ```
+
+**`--co-author` (or an existing `Co-authored-by:` trailer already in `--message`/
+`--message-file`) is mandatory** (2026-08-31 provenance-gap incident): `commit-tree`
+never fires git hooks, so `scripts/commit-msg-skills.sh`'s "exactly one Co-authored-by
+trailer" check — which every commit made through the normal `/commit` (S-76) path gets
+for free — never runs for anything built by this tool. Before this was enforced
+in-process, a real commit (`833d9997e6`, `--skills S-88 S-84`) shipped to `origin/main`
+with neither a `Skills invoked:` line nor a `Co-authored-by:` trailer. `Skills invoked:`
+itself is auto-appended from `--skills` if the message doesn't already have one — only
+the co-author trailer needs an explicit value, since the tool cannot safely guess which
+agent did the work.
 
 This runs the stale-file-regression check before building the temp index (raising
 `PlumbCommitBlocked` and pushing nothing if it finds a silent revert — pass
