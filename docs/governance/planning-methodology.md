@@ -119,6 +119,57 @@ mechanically instead of relying solely on hand-written `HANDOFF.md`/`BACKLOG.md`
 independently found to already be several days stale). See `backlog/BACKLOG.md` for the tracked
 row.
 
+## Retroactive mission registration (GOV-02, 2026-08-31)
+
+`AGENTS.md` §17 rule 2 ("One mission-contract shape") covers a plan that is *known in
+advance* to span multiple sessions. It does not say what to do with a plan that did not
+know that at the start — a §6b `bounded-oneoff` item, or a Plan Mode file under
+`.claude/plans/`, that grows past its original scope without ever being flagged. This
+happened for real: the stale-file-guard/`git_plumb_commit.py`/session-identity redesign
+(`.claude/plans/plan-based-on-above-foamy-hartmanis.md`) ran across its entire multi-day,
+multi-commit execution with no mission contract anywhere — not `.supervisor/state/`, not
+`MISSION_AUTHORITY.yaml`, not `plans/master-plan.md` — until it was explicitly asked to
+converge, at which point it was retroactively registered as
+`MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING` (see
+`.supervisor/state/MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING/` and the plan
+file's own change log). Nothing forced that registration to happen — it was caught only
+because it was explicitly asked for.
+
+**Rule**: the moment a session resumes or continues a plan file that (a) was not created
+fresh this session, and (b) has no mission contract yet, it must register one
+(`mission_authority.py open --mission-id <id> ...`) *before* continuing execution, not
+after. The trigger is structural (a session boundary was already crossed with the plan
+still open), not a size/duration heuristic — it can be checked mechanically by asking "did
+a prior session touch this plan file and leave it non-terminal," which is exactly what
+`/plan-normalize` (S-91) already inspects when resuming a plan. `/plan-normalize` should be
+the place this registration is prompted from in practice; this rule does not require a new
+enforcement mechanism, only that the check include "does a mission contract exist yet."
+
+**Collision note**: minting the new mission ID must check *both* mission-number sequences
+in this repo (see the `.supervisor/` PSL note below) — this repo already has one proven
+collision (`MT018` issued twice) and two more near-misses (`MT041`/`MT042` both already
+claimed by `/readme-refresh`'s own private sequence when MT058 was minted). Until GOV-01
+(a shared allocator or a distinct-prefix rule) lands, mint defensively: grep both
+sequences for the candidate number before using it.
+
+## The `.supervisor/` PSL system (clarified, GOV-02)
+
+A fourth mechanism exists that predates the concordance table above and is not currently
+named in it: `.supervisor/prompts/` (prompt1-post-sprint-audit, prompt2-plan-hardening,
+prompt3-controlled-execution, prompt4-close-task), `.supervisor/prompt-registry.yaml`, and
+per-mission local evidence under `.supervisor/state/<mission>/` (gitignored). Its last
+recorded mission is `MT034` (2026-08-20); `mission_authority.py`'s first recorded mission
+is `MT037` (2026-08-24) — a four-day gap consistent with a deliberate hand-off, but **no
+migration note documenting that transition was found** during this review (stated
+honestly, not assumed). In current practice, `mission_authority.py`/`MISSION_AUTHORITY.yaml`
+is the live mechanism for the mission contract itself (per the concordance table above);
+`.supervisor/`'s PSL stage prompts (audit → harden → execute → verify) remain a usable,
+still-present four-stage review loop for a mission's *own* internal rigor, and MT058 used
+both together (PSL stages for the audit/harden/execute/verify loop, `MISSION_AUTHORITY.yaml`
+for the mission contract) rather than treating them as competitors. Do not delete or
+deprecate `.supervisor/` as part of this note — that is a separate decision for whoever
+owns that migration gap, not implied here.
+
 ## Non-goals
 
 - This doc does not replace `/plan-normalize`, `/plan-health-watchdog`, `/backlog`, or any other

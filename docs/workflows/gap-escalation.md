@@ -67,6 +67,14 @@ This does not change the escalation protocol itself: every PARTIAL/NONE/BROKEN
 state still produces a written report and awaits human decision. This section
 disambiguates what that decision should be, and where it should be recorded.
 
+A `bounded-oneoff` item (or any plan-mode file) that is later **resumed in a
+different session** and is still open has, by that point, become a multi-session
+plan whether or not it was scoped as one — see "Retroactive mission registration"
+in [docs/governance/planning-methodology.md](../governance/planning-methodology.md)
+for the trigger and the registration step. This is the gap that let the 2026-08-31
+stale-guard campaign run its entire multi-day execution unregistered until asked
+to converge (`MT058`).
+
 Background and worked examples (the 5 repo-meta gap reports read against this
 rubric, and 4 worked `index.yaml` entries): see
 `reports/skill-gaps/2026-08-17-gap-escalation-disposition-schema.md` and
