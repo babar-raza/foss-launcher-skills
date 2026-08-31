@@ -240,3 +240,46 @@ def test_infra_error_on_unreachable_target(monkeypatch, tmp_path, env):
     code = sync_remotes.sync("github", "main", dry_run=False, env=env)
 
     assert code == sync_remotes.EXIT_INFRA_ERROR
+
+
+def test_redact_scrubs_embedded_credentials():
+    assert sync_remotes._redact(
+        "fatal: unable to access 'https://oauth2:glpat-secretvalue@gitlab.example.com/x.git/'"
+    ) == "fatal: unable to access 'https://***@gitlab.example.com/x.git/'"
+    assert sync_remotes._redact("no credentials here") == "no credentials here"
+
+
+def test_authenticated_url_embeds_credentials_for_https():
+    assert sync_remotes.authenticated_url(
+        "gitlab", "SECRET", "https://gitlab.example.com/a/b.git"
+    ) == "https://oauth2:SECRET@gitlab.example.com/a/b.git"
+    assert sync_remotes.authenticated_url(
+        "github", "SECRET", "https://github.com/a/b.git"
+    ) == "https://SECRET@github.com/a/b.git"
+
+
+def test_authenticated_url_leaves_non_http_schemes_unchanged():
+    file_url = "file:///C:/some/path.git"
+    assert sync_remotes.authenticated_url("gitlab", "SECRET", file_url) == file_url
+
+
+def test_error_output_never_contains_the_raw_token(monkeypatch, tmp_path, capsys):
+    """The real bug this guards against: git's own stderr can embed the
+    authenticated URL verbatim on a fetch failure -- every path that surfaces
+    that stderr to the user must redact it first. Uses an unreachable https
+    URL (not the file:// fixtures) so the token is actually embedded, the
+    same as in production against the real github/gitlab https remotes."""
+    work = _init_worktree_with_commit(tmp_path / "work")
+    secret = "super-secret-token-value"
+    monkeypatch.setattr(sync_remotes, "TARGET_URL", {
+        "github": "https://github.com/does-not-exist-ghgl1/unreachable.git",
+        "gitlab": "https://gitlab.invalid.example/does-not-exist/unreachable.git",
+    })
+    monkeypatch.chdir(work)
+
+    code = sync_remotes.sync("github", "main", dry_run=False, env={"gitlab_token": secret})
+
+    assert code == sync_remotes.EXIT_INFRA_ERROR
+    captured = capsys.readouterr()
+    assert secret not in captured.out
+    assert secret not in captured.err

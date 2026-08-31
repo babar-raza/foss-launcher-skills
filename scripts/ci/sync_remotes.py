@@ -19,14 +19,36 @@ workflow that invokes this script maps that secret back onto an env var
 literally named `gitlab_token` before calling in, so this script's own
 contract never has to know about that exception. The GitHub-authenticating
 token is read from `github_token` (lowercase; GitLab does not force casing).
+
+Credential injection: the token is embedded in the fetch/push URL
+(`https://oauth2:<token>@gitlab...` / `https://<token>@github...`), the same
+pattern this repo's own local GitLab remote already uses in production. An
+earlier version used `git -c http.extraheader=...` instead specifically to
+avoid a URL-embedded token -- that was replaced after it failed on GitHub's
+hosted Ubuntu runners with a credential-prompt error
+("could not read Username ... No such device or address") while working
+locally on Windows; the header approach is not reliably portable across
+git/environment combinations and this project has exactly one credential
+mechanism that is proven to work everywhere it is actually used: URL
+embedding. To keep this safe, the authenticated URL is never passed to
+`print()` or an exception message -- `_redact()` scrubs any credential
+before a string reaches an error message, log line, or exception.
 """
 from __future__ import annotations
 
 import argparse
-import base64
 import os
+import re
 import subprocess
 import sys
+
+_REDACT_RE = re.compile(r"://[^@/\s]+@")
+
+
+def _redact(text: str) -> str:
+    """Strip any embedded credential (scheme://user:pass@) from a string
+    before it can reach a print(), an exception message, or a log line."""
+    return _REDACT_RE.sub("://***@", text)
 
 GITHUB_URL = "https://github.com/babar-raza/foss-launcher-skills.git"
 GITLAB_URL = "https://gitlab.recruitize.ai/sialkot/cantt-smallize/foss-launcher-skills.git"
@@ -60,13 +82,21 @@ def other_platform(platform: str) -> str:
     return "gitlab" if platform == "github" else "github"
 
 
-def auth_header(target_platform: str, token: str) -> str:
-    """Build a Basic-auth `http.extraheader` value -- never an embedded URL token."""
+def authenticated_url(target_platform: str, token: str, base_url: str) -> str:
+    """Embed the token as Basic-auth credentials in the remote URL. See the
+    module docstring's "Credential injection" section for why this is used
+    instead of an `http.extraheader`. Never print or log the return value
+    without passing it through `_redact()` first.
+
+    Basic-auth-in-URL is an http(s) convention; a non-http(s) scheme (e.g.
+    `file://`, used by this project's own local-bare-repo test suite) has no
+    userinfo semantics and is returned unchanged."""
+    scheme, rest = base_url.split("://", 1)
+    if scheme not in ("http", "https"):
+        return base_url
     if target_platform == "gitlab":
-        basic = base64.b64encode(f"oauth2:{token}".encode()).decode()
-    else:
-        basic = base64.b64encode(f"{token}:x-oauth-basic".encode()).decode()
-    return f"AUTHORIZATION: basic {basic}"
+        return f"{scheme}://oauth2:{token}@{rest}"
+    return f"{scheme}://{token}@{rest}"
 
 
 def resolve_credential(target_platform: str, env: dict) -> str:
@@ -88,26 +118,24 @@ def resolve_credential(target_platform: str, env: dict) -> str:
     raise SyncError("\n".join(lines), EXIT_INFRA_ERROR)
 
 
-def run_git(args: list[str], extraheader: str | None = None) -> subprocess.CompletedProcess:
-    cmd = ["git"]
-    if extraheader is not None:
-        cmd += ["-c", f"http.extraheader={extraheader}"]
-    cmd += args
-    return subprocess.run(cmd, capture_output=True, text=True)
+def run_git(args: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], capture_output=True, text=True,
+                           env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
 
 
 def rev_parse(ref: str) -> str:
     result = run_git(["rev-parse", ref])
     if result.returncode != 0:
-        raise SyncError(f"git rev-parse {ref} failed: {result.stderr.strip()}", EXIT_INFRA_ERROR)
+        raise SyncError(f"git rev-parse {ref} failed: {_redact(result.stderr.strip())}", EXIT_INFRA_ERROR)
     return result.stdout.strip()
 
 
-def fetch_target_head(target_url: str, branch: str, extraheader: str) -> str:
-    result = run_git(["fetch", target_url, branch], extraheader=extraheader)
+def fetch_target_head(auth_url: str, branch: str, target_platform: str) -> str:
+    result = run_git(["fetch", auth_url, branch])
     if result.returncode != 0:
         raise SyncError(
-            f"git fetch {target_url} {branch} failed: {result.stderr.strip()}", EXIT_INFRA_ERROR
+            f"git fetch ({target_platform} {branch}) failed: {_redact(result.stderr.strip())}",
+            EXIT_INFRA_ERROR,
         )
     return rev_parse("FETCH_HEAD")
 
@@ -169,9 +197,9 @@ def sync(platform: str, branch: str, dry_run: bool, env: dict | None = None) -> 
 
     try:
         token = resolve_credential(target_platform, env)
-        header = auth_header(target_platform, token)
+        auth_url = authenticated_url(target_platform, token, target_url)
         source_sha = rev_parse("HEAD")
-        target_sha = fetch_target_head(target_url, branch, header)
+        target_sha = fetch_target_head(auth_url, branch, target_platform)
     except SyncError as exc:
         print(str(exc), file=sys.stderr)
         return exc.exit_code
@@ -199,7 +227,7 @@ def sync(platform: str, branch: str, dry_run: bool, env: dict | None = None) -> 
         )
         return EXIT_DIVERGENCE
 
-    push_result = run_git(["push", target_url, f"HEAD:{branch}"], extraheader=header)
+    push_result = run_git(["push", auth_url, f"HEAD:{branch}"])
     if push_result.returncode == 0:
         print(f"Synced {target_platform} {branch}: {target_sha[:12]} -> {source_sha[:12]}.")
         return EXIT_SYNCED
@@ -215,10 +243,10 @@ def sync(platform: str, branch: str, dry_run: bool, env: dict | None = None) -> 
             try:
                 file_divergence_issue(source_sha, target_sha, target_platform, run_url)
             except Exception as exc:  # pragma: no cover - best-effort, never masks the real failure
-                print(f"(could not file/update tracking issue: {exc})", file=sys.stderr)
+                print(f"(could not file/update tracking issue: {_redact(str(exc))})", file=sys.stderr)
         return EXIT_DIVERGENCE
 
-    print(f"INFRA ERROR pushing to {target_platform}: {push_result.stderr.strip()}", file=sys.stderr)
+    print(f"INFRA ERROR pushing to {target_platform}: {_redact(push_result.stderr.strip())}", file=sys.stderr)
     return EXIT_INFRA_ERROR
 
 
