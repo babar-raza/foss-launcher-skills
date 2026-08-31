@@ -2442,6 +2442,38 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: durable multi-mission archive for MISSION_AUTHORITY.yaml (open/close/list/backfill/status). Closes a pre-existing registration gap found 2026-07-31 while extending this file with the RC1/RC2 liveness aggregator (status subcommand)."
 
+  - path: scripts/pipeline/commands/governance/grade_staleness_sweep.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_grade_staleness_sweep.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Phase C (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL, A-09 repair): cheap, deterministic, no-LLM tripwire re-running audit.py's fast checks against every graded page to flag (never auto-correct) a persisted grade that no longer matches a live FAIL, routing findings to governed S-90 review. Modeled on S-94's change-sweep cost-containment pattern. Committed to main with no registry entry; found unregistered by check_pipeline_registration.py during the 2026-08-31 stale-guard CI-signal-restoration audit (ST-146) -- registered late, same shape as readme_refresh_run.py's own late-registration precedent above."
+
+  - path: scripts/pipeline/commands/foss/upstream_issue_workflow.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: foss-repo-presentation
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_upstream_issue_workflow.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT057 (2026-08-19): verify -> classify -> deduplicate -> bundle -> draft -> (human-gated) file real GitHub Issues against upstream product repos, sourced from local upstream-issues.md files readme-refresh (S-120) work has accumulated across 50+ prior incidents but never used to file anything. Own manifest tree and state machine (FINDING_NEXT_STATES/BUNDLE_NEXT_STATES), deliberately separate from readme_refresh_run.py's NEXT_STATES per that module's own self-containment reasoning (different entity, lifecycle, and side effect -- gh issue create, never gh pr create). dry-run is the default and only mode for create-issue; no Issue is ever created without a separate, explicit per-action authorization. Committed to main with no registry entry; found unregistered by check_pipeline_registration.py during the 2026-08-31 stale-guard CI-signal-restoration audit (ST-146) -- registered late, same shape as readme_refresh_run.py's own late-registration precedent above."
+
   # ── Tier 4 — Kilocode provider integration (→ Phase C deferred) ────────────
 
   - path: scripts/pipeline/lib/kilocode_compliance.py
@@ -5137,7 +5169,7 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_readme_refresh_run.py
     deprecated_since: null
-    change_impact: "S-120 execution boundary: CREATED -> INPUTS_PINNED -> PLANNED -> VERIFYING_EXAMPLES -> AWAITING_REVIEW -> APPROVED -> PUSHING -> PUSHED state machine for one run-bound README.md refresh per FOSS product repo. Real gh api pre-flight access check, disposable-clone git-plumbing push, draft-PR-only, human-approval-gated. verify-examples' per-language compile/run pass is a pluggable seam (default: honest TOOLCHAIN-UNAVAILABLE stub), not yet wired to real toolchains."
+    change_impact: "S-120 execution boundary: CREATED -> INPUTS_PINNED -> PLANNED -> VERIFYING_EXAMPLES -> AWAITING_REVIEW -> APPROVED -> PUSHING -> PUSHED state machine for one run-bound README.md refresh per FOSS product repo. Real gh api pre-flight access check, disposable-clone git-plumbing push (non-draft PR since MT032, 2026-08-10/11 -- the --draft flag was removed from _do_push, confirmed live 2026-08-30), human-approval-gated. verify-examples' per-language compile/run pass is a pluggable seam (real Python runner; other languages an honest TOOLCHAIN-UNAVAILABLE stub)."
     notes: "Commands: start, plan, ingest-candidate, verify-examples, recheck, approve, push, verify, abandon, recover, status. Registered late (2026-08-08) -- found unregistered by check_pipeline_registration.py despite being built and committed 2026-08-06."
 
   - path: scripts/pipeline/commands/foss/readme_refresh_checks.py
@@ -5154,7 +5186,7 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_readme_refresh_checks.py
     deprecated_since: null
-    change_impact: "21 deterministic hard-gate/heuristic checks readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
+    change_impact: "105 deterministic check_* functions (grep-verified 2026-08-30; drifts upward as missions land -- re-grep `^def check_` rather than trust this number) readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality, banner-asset existence, disposition-family coverage/text-diff verification. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
     notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
 
   - path: scripts/pipeline/commands/foss/dependency_extract.py

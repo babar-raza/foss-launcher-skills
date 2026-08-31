@@ -62,13 +62,17 @@ _NON_SKILL_SLUGS: set[str] = {"readme"}
 
 
 def _extract_id(text: str) -> str | None:
-    """Extract S-XX ID from the skill file header (within first 1500 chars).
+    """Extract S-XX ID from the skill file's `# S-XX:` title heading.
 
-    Scans beyond line 1 to accommodate files that start with a CONTRACT comment
-    block (e.g. <!-- CONTRACT: ... -->) before the # S-XX: heading.
-    Limit raised from 500 to 1500 to handle long multi-line CONTRACT blocks.
+    Scans the WHOLE file (2026-08-31, ST-147/TC-SG-20c) -- a fixed 1500-char
+    prefix window is not a reliable proxy for "this skill has no ID": it
+    missed foss-java-publish.md's heading at char offset 1833, whose CONTRACT
+    comment block (verbose but valid) is long enough to push the real title
+    heading past any fixed prefix. Every canonical skill file has exactly one
+    `^# S-...:` line -- verified across all files at fix time -- so a full
+    scan cannot false-positive on a second, unrelated one.
     """
-    for line in text[:1500].splitlines():
+    for line in text.splitlines():
         m = _ID_RE.match(line)
         if m:
             return m.group(1)

@@ -105,3 +105,14 @@ class TestExtractID:
 
     def test_description_first(self):
         assert _extract_id("Some description text.") is None
+
+    def test_id_past_1500_chars_still_found(self):
+        """ST-147/TC-SG-20c (2026-08-31): a verbose CONTRACT comment block can
+        legitimately push the # S-XX: heading past a fixed prefix window --
+        foss-java-publish.md's heading sat at char offset 1833, past the old
+        1500-char scan, which made a real ID read as "NONE". Unlike
+        sync_providers.py's sibling extractor (which deliberately treats a
+        far heading as absent, see test_id_beyond_1500_chars_not_found), this
+        checker must find any heading in the file."""
+        padding = "x" * 1600 + "\n# S-110: Late Heading\n"
+        assert _extract_id(padding) == "S-110"
