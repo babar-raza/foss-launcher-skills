@@ -3265,8 +3265,7 @@ def bind_commit(
             )
             still_missing: set[str] = set()
             for page_path in missing_changed_set:
-                acceptable = extra_allowed.get(page_path)
-                if not acceptable:
+                if page_path not in extra_allowed:
                     still_missing.add(page_path)
                     continue
                 result = _command_runner(
@@ -3277,14 +3276,39 @@ def bind_commit(
                     text=False,
                     timeout=30,
                 )
-                if result.returncode != 0:
+                disk_path = _repo_root / page_path
+                if result.returncode != 0 or not disk_path.is_file():
                     still_missing.add(page_path)
                     continue
                 committed_bytes = result.stdout
                 if not isinstance(committed_bytes, bytes):
                     committed_bytes = str(committed_bytes).encode("utf-8")
-                tree_hash = "sha256:" + hashlib.sha256(committed_bytes).hexdigest()
-                if tree_hash not in acceptable:
+                # `--filters` applies .gitattributes-driven clean/smudge
+                # filters only, NOT core.autocrlf's own EOL conversion (a
+                # separate git mechanism) -- on a CRLF-checkout system a
+                # CRLF-committed page's cat-file output can come back LF-only
+                # even though the identical page is genuinely clean/unmodified
+                # (git status agrees) and the working-tree file is CRLF.
+                # Compare universal-newline TEXT, matching the same
+                # \r\n -> \n normalization the per-row hash_mismatches check
+                # below already applies for exactly this reason, rather than
+                # raw bytes across the git-filter boundary (confirmed live
+                # 2026-08-31, 3d/typescript: byte-for-byte content identical,
+                # every line differed only in EOL style). The disk file (not
+                # the stored extra_allowed hash, which was itself recorded
+                # from raw disk bytes and would carry the same false
+                # mismatch) is the trustworthy comparison side here --
+                # membership in extra_allowed already proves the write was
+                # authorized; this step only proves it actually landed.
+                try:
+                    committed_text = committed_bytes.decode("utf-8").replace(
+                        "\r\n", "\n"
+                    )
+                    disk_text = disk_path.read_text(encoding="utf-8")
+                except (UnicodeDecodeError, OSError):
+                    still_missing.add(page_path)
+                    continue
+                if committed_text != disk_text:
                     still_missing.add(page_path)
             missing_changed_set = still_missing
         if missing_changed_set or unexpected_changed_set:
