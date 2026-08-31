@@ -161,6 +161,24 @@ def test_python_builtins_and_literals_are_allowed(tmp_path):
     assert findings == []
 
 
+def test_typescript_javascript_builtins_are_allowed(tmp_path):
+    """ST-104(b) precedent (code_block_api.py) cross-applied here: common
+    JS/TS runtime globals are never a product's own api_surface class.
+    Found live 2026-08-31, 3d/typescript refresh_run: `Buffer` produced 5
+    false INVALID_SYMBOL findings across 2 pages."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Reads the file into a Node.js `Buffer`, wraps it in a `Promise`, "
+        "and returns a `Map` of `Uint8Array` chunks. Parsed values come "
+        "back as a `Number` or `Date`, serialized with `JSON.stringify`.\n",
+    )
+    api_surface = {"Scene", "Node"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
 def test_hex_color_literals_are_allowed(tmp_path):
     """RPR-ST089-02: ARGB/RGB hex color literals (8, 6, or 2 hex digits,
     e.g. `FF1E64C8`, `FFFFFFFF`, bare `FF` for the alpha byte) are never API

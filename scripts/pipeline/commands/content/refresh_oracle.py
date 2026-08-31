@@ -240,6 +240,18 @@ _LITERAL_AND_BUILTIN_TOKENS = {
     # 27 false INVALID_SYMBOL findings, the single largest false-positive
     # cluster observed for this check.
     "TNode",
+    # ST-104(b) precedent (code_block_api.py, 2026-08-29) fixed the identical
+    # gap for that sibling evaluator's TypeScript/JavaScript coverage --
+    # common JS/TS runtime globals are never a product's own api_surface
+    # class, so citing them by name in prose ("returns a Node.js `Buffer`")
+    # is correct, not a claim about this library's API. Found live here
+    # 2026-08-31, 3d/typescript refresh_run: `Buffer` produced 5
+    # INVALID_SYMBOL findings across 2 pages (features.md, scene.md).
+    # Cross-applying the rest of ST-104(b)'s already-vetted list up front
+    # rather than waiting for each to be independently rediscovered live in
+    # a different evaluator, one at a time.
+    "Array", "Promise", "Map", "Date", "RegExp", "JSON", "Number",
+    "Uint8Array", "Buffer", "Symbol", "WeakMap", "WeakSet",
 }
 
 # RPR-ST089-02: a token made ENTIRELY of hex digit characters (0-9, A-F), in
