@@ -2730,6 +2730,53 @@ def test_approve_forces_replan_on_pinned_input_drift(tmp_path, monkeypatch):
     assert manifest["state"] == "PLANNED"  # forced back, never silently approved
 
 
+def test_approve_forces_replan_on_ee_target_registry_drift(tmp_path, monkeypatch):
+    """TC-13 slice (readme-refresh-trackb-and-followon-2026-09-01): the real tex/python
+    incident, reproduced end-to-end through the actual state machine -- a candidate is
+    composed and reaches AWAITING_REVIEW, then data/aspose_com_targets.json is corrected
+    underneath it (exactly what happened for real, 4 days after tex/python's compose), and
+    approve() must now catch this (previously invisible -- only clone_cache_head was ever
+    checked)."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc13")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+
+    # Simulate the real incident: the EE target registry is "corrected" after compose,
+    # clone cache untouched.
+    targets_path = repo_root / "data" / "aspose_com_targets.json"
+    targets = json.loads(targets_path.read_text(encoding="utf-8"))
+    targets["targets"]["products.aspose.com"]["platforms"]["testfam/testplat"]["url"] = (
+        "https://products.aspose.com/testfam/testplat-corrected/"
+    )
+    targets_path.write_text(json.dumps(targets), encoding="utf-8")
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="aspose_com_targets.json"):
+        rr.approve("testfam", "testplat", run_id, note="approving despite registry drift")
+
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "PLANNED"  # forced back, never silently approved
+
+
+def test_start_run_pins_full_input_manifest(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc13-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    full_manifest = manifest["pinned_inputs"]["full_manifest"]
+    assert full_manifest["clone_cache"]["commit"] is not None
+    assert full_manifest["clone_cache"]["tree"] is not None
+    assert full_manifest["enterprise_edition_target"]["entry"] is not None
+    assert full_manifest["manifest_hash"]
+
+
 # MT055/TC-MICRO-01 (2026-08-18): the 6 disposition/candidate path helpers used to hardcode the
 # literal segment "repo-presenter" regardless of configure()'s own reports_root -- confirmed live
 # during the MT054 preservation audit to silently resolve `configure(reports_root="reports/repo-

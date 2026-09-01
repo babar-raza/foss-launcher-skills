@@ -74,6 +74,7 @@ from core.fs import atomic_write  # noqa: E402
 import backlink_targets  # noqa: E402
 import freshness_guard  # noqa: E402
 import publication_reconciler  # noqa: E402
+import input_manifest  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
 import dependency_extract  # noqa: E402
@@ -168,6 +169,7 @@ def configure(
     # the real repo's knowledge/ tree underneath it.
     freshness_guard.configure(repo_root=_repo_root)
     publication_reconciler.configure(repo_root=_repo_root)
+    input_manifest.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -1088,6 +1090,16 @@ def start_run(
                 clone_cache_head = _git("rev-parse", "HEAD", cwd=clone_cache)
             except ReadmeRefreshRunError:
                 clone_cache_head = None
+        # TC-13 slice (readme-refresh-trackb-and-followon-2026-09-01): widens the pinned-input
+        # set beyond clone_cache_head alone -- see input_manifest.py's own module docstring for
+        # exactly which inputs this covers (deliberately narrow: clone tree SHA + the one side
+        # registry, aspose_com_targets.json, with a real documented incident -- tex/python's own
+        # BLOCKER, this mission's TC-27a canary) and which it does not yet (7 other registries,
+        # reference_index, banner_asset -- disclosed, real follow-on). Failure-tolerant by
+        # design (resolve_input_manifest never raises); a resolution failure here must never
+        # block starting a run, the same posture as the existing clone_cache_head try/except
+        # right above it.
+        full_manifest = input_manifest.resolve_input_manifest(family, platform, clone_cache)
 
         now = _utc()
         manifest = {
@@ -1108,6 +1120,7 @@ def start_run(
             "pinned_inputs": {
                 "clone_cache_head": clone_cache_head,
                 "preflight": preflight,
+                "full_manifest": full_manifest,
             },
             "stage_checkpoints": {},
         }
@@ -4088,11 +4101,19 @@ def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str
 
 
 def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "str | None" = None) -> dict:
-    """AWAITING_REVIEW -> APPROVED. Re-verifies pinned inputs haven't drifted (clone-cache HEAD
-    unchanged) -- if they have, forces back to PLANNED for re-review rather than approving
-    stale content. The skill itself must never call this on its own initiative -- only on an
-    unambiguous, fresh instruction from the user in that turn (enforced by the calling skill
-    doc, not by this function, which has no way to know who's asking)."""
+    """AWAITING_REVIEW -> APPROVED. Re-verifies pinned inputs haven't drifted -- if they have,
+    forces back to PLANNED for re-review rather than approving stale content. The skill itself
+    must never call this on its own initiative -- only on an unambiguous, fresh instruction from
+    the user in that turn (enforced by the calling skill doc, not by this function, which has no
+    way to know who's asking).
+
+    TC-13 slice (readme-refresh-trackb-and-followon-2026-09-01): generalizes the drift check
+    beyond clone_cache_head alone to input_manifest.py's wider (still deliberately narrow --
+    see that module's own docstring) input set, directly closing the root cause of tex/python's
+    real, documented BLOCKER (data/aspose_com_targets.json corrected 4 days after compose,
+    previously undetected). Backward compatible: a manifest from a run started before this
+    change has no `pinned_inputs.full_manifest` and falls through to the original clone-HEAD-
+    only check unchanged, per this module's own established additive-schema discipline."""
     owner = _session_id(session_id)
     with _product_guard(family, platform):
         manifest = _load_manifest(family, platform, run_id)
@@ -4100,22 +4121,41 @@ def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
 
         clone_cache = _product_clone_cache(family, platform)
-        current_head = None
-        if clone_cache.is_dir():
-            try:
-                current_head = _git("rev-parse", "HEAD", cwd=clone_cache)
-            except ReadmeRefreshRunError:
-                current_head = None
-        pinned_head = manifest.get("pinned_inputs", {}).get("clone_cache_head")
+        pinned_inputs = manifest.get("pinned_inputs") or {}
+        pinned_full_manifest = pinned_inputs.get("full_manifest")
 
-        if pinned_head is not None and current_head != pinned_head:
-            manifest["drift_detected_at"] = _utc()
-            _event(family, platform, run_id, "APPROVE_BLOCKED_ON_DRIFT", pinned=pinned_head, current=current_head)
-            _transition(manifest, "PLANNED", checkpoint="drift_forced_replan")
-            raise ReadmeRefreshRunError(
-                f"Pinned inputs have drifted (clone cache HEAD {pinned_head} -> {current_head}); "
-                "forced back to PLANNED for re-review, not approved"
-            )
+        if pinned_full_manifest is not None:
+            current_full_manifest = input_manifest.resolve_input_manifest(family, platform, clone_cache)
+            diffs = input_manifest.diff_manifests(pinned_full_manifest, current_full_manifest)
+            if diffs:
+                manifest["drift_detected_at"] = _utc()
+                _event(
+                    family, platform, run_id, "APPROVE_BLOCKED_ON_DRIFT",
+                    pinned=pinned_full_manifest.get("manifest_hash"),
+                    current=current_full_manifest.get("manifest_hash"), diffs=diffs,
+                )
+                _transition(manifest, "PLANNED", checkpoint="drift_forced_replan")
+                raise ReadmeRefreshRunError(
+                    "Pinned inputs have drifted, forced back to PLANNED for re-review, not "
+                    "approved:\n  - " + "\n  - ".join(diffs)
+                )
+        else:
+            current_head = None
+            if clone_cache.is_dir():
+                try:
+                    current_head = _git("rev-parse", "HEAD", cwd=clone_cache)
+                except ReadmeRefreshRunError:
+                    current_head = None
+            pinned_head = pinned_inputs.get("clone_cache_head")
+
+            if pinned_head is not None and current_head != pinned_head:
+                manifest["drift_detected_at"] = _utc()
+                _event(family, platform, run_id, "APPROVE_BLOCKED_ON_DRIFT", pinned=pinned_head, current=current_head)
+                _transition(manifest, "PLANNED", checkpoint="drift_forced_replan")
+                raise ReadmeRefreshRunError(
+                    f"Pinned inputs have drifted (clone cache HEAD {pinned_head} -> {current_head}); "
+                    "forced back to PLANNED for re-review, not approved"
+                )
 
         manifest["approval"] = {"note": note, "approved_by": owner, "approved_at": _utc()}
         _event(family, platform, run_id, "APPROVED", note=note)
