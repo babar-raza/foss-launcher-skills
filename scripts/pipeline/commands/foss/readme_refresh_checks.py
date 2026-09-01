@@ -2281,13 +2281,31 @@ _INTERNAL_LABEL_RE = re.compile("|".join(_INTERNAL_LABEL_PATTERNS), re.IGNORECAS
 _DROP_MATCH_EMOJI_RE = re.compile("[\U0001F300-\U0001FAFF☀-➿⬀-⯿️]")
 
 
+_LEADING_BULLET_MARKER_RE = re.compile(r"^[-*+]\s+")
+
+
 def _normalize_for_drop_match(text: str) -> str:
-    """Strip emoji, casefold, and collapse whitespace -- used by check_dropped_content's
-    heading comparison so a legitimate rename (emoji stripped, title-cased per
-    check_heading_title_case) doesn't read as a drop. See check_dropped_content's own
-    docstring/inline comment for the real, confirmed incident this closes."""
+    """Strip emoji, casefold, collapse whitespace, and strip a leading markdown bullet marker --
+    used by check_dropped_content's heading comparison so a legitimate rename (emoji stripped,
+    title-cased per check_heading_title_case) doesn't read as a drop, and by
+    check_content_unit_excerpt_matches_extraction's own stored-vs-live excerpt comparison. See
+    check_dropped_content's own docstring/inline comment for the real, confirmed incident the
+    emoji/case/whitespace handling closes.
+
+    Bullet-marker stripping (readme-refresh-trackb-and-followon-2026-09-01, TC-B-02): confirmed
+    live on `cells/typescript` -- its content-dispositions.json was agent-authored on 2026-08-14,
+    a full day before check_content_unit_excerpt_matches_extraction itself was invented and
+    piloted (MT048, note/python, 2026-08-15). Every stored excerpt there quotes a bullet's TEXT
+    without its leading `- ` markdown syntax (a natural, harmless authoring choice that simply
+    predates this check's own exact-match contract), while extract_old_readme_content_units's
+    live output keeps the marker -- producing 27/31 pure false-positive mismatches, 0 real ones
+    (verified: normalizing both sides this way collapses all 27 to 0). Anchored to the start of
+    the string only, so it can never strip a real em-dash/bullet-shaped character mid-sentence;
+    headings and link text never legitimately start with a markdown list marker, so this is safe
+    for every existing caller, not just the new one."""
     no_emoji = _DROP_MATCH_EMOJI_RE.sub("", text)
-    return re.sub(r"\s+", " ", no_emoji).strip().casefold()
+    collapsed = re.sub(r"\s+", " ", no_emoji).strip().casefold()
+    return _LEADING_BULLET_MARKER_RE.sub("", collapsed)
 
 
 def check_dropped_content(old_readme_text: str, new_readme_text: str, clone_cache_root: str) -> dict:
