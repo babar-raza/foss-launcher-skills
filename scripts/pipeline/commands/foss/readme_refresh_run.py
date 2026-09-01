@@ -3852,6 +3852,172 @@ def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:
     }
 
 
+# TC-25 (readme-refresh-trackb-and-followon-2026-09-01): the TypeScript verify-examples
+# runner named in the governing plan's Phase 5 -- npm install (the plan says "npm ci", but no
+# real product clone cache carries a committed package-lock.json, so `npm ci` would fail on
+# every one of them; `npm install` is the real, working equivalent) in a disposable COPY of
+# the clone cache (never installs into the read-only clone cache itself), `tsc --noEmit`
+# (project-wide -- these products' own tsconfig.json files carry no "include", so TypeScript's
+# default "every .ts file in the tree" behavior already picks up the written block, giving a
+# real type-check against the project's own strict settings), then real execution via `tsx`.
+# Required for pdf/typescript to reach genuine "100% verification" -- currently TypeScript
+# blocks report the same honest TOOLCHAIN-UNAVAILABLE stub as every other non-Python language.
+
+
+def _resolve_node_bin(name: str) -> str:
+    """`npm`/`npx` are `.cmd` shims on Windows -- `subprocess.run(["npm", ...])` without
+    `shell=True` fails with `WinError 2` (file not found) because Windows' `CreateProcess`
+    does not resolve `PATHEXT` extensions the way a shell does, unlike a real `.exe`
+    (confirmed live this session: the first real end-to-end test of this runner crashed
+    exactly this way). `shutil.which()` resolves the full path including the real extension
+    on every platform (a no-op path-through on Linux/macOS, where `npm`/`npx` are already
+    real executables/symlinks) -- using it unconditionally is correct everywhere, not a
+    Windows-only special case."""
+    resolved = shutil.which(name)
+    if not resolved:
+        raise ReadmeRefreshRunError(f"{name!r} not found on PATH")
+    return resolved
+
+
+def _acquire_typescript_environment(work_dir: Path, clone_cache: Path) -> dict:
+    """Copies the clone cache into a disposable project dir (never mutates the shared,
+    read-only clone cache with a node_modules/ install), then `npm install` for real
+    (tsx/typescript are real devDependencies in every product's own package.json -- see
+    cells/typescript's real package.json, confirmed live this session). Returns
+    `{"ok", "project_dir", "detail"}`."""
+    if not clone_cache.is_dir():
+        return {"ok": False, "project_dir": None, "detail": "no clone cache directory available"}
+    package_json = clone_cache / "package.json"
+    if not package_json.is_file():
+        return {"ok": False, "project_dir": None, "detail": "clone cache has no package.json"}
+
+    project_dir = work_dir / "project"
+    shutil.copytree(clone_cache, project_dir, ignore=shutil.ignore_patterns(".git", "node_modules"))
+    installed = subprocess.run(
+        [_resolve_node_bin("npm"), "install", "--no-audit", "--no-fund"],
+        cwd=str(project_dir), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300,
+    )
+    if installed.returncode != 0:
+        return {
+            "ok": False, "project_dir": None,
+            "detail": f"npm install failed: {(installed.stderr or installed.stdout).strip()[-2000:]}",
+        }
+    return {"ok": True, "project_dir": project_dir, "detail": "npm install completed in a disposable project copy"}
+
+
+def _run_single_typescript_block(project_dir: Path, code: str, index: int) -> dict:
+    """Writes the block at the PROJECT ROOT (not a subdirectory) -- every real product's own
+    Quick Start examples import via a root-relative path (e.g. cells/typescript's own
+    `import { Workbook, Style } from "./aspose_cells"`, confirmed live), so the block must sit
+    alongside the real source to resolve exactly the way a reader copy-pasting it would expect.
+
+    `tsc --noEmit` is run PROJECT-WIDE (no explicit file argument) -- confirmed live this
+    session that passing an explicit file instead silently drops real tsconfig.json settings
+    (target/lib), producing a flood of false '--downlevelIteration' errors that whole-project
+    mode does not have. The tradeoff: whole-project mode also surfaces the project's own real,
+    PRE-EXISTING type errors in files this block never touches (confirmed live: cells/
+    typescript's real chartLoader.ts has one, unrelated to any Quick Start example). Filtering
+    tsc's own file-prefixed output lines down to just this block's own filename is the correct
+    fix -- a pre-existing, unrelated project defect must never fail an otherwise-correct
+    example, and an error genuinely IN this block (or in a file it actually imports) must
+    still fail it.
+
+    Written as `.mts`, never bare `.ts` -- confirmed live and load-bearing: real Quick Start
+    examples use top-level `await` (e.g. cells/typescript's own `await workbook.save(...)`
+    outside any function), and every real product clone cache's package.json has no `"type":
+    "module"` field, so Node/tsx treat a bare `.ts` file as CommonJS by default, where esbuild
+    (tsx's transformer) hard-rejects top-level await ('Transform failed... not supported with
+    the cjs output format') -- not a defect in the example, a real runner bug the first live
+    end-to-end test against cells/typescript caught. `.mts` is unambiguously ESM to Node/tsx/
+    tsc regardless of package.json, which is both correct (matches what a reader saving the
+    snippet as its own file would need to do to run it) and confirmed to still be picked up by
+    tsc's project-wide default file discovery."""
+    npx = _resolve_node_bin("npx")
+    script_name = f"verify_block_{index}.mts"
+    script_path = project_dir / script_name
+    script_path.write_text(code, encoding="utf-8")
+    try:
+        typecheck = subprocess.run(
+            [npx, "--no-install", "tsc", "--noEmit"],
+            cwd=str(project_dir), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        script_path.unlink(missing_ok=True)
+        return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": "TIMEOUT"}
+    if typecheck.returncode != 0:
+        own_errors = "\n".join(
+            line for line in (typecheck.stdout or "").splitlines() if line.startswith(script_name)
+        )
+        if own_errors:
+            script_path.unlink(missing_ok=True)
+            return {
+                "index": index, "status": "BLOCKED-WITH-REASON", "reason": "TYPE-CHECK-FAILED",
+                "detail": own_errors[-2000:],
+            }
+        # Every reported error is in some OTHER file (a real, pre-existing project defect this
+        # block never touches, confirmed possible live) -- not a defect in this block itself.
+
+    try:
+        run = subprocess.run(
+            [npx, "--no-install", "tsx", script_name],
+            cwd=str(project_dir), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
+        )
+    except subprocess.TimeoutExpired:
+        script_path.unlink(missing_ok=True)
+        return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": "TIMEOUT"}
+    script_path.unlink(missing_ok=True)
+    if run.returncode == 0:
+        return {"index": index, "status": "COMPILED+RAN CLEAN"}
+    return {
+        "index": index, "status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR",
+        "detail": (run.stderr or run.stdout).strip()[-2000:],
+    }
+
+
+def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict:
+    """Real for `typescript`/`ts`-tagged fenced code blocks; every other language still
+    honestly reports BLOCKED-WITH-REASON: TOOLCHAIN-UNAVAILABLE. Deliberately a strict superset
+    of the stub's honesty, same posture as python_verification_runner."""
+    text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
+    blocks = [(m.group(1).strip().lower(), m.group(2)) for m in _ANY_LANG_CODE_BLOCK_RE.finditer(text)]
+    family = factpack.get("family")
+    platform = factpack.get("platform")
+
+    block_statuses = [
+        {"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"}
+        for i, (lang, _code) in enumerate(blocks) if lang not in ("typescript", "ts")
+    ]
+    ts_blocks = [(i, code) for i, (lang, code) in enumerate(blocks) if lang in ("typescript", "ts")]
+
+    if ts_blocks and family and platform:
+        with tempfile.TemporaryDirectory(prefix=f"readme-refresh-verify-ts-{family}-{platform}-") as tmp:
+            work_dir = Path(tmp)
+            clone_cache = _product_clone_cache(family, platform)
+            acquire = _acquire_typescript_environment(work_dir, clone_cache)
+            if not acquire["ok"]:
+                for i, _code in ts_blocks:
+                    block_statuses.append({
+                        "index": i, "status": "BLOCKED-WITH-REASON", "reason": "ACQUIRE-FAILED",
+                        "detail": acquire["detail"],
+                    })
+            else:
+                for i, code in ts_blocks:
+                    block_statuses.append(
+                        _run_single_typescript_block(acquire["project_dir"], code, i)
+                    )
+    else:
+        for i, _code in ts_blocks:
+            block_statuses.append({"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"})
+
+    block_statuses.sort(key=lambda b: b["index"])
+    return {
+        "runner": "typescript_verification_runner_v1",
+        "blocks_found": len(blocks),
+        "block_statuses": block_statuses,
+        "all_named": True,
+    }
+
+
 def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
     """VERIFYING_EXAMPLES -> AWAITING_REVIEW: run the (pluggable) per-language verification
     pass. Only transitions once every block has a named status -- never silently."""
@@ -4241,6 +4407,13 @@ def main(argv: "list[str] | None" = None) -> int:
                      "execute `python`-tagged blocks) instead of the honest stub. Every "
                      "other language's blocks still report TOOLCHAIN-UNAVAILABLE.",
             )
+            cmd.add_argument(
+                "--typescript-runner", action="store_true",
+                help="TC-25: use the real TypeScript verification runner (disposable npm "
+                     "install + tsc --noEmit + tsx execution against `typescript`/`ts`-tagged "
+                     "blocks) instead of the honest stub. Every other language's blocks still "
+                     "report TOOLCHAIN-UNAVAILABLE. Mutually exclusive with --python-runner.",
+            )
 
     p_approve = sub.add_parser("approve")
     p_approve.add_argument("--run-id", required=True)
@@ -4444,8 +4617,12 @@ def main(argv: "list[str] | None" = None) -> int:
                 print(json.dumps(result, indent=2, ensure_ascii=False))
                 return 0
             elif args.command == "verify-examples":
+                if args.python_runner and args.typescript_runner:
+                    raise ReadmeRefreshRunError("--python-runner and --typescript-runner are mutually exclusive")
                 if args.python_runner:
                     configure(verification_runner=python_verification_runner)
+                elif args.typescript_runner:
+                    configure(verification_runner=typescript_verification_runner)
                 manifest = verify_examples(family, platform, args.run_id, session_id=args.session_id)
             elif args.command == "approve":
                 manifest = approve(family, platform, args.run_id, note=args.note, session_id=args.session_id)

@@ -2552,6 +2552,64 @@ def test_python_verification_runner_real_local_editable_install_and_execution(tm
     assert status["status"] == "COMPILED+RAN CLEAN", status
 
 
+# --- TC-25 (readme-refresh-trackb-and-followon-2026-09-01): typescript_verification_runner --
+#
+# Same established practice as python_verification_runner's own test header directly above:
+# the network-dependent half (a real `npm install`) is deliberately NOT exercised in the
+# committed suite, to keep it fast and network-independent. The acquire-failure and stub-
+# classification paths below are fully real and network-independent. The full real acquire->
+# tsc->tsx path was separately, manually proven end-to-end against a real product (cells/
+# typescript) -- see this taskcard's own evidence_refs in taskcards.jsonl for the exact
+# command and result.
+
+
+def test_acquire_typescript_environment_no_clone_cache(tmp_path):
+    result = rr._acquire_typescript_environment(tmp_path, tmp_path / "no-such-clone-cache")
+    assert result["ok"] is False
+    assert "no clone cache directory" in result["detail"]
+
+
+def test_acquire_typescript_environment_no_package_json(tmp_path):
+    clone_cache = tmp_path / "clone_cache"
+    clone_cache.mkdir()
+    (clone_cache / "README.md").write_text("# hi\n", encoding="utf-8")
+    result = rr._acquire_typescript_environment(tmp_path, clone_cache)
+    assert result["ok"] is False
+    assert "no package.json" in result["detail"]
+
+
+def test_typescript_verification_runner_non_typescript_blocks_stay_stub(tmp_path):
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Installation\n\n```bash\nnpm install\n```\n\n"
+        "## Quick Start\n\n```csharp\nvar x = 1;\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.typescript_verification_runner(candidate_path, {"family": "testfam", "platform": "testplat"})
+    assert result["runner"] == "typescript_verification_runner_v1"
+    assert result["blocks_found"] == 2
+    assert result["all_named"] is True
+    assert all(b["status"] == "BLOCKED-WITH-REASON" and b["reason"] == "TOOLCHAIN-UNAVAILABLE"
+               for b in result["block_statuses"])
+
+
+def test_typescript_verification_runner_recognizes_both_typescript_and_ts_tags(tmp_path):
+    """The candidate's own fenced-block language tag is `typescript` (see any real product's
+    Quick Start section, e.g. cells/typescript), but the shared `ts`/`typescript` alias must
+    both route to the real runner path, not just one spelling."""
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## A\n\n```typescript\nconsole.log(1);\n```\n\n## B\n\n```ts\nconsole.log(2);\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.typescript_verification_runner(candidate_path, {"family": "nope", "platform": "nope"})
+    # No real clone cache for "nope/nope" -- both fall through to the honest ACQUIRE-FAILED
+    # path rather than TOOLCHAIN-UNAVAILABLE, proving both tags were recognized as TypeScript
+    # (not silently left as an unrecognized-language stub).
+    assert result["blocks_found"] == 2
+    assert all(b["reason"] == "ACQUIRE-FAILED" for b in result["block_statuses"])
+
+
 # --- Stale-input-forces-replan at approve ---------------------------------------------------
 
 
