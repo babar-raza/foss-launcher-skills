@@ -1693,6 +1693,59 @@ def _readme_matches_published_upstream(old_readme_text: str, candidate_text: str
     return old_readme_text.strip() == candidate_text.strip()
 
 
+def classify_target_authority(family: str, platform: str) -> dict:
+    """TC-16 (readme-refresh-trackb-and-followon-2026-09-01): is this clone cache a
+    *canonical* upstream (the real project's own repo, safe to push a README refresh to)
+    or a *mirror* (a periodically-regenerated clean re-publish of source pulled from
+    somewhere else, where a pushed PR can be silently wiped the next time the mirror
+    resets -- exactly what happened to font/python's real PR #1, confirmed live this
+    session: `gh api .../compare/<merge-sha>...main` returns 404 'No common ancestor')?
+
+    Signals, all local-only (no network -- this reads the clone cache already on disk):
+    zero-parent HEAD (the current tip is itself a fresh root commit -- real, organic
+    projects essentially never do this; a mirror regenerating from a source snapshot
+    does, every time it resets), >=2 orphan roots across the whole repo (`git rev-list
+    --max-parents=0 --all` -- one root is completely normal history; a wall of roots
+    means the branch has been reset-and-orphaned repeatedly), and a literal "mirror"
+    mention in CHANGELOG.md/CODEOWNERS (weak on its own -- checked, but never sufficient
+    alone; folded in only as a co-signal alongside the two structural git ones).
+
+    Classifies `mirror` only when BOTH the zero-parent-HEAD signal AND the >=2-orphan-
+    roots signal agree -- confirmed live on font/python (both true, 12 roots) vs. a real
+    canonical product like cells/typescript (HEAD has a real parent, 1 root). Either
+    signal alone is not enough: a brand-new repo's very first commit is also a zero-
+    parent HEAD with exactly 1 root, and a legitimately messy real project could
+    accumulate one or two orphaned branches without being a mirror. `canonical` is the
+    default -- this function is deliberately conservative in the safe direction (a false
+    `mirror` merely adds friction via `--acknowledge-mirror-target`; a false `canonical`
+    is the dangerous direction, so both structural signals must independently agree).
+
+    Returns `{"authority": "canonical" | "mirror", "signals": {...}}` -- `signals` is
+    always populated (even for `canonical`) so a push receipt/log can show its own
+    reasoning, not just the verdict.
+    """
+    clone_cache = _product_clone_cache(family, platform)
+    head_parents = _git("log", "-1", "--format=%P", "HEAD", cwd=clone_cache).strip()
+    zero_parent_head = head_parents == ""
+    orphan_roots = [
+        line for line in _git("rev-list", "--max-parents=0", "--all", cwd=clone_cache).splitlines()
+        if line.strip()
+    ]
+    mirror_text_hit = False
+    for name in ("CHANGELOG.md", "CODEOWNERS"):
+        p = clone_cache / name
+        if p.is_file() and "mirror" in p.read_text(encoding="utf-8", errors="ignore").lower():
+            mirror_text_hit = True
+            break
+    signals = {
+        "zero_parent_head": zero_parent_head,
+        "orphan_root_count": len(orphan_roots),
+        "mirror_text_hit": mirror_text_hit,
+    }
+    authority = "mirror" if (zero_parent_head and len(orphan_roots) >= 2) else "canonical"
+    return {"authority": authority, "signals": signals}
+
+
 def _detect_license_file(clone_cache: Path) -> "dict | None":
     """TC-HARDEN-20 (MT034, Twentieth incident, 2026-08-12): the exact-20-char-prefix match
     against the literal string "MIT License" missed real license files phrased "The MIT
@@ -3884,6 +3937,7 @@ def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "
 def push(
     family: str, platform: str, run_id: str, *, acting_model: str, session_id: "str | None" = None,
     dry_run: bool = False, scratch_root: "Path | str | None" = None,
+    acknowledge_mirror_target: "str | None" = None,
 ) -> dict:
     """APPROVED -> PUSHING -> PUSHED. Disposable-clone + branch + surgical-diff-checked
     plumbing commit + push + gh pr create (skipped when --dry-run, or when the branch/commit
@@ -3895,7 +3949,17 @@ def push(
     invariant 5.9's merge-time Co-authored-by trailer): required, no default. This script never
     knows which model is actually running it; only the calling agent does, so the agent must
     supply its own real, current display name here every time, the same way it supplies
-    --subject/--body at merge time."""
+    --subject/--body at merge time.
+
+    acknowledge_mirror_target (TC-16, readme-refresh-trackb-and-followon-2026-09-01): required,
+    non-empty reason string when classify_target_authority() returns 'mirror' -- refused
+    otherwise, dry_run included (a --dry-run against a mirror target is still worth surfacing
+    the refusal loudly rather than silently rehearsing a push that would never be safe for
+    real). This is the code-level enforcement font/python's own hard rule (never push) has
+    relied on manually until now; the classifier is conservative (both a zero-parent HEAD AND
+    >=2 orphan roots required), so a false mirror classification is the only failure mode this
+    gate can introduce, never a false canonical.
+    """
     if not acting_model or not acting_model.strip():
         raise ReadmeRefreshRunError("acting_model is required and must be the real, current model name")
     owner = _session_id(session_id)
@@ -3908,6 +3972,19 @@ def push(
         _require_canonical_tree("push")
         _check_manifest_candidate_tree(manifest)
 
+        authority = classify_target_authority(family, platform)
+        if authority["authority"] == "mirror" and not (
+            acknowledge_mirror_target and acknowledge_mirror_target.strip()
+        ):
+            raise ReadmeRefreshRunError(
+                f"push refused: {family}/{platform}'s clone cache classifies as a MIRROR "
+                f"target, not canonical upstream (signals: {authority['signals']}) -- a "
+                "pushed PR here can be silently wiped on the mirror's next reset (confirmed "
+                "live: this exact fate already happened to font/python's real PR #1). Pass "
+                "--acknowledge-mirror-target '<reason>' if this is a deliberate, reviewed "
+                "exception."
+            )
+
         _transition(manifest, "PUSHING", checkpoint="pushing_started")
 
         scratch = Path(scratch_root) if scratch_root else _reports_root / "readme_refresh_runs" / "_scratch"
@@ -3918,6 +3995,11 @@ def push(
         except Exception as exc:
             _block(manifest, str(exc))
             raise ReadmeRefreshRunError(f"push failed, run BLOCKED: {exc}") from exc
+
+        receipt["target_authority"] = authority["authority"]
+        receipt["target_authority_signals"] = authority["signals"]
+        if authority["authority"] == "mirror":
+            receipt["acknowledge_mirror_target"] = acknowledge_mirror_target
 
         run_root = _run_root(family, platform, run_id)
         (run_root / "push").mkdir(parents=True, exist_ok=True)
@@ -4174,6 +4256,11 @@ def main(argv: "list[str] | None" = None) -> int:
         help="Real, current display name of the model invoking this push (F-02: this script "
              "never hardcodes it -- only the calling agent knows its own real name).",
     )
+    p_push.add_argument(
+        "--acknowledge-mirror-target",
+        help="Required, non-empty reason if classify_target_authority() finds this product's "
+             "clone cache is a MIRROR, not canonical upstream (TC-16) -- refused otherwise.",
+    )
 
     for name in ("abandon", "recover"):
         cmd = sub.add_parser(name)
@@ -4366,6 +4453,7 @@ def main(argv: "list[str] | None" = None) -> int:
                 manifest = push(
                     family, platform, args.run_id, session_id=args.session_id, dry_run=args.dry_run,
                     acting_model=args.acting_model,
+                    acknowledge_mirror_target=args.acknowledge_mirror_target,
                 )
             elif args.command == "verify":
                 result = verify(family, platform, args.run_id, session_id=args.session_id)

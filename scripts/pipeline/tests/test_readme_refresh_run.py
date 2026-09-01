@@ -1241,6 +1241,119 @@ def test_push_commit_trailer_uses_the_caller_supplied_acting_model_not_a_hardcod
     assert "Claude Sonnet 4.6" not in commit_message
 
 
+# --- TC-16 (readme-refresh-trackb-and-followon-2026-09-01): publication-authority classifier
+# + push gate ---------------------------------------------------------------------------------
+
+
+def _make_mirror_shaped_clone_cache(clone_cache_dir):
+    """Reshapes an already-cloned repo (a real git repo with 1 normal commit on `main`) into
+    a mirror-shaped one in place: >=2 orphan roots reachable via --all, and main's own tip is
+    itself a fresh zero-parent root -- the exact live signature confirmed on font/python this
+    session (HEAD has 0 parents; `git rev-list --max-parents=0 --all` shows 12 roots)."""
+    _run_git(["checkout", "--orphan", "second-orphan-root"], clone_cache_dir)
+    _run_git(["commit", "-q", "--allow-empty", "-m", "an unrelated orphan branch"], clone_cache_dir)
+    _run_git(["checkout", "--orphan", "new-main-root"], clone_cache_dir)
+    _run_git(["commit", "-q", "--allow-empty", "-m", "a fresh, unrelated root for main"], clone_cache_dir)
+    _run_git(["branch", "-f", "main", "new-main-root"], clone_cache_dir)
+    _run_git(["checkout", "main"], clone_cache_dir)
+    _run_git(["branch", "-D", "new-main-root"], clone_cache_dir)
+
+
+def test_classify_target_authority_canonical_for_a_normal_repo(tmp_path, monkeypatch):
+    """A real repo with actual depth (HEAD has a genuine parent) -- the scratch fixture's own
+    single-commit clone is too shallow to exercise the zero_parent_head=False path on its own
+    (every fresh repo's first-ever commit is itself a zero-parent root), so a second real
+    commit is added here to give `main` a genuine parent."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-a")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    _run_git(["commit", "-q", "--allow-empty", "-m", "a real second commit"], clone_cache_dir)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    result = rr.classify_target_authority("testfam", "testplat")
+    assert result["authority"] == "canonical"
+    assert result["signals"]["zero_parent_head"] is False
+    assert result["signals"]["orphan_root_count"] == 1
+
+
+def test_classify_target_authority_mirror_when_both_structural_signals_agree(tmp_path, monkeypatch):
+    """The real font/python signature: HEAD has 0 parents AND >=2 orphan roots. Confirmed live
+    this session via `git log -1 --format=%P HEAD` (empty) and `git rev-list --max-parents=0
+    --all | wc -l` (12) against the real font/python clone cache."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-b")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    _make_mirror_shaped_clone_cache(clone_cache_dir)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    result = rr.classify_target_authority("testfam", "testplat")
+    assert result["authority"] == "mirror"
+    assert result["signals"]["zero_parent_head"] is True
+    assert result["signals"]["orphan_root_count"] >= 2
+
+
+def test_classify_target_authority_canonical_when_only_one_signal_present(tmp_path, monkeypatch):
+    """A zero-parent HEAD alone (a real repo's very first commit, e.g. right after a fresh
+    `git init`, or -- exactly what the unmodified scratch fixture already naturally is --
+    a repo with exactly one commit) must NOT alone trigger mirror: only 1 root exists, and
+    this is completely normal for any brand-new real project. Both signals must agree
+    (conservative in the safe direction: a false 'canonical' is the dangerous failure mode,
+    not a false 'mirror')."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-c")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    result = rr.classify_target_authority("testfam", "testplat")
+    assert result["authority"] == "canonical"
+    assert result["signals"]["zero_parent_head"] is True
+    assert result["signals"]["orphan_root_count"] == 1
+
+
+def test_push_refuses_on_mirror_target_without_acknowledgment(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-d")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    _make_mirror_shaped_clone_cache(clone_cache_dir)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="MIRROR"):
+        rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model")
+
+
+def test_push_proceeds_on_mirror_target_with_explicit_acknowledgment(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-e")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    _make_mirror_shaped_clone_cache(clone_cache_dir)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    manifest = rr.push(
+        "testfam", "testplat", run_id, dry_run=True, acting_model="Test Model",
+        acknowledge_mirror_target="deliberate, reviewed test exception",
+    )
+    assert manifest["state"] == "APPROVED"  # dry-run rehearses back to APPROVED, per push()'s own contract
+    receipt_path = rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["target_authority"] == "mirror"
+    assert receipt["acknowledge_mirror_target"] == "deliberate, reviewed test exception"
+
+
+def test_push_on_canonical_target_never_requires_acknowledgment(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc16-f")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model")
+    assert manifest["state"] == "APPROVED"
+    receipt_path = rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["target_authority"] == "canonical"
+    assert "acknowledge_mirror_target" not in receipt
+
+
 # --- repo_presenter_actions.jsonl ledger (TC-HARDEN-15, MT035) -----------------------------
 
 
