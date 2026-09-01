@@ -3979,6 +3979,104 @@ def test_installation_check_badge_scan_runs_even_with_no_installation_section():
     assert findings[0]["expected"] == "aspose-email-foss"
 
 
+# --- check_installation_matches_manifest_version (TC-14, MT061-2026-09-01-TRACKB-FOLLOWON-2) ----
+# Independent of check_installation_matches_package_registry above -- this one compares against
+# input_manifest.resolve_manifest_version's output (the clone-cache manifest), never against
+# data/package_registry.json. Fixtures below reproduce real, live-confirmed Installation-section
+# install-command shapes read directly from the current portfolio's own composed READMEs while
+# building this check (pdf/net, cells/java, cells/typescript, pdf/python, cells/rust, email/cpp).
+
+def test_installation_manifest_version_check_passes_real_pdf_net_shape():
+    text = (
+        "## Installation\n\n"
+        "```bash\ndotnet add package Aspose.PDF.FOSS --version 26.8.0\n```\n\n"
+        'Or with a `<PackageReference>`:\n\n```xml\n<PackageReference Include="Aspose.PDF.FOSS" '
+        'Version="26.8.0" />\n```\n'
+    )
+    manifest_version = {"version": "26.8.0", "source_path": "src/Aspose.Pdf.Foss.csproj", "source_field": "Version"}
+    assert checks.check_installation_matches_manifest_version(text, "net", manifest_version) == []
+
+
+def test_installation_manifest_version_check_flags_stale_dotnet_version():
+    text = "## Installation\n\n```bash\ndotnet add package Aspose.PDF.FOSS --version 26.8.0\n```\n"
+    manifest_version = {"version": "26.9.0", "source_path": "src/Aspose.Pdf.Foss.csproj", "source_field": "Version"}
+    findings = checks.check_installation_matches_manifest_version(text, "net", manifest_version)
+    assert len(findings) == 1
+    assert findings[0]["expected"] == "26.9.0"
+    assert findings[0]["found"] == ["26.8.0"]
+
+
+def test_installation_manifest_version_check_passes_real_cells_java_shape():
+    text = (
+        "## Installation\n\nAdd the dependency to your `pom.xml`:\n\n"
+        "```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n  <artifactId>aspose-cells-foss</artifactId>\n"
+        "  <version>26.7.0</version>\n</dependency>\n```\n\n"
+        "Gradle (Groovy DSL):\n\n```groovy\nimplementation 'org.aspose:aspose-cells-foss:26.7.0'\n```\n"
+    )
+    manifest_version = {"version": "26.7.0", "source_path": "pom.xml", "source_field": "project.version"}
+    assert checks.check_installation_matches_manifest_version(text, "java", manifest_version) == []
+
+
+def test_installation_manifest_version_check_flags_stale_java_version():
+    text = (
+        "## Installation\n\n```xml\n<dependency>\n  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-cells-foss</artifactId>\n  <version>26.5.0</version>\n</dependency>\n```\n"
+    )
+    manifest_version = {"version": "26.7.0", "source_path": "pom.xml", "source_field": "project.version"}
+    findings = checks.check_installation_matches_manifest_version(text, "java", manifest_version)
+    assert len(findings) == 1
+    assert findings[0]["found"] == ["26.5.0"]
+
+
+def test_installation_manifest_version_check_noop_when_no_manifest_version_resolved():
+    # A manifest-resolution gap (e.g. cells/cpp's real "no VERSION declared" case) is not itself
+    # a README defect -- nothing to compare against.
+    text = "## Installation\n\n```bash\ndotnet add package Aspose.PDF.FOSS --version 26.8.0\n```\n"
+    assert checks.check_installation_matches_manifest_version(
+        text, "net", {"version": None, "reason": "no <Version> element"}
+    ) == []
+
+
+def test_installation_manifest_version_check_noop_when_no_installation_section():
+    text = "## Key Capabilities\n\n- Does a thing.\n"
+    manifest_version = {"version": "26.8.0", "source_path": "x", "source_field": "y"}
+    assert checks.check_installation_matches_manifest_version(text, "net", manifest_version) == []
+
+
+def test_installation_manifest_version_check_noop_on_unpublished_disclosure_real_cells_typescript_shape():
+    text = "## Installation\n\nA npm package has not been published yet. Install from source:\n\n```bash\nnpm install\n```\n"
+    manifest_version = {"version": "1.0.0", "source_path": "package.json", "source_field": "version"}
+    assert checks.check_installation_matches_manifest_version(text, "typescript", manifest_version) == []
+
+
+def test_installation_manifest_version_check_noop_when_no_version_cited_at_all():
+    # Real, common portfolio shape: an unpublished/build-from-source Installation section that
+    # cites no version-shaped token in a recognized pattern (even without the standard
+    # "not published" disclosure phrasing this check's own unpublished-signal reuse expects).
+    text = "## Installation\n\n```bash\ngit clone https://github.com/example/example.git\ncd example\n```\n"
+    manifest_version = {"version": "26.7.0", "source_path": "Cargo.toml", "source_field": "package.version"}
+    assert checks.check_installation_matches_manifest_version(text, "rust", manifest_version) == []
+
+
+def test_installation_manifest_version_check_noop_for_cpp_no_pattern_registered():
+    # No real C++ product in this portfolio cites a numbered version in its install COMMAND
+    # (build-from-source / find_package() only) -- cpp has no entry in the dispatch table.
+    text = "## Installation\n\n```cmake\nadd_subdirectory(Aspose.Email-FOSS-for-Cpp)\n```\n"
+    manifest_version = {"version": "0.1.0", "source_path": "CMakeLists.txt", "source_field": "project(...VERSION...)"}
+    assert checks.check_installation_matches_manifest_version(text, "cpp", manifest_version) == []
+
+
+def test_installation_manifest_version_check_python_pip_pin():
+    text = "## Installation\n\n```bash\npip install aspose-words-foss==26.7.0\n```\n"
+    manifest_version = {"version": "26.7.0", "source_path": "pyproject.toml", "source_field": "project.version"}
+    assert checks.check_installation_matches_manifest_version(text, "python", manifest_version) == []
+
+    stale_manifest = {"version": "26.8.0", "source_path": "pyproject.toml", "source_field": "project.version"}
+    findings = checks.check_installation_matches_manifest_version(text, "python", stale_manifest)
+    assert len(findings) == 1
+    assert findings[0]["found"] == ["26.7.0"]
+
+
 # --- check_badge_row_meets_verified_floor / check_badge_available_fact_not_shown (TC-HARDEN-58/
 # 59, MT042, Thirty-Second incident) ---------------------------------------------------------------
 # Trigger: a real, clean-room `cells/typescript` candidate shipped with a single License badge --

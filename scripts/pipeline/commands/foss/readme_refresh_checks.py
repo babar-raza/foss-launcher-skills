@@ -2325,6 +2325,122 @@ def _expected_package_identity(install_info: dict) -> "str | None":
     return candidate.get("name")
 
 
+# TC-14 (MT061-2026-09-01-TRACKB-FOLLOWON-2): each pattern captures a version-shaped token from
+# a real, confirmed-live Installation-section install command for that platform (see the fixture
+# products cited alongside each entry -- all read directly from real, current candidate content
+# during this taskcard, not invented). Deliberately keyed by PLATFORM, not `registry_type` from
+# `data/package_registry.json` -- this check's whole point is comparing against the clone-cache
+# manifest (input_manifest.resolve_manifest_version), a source independent of that already-
+# disclosed-unreliable registry (see check_installation_matches_package_registry's own docstring
+# above for the live words/net and email/net registry-vs-reality mismatches that motivated
+# keeping the two signals separate).
+_INSTALL_VERSION_TOKEN_PATTERNS_BY_PLATFORM: "dict[str, list[re.Pattern]]" = {
+    "net": [
+        re.compile(r"--version[= ]+([0-9]+(?:\.[0-9]+){1,3})"),           # `dotnet add package X --version 26.8.0` (pdf/net)
+        re.compile(r'Version\s*=\s*"([0-9]+(?:\.[0-9]+){1,3})"'),          # `<PackageReference ... Version="26.8.0" />` (pdf/net)
+    ],
+    "dotnet": [
+        re.compile(r"--version[= ]+([0-9]+(?:\.[0-9]+){1,3})"),
+        re.compile(r'Version\s*=\s*"([0-9]+(?:\.[0-9]+){1,3})"'),
+    ],
+    "java": [
+        re.compile(r"<version>\s*([0-9]+(?:\.[0-9]+){1,3})\s*</version>"),  # Maven XML dependency block (cells/java)
+        re.compile(r"[\w.\-]+:[\w.\-]+:([0-9]+(?:\.[0-9]+){1,3})\b"),       # Gradle short form `group:artifact:26.7.0` (cells/java)
+    ],
+    "python": [
+        re.compile(r"==\s*([0-9]+(?:\.[0-9]+){1,3})\b"),                    # `pip install pkg==26.8.0`
+    ],
+    "typescript": [
+        re.compile(r"@\^?~?v?([0-9]+(?:\.[0-9]+){1,3})\b"),                 # `npm install pkg@26.8.0`
+    ],
+    "javascript": [
+        re.compile(r"@\^?~?v?([0-9]+(?:\.[0-9]+){1,3})\b"),
+    ],
+    "nodejs": [
+        re.compile(r"@\^?~?v?([0-9]+(?:\.[0-9]+){1,3})\b"),
+    ],
+    "rust": [
+        re.compile(r'version\s*=\s*"([0-9]+(?:\.[0-9]+){1,3})"'),           # `[dependencies]` TOML block `version = "26.7.0"`
+        re.compile(r"@\^?~?v?([0-9]+(?:\.[0-9]+){1,3})\b"),                 # `cargo add pkg@26.7.0`
+    ],
+    "go": [
+        re.compile(r"@v?([0-9]+(?:\.[0-9]+){1,3})\b"),                      # `go get module@v26.8.0`
+    ],
+    # cpp: no pattern set -- no real product in this portfolio cites a numbered version in its
+    # Installation section's install COMMAND (C++ products are consumed by building from source
+    # or via find_package(), never a pinned-version package-manager invocation); rather than
+    # invent a speculative pattern with no real fixture to validate it against, this platform is
+    # left out of the dispatch table and the check degrades to "no finding" for it below, the
+    # same graceful-degradation posture check_installation_matches_package_registry already uses
+    # for "no data to compare."
+}
+
+
+def check_installation_matches_manifest_version(readme_text: str, platform: str, manifest_version: dict) -> list[dict]:
+    """TC-14 (MT061-2026-09-01-TRACKB-FOLLOWON-2, resumed from a real, disclosed PAUSE in the
+    parent mission): compares the version this product's own clone-cache manifest declares
+    (`input_manifest.resolve_manifest_version` -- e.g. a `.csproj`'s `<Version>`, a `pom.xml`'s
+    root-level `<version>`, `pyproject.toml`'s `[project].version`) against whatever version
+    token(s) the composed `## Installation` section's own install command actually cites.
+
+    Advisory only (`hard_gate=False`), matching `check_installation_matches_package_registry`'s
+    own established posture for the same reason: the manifest source itself has real, disclosed
+    gaps a hard gate would wrongly punish a correct README for -- C++ products with genuinely no
+    declared VERSION field (`cells/cpp`, `slides/cpp`), Go's git-tag versioning being out of
+    scope this pass, and Python's `dynamic = ["version"]` case resolving to whatever placeholder
+    string the source module happens to hardcode (`pdf/python`'s own `_version.py` resolves to
+    `0.1.0`, which is very unlikely to be the real intended release version -- a manifest-source
+    problem, not necessarily a README defect). A hard gate on an unproven source would repeat
+    the exact mistake `check_installation_matches_package_registry`'s own docstring already
+    documents for `data/package_registry.json`.
+
+    Degrades gracefully to no findings, never a crash or a false accusation, when: no manifest
+    version was resolved (nothing to compare against); no `## Installation` section exists
+    (`check_required_sections` already owns that); the section discloses the package is not yet
+    published (`_UNPUBLISHED_PACKAGE_SIGNAL_RE`, reused from the check above rather than
+    reinvented -- an honest "not published" README has no version claim to be wrong about); or
+    the platform has no recognized version-citing pattern (or the section simply names none) --
+    most Installation sections in this portfolio are for NOT-YET-published packages and cite no
+    version number at all, confirmed live across the products sampled while building this check
+    (cells/typescript, pdf/python, cells/rust, email/cpp all disclose "not yet published" and
+    name no version)."""
+    version = (manifest_version or {}).get("version")
+    if not version:
+        return []
+
+    sections = _split_into_sections(readme_text)
+    section_text = sections.get("Installation", "")
+    if not section_text:
+        return []
+
+    if _UNPUBLISHED_PACKAGE_SIGNAL_RE.search(section_text):
+        return []
+
+    patterns = _INSTALL_VERSION_TOKEN_PATTERNS_BY_PLATFORM.get(platform, [])
+    if not patterns:
+        return []
+
+    cited_versions: set = set()
+    for pattern in patterns:
+        for m in pattern.finditer(section_text):
+            cited_versions.add(m.group(1))
+
+    if not cited_versions or version in cited_versions:
+        return []
+
+    return [{
+        "reason": f"Installation section cites version(s) {sorted(cited_versions)} but the "
+                  f"clone-cache manifest ({manifest_version.get('source_path')!r}, field "
+                  f"{manifest_version.get('source_field')!r}) declares {version!r} -- confirm "
+                  f"whether the README is stale or the manifest source itself is stale/"
+                  f"unreliable (see resolve_manifest_version's own disclosed caveats -- e.g. "
+                  f"C++'s inconsistent VERSION field or Python's dynamic-version placeholder "
+                  f"case) before treating this as a content defect",
+        "expected": version,
+        "found": sorted(cited_versions),
+    }]
+
+
 _HEADING_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
 
 

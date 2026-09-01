@@ -2395,6 +2395,21 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             text, _detect_install_info(family, platform)
         ),
     }
+    # TC-14 (MT061-2026-09-01-TRACKB-FOLLOWON-2): a second, independent Installation-section
+    # version signal alongside the registry-based one above -- this one sourced from the
+    # product's own clone-cache manifest (input_manifest.resolve_manifest_version), never from
+    # `data/package_registry.json`, which was confirmed live to carry no real version at all for
+    # every product using the current scout mechanism. Computed fresh here, matching this
+    # function's own established "never read back from persisted factpack.json" pattern for
+    # every other _detect_*/resolve_* value. Advisory only (hard_gate=False) -- see the check's
+    # own docstring for why (the manifest source has real, disclosed gaps -- C++/Go/Python
+    # dynamic-version edge cases -- that a hard gate would wrongly punish a correct README for).
+    result["installation_matches_manifest_version"] = {
+        "hard_gate": False,
+        "findings": checks.check_installation_matches_manifest_version(
+            text, platform, input_manifest.resolve_manifest_version(family, platform, clone_cache)
+        ),
+    }
 
     # Fourteenth incident / MT029 (2026-08-09): five visitor-facing content-quality
     # requirements found live during user review of tex/python's candidate -- Items 1+3
