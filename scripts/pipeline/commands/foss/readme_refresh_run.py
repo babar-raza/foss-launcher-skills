@@ -3784,6 +3784,34 @@ def _acquire_python_environment(work_dir: Path, install_info: dict, clone_cache:
     return {"ok": True, "venv_python": venv_python, "detail": f"editable-installed from clone cache ({clone_cache})"}
 
 
+_PY_TRACEBACK_FILE_RE = re.compile(r'^\s*File "([^"]+)", line \d+', re.MULTILINE)
+_PY_SYNTAX_ERROR_CLASSES = ("SyntaxError", "IndentationError", "TabError")
+
+
+def _classify_python_failure(traceback_text: str, script_path: Path) -> "tuple[str, str]":
+    """TC-26 (readme-refresh-trackb-and-followon-2026-09-01): distinguishes a real defect in
+    the UPSTREAM package's own source from a real defect in the example itself, instead of
+    labeling both the same generic RUNTIME-ERROR. Confirmed live and load-bearing on
+    tex/python: 102 of 119 real source files fail `ast.parse` (genuine, pre-existing
+    IndentationError/SyntaxError in the upstream package, unrelated to anything a README
+    example does) -- `pip install -e` succeeds (setuptools never compiles every file at
+    install time), so the failure only surfaces later, at real IMPORT time, with a traceback
+    whose LAST frame is a file inside the installed package's own source tree, never the
+    verification script itself. Signal: the traceback's own error class is a syntax-family
+    one (SyntaxError/IndentationError/TabError) AND its last cited file is NOT this block's
+    own script -- a real AttributeError/TypeError/NameError from the reader's own example
+    code (or a syntax error IN the example itself) must stay RUNTIME-ERROR, never be
+    misclassified as the upstream's fault.
+
+    Returns `(reason, detail)` -- detail always names the real file+line for UPSTREAM-BROKEN,
+    per the plan's own 'named evidence' requirement."""
+    file_frames = _PY_TRACEBACK_FILE_RE.findall(traceback_text)
+    has_syntax_error = any(cls in traceback_text for cls in _PY_SYNTAX_ERROR_CLASSES)
+    if has_syntax_error and file_frames and file_frames[-1] != str(script_path):
+        return "UPSTREAM-BROKEN", traceback_text[-2000:]
+    return "RUNTIME-ERROR", traceback_text[-2000:]
+
+
 def _run_single_python_block(venv_python: str, code: str, work_dir: Path, index: int) -> dict:
     """Real execution IS the check (the plan's own Python-procedure principle) -- an
     AttributeError/ImportError/TypeError from the real installed package is authoritative, never
@@ -3801,10 +3829,8 @@ def _run_single_python_block(venv_python: str, code: str, work_dir: Path, index:
         return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": "TIMEOUT"}
     if result.returncode == 0:
         return {"index": index, "status": "COMPILED+RAN CLEAN"}
-    return {
-        "index": index, "status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR",
-        "detail": (result.stderr or result.stdout).strip()[-2000:],
-    }
+    reason, detail = _classify_python_failure((result.stderr or result.stdout).strip(), script_path)
+    return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": reason, "detail": detail}
 
 
 def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:

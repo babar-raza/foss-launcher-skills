@@ -2496,6 +2496,98 @@ def test_run_single_python_block_runtime_error_captured(tmp_path):
     assert "boom, real traceback" in result["detail"]
 
 
+# --- TC-26 (readme-refresh-trackb-and-followon-2026-09-01): UPSTREAM-BROKEN classification --
+#
+# Confirmed live and load-bearing against the real tex/python clone cache: 102 of 119 real
+# source files fail ast.parse (genuine pre-existing IndentationError). `pip install -e`
+# succeeds regardless (setuptools never compiles every file at install time) -- the failure
+# only surfaces at real IMPORT time, with `aspose_tex/_input/catcode.py:66:
+# IndentationError: expected an indented block after 'for' statement on line 65` as the
+# traceback's own last frame, never the verification script itself.
+
+
+def test_classify_python_failure_upstream_broken_real_syntax_error_in_dependency(tmp_path):
+    script_path = tmp_path / "block_0.py"
+    # A real Python traceback shape: importing a broken dependency module.
+    traceback_text = (
+        'Traceback (most recent call last):\n'
+        f'  File "{script_path}", line 1, in <module>\n'
+        '    import broken_pkg\n'
+        '  File "C:\\clone_cache\\broken_pkg\\__init__.py", line 3, in <module>\n'
+        '    from broken_pkg.inner import thing\n'
+        '  File "C:\\clone_cache\\broken_pkg\\inner.py", line 66\n'
+        '    table[c] = X\n'
+        '    ^^^^^\n'
+        "IndentationError: expected an indented block after 'for' statement on line 65\n"
+    )
+    reason, detail = rr._classify_python_failure(traceback_text, script_path)
+    assert reason == "UPSTREAM-BROKEN"
+    assert "inner.py" in detail
+    assert "IndentationError" in detail
+
+
+def test_classify_python_failure_stays_runtime_error_for_the_blocks_own_defect(tmp_path):
+    script_path = tmp_path / "block_0.py"
+    # A real AttributeError from the READER's own example misusing a real, working API --
+    # must never be misattributed to upstream.
+    traceback_text = (
+        'Traceback (most recent call last):\n'
+        f'  File "{script_path}", line 3, in <module>\n'
+        '    workbook.doesnt_exist()\n'
+        "AttributeError: 'Workbook' object has no attribute 'doesnt_exist'\n"
+    )
+    reason, detail = rr._classify_python_failure(traceback_text, script_path)
+    assert reason == "RUNTIME-ERROR"
+    assert "doesnt_exist" in detail
+
+
+def test_classify_python_failure_syntax_error_in_the_block_itself_stays_runtime_error(tmp_path):
+    """A syntax error whose LAST frame IS the block's own script (the reader's own example
+    has a real typo) is the reader's fault, not upstream's -- must stay RUNTIME-ERROR."""
+    script_path = tmp_path / "block_0.py"
+    traceback_text = (
+        f'  File "{script_path}", line 2\n'
+        '    if True\n'
+        '          ^\n'
+        'SyntaxError: expected \':\'\n'
+    )
+    reason, _detail = rr._classify_python_failure(traceback_text, script_path)
+    assert reason == "RUNTIME-ERROR"
+
+
+def test_run_single_python_block_upstream_broken_real_import_of_a_genuinely_broken_local_package(tmp_path, monkeypatch):
+    """Fully real acquire->execute->classify, zero network dependency -- a real, minimal,
+    locally-installable package with a genuine IndentationError in a submodule (the same
+    real defect shape confirmed live on tex/python) stands in for the clone cache."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc26")
+    clone_cache_root = tmp_path / "clone_cache_root"
+    clone_cache = clone_cache_root / "aspose_testfam_testplat"
+    pkg_dir = clone_cache / "brokenpkg"
+    pkg_dir.mkdir(parents=True)
+    (clone_cache / "setup.py").write_text(
+        "from setuptools import setup, find_packages\n"
+        "setup(name='brokenpkg_e2e', version='0.1', packages=find_packages())\n",
+        encoding="utf-8",
+    )
+    (pkg_dir / "__init__.py").write_text("from brokenpkg.inner import VALUE\n", encoding="utf-8")
+    # A real, genuine IndentationError -- not synthesized text, actual invalid Python.
+    (pkg_dir / "inner.py").write_text("if True:\npass\nVALUE = 1\n", encoding="utf-8")
+    rr.configure(clone_cache_root=clone_cache_root)
+
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+    acquire = rr._acquire_python_environment(
+        work_dir, {"published": False, "candidate": {"name": "doesnt-matter"}}, clone_cache,
+    )
+    assert acquire["ok"] is True, acquire["detail"]
+    result = rr._run_single_python_block(acquire["venv_python"], "import brokenpkg\n", work_dir, 0)
+
+    assert result["status"] == "BLOCKED-WITH-REASON"
+    assert result["reason"] == "UPSTREAM-BROKEN", result
+    assert "inner.py" in result["detail"]
+    assert "IndentationError" in result["detail"]
+
+
 def test_acquire_python_environment_real_venv_unpublished_no_clone_cache(tmp_path):
     # Real venv creation (no network -- python -m venv is purely local), then the real,
     # honest failure when unpublished and no clone cache exists to editable-install from.
