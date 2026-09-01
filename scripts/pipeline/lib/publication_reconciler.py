@@ -22,6 +22,33 @@ CONTRACT: scripts/pipeline/lib/publication_reconciler.py
           `apply=True` is passed explicitly. NEVER writes to any product's own GitHub repo --
           `gh pr list`/`gh api repos/{repo}`/`gh api repos/{repo}/compare/...` are the only
           subprocess calls this module makes, all read-only GitHub API calls.
+  TC-41 addendum (MT061-2026-09-01-TRACKB-FOLLOWON-2): built to feed TC-17's
+           live-published-regression gate and TC-27's PR-merge-based publication gate,
+           per reports/plan_state/readme-refresh-forensic-trust-audit-2026-08-25/
+           phase6b-production-hardening-design.md S3.VII. That document's literal
+           mechanism ("checking the merging actor's GitHub identity is not the pipeline's
+           own bot/token identity") was investigated live BEFORE being built, per this
+           mission's own "verify a spec against real behavior first" discipline (TC-17's
+           own precedent) -- and found NOT exercisable in this repository: `gh api user`
+           for the live `GH_TOKEN` resolves to `babar-raza`, the human maintainer's own
+           personal account, not a separate bot/service identity. Sampled every real
+           readme-refresh PR merge event available (3d/net #3, note/python #5, and
+           font/python #1 -- the one case the hard rule most needs to catch) via the
+           single-PR endpoint (`merged_by` is null on the LIST endpoint, a real,
+           easily-missed API quirk fixed here): all three show `merged_by: babar-raza`,
+           identical to the token's own identity, with zero PR review-approval trail on
+           any of them either. There is no externally-observable GitHub signal in this
+           repo's real history that distinguishes "a human merged this with real
+           scrutiny" from "the agent ran `gh pr merge` after a chat go-ahead" -- both
+           produce byte-identical API responses. Building an identity-gate on this
+           non-signal would either always-fail (blocking every real publication) or be
+           purely vacuous (font/python's own REVERTED case is already caught by the
+           existing ancestor-reachability check, not by identity). `merged_by_login` is
+           therefore recorded as an AUDIT field only (informational, never a gate).
+           `published_blob_sha256` (a real, structurally sound fingerprint of the live
+           README content, independent of the identity question) IS built and gates
+           TC-17's regression check. See MT061's TC-41 taskcard evidence for the full
+           live investigation.
   states: `IN_SYNC` (registry already reflects the most recent readme-refresh PR),
           `UNRECORDED_PUBLICATION` (a real readme-refresh PR merged upstream, confirmed
           reachable from the live default branch, with no matching registry entry, or an
@@ -38,6 +65,7 @@ CONTRACT: scripts/pipeline/lib/publication_reconciler.py
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -170,6 +198,46 @@ def _merge_commit_reachable_from_default_branch(repo_full_name: str, merge_commi
     return status in ("identical", "ahead")
 
 
+def _fetch_pr_merged_by(repo_full_name: str, pr_number: int) -> "str | None":
+    """TC-41: `merged_by` is populated only on the single-PR endpoint, never on `gh pr
+    list`/the list endpoint used by `_fetch_merged_prs` (confirmed live -- every row from
+    the list call comes back with `merged_by: null` regardless of real merge state).
+    Returns the merging actor's login, or None on any gh failure or missing field --
+    informational only, never gates a state transition."""
+    result = _cfg_command_runner(
+        ["gh", "api", f"repos/{repo_full_name}/pulls/{pr_number}"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+    )
+    if result.returncode != 0 or not result.stdout:
+        return None
+    try:
+        merged_by = json.loads(result.stdout).get("merged_by") or {}
+    except json.JSONDecodeError:
+        return None
+    return merged_by.get("login")
+
+
+def _fetch_readme_blob_sha256(repo_full_name: str, ref: str) -> "str | None":
+    """TC-41: sha256 of the live README.md's raw content at `ref` (the PR's merge_commit_sha
+    -- never a mutable branch pointer, so this fingerprint is reproducible/pinned). Returns
+    None on any gh failure or an empty/missing file -- callers must never write a fingerprint
+    they could not really confirm.
+
+    `ref` is embedded directly in the URL query string, never passed via `-f ref=...` --
+    confirmed live that `-f`/`--raw-field` silently makes `gh api` default to a POST
+    request unless `--method GET` is also passed, which 404s against this GET-only
+    contents endpoint. Live-verified against the real 3d/net repo before trusting either
+    form (this exact 404-vs-real-content gap is why the fix is a query string, not a flag)."""
+    result = _cfg_command_runner(
+        ["gh", "api", "-H", "Accept: application/vnd.github.raw",
+         f"repos/{repo_full_name}/contents/README.md?ref={ref}"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+    )
+    if result.returncode != 0 or not result.stdout:
+        return None
+    return hashlib.sha256(result.stdout.encode("utf-8")).hexdigest()
+
+
 def reconcile_product(family: str, platform: str) -> dict:
     """Read-only. Returns a reconciliation report; never mutates anything.
 
@@ -266,16 +334,61 @@ def reconcile_product(family: str, platform: str) -> dict:
     }
 
 
-def apply_reconciliation(report: dict) -> "dict | None":
-    """Writes a discovered UNRECORDED_PUBLICATION into data/readme_published_state.json.
+def _fetch_fingerprint_fields(report: dict) -> dict:
+    """TC-41: best-effort published_blob_sha256 + merged_by_login for a report whose
+    `latest_readme_refresh_pr` is populated and confirmed reachable. Never raises; a failed
+    gh call simply omits that field rather than writing a stale/fabricated value."""
+    pr = report.get("latest_readme_refresh_pr") or {}
+    repo_full_name = _repo_full_name(report["family"], report["platform"])
+    fields: dict = {}
+    if repo_full_name and pr.get("number") is not None:
+        merged_by_login = _fetch_pr_merged_by(repo_full_name, pr["number"])
+        if merged_by_login:
+            fields["merged_by_login"] = merged_by_login
+    if repo_full_name and pr.get("merge_commit_sha"):
+        blob_sha256 = _fetch_readme_blob_sha256(repo_full_name, pr["merge_commit_sha"])
+        if blob_sha256:
+            fields["published_blob_sha256"] = blob_sha256
+            fields["published_commit"] = pr["merge_commit_sha"]
+    return fields
 
-    No-op (returns None) for any other state -- IN_SYNC needs no write, UNPUBLISHED/
-    NO_REPO_ACCESS have nothing confirmed to record. Additive to the existing 4-field
-    schema (family/platform/last_known_publication/evidence): also stamps pr_number,
-    merged_at, merge_commit_sha, and last_reconciled_at, per the governing plan's own
+
+def apply_reconciliation(report: dict) -> "dict | None":
+    """Writes a discovered UNRECORDED_PUBLICATION into data/readme_published_state.json,
+    or (TC-41) refreshes the fingerprint fields on an already-IN_SYNC row.
+
+    No-op (returns None) for any other state -- REVERTED/UNCONFIRMED_REACHABILITY/
+    UNPUBLISHED/NO_REPO_ACCESS have nothing confirmed to record, and IN_SYNC with no
+    resolvable PR/repo (e.g. a synthetic report) leaves the row untouched. Additive to the
+    existing 4-field schema (family/platform/last_known_publication/evidence): also stamps
+    pr_number, merged_at, merge_commit_sha, last_reconciled_at, and (TC-41)
+    published_blob_sha256/published_commit/merged_by_login, per the governing plan's own
     ADDITIVE schema for this file -- existing readers that only know the original 4 fields
-    are unaffected.
+    are unaffected. `merged_by_login` is informational only (see module docstring TC-41
+    addendum for why it cannot safely gate anything in this repository) -- it is never
+    read by any check, only recorded for audit visibility.
     """
+    if report["state"] == "IN_SYNC":
+        pr = report.get("latest_readme_refresh_pr")
+        registry_entry = report.get("registry_entry")
+        if not pr or not registry_entry:
+            return None
+        fingerprint = _fetch_fingerprint_fields(report)
+        if not fingerprint:
+            return None
+        family, platform = report["family"], report["platform"]
+        state = _load_json(_published_state_path()) or {"schema_version": 1, "products": []}
+        rows = state.setdefault("products", [])
+        for row in rows:
+            if row.get("family") == family and row.get("platform") == platform:
+                row.update(fingerprint)
+                row["last_reconciled_at"] = _utc_now_iso()
+                _published_state_path().write_text(
+                    json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
+                )
+                return row
+        return None
+
     if report["state"] != "UNRECORDED_PUBLICATION":
         return None
     pr = report["latest_readme_refresh_pr"]
@@ -294,6 +407,7 @@ def apply_reconciliation(report: dict) -> "dict | None":
         "last_reconciled_at": reconciled_at,
         "reconciliation_state": "IN_SYNC",
     }
+    entry.update(_fetch_fingerprint_fields(report))
     for i, row in enumerate(rows):
         if row.get("family") == family and row.get("platform") == platform:
             rows[i] = entry

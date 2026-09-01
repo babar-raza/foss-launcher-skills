@@ -7,6 +7,7 @@ Real regression inputs: the exact two live cases this module was built to catch
 mission's manual `gh pr view` investigation found them by hand).
 """
 
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -36,22 +37,39 @@ def _write_published_state(repo_root: Path, rows: list[dict]) -> None:
     )
 
 
-def _fake_gh_runner(pr_list_stdout: str, pr_list_returncode: int = 0, *, reachable: "bool | None" = True):
-    """Routes gh's 3 distinct call shapes: `pr list` (caller-supplied), `api repos/{repo}`
-    (default branch lookup), and `api repos/{repo}/compare/...` (reachability check).
+def _fake_gh_runner(
+    pr_list_stdout: str, pr_list_returncode: int = 0, *, reachable: "bool | None" = True,
+    merged_by_login: "str | None" = "babar-raza", readme_content: "str | None" = "# Real README\n",
+):
+    """Routes gh's 5 distinct call shapes: `pr list` (caller-supplied), `api repos/{repo}`
+    (default branch lookup), `api repos/{repo}/compare/...` (reachability check),
+    `api repos/{repo}/pulls/{number}` (TC-41: single-PR fetch for merged_by), and
+    `api -H ... repos/{repo}/contents/README.md -f ref=...` (TC-41: live blob fetch).
     `reachable=True` -> compare returns status "ahead" (happy path for most existing
     tests); `reachable=False` -> compare fails like a real 404 "No common ancestor";
-    `reachable=None` -> the default-branch lookup itself fails."""
+    `reachable=None` -> the default-branch lookup itself fails. `merged_by_login=None` /
+    `readme_content=None` simulate a gh failure on those specific TC-41 calls."""
     def _runner(argv, *args, **kwargs):
         if "pr" in argv and "list" in argv:
             return subprocess.CompletedProcess(argv, pr_list_returncode, stdout=pr_list_stdout, stderr="")
         if "api" in argv:
+            joined = " ".join(argv)
+            if "contents/README.md" in joined:
+                if readme_content is None:
+                    return subprocess.CompletedProcess(argv, 1, stdout="", stderr="not found")
+                return subprocess.CompletedProcess(argv, 0, stdout=readme_content, stderr="")
             api_arg = argv[argv.index("api") + 1]
             if "/compare/" in api_arg:
                 if reachable is False:
                     return subprocess.CompletedProcess(argv, 1, stdout="", stderr="404 No common ancestor")
                 return subprocess.CompletedProcess(
                     argv, 0, stdout=json.dumps({"status": "ahead"}), stderr="",
+                )
+            if "/pulls/" in api_arg:
+                if merged_by_login is None:
+                    return subprocess.CompletedProcess(argv, 1, stdout="", stderr="not found")
+                return subprocess.CompletedProcess(
+                    argv, 0, stdout=json.dumps({"merged_by": {"login": merged_by_login}}), stderr="",
                 )
             # repos/{owner}/{repo} -- default branch lookup
             if reachable is None:
@@ -221,6 +239,10 @@ def test_apply_reconciliation_writes_additive_fields(tmp_path):
     written = pr.apply_reconciliation(report)
     assert written["pr_number"] == 2
     assert written["reconciliation_state"] == "IN_SYNC"
+    # TC-41: fingerprint fields written alongside the original schema.
+    assert written["published_blob_sha256"] == hashlib.sha256("# Real README\n".encode("utf-8")).hexdigest()
+    assert written["published_commit"] == "fc186507e5b7124f4664aa6035f25cfd3112367d"
+    assert written["merged_by_login"] == "babar-raza"
 
     state = json.loads((tmp_path / "data" / "readme_published_state.json").read_text(encoding="utf-8"))
     row = state["products"][0]
@@ -231,9 +253,87 @@ def test_apply_reconciliation_writes_additive_fields(tmp_path):
     assert "evidence" in row
 
 
-def test_apply_reconciliation_is_noop_for_in_sync(tmp_path):
+def test_apply_reconciliation_tolerates_fingerprint_fetch_failure(tmp_path):
+    """TC-41: a gh failure on the NEW fingerprint calls must never break the existing,
+    already-proven UNRECORDED_PUBLICATION write -- the core registry entry still lands,
+    just without the fields gh couldn't confirm."""
+    _write_products(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+        "active": True,
+    }])
+    _write_published_state(tmp_path, [])
+    pr.configure(repo_root=tmp_path, command_runner=_fake_gh_runner(
+        _MERGED_PRS_ONE_REFRESH, merged_by_login=None, readme_content=None,
+    ))
+
+    report = pr.reconcile_product("cells", "typescript")
+    written = pr.apply_reconciliation(report)
+    assert written["pr_number"] == 2  # core write still succeeds
+    assert "published_blob_sha256" not in written
+    assert "merged_by_login" not in written
+
+
+def test_apply_reconciliation_refreshes_fingerprint_on_in_sync(tmp_path):
+    """TC-41: the 28 already-IN_SYNC products (from TC-15's own live sweep) need their
+    fingerprint populated too, on re-reconciliation -- not just newly-discovered
+    UNRECORDED_PUBLICATION rows -- since TC-17's regression check needs a recorded
+    baseline for every already-published product, not only future ones."""
+    _write_products(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+        "active": True,
+    }])
+    _write_published_state(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "last_known_publication": "2026-08-14",
+        "evidence": "PR #2 squash-merged 2026-08-14",
+    }])
+    pr.configure(repo_root=tmp_path, command_runner=_fake_gh_runner(_MERGED_PRS_ONE_REFRESH))
+
+    report = pr.reconcile_product("cells", "typescript")
+    assert report["state"] == "IN_SYNC"
+    written = pr.apply_reconciliation(report)
+    assert written is not None
+    assert written["published_blob_sha256"] == hashlib.sha256("# Real README\n".encode("utf-8")).hexdigest()
+    assert written["merged_by_login"] == "babar-raza"
+    # Original fields the IN_SYNC row already had are genuinely untouched, not rewritten.
+    assert written["evidence"] == "PR #2 squash-merged 2026-08-14"
+
+
+def test_apply_reconciliation_in_sync_noop_without_resolvable_pr_or_repo(tmp_path):
     report = {"family": "x", "platform": "y", "state": "IN_SYNC", "latest_readme_refresh_pr": None}
     assert pr.apply_reconciliation(report) is None
+
+
+def test_merged_by_login_identical_across_every_real_sampled_merge_never_gates(tmp_path):
+    """TC-41's own live investigation finding, pinned as a regression test: font/python's
+    real, REVERTED PR #1 -- the exact case the strictest hard rule in this mission exists
+    to catch -- shows the SAME merged_by ('babar-raza') as every legitimate merge. This
+    proves the identity field cannot discriminate REVERTED from a real publication in this
+    repo, and confirms apply_reconciliation never even reaches the fingerprint/identity
+    code path for REVERTED (the ancestor-reachability check alone is what protects
+    font/python, not merged_by)."""
+    _write_products(tmp_path, [{
+        "family": "font", "platform": "python",
+        "repo_url": "https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python",
+        "active": True,
+    }])
+    _write_published_state(tmp_path, [])
+    merged_prs = json.dumps([{
+        "number": 1, "mergedAt": "2026-08-15T15:22:31Z",
+        "headRefName": "readme-refresh/2026-08-15",
+        "mergeCommit": {"oid": "7971880964143c86ffd4baa7c8ea1dd959fea04e"},
+        "url": "https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python/pull/1",
+    }])
+    pr.configure(repo_root=tmp_path, command_runner=_fake_gh_runner(
+        merged_prs, reachable=False, merged_by_login="babar-raza",
+    ))
+
+    report = pr.reconcile_product("font", "python")
+    assert report["state"] == "REVERTED"
+    assert pr.apply_reconciliation(report) is None  # never written, regardless of merged_by
+
 
 
 def test_apply_reconciliation_updates_existing_row_in_place(tmp_path):
