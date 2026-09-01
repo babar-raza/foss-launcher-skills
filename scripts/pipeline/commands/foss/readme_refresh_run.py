@@ -73,6 +73,7 @@ from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write  # noqa: E402
 import backlink_targets  # noqa: E402
 import freshness_guard  # noqa: E402
+import publication_reconciler  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
 import dependency_extract  # noqa: E402
@@ -166,6 +167,7 @@ def configure(
     # points this module at a tmp_path would still have freshness_guard resolving against
     # the real repo's knowledge/ tree underneath it.
     freshness_guard.configure(repo_root=_repo_root)
+    publication_reconciler.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -3107,6 +3109,48 @@ def pin_old_readme_baseline(
     return sidecar
 
 
+def reconcile_publications(
+    *, family: "str | None" = None, platform: "str | None" = None,
+    all_products: bool = False, apply: bool = False,
+) -> dict:
+    """TC-15/TC-17 (readme-refresh-trackb-and-followon-2026-09-01): CLI-facing wrapper over
+    publication_reconciler.py. Never unscoped by accident -- exactly one of
+    (family AND platform) or all_products=True is required, mirroring audit_portfolio's own
+    hard-won discipline, though here the cost of a full sweep is genuinely small (one `gh pr
+    list` call per product, not a local check battery run).
+
+    Read-only unless apply=True; even then, only ever writes
+    data/readme_published_state.json, never any product's own repo. Returns
+    `{"reports": [...], "applied": [...]}`.
+    """
+    if all_products:
+        if family or platform:
+            raise ReadmeRefreshRunError("Pass either --all or --family/--platform, not both")
+        products = _load_products()
+        exclusions = _load_registry_exclusions()
+        excluded_keys = {
+            (excl.get("family"), excl.get("platform"))
+            for excl in exclusions if excl.get("match") == "family_platform"
+        }
+        pairs = sorted({
+            (p.get("family"), p.get("platform")) for p in products
+            if p.get("active", False) and (p.get("family"), p.get("platform")) not in excluded_keys
+        })
+    elif family and platform:
+        pairs = [(family, platform)]
+    else:
+        raise ReadmeRefreshRunError("reconcile-publications requires --family/--platform or --all")
+
+    reports = publication_reconciler.reconcile_portfolio(pairs)
+    applied = []
+    if apply:
+        for report in reports:
+            written = publication_reconciler.apply_reconciliation(report)
+            if written is not None:
+                applied.append(written)
+    return {"reports": reports, "applied": applied}
+
+
 def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = None) -> dict:
     """TC-HARDEN-05 (MT035, 2026-08-12): a real, registered, CLI-callable, tested way to
     re-run every deterministic check against every already-generated candidate in
@@ -4168,6 +4212,23 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     p_pin.add_argument("--session-id")
 
+    # TC-15/17 (readme-refresh-trackb-and-followon-2026-09-01): read-only by default; --apply
+    # is the only path that writes (data/readme_published_state.json only, never a product repo).
+    p_recon = sub.add_parser("reconcile-publications")
+    p_recon.add_argument("--family", help="Limit to one family (requires --platform).")
+    p_recon.add_argument("--platform", help="Limit to one platform (requires --family).")
+    p_recon.add_argument(
+        "--all", action="store_true", dest="all_products",
+        help="Sweep every active, non-excluded product (required explicitly -- never the "
+             "silent default).",
+    )
+    p_recon.add_argument(
+        "--apply", action="store_true",
+        help="Write discovered UNRECORDED_PUBLICATION reconciliations to "
+             "data/readme_published_state.json. Omit for a read-only report.",
+    )
+    p_recon.add_argument("--json", action="store_true", help="Print the full structured result.")
+
     # MT056: change-scope / acceptance-registry / convergence workflow.
     p_scope = sub.add_parser("declare-scope")
     p_scope.add_argument("--run-id", required=True)
@@ -4264,6 +4325,19 @@ def main(argv: "list[str] | None" = None) -> int:
                 args.family, args.platform, args.commit, args.reason, session_id=args.session_id,
             )
             _print_manifest(sidecar)
+            return 0
+        elif args.command == "reconcile-publications":
+            result = reconcile_publications(
+                family=args.family, platform=args.platform,
+                all_products=args.all_products, apply=args.apply,
+            )
+            if args.json:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+            else:
+                for r in result["reports"]:
+                    print(f"  {r['family']}/{r['platform']}: {r['state']} -- {r['reason']}")
+                if result["applied"]:
+                    print(f"Applied {len(result['applied'])} reconciliation(s).")
             return 0
         else:
             family, platform = _locate_run(args.run_id)

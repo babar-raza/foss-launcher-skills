@@ -2,16 +2,298 @@
   "_comment": "MT056 (2026-08-18) — durable per-product record of README publication events to the real upstream FOSS repos. Exists because republication debt previously lived only in the plan's taskcard register and was LOST there (TC-HARDEN-47/48, re-registered by MT056 §4 — the two live Mermaid-clipping defects on 3d/net and 3d/python published upstream). readme_refresh_run.py's audit-portfolio consumes this via check key 'published_readme_current' (advisory): a product listed here whose clone-cache README.md no longer matches the canonical candidate is flagged 'republication pending' on every audit run, so the debt is mechanically re-derived instead of remembered. _do_push appends/updates an entry on every real (non-dry-run) push. Seeded 2026-08-18 from the authoritative plan's own recorded PR/merge history — each entry cites its plan evidence; products with no confirmed publication record are deliberately absent, never guessed.",
   "schema_version": 1,
   "products": [
-    {"family": "3d", "platform": "java", "last_known_publication": "2026-08-11", "evidence": "PR #1 merged (plan: merged discovered 2026-08-05 sweep); follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"},
-    {"family": "3d", "platform": "typescript", "last_known_publication": "2026-08-11", "evidence": "PR #1 merged; follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"},
-    {"family": "3d", "platform": "net", "last_known_publication": "2026-08-05", "evidence": "PR #1 merged pre-MT024; NEVER republished with flat-topology diagram — live clipping confirmed 2026-08-14 (plan:12932-12948); TC-HARDEN-47 open"},
-    {"family": "3d", "platform": "python", "last_known_publication": "2026-08-05", "evidence": "PR #1 merged pre-MT024; NEVER republished — live clipping confirmed 2026-08-14 (plan:12932-12948); TC-HARDEN-48 open"},
-    {"family": "note", "platform": "python", "last_known_publication": "2026-08-16", "evidence": "PR #5 squash-merged 2026-08-16 (merge commit 41de2e8a); merged content = the then-repo-presenter candidate"},
-    {"family": "pdf", "platform": "cpp", "last_known_publication": "2026-08-17", "evidence": "MT054: candidate byte-identical to live upstream README in both trees (clone rev 888700a8e3, live-verified); MT053 published-state bypass fires for it"},
-    {"family": "cells", "platform": "go", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally (in-between state disclosed by MT053)"},
-    {"family": "cells", "platform": "java", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally"},
-    {"family": "cells", "platform": "net", "last_known_publication": "2026-08-10", "evidence": "MT055 §2 W5: published once, since further edited locally"},
-    {"family": "slides", "platform": "cpp", "last_known_publication": "2026-08-18", "evidence": "MT056 reconciliation: canonical candidate byte-identical (stripped) to clone-cache upstream README (mt056_tree_reconciliation.json, T2_CURRENT_PUBLISHED)"},
-    {"family": "words", "platform": "net", "last_known_publication": "2026-08-18", "evidence": "MT056 reconciliation: canonical candidate byte-identical (stripped) to clone-cache upstream README (mt056_tree_reconciliation.json, T2_CURRENT_PUBLISHED)"}
+    {
+      "family": "3d",
+      "platform": "java",
+      "last_known_publication": "2026-08-11",
+      "evidence": "PR #1 merged (plan: merged discovered 2026-08-05 sweep); follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"
+    },
+    {
+      "family": "3d",
+      "platform": "typescript",
+      "last_known_publication": "2026-08-11",
+      "evidence": "PR #1 merged; follow-up 'simplified diagram' PR #2 merged 2026-08-11 (plan:12913-12917)"
+    },
+    {
+      "family": "3d",
+      "platform": "net",
+      "last_known_publication": "2026-08-19",
+      "evidence": "reconciled by publication_reconciler.py: PR #3 (https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/pull/3), merged 2026-08-19T13:56:07Z",
+      "pr_number": 3,
+      "merged_at": "2026-08-19T13:56:07Z",
+      "merge_commit_sha": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+      "last_reconciled_at": "2026-09-01T05:57:48.888748Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "3d",
+      "platform": "python",
+      "last_known_publication": "2026-08-14",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/pull/2), merged 2026-08-14T09:56:03Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-14T09:56:03Z",
+      "merge_commit_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
+      "last_reconciled_at": "2026-09-01T05:57:48.889818Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "note",
+      "platform": "python",
+      "last_known_publication": "2026-08-16",
+      "evidence": "PR #5 squash-merged 2026-08-16 (merge commit 41de2e8a); merged content = the then-repo-presenter candidate"
+    },
+    {
+      "family": "pdf",
+      "platform": "cpp",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/pull/1), merged 2026-08-17T18:16:56Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-17T18:16:56Z",
+      "merge_commit_sha": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "last_reconciled_at": "2026-09-01T05:57:48.902977Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "go",
+      "last_known_publication": "2026-08-13",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/pull/1), merged 2026-08-13T14:31:37Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-13T14:31:37Z",
+      "merge_commit_sha": "9f0a4033b59e9127afec7662ec9079b500af8032",
+      "last_reconciled_at": "2026-09-01T05:57:48.892666Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "java",
+      "last_known_publication": "2026-08-13",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/pull/2), merged 2026-08-13T18:01:11Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-13T18:01:11Z",
+      "merge_commit_sha": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "last_reconciled_at": "2026-09-01T05:57:48.893690Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "net",
+      "last_known_publication": "2026-08-14",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/pull/2), merged 2026-08-14T08:29:39Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-14T08:29:39Z",
+      "merge_commit_sha": "6ee32c08a6090a778fab03e66afac731859f93a9",
+      "last_reconciled_at": "2026-09-01T05:57:48.894520Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "slides",
+      "platform": "cpp",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #5 (https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/pull/5), merged 2026-08-17T13:10:32Z",
+      "pr_number": 5,
+      "merged_at": "2026-08-17T13:10:32Z",
+      "merge_commit_sha": "ecc2baf8cc3e3e4a6ee36cbfb992ec4fa6dd7765",
+      "last_reconciled_at": "2026-09-01T05:57:48.907075Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "words",
+      "platform": "net",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-.NET/pull/1), merged 2026-08-17T05:11:34Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-17T05:11:34Z",
+      "merge_commit_sha": "68d56fdaf7fcd2d95935a0c180b6e69e99a9b4b8",
+      "last_reconciled_at": "2026-09-01T05:57:48.911320Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "barcode",
+      "platform": "python",
+      "last_known_publication": "2026-08-15",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python/pull/1), merged 2026-08-15T06:33:11Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-15T06:33:11Z",
+      "merge_commit_sha": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+      "last_reconciled_at": "2026-09-01T05:57:48.890693Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "cpp",
+      "last_known_publication": "2026-08-13",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/pull/2), merged 2026-08-13T09:25:30Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-13T09:25:30Z",
+      "merge_commit_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "last_reconciled_at": "2026-09-01T05:57:48.891677Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "python",
+      "last_known_publication": "2026-08-14",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/pull/2), merged 2026-08-14T10:03:11Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-14T10:03:11Z",
+      "merge_commit_sha": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
+      "last_reconciled_at": "2026-09-01T05:57:48.895316Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "rust",
+      "last_known_publication": "2026-08-14",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust/pull/1), merged 2026-08-14T12:32:30Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-14T12:32:30Z",
+      "merge_commit_sha": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+      "last_reconciled_at": "2026-09-01T05:57:48.896114Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "cells",
+      "platform": "typescript",
+      "last_known_publication": "2026-08-14",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/pull/2), merged 2026-08-14T14:57:33Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-14T14:57:33Z",
+      "merge_commit_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "last_reconciled_at": "2026-09-01T05:57:48.897182Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "email",
+      "platform": "cpp",
+      "last_known_publication": "2026-08-15",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp/pull/1), merged 2026-08-15T07:27:23Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-15T07:27:23Z",
+      "merge_commit_sha": "fef9c934c3ad7a207c97cc24546176e678f577af",
+      "last_reconciled_at": "2026-09-01T05:57:48.898217Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "email",
+      "platform": "net",
+      "last_known_publication": "2026-08-15",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/pull/1), merged 2026-08-15T07:29:40Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-15T07:29:40Z",
+      "merge_commit_sha": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+      "last_reconciled_at": "2026-09-01T05:57:48.899126Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "email",
+      "platform": "python",
+      "last_known_publication": "2026-08-15",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/pull/1), merged 2026-08-15T07:32:34Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-15T07:32:34Z",
+      "merge_commit_sha": "10a906b48c0c11005c4d93b524e4431901c9717c",
+      "last_reconciled_at": "2026-09-01T05:57:48.900027Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "html",
+      "platform": "python",
+      "last_known_publication": "2026-08-16",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python/pull/2), merged 2026-08-16T13:12:43Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-16T13:12:43Z",
+      "merge_commit_sha": "912f0ae078b5418226a51de08539bc591547682e",
+      "last_reconciled_at": "2026-09-01T05:57:48.901083Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "page",
+      "platform": "python",
+      "last_known_publication": "2026-08-16",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/pull/1), merged 2026-08-16T15:25:24Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-16T15:25:24Z",
+      "merge_commit_sha": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+      "last_reconciled_at": "2026-09-01T05:57:48.902008Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "pdf",
+      "platform": "go",
+      "last_known_publication": "2026-08-18",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Go/pull/1), merged 2026-08-18T18:34:40Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-18T18:34:40Z",
+      "merge_commit_sha": "2306eeb06216be4d9cb663adcb85155594572c11",
+      "last_reconciled_at": "2026-09-01T05:57:48.904016Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "pdf",
+      "platform": "java",
+      "last_known_publication": "2026-08-18",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/pull/1), merged 2026-08-18T18:35:23Z",
+      "pr_number": 1,
+      "merged_at": "2026-08-18T18:35:23Z",
+      "merge_commit_sha": "ea62b381993487c86afb9b35ac788b2cc2c15d03",
+      "last_reconciled_at": "2026-09-01T05:57:48.904978Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "pdf",
+      "platform": "python",
+      "last_known_publication": "2026-08-18",
+      "evidence": "reconciled by publication_reconciler.py: PR #3 (https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python/pull/3), merged 2026-08-18T18:42:27Z",
+      "pr_number": 3,
+      "merged_at": "2026-08-18T18:42:27Z",
+      "merge_commit_sha": "3c0e7ad2c4d11636a0fb18a50a12969429fcc150",
+      "last_reconciled_at": "2026-09-01T05:57:48.906094Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "slides",
+      "platform": "java",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/pull/2), merged 2026-08-17T13:21:11Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-17T13:21:11Z",
+      "merge_commit_sha": "5d76f44cdd52a2510b66bbc20c663759cda60432",
+      "last_reconciled_at": "2026-09-01T05:57:48.908123Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "slides",
+      "platform": "net",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/pull/2), merged 2026-08-17T13:54:36Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-17T13:54:36Z",
+      "merge_commit_sha": "6c650e96d07958c496f9c757a384b76b5fa7bbb9",
+      "last_reconciled_at": "2026-09-01T05:57:48.909334Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "slides",
+      "platform": "python",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #4 (https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/pull/4), merged 2026-08-17T13:51:54Z",
+      "pr_number": 4,
+      "merged_at": "2026-08-17T13:51:54Z",
+      "merge_commit_sha": "62f301190b016029b71d4c16aa095cbb647b8782",
+      "last_reconciled_at": "2026-09-01T05:57:48.910331Z",
+      "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "words",
+      "platform": "python",
+      "last_known_publication": "2026-08-17",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/pull/2), merged 2026-08-17T11:36:27Z",
+      "pr_number": 2,
+      "merged_at": "2026-08-17T11:36:27Z",
+      "merge_commit_sha": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+      "last_reconciled_at": "2026-09-01T05:57:48.912241Z",
+      "reconciliation_state": "IN_SYNC"
+    }
   ]
 }
