@@ -52,7 +52,10 @@ elsewhere), installing only `requirements-ci.txt` (the same baseline
 CI's own governance jobs use -- confirmed sufficient: pre-commit-audit.sh's
 Python-based steps are exactly the governance checks CI already runs from
 this file). Do not reintroduce a symlink/junction to the real `.venv` in
-this module, ever, for any reason.
+this module, ever, for any reason. This is now a repo-wide rule, not just a
+module-local lesson -- see AGENTS.md Section 11 (Prohibited Actions) for the
+general "no fixture-to-real-infrastructure linking" statement this incident
+produced (GOV-03, 2026-08-31).
 """
 from __future__ import annotations
 

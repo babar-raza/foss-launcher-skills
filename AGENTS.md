@@ -470,6 +470,20 @@ exists. If the knowledge model fails these thresholds, S-90 has nothing to inspe
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
 - **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/_archive/pre-refactor/governance/write-boundaries.md §Hugo Output Discipline`.
 - **`git reset` is prohibited in any form, in any agent-issued or interactive Bash command** — bare `git reset`, `git reset HEAD`, `--soft`/`--mixed`/`--hard`, any target (remote ref, SHA, `HEAD~N`), with or without a `-- <file>` suffix. A concurrent-session `git reset` mid-commit (2026-07-14) emptied the staging index and produced an empty commit pushed to `main` (`b860c6fb92`). To unstage files use `git restore --staged <path>`; to restore file content from a commit use `git checkout <sha> -- <path>`. This does not apply to `scripts/pipeline/core/clone_cache.py`'s guarded `git reset --hard origin/HEAD` call, which refreshes the read-only FOSS clone cache via a direct Python subprocess (never the Bash tool) behind a toplevel-path safety guard. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`).
+- **A disposable test fixture must never be filesystem-linked — symlink, junction, or hardlink
+  — to real, shared, mutable repository state** (`.venv`, `.git`, credentials, or anything else
+  a concurrent session depends on). Build each fixture's own copy of what it needs (e.g. its own
+  `python -m venv`) directly inside the fixture, even if that costs a rebuild every fixture run.
+  Real incident (2026-08-31, GOV-03/`plans/healing/2026-08-31-governance-structural-gaps.md`):
+  an early design for `scripts/pipeline/tests/precommit_full_run_harness.py` linked a `git
+  worktree add` fixture's `.venv` to the real repo's `.venv` via an NTFS junction to avoid a
+  second package install; `git worktree remove`'s own internal deletion routine followed the
+  junction into the real, shared venv every concurrent session in this repo depends on and
+  deleted most of its `Lib/site-packages`, even though the junction had already been explicitly
+  unlinked first as a precaution. Recovered same-session; the shipped harness never links to
+  anything real, as a direct, permanent consequence — see that module's own docstring for the
+  full incident note and the resolved fixture-design pattern (a `git worktree add` cone-mode
+  sparse checkout with its own disposable venv built in place).
 
 ## 11a. Deletion Governance (DGR Protocol)
 
