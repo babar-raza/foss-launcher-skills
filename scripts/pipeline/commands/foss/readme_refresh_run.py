@@ -1338,11 +1338,21 @@ def _detect_enterprise_link(family: str, platform: str) -> dict:
     Reuses the real, already-built, already live-verified infrastructure
     (`scripts/pipeline/lib/backlink_targets.py`) rather than reinventing anything -- the same
     machinery this repo's docs/kb/reference/products pages already depend on for their own
-    Enterprise backlinks. `source_subdomain="readme-refresh"` is a deliberate sentinel: it is
-    not one of the 5 real aspose.org subdomains `PREFERRED_TARGET_SUBDOMAIN` recognizes, so its
-    own `.get(..., "products.aspose.com")` default correctly and naturally routes every call
-    here to `products.aspose.com` -- exactly where a GitHub README's Enterprise link always
-    points, with no new mapping table needed.
+    Enterprise backlinks. `source_subdomain="products.aspose.org"` (TC-B-01,
+    readme-refresh-trackb-and-followon-2026-09-01 -- was the sentinel string
+    `"readme-refresh"` until this fix): `PREFERRED_TARGET_SUBDOMAIN.get("products.aspose.org")`
+    resolves to `"products.aspose.com"`, the exact same value the old sentinel produced via its
+    `.get(..., "products.aspose.com")` DEFAULT -- but `resolve_backlink`'s canonical-override
+    gate (RC-OVERRIDE-SCOPE, 2026-08-26) separately checks `source_subdomain in
+    canonical_overrides[key]["source_subdomains"]` (default `["products.aspose.org"]`) before
+    applying a curated override, and a sentinel that matches NO real subdomain string can never
+    satisfy that membership test -- confirmed live: this silently made every
+    `platform_canonical_overrides.yaml` entry permanently inert for every readme-refresh call,
+    regardless of the file's own content, for as long as the sentinel existed. Passing the real
+    `"products.aspose.org"` string produces byte-identical `preferred_sd` routing (same target,
+    `products.aspose.com`) while also correctly satisfying the override gate, since every
+    current override entry's own evidence is explicitly scoped to products.aspose.com targets
+    (this function's only possible target) in the first place.
 
     Deliberately does NOT reuse `backlink_targets.build_enterprise_anchor_suffix()` -- that
     function's "Enterprise Product"/"Enterprise Product Family" anchor-text convention is a
@@ -1375,7 +1385,7 @@ def _detect_enterprise_link(family: str, platform: str) -> dict:
         }
     canonical_overrides = _load_canonical_overrides()
     url, target_type, _subdomain, fallback_reason = backlink_targets.resolve_backlink(
-        family, platform, source_subdomain="readme-refresh", target_map=target_map,
+        family, platform, source_subdomain="products.aspose.org", target_map=target_map,
         canonical_overrides=canonical_overrides,
     )
     age_days = backlink_targets.target_map_age_days(target_map)
