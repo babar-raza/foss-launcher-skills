@@ -2563,7 +2563,8 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # it against a disposition JSON file -- assumes old_readme_text is genuinely independent,
     # at-risk-of-loss content. Once readme_already_published is True, that assumption is false
     # (old_readme_text IS the candidate), so the extractors are never even called and every one
-    # of these 25 result keys becomes a uniform, disclosed no-op instead of running position-
+    # of these result keys (25 as of MT053; 26 since TC-18, MT061-2026-09-01-TRACKB-FOLLOWON-2)
+    # becomes a uniform, disclosed no-op instead of running position-
     # based extraction against a self-referential text (confirmed live: 158 false hard-gate
     # failures for pdf/cpp before this gate existed). Checks that verify the candidate against
     # real, CURRENT, independent data (real source, real registries, real badge/CI facts) are
@@ -2582,6 +2583,7 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             ("content_unit_disposition_coverage", True),
             ("content_unit_excerpt_matches_extraction", True),
             ("content_unit_evidence_resolves", True),
+            ("content_unit_evidence_supports_claim", False),
             ("content_unit_merged_into_target_section", True),
             ("content_unit_no_exact_duplicate_merge", True),
             ("content_unit_redundant_claim_verifiable", False),
@@ -2649,6 +2651,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
             "findings": checks.check_content_unit_evidence_resolves(
                 dispositions, str(clone_cache), _load_package_registry(),
                 _load_content_docs_texts(family, platform),
+            ),
+        }
+        # TC-18 (MT061-2026-09-01-TRACKB-FOLLOWON-2), SUPPORT tier: does the evidence_resolves
+        # citation above actually SUPPORT its claim, not merely exist ("presence, not proof" --
+        # check_content_unit_evidence_resolves' own disclosed limit). literal_tokens/
+        # descriptive_tokens are computed fresh here, in-memory, via backfill_literal_
+        # descriptive_tokens -- deliberately NOT persisted back to this product's own
+        # content-dispositions.json on disk. Both fields are a pure, deterministic function of
+        # each entry's own already-stored `excerpt` (confirmed live against real portfolio data
+        # before this was trusted -- see check_content_unit_evidence_supports_claim's own
+        # docstring), so recomputing them on every check run is exactly as correct as reading a
+        # persisted copy would be, without a separate migration step or schema version to track
+        # across the whole portfolio's disposition ledgers. Advisory only (never hard_gate): a
+        # genuinely "unsupported" real finding needs a live portfolio sweep proving the
+        # false-positive rate on the literal_tokens subset is trustworthy at scale before any
+        # future promotion to a hard gate -- not attempted by this taskcard, whose own mandatory
+        # acceptance criterion is scoped to proving that on cells/typescript specifically.
+        result["content_unit_evidence_supports_claim"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_evidence_supports_claim(
+                checks.backfill_literal_descriptive_tokens(dispositions), str(clone_cache),
             ),
         }
         result["content_unit_merged_into_target_section"] = {

@@ -6048,21 +6048,127 @@ def _extract_salient_tokens(excerpt: str) -> list[str]:
     module -- exists to give `check_content_unit_merged_into_target_section` something
     mechanically checkable, not to summarize meaning. Order-preserving, case-insensitive
     de-duplication.
+
+    Unchanged, byte-for-byte, since 2026-08-16 -- kept as the stable, back-compat flat accessor.
+    `_extract_salient_tokens_split` (below, TC-18/MT061-2026-09-01-TRACKB-FOLLOWON-2) is the new,
+    SOURCE-PATTERN-tagged sibling; this function's own body is now expressed in terms of it
+    (`[tok for tok, _kind in _extract_salient_tokens_tagged(excerpt)]`) purely to guarantee the two
+    can never silently drift apart -- see that function's docstring for why the split exists and
+    the live measurement that motivated it.
     """
-    tokens: list[str] = []
-    for pattern in (
-        _SALIENT_BACKTICK_RE, _SALIENT_IDENTIFIER_RE, _SALIENT_VERSION_RE, _SALIENT_QUOTED_RE,
-        _SALIENT_LINK_TEXT_RE, _SALIENT_LINK_TARGET_RE,
-    ):
-        tokens.extend(pattern.findall(excerpt))
+    return [token for token, _kind in _extract_salient_tokens_tagged(excerpt)]
+
+
+# TC-18 (MT061-2026-09-01-TRACKB-FOLLOWON-2): SUPPORT-tier disposition schema migration. The
+# parent mission (readme-refresh-trackb-and-followon-2026-09-01) live-tested a literal/near-
+# literal token-match SUPPORT check against 4 real products' real dispositions BEFORE building it
+# and found it unacceptably noisy on some products: pdf/java 5/122 (4%) zero-match, note/python
+# 9/117 (8%), but cells/typescript 18/30 (60%) zero-match against real clone-cache source. Root
+# cause, confirmed by re-reading `_extract_salient_tokens`'s own 6 source patterns: 4 of them are
+# structurally identifier/path/version-SHAPED and therefore safe for literal source-code matching
+# (a backtick span, a CamelCase/ALLCAPS token, a version number, a markdown link TARGET -- a
+# path/URL) -- but the other 2 (`_SALIENT_QUOTED_RE`, matching ANY double-quoted 2-40 char span
+# with no shape constraint, and `_SALIENT_LINK_TEXT_RE`, matching markdown link TEXT, which is
+# very often a human-readable feature-name phrase like "Conditional formatting" or "data
+# validation") frequently capture natural-language PROSE, not literal source identifiers -- prose
+# that structurally cannot appear as an exact substring in real .ts/.py/.java source regardless of
+# how correct the underlying claim is. This is the confirmed root cause of cells/typescript's 60%
+# rate (re-verified live this session -- see tc18_measure_baseline.py's own real portfolio
+# re-run before this split was trusted).
+#
+# Per the user's own explicit 2026-09-01 decision (chosen over an LLM-graded judgment pass,
+# specifically to preserve this module's deterministic/offline check-battery design boundary):
+# split `salient_tokens` into `literal_tokens` (from the 4 identifier/path/version-shaped
+# patterns -- safe for literal source matching) and `descriptive_tokens` (from the 2 prose-prone
+# patterns -- NEVER used for literal matching, kept only as a disclosed, still-useful signal for
+# anything that wants human-readable phrases, e.g. a future LLM-graded pass). The flat
+# `salient_tokens` field (and every one of its existing callers --
+# `check_content_unit_merged_into_target_section`, `check_content_unit_redundant_claim_
+# verifiable`, `check_content_unit_probable_duplicate`) is UNCHANGED: this is purely additive.
+_SALIENT_PATTERN_KINDS = (
+    (_SALIENT_BACKTICK_RE, "literal"),
+    (_SALIENT_IDENTIFIER_RE, "literal"),
+    (_SALIENT_VERSION_RE, "literal"),
+    (_SALIENT_QUOTED_RE, "descriptive"),
+    (_SALIENT_LINK_TEXT_RE, "descriptive"),
+    (_SALIENT_LINK_TARGET_RE, "literal"),
+)
+
+
+def _extract_salient_tokens_tagged(excerpt: str) -> list[tuple[str, str]]:
+    """Same pattern order, same findall-then-merge, same case-insensitive first-seen
+    de-duplication as `_extract_salient_tokens` always used -- the only change is that each
+    token is paired with the `"literal"`/`"descriptive"` kind of the pattern that produced it
+    (`_SALIENT_PATTERN_KINDS`). A token matched by more than one pattern (rare; e.g. a backtick
+    span that also happens to be ALLCAPS) keeps the kind of whichever pattern's match was found
+    FIRST in iteration order -- same first-seen rule the flat extractor already applied to the
+    token text itself, just carried over to the kind label too, so this cannot introduce any new
+    non-determinism.
+    """
+    tagged: list[tuple[str, str]] = []
+    for pattern, kind in _SALIENT_PATTERN_KINDS:
+        for token in pattern.findall(excerpt):
+            tagged.append((token, kind))
     seen: set[str] = set()
-    ordered: list[str] = []
-    for token in tokens:
+    ordered: list[tuple[str, str]] = []
+    for token, kind in tagged:
         token = token.strip()
         if token and token.lower() not in seen:
             seen.add(token.lower())
-            ordered.append(token)
+            ordered.append((token, kind))
     return ordered
+
+
+def _extract_salient_tokens_split(excerpt: str) -> tuple[list[str], list[str]]:
+    """Returns `(literal_tokens, descriptive_tokens)` -- the two new disposition-schema fields.
+    `literal_tokens` (backtick/CamelCase-ALLCAPS/version/link-target shaped) is the ONLY subset
+    safe for literal source-code matching; `descriptive_tokens` (quoted-string/link-text shaped)
+    is disclosed-prose-prone and must never be used for literal matching -- see the module-level
+    comment above `_SALIENT_PATTERN_KINDS` for the live false-positive measurement that motivated
+    this split. `literal_tokens + descriptive_tokens`, order-preserved per kind, is exactly a
+    partition of `_extract_salient_tokens(excerpt)` -- every token appears in precisely one list.
+    """
+    tagged = _extract_salient_tokens_tagged(excerpt)
+    literal = [token for token, kind in tagged if kind == "literal"]
+    descriptive = [token for token, kind in tagged if kind == "descriptive"]
+    return literal, descriptive
+
+
+def backfill_literal_descriptive_tokens(dispositions: list[dict]) -> list[dict]:
+    """Migration utility (TC-18). Returns a NEW list of shallow-copied disposition entries, each
+    with `literal_tokens`/`descriptive_tokens` added/overwritten by re-running
+    `_extract_salient_tokens_split` against the entry's OWN already-stored `excerpt` field --
+    never against a re-fetched baseline or clone-cache file. This is mechanical and lossless
+    specifically BECAUSE `_extract_salient_tokens` (and therefore its split sibling) is a pure
+    function of the excerpt text alone, and every real disposition entry already stores the exact
+    excerpt its own `salient_tokens` was originally computed from -- confirmed live (see
+    tc18_measure_baseline.py) that `entry["salient_tokens"]` equals
+    `_extract_salient_tokens(entry["excerpt"])` for every real, current entry sampled across
+    pdf/java, note/python, and cells/typescript (zero mismatches), i.e. this field was never
+    hand-edited independently of the excerpt it describes. Does not require -- and deliberately
+    does not consult -- `old-readme-baseline.json` (TC-20): that sidecar pins which UPSTREAM
+    COMMIT a disposition ledger was built against, for `check_content_unit_excerpt_matches_
+    extraction`'s own drift detection; it plays no role here, since this backfill only ever reads
+    the excerpt the disposition entry itself already carries, not the live/pinned old README text.
+
+    Entries missing `excerpt` (should not occur in real data; every real content-disposition
+    entry has one) get `literal_tokens: []`/`descriptive_tokens: []` rather than raising, matching
+    this module's established graceful-degradation posture elsewhere (e.g. `package_registry`/
+    `docs_texts` defaulting to `{}`).
+
+    Does NOT write anything to disk -- purely an in-memory transform. Persisting a backfilled
+    result to a real product's `content-dispositions.json` is a separate, disclosed action left
+    to the caller (see TC-18's own taskcard closure evidence for why a portfolio-wide on-disk
+    backfill-and-commit was deliberately not attempted in this same pass).
+    """
+    backfilled: list[dict] = []
+    for entry in dispositions:
+        new_entry = dict(entry)
+        literal, descriptive = _extract_salient_tokens_split(entry.get("excerpt") or "")
+        new_entry["literal_tokens"] = literal
+        new_entry["descriptive_tokens"] = descriptive
+        backfilled.append(new_entry)
+    return backfilled
 
 
 def _unit_content_hash(text: str) -> str:
@@ -6485,6 +6591,247 @@ def check_content_unit_evidence_resolves(
                 "reason": "cited evidence does not resolve against real product-repo/registry/docs data",
             })
     return findings
+
+
+# TC-18 (MT061-2026-09-01-TRACKB-FOLLOWON-2) -- SUPPORT tier. `check_content_unit_evidence_
+# resolves` above proves a citation EXISTS ("presence, not proof", per its own docstring); this
+# function is the actual proof attempt: does the cited evidence's real CONTENT contain something
+# traceable to the claim, not merely exist as a file. See `check_content_unit_evidence_supports_
+# claim`'s own docstring below for the full live-data investigation (4 real products, 2 rounds)
+# that shaped every one of the 3 exemptions and the normalization rules here -- none of this was
+# designed in the abstract; every rule traces to a specific, named, real disposition entry that a
+# naive literal-match design got wrong.
+_CALL_SIGNATURE_PAREN_RE = re.compile(r"\([^()]*\)")
+_MAVEN_COORD_PART_RE = re.compile(r"^[\w.\-]+$")
+
+
+def _support_check_token_variants(token: str) -> list[str]:
+    """Returns candidate substrings to test against the cited evidence file's real content, in
+    addition to the literal token itself -- the "light punctuation normalization for call-
+    signature artifacts" the parent mission's own PAUSED investigation named but never built.
+    Every rule below traces to a specific, real, confirmed-live disposition entry, not a
+    hypothetical:
+
+    - Arrow-split (`"add() -> Page"` -> `"add()"`, `"Page"`): `pdf/java`'s own real u0079/u0080/
+      u0099 disposition tokens use a `name(args) -> ReturnType` notation this project's own
+      authoring convention favors for readability -- the real Java source never writes it that
+      way (`public Page add()`, `public Page get(int index)`), but DOES contain both the bare
+      method name and the bare return-type name separately. Also closes `note/python`'s own real
+      u0097 (`"Replace(image) -> None"`) the identical way.
+    - Parenthesized-argument-list stripping (`"add()"` -> `"add"`, `"Page.accept(...)"` ->
+      `"Page.accept"`): reuses the exact convention `_token_matches_body` (used by the SIBLING
+      check `check_content_unit_merged_into_target_section`, against candidate prose rather than
+      source code) already established for illustrative/made-up argument names and lists that
+      are never literally written in real source. Confirmed live: `pdf/java`'s own real u0093
+      (`"Page.accept(...)"`) only matches `TextFragmentAbsorber.java`'s real
+      `page.accept(absorber);` once the `(...)` is stripped down to the bare dotted call.
+    - Maven-coordinate colon-split (`"org.aspose:aspose-pdf-foss"` -> `"org.aspose"`,
+      `"aspose-pdf-foss"`): confirmed live, `pdf/java`'s own real u0032 cites `pom.xml` for this
+      exact colon-joined Maven GAV coordinate -- real `pom.xml` files always store `groupId`/
+      `artifactId` as two separate XML tag bodies (`<groupId>org.aspose</groupId>
+      <artifactId>aspose-pdf-foss</artifactId>`), never joined by a literal `:`. Scoped narrowly
+      (each colon-separated part must itself be a plain identifier/dotted/hyphenated token, no
+      whitespace) so this never fires on an unrelated token that merely happens to contain a `:`
+      for some other reason (a URL, a code comment).
+
+    Deliberately does NOT attempt to resolve `note/python`'s own real u0031
+    (`"for page in doc: ..."`) or u0028/u0035's full default-argument call signatures
+    (`"Document(source=None, load_options=None)"`) any further than the generic paren-strip
+    already does -- these are illustrative CODE STATEMENTS captured whole by the backtick pattern
+    (see `_SALIENT_PATTERN_KINDS`'s own module-level comment: a backtick span is tagged
+    `"literal"` because its SHAPE is identifier-adjacent, not because every backtick span is
+    guaranteed to be a bare identifier), not call signatures with a mechanically-stubbable
+    argument list -- a live, disclosed residual limitation of this heuristic, same posture as
+    every other "cannot mechanically verify further" boundary already documented elsewhere in
+    this module (e.g. `check_content_unit_redundant_claim_verifiable`'s own docstring).
+    """
+    variants = [token]
+    if "->" in token:
+        left, _, right = token.partition("->")
+        variants.append(left.strip())
+        variants.append(right.strip())
+    for base in list(variants):
+        stripped = _CALL_SIGNATURE_PAREN_RE.sub("", base).strip(" .")
+        if stripped:
+            variants.append(stripped)
+    if ":" in token and "->" not in token:
+        parts = [p.strip() for p in token.split(":") if p.strip()]
+        if len(parts) >= 2 and all(_MAVEN_COORD_PART_RE.match(p) for p in parts):
+            variants.extend(parts)
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for variant in variants:
+        variant = variant.strip().rstrip(".")
+        if variant and len(variant) >= 2 and variant.lower() not in seen:
+            seen.add(variant.lower())
+            ordered.append(variant)
+    return ordered
+
+
+def _is_self_referential_evidence_path_token(token: str, evidence_ref: str) -> bool:
+    """True when `token` IS (or names the bare filename of) the very file cited as its own
+    evidence -- generalizes `_is_self_citation_of_root_readme`'s "citing the document itself
+    proves nothing about its own content" reasoning from the single root-README special case to
+    ANY evidence_ref. Confirmed live, `cells/typescript`'s own real u0018-u0026: 9 real
+    disposition entries whose entire excerpt is bare backtick-quoted example-file markdown
+    (`` `examples/cell_values.ts` ``) citing that SAME file as their own evidence_ref -- requiring
+    an example file's own content to literally contain its own filename string is not a
+    meaningful support test (an example file has no reason to mention its own name inside
+    itself), and flagging these as "unsupported" would be purely mechanical noise on 9 real,
+    genuinely-fine dispositions, not a real defect signal.
+    """
+    normalize = lambda s: str(s).strip().strip("`").replace("\\", "/").lower()
+    token_n = normalize(token)
+    ref_n = normalize(evidence_ref)
+    if not token_n or not ref_n:
+        return False
+    ref_basename = ref_n.rsplit("/", 1)[-1]
+    return token_n in (ref_n, ref_basename) or ref_n.endswith("/" + token_n)
+
+
+def check_content_unit_evidence_supports_claim(
+    dispositions: list[dict], clone_cache_root: str,
+) -> list[dict]:
+    """Advisory (never hard_gate). SUPPORT tier, per this mission's own 3-tier framing (COUNT --
+    already done elsewhere; ACCESSIBILITY -- explicitly OUT_OF_SCOPE, blocked on a real,
+    different-skill prerequisite; SUPPORT -- this function): does a disposition's cited evidence
+    actually SUPPORT the claim it is attached to, not merely resolve/exist (`check_content_unit_
+    evidence_resolves`'s own explicitly disclosed "presence, not proof" limit).
+
+    Scope, live-data-derived (readme-refresh-trackb-and-followon-2026-09-01's own PAUSED
+    investigation first proved a naive, unscoped version of this design unacceptably noisy --
+    pdf/java 5/122 (4%), note/python 9/117 (8%), cells/typescript 18/30 (60%) zero-match --
+    before ANY check code was written; this session re-ran that same live measurement against
+    real, current portfolio data before committing to this corrected design, per this mission's
+    own re-verification discipline):
+
+    1. Only `disposition in ("merged_verbatim", "merged_reframed")` entries with `verification.
+       evidence_type == "clone_cache_path"` are evaluated. An `excluded` disposition's own real
+       shape (confirmed live, `cells/typescript`'s own u0015/u0017: `verification.evidence_note`
+       reading "No ListObjects/Table class exists anywhere in the real API surface... zero
+       matches") cites its evidence_ref specifically to PROVE ABSENCE, not presence -- literal-
+       token-found would be the WRONG signal there, not merely an inapplicable one. Verifying an
+       exclusion's own absence claim is a structurally different check this function does not
+       attempt (out of scope for this taskcard; `check_content_unit_merged_into_target_section`'s
+       own `candidate_section_reference`/free-text paths already own the excluded-entry
+       verification story that IS mechanically checkable today).
+    2. Entries whose `target_section == "Scope and Limitations"` are exempted even when merged --
+       confirmed live, `pdf/java`'s own real u0139/u0146 (`"OCR"`/`"CJK"` limitation bullets,
+       `verification.evidence_ref` citing `Document.java`/`ArabicShaper.java` specifically
+       because those files do NOT implement OCR/complex CJK shaping). A genuine limitation
+       claim's own "evidence" is an absence-proof by the SAME inverted-polarity reasoning as
+       exclusions above, even though `disposition` here happens to be `merged_verbatim` -- the
+       `target_section`, not `disposition` alone, is the real signal for this inversion.
+    3. A token equal to (or naming the bare filename of) its own cited evidence_ref is excluded
+       from consideration (`_is_self_referential_evidence_path_token`) -- confirmed live,
+       `cells/typescript`'s own real u0018-u0026 (bare `` `examples/foo.ts` `` excerpts citing
+       that same file).
+    4. Never `descriptive_tokens` (quoted-string/link-text shaped, structurally prose-prone --
+       see `_SALIENT_PATTERN_KINDS`'s own module-level comment for why) -- only `literal_tokens`.
+    5. Matching tries the literal token AND every `_support_check_token_variants` candidate
+       (arrow-split, paren-stripped, Maven-coordinate colon-split -- each individually confirmed
+       necessary against a real, named disposition entry; see that function's own docstring),
+       case-insensitive plain substring against the cited file's real text.
+
+    Per-entry outcome is reported via a `support_check` field on every finding-shaped dict this
+    function returns (this function's "findings" are NOT purely failures the way most hard-gate
+    checks' are -- they are a full per-evaluated-entry outcome ledger, since a caller wiring this
+    into an advisory report needs to distinguish real unsupported claims from historical data
+    this schema migration has not reached yet):
+
+    - `"not_yet_backfilled"`: entry has no `literal_tokens` key at all -- pre-migration
+      disposition data (`backfill_literal_descriptive_tokens` has not been run against it).
+      NEVER treated as evidence of a problem; only entries with real `literal_tokens` data are
+      hard-gate eligible in any future promotion of this check, per this taskcard's own mandatory
+      acceptance criterion.
+    - `"no_literal_tokens"`: entry has a `literal_tokens` key, but it is empty (pure narrative
+      excerpt with no backtick/CamelCase/version/link-target signal at all) -- nothing literal to
+      test; not evidence of a problem either.
+    - `"not_applicable_limitation_claim"` / `"excluded_disposition_out_of_scope"`: rules 1/2
+      above -- structurally inapplicable, not evidence of a problem.
+    - `"self_referential_only"`: every one of the entry's literal_tokens was excluded by rule 3;
+      nothing left to test.
+    - `"unsupported"`: real, current gap -- an evaluable literal token found no match anywhere in
+      the cited evidence file's real content.
+    - `"supported"`: at least one evaluable literal token (or one of its variants) matched.
+
+    Nothing here is a `hard_gate` -- entries predating the backfill must never false-fail, and
+    even a fully-backfilled `"unsupported"` result is left advisory until a live portfolio sweep
+    proves the false-positive rate on the `literal_tokens` subset is trustworthy at scale (this
+    taskcard's own mandatory acceptance criterion is scoped to proving that on cells/typescript
+    specifically, not portfolio-wide).
+    """
+    root = Path(clone_cache_root)
+    results: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        verification = entry.get("verification") or {}
+        if verification.get("evidence_type") != "clone_cache_path":
+            continue
+        evidence_ref = verification.get("evidence_ref")
+        if not evidence_ref:
+            continue  # already flagged by check_content_unit_disposition_coverage
+        unit_id = entry.get("unit_id")
+        if entry.get("target_section") == "Scope and Limitations":
+            results.append({
+                "unit_id": unit_id, "support_check": "not_applicable_limitation_claim",
+                "reason": "target_section is Scope and Limitations -- a limitation claim's own "
+                          "cited evidence typically proves ABSENCE of a capability, not its "
+                          "presence; literal-token-found would be the wrong signal here",
+            })
+            continue
+        if "literal_tokens" not in entry:
+            results.append({
+                "unit_id": unit_id, "support_check": "not_yet_backfilled",
+                "reason": "this disposition entry predates the literal_tokens/descriptive_tokens "
+                          "schema split -- run backfill_literal_descriptive_tokens before "
+                          "trusting a support_check verdict for it",
+            })
+            continue
+        literal_tokens = entry.get("literal_tokens") or []
+        if not literal_tokens:
+            results.append({
+                "unit_id": unit_id, "support_check": "no_literal_tokens",
+                "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped "
+                          "token -- nothing literal to test",
+            })
+            continue
+        evaluable = [
+            tok for tok in literal_tokens
+            if not _is_self_referential_evidence_path_token(tok, evidence_ref)
+        ]
+        if not evaluable:
+            results.append({
+                "unit_id": unit_id, "support_check": "self_referential_only",
+                "reason": "every literal_tokens entry names the cited evidence file's own path "
+                          "-- nothing left to test once self-referential filename tokens are "
+                          "excluded",
+            })
+            continue
+        file_path = root / evidence_ref
+        if not file_path.is_file():
+            continue  # check_content_unit_evidence_resolves already reports this
+        content_lower = file_path.read_text(encoding="utf-8", errors="ignore").lower()
+        matched_token = None
+        for tok in evaluable:
+            if any(variant.lower() in content_lower for variant in _support_check_token_variants(tok)):
+                matched_token = tok
+                break
+        if matched_token is not None:
+            results.append({
+                "unit_id": unit_id, "support_check": "supported", "matched_token": matched_token,
+            })
+        else:
+            results.append({
+                "unit_id": unit_id, "support_check": "unsupported",
+                "evidence_ref": evidence_ref, "checked_tokens": evaluable,
+                "reason": f"none of this unit's literal_tokens ({', '.join(evaluable)}) -- nor "
+                          "any light call-signature/Maven-coordinate normalization of them -- "
+                          f"appear anywhere in the cited evidence file {evidence_ref!r}'s real "
+                          "content",
+            })
+    return results
 
 
 # TC-HARDEN-78 (MT047/Thirty-Seventh incident, 2026-08-15) -- see check_content_unit_merged_

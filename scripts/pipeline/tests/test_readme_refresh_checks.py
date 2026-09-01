@@ -6251,6 +6251,302 @@ def test_evidence_resolves_real_pdf_net_shaped_self_citation_sample(tmp_path):
     assert findings[0]["unit_id"] == "u0037"
 
 
+# --- TC-18 (MT061-2026-09-01-TRACKB-FOLLOWON-2): salient_tokens literal_tokens/descriptive_tokens
+# schema split + SUPPORT-tier check_content_unit_evidence_supports_claim ------------------------
+#
+# Live re-verification (this session) reproduced the parent mission's own PAUSED-with-evidence
+# baseline against real, current portfolio dispositions before any of this was built:
+# pdf/java 7/122 zero-match (the parent mission's own number was 5/122 against slightly older
+# data), note/python 9/117, cells/typescript 18/30 (60%) -- confirming the false-positive problem
+# is real and current, not stale. After the literal_tokens/descriptive_tokens split plus the 3
+# scope exemptions and the token-variant normalization below, the SAME real data re-measures at
+# pdf/java 0/112 (0%), note/python 3/113 (3%, 3 disclosed residual cases -- an acronym and 2
+# self-referential-package-path claims neither literal-match nor these variants are designed to
+# resolve), cells/typescript 0/7 (0%) -- meeting this taskcard's own mandatory acceptance
+# criterion (cells/typescript's rate drops to ~0 on the literal_tokens subset).
+
+
+def test_extract_salient_tokens_split_partitions_the_flat_list():
+    excerpt = 'See `Widget` and "a quoted feature phrase" via [runnable examples](examples/foo.ts), version 2.3.1.'
+    flat = checks._extract_salient_tokens(excerpt)
+    literal, descriptive = checks._extract_salient_tokens_split(excerpt)
+    # Every token appears in exactly one of the two lists, and the union (order-independent)
+    # equals the flat, backward-compatible list -- the split is strictly additive.
+    assert set(literal) | set(descriptive) == set(flat)
+    assert set(literal) & set(descriptive) == set()
+    assert "Widget" in literal
+    assert "examples/foo.ts" in literal  # link TARGET -- path-shaped, literal
+    assert "2.3.1" in literal  # version-shaped
+    assert "a quoted feature phrase" in descriptive  # quoted prose
+    assert "runnable examples" in descriptive  # link TEXT -- human-readable phrase
+
+
+def test_extract_salient_tokens_split_cells_typescript_real_prose_case():
+    # Real, live-confirmed shape (cells/typescript's own u0005): a plain, comma-separated feature
+    # list with zero identifier-shaped signal at all -- literal_tokens must be empty, not a
+    # false CamelCase/backtick match on ordinary English words.
+    excerpt = "Conditional formatting, data validation, hyperlinks, names, tables, charts, shapes, comments, pictures"
+    literal, descriptive = checks._extract_salient_tokens_split(excerpt)
+    assert literal == []
+    assert descriptive == []  # no quotes/links either -- this excerpt has NO salient_tokens at all
+
+
+def test_extract_salient_tokens_split_real_call_signature_case():
+    # Real, live-confirmed shape (pdf/java's own u0079): a backtick call-signature span is tagged
+    # "literal" (backtick spans are always literal-kind, per _SALIENT_PATTERN_KINDS), even though
+    # its shape needs _support_check_token_variants' own further normalization to literal-match.
+    literal, descriptive = checks._extract_salient_tokens_split("- `add() -> Page`")
+    assert literal == ["add() -> Page"]
+    assert descriptive == []
+
+
+def test_extract_salient_tokens_unchanged_for_every_token_shape():
+    # _extract_salient_tokens' own flat output must be byte-for-byte unchanged now that its body
+    # is expressed via _extract_salient_tokens_tagged -- pinned against several real excerpt
+    # shapes already covered elsewhere in this file, not just the 2 new tests above.
+    for excerpt in (
+        _U0032_EXCERPT, _U0020_EXCERPT, _PDF_GO_U0093_EXCERPT, _PDF_GO_U0042_EXCERPT,
+        "Tables (`ListObjects`)", "`examples/cell_values.ts`",
+    ):
+        tagged_flat = [tok for tok, _kind in checks._extract_salient_tokens_tagged(excerpt)]
+        assert checks._extract_salient_tokens(excerpt) == tagged_flat
+
+
+def test_backfill_literal_descriptive_tokens_derives_from_stored_excerpt_not_stored_salient_tokens():
+    # Real, live-confirmed cells/typescript shape: this product's OWN stored salient_tokens field
+    # is itself hand-authored prose ("formulas", "styles", "Clone", "install" -- never produced by
+    # the current 6-pattern extractor for these excerpts), not a mechanical extraction of the
+    # excerpt. The backfill must derive literal_tokens/descriptive_tokens from the excerpt text
+    # itself (always mechanical, always reproducible) -- NEVER from whatever the entry's own
+    # pre-existing salient_tokens field happens to already contain.
+    entry = {
+        "unit_id": "u0004", "excerpt": "Cell values, formulas, styles, merges, and number formats",
+        "salient_tokens": ["Cell", "formulas", "styles", "merges", "number formats"],
+    }
+    [backfilled] = checks.backfill_literal_descriptive_tokens([entry])
+    assert backfilled["literal_tokens"] == []  # no identifier-shaped signal in this real excerpt
+    assert backfilled["descriptive_tokens"] == []
+    # Original entry (and its own list) must be untouched -- pure, non-mutating transform.
+    assert "literal_tokens" not in entry
+    assert entry["salient_tokens"] == ["Cell", "formulas", "styles", "merges", "number formats"]
+
+
+def test_backfill_literal_descriptive_tokens_real_pdf_java_shape_matches_mechanical_extraction():
+    entry = _content_unit(
+        excerpt="The package is published on Maven Central as `org.aspose:aspose-pdf-foss`:",
+        salient_tokens=("org.aspose:aspose-pdf-foss",),
+    )
+    [backfilled] = checks.backfill_literal_descriptive_tokens([entry])
+    assert backfilled["literal_tokens"] == ["org.aspose:aspose-pdf-foss"]
+    assert backfilled["descriptive_tokens"] == []
+
+
+def test_backfill_literal_descriptive_tokens_missing_excerpt_degrades_gracefully():
+    [backfilled] = checks.backfill_literal_descriptive_tokens([{"unit_id": "u0001"}])
+    assert backfilled["literal_tokens"] == []
+    assert backfilled["descriptive_tokens"] == []
+
+
+def test_backfill_literal_descriptive_tokens_returns_new_list_not_aliased():
+    entries = [_content_unit(unit_id="u0001"), _content_unit(unit_id="u0002")]
+    backfilled = checks.backfill_literal_descriptive_tokens(entries)
+    assert backfilled is not entries
+    assert all(b is not e for b, e in zip(backfilled, entries))
+
+
+# --- check_content_unit_evidence_supports_claim (advisory) ---------------------------------------
+
+
+def _supports_entry(**overrides):
+    kwargs = dict(
+        excerpt="A real, checkable technical claim about `Widget`.",
+        target_section="Key Capabilities",  # _content_unit's own default is "Scope and
+        # Limitations", which this check exempts entirely -- overridden here so the base fixture
+        # is actually evaluable by default, matching this test module's convention of a
+        # minimal-friction default fixture.
+    )
+    kwargs.update(overrides)
+    entry = _content_unit(**kwargs)
+    literal, descriptive = checks._extract_salient_tokens_split(entry["excerpt"])
+    entry["literal_tokens"] = literal
+    entry["descriptive_tokens"] = descriptive
+    return entry
+
+
+def test_supports_claim_supported_when_literal_token_found_in_evidence_file(tmp_path):
+    (tmp_path / "widget.py").write_text("class Widget:\n    pass\n", encoding="utf-8")
+    dispositions = [_supports_entry(evidence_ref="widget.py")]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert len(results) == 1
+    assert results[0] == {"unit_id": "u0001", "support_check": "supported", "matched_token": "Widget"}
+
+
+def test_supports_claim_unsupported_when_no_token_found(tmp_path):
+    (tmp_path / "widget.py").write_text("class SomethingElse:\n    pass\n", encoding="utf-8")
+    dispositions = [_supports_entry(evidence_ref="widget.py")]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert len(results) == 1
+    assert results[0]["support_check"] == "unsupported"
+    assert results[0]["checked_tokens"] == ["Widget"]
+
+
+def test_supports_claim_not_yet_backfilled_for_pre_migration_entries(tmp_path):
+    (tmp_path / "widget.py").write_text("class Widget: pass\n", encoding="utf-8")
+    # No literal_tokens key at all -- real shape for every disposition entry on disk today,
+    # before any backfill has run.
+    entry = _content_unit(evidence_ref="widget.py", target_section="Key Capabilities")
+    assert "literal_tokens" not in entry
+    results = checks.check_content_unit_evidence_supports_claim([entry], str(tmp_path))
+    assert results == [{
+        "unit_id": "u0001", "support_check": "not_yet_backfilled",
+        "reason": "this disposition entry predates the literal_tokens/descriptive_tokens schema "
+                  "split -- run backfill_literal_descriptive_tokens before trusting a "
+                  "support_check verdict for it",
+    }]
+
+
+def test_supports_claim_no_literal_tokens_for_pure_prose_excerpt(tmp_path):
+    (tmp_path / "widget.py").write_text("class Widget: pass\n", encoding="utf-8")
+    dispositions = [_supports_entry(
+        excerpt="Conditional formatting, data validation, hyperlinks, names, tables",
+        evidence_ref="widget.py",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results == [{"unit_id": "u0001", "support_check": "no_literal_tokens",
+                         "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target"
+                                   "-shaped token -- nothing literal to test"}]
+
+
+def test_supports_claim_never_uses_descriptive_tokens(tmp_path):
+    # A file that genuinely contains the DESCRIPTIVE (prose) token's text must still be reported
+    # not_applicable/no_literal_tokens, never "supported" via a descriptive_tokens match -- this
+    # check must never fall back to the prose-prone field, per its own explicit design boundary.
+    (tmp_path / "widget.py").write_text("# a quoted feature phrase lives here too\n", encoding="utf-8")
+    dispositions = [_supports_entry(
+        excerpt='See "a quoted feature phrase" for details.', evidence_ref="widget.py",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results[0]["support_check"] == "no_literal_tokens"
+
+
+def test_supports_claim_exempts_scope_and_limitations_target_section(tmp_path):
+    # Real, live-confirmed shape: pdf/java's own u0139/u0146 ("OCR"/"CJK" limitation bullets)
+    # cite a file specifically to PROVE ABSENCE of the capability -- literal-token-found would be
+    # the wrong signal, not merely an inapplicable one.
+    (tmp_path / "document.py").write_text("class Document:\n    pass\n", encoding="utf-8")
+    dispositions = [_supports_entry(
+        excerpt="- **OCR** -- recognition of text in scanned images; use a dedicated OCR library instead.",
+        target_section="Scope and Limitations", evidence_ref="document.py",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results == [{
+        "unit_id": "u0001", "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited "
+                  "evidence typically proves ABSENCE of a capability, not its presence; "
+                  "literal-token-found would be the wrong signal here",
+    }]
+
+
+def test_supports_claim_skips_excluded_dispositions_entirely():
+    # Real, live-confirmed shape: cells/typescript's own u0015/u0017 -- an `excluded` entry whose
+    # evidence_ref proves the claim is ABSENT from source (that IS the point of excluding it).
+    # This check must never evaluate excluded entries at all -- not even as a distinct outcome
+    # label -- they are simply out of scope for this function (see its own docstring, rule 1).
+    entry = _supports_entry(
+        disposition="excluded", target_section=None,
+        excerpt="Tables (`ListObjects`)", evidence_ref="worksheet.ts",
+    )
+    results = checks.check_content_unit_evidence_supports_claim([entry], "/nonexistent")
+    assert results == []
+
+
+def test_supports_claim_skips_non_clone_cache_path_evidence_types(tmp_path):
+    entry = _supports_entry(evidence_type="package_registry_field", evidence_ref="cells.python.candidate")
+    assert checks.check_content_unit_evidence_supports_claim([entry], str(tmp_path)) == []
+
+
+def test_supports_claim_self_referential_evidence_path_token_exempted(tmp_path):
+    # Real, live-confirmed shape: cells/typescript's own u0018-u0026 -- the entire excerpt is a
+    # bare backtick-quoted filename citing that SAME file as its own evidence. Requiring the file
+    # to literally contain its own filename string is a meaningless test, not a real gap.
+    examples_dir = tmp_path / "examples"
+    examples_dir.mkdir()
+    (examples_dir / "cell_values.ts").write_text("export function run() {}\n", encoding="utf-8")
+    dispositions = [_supports_entry(
+        excerpt="`examples/cell_values.ts`", evidence_ref="examples/cell_values.ts",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results == [{
+        "unit_id": "u0001", "support_check": "self_referential_only",
+        "reason": "every literal_tokens entry names the cited evidence file's own path -- "
+                  "nothing left to test once self-referential filename tokens are excluded",
+    }]
+
+
+def test_supports_claim_real_pdf_java_arrow_split_case(tmp_path):
+    # Real, live-confirmed shape: pdf/java's own u0079 -- `add() -> Page` never appears literally
+    # in real Java source (`public Page add()`), but both the bare method name and the bare
+    # return-type name independently do.
+    (tmp_path / "PageCollection.java").write_text(
+        "public class PageCollection {\n    public Page add() { return null; }\n}\n", encoding="utf-8",
+    )
+    dispositions = [_supports_entry(
+        excerpt="- `add() -> Page`", evidence_ref="PageCollection.java",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results[0]["support_check"] == "supported"
+
+
+def test_supports_claim_real_pdf_java_call_signature_ellipsis_case(tmp_path):
+    # Real, live-confirmed shape: pdf/java's own u0093 -- `Page.accept(...)` matches real source's
+    # `page.accept(absorber);` only once the parenthesized argument list is stripped.
+    (tmp_path / "TextFragmentAbsorber.java").write_text(
+        "class TextFragmentAbsorber {\n    // usage: page.accept(absorber);\n}\n", encoding="utf-8",
+    )
+    dispositions = [_supports_entry(
+        excerpt="- constructed with a search phrase or regex, then `Page.accept(...)`",
+        evidence_ref="TextFragmentAbsorber.java",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results[0]["support_check"] == "supported"
+
+
+def test_supports_claim_real_pdf_java_maven_coordinate_colon_split_case(tmp_path):
+    # Real, live-confirmed shape: pdf/java's own u0032 -- pom.xml stores groupId/artifactId as
+    # two separate XML tag bodies, never joined by a literal `:`.
+    (tmp_path / "pom.xml").write_text(
+        "<project><groupId>org.aspose</groupId><artifactId>aspose-pdf-foss</artifactId></project>\n",
+        encoding="utf-8",
+    )
+    dispositions = [_supports_entry(
+        excerpt="The package is published on Maven Central as `org.aspose:aspose-pdf-foss`:",
+        evidence_ref="pom.xml",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    assert results[0]["support_check"] == "supported"
+
+
+def test_supports_claim_maven_colon_split_never_fires_on_an_unrelated_colon(tmp_path):
+    # Scope check: a token containing ':' that is NOT a plain-identifier-shaped Maven coordinate
+    # (e.g. a URL, or a phrase with punctuation/whitespace) must not spuriously colon-split.
+    (tmp_path / "readme_fragment.py").write_text("# nothing relevant here\n", encoding="utf-8")
+    dispositions = [_supports_entry(
+        excerpt='See "Note: this behavior may change" for details.',
+        evidence_ref="readme_fragment.py",
+    )]
+    results = checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path))
+    # The quoted phrase is descriptive-only (no literal_tokens at all here), so this must land on
+    # no_literal_tokens, never accidentally "supported" via a bogus colon-split match.
+    assert results[0]["support_check"] == "no_literal_tokens"
+
+
+def test_supports_claim_evidence_file_missing_is_silently_skipped(tmp_path):
+    # check_content_unit_evidence_resolves already reports a dangling evidence_ref -- this
+    # function must not duplicate that finding under a different name.
+    dispositions = [_supports_entry(evidence_ref="does_not_exist.py")]
+    assert checks.check_content_unit_evidence_supports_claim(dispositions, str(tmp_path)) == []
+
+
 # --- check_content_unit_merged_into_target_section (hard gate) ----------------------------------
 
 _MERGE_TARGET_README = (

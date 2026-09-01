@@ -2183,9 +2183,10 @@ def test_audit_portfolio_cli_json_flag_prints_structured_output(tmp_path, capsys
 # "content to preserve" from it and cross-checking against a disposition file is a pure
 # tautology, and the real, position-based unit_id extractors produce pure false-positive noise
 # (confirmed live: 158 hard-gate failures for pdf/cpp before this gate existed). These tests
-# prove the narrow detector fails closed in both directions, and that the 25 preservation-
-# tracking result keys are uniformly, honestly skipped once published -- while a genuinely
-# still-independent old README (the shared fixture's own default, unpublished state) is
+# prove the narrow detector fails closed in both directions, and that the preservation-tracking
+# result keys (25 as of MT053; 26 since TC-18, MT061-2026-09-01-TRACKB-FOLLOWON-2, added
+# content_unit_evidence_supports_claim) are uniformly, honestly skipped once published -- while a
+# genuinely still-independent old README (the shared fixture's own default, unpublished state) is
 # completely unaffected.
 
 
@@ -2220,6 +2221,7 @@ _MT053_PRESERVATION_TRACKING_KEYS = (
     "content_unit_disposition_coverage",
     "content_unit_excerpt_matches_extraction",
     "content_unit_evidence_resolves",
+    "content_unit_evidence_supports_claim",  # TC-18, MT061-2026-09-01-TRACKB-FOLLOWON-2
     "content_unit_merged_into_target_section",
     "content_unit_no_exact_duplicate_merge",
     "content_unit_redundant_claim_verifiable",
@@ -2245,7 +2247,7 @@ _MT053_PRESERVATION_TRACKING_KEYS = (
 )
 
 
-def test_run_deterministic_checks_bypasses_all_25_preservation_keys_once_published(tmp_path):
+def test_run_deterministic_checks_bypasses_all_preservation_keys_once_published(tmp_path):
     repo_root, upstream_dir = _make_scratch_repo(tmp_path)
     rr.configure(repo_root=repo_root)
     # Publish: overwrite the clone cache's real README.md with the exact candidate text, so
@@ -2274,8 +2276,8 @@ def test_run_deterministic_checks_bypasses_all_25_preservation_keys_once_publish
 def test_run_deterministic_checks_leaves_unpublished_product_fully_unaffected(tmp_path):
     """Non-regression proof: a genuinely still-independent old README (this fixture's own
     default, unpublished state -- _OLD_UPSTREAM_README != _GOOD_CANDIDATE) must never trip the
-    bypass, and every one of the 25 keys must behave exactly as it did before MT053 (real
-    findings/hard_gate values, never the skipped shape)."""
+    bypass, and every one of the preservation-tracking keys must behave exactly as it did before
+    MT053 (real findings/hard_gate values, never the skipped shape)."""
     repo_root, _ = _make_scratch_repo(tmp_path)
     rr.configure(repo_root=repo_root)
     clone_cache = rr._product_clone_cache("testfam", "testplat")
