@@ -44,6 +44,14 @@ throughout this module's history (2026-08-04 through 2026-08-09) and never actua
 implemented by any code, is superseded by the real `content-dispositions.json` artifact these
 checks read and write against -- see check_content_unit_disposition_coverage's own docstring.
 
+Publication tracking (TC-17, MT061-2026-09-01-TRACKB-FOLLOWON-2): check_live_published_
+regression() [advisory -- see its own docstring for the full parent-mission "23/28 false
+positive" incident it fixes] compares the CURRENT live upstream README blob against the
+RECORDED published_blob_sha256 fingerprint (TC-41, publication_reconciler.py), never the
+local candidate -- the pure/offline half of a check whose live gh-fetch half lives in
+readme_refresh_run.py's live_published_regression_portfolio(), by the same offline-check-vs-
+live-orchestration split reconcile_publications()/publication_reconciler.py already use.
+
 check_diagram_matches_capability_dependencies (spec'd 2026-08-06, plan section
 "Capability-dependency edges") is a hard gate once a product has a recorded
 pipeline_edges list (data/diagram_capability_dependencies.json) -- a no-op,
@@ -199,7 +207,10 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 2  # 1 = snapshot at MT056 (2026-08-18); 2 = this mission's 3 new checks
+CHECKS_MODULE_VERSION = 3  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+# headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
+# check_live_published_regression (advisory -- see its own docstring for why it is not yet a
+# hard gate)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -2107,6 +2118,81 @@ def check_no_undisclosed_blocking_commands(readme_text: str, upstream_issues_tex
             if blocking_cmd and blocking_cmd in block:
                 findings.append({"command": blocking_cmd, "block": block.strip()})
     return findings
+
+
+# --- Publication tracking (TC-17, MT061-2026-09-01-TRACKB-FOLLOWON-2) -----------------------
+
+
+def check_live_published_regression(
+    registry_row: "dict | None", current_blob_sha256: "str | None"
+) -> list[dict]:
+    """TC-17 (MT061-2026-09-01-TRACKB-FOLLOWON-2, resuming a taskcard PAUSED with real,
+    disclosed evidence in the closed parent mission): advisory (NOT a hard gate -- see this
+    taskcard's own mandatory_acceptance_criteria, which requires a live zero-false-positive
+    proof across the 28 currently-IN_SYNC products before that promotion is even considered).
+
+    THE CONFLATION THIS FIXES: the pre-existing `_published_readme_current_findings`
+    (readme_refresh_run.py, MT056 Stage-9) compares the live upstream README against the
+    CURRENT LOCAL CANDIDATE. That conflates two structurally different situations: "the live
+    upstream content changed unexpectedly since we last verified it" (a genuine regression,
+    worth a hard gate) vs. "our own local candidate has a real, disclosed improvement not yet
+    pushed" (the normal state of most products in this portfolio, since a hard rule forbids
+    pushing without a fresh, explicit, per-PR human go-ahead every time). A naive hard-gate
+    promotion of that comparison was tested live against real portfolio data in the parent
+    mission and immediately regressed 23 of 28 already-correctly-published products -- it
+    fired on every product with an undisclosed-but-real local improvement, which is most of
+    them, not on anything actually wrong.
+
+    THE FIX: compare the CURRENT LIVE blob (`current_blob_sha256`, a fresh gh fetch of the
+    product's default branch right now -- see `publication_reconciler.
+    fetch_current_readme_blob_sha256`) against the RECORDED `published_blob_sha256`
+    (`registry_row`, TC-41's fingerprint pinned into data/readme_published_state.json at the
+    moment reconciliation last ran) -- never the local candidate. The local candidate never
+    enters this comparison at all, which is exactly what makes this safe against the failure
+    mode above: a disclosed, not-yet-pushed local improvement cannot possibly move either side
+    of this comparison.
+
+    NO DATA, NO FINDING (never a false positive from missing data): a product with no
+    `registry_row` at all (never published, or not yet discovered by reconcile-publications),
+    or a row with no recorded `published_blob_sha256` (not yet reconciled since TC-41 added
+    fingerprint recording -- the expected, common state for most of the portfolio right now,
+    since the pre-TC-41 registry never captured this field) simply cannot regress-check yet.
+    A failed live fetch (`current_blob_sha256` is None -- a gh rate limit, auth failure, or
+    network error) is treated the same way: never fabricate a finding from an unconfirmed
+    fetch, matching `publication_reconciler`'s own NO_REPO_ACCESS posture.
+
+    ALREADY-RE-PINNED DRIFT NEVER FIRES, BY CONSTRUCTION: this is a pure function -- it
+    compares whatever `registry_row` and `current_blob_sha256` the caller passes in, with no
+    caching of its own. If a `reconcile-publications --apply` run has already re-baselined
+    `published_blob_sha256` to match the new live content (the ordinary outcome of a fresh,
+    legitimate readme-refresh publication being reconciled), the caller's next fresh read of
+    the registry carries the UPDATED value, so `recorded == current_blob_sha256` and this
+    returns `[]` -- "a difference the system already knows about and has re-pinned against"
+    cannot exist as a live diff once re-pinning has actually happened; there is no separate
+    staleness window this function needs to track on its own.
+
+    Returns at most one finding (empty list if nothing to report)."""
+    if not registry_row:
+        return []
+    recorded = registry_row.get("published_blob_sha256")
+    if not recorded:
+        return []
+    if not current_blob_sha256:
+        return []
+    if recorded == current_blob_sha256:
+        return []
+    return [{
+        "reason": f"{registry_row.get('family')}/{registry_row.get('platform')}'s live "
+                  "upstream README no longer matches the fingerprint recorded at last "
+                  f"reconciliation ({registry_row.get('last_reconciled_at')!r}) -- the live "
+                  "content changed since this system last confirmed it, independent of any "
+                  "local candidate state. Investigate before trusting this product's "
+                  "recorded publication status.",
+        "recorded_published_blob_sha256": recorded,
+        "current_live_blob_sha256": current_blob_sha256,
+        "published_commit": registry_row.get("published_commit"),
+        "last_reconciled_at": registry_row.get("last_reconciled_at"),
+    }]
 
 
 # Seeded, non-exhaustive -- confirmed live across the real portfolio at design time (2026-08-12):

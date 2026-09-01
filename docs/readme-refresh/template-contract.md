@@ -10,7 +10,7 @@
 > `scripts/ci/checks/check_readme_template_contract_parity.py` (TC-34,
 > `readme-refresh-trackb-and-followon-2026-09-01`).
 >
-> This file does not restate every one of the ~109 individual `check_*` rules — that duplication
+> This file does not restate every one of the ~110 individual `check_*` rules — that duplication
 > would itself become a second, competing source of truth, exactly the failure mode SW-F names.
 > It records the one structural fact every consumer (the composing agent, the check battery, this
 > doc, `scripts/pipeline/config/registry.yaml`'s own `change_impact` description) must agree on:

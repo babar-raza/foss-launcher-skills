@@ -49,6 +49,19 @@ CONTRACT: scripts/pipeline/lib/publication_reconciler.py
            README content, independent of the identity question) IS built and gates
            TC-17's regression check. See MT061's TC-41 taskcard evidence for the full
            live investigation.
+  TC-17 addendum (MT061-2026-09-01-TRACKB-FOLLOWON-2): added `fetch_current_readme_blob_
+           sha256(family, platform)` -- the CURRENT-live half of check_live_published_
+           regression's comparison (readme_refresh_checks.py), against TC-41's RECORDED
+           `published_blob_sha256`. Deliberately two separate fetches, both real, both
+           live: TC-41's fingerprint is pinned to the merge commit at the moment
+           reconciliation last ran; this one is whatever is on the default branch right
+           now. A genuine difference between them, with a recorded fingerprint present, is
+           the live-published-regression signal -- see readme_refresh_checks.py's own
+           docstring for why this is NOT the same comparison as the pre-existing
+           `_published_readme_current_findings` (readme_refresh_run.py), which compares
+           the live README against the LOCAL CANDIDATE and was proven live to regress
+           23/28 already-correctly-published products when naively promoted to a hard
+           gate.
   states: `IN_SYNC` (registry already reflects the most recent readme-refresh PR),
           `UNRECORDED_PUBLICATION` (a real readme-refresh PR merged upstream, confirmed
           reachable from the live default branch, with no matching registry entry, or an
@@ -217,7 +230,7 @@ def _fetch_pr_merged_by(repo_full_name: str, pr_number: int) -> "str | None":
     return merged_by.get("login")
 
 
-def _fetch_readme_blob_sha256(repo_full_name: str, ref: str) -> "str | None":
+def _fetch_readme_blob_sha256(repo_full_name: str, ref: "str | None" = None) -> "str | None":
     """TC-41: sha256 of the live README.md's raw content at `ref` (the PR's merge_commit_sha
     -- never a mutable branch pointer, so this fingerprint is reproducible/pinned). Returns
     None on any gh failure or an empty/missing file -- callers must never write a fingerprint
@@ -227,15 +240,41 @@ def _fetch_readme_blob_sha256(repo_full_name: str, ref: str) -> "str | None":
     confirmed live that `-f`/`--raw-field` silently makes `gh api` default to a POST
     request unless `--method GET` is also passed, which 404s against this GET-only
     contents endpoint. Live-verified against the real 3d/net repo before trusting either
-    form (this exact 404-vs-real-content gap is why the fix is a query string, not a flag)."""
+    form (this exact 404-vs-real-content gap is why the fix is a query string, not a flag).
+
+    TC-17 (MT061-2026-09-01-TRACKB-FOLLOWON-2): `ref=None` (the default) omits the query
+    string entirely -- GitHub's contents endpoint resolves an omitted `ref` to the repo's
+    current default branch, i.e. "whatever is live right now", which is exactly what
+    `fetch_current_readme_blob_sha256` below needs and TC-41's own callers never did (they
+    always pin to a specific historical `merge_commit_sha`)."""
+    url = f"repos/{repo_full_name}/contents/README.md"
+    if ref:
+        url += f"?ref={ref}"
     result = _cfg_command_runner(
-        ["gh", "api", "-H", "Accept: application/vnd.github.raw",
-         f"repos/{repo_full_name}/contents/README.md?ref={ref}"],
+        ["gh", "api", "-H", "Accept: application/vnd.github.raw", url],
         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
     )
     if result.returncode != 0 or not result.stdout:
         return None
     return hashlib.sha256(result.stdout.encode("utf-8")).hexdigest()
+
+
+def fetch_current_readme_blob_sha256(family: str, platform: str) -> "str | None":
+    """TC-17 (MT061-2026-09-01-TRACKB-FOLLOWON-2): sha256 of the CURRENT live README.md on
+    this product's default branch, right now -- deliberately NOT pinned to any recorded
+    commit. This is the "current live" half of check_live_published_regression's comparison
+    (readme_refresh_checks.py); the other half, `published_blob_sha256`, is the RECORDED
+    fingerprint TC-41 pins into data/readme_published_state.json at reconciliation time.
+    Reuses `_fetch_readme_blob_sha256`'s already-fixed gh-fetch mechanics (the query-string-
+    not-flag bug TC-41 found live) rather than reimplementing them -- this function only adds
+    the family/platform -> repo_full_name lookup and the "no ref pinned" call shape.
+
+    Returns None on any gh failure or unresolvable repo -- callers must treat a failed fetch
+    as "cannot confirm right now", never coerce it into "unchanged" or "changed"."""
+    repo_full_name = _repo_full_name(family, platform)
+    if not repo_full_name:
+        return None
+    return _fetch_readme_blob_sha256(repo_full_name)
 
 
 def reconcile_product(family: str, platform: str) -> dict:

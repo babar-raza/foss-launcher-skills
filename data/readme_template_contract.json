@@ -22,7 +22,7 @@
   ],
   "section_order": "required_sections lists the canonical order; Additional Examples, when present, sits between Quick Start and API Reference.",
   "check_function_count": {
-    "value": 109,
+    "value": 110,
     "source": "grep-verified count of ^def check_ in scripts/pipeline/commands/foss/readme_refresh_checks.py",
     "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect."
   }

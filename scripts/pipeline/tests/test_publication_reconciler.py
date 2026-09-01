@@ -371,3 +371,75 @@ def test_reconcile_portfolio_sweeps_explicit_pair_list_only(tmp_path):
     reports = pr.reconcile_portfolio([("cells", "typescript")])
     assert len(reports) == 1
     assert reports[0]["state"] == "UNRECORDED_PUBLICATION"
+
+
+# --- fetch_current_readme_blob_sha256 (TC-17, MT061-2026-09-01-TRACKB-FOLLOWON-2) -----------
+
+
+def test_fetch_current_readme_blob_sha256_calls_contents_endpoint_with_no_ref(tmp_path):
+    """The 'current live' half of check_live_published_regression's comparison: no ref
+    pinned at all, so gh resolves it to whatever is live on the default branch right now --
+    deliberately different from TC-41's _fetch_readme_blob_sha256(repo, merge_commit_sha)
+    callers, which always pin a specific historical commit."""
+    _write_products(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+        "active": True,
+    }])
+    seen_urls = []
+
+    def _runner(argv, *args, **kwargs):
+        joined = " ".join(argv)
+        seen_urls.append(joined)
+        return subprocess.CompletedProcess(argv, 0, stdout="# Live content right now\n", stderr="")
+
+    pr.configure(repo_root=tmp_path, command_runner=_runner)
+    result = pr.fetch_current_readme_blob_sha256("cells", "typescript")
+
+    assert result == hashlib.sha256("# Live content right now\n".encode("utf-8")).hexdigest()
+    assert len(seen_urls) == 1
+    assert "contents/README.md" in seen_urls[0]
+    assert "?ref=" not in seen_urls[0]  # no ref pinned -- current default-branch content
+
+
+def test_fetch_current_readme_blob_sha256_returns_none_on_gh_failure(tmp_path):
+    _write_products(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+        "active": True,
+    }])
+    pr.configure(
+        repo_root=tmp_path,
+        command_runner=lambda argv, **kw: subprocess.CompletedProcess(argv, 1, stdout="", stderr="rate limited"),
+    )
+    assert pr.fetch_current_readme_blob_sha256("cells", "typescript") is None
+
+
+def test_fetch_current_readme_blob_sha256_returns_none_for_unresolvable_product(tmp_path):
+    _write_products(tmp_path, [])  # no matching product/repo_url at all
+    pr.configure(repo_root=tmp_path, command_runner=lambda argv, **kw: (_ for _ in ()).throw(
+        AssertionError("must not call gh when the repo cannot even be resolved")
+    ))
+    assert pr.fetch_current_readme_blob_sha256("unknown", "unknown") is None
+
+
+def test_fetch_readme_blob_sha256_still_supports_pinned_ref_backward_compatible(tmp_path):
+    """TC-41's existing callers (_fetch_fingerprint_fields, pinned to a merge_commit_sha) must
+    keep working unchanged after this function's signature grew an optional ref."""
+    _write_products(tmp_path, [{
+        "family": "cells", "platform": "typescript",
+        "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+        "active": True,
+    }])
+    seen_urls = []
+
+    def _runner(argv, *args, **kwargs):
+        seen_urls.append(" ".join(argv))
+        return subprocess.CompletedProcess(argv, 0, stdout="# Pinned content\n", stderr="")
+
+    pr.configure(repo_root=tmp_path, command_runner=_runner)
+    result = pr._fetch_readme_blob_sha256(
+        "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript", "abc123deadbeef",
+    )
+    assert result == hashlib.sha256("# Pinned content\n".encode("utf-8")).hexdigest()
+    assert "?ref=abc123deadbeef" in seen_urls[0]

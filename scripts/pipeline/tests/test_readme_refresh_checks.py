@@ -9816,3 +9816,66 @@ def test_issue_draft_rejection_advisory_tier_never_blocks():
     assert len(result["advisory_findings"]) >= 2
     reasons = {f["reason"] for f in result["advisory_findings"]}
     assert reasons == {"accusatory_language"}
+
+
+# --- check_live_published_regression (TC-17, MT061-2026-09-01-TRACKB-FOLLOWON-2) ------------
+
+
+def test_check_live_published_regression_no_registry_row_no_finding():
+    # Never published, or not yet discovered by reconcile-publications -- nothing to compare.
+    assert checks.check_live_published_regression(None, "somesha") == []
+
+
+def test_check_live_published_regression_no_recorded_fingerprint_no_finding():
+    # The expected, common state for most of the real portfolio right now: reconciled before
+    # TC-41 added fingerprint recording, so published_blob_sha256 is absent. "No data, no
+    # finding" -- never a false positive.
+    row = {
+        "family": "words", "platform": "net",
+        "evidence": "reconciled by publication_reconciler.py: PR #1 ...",
+        "pr_number": 1, "merge_commit_sha": "abc123",
+    }
+    assert checks.check_live_published_regression(row, "somesha") == []
+
+
+def test_check_live_published_regression_failed_live_fetch_no_finding():
+    # A gh rate limit/auth/network failure on the live fetch must never be coerced into
+    # "changed" -- same NO_REPO_ACCESS-style posture as publication_reconciler.py.
+    row = {"family": "words", "platform": "net", "published_blob_sha256": "recorded-sha"}
+    assert checks.check_live_published_regression(row, None) == []
+
+
+def test_check_live_published_regression_matches_recorded_fingerprint_no_finding():
+    row = {"family": "words", "platform": "net", "published_blob_sha256": "same-sha"}
+    assert checks.check_live_published_regression(row, "same-sha") == []
+
+
+def test_check_live_published_regression_genuine_mismatch_fires_finding():
+    """The positive-path proof (TC-17 mandatory item 4): no real product in the portfolio
+    currently has this shape (nothing has drifted since TC-41's fingerprints were recorded),
+    so this synthetic case is the only way to prove the detection logic itself works, as
+    disclosed in this taskcard's own evidence rather than silently skipped."""
+    row = {
+        "family": "font", "platform": "python",
+        "published_blob_sha256": "recorded-sha-before-drift",
+        "published_commit": "commit-before-drift",
+        "last_reconciled_at": "2026-08-30T00:00:00Z",
+    }
+    result = checks.check_live_published_regression(row, "different-sha-after-drift")
+    assert len(result) == 1
+    finding = result[0]
+    assert finding["recorded_published_blob_sha256"] == "recorded-sha-before-drift"
+    assert finding["current_live_blob_sha256"] == "different-sha-after-drift"
+    assert finding["published_commit"] == "commit-before-drift"
+    assert "font/python" in finding["reason"]
+    assert "no longer matches" in finding["reason"]
+
+
+def test_check_live_published_regression_never_touches_local_candidate():
+    # Structural proof of the fix: the function signature itself has no candidate-text
+    # parameter at all -- the exact conflation the parent mission's naive hard-gate
+    # promotion regressed 23/28 products on cannot recur here because there is nothing for
+    # a disclosed-but-unpushed local improvement to move.
+    import inspect
+    params = list(inspect.signature(checks.check_live_published_regression).parameters)
+    assert params == ["registry_row", "current_blob_sha256"]

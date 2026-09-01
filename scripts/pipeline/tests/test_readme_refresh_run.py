@@ -3094,3 +3094,155 @@ def test_audit_only_marker_write_resets_run_id_when_content_changed(tmp_path):
 
     marker = rr._load_candidate_last_verified("testfam", "testplat")
     assert marker["verified_by_run_id"] is None
+
+
+# --- live_published_regression_portfolio (TC-17, MT061-2026-09-01-TRACKB-FOLLOWON-2) --------
+
+
+def _write_published_state_row(repo_root, row):
+    path = repo_root / "data" / "readme_published_state.json"
+    path.write_text(json.dumps({"schema_version": 1, "products": [row]}, indent=2), encoding="utf-8")
+
+
+def _fake_live_readme_content_runner(readme_content: "str | None"):
+    """TC-17's own configure()-seam fake, matching test_publication_reconciler.py's
+    _fake_gh_runner shape but scoped to only the one gh call shape
+    fetch_current_readme_blob_sha256 makes (the no-ref contents/README.md fetch). AGENTS.md
+    Section 16's tiered monkeypatch policy requires this configure()-seam form -- never
+    monkeypatch.setattr on an internal module function directly."""
+    def _runner(argv, *args, **kwargs):
+        joined = " ".join(argv)
+        if "contents/README.md" in joined:
+            if readme_content is None:
+                return subprocess.CompletedProcess(argv, 1, stdout="", stderr="not found")
+            return subprocess.CompletedProcess(argv, 0, stdout=readme_content, stderr="")
+        raise AssertionError(f"unexpected gh invocation in this test: {argv!r}")
+    return _runner
+
+
+def _configure_live_readme_fetch(repo_root, readme_content: "str | None") -> None:
+    """Must run AFTER rr.configure(repo_root=...) -- that call itself resets
+    publication_reconciler's command_runner back to real subprocess.run (it only forwards
+    repo_root), so the fake command_runner has to be layered on top, same ordering
+    test_push_success_does_not_record_publication_only_reconciler_does already establishes
+    for this module pair."""
+    publication_reconciler.configure(
+        repo_root=repo_root, command_runner=_fake_live_readme_content_runner(readme_content),
+    )
+
+
+def test_live_published_regression_portfolio_requires_explicit_scope(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="requires --family/--platform or --all"):
+        rr.live_published_regression_portfolio()
+
+
+def test_live_published_regression_portfolio_rejects_both_scope_and_all(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="not both"):
+        rr.live_published_regression_portfolio(family="testfam", platform="testplat", all_products=True)
+
+
+def test_live_published_regression_portfolio_no_recorded_fingerprint_no_network_call(tmp_path):
+    """The expected, common state for most of the real portfolio right now (reconciled before
+    TC-41 added fingerprint recording): no live gh call should even be attempted -- there is
+    nothing to compare against. The fake runner raises AssertionError on ANY invocation, so a
+    regression that started fetching unconditionally would fail this test loudly."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_published_state_row(repo_root, {
+        "family": "testfam", "platform": "testplat",
+        "evidence": "reconciled by publication_reconciler.py: PR #1 ...",
+        "pr_number": 1,
+    })
+    rr.configure(repo_root=repo_root)
+
+    def _must_not_be_called(argv, *args, **kwargs):
+        raise AssertionError("must not fetch live blob when no fingerprint is recorded")
+
+    publication_reconciler.configure(repo_root=repo_root, command_runner=_must_not_be_called)
+
+    result = rr.live_published_regression_portfolio(family="testfam", platform="testplat")
+    assert result["total"] == 1
+    assert result["products_with_recorded_fingerprint"] == 0
+    assert result["products_with_finding"] == 0
+    assert result["products"][0]["checked"] is False
+    assert result["products"][0]["findings"] == []
+
+
+def test_live_published_regression_portfolio_clean_match_no_finding(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    live_content = "# Unchanged live README\n"
+    recorded_sha = hashlib.sha256(live_content.encode("utf-8")).hexdigest()
+    _write_published_state_row(repo_root, {
+        "family": "testfam", "platform": "testplat",
+        "published_blob_sha256": recorded_sha, "published_commit": "abc123",
+        "last_reconciled_at": "2026-08-30T00:00:00Z",
+    })
+    rr.configure(repo_root=repo_root)
+    _configure_live_readme_fetch(repo_root, live_content)
+
+    result = rr.live_published_regression_portfolio(family="testfam", platform="testplat")
+    assert result["products_with_recorded_fingerprint"] == 1
+    assert result["products_with_finding"] == 0
+    assert result["products"][0]["checked"] is True
+    assert result["products"][0]["findings"] == []
+
+
+def test_live_published_regression_portfolio_genuine_regression_detected(tmp_path):
+    """Positive-path proof (TC-17 mandatory item 4), exercised through the full live-network
+    orchestration wrapper, not just the pure check function: a synthetic fixture where the
+    live blob genuinely changed after the fingerprint was recorded -- no real product in this
+    portfolio currently has this shape, disclosed honestly rather than skipped."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    old_content = "# README before drift\n"
+    recorded_sha = hashlib.sha256(old_content.encode("utf-8")).hexdigest()
+    _write_published_state_row(repo_root, {
+        "family": "testfam", "platform": "testplat",
+        "published_blob_sha256": recorded_sha, "published_commit": "abc123",
+        "last_reconciled_at": "2026-08-30T00:00:00Z",
+    })
+    rr.configure(repo_root=repo_root)
+    new_content = "# README genuinely changed live, out of band\n"
+    _configure_live_readme_fetch(repo_root, new_content)
+
+    result = rr.live_published_regression_portfolio(family="testfam", platform="testplat")
+    assert result["products_with_finding"] == 1
+    product = result["products"][0]
+    assert product["checked"] is True
+    assert len(product["findings"]) == 1
+    assert product["findings"][0]["current_live_blob_sha256"] == hashlib.sha256(
+        new_content.encode("utf-8")
+    ).hexdigest()
+    assert product["findings"][0]["recorded_published_blob_sha256"] == recorded_sha
+
+
+def test_live_published_regression_portfolio_failed_fetch_is_unchecked_not_a_finding(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_published_state_row(repo_root, {
+        "family": "testfam", "platform": "testplat",
+        "published_blob_sha256": "recorded-sha",
+    })
+    rr.configure(repo_root=repo_root)
+    _configure_live_readme_fetch(repo_root, None)  # simulates a gh failure
+
+    result = rr.live_published_regression_portfolio(family="testfam", platform="testplat")
+    assert result["products_with_finding"] == 0
+    assert result["products"][0]["checked"] is False
+
+
+def test_live_published_regression_portfolio_all_scopes_to_active_non_excluded_products(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_published_state_row(repo_root, {"family": "testfam", "platform": "testplat"})
+    rr.configure(repo_root=repo_root)
+
+    def _must_not_be_called(argv, *args, **kwargs):
+        raise AssertionError("no fingerprint recorded -- must not fetch")
+
+    publication_reconciler.configure(repo_root=repo_root, command_runner=_must_not_be_called)
+
+    result = rr.live_published_regression_portfolio(all_products=True)
+    assert result["total"] == 1  # only the one active product in the fixture's products.json
+    assert result["products"][0]["family"] == "testfam"
+    assert result["products"][0]["platform"] == "testplat"

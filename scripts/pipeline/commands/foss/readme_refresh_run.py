@@ -3232,6 +3232,83 @@ def reconcile_publications(
     return {"reports": reports, "applied": applied}
 
 
+def live_published_regression_portfolio(
+    *, family: "str | None" = None, platform: "str | None" = None, all_products: bool = False,
+) -> dict:
+    """TC-17 (MT061-2026-09-01-TRACKB-FOLLOWON-2): live-network orchestration half of
+    check_live_published_regression (readme_refresh_checks.py owns the pure comparison; this
+    function owns fetching the two live-network-adjacent inputs it compares). Deliberately its
+    own explicit CLI operation, never folded into `_run_deterministic_checks`/`audit_portfolio`
+    -- those exist to stay a fast, deterministic, offline check battery (see readme_refresh_
+    checks.py's own module docstring and this mission's own TC-18 evidence for why that
+    boundary is preserved on purpose); this function makes real `gh api` calls per product,
+    the same "separate, explicit operation" posture `reconcile_publications` already
+    established for the structurally adjacent publication-reconciliation job.
+
+    Read-only, always -- there is no `--apply` here; this check has nothing of its own to
+    write (it only ever reads data/readme_published_state.json, never mutates it).
+
+    Never unscoped by accident, mirroring `reconcile_publications`'s and `audit_portfolio`'s
+    own established discipline: exactly one of (family AND platform) or all_products=True is
+    required.
+
+    Returns `{"products": [{"family", "platform", "findings": [...], "checked": bool}],
+    "products_with_finding", "products_with_recorded_fingerprint", "total"}`. `checked` is
+    False when there was nothing to compare (no registry row, no recorded fingerprint, or a
+    failed live fetch) -- distinguishing "checked and clean" from "could not check" the same
+    way `disposition_tracking` already distinguishes "verified" from "skipped_published" in
+    `audit_portfolio`, so a summary count can never quietly conflate the two.
+    """
+    if all_products:
+        if family or platform:
+            raise ReadmeRefreshRunError("Pass either --all or --family/--platform, not both")
+        products = _load_products()
+        exclusions = _load_registry_exclusions()
+        excluded_keys = {
+            (excl.get("family"), excl.get("platform"))
+            for excl in exclusions if excl.get("match") == "family_platform"
+        }
+        pairs = sorted({
+            (p.get("family"), p.get("platform")) for p in products
+            if p.get("active", False) and (p.get("family"), p.get("platform")) not in excluded_keys
+        })
+    elif family and platform:
+        pairs = [(family, platform)]
+    else:
+        raise ReadmeRefreshRunError(
+            "live-published-regression requires --family/--platform or --all"
+        )
+
+    state = _load_published_state() or {"products": []}
+    rows_by_key = {
+        (row.get("family"), row.get("platform")): row for row in state.get("products") or []
+    }
+
+    product_results: list[dict] = []
+    for fam, plat in pairs:
+        registry_row = rows_by_key.get((fam, plat))
+        has_recorded_fingerprint = bool(registry_row and registry_row.get("published_blob_sha256"))
+        current_blob = None
+        if has_recorded_fingerprint:
+            current_blob = publication_reconciler.fetch_current_readme_blob_sha256(fam, plat)
+        findings = checks.check_live_published_regression(registry_row, current_blob)
+        product_results.append({
+            "family": fam, "platform": plat,
+            "findings": findings,
+            "checked": has_recorded_fingerprint and current_blob is not None,
+        })
+
+    return {
+        "products": product_results,
+        "products_with_finding": sum(1 for p in product_results if p["findings"]),
+        "products_with_recorded_fingerprint": sum(
+            1 for p in product_results
+            if rows_by_key.get((p["family"], p["platform"]), {}).get("published_blob_sha256")
+        ),
+        "total": len(product_results),
+    }
+
+
 def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = None) -> dict:
     """TC-HARDEN-05 (MT035, 2026-08-12): a real, registered, CLI-callable, tested way to
     re-run every deterministic check against every already-generated candidate in
@@ -4562,6 +4639,18 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     p_recon.add_argument("--json", action="store_true", help="Print the full structured result.")
 
+    # TC-17 (readme-refresh-trackb-and-followon-2026-09-01 / MT061-2026-09-01-TRACKB-
+    # FOLLOWON-2): always read-only -- no --apply, this check has nothing of its own to write.
+    p_liveregr = sub.add_parser("live-published-regression")
+    p_liveregr.add_argument("--family", help="Limit to one family (requires --platform).")
+    p_liveregr.add_argument("--platform", help="Limit to one platform (requires --family).")
+    p_liveregr.add_argument(
+        "--all", action="store_true", dest="all_products",
+        help="Sweep every active, non-excluded product (required explicitly -- never the "
+             "silent default).",
+    )
+    p_liveregr.add_argument("--json", action="store_true", help="Print the full structured result.")
+
     # MT056: change-scope / acceptance-registry / convergence workflow.
     p_scope = sub.add_parser("declare-scope")
     p_scope.add_argument("--run-id", required=True)
@@ -4671,6 +4760,26 @@ def main(argv: "list[str] | None" = None) -> int:
                     print(f"  {r['family']}/{r['platform']}: {r['state']} -- {r['reason']}")
                 if result["applied"]:
                     print(f"Applied {len(result['applied'])} reconciliation(s).")
+            return 0
+        elif args.command == "live-published-regression":
+            result = live_published_regression_portfolio(
+                family=args.family, platform=args.platform, all_products=args.all_products,
+            )
+            if args.json:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+            else:
+                for p in result["products"]:
+                    if p["findings"]:
+                        for f in p["findings"]:
+                            print(f"  {p['family']}/{p['platform']}: REGRESSION -- {f['reason']}")
+                    elif not p["checked"]:
+                        print(f"  {p['family']}/{p['platform']}: no data, no finding")
+                    else:
+                        print(f"  {p['family']}/{p['platform']}: OK (matches recorded fingerprint)")
+                print(
+                    f"Checked {result['products_with_recorded_fingerprint']}/{result['total']} "
+                    f"with a recorded fingerprint; {result['products_with_finding']} finding(s)."
+                )
             return 0
         else:
             family, platform = _locate_run(args.run_id)
