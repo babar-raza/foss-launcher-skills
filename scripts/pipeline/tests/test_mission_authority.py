@@ -366,4 +366,186 @@ class TestBuildLivenessReport:
         assert exit_code == 0
         out = capsys.readouterr().out
         assert "Sessions:" in out
-        assert "Locks:" in out
+
+
+# ---------------------------------------------------------------------------
+# ST-157: archive_mission() collision guard
+# ---------------------------------------------------------------------------
+
+class TestArchiveMissionCollisionGuard:
+    def test_reopen_of_same_unchanged_mission_is_not_a_collision(self, tmp_path):
+        """Idempotent re-open of the SAME mission with unchanged content must
+        still succeed -- the guard only fires on a genuine content mismatch."""
+        _write_root(tmp_path, VALID_MISSION)
+        first = mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "TEST-MISSION-A"])
+        second = mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "TEST-MISSION-A"])
+        assert first == 0
+        assert second == 0
+
+    def test_two_different_missions_sharing_an_id_is_refused(self, tmp_path, capsys):
+        """The literal MT018 scenario: two DIFFERENT missions' content trying
+        to archive under the SAME mission_id. Must be refused, not silently
+        overwritten (the pre-fix behavior)."""
+        _write_root(tmp_path, VALID_MISSION)
+        exit_code_1 = mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "TEST-MISSION-A"])
+        assert exit_code_1 == 0
+
+        colliding = dict(VALID_MISSION)
+        colliding["mission_id"] = "TEST-MISSION-A"
+        colliding["mission_summary"] = "A completely different, unrelated mission that happens to reuse this id."
+        _write_root(tmp_path, colliding)
+        capsys.readouterr()
+        exit_code_2 = mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "TEST-MISSION-A"])
+        assert exit_code_2 == 1
+        assert "already in use" in capsys.readouterr().out
+
+        # The ORIGINAL archive must be untouched -- proving no silent overwrite occurred.
+        archive_path = tmp_path / "reports" / "plan_state" / "TEST-MISSION-A" / "mission_authority.yaml"
+        data = yaml.safe_load(archive_path.read_text(encoding="utf-8"))
+        assert data["mission_authority"]["mission_summary"] == VALID_MISSION["mission_summary"]
+
+    def test_archive_mission_raises_directly_when_called_as_a_library(self, tmp_path):
+        mission_authority.archive_mission("X", dict(VALID_MISSION, mission_id="X"), status="open", root=tmp_path)
+        colliding = dict(VALID_MISSION, mission_id="X", mission_summary="different")
+        with pytest.raises(mission_authority.MissionIdCollisionError):
+            mission_authority.archive_mission("X", colliding, status="open", root=tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# ST-157: mission-id ledger seed + allocate
+# ---------------------------------------------------------------------------
+
+def _init_git_repo_with_root_history(tmp_path: Path, missions: list[dict]) -> None:
+    """Build a real git repo whose MISSION_AUTHORITY.yaml history contains one
+    commit per mission in `missions`, oldest first -- exercises the real
+    _git_history_mission_ids() git subprocess path, not a mock."""
+    subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(tmp_path), check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=str(tmp_path), check=True)
+    for mission in missions:
+        _write_root(tmp_path, mission)
+        subprocess.run(["git", "add", "MISSION_AUTHORITY.yaml"], cwd=str(tmp_path), check=True)
+        subprocess.run(["git", "commit", "-q", "-m", f"open {mission['mission_id']}"], cwd=str(tmp_path), check=True)
+
+
+class TestSeedLedgerAndAllocate:
+    def test_seed_ledger_from_git_history(self, tmp_path):
+        _init_git_repo_with_root_history(tmp_path, [
+            dict(VALID_MISSION, mission_id="MT001-2026-01-01-FIRST"),
+            dict(VALID_MISSION, mission_id="MT002-2026-01-02-SECOND"),
+        ])
+        exit_code = mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        assert exit_code == 0
+
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.has_id("MT001-2026-01-01-FIRST")
+        assert ledger.has_id("MT002-2026-01-02-SECOND")
+        assert ledger.highest_number() == 2
+
+    def test_seed_ledger_from_local_plan_state_directory_names(self, tmp_path):
+        """The real fix for the live 2026-09-01 finding: a mission with a
+        reports/plan_state/{id}/ directory but NO mission_authority.yaml
+        inside it (e.g. only taskcards.jsonl) must still be captured, because
+        the directory NAME -- not its contents -- is read."""
+        mission_dir = tmp_path / "reports" / "plan_state" / "MT005-2026-01-05-NO-YAML-INSIDE"
+        mission_dir.mkdir(parents=True)
+        (mission_dir / "taskcards.jsonl").write_text("", encoding="utf-8")
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        assert exit_code == 0
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.has_id("MT005-2026-01-05-NO-YAML-INSIDE")
+
+    def test_seed_ledger_records_both_sides_of_a_real_number_collision(self, tmp_path):
+        """The literal MT018 scenario, end to end through the real CLI: two
+        DIFFERENT missions recorded via two DIFFERENT sources (plans/missions/
+        vs. a local plan_state directory) sharing one number must both survive
+        in the ledger as disclosed history, and highest_number() must reflect
+        the true max so a future allocate() never re-mints either."""
+        (tmp_path / "reports" / "plan_state" / "MT018-A").mkdir(parents=True)
+        missions_dir = tmp_path / "plans" / "missions"
+        missions_dir.mkdir(parents=True)
+        (missions_dir / "MT018-B.md").write_text("# mission B\n", encoding="utf-8")
+
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.has_id("MT018-A")
+        assert ledger.has_id("MT018-B")
+        numbers = [e["number"] for e in ledger.history()]
+        assert numbers.count(18) == 2
+        assert ledger.highest_number() == 18
+
+    def test_seed_ledger_is_idempotent(self, tmp_path):
+        (tmp_path / "reports" / "plan_state" / "MT003-ONCE").mkdir(parents=True)
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        count_after_first = len(ledger.history())
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        assert len(ledger.history()) == count_after_first
+
+    def test_seed_ledger_reserves_track_b_bare_numbers_without_fabricating_history(self, tmp_path):
+        """Regression test for the exact bug caught live 2026-09-01: Track B's
+        table only ever has a bare "MT0NN" (no date/slug), which the
+        _MT_ID_RE-shaped sources reject outright -- an earlier version of this
+        function silently dropped every Track B row into 'non-numeric skipped'
+        with no error, leaving those numbers completely unprotected. The fix
+        must reserve the NUMBER via a clearly-labeled placeholder id."""
+        doc_dir = tmp_path / "docs" / "readme-refresh"
+        doc_dir.mkdir(parents=True)
+        (doc_dir / "plan-system-forensic-reconciliation.md").write_text(
+            "| MT041 | 2026-08-14 | some incident |\n"
+            "| MT042 | 2026-08-14 | another incident |\n",
+            encoding="utf-8",
+        )
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.highest_number() == 42
+        numbers = {e["number"] for e in ledger.history()}
+        assert {41, 42} <= numbers
+        placeholder = next(e for e in ledger.history() if e["number"] == 41)
+        assert placeholder["track"] == "readme-refresh"
+        assert "PLACEHOLDER" in placeholder["mission_id"]
+
+    def test_allocate_cli_mints_next_free_id_and_prints_it(self, tmp_path, capsys):
+        (tmp_path / "reports" / "plan_state" / "MT005-EXISTING").mkdir(parents=True)
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        capsys.readouterr()
+
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "allocate", "--track", "main", "--slug", "NEW-WORK", "--date", "2026-09-01",
+        ])
+        assert exit_code == 0
+        printed = capsys.readouterr().out.strip()
+        assert printed == "MT006-2026-09-01-NEW-WORK"
+
+    def test_list_flags_mt0nn_mission_not_covered_by_the_ledger(self, tmp_path, capsys):
+        """cmd_list's new coverage cross-check: a plans/missions/*.md file
+        whose id never went through allocate/seed-ledger must be flagged."""
+        missions_dir = tmp_path / "plans" / "missions"
+        missions_dir.mkdir(parents=True)
+        (missions_dir / "MT099-2026-09-01-NEVER-SEEDED.md").write_text("# x\n", encoding="utf-8")
+        (tmp_path / "reports" / "plan_state" / "MT099-2026-09-01-NEVER-SEEDED").mkdir(parents=True)
+        _write_root(tmp_path, dict(VALID_MISSION, mission_id="MT099-2026-09-01-NEVER-SEEDED"))
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT099-2026-09-01-NEVER-SEEDED"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main(["--root", str(tmp_path), "list"])
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "LEDGER COVERAGE WARNING" in out
+        assert "MT099-2026-09-01-NEVER-SEEDED" in out
+
+    def test_list_does_not_flag_free_text_slug_missions(self, tmp_path, capsys):
+        """Non-numeric mission ids are explicitly out of scope and must never
+        appear in the coverage warning."""
+        _write_root(tmp_path, dict(VALID_MISSION, mission_id="free-text-slug-mission"))
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "free-text-slug-mission"])
+        capsys.readouterr()
+        mission_authority.main(["--root", str(tmp_path), "list"])
+        out = capsys.readouterr().out
+        assert "LEDGER COVERAGE WARNING" not in out

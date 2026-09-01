@@ -43,6 +43,7 @@ import argparse
 import datetime
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -54,6 +55,22 @@ _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from advisory_lock import _pid_alive  # noqa: E402
+from mission_id_ledger import MissionIdLedger  # noqa: E402
+
+# Matches the numeric MT0NN track only (ST-157 fix scope) -- e.g.
+# "MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE" -> number 18. Free-text slug
+# mission ids (e.g. "backlink-governance-redesign") never match and are
+# deliberately left out of ledger coverage -- see mission_id_ledger.py's
+# module docstring for why.
+_MT_ID_RE = re.compile(r"^(MT(\d+))-")
+
+
+class MissionIdCollisionError(Exception):
+    """Raised when archive_mission() would overwrite an existing archive at
+    the same mission_id whose content genuinely differs (ST-157 hardening:
+    archive_mission() previously overwrote silently, with no diff check --
+    the exact storage-layer manifestation of a mission-id collision)."""
+
 
 REQUIRED_FIELDS = [
     "mission_id",
@@ -109,10 +126,33 @@ def archive_mission(
     status: str,
     root: Optional[Path] = None,
 ) -> Path:
-    """Write the durable per-mission snapshot. status is 'open' or 'closed'."""
+    """Write the durable per-mission snapshot. status is 'open' or 'closed'.
+
+    Raises MissionIdCollisionError if a snapshot already exists at this
+    mission_id whose content (ignoring the archive-status/timestamp fields
+    every re-archive legitimately changes) differs from what's being written
+    now -- previously this silently overwrote, which is the storage-layer
+    reason a mission-id collision was invisible even after the fact.
+    """
     out_dir = plan_state_dir(mission_id, root)
-    out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "mission_authority.yaml"
+    if out_path.is_file():
+        try:
+            existing = yaml.safe_load(out_path.read_text(encoding="utf-8"))["mission_authority"]
+        except Exception:  # noqa: BLE001
+            existing = None
+        if existing is not None:
+            ignore_keys = {"_archive_status", "_archived_at", "_closed_at"}
+            existing_cmp = {k: v for k, v in existing.items() if k not in ignore_keys}
+            new_cmp = {k: v for k, v in ma.items() if k not in ignore_keys}
+            if existing_cmp != new_cmp:
+                raise MissionIdCollisionError(
+                    f"archive_mission({mission_id!r}) refused: an existing archive at "
+                    f"{out_path} has different content than what's being written now -- "
+                    "this mission_id is already in use by different mission content. "
+                    "Choose a different id (see mission_authority.py allocate)."
+                )
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     snapshot = dict(ma)
     snapshot["_archive_status"] = status
@@ -151,7 +191,11 @@ def cmd_open(args: argparse.Namespace) -> int:
         )
         return 1
 
-    out_path = archive_mission(args.mission_id, ma, status="open", root=root)
+    try:
+        out_path = archive_mission(args.mission_id, ma, status="open", root=root)
+    except MissionIdCollisionError as exc:
+        print(f"ERROR: {exc}")
+        return 1
     print(f"Archived mission {args.mission_id!r} (status: open) -> {out_path}")
     return 0
 
@@ -204,6 +248,22 @@ def cmd_list(args: argparse.Namespace) -> int:
 
     for mission_id, status, summary in rows:
         print(f"[{status:>6}] {mission_id} - {summary}")
+
+    # ST-157: ledger-coverage cross-check. Flags any MT0NN-shaped mission id
+    # this archive knows about that never went through `allocate`/`seed-ledger`
+    # -- a bypass of the sanctioned minting path. Non-numeric slug ids are out
+    # of scope (see mission_id_ledger.py) and never flagged.
+    ledger = MissionIdLedger(repo_root=root)
+    ledger_ids = {e.get("mission_id") for e in ledger.history()}
+    uncovered = sorted(
+        mission_id for mission_id, _status, _summary in rows
+        if _MT_ID_RE.match(mission_id) and mission_id not in ledger_ids
+    )
+    if uncovered:
+        print(f"\nLEDGER COVERAGE WARNING: {len(uncovered)} MT0NN-shaped mission id(s) "
+              f"not found in {ledger.path} -- minted outside `allocate`/`seed-ledger`:")
+        for mission_id in uncovered:
+            print(f"  - {mission_id}")
     return 0
 
 
@@ -443,6 +503,177 @@ def cmd_backfill(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# ST-157: mission-id ledger seed + allocate
+# ---------------------------------------------------------------------------
+
+def _git_history_mission_ids(root: Path) -> List[str]:
+    """Every mission_id ever recorded in MISSION_AUTHORITY.yaml's git history
+    (Track A). Reuses the same walk cmd_backfill already performs."""
+    try:
+        log_result = subprocess.run(
+            ["git", "log", "--format=%H", "--follow", "--", "MISSION_AUTHORITY.yaml"],
+            cwd=str(root), capture_output=True, text=True, encoding="utf-8", errors="replace", check=True,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return []
+    shas = [line.strip() for line in log_result.stdout.splitlines() if line.strip()]
+    ids: List[str] = []
+    for sha in shas:
+        show_result = subprocess.run(
+            ["git", "show", f"{sha}:MISSION_AUTHORITY.yaml"],
+            cwd=str(root), capture_output=True, text=True, encoding="utf-8", errors="replace",
+        )
+        if show_result.returncode != 0:
+            continue
+        try:
+            mission_id = yaml.safe_load(show_result.stdout)["mission_authority"]["mission_id"]
+        except Exception:  # noqa: BLE001
+            continue
+        if isinstance(mission_id, str):
+            ids.append(mission_id)
+    return ids
+
+
+def _local_plan_state_mission_ids(root: Path) -> List[str]:
+    """Every mission_id with a LOCAL reports/plan_state/{mission_id}/ directory,
+    scanned directly off disk rather than via git history.
+
+    Reads the DIRECTORY NAME, not any file inside it: plan_state_dir() defines
+    the directory as named exactly after the mission_id by construction, so
+    this is authoritative regardless of what (if anything) is inside --
+    deliberately NOT parsing mission_authority.yaml content, after a live
+    2026-09-01 check found several real, currently-open missions whose
+    reports/plan_state/{id}/ directory has no mission_authority.yaml at all
+    (MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE: only taskcards.jsonl;
+    MT038-2026-08-27-CI-HARDENING: only planning_evidence.md) or only a
+    mission_authority.DRAFT.yaml (MT039-2026-08-28-PRODUCT-LAUNCH-REFRESH-EXECUTION)
+    -- a content-parsing scan silently dropped all three. This is also the
+    fix for the more general backfill gap: a mission can be hand-authored
+    straight into this directory without ever touching the root
+    MISSION_AUTHORITY.yaml (done deliberately when the root slot is occupied --
+    see readme-refresh-trackb-and-followon-2026-09-01's own conflicts_found for
+    a same-day example), so such a mission's id never appears in the root
+    file's git history either. reports/plan_state/ is gitignored (local-only),
+    so this source's completeness is bounded by what exists on THIS machine at
+    seed time -- disclosed, not silently assumed complete.
+    """
+    plan_state_root = root / "reports" / "plan_state"
+    if not plan_state_root.is_dir():
+        return []
+    return [d.name for d in sorted(plan_state_root.iterdir()) if d.is_dir()]
+
+
+def _plans_missions_mission_ids(root: Path) -> List[str]:
+    """Every mission id named by a file under plans/missions/*.md -- in
+    practice the single richest source (covers missions whose
+    reports/plan_state/ archive was never written at all, e.g. MT018's own
+    GOVERNANCE-EVIDENCE-TRUST-FORENSICS half, confirmed live 2026-09-01 to
+    have neither a mission_authority.yaml NOR a reports/plan_state/ directory
+    -- only this file records it)."""
+    missions_dir = root / "plans" / "missions"
+    if not missions_dir.is_dir():
+        return []
+    return [p.stem for p in sorted(missions_dir.glob("*.md"))]
+
+
+def _track_b_numbers(root: Path) -> List[int]:
+    """Every MT0NN NUMBER referenced in /readme-refresh's own, entirely
+    separate incident table (Track B) --
+    docs/readme-refresh/plan-system-forensic-reconciliation.md.
+
+    Returns bare numbers, not full mission_id strings: the table's own first
+    column is just "MT021", never a full "MT021-YYYY-MM-DD-SLUG" id (confirmed
+    live 2026-09-01 -- an earlier version of this function tried to feed that
+    bare string straight to _MT_ID_RE, which requires a trailing hyphen and
+    rejected every single one, silently dropping all 32 rows into the generic
+    "non-numeric skipped" bucket with no error -- a false-green result: the
+    output looked clean but every Track B number was actually unprotected).
+    The caller synthesizes a placeholder id per number -- the goal here is
+    reserving the NUMBER against future re-allocation, not reconstructing
+    Track B's full historical mission narrative (out of scope; see
+    mission_id_ledger.py's module docstring)."""
+    doc_path = root / "docs" / "readme-refresh" / "plan-system-forensic-reconciliation.md"
+    if not doc_path.is_file():
+        return []
+    row_re = re.compile(r"^\|\s*MT(\d+)\s*\|")
+    numbers: List[int] = []
+    for line in doc_path.read_text(encoding="utf-8").splitlines():
+        m = row_re.match(line)
+        if m:
+            numbers.append(int(m.group(1)))
+    return numbers
+
+
+def cmd_seed_ledger(args: argparse.Namespace) -> int:
+    """One-time (idempotent, safe to re-run) backfill of the mission-id
+    ledger from every known source, BEFORE `allocate` is used for the first
+    live mission -- otherwise the first allocate() call could re-mint an
+    already-used number that simply hadn't been seeded yet."""
+    root = Path(args.root) if args.root else repo_root()
+    ledger = MissionIdLedger(repo_root=root)
+
+    sources = [
+        ("git-history-backfill", "main", _git_history_mission_ids(root)),
+        ("local-plan-state-scan", "main", _local_plan_state_mission_ids(root)),
+        ("plans-missions-scan", "main", _plans_missions_mission_ids(root)),
+    ]
+
+    seeded = 0
+    already_present = 0
+    non_numeric_skipped = 0
+    for source, track, ids in sources:
+        for mission_id in ids:
+            m = _MT_ID_RE.match(mission_id)
+            if not m:
+                non_numeric_skipped += 1
+                continue
+            number = int(m.group(2))
+            result = ledger.seed(number=number, mission_id=mission_id, track=track, source=source)
+            if result is None:
+                already_present += 1
+            else:
+                seeded += 1
+
+    # Track B's table only ever gives a bare number (no full dated-slug id),
+    # so it's handled separately from the _MT_ID_RE-shaped sources above --
+    # reserve the NUMBER via a clearly-labeled placeholder id, so a future
+    # allocate() can never re-mint it, without fabricating a fake historical
+    # mission narrative this repo has no real record of.
+    for number in _track_b_numbers(root):
+        placeholder_id = f"MT{number:03d}-README-REFRESH-TRACK-B-PLACEHOLDER"
+        # A real, already-recorded id for this number (from any source above)
+        # takes precedence -- only reserve the placeholder if genuinely nothing
+        # else already claims this number.
+        if any(e.get("number") == number for e in ledger.history()):
+            already_present += 1
+            continue
+        result = ledger.seed(number=number, mission_id=placeholder_id, track="readme-refresh", source="track-b-table-scan")
+        if result is None:
+            already_present += 1
+        else:
+            seeded += 1
+
+    print(f"Seeded {seeded} new entr{'y' if seeded == 1 else 'ies'}, "
+          f"{already_present} already present (idempotent no-op), "
+          f"{non_numeric_skipped} non-numeric ids skipped (out of scope).")
+    print(f"Ledger highest_number() is now: {ledger.highest_number()}")
+    print(f"Ledger path: {ledger.path}")
+    return 0
+
+
+def cmd_allocate(args: argparse.Namespace) -> int:
+    """Mint a new, collision-free numeric mission id. The ONLY sanctioned
+    way to get a new MT0NN id -- never hand-pick one."""
+    root = Path(args.root) if args.root else repo_root()
+    ledger = MissionIdLedger(repo_root=root)
+    mission_id = ledger.allocate(
+        track=args.track, slug=args.slug, date=args.date, session_id=os.environ.get("AGENT_SESSION_ID"),
+    )
+    print(mission_id)
+    return 0
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", default=None, help="Repo root override (for tests)")
@@ -472,6 +703,24 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     p_status.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     p_status.set_defaults(func=cmd_status)
+
+    p_seed = sub.add_parser(
+        "seed-ledger",
+        help="ST-157: one-time, idempotent backfill of the mission-id ledger from "
+             "git history + local reports/plan_state/ + the readme-refresh Track B table. "
+             "Run once, and verify its output, before the first live 'allocate' call.",
+    )
+    p_seed.set_defaults(func=cmd_seed_ledger)
+
+    p_allocate = sub.add_parser(
+        "allocate",
+        help="ST-157: mint a new, collision-free numeric mission id. The only "
+             "sanctioned way to get a new MT0NN id.",
+    )
+    p_allocate.add_argument("--track", required=True, help="e.g. 'main' or 'readme-refresh'")
+    p_allocate.add_argument("--slug", required=True, help="Descriptive UPPER-CASE slug, e.g. EXAMPLE-MISSION")
+    p_allocate.add_argument("--date", default=None, help="YYYY-MM-DD, defaults to today (UTC)")
+    p_allocate.set_defaults(func=cmd_allocate)
 
     args = parser.parse_args(argv)
     return args.func(args)

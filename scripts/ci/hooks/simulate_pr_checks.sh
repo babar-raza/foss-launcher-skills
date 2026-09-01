@@ -201,6 +201,12 @@ run_step "Check clone cache refs (no foss-launcher)" "blocking" \
 run_step "Check pipeline script registration (landing state)" "advisory" \
     "$PYTHON" scripts/ci/checks/check_pipeline_registration.py --fail-test-gaps
 
+# advisory in CI (continue-on-error: true, landing state 2026-09-01, ST-157) --
+# first-time check; promote to blocking (--strict) once proven clean against
+# real CI traffic for a while.
+run_step "Check mission-id ledger coverage (landing state, ST-157)" "advisory" \
+    "$PYTHON" scripts/ci/checks/check_mission_id_ledger_coverage.py
+
 run_step "Hugo build verification (products.aspose.org)" "blocking" \
     bash scripts/ci/hooks/check_hugo_build.sh products.aspose.org
 
