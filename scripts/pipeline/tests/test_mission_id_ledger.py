@@ -7,12 +7,26 @@ process this collides; against MissionIdLedger.allocate() it must not.
 """
 from __future__ import annotations
 
+import multiprocessing
 import threading
 from pathlib import Path
 
 import pytest
 
 from lib.mission_id_ledger import MissionIdLedger, MissionIdLedgerLockTimeout
+
+
+def _mp_allocate_worker(repo_root: str, i: int, queue: "multiprocessing.Queue") -> None:
+    """Module-level (picklable, required for Windows spawn) worker: a
+    SEPARATE OS PROCESS calling allocate() against the same on-disk ledger.
+    The real MT018 incident was a multi-SESSION (multi-process) race, not a
+    multi-threaded one -- threading.Thread proves the lock's logic is
+    correct, but only a real separate process proves the OS-level
+    O_CREAT|O_EXCL primitive actually serializes independent processes, not
+    just threads sharing one interpreter/GIL."""
+    ledger = MissionIdLedger(repo_root=Path(repo_root))
+    mission_id = ledger.allocate(track="main", slug=f"PROC{i}", date="2026-09-01")
+    queue.put(mission_id)
 
 
 def _ledger(tmp_path: Path) -> MissionIdLedger:
@@ -128,3 +142,29 @@ def test_concurrent_allocate_never_returns_duplicate_ids(tmp_path):
     assert len(set(results)) == n, f"duplicate mission id minted under concurrency: {results}"
     numbers = sorted(int(mid.split("-")[0][2:]) for mid in results)
     assert numbers == list(range(1, n + 1)), f"expected a dense 1..{n} sequence, got {numbers}"
+
+
+def test_concurrent_allocate_never_returns_duplicate_ids_across_separate_processes(tmp_path):
+    """The threading test above proves the lock's logic is correct; it does
+    NOT prove independent OS PROCESSES are actually serialized -- threads in
+    one interpreter share the GIL and could pass even with a subtly broken
+    lock. The real MT018 incident was two separate SESSIONS (processes), not
+    two threads of one process. This spawns real child processes (required
+    on Windows: the lock's O_CREAT|O_EXCL is a kernel-level primitive, not a
+    Python-level one, so this is the only way to prove it actually holds
+    across process boundaries, not just across threads)."""
+    n = 4
+    ctx = multiprocessing.get_context("spawn")
+    queue = ctx.Queue()
+    procs = [ctx.Process(target=_mp_allocate_worker, args=(str(tmp_path), i, queue)) for i in range(n)]
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join(timeout=60)
+
+    assert all(p.exitcode == 0 for p in procs), f"a worker process failed: {[p.exitcode for p in procs]}"
+
+    results = [queue.get(timeout=5) for _ in range(n)]
+    assert len(set(results)) == n, f"duplicate mission id minted across separate PROCESSES: {results}"
+    numbers = sorted(int(mid.split("-")[0][2:]) for mid in results)
+    assert numbers == list(range(1, n + 1)), f"expected a dense 1..{n} sequence across processes, got {numbers}"
