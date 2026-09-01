@@ -146,15 +146,5 @@
     "line": 390,
     "direction": "export",
     "evidence_kind": "ts_io_identifier"
-  },
-  {
-    "format": "CSV",
-    "enum": "",
-    "value": "",
-    "file": "aspose_cells/workbook.ts",
-    "line": 1330,
-    "direction": "export",
-    "functional": true,
-    "note": "Workbook.toCsv(): string returns CSV text directly (ST-123) -- distinct from save(filePath, {saveFormat: SaveFormat.CSV}), which is a known library bug (writes XLSX binary regardless of requested saveFormat, see BACKLOG.md CELLS-TYPESCRIPT-FORMATS-001). Belt-and-suspenders durable copy: the Pass 1g to<Format>() instance-method signal (formats.py _TS_INSTANCE_METHOD_RE) should now also derive this from source; this override survives promote.py re-runs even if that signal needs iteration."
   }
 ]

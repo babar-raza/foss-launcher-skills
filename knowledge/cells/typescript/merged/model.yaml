@@ -1,5 +1,5 @@
-bundle_generated_at: '2026-09-01T02:55:48.159756+00:00'
-bundle_id: 859443ce-de68-483d-a26b-ce5e658e09a8
+bundle_generated_at: '2026-09-01T03:33:47.977286+00:00'
+bundle_id: 4fa3696a-1ff8-4cdc-8ba1-e05310b54119
 config_sha: 5676a5ada3d9dda2
 enrichment_status: full
 extractor_hash: e68fa5d338053db1
@@ -17,7 +17,7 @@ license: MIT
 module_assignment_version: 1
 platform: typescript
 product_name: excel-cells
-promoted_at: '2026-09-01T02:55:48.214815+00:00'
+promoted_at: '2026-09-01T03:33:48.042847+00:00'
 repo_sha: fc186507e5b7124f4664aa6035f25cfd3112367d
 repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git
 schema_version: 2
