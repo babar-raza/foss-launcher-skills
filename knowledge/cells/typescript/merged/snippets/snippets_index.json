@@ -18,7 +18,6 @@
       "Workbook.save"
     ],
     "formats_referenced": [
-      "cells",
       "xlsx"
     ],
     "provenance": "scout"
@@ -39,7 +38,6 @@
       "Workbook.save"
     ],
     "formats_referenced": [
-      "cells",
       "xlsx"
     ],
     "provenance": "scout"
@@ -58,7 +56,6 @@
       "Workbook.save"
     ],
     "formats_referenced": [
-      "cells",
       "html",
       "xlsx"
     ],

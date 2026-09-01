@@ -37,8 +37,8 @@
     "value": "\"xlsx\"",
     "file": "aspose_cells/types.ts",
     "line": 177,
-    "direction": "enum_only",
-    "functional": false
+    "direction": "export",
+    "functional": true
   },
   {
     "format": "CSV",
@@ -46,8 +46,8 @@
     "value": "\"csv\"",
     "file": "aspose_cells/types.ts",
     "line": 177,
-    "direction": "enum_only",
-    "functional": false
+    "direction": "export",
+    "functional": true
   },
   {
     "format": "JSON",
@@ -55,8 +55,8 @@
     "value": "\"json\"",
     "file": "aspose_cells/types.ts",
     "line": 177,
-    "direction": "enum_only",
-    "functional": false
+    "direction": "export",
+    "functional": true
   },
   {
     "format": "MARKDOWN",
@@ -64,8 +64,8 @@
     "value": "\"markdown\"",
     "file": "aspose_cells/types.ts",
     "line": 177,
-    "direction": "enum_only",
-    "functional": false
+    "direction": "export",
+    "functional": true
   },
   {
     "format": "HTML",
@@ -112,23 +112,49 @@
     "evidence_kind": "ts_io_identifier"
   },
   {
-    "format": "XLSX",
+    "format": "csv",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1329,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "json",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1360,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1375,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xlsx",
     "enum": "",
     "value": "",
     "file": "aspose_cells/workbook.ts",
     "line": 390,
     "direction": "export",
-    "evidence_kind": "ts_io_identifier",
-    "functional": true
+    "evidence_kind": "ts_io_identifier"
   },
   {
     "format": "CSV",
     "enum": "",
     "value": "",
     "file": "aspose_cells/workbook.ts",
-    "line": 0,
+    "line": 1330,
     "direction": "export",
     "functional": true,
-    "evidence_kind": "ts_io_identifier_manual_correction"
+    "note": "Workbook.toCsv(): string returns CSV text directly (ST-123) -- distinct from save(filePath, {saveFormat: SaveFormat.CSV}), which is a known library bug (writes XLSX binary regardless of requested saveFormat, see BACKLOG.md CELLS-TYPESCRIPT-FORMATS-001). Belt-and-suspenders durable copy: the Pass 1g to<Format>() instance-method signal (formats.py _TS_INSTANCE_METHOD_RE) should now also derive this from source; this override survives promote.py re-runs even if that signal needs iteration."
   }
 ]

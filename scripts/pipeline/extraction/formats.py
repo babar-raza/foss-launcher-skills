@@ -785,6 +785,37 @@ _TS_STATIC_METHOD_RE = re.compile(
 )
 _TS_EXPORTED_CLASS_RE = re.compile(r"\bexport\s+(?:abstract\s+)?class\b")
 
+# Signal (e) (ST-123): public instance to<Format>()/from<Format>() methods --
+# e.g. Workbook.toCsv() -- a real exported capability invisible to signals
+# (a)/(b) (top-level exports and static methods only) and (d) (primary-format
+# save() only). The negative lookahead excludes static/private/protected/
+# get/set so it never overlaps _TS_STATIC_METHOD_RE; the keyword exclude set
+# below stops obvious control-flow/reserved-word lines (if/for/while/...)
+# from being treated as method names. recognize_camel_identifier_format() is
+# the real filter -- this regex only proposes candidates.
+#
+# Gated to primary-stem files ONLY (same _TS_PRIMARY_STEMS set signal (d)
+# uses), not just "has an exported class" like the static-method signal --
+# confirmed live against cells/typescript's real source: an unscoped version
+# also matched ConditionalFormat.toXml() in conditionalformat.ts, a supporting
+# (non-document) class whose toXml() builds an internal <conditionalFormatting>
+# OOXML fragment nested inside the xlsx worksheet, not a standalone XML export
+# feature -- the same class of false positive this file already excludes for
+# writeToZip()'s OOXML plumbing (see _scan_ts_ooxml_writer_export) and cfb's
+# internal-encryption-impl case. Format claims here mean "the whole document
+# exports to X"; only primary-stem (document/workbook/presentation/spreadsheet)
+# classes make that claim credibly.
+_TS_INSTANCE_METHOD_RE = re.compile(
+    r"^\s*(?!(?:static|private|protected|get|set)\b)"
+    r"(?:public\s+)?(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(",
+    re.MULTILINE,
+)
+_TS_INSTANCE_METHOD_KEYWORD_EXCLUDE = frozenset({
+    "constructor", "if", "for", "while", "switch", "catch", "function",
+    "return", "new", "throw", "typeof", "do", "try", "else", "case",
+    "instanceof", "delete", "void", "yield", "await", "super",
+})
+
 # File-stem signal (c): a token immediately followed by an I/O-shaped suffix,
 # e.g. "docxexport" -> token "docx", suffix "export".
 _TS_STEM_DIRECTION_RE = re.compile(
@@ -823,7 +854,7 @@ def _scan_ts_io_functions(
 
     seen: set[tuple[str, str]] = set()
     new_entries: list[dict] = []
-    primary_fmt = family.title()
+    primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
 
     def _emit(token: str, direction: str, rel: str, line: int, evidence_kind: str,
                claim_text: str) -> None:
@@ -860,6 +891,11 @@ def _scan_ts_io_functions(
         candidate_matches.extend(_TS_EXPORTED_ARROW_RE.finditer(text))
         if has_exported_class:
             candidate_matches.extend(_TS_STATIC_METHOD_RE.finditer(text))
+            if fpath.stem.lower() in _TS_PRIMARY_STEMS:
+                candidate_matches.extend(
+                    m for m in _TS_INSTANCE_METHOD_RE.finditer(text)
+                    if m.group(1) not in _TS_INSTANCE_METHOD_KEYWORD_EXCLUDE
+                )
 
         for m in candidate_matches:
             name = m.group(1)

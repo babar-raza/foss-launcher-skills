@@ -2173,5 +2173,158 @@ internal static class WriterFactory {
             self.assertIn("text", functional_import)
 
 
+class TestTsInstanceMethodFormatDetection(unittest.TestCase):
+    """Tests for _scan_ts_io_functions() Pass 1g -- primary-format token fix
+    and the new public-instance-method (to<Format>()/from<Format>()) signal.
+
+    Root cause guarded (ST-123):
+      Pass 1g's primary_fmt derivation used bare family.title() instead of the
+      _FAMILY_PYTHON_PRIMARY_FMT override map already used by every sibling
+      pass in this file, so cells/typescript's save()-derived export entry was
+      emitted as format "Cells" instead of "xlsx". Separately, Workbook.toCsv()
+      -- a real, functional CSV-export capability -- was invisible to every
+      existing TS/JS signal because it is a plain public instance method
+      (signals a/b only scan exported top-level functions/arrows and static
+      methods; signal d only scans save/write/toBytes/toBuffer).
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_cells_primary_export_format_is_xlsx_not_family_title(self):
+        """cells/typescript Workbook.save() -> primary export format 'xlsx', not 'Cells'."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    async save(filePath: string): Promise<void> {
+        await writeFile(filePath, this.data);
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "cells", None)
+            primary_exports = [e for e in result if e["direction"] == "export"
+                                and e["format"].lower() != "cells"]
+            self.assertTrue(
+                any(e["format"].lower() == "xlsx" for e in result),
+                f"expected an xlsx export entry via _FAMILY_PYTHON_PRIMARY_FMT; got: {result}",
+            )
+            self.assertFalse(
+                any(e["format"].lower() == "cells" for e in result),
+                f"'Cells' is not a real format and must never be emitted; got: {result}",
+            )
+
+    def test_non_cells_family_primary_export_format_unchanged(self):
+        """A family absent from _FAMILY_PYTHON_PRIMARY_FMT still falls back to
+        family.title() -- the fix must be a no-op for every other family."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.ts", """\
+export class Document {
+    async save(filePath: string): Promise<void> {
+        await writeFile(filePath, this.data);
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "words", None)
+            self.assertTrue(
+                any(e["format"] == "Words" for e in result),
+                f"expected unchanged family.title() fallback for 'words'; got: {result}",
+            )
+
+    def test_public_instance_to_csv_method_detected_as_csv_export(self):
+        """Workbook.toCsv(): string {} -> csv/export entry emitted (ST-123)."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    toCsv(): string {
+        return "";
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "cells", None)
+            csv_entries = [e for e in result
+                           if e["format"].lower() == "csv" and e["direction"] == "export"]
+            self.assertEqual(
+                len(csv_entries), 1,
+                f"toCsv() must emit exactly 1 csv/export entry; got: {result}",
+            )
+
+    def test_unrelated_instance_method_emits_no_spurious_entry(self):
+        """A getter-shaped instance method with no format-token name must not
+        emit any format entry -- guards the new signal's false-positive risk."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    getSheetCount(): number {
+        return this._sheets.length;
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "cells", None)
+            self.assertEqual(
+                result, [],
+                f"getSheetCount() names no format token and must emit nothing; got: {result}",
+            )
+
+    def test_static_method_not_double_counted_by_new_instance_signal(self):
+        """A static method whose name itself encodes a format token (so it
+        already matches _TS_STATIC_METHOD_RE via signal a/b) must still be
+        counted exactly once, not duplicated by the new instance-method
+        signal -- the negative lookahead must exclude 'static'."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    static async loadXlsx(filePath: string): Promise<Workbook> {
+        const workbook = new Workbook();
+        return workbook;
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "cells", None)
+            xlsx_import = [e for e in result
+                            if e["format"].lower() == "xlsx" and e["direction"] == "import"]
+            self.assertEqual(
+                len(xlsx_import), 1,
+                f"static loadXlsx() must be counted exactly once, not duplicated "
+                f"by the new instance-method signal; got: {result}",
+            )
+
+    def test_non_primary_stem_to_format_method_emits_no_entry(self):
+        """A to<Format>() method on a non-primary-stem supporting class must
+        NOT emit a format entry -- guards the real false positive found live
+        against cells/typescript's source: ConditionalFormat.toXml() in
+        conditionalformat.ts builds an internal OOXML fragment nested inside
+        the xlsx worksheet, not a standalone XML export feature. Format
+        claims mean 'the whole document exports to X'; only primary-stem
+        (document/workbook/presentation/spreadsheet) files may make that
+        claim via this signal."""
+        from extraction.formats import _scan_ts_io_functions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "conditionalformat.ts", """\
+export class ConditionalFormat {
+    toXml(): string {
+        return "<conditionalFormatting></conditionalFormatting>";
+    }
+}
+""")
+            result = _scan_ts_io_functions([src], tmp, "typescript", "cells", None)
+            self.assertEqual(
+                result, [],
+                f"toXml() on a non-primary-stem class must emit nothing; got: {result}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
