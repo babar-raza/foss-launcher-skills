@@ -9,7 +9,11 @@ args: "{family} {platform} [--receipts path]"
 # S-107: Locale Refresh Handoff
 
 After body updates, identifies locale equivalents requiring re-translation.
-Routes pages with <3 changed sentences to S-75 and >=3 sentences to S-56.
+Routes pages with <3 changed sentences to S-75, >=3 sentences to S-HT-01, and any
+locale whose H2 heading structure no longer matches English (RG-004 mismatch) to
+S-HT-01 as `STRUCTURAL_DRIFT` — regardless of text-diff size, since a removed or
+restructured section has no literal text for S-75 to patch against, and S-75's own
+safety rules refuse locale files that have diverged structurally from source.
 
 **CLI:**
 ```bash
@@ -21,7 +25,11 @@ Output: `reports/refresh_review/{family}/{platform}/locale_handoff.yaml`
 
 ## Quality Gate (RG-004)
 
-After locale propagation completes, run the topology check before committing locale files:
+The H2-topology check now runs automatically, per locale, inside every S-107 run —
+any locale entry with `handoff_status: STRUCTURAL_DRIFT` and a `topology_detail`
+field already failed this check; route it to `S-HT-01`, never to `S-75`. The
+standalone CLI below remains available as an independent spot-check or CI gate
+(e.g. to verify zero mismatches after a translation pass completes):
 
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python \
@@ -32,5 +40,4 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python \
 ```
 
 Expected: `"mismatches": []`. Any mismatch indicates a locale file is missing or has
-extra H2 headings compared to the English source. Fix via S-75 (locale-patch) or
-re-translation before committing.
+extra H2 headings compared to the English source.

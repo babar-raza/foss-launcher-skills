@@ -3,8 +3,12 @@ locale_refresh_handoff.py — S-107: After body updates, identify locale equival
 requiring re-translation and queue them for the appropriate translation skill.
 
 Rules:
-  changes < 3 sentences → queue for S-75 (locale-patch)
-  changes >= 3 sentences → queue for S-56 (translate batch)
+  changes < 3 sentences, topology matches English → queue for S-75 (locale-patch)
+  changes >= 3 sentences, topology matches English → queue for S-HT-01 (ht-translate)
+  locale H2 topology does not match English (RG-004 mismatch) → queue for S-HT-01
+  (ht-translate) as STRUCTURAL_DRIFT, regardless of text-diff size — a removed or
+  restructured section has no literal text for S-75 to patch against, and S-75's own
+  documented safety rules refuse locale files that have diverged structurally.
 
 CLI:
     PYTHONPATH=scripts/pipeline python -m commands.content.locale_refresh_handoff \\
@@ -23,6 +27,11 @@ Output schema:
             path: content/docs.aspose.org/ar/pdf/net/...
             handoff_status: QUEUED
             translate_skill: S-75
+          - locale: es
+            path: content/docs.aspose.org/es/pdf/net/...
+            handoff_status: STRUCTURAL_DRIFT
+            translate_skill: S-HT-01
+            topology_detail: "source has 4 H2(s), locale has 3 H2(s)"
 """
 
 from pathlib import Path
@@ -41,17 +50,29 @@ import re
 import yaml
 from typing import Any
 
+from commands.ops.check_locale_topology import check_locale as _check_h2_topology
+
 # ── Constants ──────────────────────────────────────────────────────────────
 
 SKILL_SMALL = "S-75"   # locale-patch (< 3 sentences changed)
-SKILL_LARGE = "S-56"   # translate batch (>= 3 sentences changed)
+# ht-translate, single-page retranslation (>= 3 sentences changed) — NOT
+# S-HT-02/batch: directory-scoped with a recursive copy-back that risks
+# overwriting unrelated locale files. This routes one locale's copy of one
+# page, never a whole directory, so the single-page tool is the right shape.
+SKILL_LARGE = "S-HT-01"
+# Locale H2 topology doesn't match English (RG-004 mismatch) — always
+# re-translate, never patch: S-75 is documented unsafe for section-level drift.
+SKILL_STRUCTURAL = "S-HT-01"
 
 SMALL_CHANGE_THRESHOLD = 3  # sentences
 
 # Known locale codes supported in content/
+# Note: "sl" is stale for most subdomains (no populated content/*/sl/ dir
+# outside a near-empty docs.aspose.org/sl/) but is left as-is — removing it
+# is a separate, unscoped decision (see backlog ST-151/ST-152 notes).
 KNOWN_LOCALES = [
     "ar", "bg", "ca", "cs", "da", "de", "el", "es", "fa", "fi", "fr",
-    "he", "hr", "hu", "id", "it", "ja", "ko", "lt", "lv", "ms", "nl",
+    "he", "hi", "hr", "hu", "id", "it", "ja", "ko", "lt", "lv", "ms", "nl",
     "no", "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "th", "tr",
     "uk", "vi", "zh",
 ]
@@ -155,18 +176,35 @@ def _build_handoff_entry(
     """Build a locale_handoff entry for one source page."""
     size = _classify_change_size(receipt)
     translate_skill = SKILL_SMALL if size == "small" else SKILL_LARGE
+    source_page = receipt.get("page_path", "")
 
     locales_requiring_update: list[dict] = []
     for locale, locale_path in locale_paths:
-        locales_requiring_update.append(
-            {
-                "locale": locale,
-                "path": locale_path,
-                "handoff_status": "QUEUED",
-                "translate_skill": translate_skill,
-                "change_size": size,
-            }
-        )
+        mismatch = None
+        if source_page:
+            mismatch = _check_h2_topology(Path(source_page), Path(locale_path))
+
+        if mismatch is not None:
+            locales_requiring_update.append(
+                {
+                    "locale": locale,
+                    "path": locale_path,
+                    "handoff_status": "STRUCTURAL_DRIFT",
+                    "translate_skill": SKILL_STRUCTURAL,
+                    "change_size": size,
+                    "topology_detail": mismatch.get("detail", ""),
+                }
+            )
+        else:
+            locales_requiring_update.append(
+                {
+                    "locale": locale,
+                    "path": locale_path,
+                    "handoff_status": "QUEUED",
+                    "translate_skill": translate_skill,
+                    "change_size": size,
+                }
+            )
 
     return {
         "source_page": receipt.get("page_path", ""),

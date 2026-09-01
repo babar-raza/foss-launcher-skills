@@ -1,7 +1,7 @@
 """
 Tests for scripts/pipeline/commands/content/locale_refresh_handoff.py (S-107).
 
-Min required: 6 tests. This file has 8.
+Min required: 6 tests. This file has 12.
 """
 
 import pytest
@@ -77,8 +77,8 @@ def test_small_change_queued_for_s75(tmp_path):
     assert entry["locales_requiring_update"][0]["change_size"] == "small"
 
 
-def test_large_change_queued_for_s56(tmp_path):
-    """2+ sections changed → classified as 'large' → S-56 translate_skill."""
+def test_large_change_queued_for_s_ht_01(tmp_path):
+    """2+ sections changed → classified as 'large' → S-HT-01 translate_skill."""
     receipt = {
         "page_path": "content/docs.aspose.org/en/pdf/net/index.md",
         "new_hash": "sha256:def",
@@ -187,3 +187,93 @@ def test_build_handoff_entry_schema(tmp_path):
     assert lu["locale"] == "ar"
     assert lu["handoff_status"] == "QUEUED"
     assert lu["translate_skill"] in (lrh.SKILL_SMALL, lrh.SKILL_LARGE)
+
+
+def test_structural_drift_flagged_when_h2_mismatch(tmp_path, monkeypatch):
+    """Locale file with a different H2 count than source → STRUCTURAL_DRIFT / S-HT-01."""
+    monkeypatch.chdir(tmp_path)
+
+    source = tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net" / "index.md"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("## Overview\n\n## Methods\n\n## See Also\n", encoding="utf-8")
+
+    locale = tmp_path / "content" / "docs.aspose.org" / "ar" / "pdf" / "net" / "index.md"
+    locale.parent.mkdir(parents=True, exist_ok=True)
+    locale.write_text("## Resumen\n\n## Metodos\n", encoding="utf-8")  # only 2 H2s vs source's 3
+
+    receipt = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/index.md",
+        "new_hash": "sha256:abc",
+        "body_sections_changed": ["overview"],
+        "verdict": "BODY_UPDATED",
+    }
+    entry = lrh._build_handoff_entry(
+        receipt, [("ar", "content/docs.aspose.org/ar/pdf/net/index.md")]
+    )
+    lu = entry["locales_requiring_update"][0]
+    assert lu["handoff_status"] == "STRUCTURAL_DRIFT"
+    assert lu["translate_skill"] == lrh.SKILL_STRUCTURAL
+    assert "topology_detail" in lu
+    assert "3 H2" in lu["topology_detail"] and "2 H2" in lu["topology_detail"]
+
+
+def test_structural_drift_overrides_small_large_classification(tmp_path, monkeypatch):
+    """A receipt that would classify 'small' still routes to S-HT-01 if H2s mismatch."""
+    monkeypatch.chdir(tmp_path)
+
+    source = tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net" / "index.md"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("## Overview\n\n## Methods\n", encoding="utf-8")
+
+    locale = tmp_path / "content" / "docs.aspose.org" / "de" / "pdf" / "net" / "index.md"
+    locale.parent.mkdir(parents=True, exist_ok=True)
+    locale.write_text("## Uberblick\n", encoding="utf-8")  # only 1 H2 vs source's 2
+
+    receipt = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/index.md",
+        "new_hash": "sha256:abc",
+        "body_sections_changed": ["overview"],  # 1 section → "small" per _classify_change_size
+        "verdict": "BODY_UPDATED",
+    }
+    assert lrh._classify_change_size(receipt) == "small"
+
+    entry = lrh._build_handoff_entry(
+        receipt, [("de", "content/docs.aspose.org/de/pdf/net/index.md")]
+    )
+    lu = entry["locales_requiring_update"][0]
+    assert lu["handoff_status"] == "STRUCTURAL_DRIFT"
+    assert lu["translate_skill"] == lrh.SKILL_STRUCTURAL, (
+        "structural drift must override the small-change S-75 routing"
+    )
+
+
+def test_matching_topology_keeps_existing_queued_path(tmp_path, monkeypatch):
+    """Locale H2 count matches source → unchanged QUEUED/small-large behavior."""
+    monkeypatch.chdir(tmp_path)
+
+    source = tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net" / "index.md"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("## Overview\n\n## Methods\n", encoding="utf-8")
+
+    locale = tmp_path / "content" / "docs.aspose.org" / "fr" / "pdf" / "net" / "index.md"
+    locale.parent.mkdir(parents=True, exist_ok=True)
+    locale.write_text("## Aperçu\n\n## Méthodes\n", encoding="utf-8")  # same H2 count
+
+    receipt = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/index.md",
+        "new_hash": "sha256:abc",
+        "body_sections_changed": ["overview"],
+        "verdict": "BODY_UPDATED",
+    }
+    entry = lrh._build_handoff_entry(
+        receipt, [("fr", "content/docs.aspose.org/fr/pdf/net/index.md")]
+    )
+    lu = entry["locales_requiring_update"][0]
+    assert lu["handoff_status"] == "QUEUED"
+    assert lu["translate_skill"] == lrh.SKILL_SMALL
+    assert "topology_detail" not in lu
+
+
+def test_known_locales_includes_hi():
+    """Hindi locale content exists on disk but was previously missing from KNOWN_LOCALES."""
+    assert "hi" in lrh.KNOWN_LOCALES
