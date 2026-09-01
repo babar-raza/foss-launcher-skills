@@ -2396,6 +2396,33 @@ scripts:
       a quick single-process read-modify-write, never held across multiple
       agent tool calls."
 
+  - path: scripts/pipeline/lib/mission_id_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_mission_id_ledger.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: ST-157 fix (2026-09-01) -- FileLock-protected, append-only
+      ledger (scripts/pipeline/config/mission-ids.jsonl) replacing 'grep several
+      directories, pick highest-seen MT0NN + 1 by eye' with an atomic claim.
+      Confirmed live defect this closes: MT018 was independently issued to two
+      unrelated missions (plans/master-plan.md:29,31), and a second, wholly
+      uncoordinated MT0NN track run by /readme-refresh reached MT056 with zero
+      visibility into the main track's counter. Modeled directly on
+      baseline_ledger.py's ledger shape, reusing advisory_lock.FileLock rather
+      than a new lock primitive. Scoped to the numeric MT0NN track only --
+      free-text slug mission ids (e.g. backlink-governance-redesign) are a
+      disclosed, separate, out-of-scope risk. Consumed by
+      mission_authority.py's new `allocate` verb."
+
   - path: scripts/pipeline/commands/ops/git_plumb_commit.py
     kind: entrypoint
     lifecycle: active
@@ -2455,7 +2482,7 @@ scripts:
       - scripts/pipeline/tests/test_mission_authority.py
     requires_test: true
     deprecated_since: null
-    notes: "GOVERNANCE: durable multi-mission archive for MISSION_AUTHORITY.yaml (open/close/list/backfill/status). Closes a pre-existing registration gap found 2026-07-31 while extending this file with the RC1/RC2 liveness aggregator (status subcommand)."
+    notes: "GOVERNANCE: durable multi-mission archive for MISSION_AUTHORITY.yaml (open/close/list/backfill/status/allocate). Closes a pre-existing registration gap found 2026-07-31 while extending this file with the RC1/RC2 liveness aggregator (status subcommand). ST-157 fix (2026-09-01): new `allocate --track --slug [--date]` verb wired to mission_id_ledger.MissionIdLedger; `archive_mission()` now raises MissionIdCollisionError instead of silently overwriting a pre-existing, differently-contented archive at the same mission_id; `list` flags any MT0NN-shaped mission id absent from the ledger."
 
   - path: scripts/pipeline/commands/governance/grade_staleness_sweep.py
     kind: entrypoint
@@ -5201,7 +5228,7 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_readme_refresh_checks.py
     deprecated_since: null
-    change_impact: "105 deterministic check_* functions (grep-verified 2026-08-30; drifts upward as missions land -- re-grep `^def check_` rather than trust this number) readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality, banner-asset existence, disposition-family coverage/text-diff verification. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
+    change_impact: "109 deterministic check_* functions (grep-verified 2026-09-01 via scripts/ci/checks/check_readme_template_contract_parity.py, TC-34; drifts upward as missions land -- re-grep `^def check_` rather than trust this number) readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality, banner-asset existence, disposition-family coverage/text-diff verification. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
     notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
 
   - path: scripts/pipeline/commands/foss/dependency_extract.py

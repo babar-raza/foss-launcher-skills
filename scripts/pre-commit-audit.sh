@@ -1756,4 +1756,38 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+# Step 40 (2026-09-01, TC-34 / readme-refresh-trackb-and-followon-2026-09-01,
+# SW-F fix): data/readme_template_contract.json (the README structure S-120
+# generates/verifies) must stay in real, mechanical agreement with
+# readme_refresh_checks.py's own _REQUIRED_SECTIONS and check_* count, and
+# with the count embedded in registry.yaml's S-120 change_impact prose --
+# the exact defect class RC-check-count-doc-drift-fix closed once (21 -> 105)
+# and that had already silently drifted again (105 -> 109) before this gate
+# existed. Gated on the 3 files it actually compares, not unconditional.
+# ---------------------------------------------------------------------------
+_pc_step_start "readme template contract parity"
+staged_rtc_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
+    '^(data/readme_template_contract\.json|scripts/pipeline/commands/foss/readme_refresh_checks\.py|scripts/pipeline/config/registry\.yaml)$' \
+    || true)
+if [ -n "$staged_rtc_files" ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_readme_template_contract_parity.py" ]; then
+        _rtc_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_readme_template_contract_parity.py 2>&1)
+        _rtc_exit=$?
+        _rtc_out=${_rtc_out//$'\r'/}
+        if [ -n "$_rtc_out" ]; then
+            echo "$_rtc_out" | sed 's/^/[Step 40] /'
+        fi
+        if [ $_rtc_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 40] SKIP: .venv not found or check_readme_template_contract_parity.py missing." >&2
+    fi
+else
+    echo "[Step 40] No staged contract/checks/registry files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

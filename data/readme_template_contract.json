@@ -1,0 +1,29 @@
+{
+  "_comment": "TC-34 (readme-refresh-trackb-and-followon-2026-09-01), SW-F fix. The durable, in-repo, git-tracked source of truth for the /readme-refresh (S-120) README structure -- previously only lived in a 1.8MB gitignored plan file. required_sections and check_function_count are BOTH independently, mechanically verified against the real code (readme_refresh_checks.py) by scripts/ci/checks/check_readme_template_contract_parity.py -- never hand-edit either field without also re-running that check; it will fail loudly if this file drifts from the code, or if the code drifts from this file.",
+  "schema_version": 1,
+  "verified_at": "2026-09-01",
+  "required_sections": [
+    "At a Glance",
+    "Key Capabilities",
+    "Installation",
+    "Dependencies",
+    "Quick Start",
+    "API Reference",
+    "Documentation & Resources",
+    "Scope and Limitations",
+    "Development and Testing",
+    "License"
+  ],
+  "optional_sections": [
+    {
+      "name": "Additional Examples",
+      "rule": "vacuously satisfied when absent -- required only when a product has enough real snippets to justify a dedicated section (a content-quality judgment call, not mechanically enforced). cells/cpp is the one portfolio product that legitimately has no such section."
+    }
+  ],
+  "section_order": "required_sections lists the canonical order; Additional Examples, when present, sits between Quick Start and API Reference.",
+  "check_function_count": {
+    "value": 109,
+    "source": "grep-verified count of ^def check_ in scripts/pipeline/commands/foss/readme_refresh_checks.py",
+    "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect."
+  }
+}
