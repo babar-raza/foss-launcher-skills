@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "commands" / "foss"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 
 import readme_refresh_run as rr  # noqa: E402
+import publication_reconciler  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -1352,6 +1353,144 @@ def test_push_on_canonical_target_never_requires_acknowledgment(tmp_path, monkey
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     assert receipt["target_authority"] == "canonical"
     assert "acknowledge_mirror_target" not in receipt
+
+
+# --- TC-27 (MT061-2026-09-01-TRACKB-FOLLOWON-2): publication status structurally separated
+# from push() -- per phase6b-production-hardening-design.md S3.VII ---------------------------
+
+
+def test_push_success_does_not_record_publication_only_reconciler_does(tmp_path, monkeypatch):
+    """Acceptance criterion for TC-27: an agent calling push() end-to-end -- including a REAL,
+    non-dry-run PR-open (mocked `gh pr create`) -- must never cause
+    data/readme_published_state.json to gain or change a 'published' entry. Only a separate,
+    subsequent reconcile-publications --apply call (publication_reconciler.apply_reconciliation,
+    driven by a real, externally-confirmed PR merge event) may write it. This is the structural
+    fix for the exact failure mode phase6b-production-hardening-design.md S3.VII names: an agent
+    completing its own approval loop end-to-end -- push()'s old direct _record_publication()
+    call, removed by this taskcard, used to do exactly that the moment `gh pr create` returned
+    success, with zero verification anyone ever merged the PR.
+
+    Uses the SAME product/PR context throughout: push() opens a real PR (against the local
+    scratch 'upstream' repo standing in for GitHub) and its receipt's commit_sha/pr_url feed a
+    synthetic reconciliation report, so the second half proves the reconciler -- not push() --
+    is the only path that can turn that same PR into a 'published' record.
+    """
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc27-a")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+
+    # Pre-seed an unrelated product's row so this test also proves push() doesn't disturb
+    # EXISTING registry state, not just that it fails to add a new one.
+    published_state_path = repo_root / "data" / "readme_published_state.json"
+    published_state_path.write_text(json.dumps({
+        "schema_version": 1,
+        "products": [{"family": "unrelated", "platform": "prod",
+                      "last_known_publication": "2026-01-01", "evidence": "pre-existing row"}],
+    }, indent=2), encoding="utf-8")
+    before_state = published_state_path.read_text(encoding="utf-8")
+
+    pr_url = "https://github.com/test-org/test-repo/pull/99"
+
+    def _push_runner(cmd, **kwargs):
+        if cmd[0] == "git":
+            return subprocess.run(cmd, **kwargs)
+        if cmd[:2] == ["gh", "api"]:
+            class _Result:
+                returncode = 0
+                stdout = json.dumps({
+                    "permissions": {"push": True, "admin": False},
+                    "default_branch": "main", "archived": False, "disabled": False,
+                })
+                stderr = ""
+            return _Result()
+        if cmd[:3] == ["gh", "pr", "create"]:
+            class _Result:
+                returncode = 0
+                stdout = pr_url + "\n"
+                stderr = ""
+            return _Result()
+        raise AssertionError(f"unexpected command in test: {cmd}")
+
+    rr.configure(repo_root=repo_root, command_runner=_push_runner)
+    run_id = _advance_to_approved(repo_root)
+
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model TC-27")
+    assert manifest["state"] == "PUSHED"
+    receipt_path = rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["dry_run"] is False
+    assert receipt["pr_url"] == pr_url
+
+    # The PR was genuinely opened against upstream -- the branch really exists there.
+    branches_on_upstream = _run_git(["branch", "-a"], upstream_dir)
+    assert receipt["branch"] in branches_on_upstream
+
+    # Opening a PR IS still recorded in the external-action ledger ...
+    ledger_path = repo_root / "reports" / "repo_presenter_actions.jsonl"
+    rows = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines()]
+    assert any(
+        r["action"] == "readme_pr_opened" and r["details"]["pr_url"] == pr_url for r in rows
+    )
+
+    # ... but data/readme_published_state.json is completely untouched: byte-identical to
+    # before push(), no row for testfam/testplat, and the old direct-write function is gone.
+    after_state = published_state_path.read_text(encoding="utf-8")
+    assert after_state == before_state
+    state = json.loads(after_state)
+    assert not any(
+        row.get("family") == "testfam" and row.get("platform") == "testplat"
+        for row in state["products"]
+    )
+    assert not hasattr(rr, "_record_publication")
+
+    # Now prove the ONLY path that CAN write it: a real reconcile-publications --apply call
+    # (publication_reconciler.apply_reconciliation), fed a report describing the exact same PR
+    # push() just opened -- i.e. what TC-41's reconciler would discover after a real human
+    # merge.
+    def _reconciler_runner(cmd, **kwargs):
+        if cmd[:2] == ["gh", "api"] and any("pulls/99" in part for part in cmd):
+            class _Result:
+                returncode = 0
+                stdout = json.dumps({"merged_by": {"login": "babar-raza"}})
+                stderr = ""
+            return _Result()
+        if cmd[:2] == ["gh", "api"] and any("contents/README.md" in part for part in cmd):
+            class _Result:
+                returncode = 0
+                stdout = "# fake published content\n"
+                stderr = ""
+            return _Result()
+        raise AssertionError(f"unexpected reconciler command in test: {cmd}")
+
+    publication_reconciler.configure(repo_root=repo_root, command_runner=_reconciler_runner)
+    try:
+        report = {
+            "family": "testfam", "platform": "testplat", "state": "UNRECORDED_PUBLICATION",
+            "reason": "test-constructed: same PR push() just opened",
+            "latest_readme_refresh_pr": {
+                "number": 99, "url": pr_url,
+                "merged_at": "2026-09-01T12:00:00Z",
+                "merge_commit_sha": receipt["commit_sha"],
+            },
+            "registry_entry": None,
+        }
+        written = publication_reconciler.apply_reconciliation(report)
+    finally:
+        publication_reconciler.configure()  # reset so later tests aren't affected
+
+    assert written is not None
+    assert written["pr_number"] == 99
+    assert written["reconciliation_state"] == "IN_SYNC"
+
+    final_state = json.loads(published_state_path.read_text(encoding="utf-8"))
+    row = next(
+        r for r in final_state["products"]
+        if r["family"] == "testfam" and r["platform"] == "testplat"
+    )
+    assert row["pr_number"] == 99
+    assert "reconciled by publication_reconciler.py" in row["evidence"]
+    # The pre-existing unrelated row survives untouched throughout.
+    assert any(r["family"] == "unrelated" and r["platform"] == "prod" for r in final_state["products"])
 
 
 # --- repo_presenter_actions.jsonl ledger (TC-HARDEN-15, MT035) -----------------------------

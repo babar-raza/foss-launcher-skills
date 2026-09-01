@@ -611,17 +611,15 @@ def test_published_readme_current_fires_for_recorded_publication_with_drift(tmp_
     assert rr._published_readme_current_findings("cells", "rust", False) == []
 
 
-def test_record_publication_appends_and_updates(tmp_path):
-    repo_root = tmp_path / "repo"
-    (repo_root / "data").mkdir(parents=True)
-    rr.configure(repo_root=repo_root)
-    rr._record_publication("f", "p", "https://github.com/x/y/pull/1")
-    state = json.loads(rr._published_state_path().read_text(encoding="utf-8"))
-    assert state["products"][0]["family"] == "f"
-    rr._record_publication("f", "p", "https://github.com/x/y/pull/2")
-    state = json.loads(rr._published_state_path().read_text(encoding="utf-8"))
-    assert len(state["products"]) == 1
-    assert "pull/2" in state["products"][0]["evidence"]
+# NOTE (TC-27, MT061-2026-09-01-TRACKB-FOLLOWON-2): `_record_publication()` -- the function
+# this test used to cover -- was deleted. It let push()'s own success write "published" to
+# data/readme_published_state.json with zero verification anyone ever merged the PR (the exact
+# anti-pattern phase6b-production-hardening-design.md S3.VII warns against: an agent completing
+# its own approval loop end-to-end). That responsibility now belongs exclusively to
+# publication_reconciler.apply_reconciliation(), driven by a real, externally-confirmed PR merge
+# event -- see test_readme_refresh_run.py's
+# test_push_success_does_not_record_publication_only_reconciler_does for the regression proof,
+# and test_publication_reconciler.py for the reconciler's own coverage.
 
 
 # --- H. TC-M56-09: candidate-write staleness detection ------------------------------------------

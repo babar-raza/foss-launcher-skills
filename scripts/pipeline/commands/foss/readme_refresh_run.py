@@ -40,6 +40,11 @@ lines -- that script is the product of many real incidents over months; this one
     It has not been exercised against a real external GitHub org in this pass -- only against
     local scratch git repos in the round-trip test -- pending explicit authorization to push
     live, per the plan's own Steps 3-4 ("first dry run" before "first live push").
+  - `push` succeeding (even a real, non-dry-run PR-open) does NOT mark a product "published"
+    (TC-27, MT061-2026-09-01-TRACKB-FOLLOWON-2). `data/readme_published_state.json` is
+    written exclusively by `publication_reconciler.apply_reconciliation()`, driven by a real,
+    externally-confirmed PR merge event -- never by this module's own push() call succeeding.
+    See phase6b-production-hardening-design.md S3.VII.
 """
 from __future__ import annotations
 
@@ -4264,29 +4269,21 @@ def push(
             _transition(manifest, "APPROVED", checkpoint="dry_run_rehearsed")
             return manifest
 
-        # MT056: record the publication durably in data/readme_published_state.json so the
-        # republication-debt tripwire (published_readme_current) re-derives it mechanically on
-        # every future audit -- never only in a plan register (the TC-HARDEN-47/48 loss class).
-        _record_publication(family, platform, receipt.get("pr_url"))
+        # TC-27 (MT061-2026-09-01-TRACKB-FOLLOWON-2), replacing the MT056-era direct write:
+        # data/readme_published_state.json's "published" status is now EXCLUSIVELY derived
+        # from a real, externally-confirmed PR merge event via
+        # publication_reconciler.apply_reconciliation() (`reconcile-publications --apply`),
+        # never as a side effect of push() opening a PR. Per phase6b-production-hardening-
+        # design.md S3.VII: gating publication on this call's own success let an agent
+        # complete its own approval loop end-to-end -- opening a PR is not evidence anyone
+        # reviewed or merged it. The action ledger row appended above (readme_pr_opened) is
+        # the durable record that a PR was opened; it is deliberately NOT treated as a
+        # publication. See test_push_success_does_not_record_publication_only_reconciler_does
+        # (test_readme_refresh_run.py) for the regression proof, and publication_reconciler.py's
+        # module docstring for the reconciler's own state machine (IN_SYNC/UNRECORDED_
+        # PUBLICATION/REVERTED/UNCONFIRMED_REACHABILITY/UNPUBLISHED/NO_REPO_ACCESS).
         _transition(manifest, "PUSHED", checkpoint="pushed")
         return manifest
-
-
-def _record_publication(family: str, platform: str, pr_url: "str | None") -> None:
-    state = _load_published_state() or {"schema_version": 1, "products": []}
-    rows = state.setdefault("products", [])
-    for row in rows:
-        if row.get("family") == family and row.get("platform") == platform:
-            row["last_known_publication"] = _now().date().isoformat()
-            row["evidence"] = f"recorded by push (PR: {pr_url})"
-            break
-    else:
-        rows.append({
-            "family": family, "platform": platform,
-            "last_known_publication": _now().date().isoformat(),
-            "evidence": f"recorded by push (PR: {pr_url})",
-        })
-    _write_json(_published_state_path(), state)
 
 
 def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str) -> dict:
