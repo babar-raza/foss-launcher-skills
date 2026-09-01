@@ -254,6 +254,68 @@ def _code_example_dispositions_path(family: str, platform: str) -> Path:
     return _reports_root / _candidate_tree_name / family / platform / "code-example-dispositions.json"
 
 
+def _old_readme_baseline_path(family: str, platform: str) -> Path:
+    """TC-20 (readme-refresh-trackb-and-followon-2026-09-01): sibling to content-dispositions.json,
+    same directory, same agent-authored tier. Records the git commit a disposition ledger's
+    `excerpt`/`unit_id` fields were actually built against, when that commit is no longer the
+    clone cache's live HEAD -- absent by default (the common case: the ledger was built against
+    whatever is still HEAD, so no pin is needed and `_resolve_old_readme_text` falls straight
+    through to the live file, identical to every prior call). Only ever written by `pin-old-
+    readme-baseline`, never by any check/ingest/recheck/audit-portfolio code path."""
+    return _reports_root / _candidate_tree_name / family / platform / "old-readme-baseline.json"
+
+
+def _resolve_old_readme_text(family: str, platform: str, clone_cache: Path) -> "tuple[str, dict | None]":
+    """Reads the text a disposition ledger's content units should be re-extracted from.
+
+    RC-1/TC-20 (proven live twice: font/python's TC-37 git-history rewrite, 3d/net's TC-38 --
+    see readme-refresh-trackb-and-followon-2026-09-01 taskcards.jsonl): every disposition check
+    previously re-derived "the old README" by reading the clone cache's live `README.md`
+    unconditionally. That is correct for the overwhelming majority of products (nothing has
+    happened to move the goalposts), but wrong the moment the live HEAD has legitimately moved
+    past the text the disposition ledger actually describes -- e.g. a real, human-approved
+    upstream PR republished this exact repo's own prior candidate (3d/net PR #3, merged
+    2026-08-19, author-verified via `gh pr view`) after the ledger was built. Re-deriving from
+    the new live HEAD in that case compares the ledger against content it was never written to
+    describe, producing pure false-positive drift findings on an already-correct ledger --
+    confirmed by re-running `check_content_unit_excerpt_matches_extraction` against 3d/net's
+    real pre-PR#3 commit (`70933ab`): 0 findings, vs. 46 against live HEAD.
+
+    Returns `(text, baseline_info)` -- `baseline_info` is `None` when no sidecar is pinned (the
+    live-HEAD path, unchanged from every prior call); otherwise the parsed sidecar dict, so
+    callers can attribute findings/skips to a specific pinned commit rather than silently
+    reading from an unlabeled alternate source.
+    """
+    old_readme_path = clone_cache / "README.md"
+    sidecar_path = _old_readme_baseline_path(family, platform)
+    if not sidecar_path.is_file():
+        if not old_readme_path.is_file():
+            return "", None
+        return old_readme_path.read_text(encoding="utf-8", errors="ignore"), None
+
+    baseline_info = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    commit = baseline_info.get("baseline_commit")
+    if not commit:
+        # Malformed sidecar -- fail safe to the live-HEAD path rather than raising, matching
+        # this module's own "a missing/broken optional input degrades, never crashes" posture.
+        if not old_readme_path.is_file():
+            return "", None
+        return old_readme_path.read_text(encoding="utf-8", errors="ignore"), baseline_info
+
+    proc = subprocess.run(
+        ["git", "show", f"{commit}:README.md"],
+        cwd=str(clone_cache), capture_output=True, text=True, encoding="utf-8", errors="ignore",
+    )
+    if proc.returncode != 0:
+        # The pinned commit is no longer resolvable in this clone (e.g. a shallow-clone refresh
+        # dropped it) -- fail safe to live HEAD rather than silently returning empty text, which
+        # would make every content-unit check vacuously pass instead of correctly re-flagging.
+        if not old_readme_path.is_file():
+            return "", None
+        return old_readme_path.read_text(encoding="utf-8", errors="ignore"), baseline_info
+    return proc.stdout, baseline_info
+
+
 def _product_clone_cache(family: str, platform: str) -> Path:
     return _clone_cache_root / f"aspose_{family}_{platform}"
 
@@ -2332,9 +2394,18 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # essentially the entire 30-product portfolio, since every one did.
     has_dispositions_file = _content_dispositions_path(family, platform).is_file()
 
+    # TC-20: old_readme_text is what the disposition ledger should be re-verified against --
+    # the pinned baseline commit if one is recorded (old-readme-baseline.json), else the live
+    # clone HEAD, identical to every prior call. old_readme_text_live stays on the live clone
+    # HEAD unconditionally: _readme_matches_published_upstream asks a different question ("does
+    # our candidate already match what's live right now"), which must never be answered against
+    # a deliberately stale pinned baseline.
     old_readme_path = clone_cache / "README.md"
-    if old_readme_path.is_file():
-        old_readme_text = old_readme_path.read_text(encoding="utf-8", errors="ignore")
+    old_readme_text, old_readme_baseline = _resolve_old_readme_text(family, platform, clone_cache)
+    old_readme_text_live = (
+        old_readme_path.read_text(encoding="utf-8", errors="ignore") if old_readme_path.is_file() else ""
+    )
+    if old_readme_text:
         dropped = checks.check_dropped_content(old_readme_text, text, str(clone_cache))
         uncorrelated = dropped["dropped_links"] + dropped["dropped_headings"]
     else:
@@ -2347,17 +2418,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         dropped = checks.check_dropped_content("", text, str(clone_cache))
         dropped = {"source": "no_old_readme_found", **dropped}
         uncorrelated = []
-        old_readme_text = ""
 
     # MT053 (Forty-Fourth incident, 2026-08-18): computed once, fresh, immediately after
-    # old_readme_text is resolved -- gates the entire preservation-tracking block below. See
+    # old_readme_text_live is resolved -- gates the entire preservation-tracking block below. See
     # _readme_matches_published_upstream's own docstring for why this must stay narrow.
-    readme_already_published = _readme_matches_published_upstream(old_readme_text, text)
+    readme_already_published = _readme_matches_published_upstream(old_readme_text_live, text)
     result["readme_already_published"] = {
         "hard_gate": False,
         "findings": [],
         "detail": {"published": readme_already_published},
     }
+    if old_readme_baseline is not None:
+        # TC-20: surfaced unconditionally whenever a pin is in effect, clean or dirty, so a
+        # "clean" verdict can never be read without also showing it was checked against a
+        # pinned historical commit rather than live HEAD (mirrors the plan's own
+        # `vacuous_gates` transparency requirement for anything that changes what a check
+        # actually verified).
+        result["old_readme_baseline_pinned"] = {
+            "hard_gate": False,
+            "findings": [],
+            "detail": old_readme_baseline,
+        }
     # MT056: republication-debt tripwire (advisory) -- see _published_readme_current_findings.
     result["published_readme_current"] = {
         "hard_gate": False,
@@ -2986,6 +3067,44 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         dependency_snapshot, text, dependency_claims_raw.get("claims"),
     )
     return result
+
+
+def pin_old_readme_baseline(
+    family: str, platform: str, commit: str, reason: str, *, session_id: "str | None" = None,
+) -> dict:
+    """TC-20: record that this product's disposition ledger (`content-dispositions.json` etc.)
+    was actually built against `commit`, not whatever the clone cache's live HEAD currently is.
+    See `_resolve_old_readme_text`'s own docstring for the defect class this closes.
+
+    Deliberately verifies `commit` resolves to a real `README.md` blob in this product's clone
+    cache before writing anything -- a typo'd or unreachable SHA must fail loudly here, not
+    silently degrade every future disposition check for this product to reading empty text
+    (`_resolve_old_readme_text`'s own git-show failure path already fails safe to live HEAD, but
+    that safety net exists for the clone cache changing shape *after* a valid pin, not for
+    excusing an invalid one at pin time).
+    """
+    family = _safe_token(family, "family")
+    platform = _safe_token(platform, "platform")
+    clone_cache = _product_clone_cache(family, platform)
+    proc = subprocess.run(
+        ["git", "show", f"{commit}:README.md"],
+        cwd=str(clone_cache), capture_output=True, text=True, encoding="utf-8", errors="ignore",
+    )
+    if proc.returncode != 0:
+        raise ReadmeRefreshRunError(
+            f"pin-old-readme-baseline refused: {commit!r} does not resolve to a README.md blob "
+            f"in {clone_cache} (git show exit {proc.returncode}): {proc.stderr.strip()}"
+        )
+    sidecar = {
+        "baseline_commit": commit,
+        "reason": reason,
+        "recorded_at": _utc(),
+        "recorded_by": _session_id(session_id),
+    }
+    path = _old_readme_baseline_path(family, platform)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(sidecar, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return sidecar
 
 
 def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = None) -> dict:
@@ -4032,6 +4151,23 @@ def main(argv: "list[str] | None" = None) -> int:
              "registered archived tree only; output is tagged non-canonical for the latter).",
     )
 
+    # TC-20 (readme-refresh-trackb-and-followon-2026-09-01): explicit, auditable operation to
+    # pin the commit a disposition ledger should be re-verified against, for the (rare) case
+    # where the clone cache's live HEAD has legitimately moved past that ledger's own baseline
+    # (a real republish, a history rewrite) -- never a raw file write, so the decision and its
+    # evidence are always recorded together. Not run-scoped: this corrects a standing product-
+    # level artifact, not one run's state.
+    p_pin = sub.add_parser("pin-old-readme-baseline")
+    p_pin.add_argument("family")
+    p_pin.add_argument("platform")
+    p_pin.add_argument("--commit", required=True, help="Git commit SHA in the product's clone cache.")
+    p_pin.add_argument(
+        "--reason", required=True,
+        help="Why this commit, not live HEAD, is the disposition ledger's true baseline "
+             "(cite the evidence -- e.g. a merged PR URL/number, a git-log investigation).",
+    )
+    p_pin.add_argument("--session-id")
+
     # MT056: change-scope / acceptance-registry / convergence workflow.
     p_scope = sub.add_parser("declare-scope")
     p_scope.add_argument("--run-id", required=True)
@@ -4122,6 +4258,12 @@ def main(argv: "list[str] | None" = None) -> int:
                     print(f"Skipped ({len(result['skipped'])}, no candidate yet):")
                     for s in result["skipped"]:
                         print(f"  {s['family']}/{s['platform']}")
+            return 0
+        elif args.command == "pin-old-readme-baseline":
+            sidecar = pin_old_readme_baseline(
+                args.family, args.platform, args.commit, args.reason, session_id=args.session_id,
+            )
+            _print_manifest(sidecar)
             return 0
         else:
             family, platform = _locate_run(args.run_id)
