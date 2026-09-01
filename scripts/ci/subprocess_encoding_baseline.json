@@ -10,7 +10,6 @@
     "scripts/ci/hooks/check_skill_context_hook.sh": 2,
     "scripts/ci/hooks/check_venv_bash_hook.sh": 1,
     "scripts/ci/hooks/check_write_path_hook.sh": 1,
-    "scripts/ci/hooks/smoke_chain.sh": 1,
     "scripts/ci/tests/test_bootstrap_e2e.py": 3,
     "scripts/ci/tests/test_check_add_bash_hook.py": 1,
     "scripts/ci/tests/test_check_audit_regression.py": 1,
