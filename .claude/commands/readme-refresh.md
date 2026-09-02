@@ -82,6 +82,12 @@ code lacks. Before that test existed the block had silently lost `push --acting-
 `live-published-regression`) — the same "two hand-maintained homes for one fact" drift this
 skill keeps finding, here about its own CLI.
 
+**Environment:** `README_REFRESH_OFFLINE=1` makes `plan`/`ingest-candidate`/`recheck`/
+`audit-portfolio` skip the live registry probe and use the checked-in `data/package_registry.json`
+record with `publication.source = "package_registry.json (offline)"` — the live-publication hard
+gate is then vacuous and the review must say the publication state is unverified. Never set it
+for a run that will be pushed.
+
 **`abandon --adopt-orphaned` (TC-04, 2026-09-02).** Every mutating verb refuses a run owned by
 another session — correct, and unchanged. But a run whose OWNER session has ended stayed
 locked forever: `start` refuses while a non-terminal run is active, and no verb could abandon
@@ -242,7 +248,8 @@ after convergence, re-running the same regeneration produces no further diff.
    diagram_archetypes.json`, defaulting to `transform` when no override entry exists), real
    capability-dependency edges (`data/diagram_capability_dependencies.json` — `None` when the
    product has never been traced, which must never be read as "confirmed independent"), real
-   install/package data (`data/package_registry.json`), real case-sensitive license-file
+   install/package data (`data/package_registry.json`, **probed live** — see the publication
+   contract below), real case-sensitive license-file
    detection against the clone cache (widened 2026-08-12, TC-HARDEN-20, to a 200-char
    case-insensitive substring match — the old exact-20-char-prefix match missed real files
    phrased "The MIT License (MIT)..."), a real, live-verified Enterprise Edition link
@@ -255,6 +262,33 @@ after convergence, re-running the same regeneration produces no further diff.
    live HTTP check — see that field's own docstring for the tradeoff), and the
    old upstream README's real link/heading/prose inventory (`old_readme_inventory`, including
    `content_units` — MT030, see below). Transitions `INPUTS_PINNED → PLANNED`.
+
+   **Publication state is a live-probed fact, never a checked-in flag
+   (readme-refresh-publication-state-hardening-2026-09-02).** Found live: 3d/python's
+   `aspose-3d-foss` 26.1.0 had been on PyPI since 2026-08-29 while `data/package_registry.json`
+   still said `published: false` (backfilled 2026-08-01). Nothing in this skill probed a registry,
+   so a regenerated README would have kept "has not yet been published", offered no PyPI badges,
+   and verified its examples against an editable clone instead of the real artifact — while the
+   daily `package_publish_watch` had been filing proposal issues since 08-29 that nobody applied.
+   `plan` now probes the registry the record names (`scripts/pipeline/lib/publication_probe.py`,
+   the same adapters the watcher uses: PyPI/NuGet/npm/crates.io/proxy.golang.org/Maven
+   metadata) and writes `install.publication` into the factpack:
+   `effective_published` (live when the probe is unambiguous, else the record),
+   `source` (`live_probe` | `package_registry.json (offline|probe ambiguous: …|no probe: …)`),
+   `live.latest_version` / `released_at` / `artifact_kinds` / `requires_python` / `license` /
+   `project_urls` / `repo_url_corroborated` (PyPI details; other registries carry the boolean
+   with `details_supported: false` — never a fabricated version), `drift` (live ≠ record) and
+   `metadata_findings`. The manifest pins `pinned_inputs.publication` and records a one-line
+   `publication_line` — **read it before composing Installation**, e.g.
+   `PUBLICATION: PUBLISHED aspose-3d-foss 26.1.0 on pypi (2026-08-29) [bdist_wheel] -- live probe
+   https://pypi.org/pypi/aspose-3d-foss/json; DRIFT: data/package_registry.json says unpublished --
+   apply the package_publish_watch proposal …; registry metadata defects (3): … -> upstream-issues.md`.
+   Rules: the probe only ever uses the manifest-declared name (`aspose-3d` on PyPI is the
+   commercial product; a family-derived guess would "confirm" the wrong package); an ambiguous
+   probe never flips anything; `README_REFRESH_OFFLINE=1` forces the record-only path with the
+   source saying so; the skill **never writes `data/package_registry.json`** — a `DRIFT` line means
+   the operator applies the watcher's proposal (`package_publish_watch.apply_proposal`) after
+   independent verification, which is also how the `content/` shortcodes get fixed.
 
    **Enterprise Edition anchor-text contract (MT043/TC-HARDEN-61-62, 2026-08-14 — CORRECTED
    same day, MT044/Thirty-Fourth incident).** `enterprise_link` also carries `relationship`
@@ -772,6 +806,34 @@ after convergence, re-running the same regeneration produces no further diff.
      **reviewer evidence** (`verification/result.json`) and the reviewer's pointer is
      `upstream-issues.md` + `upstream_issue_workflow.py` — never a sentence in the candidate.
 
+
+   **Installation by publication state (readme-refresh-publication-state-hardening-2026-09-02).**
+   The `## Installation` section is composed from `install.publication`, never from the old
+   README's own sentence and never from the checked-in flag alone:
+   - **live PUBLISHED** → the registry-native install command for the real identity comes first
+     (`pip install aspose-3d-foss`, `dotnet add package …`, `npm install …`, `cargo add …`, the
+     Maven coordinate, `go get …`), the from-checkout path may follow as the "latest source"
+     option, and no "has not yet been published" sentence survives anywhere in the section.
+     Cite the published version only when the README describes that exact tree
+     (`published_version_matches_manifest` is clean); otherwise say which version it describes.
+     PyPI publication also makes the version and Python-versions badges available — the badge
+     floor (`check_badge_row_meets_verified_floor`) then expects the row to reflect it.
+   - **live NOT PUBLISHED** → the portfolio disclosure ("A PyPI package … has not yet been
+     published") plus the from-checkout path; naming the future command next to the disclosure
+     ("once published this will become `pip install x`") is fine and already precedent, but the
+     registry command is never presented as the way in on its own.
+   - **fallback** (`source` is not `live_probe`: offline, network error, unknown registry) → say
+     exactly what the record says and note in the review that the state is unverified; the hard
+     gate is vacuous on a fallback by design — a fact earns a hard gate, a fallback does not.
+   - **Registry metadata defects are upstream issues, never README content**: a package page
+     whose project URL points at the wrong repository (3d/python's `Home-page` names
+     `aspose-3d/Aspose.3D-for-Python`, a 404), no license metadata, wheel-only with no sdist, or a
+     `docs/releasing.md` naming the wrong trusted-publisher owner/repo — each goes to
+     `upstream-issues.md` and the MT057 issue workflow with the probe's `evidence_url`; the README
+     states the working install command and nothing about the defect.
+   - **BAD**: 3d/python's own pre-mission candidate — "A PyPI package (`aspose-3d-foss`) has not
+     yet been published. Install the latest source checkout instead:" three days after the
+     package went live. Backstop: `check_installation_matches_live_publication` (hard).
    **At-a-Glance section shape — heading, one mermaid fence, nothing else (TC-01, same
    mission).** `## At a Glance` contains exactly one ```` ```mermaid ```` fence and no other
    content: no note, caveat, intro sentence, HTML comment or `<details>` wrapper before it, nothing
@@ -1183,6 +1245,14 @@ after convergence, re-running the same regeneration produces no further diff.
    sanctioned GOOD-example phrasing (composition guidance above) — the same "don't hard-gate on
    a claim category with no real verifier behind it" lesson `check_installation_matches_
    package_registry` already taught this skill (TC-HARDEN-32).
+   (**readme-refresh-publication-state-hardening-2026-09-02**) `check_installation_matches_
+   live_publication` — **hard gate**, the twin the checked-in-flag heuristic above could never be:
+   keyed on the plan-time probe's `source == live_probe`, it requires the registry-native install
+   command for the real identity (and no unpublished disclosure) when the package is live, and
+   forbids a bare registry command without the disclosure when it is not; vacuous on any fallback.
+   A look-alike name never satisfies it (`pip install aspose-3d` ≠ `aspose-3d-foss`).
+   `check_published_version_matches_manifest` (advisory) flags a registry version that differs
+   from the manifest version — the runner then verified a different build than the one documented.
    Transitions `PLANNED → VERIFYING_EXAMPLES` only once every hard gate passes.
 
 5. **`verify-examples`** — runs the (pluggable) per-language compile/run verification pass and
@@ -1221,8 +1291,12 @@ after convergence, re-running the same regeneration produces no further diff.
      lines are all non-product (`pip`, `git`, `make`, `python -m …`) is
      `BLOCKED-WITH-REASON: NOT-A-PRODUCT-COMMAND`; a product with no console scripts still
      reports `TOOLCHAIN-UNAVAILABLE`.
-   The result records `runner: python_verification_runner_v2` and a `fixtures.staged` /
-   `fixtures.unresolved` map. `verify-examples` is **re-runnable in place from
+   The result records `runner: python_verification_runner_v2`, a `fixtures.staged` /
+   `fixtures.unresolved` map, and `environment {install_source, package, version}`: a live-published
+   package is installed **from the registry, pinned to the probed version**
+   (`pip install aspose-3d-foss==26.1.0`) so the examples are proven against the real published
+   artifact and the record names exactly what ran; an unpublished one is editable-installed from
+   the clone cache (`install_source: clone_cache_editable`). `verify-examples` is **re-runnable in place from
    `AWAITING_REVIEW`** (result rewritten, `VERIFY_EXAMPLES_COMPLETED` re-logged,
    `last_reverified_at` set, no transition) — after a candidate edit or a runner improvement,
    re-verify the same run instead of starting a new one. Any other state is refused by name.
@@ -1241,6 +1315,12 @@ after convergence, re-running the same regeneration produces no further diff.
    `HEAD` hasn't drifted since `start`; if it has, forces the run back to `PLANNED` for re-review
    rather than approving stale content — `approve` itself will raise in that case, it never
    silently substitutes a replan for an approval.
+   (**readme-refresh-publication-state-hardening-2026-09-02**) `approve` also re-probes the
+   registry: a change in `effective_published` or `latest_version` since `plan` is input drift
+   like any other pin — the run is forced back to `PLANNED`, `pinned_inputs.publication` and the
+   factpack's `install` facts are re-pinned to the current state, and the Installation section is
+   recomposed and re-ingested before approval can be asked for again. An ambiguous re-probe is not
+   evidence of change and never blocks.
 
 8. **`push`** — disposable-clone + branch + git-plumbing commit (`write-tree`/`commit-tree`/
    `update-ref`, never the shared clone cache) + surgical-diff check (declared file set only,

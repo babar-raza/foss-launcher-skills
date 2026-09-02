@@ -3956,6 +3956,102 @@ def test_installation_check_noop_when_candidate_data_incomplete():
     assert checks.check_installation_matches_package_registry(text, install_info) == []
 
 
+# --- check_installation_matches_live_publication (readme-refresh-publication-state-hardening-
+# 2026-09-02): the hard gate the checked-in-flag twin above could never be. Fixture texts are the
+# real 3d/python Installation sections: the stale one that shipped ("has not yet been published")
+# and the corrected one.
+
+
+def _live_pub(published: bool, *, source="live_probe", version="26.1.0"):
+    return {
+        "registry_type": "pypi", "candidate": {"name": "aspose-3d-foss"}, "published": published,
+        "fallback_text_required": not published,
+        "publication": {
+            "source": source, "effective_published": published, "drift": False,
+            "live": {"published": published, "ambiguous": source != "live_probe",
+                     "evidence_url": "https://pypi.org/pypi/aspose-3d-foss/json", "latest_version": version},
+        },
+    }
+
+
+_STALE_INSTALL = (
+    "# X\n\n## Installation\n\nA PyPI package (`aspose-3d-foss`) has not yet been published. Install the "
+    "latest source checkout instead:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+    "cd Aspose.3D-FOSS-for-Python\npython3 -m pip install -e .\n```\n\n## Quick Start\n\nx\n"
+)
+_PUBLISHED_INSTALL = (
+    "# X\n\n## Installation\n\nInstall the published package from PyPI:\n\n```bash\npython3 -m pip install aspose-3d-foss\n```\n\n"
+    "Or install the latest source checkout:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+    "cd Aspose.3D-FOSS-for-Python\npython3 -m pip install -e .\n```\n\n## Quick Start\n\nx\n"
+)
+
+
+def test_live_publication_gate_flags_the_stale_not_yet_published_section_once_the_package_is_live():
+    findings = checks.check_installation_matches_live_publication(_STALE_INSTALL, _live_pub(True))
+    assert [f["reason"] for f in findings] == [
+        "published_without_registry_install_command", "published_with_unpublished_disclosure",
+    ]
+    assert findings[0]["expected"] == "aspose-3d-foss"
+    assert findings[0]["evidence_url"] == "https://pypi.org/pypi/aspose-3d-foss/json"
+
+
+def test_live_publication_gate_passes_a_section_that_names_the_registry_install_command():
+    assert checks.check_installation_matches_live_publication(_PUBLISHED_INSTALL, _live_pub(True)) == []
+
+
+def test_live_publication_gate_rejects_a_lookalike_package_name():
+    # `aspose-3d` is the commercial product on PyPI; `pip install aspose-3d` must not satisfy
+    # a gate for `aspose-3d-foss`.
+    text = _PUBLISHED_INSTALL.replace("pip install aspose-3d-foss", "pip install aspose-3d")
+    assert [f["reason"] for f in checks.check_installation_matches_live_publication(text, _live_pub(True))] == [
+        "published_without_registry_install_command",
+    ]
+
+
+def test_live_publication_gate_unpublished_allows_disclosure_plus_future_command_but_not_a_bare_command():
+    disclosed = _STALE_INSTALL.replace("Install the latest", "Once published this will become `pip install aspose-3d-foss`. Install the latest")
+    assert checks.check_installation_matches_live_publication(disclosed, _live_pub(False)) == []
+    bare = _PUBLISHED_INSTALL  # presents pip install as the way in, no disclosure
+    assert [f["reason"] for f in checks.check_installation_matches_live_publication(bare, _live_pub(False))] == [
+        "unpublished_with_registry_install_command",
+    ]
+
+
+def test_live_publication_gate_is_vacuous_on_any_fallback_source():
+    for source in ("package_registry.json (offline)", "package_registry.json (probe ambiguous: x)", None):
+        info = _live_pub(True, source=source)
+        assert checks.check_installation_matches_live_publication(_STALE_INSTALL, info) == []
+    assert checks.check_installation_matches_live_publication("# X\n\nno sections\n", _live_pub(True)) == []
+    assert checks.check_installation_matches_live_publication(_STALE_INSTALL, {}) == []
+
+
+def test_registry_install_command_templates_cover_every_registry_type():
+    cases = {
+        "pypi": ("pip install aspose-3d-foss", "aspose-3d-foss"),
+        "pypi ": ('uv add "aspose-3d-foss[extra]"', "aspose-3d-foss"),
+        "npm": ("npm install @asposefoss/pdf", "@asposefoss/pdf"),
+        "nuget": ("dotnet add package Aspose.Words.FOSS", "Aspose.Words.FOSS"),
+        "cargo": ("cargo add aspose-cells-foss", "aspose-cells-foss"),
+        "maven": ("<artifactId>aspose-cells-foss</artifactId>", "aspose-cells-foss"),
+        "go_modules": ("go get github.com/aspose-pdf-foss/aspose-pdf-foss-go", "github.com/aspose-pdf-foss/aspose-pdf-foss-go"),
+    }
+    for rtype, (text, ident) in cases.items():
+        assert checks._registry_install_command_present(text, rtype.strip(), ident), (rtype, text)
+    assert not checks._registry_install_command_present("pip install aspose-3d", "pypi", "aspose-3d-foss")
+    assert not checks._registry_install_command_present("anything", "unknown", "x")
+
+
+def test_published_version_matches_manifest_is_advisory_and_vacuous_unless_both_sides_real():
+    assert checks.check_published_version_matches_manifest(_live_pub(True), {"version": "26.1.0"}) == []
+    assert checks.check_published_version_matches_manifest(_live_pub(True), {"version": "v26.1.0"}) == []
+    findings = checks.check_published_version_matches_manifest(_live_pub(True), {"version": "26.2.0"})
+    assert [f["reason"] for f in findings] == ["published_version_differs_from_manifest"]
+    assert findings[0]["published_version"] == "26.1.0" and findings[0]["manifest_version"] == "26.2.0"
+    assert checks.check_published_version_matches_manifest(_live_pub(False), {"version": "26.2.0"}) == []
+    assert checks.check_published_version_matches_manifest(_live_pub(True, source="package_registry.json (offline)"), {"version": "26.2.0"}) == []
+    assert checks.check_published_version_matches_manifest(_live_pub(True), {}) == []
+
+
 # --- check_installation_matches_package_registry: badge-row extension (TC-HARDEN-59, MT042) ------
 
 

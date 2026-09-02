@@ -89,6 +89,7 @@ import backlink_targets  # noqa: E402
 import freshness_guard  # noqa: E402
 import publication_reconciler  # noqa: E402
 import input_manifest  # noqa: E402
+import publication_probe  # noqa: E402
 
 import readme_refresh_checks as checks  # noqa: E402
 import dependency_extract  # noqa: E402
@@ -132,6 +133,14 @@ _command_runner: Callable[..., "subprocess.CompletedProcess[str]"] = subprocess.
 _now: Callable[[], datetime] = lambda: datetime.now(timezone.utc)
 _verification_runner: "Callable[[Path, dict], dict] | None" = None
 _owner_session_resolver: "Callable[[str], Any]" = session_ledger.resolve_context
+# readme-refresh-publication-state-hardening-2026-09-02: the live registry probe behind
+# _detect_install_info. Injectable for tests (same seam shape as verification_runner); the
+# default is the real network probe in lib/publication_probe.py. README_REFRESH_OFFLINE=1 in
+# the environment makes every probe return the checked-in record with source 'offline'.
+# Memoized per (family, platform) for the life of the process so audit-portfolio's 31 products
+# and a run's plan/ingest/recheck sequence each probe a registry once, never per check.
+_publication_prober: "Callable[..., dict]" = publication_probe.probe_publication
+_publication_memo: dict[tuple[str, str], dict] = {}
 # TC-04: an owner id with NO session-ledger manifest at all (a synthetic id such as
 # `mt056-proof-rerun`, or a session from before the ledger existed) can only be judged by the
 # run's own age -- adoptable once its manifest has been untouched this long.
@@ -152,6 +161,7 @@ def configure(
     now: "Callable[[], datetime] | None" = None,
     verification_runner: "Callable[[Path, dict], dict] | None" = None,
     owner_session_resolver: "Callable[[str], Any] | None" = None,
+    publication_prober: "Callable[..., dict] | None" = None,
 ) -> None:
     """Override external boundaries for tests; call without arguments to reset.
 
@@ -171,6 +181,7 @@ def configure(
     """
     global _repo_root, _reports_root, _clone_cache_root, _candidate_tree_name
     global _command_runner, _now, _verification_runner, _owner_session_resolver
+    global _publication_prober, _publication_memo
     _repo_root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     _reports_root = Path(reports_root) if reports_root is not None else _repo_root / "reports"
     _clone_cache_root = (
@@ -189,6 +200,8 @@ def configure(
     # below so a tmp_path fixture exercises the real resolver against its own
     # reports/session-state/ directory, never the live repo's.
     _owner_session_resolver = owner_session_resolver or session_ledger.resolve_context
+    _publication_prober = publication_prober or publication_probe.probe_publication
+    _publication_memo = {}
     # RC-readme-refresh-freshness-guard-compliance (2026-08-30): keep freshness_guard's
     # module-level repo_root in lockstep with this module's own configure() -- the exact
     # FRESH-001 precedent in refresh_run.py/batch_reference.py. Without this, a test that
@@ -1701,6 +1714,22 @@ def _detect_available_badges(
 
 
 def _detect_install_info(family: str, platform: str) -> dict:
+    """The single decision point for "is this product's package published" -- every consumer
+    (Installation composition facts, `_detect_available_badges`, the verify-examples runner's
+    acquire step, the installation gates) reads `published`/`fallback_text_required` from here.
+
+    readme-refresh-publication-state-hardening-2026-09-02: this used to return the checked-in
+    `data/package_registry.json` flag alone. Found live: 3d/python's `aspose-3d-foss` had been
+    on PyPI since 2026-08-29 while the record (backfilled 2026-08-01) still said unpublished, so
+    every consumer above was wrong by construction and the one gate reading the flag had been
+    made advisory on 2026-08-12 precisely because the record was known-stale. Now the record is
+    probed live through `publication_probe.probe_publication` (registry adapters the daily
+    package_publish_watch already uses): `published` follows the live result when it is
+    unambiguous, else the record -- with `publication["source"]` naming which, so a consumer can
+    always tell a fact from a fallback. `publication["drift"]` is surfaced (plan stdout, factpack)
+    and never auto-applied: the watcher's human-approved `apply_proposal` stays the only path
+    that writes `data/package_registry.json`.
+    """
     path = _repo_root / "data" / "package_registry.json"
     if not path.is_file():
         return {"source": "package_registry_missing"}
@@ -1710,13 +1739,52 @@ def _detect_install_info(family: str, platform: str) -> dict:
     if not platform_entry:
         return {"source": "no_package_registry_entry", "fallback_text_required": True}
     verification = platform_entry.get("verification", {})
-    return {
+    record = {
         "source": "package_registry.json",
         "registry_type": platform_entry.get("registry_type"),
         "candidate": platform_entry.get("candidate"),
         "published": verification.get("published", False),
-        "fallback_text_required": not verification.get("published", False),
+        "record_verified_at": verification.get("verified_at"),
     }
+    publication = _probe_publication_memoized(family, platform, record)
+    published = bool(publication.get("effective_published", record["published"]))
+    return {
+        **record,
+        "published": published,
+        "fallback_text_required": not published,
+        "publication": publication,
+    }
+
+
+def _probe_publication_memoized(family: str, platform: str, record: dict) -> dict:
+    key = (family, platform)
+    if key in _publication_memo:
+        return _publication_memo[key]
+    offline = os.environ.get("README_REFRESH_OFFLINE", "").strip() not in ("", "0", "false", "no")
+    repo_url = _repo_url_for(family, platform)
+    try:
+        publication = _publication_prober(record, repo_url=repo_url, offline=offline)
+    except Exception as exc:  # a probe must never take a run down -- degrade to the record, loudly
+        publication = {
+            "registry_type": record.get("registry_type"), "name": ((record.get("candidate") or {}).get("name")),
+            "probed_at": _utc(), "record": {"published": bool(record.get("published")), "verified_at": record.get("record_verified_at")},
+            "live": {"published": None, "ambiguous": True, "details_supported": False},
+            "effective_published": bool(record.get("published")),
+            "source": f"package_registry.json (probe raised {type(exc).__name__}: {exc})",
+            "drift": False, "metadata_findings": [],
+        }
+    _publication_memo[key] = publication
+    return publication
+
+
+def _repo_url_for(family: str, platform: str) -> "str | None":
+    try:
+        for entry in _load_products():
+            if entry.get("family") == family and entry.get("platform") == platform:
+                return entry.get("repo_url") or None
+    except ReadmeRefreshRunError:
+        return None
+    return None
 
 
 def _readme_matches_published_upstream(old_readme_text: str, candidate_text: str) -> bool:
@@ -2158,6 +2226,20 @@ def plan_run(family: str, platform: str, run_id: str, *, session_id: "str | None
         (run_root / "facts").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "facts" / "factpack.json", factpack)
         _event(family, platform, run_id, "FACTPACK_EMITTED")
+        # readme-refresh-publication-state-hardening-2026-09-02: pin the publication FACT the
+        # run was planned against (approve re-probes and treats a change as input drift), and
+        # say it out loud -- the composing agent must never learn "published" from a stale
+        # checked-in flag or, worse, from the old README's own Installation sentence.
+        publication = (install_info.get("publication") or {})
+        manifest.setdefault("pinned_inputs", {})["publication"] = {
+            "effective_published": publication.get("effective_published"),
+            "latest_version": (publication.get("live") or {}).get("latest_version"),
+            "source": publication.get("source"),
+            "probed_at": publication.get("probed_at"),
+        }
+        manifest["publication_line"] = publication_probe.format_publication_line(publication)
+        _event(family, platform, run_id, "PUBLICATION_PROBED", **manifest["pinned_inputs"]["publication"],
+               drift=bool(publication.get("drift")))
         _transition(manifest, "PLANNED", checkpoint="planned")
         return manifest
 
@@ -2489,6 +2571,22 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": False,
         "findings": checks.check_installation_matches_manifest_version(
             text, platform, input_manifest.resolve_manifest_version(family, platform, clone_cache)
+        ),
+    }
+    # readme-refresh-publication-state-hardening-2026-09-02: the LIVE-probed publication fact
+    # (memoized per process inside _detect_install_info, so this is one registry call per
+    # product, not one per check). Hard gate only on a real live probe -- vacuous on any
+    # fallback, by the check's own contract -- which is exactly what the checked-in-flag twin
+    # above could never be.
+    live_install_info = _detect_install_info(family, platform)
+    result["installation_matches_live_publication"] = {
+        "hard_gate": True,
+        "findings": checks.check_installation_matches_live_publication(text, live_install_info),
+    }
+    result["published_version_matches_manifest"] = {
+        "hard_gate": False,
+        "findings": checks.check_published_version_matches_manifest(
+            live_install_info, input_manifest.resolve_manifest_version(family, platform, clone_cache)
         ),
     }
 
@@ -4042,18 +4140,30 @@ def _acquire_python_environment(work_dir: Path, install_info: dict, clone_cache:
     candidate = (install_info or {}).get("candidate") or {}
     package_name = candidate.get("name") if isinstance(candidate, dict) else None
     published = bool((install_info or {}).get("published", False))
+    # readme-refresh-publication-state-hardening-2026-09-02: `published` now comes from the
+    # live probe (see _detect_install_info), so a published product's examples are verified
+    # against the REAL registry artifact -- pinned to the exact version the probe saw, so the
+    # result names what was tested and a later release cannot silently change it. The result's
+    # `environment` (install_source / package / version) lets a reviewer see at a glance whether
+    # the tree the README documents and the artifact the examples ran against are the same thing.
+    probed_version = (((install_info or {}).get("publication") or {}).get("live") or {}).get("latest_version")
 
     if published and package_name:
+        spec = f"{package_name}=={probed_version}" if probed_version else package_name
         installed = subprocess.run(
-            [venv_python, "-m", "pip", "install", "--quiet", package_name],
+            [venv_python, "-m", "pip", "install", "--quiet", spec],
             capture_output=True, text=True, timeout=300,
         )
         if installed.returncode != 0:
             return {
                 "ok": False, "venv_python": None,
-                "detail": f"pip install {package_name} (PyPI) failed: {installed.stderr.strip()[-2000:]}",
+                "detail": f"pip install {spec} (PyPI) failed: {installed.stderr.strip()[-2000:]}",
             }
-        return {"ok": True, "venv_python": venv_python, "detail": f"installed {package_name} from PyPI"}
+        return {
+            "ok": True, "venv_python": venv_python, "detail": f"installed {spec} from PyPI",
+            "environment": {"install_source": "pypi", "package": package_name,
+                            "version": probed_version or _pip_installed_version(venv_python, package_name)},
+        }
 
     if not clone_cache.is_dir():
         return {"ok": False, "venv_python": None, "detail": "unpublished and no clone cache directory available"}
@@ -4066,7 +4176,25 @@ def _acquire_python_environment(work_dir: Path, install_info: dict, clone_cache:
             "ok": False, "venv_python": None,
             "detail": f"editable install from clone cache failed: {installed.stderr.strip()[-2000:]}",
         }
-    return {"ok": True, "venv_python": venv_python, "detail": f"editable-installed from clone cache ({clone_cache})"}
+    return {
+        "ok": True, "venv_python": venv_python, "detail": f"editable-installed from clone cache ({clone_cache})",
+        "environment": {"install_source": "clone_cache_editable", "package": package_name,
+                        "version": _pip_installed_version(venv_python, package_name) if package_name else None},
+    }
+
+
+def _pip_installed_version(venv_python: str, package_name: str) -> "str | None":
+    try:
+        shown = subprocess.run(
+            [venv_python, "-m", "pip", "show", package_name], capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    for line in (shown.stdout or "").splitlines():
+        if line.lower().startswith("version:"):
+            return line.split(":", 1)[1].strip() or None
+    return None
 
 
 _PY_TRACEBACK_FILE_RE = re.compile(r'^\s*File "([^"]+)", line \d+', re.MULTILINE)
@@ -4324,12 +4452,14 @@ def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:
     ]
     runnable = [(i, lang, code) for i, (lang, code) in enumerate(blocks) if lang in runnable_langs]
     staging: dict = {"staged": {}, "unresolved": []}
+    environment: dict = {"install_source": None, "package": None, "version": None}
 
     if runnable and family and platform:
         with tempfile.TemporaryDirectory(prefix=f"readme-refresh-verify-{family}-{platform}-") as tmp:
             work_dir = Path(tmp)
             clone_cache = _product_clone_cache(family, platform)
             acquire = _acquire_python_environment(work_dir, install_info, clone_cache)
+            environment = acquire.get("environment") or {**environment, "detail": acquire.get("detail")}
             if not acquire["ok"]:
                 for i, _lang, _code in runnable:
                     block_statuses.append({
@@ -4380,6 +4510,7 @@ def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:
         "blocks_found": len(blocks),
         "block_statuses": block_statuses,
         "fixtures": staging,
+        "environment": environment,
         "all_named": True,
     }
 
@@ -4666,6 +4797,46 @@ def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "
                     f"Pinned inputs have drifted (clone cache HEAD {pinned_head} -> {current_head}); "
                     "forced back to PLANNED for re-review, not approved"
                 )
+
+        # readme-refresh-publication-state-hardening-2026-09-02: a package published (or
+        # pulled) between plan and approve makes the composed Installation section stale in the
+        # exact way this mission was opened for -- treat it as input drift like any other pin.
+        # Only a LIVE, unambiguous re-probe can contradict the pin; an ambiguous one (network
+        # down) is not evidence of change and never blocks.
+        pinned_pub = pinned_inputs.get("publication")
+        if pinned_pub is not None:
+            _publication_memo.pop((family, platform), None)
+            current_pub = (_detect_install_info(family, platform).get("publication") or {})
+            if current_pub.get("source") == "live_probe":
+                current_pin = {
+                    "effective_published": current_pub.get("effective_published"),
+                    "latest_version": (current_pub.get("live") or {}).get("latest_version"),
+                }
+                if any(current_pin[k] != pinned_pub.get(k) for k in current_pin):
+                    manifest["drift_detected_at"] = _utc()
+                    _event(family, platform, run_id, "APPROVE_BLOCKED_ON_DRIFT",
+                           pinned=pinned_pub, current=current_pin, kind="publication")
+                    # Re-pin to the CURRENT fact and refresh the factpack's install facts, so
+                    # the forced re-review (ingest-candidate from PLANNED) composes and gates
+                    # against the new state rather than the one that just proved stale.
+                    current_install = _detect_install_info(family, platform)
+                    manifest["pinned_inputs"]["publication"] = {
+                        **current_pin, "source": current_pub.get("source"), "probed_at": current_pub.get("probed_at"),
+                    }
+                    manifest["publication_line"] = publication_probe.format_publication_line(current_pub)
+                    factpack_path = _run_root(family, platform, run_id) / "facts" / "factpack.json"
+                    if factpack_path.is_file():
+                        factpack = json.loads(factpack_path.read_text(encoding="utf-8"))
+                        factpack["install"] = current_install
+                        factpack["publication_repinned_at"] = manifest["drift_detected_at"]
+                        _write_json(factpack_path, factpack)
+                    _transition(manifest, "PLANNED", checkpoint="drift_forced_replan")
+                    raise ReadmeRefreshRunError(
+                        f"Publication state drifted since plan (pinned {pinned_pub.get('effective_published')} "
+                        f"{pinned_pub.get('latest_version')} -> live {current_pin['effective_published']} "
+                        f"{current_pin['latest_version']}); forced back to PLANNED -- re-plan and recompose "
+                        f"the Installation section against the current state, not approved"
+                    )
 
         manifest["approval"] = {"note": note, "approved_by": owner, "approved_at": _utc()}
         _event(family, platform, run_id, "APPROVED", note=note)

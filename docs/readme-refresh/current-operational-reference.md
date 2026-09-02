@@ -89,7 +89,7 @@ enforce the contract.
 - **External-action ledger**: `reports/repo_presenter_actions.jsonl` (one row per push; started
   2026-08-15, earlier manual pushes deliberately not backfilled).
 - **Read-only inputs**: `data/products.json` (31) · `data/registry_exclusions.json` ·
-  `data/package_registry.json` (known imperfect — heuristic posture) ·
+  `data/package_registry.json` (record only — since 2026-09-02 probed live at plan time through `lib/publication_probe.py`; the live fact drives Installation/badges/runner and a HARD gate, the record is a named fallback; drift is surfaced, never auto-applied) ·
   `data/aspose_com_targets.json` + `data/backlinks/platform_canonical_overrides.yaml` ·
   `data/format_descriptions.json` · `data/families.json` · `keywords/{family}.json` (known
   cross-platform-contaminated; filtered) · `knowledge/{f}/{p}/merged/*`
@@ -187,8 +187,8 @@ may not change without a new authorizing scope; source-change invalidation reope
 - **Global**: everything in §5.
 - **Archetype-driven** (`data/diagram_archetypes.json`; absence = `transform`): current overrides —
   `barcode/python` generative, `tex/python` compile, `pdf/cpp` + `pdf/go` + `page/python` hybrid.
-- **Platform-specific**: install sourcing per registry (`package_registry.json` first, then live
-  checks; C++ is NOT registry-less — cells/cpp ships NuGet); Go uses module path + `pkg.go.dev`
+- **Platform-specific**: install sourcing per registry (live registry probe first, `package_registry.json`
+  as the named fallback; C++ is NOT registry-less — cells/cpp ships NuGet); Go uses module path + `pkg.go.dev`
   badge (`language_package_reference`, not `package_version`); Python bridge slugs
   (`python-net`/`python-java`) normalize to public "Python" in anchors.
 - **Product-specific overrides (all evidence-required)**: `registry_exclusions.json`

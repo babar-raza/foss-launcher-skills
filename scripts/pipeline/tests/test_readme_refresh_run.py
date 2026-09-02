@@ -21,7 +21,12 @@ import publication_reconciler  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
-def _reset_configure():
+def _reset_configure(monkeypatch):
+    # readme-refresh-publication-state-hardening-2026-09-02: _detect_install_info now probes the
+    # real package registry over the network; the suite must never do that. Offline by default
+    # (the record-only path, source "package_registry.json (offline)"); a test that exercises the
+    # probe injects a stub through configure(publication_prober=...) -- the sanctioned seam.
+    monkeypatch.setenv("README_REFRESH_OFFLINE", "1")
     yield
     rr.configure()
 
@@ -2940,6 +2945,190 @@ def test_verify_examples_refuses_when_not_all_named(tmp_path, monkeypatch):
 
     manifest = rr.status("testfam", "testplat", run_id)
     assert manifest["state"] == "VERIFYING_EXAMPLES"  # must not have advanced
+
+
+# --- readme-refresh-publication-state-hardening-2026-09-02: live publication fact -------------
+
+
+def _write_registry_entry(repo_root, *, published=False, name="testpkg"):
+    (repo_root / "data" / "package_registry.json").write_text(json.dumps({
+        "testfam": {"testplat": {
+            "registry_type": "pypi", "candidate": {"name": name},
+            "verification": {"published": published, "verified_at": "2026-08-01"},
+        }},
+    }), encoding="utf-8")
+
+
+def _stub_prober(published, *, version="1.2.3", source="live_probe", drift=None):
+    calls = []
+
+    def prober(record, *, repo_url=None, offline=False):
+        calls.append({"record": dict(record), "repo_url": repo_url, "offline": offline})
+        return {
+            "registry_type": record.get("registry_type"), "name": (record.get("candidate") or {}).get("name"),
+            "probed_at": "2026-09-02T14:00:00Z",
+            "record": {"published": bool(record.get("published")), "verified_at": record.get("record_verified_at")},
+            "live": {"published": published, "ambiguous": source != "live_probe",
+                     "evidence_url": "https://pypi.org/pypi/testpkg/json", "latest_version": version,
+                     "artifact_kinds": ["bdist_wheel"], "details_supported": True},
+            "effective_published": published if source == "live_probe" else bool(record.get("published")),
+            "source": source,
+            "drift": (published != bool(record.get("published"))) if drift is None else drift,
+            "metadata_findings": [],
+        }
+    prober.calls = calls
+    return prober
+
+
+def test_detect_install_info_follows_the_live_probe_and_memoizes_per_product(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    prober = _stub_prober(True)
+    rr.configure(repo_root=repo_root, publication_prober=prober)
+
+    info = rr._detect_install_info("testfam", "testplat")
+    assert info["published"] is True and info["fallback_text_required"] is False
+    assert info["publication"]["source"] == "live_probe" and info["publication"]["drift"] is True
+    assert info["record_verified_at"] == "2026-08-01"
+    assert prober.calls[0]["repo_url"] == "https://github.com/test-org/test-repo"
+    rr._detect_install_info("testfam", "testplat")
+    rr._detect_install_info("testfam", "testplat")
+    assert len(prober.calls) == 1  # one registry call per product per process
+    rr.configure(repo_root=repo_root, publication_prober=prober)  # configure() clears the memo
+    rr._detect_install_info("testfam", "testplat")
+    assert len(prober.calls) == 2
+
+
+def test_detect_install_info_offline_env_keeps_the_record_and_names_the_fallback(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    rr.configure(repo_root=repo_root)  # real prober, but README_REFRESH_OFFLINE=1 from the autouse fixture
+    info = rr._detect_install_info("testfam", "testplat")
+    assert info["published"] is False
+    assert info["publication"]["source"] == "package_registry.json (offline)"
+
+
+def test_detect_install_info_survives_a_raising_prober(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=True)
+
+    def boom(record, *, repo_url=None, offline=False):
+        raise RuntimeError("registry exploded")
+    rr.configure(repo_root=repo_root, publication_prober=boom)
+    info = rr._detect_install_info("testfam", "testplat")
+    assert info["published"] is True  # the record survives
+    assert "probe raised RuntimeError" in info["publication"]["source"]
+
+
+def test_plan_pins_the_publication_fact_and_records_the_line(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(True))
+    manifest = rr.start_run("testfam", "testplat")
+    manifest = rr.plan_run("testfam", "testplat", manifest["run_id"])
+    assert manifest["pinned_inputs"]["publication"] == {
+        "effective_published": True, "latest_version": "1.2.3", "source": "live_probe",
+        "probed_at": "2026-09-02T14:00:00Z",
+    }
+    assert manifest["publication_line"].startswith("PUBLICATION: PUBLISHED testpkg 1.2.3 on pypi")
+    assert "DRIFT" in manifest["publication_line"]
+    factpack = json.loads((rr._run_root("testfam", "testplat", manifest["run_id"]) / "facts" / "factpack.json").read_text(encoding="utf-8"))
+    assert factpack["install"]["published"] is True
+    assert factpack["install"]["publication"]["effective_published"] is True
+    events = (rr._run_root("testfam", "testplat", manifest["run_id"]) / "events.jsonl").read_text(encoding="utf-8")
+    assert '"event": "PUBLICATION_PROBED"' in events and '"drift": true' in events
+
+
+def test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(True))
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)  # "A PyPI package has not been published yet."
+    with pytest.raises(rr.ReadmeRefreshRunError, match=r"hard-gate checks: \['installation_matches_live_publication'\]"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+    result = json.loads((rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json").read_text(encoding="utf-8"))
+    reasons = sorted(f["reason"] for f in result["installation_matches_live_publication"]["findings"])
+    assert reasons == ["published_with_unpublished_disclosure", "published_without_registry_install_command"]
+    assert result["installation_matches_live_publication"]["hard_gate"] is True
+    assert result["published_version_matches_manifest"]["hard_gate"] is False
+    # The same candidate under a live-unpublished probe is clean on this gate.
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(False))
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    result = json.loads((rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json").read_text(encoding="utf-8"))
+    assert result["installation_matches_live_publication"]["findings"] == []
+
+
+def test_approve_treats_a_publication_change_since_plan_as_input_drift(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+                 verification_runner=lambda p, f: {"runner": "stub", "all_named": True, "blocks": []},
+                 publication_prober=_stub_prober(False))
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+    # The package ships between review and approval.
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+                 verification_runner=lambda p, f: {"runner": "stub", "all_named": True, "blocks": []},
+                 publication_prober=_stub_prober(True))
+    with pytest.raises(rr.ReadmeRefreshRunError, match="Publication state drifted since plan"):
+        rr.approve("testfam", "testplat", run_id, note="ok")
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "PLANNED"
+    # The pin and the factpack now carry the NEW fact, so the forced re-review gates against it:
+    assert manifest["pinned_inputs"]["publication"]["effective_published"] is True
+    factpack = json.loads((rr._run_root("testfam", "testplat", run_id) / "facts" / "factpack.json").read_text(encoding="utf-8"))
+    assert factpack["install"]["published"] is True and factpack["publication_repinned_at"]
+    with pytest.raises(rr.ReadmeRefreshRunError, match="installation_matches_live_publication"):
+        rr.ingest_candidate("testfam", "testplat", run_id)  # the stale "not published" text is now blocked
+    _write_candidate(repo_root, _GOOD_CANDIDATE.replace(
+        "A PyPI package has not been published yet. Install from source:",
+        "Install the published package:",
+    ).replace('pip install -e ".[dev]"', "pip install testpkg"))
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+    assert rr.approve("testfam", "testplat", run_id, note="ok")["state"] == "APPROVED"
+
+
+def test_approve_ignores_an_ambiguous_reprobe(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    stub = lambda p, f: {"runner": "stub", "all_named": True, "blocks": []}
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=stub,
+                 publication_prober=_stub_prober(False))
+    run_id = rr.start_run("testfam", "testplat")["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+    # Network down at approve time: not evidence of change, never blocks.
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=stub,
+                 publication_prober=_stub_prober(True, source="package_registry.json (probe ambiguous: x)"))
+    assert rr.approve("testfam", "testplat", run_id, note="ok")["state"] == "APPROVED"
+
+
+def test_available_badges_follow_the_live_publication_fact(tmp_path, monkeypatch):
+    monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    _write_registry_entry(repo_root, published=False)
+    rr.configure(repo_root=repo_root, publication_prober=_stub_prober(True))
+    info = rr._detect_install_info("testfam", "testplat")
+    badges = rr._detect_available_badges("testfam", "testplat", repo_full_name="test-org/test-repo",
+                                         license_file=None, install_info=info, dependency_snapshot=None, dev_test_artifacts=[])
+    assert badges["package_version"]["image_url"] == "https://img.shields.io/pypi/v/testpkg.svg"
+    assert badges["language_version"]["image_url"] == "https://img.shields.io/pypi/pyversions/testpkg.svg"
 
 
 def test_verify_examples_reruns_in_place_from_awaiting_review(tmp_path, monkeypatch):

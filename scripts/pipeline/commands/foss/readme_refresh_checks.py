@@ -207,7 +207,7 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 5  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 6  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
@@ -215,7 +215,10 @@ CHECKS_MODULE_VERSION = 5  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refr
 # and check_code_example_api_coverage_survives switching to the live extractor's fingerprint
 # (a pass/fail-semantics change for a hard gate that had been silently vacuous for 24 of 27
 # tracked products -- see its docstring); 5 = ST-172 check_cli_subcommand_coverage (advisory,
-# subcommand-level CLI retention against the product's real argparse surface)
+# subcommand-level CLI retention against the product's real argparse surface); 6 =
+# readme-refresh-publication-state-hardening-2026-09-02: check_installation_matches_live_publication
+# (HARD gate keyed on the live registry probe, vacuous on any fallback) and
+# check_published_version_matches_manifest (advisory)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -2365,6 +2368,134 @@ def check_installation_matches_package_registry(readme_text: str, install_info: 
                         "expected": expected, "unit_id": badge.get("unit_id"),
                     })
     return findings
+
+
+# readme-refresh-publication-state-hardening-2026-09-02: the registry-native install command a
+# README must show once the package is really published. Each pattern is anchored on the real
+# identity (substituted at match time) so a look-alike (`aspose-3d` vs `aspose-3d-foss`) never
+# passes for the real one. Seeded from the forms this portfolio's published READMEs already use.
+_REGISTRY_INSTALL_COMMAND_TEMPLATES: dict[str, tuple[str, ...]] = {
+    "pypi": (
+        r"(?:python3?\s+-m\s+)?(?:pip3?|uv\s+pip)\s+install\s+(?:[-\w.=]+\s+)*[\"']?{ident}(?:\[[^\]]*\])?(?:[=<>!~][^\s\"']*)?[\"']?",
+        r"\buv\s+add\s+[\"']?{ident}\b",
+        r"\bpoetry\s+add\s+[\"']?{ident}\b",
+    ),
+    "npm": (
+        r"\bnpm\s+(?:install|i|add)\s+(?:[-\w]+\s+)*[\"']?{ident}\b",
+        r"\b(?:yarn|pnpm)\s+add\s+(?:[-\w]+\s+)*[\"']?{ident}\b",
+    ),
+    "nuget": (
+        r"\bdotnet\s+add\s+(?:[\w./\\-]+\s+)?package\s+{ident}\b",
+        r"\bInstall-Package\s+{ident}\b",
+        r"<PackageReference\s+Include=[\"']{ident}[\"']",
+    ),
+    "cargo": (
+        r"\bcargo\s+add\s+{ident}\b",
+        r"^\s*{ident}\s*=\s*[\"{{]",
+    ),
+    "maven": (
+        r"<artifactId>\s*{ident}\s*</artifactId>",
+        r"[\w.-]+:{ident}:[\w.-]+",
+    ),
+    "go_modules": (
+        r"\bgo\s+get\s+{ident}\b",
+        r"^\s*require\s+{ident}\b",
+    ),
+}
+
+
+def _registry_install_command_present(section_text: str, registry_type: "str | None", identity: "str | None") -> bool:
+    templates = _REGISTRY_INSTALL_COMMAND_TEMPLATES.get(registry_type or "", ())
+    if not templates or not identity:
+        return False
+    ident = re.escape(identity)
+    return any(re.search(t.format(ident=ident), section_text, re.IGNORECASE | re.MULTILINE) for t in templates)
+
+
+def check_installation_matches_live_publication(readme_text: str, install_info: dict) -> list[dict]:
+    """Hard gate (readme-refresh-publication-state-hardening-2026-09-02). The composed
+    `## Installation` section must agree with the LIVE, unambiguous registry probe in
+    `install_info["publication"]` (see `_detect_install_info` in readme_refresh_run.py):
+
+    - live PUBLISHED -> the section names the registry-native install command for the real
+      package identity (`pip install aspose-3d-foss`, `dotnet add package ...`, `npm install`,
+      `cargo add`, a Maven coordinate, `go get`; see `_REGISTRY_INSTALL_COMMAND_TEMPLATES`) and
+      carries none of the portfolio's "has not yet been published" disclosures
+      (`_UNPUBLISHED_PACKAGE_SIGNAL_RE`).
+    - live NOT PUBLISHED -> the section may not present that install command as the way in
+      without the disclosure alongside it (a "once published this will become `pip install x`"
+      sentence next to the disclosure is fine and already portfolio precedent).
+
+    Why this can be a hard gate when `check_installation_matches_package_registry` (the
+    checked-in-flag twin) could not: that check's docstring downgraded itself on 2026-08-12
+    because `data/package_registry.json` was found stale in both directions -- a data-freshness
+    problem it could only tolerate, not fix. This gate keys on the probe's `source ==
+    "live_probe"` and is deliberately VACUOUS (`[]`) whenever the state is a fallback (offline,
+    network error, unknown registry, no declared identity): a fact earns a hard gate, a fallback
+    does not. Found live on 3d/python: `aspose-3d-foss` 26.1.0 on PyPI since 2026-08-29 while the
+    record said unpublished -- the composed section still read "has not yet been published", the
+    advisory twin approved it, and no badge/runner consumer knew either.
+
+    Findings: {"reason": published_without_registry_install_command |
+    published_with_unpublished_disclosure | unpublished_with_registry_install_command,
+    "expected", "registry_type", "evidence_url"}.
+    """
+    publication = (install_info or {}).get("publication") or {}
+    if publication.get("source") != "live_probe":
+        return []
+    section_text = _split_into_sections(readme_text).get("Installation", "")
+    if not section_text:
+        return []
+    identity = _expected_package_identity(install_info)
+    registry_type = install_info.get("registry_type")
+    evidence_url = (publication.get("live") or {}).get("evidence_url")
+    has_command = _registry_install_command_present(section_text, registry_type, identity)
+    has_disclosure = bool(_UNPUBLISHED_PACKAGE_SIGNAL_RE.search(section_text))
+    findings: list[dict] = []
+    base = {"expected": identity, "registry_type": registry_type, "evidence_url": evidence_url}
+    if publication.get("effective_published"):
+        if not has_command:
+            findings.append({**base, "reason": "published_without_registry_install_command",
+                             "detail": f"the live {registry_type} probe confirms {identity!r} is published, but the "
+                                       f"Installation section shows no registry-native install command naming it"})
+        if has_disclosure:
+            findings.append({**base, "reason": "published_with_unpublished_disclosure",
+                             "detail": f"the live {registry_type} probe confirms {identity!r} is published, but the "
+                                       f"Installation section still says it has not been published"})
+    else:
+        if has_command and not has_disclosure:
+            findings.append({**base, "reason": "unpublished_with_registry_install_command",
+                             "detail": f"the live {registry_type} probe finds no published {identity!r} (404), but the "
+                                       f"Installation section presents a registry install command for it with no disclosure"})
+    return findings
+
+
+def check_published_version_matches_manifest(install_info: dict, manifest_version: dict) -> list[dict]:
+    """Heuristic (advisory) -- readme-refresh-publication-state-hardening-2026-09-02. When the
+    live probe reports a published version, compare it with the version the clone-cache manifest
+    declares (`input_manifest.resolve_manifest_version`): a difference means the README is being
+    written against a tree the registry does not serve (a newer unreleased HEAD, or a manifest
+    that was never bumped), and the verify-examples runner -- which installs the PROBED version
+    -- is then testing a different build than the one documented. Advisory for the same disclosed
+    manifest-source gaps `check_installation_matches_manifest_version` names (C++ products with
+    no VERSION field, `dynamic = ["version"]` placeholders). Vacuous unless both sides are real.
+    Measured 2026-09-02: 3d/python 26.1.0 == 26.1.0 (and the wheel's 358 files == HEAD).
+    """
+    publication = (install_info or {}).get("publication") or {}
+    if publication.get("source") != "live_probe" or not publication.get("effective_published"):
+        return []
+    live_version = (publication.get("live") or {}).get("latest_version")
+    declared = (manifest_version or {}).get("version")
+    if not live_version or not declared:
+        return []
+    if str(live_version).strip().lstrip("v") == str(declared).strip().lstrip("v"):
+        return []
+    return [{
+        "reason": "published_version_differs_from_manifest",
+        "published_version": live_version, "manifest_version": declared,
+        "detail": f"the registry serves {live_version} while the documented tree declares {declared} -- "
+                  f"examples were verified against {live_version}; say which version the README describes",
+    }]
 
 
 def _expected_package_identity(install_info: dict) -> "str | None":

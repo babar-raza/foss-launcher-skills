@@ -530,6 +530,31 @@ scripts:
     deprecated_since: null
     notes: "cross-subdomain internal link validator"
 
+  - path: scripts/pipeline/lib/publication_probe.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-tooling
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_publication_probe.py
+    requires_test: true
+    deprecated_since: null
+    notes: "readme-refresh-publication-state-hardening-2026-09-02: live package-publication FACT
+      for /readme-refresh (S-120). Reuses the package_registries adapters the daily
+      package_publish_watch already uses (pypi/nuget/npm/cargo/go + maven-metadata.xml), adds PyPI
+      release details (version, upload time, artifact kinds, requires_python, license,
+      project_urls, repo corroboration), returns effective_published = live when unambiguous else
+      the checked-in record with the source named, drift vs data/package_registry.json, and
+      registry-metadata findings (upstream issues, never README). Never guesses a name from the
+      family (PyPI aspose-3d is the commercial product; aspose-3d-foss is the FOSS one) and never
+      writes data/package_registry.json. Consumed by readme_refresh_run._detect_install_info --
+      the single decision point behind Installation composition facts, badge availability, the
+      verify-examples acquire step and the installation gates."
   - path: scripts/pipeline/lib/package_registry_data.py
     kind: library
     lifecycle: active
@@ -5228,7 +5253,7 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_readme_refresh_checks.py
     deprecated_since: null
-    change_impact: "115 deterministic check_* functions (grep-verified 2026-09-02 via scripts/ci/checks/check_readme_template_contract_parity.py, TC-34; drifts upward as missions land -- re-grep `^def check_` rather than trust this number; bumped 109->110 by TC-17, then 110->111 by TC-18, then 111->112 by TC-14, all MT061-2026-09-01-TRACKB-FOLLOWON-2, for check_live_published_regression, check_content_unit_evidence_supports_claim, and check_installation_matches_manifest_version respectively; then 112->114 by readme-refresh-at-a-glance-retention-hardening-2026-09-02 for check_at_a_glance_section_shape (hard gate: At a Glance body is exactly one mermaid fence) and check_content_unit_disposition_text_diff (advisory prose twin of the TC-21 text-diff gates); the same mission added abandon --adopt-orphaned (ledger-gated takeover of a run whose owner session ended), the read-only retention-report verb, then 114->115 for check_cli_subcommand_coverage (ST-172, advisory) alongside the verify-examples runner v2 (fixture staging, example chains, product-CLI execution; ST-171)) readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality, banner-asset existence, disposition-family coverage/text-diff verification. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
+    change_impact: "117 deterministic check_* functions (grep-verified 2026-09-02 via scripts/ci/checks/check_readme_template_contract_parity.py, TC-34; drifts upward as missions land -- re-grep `^def check_` rather than trust this number; bumped 109->110 by TC-17, then 110->111 by TC-18, then 111->112 by TC-14, all MT061-2026-09-01-TRACKB-FOLLOWON-2, for check_live_published_regression, check_content_unit_evidence_supports_claim, and check_installation_matches_manifest_version respectively; then 112->114 by readme-refresh-at-a-glance-retention-hardening-2026-09-02 for check_at_a_glance_section_shape (hard gate: At a Glance body is exactly one mermaid fence) and check_content_unit_disposition_text_diff (advisory prose twin of the TC-21 text-diff gates); the same mission added abandon --adopt-orphaned (ledger-gated takeover of a run whose owner session ended), the read-only retention-report verb, then 114->115 for check_cli_subcommand_coverage (ST-172, advisory) alongside the verify-examples runner v2 (fixture staging, example chains, product-CLI execution; ST-171); then 115->117 by readme-refresh-publication-state-hardening-2026-09-02 for check_installation_matches_live_publication (HARD gate keyed on the live registry probe in lib/publication_probe.py -- vacuous on any fallback) and check_published_version_matches_manifest (advisory)) readme_refresh_run.py's ingest-candidate/recheck subcommands run against a README candidate -- required sections, diagram shape/column-balance/capability-dependency-order, format-name casing and support claims, cross-product-citation, license-link-target, dropped-content/internal-labels, undisclosed-BLOCKING-command, process-narration, Enterprise Edition naming/context, heading title-case, section-job-distinctness, named-member accuracy, API-reference-intro quality, banner-asset existence, disposition-family coverage/text-diff verification. Also a secondary standalone diagnostic CLI (main()) for ad hoc diagram-shape checks against one readme.md."
     notes: "Primarily imported (`import readme_refresh_checks as checks`) by readme_refresh_run.py; public_entrypoint:true reflects its real, working main() CLI, not its primary consumption mode. Registered late (2026-08-08) -- same gap as readme_refresh_run.py above."
 
   - path: scripts/pipeline/commands/foss/dependency_extract.py
