@@ -1091,6 +1091,15 @@ after convergence, re-running the same regeneration produces no further diff.
      back as a fragment (imports and setup lines gone) is a real retention loss even when its
      API calls survive elsewhere — label it `merged_reframed` honestly, or better, keep it
      self-contained: the retention report shows exactly which lines survived.
+   - **`corrected` is merge-shaped in every ledger** (gate fix 2026-09-02): a `corrected` entry
+     in `content-`, `structure-` or `code-example-dispositions.json` needs the real
+     `target_section` the corrected text landed in **and** a `correction_reason` (≥15 chars)
+     naming what the old text got wrong — never an `excluded_reason`. Until 2026-09-02 the
+     content/structural coverage gates branched `merged_* → target, else → excluded_reason`,
+     so 9 honest `corrected` entries across 3d/java, 3d/net, pdf/java and words/python carried
+     their correction text in `excluded_reason` just to pass (all migrated the same day). If a
+     gate ever seems to demand a field that makes no sense for the disposition you chose, that
+     is a gate bug to fix, not a field to fake.
    **(MT042, Thirty-Second incident, 2026-08-14) — the badge row has a verified FLOOR, not just
    reconciliation:** everything above stops a real OLD badge from being silently lost — it
    vacuously passes when the old README has zero badges, exactly the gap that let a real
@@ -1192,9 +1201,40 @@ after convergence, re-running the same regeneration produces no further diff.
    vs transient defects", above): the candidate gives the correct usage per source with no
    caveat, and the defect is reported upstream through the issue workflow.
 
+   **Runner v2 (ST-171, 2026-09-02)** — the Python runner used to execute every `python` block
+   in isolation in an empty work dir, which on font/python produced 20 false `RUNTIME-ERROR`s
+   (every example opens a fixture font; continuation fragments referenced names defined in the
+   block above; every `bash` CLI block was `TOOLCHAIN-UNAVAILABLE`). It now:
+   - **stages fixtures**: every file-like token in the README's code blocks (`Roboto-Regular.ttf`,
+     `sample.docx`, …) is searched for in the clone cache (skipping `.git`/`node_modules`/venvs)
+     and copied into the work dir; a block that names a file found nowhere in the tree is
+     `BLOCKED-WITH-REASON: FIXTURE-UNAVAILABLE` with `missing_fixture` named — **use the real
+     fixture path the repo ships, never an illustrative name** (font/python's old
+     `Roboto.ttf` was exactly that and became a `corrected` structural unit);
+   - **runs example chains**: a `python` block with no import/assignment prelude that reuses a
+     name defined by the preceding block is executed with that block's text prefixed; if the
+     prefix block failed the fragment is `BLOCKED-WITH-REASON: DEPENDS-ON-FAILED-BLOCK`
+     (`depends_on` names it) rather than a second spurious `NameError`;
+   - **executes `bash`/`sh` blocks line by line** through the product's own console scripts
+     (`[project.scripts]` / `console_scripts` in the venv it just installed): each product line
+     runs for real (`commands_run`/`commands_failed`/`failed_lines` recorded); a block whose
+     lines are all non-product (`pip`, `git`, `make`, `python -m …`) is
+     `BLOCKED-WITH-REASON: NOT-A-PRODUCT-COMMAND`; a product with no console scripts still
+     reports `TOOLCHAIN-UNAVAILABLE`.
+   The result records `runner: python_verification_runner_v2` and a `fixtures.staged` /
+   `fixtures.unresolved` map. `verify-examples` is **re-runnable in place from
+   `AWAITING_REVIEW`** (result rewritten, `VERIFY_EXAMPLES_COMPLETED` re-logged,
+   `last_reverified_at` set, no transition) — after a candidate edit or a runner improvement,
+   re-verify the same run instead of starting a new one. Any other state is refused by name.
+
 6. **`recheck`** — re-runs the deterministic checks in place after manual edits during
    `AWAITING_REVIEW`, without a state transition. Use this after applying reviewer feedback
-   instead of re-planning from scratch.
+   instead of re-planning from scratch. Among them, `cli_subcommand_coverage` (advisory,
+   ST-172) crosses each console script's real `add_parser("…")` surface against the subcommands
+   the old README demonstrated and the candidate demonstrates — `dropped_real_subcommand`
+   (font/python's candidate had silently dropped 17 of 26 while the category check reported
+   clean) and `unknown_subcommand` (demonstrated but registered nowhere). Inert by construction
+   on products without Python console scripts (30 of 31 today).
 
 7. **`approve`** — **the skill must never call this on its own initiative; only on an
    unambiguous, fresh instruction from the user in that turn.** Re-verifies the pinned clone-cache

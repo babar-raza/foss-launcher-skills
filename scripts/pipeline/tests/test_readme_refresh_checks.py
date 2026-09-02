@@ -6263,6 +6263,42 @@ def test_disposition_coverage_flags_merged_entry_with_bad_target_section():
     assert any("target_section" in f["reason"] for f in findings)
 
 
+def test_disposition_coverage_treats_corrected_as_merge_shaped_not_excluded():
+    # 2026-09-02 (font/python): MT041 added `corrected` to the enum but the gate's branch was
+    # still merged_* / else-excluded, so an honest corrected entry needed a fake excluded_reason
+    # and its target_section was never validated. corrected == real target + correction_reason.
+    units = [{"unit_id": "u0001"}]
+    good = _content_unit(unit_id="u0001", disposition="corrected", target_section="Dependencies")
+    good["correction_reason"] = "old claim named a pin the manifest does not carry"
+    assert checks.check_content_unit_disposition_coverage(units, [good]) == []
+
+    no_reason = _content_unit(unit_id="u0001", disposition="corrected", target_section="Dependencies")
+    findings = checks.check_content_unit_disposition_coverage(units, [no_reason])
+    assert [f["reason"] for f in findings] == [
+        "corrected disposition needs a real correction_reason (>=15 chars) naming what the old text got wrong",
+    ]
+    assert not any("excluded_reason" in f["reason"] for f in findings)
+
+    bad_target = _content_unit(unit_id="u0001", disposition="corrected", target_section="Nope")
+    bad_target["correction_reason"] = "old claim named a pin the manifest does not carry"
+    findings = checks.check_content_unit_disposition_coverage(units, [bad_target])
+    assert [f["reason"] for f in findings] == ["corrected disposition needs a real target_section, got 'Nope'"]
+
+
+def test_structural_disposition_coverage_treats_corrected_as_merge_shaped():
+    units = [{"unit_id": "s0002", "heading": "CLI Highlights", "kind": "generic_structural_block"}]
+    entry = {
+        "unit_id": "s0002", "disposition": "corrected", "target_section": "Additional Examples",
+        "verification": {"status": "verified_against_source", "evidence_ref": "testdata/Fonts/Roboto-Regular.ttf"},
+    }
+    findings = checks.check_structural_unit_disposition_coverage(units, [entry])
+    assert [f["reason"] for f in findings] == [
+        "corrected disposition needs a real correction_reason (>=15 chars) naming what the old text got wrong",
+    ]
+    entry["correction_reason"] = "the old block names Roboto.ttf, which exists nowhere in the tree"
+    assert checks.check_structural_unit_disposition_coverage(units, [entry]) == []
+
+
 def test_disposition_coverage_flags_excluded_entry_with_thin_reason():
     units = [{"unit_id": "u0001"}]
     entry = _content_unit(
@@ -9547,6 +9583,78 @@ def test_candidate_code_fingerprint_ignores_mermaid_fences():
     fingerprint = checks._candidate_code_fingerprint(text)
     assert "Loader.open" in fingerprint
     assert not any("files" in call for call in fingerprint)
+
+
+# --- check_cli_subcommand_coverage (ST-172, readme-refresh-at-a-glance-retention-hardening-
+# 2026-09-02): font/python's old README demonstrated 26 real subcommands, the candidate had
+# dropped 17, and check_cli_category_representation reported [] -- category presence is not
+# subcommand coverage.
+
+
+def _cli_product_repo(tmp_path):
+    root = tmp_path / "clone"
+    (root / "src" / "toolpkg").mkdir(parents=True)
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "toolpkg"\n\n[project.scripts]\ntool = "toolpkg.cli:main"\n', encoding="utf-8",
+    )
+    (root / "src" / "toolpkg" / "cli.py").write_text(
+        "import argparse\n"
+        "def main():\n"
+        "    p = argparse.ArgumentParser()\n"
+        "    sub = p.add_subparsers()\n"
+        "    sub.add_parser(\"info\")\n"
+        "    sub.add_parser(\n"
+        "        \"var-delta\",\n"
+        "        help=\"x\",\n"
+        "    )\n"
+        "    sub.add_parser(\"web-grid\")\n",
+        encoding="utf-8",
+    )
+    return root
+
+
+def test_cli_subcommand_coverage_flags_real_subcommands_the_candidate_dropped(tmp_path):
+    root = _cli_product_repo(tmp_path)
+    old = "# Old\n\n```bash\ntool info a.ttf\ntool var-delta a.ttf --char A\ntool web-grid a.ttf out\n```\n"
+    candidate = "## Additional Examples\n\n```bash\ntool info a.ttf\n```\n"
+    findings = checks.check_cli_subcommand_coverage(candidate, old, str(root))
+    assert [(f["kind"], f["subcommand"]) for f in findings] == [
+        ("dropped_real_subcommand", "var-delta"), ("dropped_real_subcommand", "web-grid"),
+    ]
+
+
+def test_cli_subcommand_coverage_flags_candidate_subcommands_absent_from_source(tmp_path):
+    root = _cli_product_repo(tmp_path)
+    candidate = "## Additional Examples\n\n```bash\ntool info a.ttf\ntool frobnicate a.ttf\n```\n"
+    findings = checks.check_cli_subcommand_coverage(candidate, "", str(root))
+    assert [(f["kind"], f["subcommand"]) for f in findings] == [("unknown_subcommand", "frobnicate")]
+
+
+def test_cli_subcommand_coverage_clean_when_every_old_real_subcommand_survives(tmp_path):
+    root = _cli_product_repo(tmp_path)
+    old = "```bash\ntool info a.ttf\ntool var-delta a.ttf\n```\n"
+    candidate = "```bash\n# grouped differently, same commands\ntool var-delta b.ttf --char B\ntool info b.ttf\n```\n"
+    assert checks.check_cli_subcommand_coverage(candidate, old, str(root)) == []
+
+
+def test_cli_subcommand_coverage_ignores_old_subcommands_that_are_not_real(tmp_path):
+    # An old README demonstrating a command the source never registers is a stale old claim,
+    # not a candidate retention loss -- never flagged as dropped.
+    root = _cli_product_repo(tmp_path)
+    old = "```bash\ntool legacy-thing a.ttf\n```\n"
+    assert checks.check_cli_subcommand_coverage("```bash\ntool info a.ttf\n```\n", old, str(root)) == []
+
+
+def test_cli_subcommand_coverage_noop_without_console_scripts_or_subparsers(tmp_path):
+    root = tmp_path / "noscripts"
+    root.mkdir()
+    (root / "pyproject.toml").write_text('[project]\nname = "x"\n', encoding="utf-8")
+    assert checks.check_cli_subcommand_coverage("```bash\ntool info a\n```\n", "```bash\ntool info a\n```\n", str(root)) == []
+    assert checks.product_console_scripts(str(root)) == {}
+    root2 = _cli_product_repo(tmp_path / "second")
+    (root2 / "src" / "toolpkg" / "cli.py").write_text("def main():\n    pass\n", encoding="utf-8")
+    assert checks.real_cli_subcommands(str(root2), "toolpkg.cli:main") is None
+    assert checks.check_cli_subcommand_coverage("```bash\ntool info a\n```\n", "", str(root2)) == []
 
 
 # --- check_cli_category_representation (TC-HARDEN-75) ---------------------------------------

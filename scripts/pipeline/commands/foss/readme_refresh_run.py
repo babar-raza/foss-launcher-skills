@@ -2255,6 +2255,7 @@ _PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
     ("code_example_api_coverage_survives", True),
     ("code_example_excluded_reason_citation_too_narrow", False),
     ("cli_category_representation", False),
+    ("cli_subcommand_coverage", False),  # ST-172
     ("badge_disposition_coverage", True),
     ("badge_evidence_resolves", True),
     ("badge_preserved_or_credited_in_candidate", True),
@@ -2913,6 +2914,13 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["cli_category_representation"] = {
             "hard_gate": False,
             "findings": checks.check_cli_category_representation(text, code_units),
+        }
+        # ST-172 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): subcommand-level
+        # coverage against the product's real argparse surface -- the category check above
+        # reported [] on font/python while 17 real subcommands had been dropped.
+        result["cli_subcommand_coverage"] = {
+            "hard_gate": False,
+            "findings": checks.check_cli_subcommand_coverage(text, old_readme_text, str(clone_cache)),
         }
 
         # Twenty-Fourth incident / mission (2026-08-13): badge semantic reconciliation --
@@ -4110,47 +4118,268 @@ def _run_single_python_block(venv_python: str, code: str, work_dir: Path, index:
     return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": reason, "detail": detail}
 
 
+# --- ST-171 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): runner v2 --------------
+#
+# Found live on font/python: the v1 runner reported 20 RUNTIME-ERROR for a candidate whose
+# every Python block and every CLI invocation executed cleanly once run the way a reader would
+# run them. Three real, distinct v1 gaps, each closed below with its own honest, named status:
+#   1. No fixture staging -- every example opens a font/document file by name, and the work dir
+#      was empty, so `FileNotFoundError` on the reader's own input file was reported as a
+#      RUNTIME-ERROR of the example. `_stage_readme_fixtures` copies any file the README names
+#      that really exists in the clone cache (by exact basename; testdata/, tests/, examples/...)
+#      into the work dir; a name that exists nowhere in the repo is reported as
+#      FIXTURE-UNAVAILABLE naming the file, never as a defect of the example.
+#   2. Continuation fragments -- a block that continues the previous example (no imports, reuses
+#      `font`) was executed alone and died with NameError. Blocks are now grouped into example
+#      chains (a block whose first statement is an import starts a new chain); a continuation
+#      runs as prefix-of-chain + itself, and a block whose prefix already failed is reported as
+#      DEPENDS-ON-FAILED-BLOCK (naming the failed index) rather than double-counted.
+#   3. No CLI runner -- every ```bash block was TOOLCHAIN-UNAVAILABLE even though the disposable
+#      venv's `pip install` had already put the product's own console scripts on disk.
+#      `_run_bash_block` runs every line whose first token is one of the product's real
+#      `[project.scripts]` / `console_scripts` entries through that installed script, in the same
+#      work dir and document order (so a later CLI line sees an earlier block's output files);
+#      lines that are not a product command (pip, git, python -m, uv, make, docker...) are
+#      reported NOT-A-PRODUCT-COMMAND, never silently marked clean.
+# Measured on the real font/python candidate the day this shipped: v1 = 20 RUNTIME-ERROR /
+# 17 TOOLCHAIN-UNAVAILABLE; v2 = every Python block and every CLI line executes.
+
+_FIXTURE_NAME_RE = re.compile(r"""["']([A-Za-z0-9_][A-Za-z0-9_.,+ -]*\.[A-Za-z0-9]{1,6})["']""")
+_FIXTURE_SEARCH_SKIP_DIRS = frozenset({".git", "node_modules", "venv", ".venv", "__pycache__", "dist", "build"})
+_NON_PRODUCT_COMMAND_REASON = "NOT-A-PRODUCT-COMMAND"
+
+
+def _readme_fixture_names(blocks: "list[tuple[str, str]]") -> list[str]:
+    """Quoted, extension-bearing file names used by any code block (both the reader's input
+    fixtures and the example's own output names -- the latter are simply never found in the
+    clone cache, so staging them is a harmless no-op). Bash lines contribute their bare
+    `path.ext` tokens too (a CLI example rarely quotes its input file)."""
+    names: list[str] = []
+    for lang, code in blocks:
+        names.extend(_FIXTURE_NAME_RE.findall(code))
+        if lang in ("bash", "sh", "shell"):
+            for token in re.findall(r"(?<![\w/\\-])([A-Za-z0-9_][A-Za-z0-9_,+-]*\.[A-Za-z0-9]{1,6})(?![\w/])", code):
+                names.append(token)
+    seen: set[str] = set()
+    out: list[str] = []
+    for n in names:
+        base = n.replace("\\", "/").split("/")[-1]
+        if base and base not in seen and "." in base and not base.startswith("."):
+            seen.add(base)
+            out.append(base)
+    return out
+
+
+def _stage_readme_fixtures(work_dir: Path, blocks: "list[tuple[str, str]]", clone_cache: Path) -> dict:
+    """Copy every README-named file that exists in the clone cache (exact basename match, first
+    match in sorted walk order; symlinks never followed) into the work dir. Returns
+    `{"staged": {basename: relative source path}, "unresolved": [basename, ...]}`."""
+    wanted = _readme_fixture_names(blocks)
+    staged: dict[str, str] = {}
+    if not wanted or not clone_cache.is_dir():
+        return {"staged": staged, "unresolved": list(wanted)}
+    remaining = set(wanted)
+    for root, dirs, files in os.walk(clone_cache):
+        dirs[:] = sorted(d for d in dirs if d not in _FIXTURE_SEARCH_SKIP_DIRS)
+        for name in sorted(files):
+            if name in remaining:
+                src = Path(root) / name
+                if src.is_symlink():
+                    continue
+                dest = work_dir / name
+                if not dest.exists():
+                    shutil.copyfile(src, dest)
+                staged[name] = src.relative_to(clone_cache).as_posix()
+                remaining.discard(name)
+        if not remaining:
+            break
+    return {"staged": staged, "unresolved": sorted(remaining)}
+
+
+def _python_block_starts_chain(code: str) -> bool:
+    """A block whose first real statement is an import is a self-contained example (the
+    portfolio-wide convention); anything else continues the previous Python block's example."""
+    for line in code.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        return stripped.startswith(("import ", "from "))
+    return True
+
+
+def _product_console_scripts(clone_cache: Path) -> dict[str, str]:
+    """`{script name: "module:function"}` from pyproject.toml `[project.scripts]` (and, as a
+    fallback, setup.py's `console_scripts` entry points). Regex parse, never an import of the
+    product's build config; empty when neither declares any -- then no bash line can be a
+    product command and every bash block honestly reports NOT-A-PRODUCT-COMMAND."""
+    scripts: dict[str, str] = {}
+    pyproject = clone_cache / "pyproject.toml"
+    if pyproject.is_file():
+        text = pyproject.read_text(encoding="utf-8", errors="replace")
+        section = re.search(r"^\[project\.scripts\]\s*$(.*?)(?=^\[|\Z)", text, re.MULTILINE | re.DOTALL)
+        if section:
+            for m in re.finditer(r'^\s*"?([A-Za-z0-9_.-]+)"?\s*=\s*"([^"]+)"', section.group(1), re.MULTILINE):
+                scripts[m.group(1)] = m.group(2)
+    setup_py = clone_cache / "setup.py"
+    if not scripts and setup_py.is_file():
+        text = setup_py.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(r'["\']([A-Za-z0-9_.-]+)\s*=\s*([A-Za-z0-9_.]+:[A-Za-z0-9_]+)["\']', text):
+            scripts[m.group(1)] = m.group(2)
+    return scripts
+
+
+def _venv_script_path(venv_python: str, script_name: str) -> "Path | None":
+    bin_dir = Path(venv_python).parent
+    for candidate in (bin_dir / f"{script_name}.exe", bin_dir / script_name, bin_dir / f"{script_name}.cmd"):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _classify_bash_failure(output: str, unresolved_fixtures: "list[str]") -> "tuple[str, str]":
+    tail = output.strip()[-2000:]
+    for name in unresolved_fixtures:
+        if name in tail and ("No such file" in tail or "FileNotFoundError" in tail or "not found" in tail.lower()):
+            return "FIXTURE-UNAVAILABLE", tail
+    return "RUNTIME-ERROR", tail
+
+
+def _run_bash_block(
+    venv_python: str, code: str, work_dir: Path, index: int, console_scripts: dict[str, str],
+    unresolved_fixtures: "list[str]",
+) -> dict:
+    """Run every product-console-script line of one ```bash block through the script installed
+    in the disposable venv, in document order, in the shared work dir. A block with no product
+    line at all is NOT-A-PRODUCT-COMMAND (install/build/tooling lines are never executed here)."""
+    import shlex
+    product_lines: list[str] = []
+    for raw in code.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        first = line.split()[0]
+        if first in console_scripts:
+            product_lines.append(line)
+    if not product_lines:
+        return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": _NON_PRODUCT_COMMAND_REASON,
+                "detail": "no line in this block invokes one of the product's own console scripts"}
+    # Every product line runs (a block is one worked example, but each line is its own real
+    # command); the block's status is the FIRST failure's classification, with every failed
+    # line listed, so a 42-command block whose first line lacks a fixture still proves the
+    # other 41 (font/python's real CLI block, the case that motivated this).
+    ran: list[str] = []
+    failures: list[dict] = []
+    for line in product_lines:
+        try:
+            argv = shlex.split(line)
+        except ValueError as exc:
+            failures.append({"line": line, "reason": "RUNTIME-ERROR", "detail": f"could not parse command line: {exc}"})
+            continue
+        script = _venv_script_path(venv_python, argv[0])
+        if script is None:
+            failures.append({"line": line, "reason": "ACQUIRE-FAILED",
+                             "detail": f"console script {argv[0]!r} is declared by the product but was not installed into the venv"})
+            continue
+        try:
+            result = subprocess.run(
+                [str(script), *argv[1:]], capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=300, cwd=str(work_dir),
+            )
+        except subprocess.TimeoutExpired:
+            failures.append({"line": line, "reason": "TIMEOUT", "detail": "timed out after 300s"})
+            continue
+        if result.returncode != 0:
+            reason, detail = _classify_bash_failure(result.stderr or result.stdout, unresolved_fixtures)
+            failures.append({"line": line, "reason": reason, "detail": detail[-600:]})
+            continue
+        ran.append(line)
+    if failures:
+        first = failures[0]
+        return {
+            "index": index, "status": "BLOCKED-WITH-REASON", "reason": first["reason"],
+            "detail": f"{first['line']}\n{first['detail']}",
+            "commands_run": len(ran), "commands_failed": len(failures),
+            "failed_lines": [f["line"] for f in failures],
+            "failure_reasons": sorted({f["reason"] for f in failures}),
+        }
+    return {"index": index, "status": "COMPILED+RAN CLEAN", "commands_run": len(ran)}
+
+
 def python_verification_runner(candidate_path: Path, factpack: dict) -> dict:
-    """Real for `python`-tagged fenced code blocks; every other language still honestly reports
-    BLOCKED-WITH-REASON: TOOLCHAIN-UNAVAILABLE, exactly as `_default_verification_runner` does --
-    this function is a strict, real superset of the stub's honesty, not a different philosophy."""
+    """Real for `python`-tagged fenced code blocks and, since v2, for the product-console-script
+    lines of ```bash blocks; every other language still honestly reports BLOCKED-WITH-REASON:
+    TOOLCHAIN-UNAVAILABLE, exactly as `_default_verification_runner` does -- this function is a
+    strict, real superset of the stub's honesty, not a different philosophy. See the ST-171
+    comment block above for the three v2 changes (fixture staging, example chains, CLI runner)."""
     text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
     blocks = [(m.group(1).strip().lower(), m.group(2)) for m in _ANY_LANG_CODE_BLOCK_RE.finditer(text)]
     family = factpack.get("family")
     platform = factpack.get("platform")
     install_info = factpack.get("install") or {}
 
+    runnable_langs = ("python", "bash", "sh", "shell")
     block_statuses = [
         {"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"}
-        for i, (lang, _code) in enumerate(blocks) if lang != "python"
+        for i, (lang, _code) in enumerate(blocks) if lang not in runnable_langs
     ]
-    python_blocks = [(i, code) for i, (lang, code) in enumerate(blocks) if lang == "python"]
+    runnable = [(i, lang, code) for i, (lang, code) in enumerate(blocks) if lang in runnable_langs]
+    staging: dict = {"staged": {}, "unresolved": []}
 
-    if python_blocks and family and platform:
+    if runnable and family and platform:
         with tempfile.TemporaryDirectory(prefix=f"readme-refresh-verify-{family}-{platform}-") as tmp:
             work_dir = Path(tmp)
             clone_cache = _product_clone_cache(family, platform)
             acquire = _acquire_python_environment(work_dir, install_info, clone_cache)
             if not acquire["ok"]:
-                for i, _code in python_blocks:
+                for i, _lang, _code in runnable:
                     block_statuses.append({
                         "index": i, "status": "BLOCKED-WITH-REASON", "reason": "ACQUIRE-FAILED",
                         "detail": acquire["detail"],
                     })
             else:
-                for i, code in python_blocks:
-                    block_statuses.append(
-                        _run_single_python_block(acquire["venv_python"], code, work_dir, i)
-                    )
+                staging = _stage_readme_fixtures(work_dir, blocks, clone_cache)
+                console_scripts = _product_console_scripts(clone_cache)
+                chain_prefix: list[str] = []
+                chain_failed_at: "int | None" = None
+                for i, lang, code in runnable:
+                    if lang != "python":
+                        block_statuses.append(_run_bash_block(
+                            acquire["venv_python"], code, work_dir, i, console_scripts, staging["unresolved"],
+                        ))
+                        continue
+                    if _python_block_starts_chain(code):
+                        chain_prefix, chain_failed_at = [], None
+                    if chain_failed_at is not None:
+                        block_statuses.append({
+                            "index": i, "status": "BLOCKED-WITH-REASON", "reason": "DEPENDS-ON-FAILED-BLOCK",
+                            "detail": f"continues the example started in block {chain_failed_at}, which already failed",
+                            "depends_on": chain_failed_at,
+                        })
+                        continue
+                    script = "\n".join(chain_prefix + [code]) if chain_prefix else code
+                    status = _run_single_python_block(acquire["venv_python"], script, work_dir, i)
+                    if status["status"] == "BLOCKED-WITH-REASON":
+                        if status.get("reason") == "RUNTIME-ERROR":
+                            for name in staging["unresolved"]:
+                                if name in (status.get("detail") or "") and "FileNotFoundError" in (status.get("detail") or ""):
+                                    status["reason"] = "FIXTURE-UNAVAILABLE"
+                                    status["missing_fixture"] = name
+                                    break
+                        chain_failed_at = i
+                    if chain_prefix or not _python_block_starts_chain(code):
+                        status["continues_example"] = True
+                    chain_prefix.append(code)
+                    block_statuses.append(status)
     else:
-        for i, _code in python_blocks:
+        for i, _lang, _code in runnable:
             block_statuses.append({"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"})
 
     block_statuses.sort(key=lambda b: b["index"])
     return {
-        "runner": "python_verification_runner_v1",
+        "runner": "python_verification_runner_v2",
         "blocks_found": len(blocks),
         "block_statuses": block_statuses,
+        "fixtures": staging,
         "all_named": True,
     }
 
@@ -4323,12 +4552,18 @@ def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict
 
 def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
     """VERIFYING_EXAMPLES -> AWAITING_REVIEW: run the (pluggable) per-language verification
-    pass. Only transitions once every block has a named status -- never silently."""
+    pass. Only transitions once every block has a named status -- never silently. Re-runnable
+    in place from AWAITING_REVIEW (result rewritten, state kept) -- see the note at the end."""
     owner = _session_id(session_id)
     with _product_guard(family, platform):
         manifest = _load_manifest(family, platform, run_id)
         if manifest["session_owner"] != owner:
             raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        if manifest["state"] not in ("VERIFYING_EXAMPLES", "AWAITING_REVIEW"):
+            raise ReadmeRefreshRunError(
+                f"verify-examples applies to VERIFYING_EXAMPLES (first pass) or AWAITING_REVIEW "
+                f"(re-verification in place); current state is {manifest['state']}"
+            )
 
         candidate_path = _candidate_readme_path(family, platform)
         run_root = _run_root(family, platform, run_id)
@@ -4357,6 +4592,17 @@ def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str
             )
 
         _event(family, platform, run_id, "VERIFY_EXAMPLES_COMPLETED", runner=verification_result.get("runner"))
+        # ST-171 follow-up (2026-09-02): re-verification in place. A run already at
+        # AWAITING_REVIEW (candidate edited after review, or the runner itself improved -- both
+        # happened live on font/python the day runner v2 shipped) could never refresh its
+        # verification/result.json: the only path was VERIFYING_EXAMPLES -> AWAITING_REVIEW, and
+        # the state machine rightly refuses AWAITING_REVIEW -> AWAITING_REVIEW. Same posture as
+        # `recheck` for the deterministic checks: results are rewritten, the event is recorded,
+        # the state is left alone.
+        if manifest["state"] == "AWAITING_REVIEW":
+            manifest["last_reverified_at"] = _utc()
+            _save_manifest(manifest)
+            return manifest
         _transition(manifest, "AWAITING_REVIEW", checkpoint="verified")
         return manifest
 

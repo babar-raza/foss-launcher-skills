@@ -2942,6 +2942,42 @@ def test_verify_examples_refuses_when_not_all_named(tmp_path, monkeypatch):
     assert manifest["state"] == "VERIFYING_EXAMPLES"  # must not have advanced
 
 
+def test_verify_examples_reruns_in_place_from_awaiting_review(tmp_path, monkeypatch):
+    # ST-171 follow-up: the runner improved (v2) while font/python's run already sat at
+    # AWAITING_REVIEW; the only way to refresh verification/result.json used to be a brand-new
+    # run. Re-verification rewrites the result and records the event, but never re-transitions.
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-007")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    calls = []
+
+    def runner(candidate_path, factpack):
+        calls.append(candidate_path)
+        return {"runner": f"stub-v{len(calls)}", "all_named": True, "blocks": []}
+
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=runner)
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+    assert rr.status("testfam", "testplat", run_id)["state"] == "AWAITING_REVIEW"
+
+    manifest = rr.verify_examples("testfam", "testplat", run_id)
+    assert manifest["state"] == "AWAITING_REVIEW"
+    assert manifest["last_reverified_at"]
+    result_path = rr._run_root("testfam", "testplat", run_id) / "verification" / "result.json"
+    assert json.loads(result_path.read_text(encoding="utf-8"))["runner"] == "stub-v2"
+    events = (rr._run_root("testfam", "testplat", run_id) / "events.jsonl").read_text(encoding="utf-8")
+    assert events.count("VERIFY_EXAMPLES_COMPLETED") == 2
+
+    # Any other state is still refused with the state named -- no silent re-verification of an
+    # approved or pushed run.
+    rr.approve("testfam", "testplat", run_id, note="reviewed")
+    with pytest.raises(rr.ReadmeRefreshRunError, match="current state is APPROVED"):
+        rr.verify_examples("testfam", "testplat", run_id)
+
+
 # --- TC-HARDEN-01 (MT033): python_verification_runner ---------------------------------------
 #
 # Real acquire->execute->classify is the check (never mocked) -- but the network-dependent half
@@ -3082,12 +3118,132 @@ def test_python_verification_runner_non_python_blocks_stay_stub(tmp_path):
         "## Quick Start\n\n```csharp\nvar x = 1;\n```\n",
         encoding="utf-8",
     )
-    result = rr.python_verification_runner(candidate_path, {"family": "testfam", "platform": "testplat"})
-    assert result["runner"] == "python_verification_runner_v1"
+    # No family/platform -> nothing can be acquired; every block, bash included, stays the
+    # honest stub (v2 only ever runs bash lines after a real acquire).
+    result = rr.python_verification_runner(candidate_path, {"family": None, "platform": None})
+    assert result["runner"] == "python_verification_runner_v2"
     assert result["blocks_found"] == 2
     assert result["all_named"] is True
     assert all(b["status"] == "BLOCKED-WITH-REASON" and b["reason"] == "TOOLCHAIN-UNAVAILABLE"
                for b in result["block_statuses"])
+
+
+# --- ST-171 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): runner v2 ----------
+# Found live on font/python: v1 reported 20 RUNTIME-ERROR (every example opens a font file that
+# was never staged; continuation fragments ran alone) and 17 TOOLCHAIN-UNAVAILABLE (every CLI
+# block) for a candidate whose 20 Python blocks and 42 CLI invocations all execute. Same
+# network-free fixture discipline as the tests above: a real, locally-buildable package.
+
+
+def _v2_fixture_package(tmp_path):
+    clone_cache_root = tmp_path / "clone_cache_root"
+    clone_cache = clone_cache_root / "aspose_testfam_testplat"
+    (clone_cache / "testdata" / "fonts").mkdir(parents=True)
+    (clone_cache / "testdata" / "fonts" / "Sample-Regular.ttf").write_bytes(b"FONTBYTES")
+    (clone_cache / "setup.py").write_text(
+        "from setuptools import setup\n"
+        "setup(name='v2pkg_e2e', version='0.1', py_modules=['v2pkg_e2e'],\n"
+        "      entry_points={'console_scripts': ['v2tool = v2pkg_e2e:main']})\n",
+        encoding="utf-8",
+    )
+    (clone_cache / "v2pkg_e2e.py").write_text(
+        "import sys\n"
+        "def load(path):\n"
+        "    with open(path, 'rb') as f:\n"
+        "        return f.read()\n"
+        "def main(argv=None):\n"
+        "    argv = list(sys.argv[1:] if argv is None else argv)\n"
+        "    if argv[:1] == ['info']:\n"
+        "        load(argv[1]); print('ok'); return 0\n"
+        "    print('unknown', argv, file=sys.stderr); return 2\n",
+        encoding="utf-8",
+    )
+    rr.configure(clone_cache_root=clone_cache_root)
+    return clone_cache
+
+
+def test_runner_v2_stages_readme_fixtures_from_the_clone_cache_and_names_unresolved_ones(tmp_path):
+    _v2_fixture_package(tmp_path)
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Quick Start\n\n```python\nimport v2pkg_e2e\n"
+        'data = v2pkg_e2e.load("Sample-Regular.ttf")\nassert data == b"FONTBYTES"\n```\n\n'
+        "## More\n\n```python\nimport v2pkg_e2e\n"
+        'v2pkg_e2e.load("Nowhere.ttf")\n```\n',
+        encoding="utf-8",
+    )
+    result = rr.python_verification_runner(
+        candidate_path, {"family": "testfam", "platform": "testplat", "install": {"published": False}},
+    )
+    assert result["runner"] == "python_verification_runner_v2"
+    assert result["fixtures"]["staged"] == {"Sample-Regular.ttf": "testdata/fonts/Sample-Regular.ttf"}
+    assert "Nowhere.ttf" in result["fixtures"]["unresolved"]
+    by_index = {b["index"]: b for b in result["block_statuses"]}
+    assert by_index[0]["status"] == "COMPILED+RAN CLEAN", by_index[0]
+    assert by_index[1]["reason"] == "FIXTURE-UNAVAILABLE", by_index[1]
+    assert by_index[1]["missing_fixture"] == "Nowhere.ttf"
+
+
+def test_runner_v2_runs_continuation_fragments_in_their_example_chain(tmp_path):
+    _v2_fixture_package(tmp_path)
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Quick Start\n\n```python\nimport v2pkg_e2e\nvalue = 21\n```\n\n"
+        "Then double it:\n\n```python\nassert value * 2 == 42\n```\n\n"
+        "## Broken chain\n\n```python\nimport v2pkg_e2e\nraise RuntimeError('boom')\n```\n\n"
+        "```python\nprint(value)\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.python_verification_runner(
+        candidate_path, {"family": "testfam", "platform": "testplat", "install": {"published": False}},
+    )
+    by_index = {b["index"]: b for b in result["block_statuses"]}
+    assert by_index[0]["status"] == "COMPILED+RAN CLEAN"
+    assert by_index[1]["status"] == "COMPILED+RAN CLEAN" and by_index[1]["continues_example"] is True
+    assert by_index[2]["reason"] == "RUNTIME-ERROR"
+    assert by_index[3]["reason"] == "DEPENDS-ON-FAILED-BLOCK" and by_index[3]["depends_on"] == 2
+
+
+def test_runner_v2_executes_product_console_script_lines_in_bash_blocks(tmp_path):
+    _v2_fixture_package(tmp_path)
+    candidate_path = tmp_path / "readme.md"
+    candidate_path.write_text(
+        "## Installation\n\n```bash\npip install -e .\ngit clone https://example.invalid/x.git\n```\n\n"
+        "## CLI\n\n```bash\n# inspect\nv2tool info Sample-Regular.ttf\nv2tool info Sample-Regular.ttf\n```\n\n"
+        "## Bad CLI\n\n```bash\nv2tool info Sample-Regular.ttf\nv2tool frobnicate\nv2tool info Missing.ttf\n```\n",
+        encoding="utf-8",
+    )
+    result = rr.python_verification_runner(
+        candidate_path, {"family": "testfam", "platform": "testplat", "install": {"published": False}},
+    )
+    by_index = {b["index"]: b for b in result["block_statuses"]}
+    assert by_index[0]["reason"] == "NOT-A-PRODUCT-COMMAND"
+    assert by_index[1]["status"] == "COMPILED+RAN CLEAN" and by_index[1]["commands_run"] == 2
+    bad = by_index[2]
+    assert bad["status"] == "BLOCKED-WITH-REASON"
+    assert bad["commands_run"] == 1 and bad["commands_failed"] == 2
+    assert bad["failed_lines"] == ["v2tool frobnicate", "v2tool info Missing.ttf"]
+    assert "RUNTIME-ERROR" in bad["failure_reasons"]
+    assert "FIXTURE-UNAVAILABLE" in bad["failure_reasons"]
+
+
+def test_product_console_scripts_parses_pyproject_and_setup_py(tmp_path):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n\n[project.scripts]\naspose-font = "aspose_font.cli:main"\n'
+        'aspose-font-reporting = "aspose_font.reporting:main"\n\n[tool.other]\nk = "v"\n',
+        encoding="utf-8",
+    )
+    assert rr._product_console_scripts(root) == {
+        "aspose-font": "aspose_font.cli:main", "aspose-font-reporting": "aspose_font.reporting:main",
+    }
+    (root / "pyproject.toml").unlink()
+    (root / "setup.py").write_text(
+        "setup(entry_points={'console_scripts': ['tool = pkg.cli:main']})\n", encoding="utf-8",
+    )
+    assert rr._product_console_scripts(root) == {"tool": "pkg.cli:main"}
+    assert rr._product_console_scripts(tmp_path / "nowhere") == {}
 
 
 def test_python_verification_runner_real_local_editable_install_and_execution(tmp_path):

@@ -44,8 +44,11 @@ Agent composes candidate ──► reports/repo-presenter-regen-full/{family}/{p
                 └──► ingest-candidate  (~101 deterministic result keys; ~64 hard gates block)
                 └──► recheck           (re-run after edits; --allowed-headings / --mermaid-only
                                         change-isolation gates vs rolling snapshot)
-                └──► verify-examples   (real Python runner via --python-runner; other languages
-                                        honest BLOCKED-WITH-REASON stubs)
+                └──► verify-examples   (python_verification_runner_v2 via --python-runner: stages
+                                        clone-cache fixtures, runs example chains, executes bash
+                                        blocks through the product's console scripts; other
+                                        languages honest BLOCKED-WITH-REASON stubs; re-runnable
+                                        in place from AWAITING_REVIEW)
                 └──► AWAITING_REVIEW → approve --note (human gate; input drift forces re-plan)
                 └──► push [--dry-run]  (disposable clone → surgical README-only diff →
                                         commit-tree plumbing → token push → gh pr create)
@@ -158,8 +161,12 @@ enforce the contract.
 3. **Composition**: agent writes candidate + dispositions per skill-doc contract; reads 2–3
    contamination-checked sibling candidates for tone; omit a framing sentence rather than invent.
 4. **Gating**: `ingest-candidate` (hard gates block) → fix → `recheck` (isolation gates).
-5. **Verification**: `verify-examples` (Python real; others named stubs — BLOCKED-WITH-REASON
-   must be listed by name to the reviewer, never silently shipped).
+5. **Verification**: `verify-examples` (Python real via runner v2 — fixtures staged from the
+   clone cache, continuation fragments run in their example chain, `bash` blocks executed line
+   by line through the product's own console scripts; statuses `FIXTURE-UNAVAILABLE` /
+   `DEPENDS-ON-FAILED-BLOCK` / `NOT-A-PRODUCT-COMMAND` / `UPSTREAM-BROKEN` are reviewer evidence;
+   others named stubs — BLOCKED-WITH-REASON must be listed by name to the reviewer, never
+   silently shipped). Re-runnable in place from `AWAITING_REVIEW` after a candidate edit.
 6. **Review**: human reviews the bundle; tweaks → `recheck`; the skill never self-approves.
 7. **Publication**: `approve` → `push --dry-run` rehearsal → live `push` (fresh authorization) →
    human PR review → agent squash-merge per invariant 9 → `verify` → clone cache fast-forward →

@@ -207,14 +207,15 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 4  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 5  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
 # check_at_a_glance_section_shape (hard), check_content_unit_disposition_text_diff (advisory),
 # and check_code_example_api_coverage_survives switching to the live extractor's fingerprint
 # (a pass/fail-semantics change for a hard gate that had been silently vacuous for 24 of 27
-# tracked products -- see its docstring)
+# tracked products -- see its docstring); 5 = ST-172 check_cli_subcommand_coverage (advisory,
+# subcommand-level CLI retention against the product's real argparse surface)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -5056,6 +5057,102 @@ def check_no_upstream_issue_leaked_into_install_or_quickstart(
     return findings
 
 
+# --- ST-172 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): CLI subcommand coverage
+_BASH_FENCE_RE = re.compile(r"```(?:bash|sh|shell)\n(.*?)```", re.DOTALL)
+_ADD_PARSER_RE = re.compile(r'add_parser\(\s*"([A-Za-z0-9][A-Za-z0-9_-]*)"')
+
+
+def product_console_scripts(clone_cache_root: str) -> dict[str, str]:
+    """`{script name: "module:function"}` declared by the product itself -- pyproject.toml
+    `[project.scripts]`, else setup.py `console_scripts`. Regex parse of the real files, never
+    an import; `{}` when the product declares none (every non-Python ecosystem today)."""
+    root = Path(clone_cache_root)
+    scripts: dict[str, str] = {}
+    pyproject = root / "pyproject.toml"
+    if pyproject.is_file():
+        text = pyproject.read_text(encoding="utf-8", errors="replace")
+        section = re.search(r"^\[project\.scripts\]\s*$(.*?)(?=^\[|\Z)", text, re.MULTILINE | re.DOTALL)
+        if section:
+            for m in re.finditer(r'^\s*"?([A-Za-z0-9_.-]+)"?\s*=\s*"([^"]+)"', section.group(1), re.MULTILINE):
+                scripts[m.group(1)] = m.group(2)
+    setup_py = root / "setup.py"
+    if not scripts and setup_py.is_file():
+        text = setup_py.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(r'["\']([A-Za-z0-9_.-]+)\s*=\s*([A-Za-z0-9_.]+:[A-Za-z0-9_]+)["\']', text):
+            scripts[m.group(1)] = m.group(2)
+    return scripts
+
+
+def real_cli_subcommands(clone_cache_root: str, entry_point: str) -> "set[str] | None":
+    """Every `add_parser("name")` in the module a console-script entry point (`pkg.mod:func`)
+    names, looked up under `src/` then the repo root. `None` when the module cannot be found
+    or defines no subparsers -- callers must treat that as "cannot verify", never as "zero"."""
+    module = entry_point.split(":", 1)[0]
+    rel = Path(*module.split("."))
+    root = Path(clone_cache_root)
+    for base in (root / "src", root):
+        for candidate in (base / f"{rel}.py", base / rel / "__init__.py"):
+            if candidate.is_file():
+                names = set(_ADD_PARSER_RE.findall(candidate.read_text(encoding="utf-8", errors="replace")))
+                return names or None
+    return None
+
+
+def _cli_subcommands_used(readme_text: str, script: str) -> set[str]:
+    used: set[str] = set()
+    pattern = re.compile(rf"(?m)^\s*{re.escape(script)}\s+([A-Za-z0-9][A-Za-z0-9_-]*)")
+    for block in _BASH_FENCE_RE.findall(readme_text):
+        used.update(pattern.findall(block))
+    return used
+
+
+def check_cli_subcommand_coverage(
+    readme_text: str, old_readme_text: str, clone_cache_root: str,
+) -> list[dict]:
+    """Heuristic (advisory) -- ST-172, readme-refresh-at-a-glance-retention-hardening-2026-09-02.
+    Per product console script, cross the REAL subcommand surface (`add_parser("...")` in the
+    script's own module) against the subcommands the old README demonstrated and the ones the
+    candidate demonstrates.
+
+    Real, confirmed gap this closes: font/python's source registers 39 subcommands, its old
+    README demonstrated 26 of them, and the regenerated candidate had silently dropped 17 --
+    while `check_cli_category_representation` reported `[]`, because that check only asks
+    whether each old comment-labelled CATEGORY still has at least one command, never whether the
+    individual real subcommands survived. Two finding kinds:
+    - `dropped_real_subcommand`: demonstrated by the old README, exists in source, absent from
+      the candidate -- a retention loss of a real capability demonstration.
+    - `unknown_subcommand`: demonstrated by the candidate but registered nowhere in source -- a
+      fabricated or stale command (measured 0 portfolio-wide on 2026-09-02; kept advisory here
+      until a second product proves the parse robust, then a promotion candidate).
+    No-op (`[]`) when the product declares no console scripts or the script module cannot be
+    parsed for subparsers (non-Python ecosystems, or a CLI built without argparse subparsers)
+    -- an honest "cannot verify", never a claim of coverage. Measured portfolio-wide 2026-09-02:
+    font/python is the ONLY product of 31 declaring console scripts (`[project.scripts]` /
+    `console_scripts`), so on the other 30 this check is inert by construction; a Go `cmd/`
+    binary, an npm `bin`, or a .NET tool has no detector here yet.
+    """
+    findings: list[dict] = []
+    for script, entry_point in product_console_scripts(clone_cache_root).items():
+        real = real_cli_subcommands(clone_cache_root, entry_point)
+        if not real:
+            continue
+        old_used = _cli_subcommands_used(old_readme_text or "", script)
+        new_used = _cli_subcommands_used(readme_text, script)
+        for sub in sorted((old_used & real) - new_used):
+            findings.append({
+                "script": script, "subcommand": sub, "kind": "dropped_real_subcommand",
+                "reason": f"the old README demonstrated `{script} {sub}` (a real subcommand registered in "
+                          f"{entry_point}) and the candidate no longer shows it anywhere",
+            })
+        for sub in sorted(new_used - real):
+            findings.append({
+                "script": script, "subcommand": sub, "kind": "unknown_subcommand",
+                "reason": f"the candidate demonstrates `{script} {sub}` but no add_parser(\"{sub}\") exists in "
+                          f"{entry_point}'s module -- fabricated or stale",
+            })
+    return findings
+
+
 _KEY_CAPABILITIES_SECTION_RE = re.compile(
     r"^##\s+Key Capabilities\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
 )
@@ -6569,6 +6666,41 @@ _CONTENT_UNIT_TARGET_SECTIONS = frozenset(_REQUIRED_SECTIONS) | {
 # but the allowlist membership question is identical to every prior entry in this list.
 
 
+def _merge_shaped_disposition_findings(
+    uid: str, entry: dict, disposition: str, valid_targets: "frozenset[str] | set[str]",
+) -> list[dict]:
+    """Shared shape rules for the content/structural coverage gates (the code-example gate has
+    its own `_CODE_UNIT_MERGE_DISPOSITIONS` form of the same rules). Found live 2026-09-02
+    (readme-refresh-at-a-glance-retention-hardening, font/python): MT041 added `corrected` to
+    `_CONTENT_UNIT_DISPOSITIONS` but both gates' branch was still `merged_* -> target_section,
+    else -> excluded_reason`, so every honest `corrected` entry was forced to carry a fake
+    `excluded_reason` to pass -- and its real `target_section` went unvalidated. `corrected` is
+    merge-shaped: it needs the real `target_section` the correction landed in AND a
+    `correction_reason` (>=15 chars) naming what was wrong, mirroring the code-example ledger.
+    """
+    findings: list[dict] = []
+    if disposition in ("merged_verbatim", "merged_reframed", "corrected"):
+        target = entry.get("target_section")
+        if target not in valid_targets:
+            findings.append({
+                "unit_id": uid,
+                "reason": f"{'corrected' if disposition == 'corrected' else 'merged'} disposition needs a real target_section, got {target!r}",
+            })
+        if disposition == "corrected" and len((entry.get("correction_reason") or "").strip()) < 15:
+            findings.append({
+                "unit_id": uid,
+                "reason": "corrected disposition needs a real correction_reason (>=15 chars) naming what the old text got wrong",
+            })
+    else:  # excluded
+        reason_text = (entry.get("excluded_reason") or "").strip()
+        if len(reason_text) < 15:
+            findings.append({
+                "unit_id": uid,
+                "reason": "excluded disposition needs a real excluded_reason (>=15 chars)",
+            })
+    return findings
+
+
 def check_content_unit_disposition_coverage(
     content_units: list[dict], dispositions: list[dict]
 ) -> list[dict]:
@@ -6584,7 +6716,9 @@ def check_content_unit_disposition_coverage(
     Checks: every `unit_id` has exactly one entry (no missing, no dupes, no dangling references
     to a `unit_id` absent from `content_units`); `classification`/`disposition` are valid enum
     values; a `merged_*` entry has a `target_section` in
-    `_REQUIRED_SECTIONS | {"Intro", "Project History"}`; an `excluded` entry has a real
+    `_REQUIRED_SECTIONS | {"Intro", "Project History"}`; a `corrected` entry is merge-shaped too
+    (real `target_section` + a real `correction_reason` >=15 chars -- see
+    `_merge_shaped_disposition_findings` for the 2026-09-02 fix); an `excluded` entry has a real
     `excluded_reason` (>=15 chars, not a placeholder); every entry whose `classification` is not
     `1_narrative_cta` must carry `verification.status != not_applicable_category_1` plus a
     non-empty `verification.evidence_ref` -- an "excluded because it's no longer true"
@@ -6625,20 +6759,7 @@ def check_content_unit_disposition_coverage(
         if disposition not in _CONTENT_UNIT_DISPOSITIONS:
             findings.append({"unit_id": uid, "reason": f"invalid disposition {disposition!r}"})
             continue
-        if disposition in ("merged_verbatim", "merged_reframed"):
-            target = entry.get("target_section")
-            if target not in _CONTENT_UNIT_TARGET_SECTIONS:
-                findings.append({
-                    "unit_id": uid,
-                    "reason": f"merged disposition needs a real target_section, got {target!r}",
-                })
-        else:  # excluded
-            reason_text = (entry.get("excluded_reason") or "").strip()
-            if len(reason_text) < 15:
-                findings.append({
-                    "unit_id": uid,
-                    "reason": "excluded disposition needs a real excluded_reason (>=15 chars)",
-                })
+        findings.extend(_merge_shaped_disposition_findings(uid, entry, disposition, _CONTENT_UNIT_TARGET_SECTIONS))
         verification = entry.get("verification") or {}
         status = verification.get("status")
         if status not in _CONTENT_UNIT_VERIFICATION_STATUSES:
@@ -8201,7 +8322,9 @@ def check_structural_unit_disposition_coverage(
     """Hard gate. Direct structural mirror of `check_content_unit_disposition_coverage`: every
     `unit_id` in `structural_units` needs exactly one, well-formed disposition entry (no
     missing/dupe/dangling references); `disposition` is a valid enum value; `merged_*` needs a
-    real `target_section`; `excluded` needs a real `excluded_reason` (>=15 chars);
+    real `target_section`; `corrected` needs a real `target_section` plus a `correction_reason`
+    (>=15 chars; the real font/python case: the old CLI block named a fixture that exists nowhere
+    in the tree); `excluded` needs a real `excluded_reason` (>=15 chars);
     `verification.status` must be one of `_STRUCTURAL_UNIT_VERIFICATION_STATUSES` (deliberately
     narrower than the prose-side enum -- `not_applicable_category_1`/`verified_by_corroboration`
     are prose-classification-specific and have no honest structural-unit analog) with a non-empty
@@ -8245,17 +8368,7 @@ def check_structural_unit_disposition_coverage(
         if disposition not in _STRUCTURAL_UNIT_DISPOSITIONS:
             findings.append({"unit_id": uid, "reason": f"invalid disposition {disposition!r}"})
             continue
-        if disposition in ("merged_verbatim", "merged_reframed"):
-            target = entry.get("target_section")
-            if target not in valid_targets:
-                findings.append({
-                    "unit_id": uid,
-                    "reason": f"merged disposition needs a real target_section, got {target!r}",
-                })
-        else:  # excluded
-            reason_text = (entry.get("excluded_reason") or "").strip()
-            if len(reason_text) < 15:
-                findings.append({"unit_id": uid, "reason": "excluded disposition needs a real excluded_reason (>=15 chars)"})
+        findings.extend(_merge_shaped_disposition_findings(uid, entry, disposition, valid_targets))
         verification = entry.get("verification") or {}
         status = verification.get("status")
         if status not in _STRUCTURAL_UNIT_VERIFICATION_STATUSES:
