@@ -1215,6 +1215,83 @@ def test_push_requires_a_real_acting_model(tmp_path, monkeypatch):
         rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="   ")
 
 
+def test_push_dry_run_twice_survives_read_only_git_objects_in_the_reused_work_dir(tmp_path, monkeypatch):
+    """Found live 2026-09-02 (tex/python, run rr-20260902T080803Z-47f9708b4c7a): git writes loose
+    objects read-only, so on Windows the plain shutil.rmtree of the previous --dry-run's
+    disposable clone raised [WinError 5] and BLOCKED the run before the live push touched the
+    network -- the skill's own "rehearse, then push" sequence could never complete. Reproduced
+    here platform-independently by marking a file in the work dir read-only before the second
+    push; _rmtree_force must clear the bit and proceed."""
+    import os
+    import stat as _stat
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-rmtree")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model")
+    work_dir = repo_root / "reports" / "readme_refresh_runs" / "_scratch" / f"testfam-testplat-{run_id}"
+    objects = [p for p in (work_dir / ".git" / "objects").rglob("*") if p.is_file()]
+    assert objects, "the rehearsal must have produced real git objects"
+    for obj in objects:
+        os.chmod(obj, _stat.S_IREAD)  # the exact state git leaves loose objects in
+
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model")
+    assert manifest["state"] == "APPROVED", "a second rehearsal must reuse the work dir cleanly"
+    receipt = json.loads((rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json").read_text(encoding="utf-8"))
+    assert receipt["dry_run"] is True
+
+
+def test_blocked_push_can_be_recovered_and_retried_to_pushed(tmp_path, monkeypatch):
+    """Found live 2026-09-02 (tex/python): a BLOCKED push records resume_state=PUSHING, so
+    `recover` returned the run to PUSHING and the retry's unconditional PUSHING -> PUSHING
+    transition was refused -- the documented "push fails -> BLOCKED -> recover -> retry" path
+    never completed. Reproduced: first push fails (no GH_TOKEN, after the local plumbing
+    commit), recover, second push with the token reaches PUSHED."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-push-recover")
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+    pr_url = "https://github.com/test-org/test-repo/pull/7"
+
+    def _runner(cmd, **kwargs):
+        if cmd[0] == "git":
+            return subprocess.run(cmd, **kwargs)
+        if cmd[:2] == ["gh", "api"]:
+            class _Result:
+                returncode = 0
+                stdout = json.dumps({
+                    "permissions": {"push": True, "admin": False},
+                    "default_branch": "main", "archived": False, "disabled": False,
+                })
+                stderr = ""
+            return _Result()
+        if cmd[:3] == ["gh", "pr", "create"]:
+            class _Result:
+                returncode = 0
+                stdout = pr_url + "\n"
+                stderr = ""
+            return _Result()
+        raise AssertionError(f"unexpected command in test: {cmd}")
+
+    rr.configure(repo_root=repo_root, command_runner=_runner)
+    run_id = _advance_to_approved(repo_root)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="GH_TOKEN"):
+        rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    blocked = rr.status("testfam", "testplat", run_id)
+    assert blocked["state"] == "BLOCKED" and blocked["resume_state"] == "PUSHING"
+
+    recovered = rr.recover_run("testfam", "testplat", run_id, reason="token exported")
+    assert recovered["state"] == "PUSHING"
+
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    assert manifest["state"] == "PUSHED"
+    receipt = json.loads((rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json").read_text(encoding="utf-8"))
+    assert receipt["pr_url"] == pr_url
+    assert receipt["branch"] in _run_git(["branch", "-a"], upstream_dir)
+
+
 def test_push_commit_trailer_uses_the_caller_supplied_acting_model_not_a_hardcoded_literal(
     tmp_path, monkeypatch,
 ):

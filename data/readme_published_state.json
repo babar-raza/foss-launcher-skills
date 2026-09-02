@@ -294,6 +294,20 @@
       "merge_commit_sha": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
       "last_reconciled_at": "2026-09-01T05:57:48.912241Z",
       "reconciliation_state": "IN_SYNC"
+    },
+    {
+      "family": "tex",
+      "platform": "python",
+      "last_known_publication": "2026-09-02",
+      "evidence": "reconciled by publication_reconciler.py: PR #1 (https://github.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/pull/1), merged 2026-09-02T10:10:29Z",
+      "pr_number": 1,
+      "merged_at": "2026-09-02T10:10:29Z",
+      "merge_commit_sha": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+      "last_reconciled_at": "2026-09-02T10:11:23.492244Z",
+      "reconciliation_state": "IN_SYNC",
+      "merged_by_login": "babar-raza",
+      "published_blob_sha256": "390a1ac721ab784f86dd2b82a203e644509d743adf175c183334795cd8d6aa1d",
+      "published_commit": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c"
     }
   ]
 }

@@ -54,6 +54,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -4480,7 +4481,13 @@ def push(
                 "exception."
             )
 
-        _transition(manifest, "PUSHING", checkpoint="pushing_started")
+        # Found live 2026-09-02 (tex/python): a push that BLOCKS records resume_state=PUSHING
+        # (the state it was already in), so `recover` lands the run back in PUSHING -- and this
+        # unconditional PUSHING -> PUSHING transition then refused every retry. The documented
+        # "push fails -> BLOCKED -> recover -> retry" path could never complete. A recovered run
+        # is already in PUSHING; only enter it when coming from APPROVED.
+        if manifest["state"] != "PUSHING":
+            _transition(manifest, "PUSHING", checkpoint="pushing_started")
 
         scratch = Path(scratch_root) if scratch_root else _reports_root / "readme_refresh_runs" / "_scratch"
         scratch.mkdir(parents=True, exist_ok=True)
@@ -4534,6 +4541,23 @@ def push(
         return manifest
 
 
+def _rmtree_force(path: Path) -> None:
+    """`shutil.rmtree` that clears the read-only bit on failure and retries the one entry.
+    Found live 2026-09-02 (tex/python, run rr-20260902T080803Z-47f9708b4c7a): git writes every
+    loose object under `.git/objects/` read-only, so on Windows the plain `shutil.rmtree` of a
+    previous `push --dry-run`'s disposable clone raised `[WinError 5] Access is denied` on the
+    first object file -- which means the skill's own documented sequence ("rehearse with
+    --dry-run, then push live") could never complete on this platform: the live push always
+    inherited the rehearsal's work_dir and BLOCKED the run before touching the network. Only
+    the read-only bit is cleared (chmod +w on the failing path, then retry); any other error
+    still propagates."""
+    def _on_error(func, failing_path, _exc_info):
+        os.chmod(failing_path, stat.S_IWRITE | stat.S_IREAD)
+        func(failing_path)
+
+    shutil.rmtree(path, onerror=_on_error)
+
+
 def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str) -> dict:
     family, platform, run_id = manifest["family"], manifest["platform"], manifest["run_id"]
     branch = f"readme-refresh/{_now().strftime('%Y-%m-%d')}"
@@ -4542,7 +4566,7 @@ def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str
         raise ReadmeRefreshRunError(f"No approved candidate found at {candidate_path}")
 
     if work_dir.exists():
-        shutil.rmtree(work_dir)
+        _rmtree_force(work_dir)
     _git("clone", "--quiet", manifest["clone_url"], str(work_dir), cwd=_repo_root)
     default_branch = _git("symbolic-ref", "--short", "HEAD", cwd=work_dir)
     _git("checkout", "-b", branch, cwd=work_dir)
