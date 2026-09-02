@@ -8987,6 +8987,25 @@ def _candidate_code_fingerprint(readme_text: str) -> set[str]:
     return fingerprint
 
 
+def _receiver_agnostic_call_survives(call: str, candidate_fingerprint: set[str]) -> bool:
+    """True when `call` is a local-variable-qualified method call (`cellA1.setStyle`: receiver
+    starts lowercase, is not itself dotted further, and is not a bash `program subcommand` pair)
+    whose METHOD segment appears on some receiver in the candidate's own fingerprint. A class /
+    module-qualified call (uppercase receiver, or a multi-segment path such as
+    `aspose.three.Scene.save`) is never matched this way -- exactness stays for those."""
+    if " " in call or call.count(".") != 1:
+        return False
+    receiver, method = call.split(".", 1)
+    if not receiver or not receiver[0].islower() or not method:
+        return False
+    # The candidate side may carry the method bare (`setStyle`) when the extractor sees a
+    # chained call such as `getCell2("A1").setStyle(...)` -- same API, different receiver shape.
+    return any(
+        other != call and (other == method or ("." in other and other.rsplit(".", 1)[1] == method))
+        for other in candidate_fingerprint
+    )
+
+
 def check_code_example_api_coverage_survives(
     readme_text: str, dispositions: list[dict], code_units: "list[dict] | None" = None,
 ) -> list[dict]:
@@ -9022,9 +9041,25 @@ def check_code_example_api_coverage_survives(
     and 3d/python's own old At-a-Glance blocks); the ledger field is only the fallback for a
     dangling id or when `code_units` is not supplied (the pre-TC-05 behavior, kept for direct
     callers). Findings name `fingerprint_source` so a reviewer can tell which path decided.
-    Measured impact (2026-09-02): 3d/java c0011 (3 of 5 `PbrMaterial` setter calls dropped) and
-    3d/python c0006b/e/f (mesh/glTF API demonstrations dropped) become real findings -- true
-    positives, exactly the FontSubsetter class -- and are filed, not silently absorbed.
+    **Receiver-variable tolerance (found live the first time the un-inerted gate ran against
+    the whole portfolio, 2026-09-02):** the fingerprint extractor qualifies a call by its
+    receiver text, so `cellA1.setStyle` (cells/typescript c0002e) does not equal the candidate's
+    chained `getCell2("A1").setStyle`, and `pbr.setAlbedo` (3d/java c0011) does not equal the
+    candidate's `material.setAlbedo` -- the identical API demonstrated under a different local
+    variable name, pure false positives (the pre-tolerance measurement had wrongly counted
+    3d/java as a true positive). A call whose receiver starts with a lowercase letter is a
+    LOCAL VARIABLE (`pbr.`, `cellA1.`, `scene.`), not a class or module, so for those the call
+    survives when the same METHOD segment appears on any receiver -- or bare, as the extractor
+    renders a chained call -- in the candidate (`_receiver_agnostic_call_survives`). A class /
+    module-qualified call (`FontSubsetter.subset_for_web_with_coverage`, `GltfFormat.
+    create_save_options`) and any multi-segment path keep exact matching -- the FontSubsetter
+    defect class this gate exists for is never softened.
+    Measured impact after the tolerance (2026-09-02, full portfolio): 3d/python c0006b/e/f
+    (`mesh.control_points.add`/`create_polygon`, `GltfFormat.create_save_options`/
+    `FileFormat.get_format_by_extension`, `json.loads` stream inspection -- real code
+    demonstrations the candidate only mentions in prose) become real findings and are filed;
+    pdf/python gains 4 on top of its pre-existing dirt; 3d/java, cells/typescript and tex/python
+    are clean.
     """
     candidate_fingerprint = _candidate_code_fingerprint(readme_text)
     live_units = {unit.get("unit_id"): unit for unit in (code_units or [])}
@@ -9043,7 +9078,10 @@ def check_code_example_api_coverage_survives(
             fingerprint_source = "ledger"
         if not fingerprint:
             continue
-        survived = [call for call in fingerprint if call in candidate_fingerprint]
+        survived = [
+            call for call in fingerprint
+            if call in candidate_fingerprint or _receiver_agnostic_call_survives(call, candidate_fingerprint)
+        ]
         if len(survived) / len(fingerprint) < 0.5:
             findings.append({
                 "unit_id": entry.get("unit_id"),

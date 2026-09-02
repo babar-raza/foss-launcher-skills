@@ -9485,6 +9485,60 @@ def test_check_code_example_api_coverage_survives_falls_back_to_ledger_for_dangl
     assert len(findings) == 1 and findings[0]["fingerprint_source"] == "ledger"
 
 
+def test_check_code_example_api_coverage_survives_tolerates_receiver_variable_rename():
+    # Found live on the first portfolio run of the un-inerted gate (2026-09-02): the same API
+    # demonstrated under a different local variable (`pbr.` -> `material.`, 3d/java) or as a
+    # chained call the extractor renders bare (`cellA1.setStyle` -> `getCell2("A1").setStyle`,
+    # cells/typescript) must never count as a dropped call.
+    code_units = checks.extract_old_readme_code_units(_OLD_README_WITH_PBR_EXAMPLE)
+    dispositions = [{
+        "unit_id": code_units[0]["unit_id"], "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification": {"status": "verified_against_source", "evidence_ref": "src/PbrMaterial.java"},
+    }]
+    renamed_receiver = (
+        "## Additional Examples\n\n```java\n"
+        "PbrMaterial material = new PbrMaterial();\n"
+        "material.setAlbedo(new Vector3(0.8, 0.2, 0.2));\n"
+        "material.setMetallicFactor(0.1);\n"
+        "material.setRoughnessFactor(0.6);\n"
+        "```\n"
+    )
+    assert checks.check_code_example_api_coverage_survives(renamed_receiver, dispositions, code_units=code_units) == []
+    chained = (
+        "## Additional Examples\n\n```java\n"
+        "scene.getMaterial(\"m\").setAlbedo(new Vector3(1, 1, 1));\n"
+        "scene.getMaterial(\"m\").setMetallicFactor(0.5);\n"
+        "scene.getMaterial(\"m\").setRoughnessFactor(0.3);\n"
+        "```\n"
+    )
+    assert checks.check_code_example_api_coverage_survives(chained, dispositions, code_units=code_units) == []
+
+
+def test_check_code_example_api_coverage_survives_never_softens_class_qualified_calls():
+    # The FontSubsetter defect class: a CLASS-qualified call stays exact -- a different class
+    # exposing a same-named method is not the same API.
+    old = (
+        "# Old\n\n## Subsetting\n\n```python\n"
+        "from aspose_font.subsetter import FontSubsetter\n"
+        "result = FontSubsetter.subset_for_web_with_coverage(font, presets=(\"latin\",))\n"
+        "```\n"
+    )
+    code_units = checks.extract_old_readme_code_units(old)
+    dispositions = [{
+        "unit_id": code_units[0]["unit_id"], "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification": {"status": "verified_against_source", "evidence_ref": "subsetter.py"},
+    }]
+    other_class = (
+        "## Additional Examples\n\n```python\n"
+        "result = OtherTool.subset_for_web_with_coverage(font)\n"
+        "```\n"
+    )
+    findings = checks.check_code_example_api_coverage_survives(other_class, dispositions, code_units=code_units)
+    assert len(findings) == 1
+
+
 def test_candidate_code_fingerprint_ignores_mermaid_fences():
     text = (
         "```mermaid\nflowchart TD\n  A[\"Load files (files.load)\"]\n```\n"
