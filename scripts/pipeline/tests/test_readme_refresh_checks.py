@@ -9192,6 +9192,165 @@ def test_content_unit_text_diff_skips_dangling_unit_id():
     assert checks.check_content_unit_disposition_text_diff([], dispositions, "anything") == []
 
 
+# --- build_retention_report / render_retention_report_markdown (TC-06) and the skeleton oracle
+# (TC-07), readme-refresh-at-a-glance-retention-hardening-2026-09-02.
+
+_RETENTION_OLD_README = (
+    "# aspose-tex\n\n"
+    "[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+    "Pure-Python library for TeX processing.\n\n"
+    "## Requirements\n\n- Python 3.10+\n\n"
+    "## Quick Start\n\n### PDF output\n\n"
+    "```python\nfrom aspose_tex import TeXJob\njob = TeXJob(source, device)\njob.run()\n```\n\n"
+    "`TeXJob.messages` returns a copy of the messages collected during the most recent run.\n\n"
+    "## Options\n\n```python\nopts = TeXOptions(job_name=\"hello\")\n```\n"
+)
+_RETENTION_CANDIDATE = (
+    "# Aspose.TeX FOSS for Python\n\n"
+    "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n"
+    "Pure-Python library for TeX processing.\n\n"
+    "## Installation\n\n**Requirements**: Python 3.10+.\n\n"
+    "## Key Capabilities\n\n- Collect run diagnostics via `TeXJob.messages`.\n\n"
+    "## Quick Start\n\n```python\nfrom aspose_tex import TeXJob\njob = TeXJob(source, device)\njob.run()\n```\n\n"
+    "## Additional Examples\n\n### Job Options\n\n```python\nopts = TeXOptions(job_name=\"hello\")\n```\n"
+)
+
+
+def _retention_ledgers():
+    content = [
+        {"unit_id": "u0001", "disposition": "merged_verbatim", "target_section": "Intro",
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+        {"unit_id": "u0002", "disposition": "merged_reframed", "target_section": "Installation",
+         "salient_tokens": ["3.10"],
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+        {"unit_id": "u0003", "disposition": "merged_reframed", "target_section": "Key Capabilities",
+         "salient_tokens": ["TeXJob.messages"],
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+    ]
+    code = [
+        {"unit_id": "c0001", "disposition": "merged_verbatim", "target_section": "Quick Start",
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+        {"unit_id": "c0002", "disposition": "merged_verbatim", "target_section": "Additional Examples",
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+    ]
+    structure = [
+        {"unit_id": "s0001", "heading": "Options", "disposition": "merged_verbatim",
+         "target_section": "Additional Examples",
+         "verification": {"status": "verified_against_source", "evidence_ref": "x"}},
+    ]
+    badges = [
+        {"unit_id": "b0001", "action": "preserved", "category": "license", "new_badge_unit_id": "b0001",
+         "verification": {"status": "verified_against_source", "evidence_ref": "LICENSE"}},
+    ]
+    return content, structure, code, badges
+
+
+def test_build_retention_report_emits_one_row_per_extracted_unit_and_heading():
+    content, structure, code, badges = _retention_ledgers()
+    report = checks.build_retention_report(
+        _RETENTION_OLD_README, _RETENTION_CANDIDATE, content_dispositions=content,
+        structure_dispositions=structure, code_dispositions=code, badge_dispositions=badges,
+    )
+    kinds = {}
+    for row in report["rows"]:
+        kinds.setdefault(row["kind"], []).append(row["unit_id"])
+    assert kinds["content"] == [u["unit_id"] for u in checks.extract_old_readme_content_units(_RETENTION_OLD_README)]
+    assert kinds["code"] == [u["unit_id"] for u in checks.extract_old_readme_code_units(_RETENTION_OLD_README)]
+    assert kinds["structural"] == ["s0001"]
+    assert kinds["badge"] == ["b0001"]
+    # every H1/H2/H3 of the old README is a row: title, Requirements, Quick Start, PDF output, Options
+    assert len(kinds["heading"]) == 5
+
+
+def test_build_retention_report_fidelity_names_missing_words_for_a_lossy_reframe():
+    # The real tex/python u0010 class: "returns a copy of the messages collected during the most
+    # recent run" reframed to "Collect run diagnostics via `TeXJob.messages`" -- the merge gate
+    # passes on the token, the fidelity score names exactly what was lost.
+    content, structure, code, badges = _retention_ledgers()
+    report = checks.build_retention_report(
+        _RETENTION_OLD_README, _RETENTION_CANDIDATE, content_dispositions=content,
+        structure_dispositions=structure, code_dispositions=code, badge_dispositions=badges,
+    )
+    row = next(r for r in report["rows"] if r["kind"] == "content" and "TeXJob.messages" in r["label"])
+    assert row["verdict"]["target_traced"] is True  # the hard gate is satisfied ...
+    fidelity = row["verdict"]["fidelity"]
+    assert fidelity["score"] is not None and fidelity["score"] < 1.0  # ... yet content was lost
+    for lost in ("copy", "collected", "recent"):
+        assert lost in fidelity["missing_words"]
+
+
+def test_build_retention_report_marks_headings_present_absorbed_or_absent():
+    content, structure, code, badges = _retention_ledgers()
+    report = checks.build_retention_report(
+        _RETENTION_OLD_README, _RETENTION_CANDIDATE, content_dispositions=content,
+        structure_dispositions=structure, code_dispositions=code, badge_dispositions=badges,
+    )
+    by_label = {r["label"]: r["verdict"]["status"] for r in report["rows"] if r["kind"] == "heading"}
+    assert by_label["## Quick Start"] == "present"
+    assert by_label["## Requirements"] == "absorbed"  # survives only as the bold **Requirements** label
+    assert by_label["### PDF output"] == "absent"
+    assert "heading:h0004" in report["needs_attention"]
+
+
+def test_build_retention_report_marks_missing_disposition_as_undisposed_and_verbatim_claims_not_found():
+    content, structure, code, badges = _retention_ledgers()
+    content = content[1:]  # drop u0001's entry
+    code[0]["disposition"] = "merged_verbatim"
+    candidate = _RETENTION_CANDIDATE.replace("job = TeXJob(source, device)\njob.run()", "pdf_bytes = TeXJob(source, device).run()")
+    report = checks.build_retention_report(
+        _RETENTION_OLD_README, candidate, content_dispositions=content,
+        structure_dispositions=structure, code_dispositions=code, badge_dispositions=badges,
+    )
+    statuses = {(r["kind"], r["unit_id"]): r["verdict"]["status"] for r in report["rows"]}
+    assert statuses[("content", "u0001")] == "undisposed"
+    assert statuses[("code", "c0001")] == "not_found"
+    assert "content:u0001" in report["needs_attention"]
+    assert "code:c0001" in report["needs_attention"]
+
+
+def test_build_retention_report_is_deterministic_and_renders_one_row_per_unit():
+    content, structure, code, badges = _retention_ledgers()
+    args = dict(content_dispositions=content, structure_dispositions=structure,
+                code_dispositions=code, badge_dispositions=badges)
+    first = checks.build_retention_report(_RETENTION_OLD_README, _RETENTION_CANDIDATE, **args)
+    second = checks.build_retention_report(_RETENTION_OLD_README, _RETENTION_CANDIDATE, **args)
+    assert first == second
+    markdown = checks.render_retention_report_markdown(first, title="t")
+    assert markdown == checks.render_retention_report_markdown(second, title="t")
+    table_rows = [line for line in markdown.splitlines() if line.startswith("| ") and not line.startswith("| unit")]
+    assert len(table_rows) == len(first["rows"])
+    assert "Needs attention" in markdown
+
+
+def test_section_skeleton_classifies_block_kinds():
+    body = (
+        "\n*Note: a caveat.*\n\n```mermaid\nflowchart TD\n  A --> B\n```\n\n"
+        "- one\n- two\n  continued\n\n| a | b |\n|---|---|\n\n> quote\n\n### Sub\n\n"
+        "<details>\n<summary>x</summary>\n\n```python\nprint(1)\n```\n\n</details>\n"
+    )
+    assert checks.section_skeleton(body) == (
+        "para", "fence:mermaid", "bullets", "table", "quote", "h3", "details", "fence:code", "/details",
+    )
+
+
+def test_portfolio_skeleton_singletons_flags_only_the_unique_opening_shape():
+    clean = {"At a Glance": ("fence:mermaid",), "Key Capabilities": ("bullets",), "Additional Examples": ("details",)}
+    noted = {"At a Glance": ("para", "fence:mermaid"), "Key Capabilities": ("bullets",), "Additional Examples": ("h3", "fence:code")}
+    singletons = checks.portfolio_skeleton_singletons({"a/x": clean, "b/y": clean, "tex/python": noted})
+    assert [(s["product"], s["section"], s["opening_shape"]) for s in singletons] == [
+        ("tex/python", "At a Glance", ["para", "fence:mermaid"]),
+    ]
+    # Additional Examples is excluded (legitimately varied) and a lone product has nothing to compare against.
+    assert checks.portfolio_skeleton_singletons({"only/one": noted}) == []
+
+
+def test_candidate_skeletons_drop_the_heading_line_from_each_section_body():
+    skeletons = checks.candidate_skeletons(_RETENTION_CANDIDATE)
+    assert skeletons["Quick Start"] == ("fence:code",)
+    assert skeletons["Installation"] == ("para",)
+    assert skeletons["__preamble__"][0] == "para"
+
+
 def test_code_example_evidence_resolves_reuses_content_unit_evidence_resolves(tmp_path):
     # TC-HARDEN-74's own explicit reuse requirement: check_content_unit_evidence_resolves is
     # reused VERBATIM as the code-example evidence-resolution gate -- no new implementation.

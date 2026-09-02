@@ -1638,6 +1638,66 @@ def test_ingest_candidate_blocks_on_prose_in_at_a_glance_section(tmp_path, monke
     assert manifest["state"] == "VERIFYING_EXAMPLES"
 
 
+def test_retention_report_is_read_only_and_covers_every_unit(tmp_path):
+    # TC-06: no run-id, no lock, no marker, no run directory -- pure inspection.
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    candidate_dir = rr._candidate_readme_path("testfam", "testplat").parent
+    before = sorted(p.name for p in candidate_dir.iterdir())
+    runs_dir = repo_root / "reports" / "readme_refresh_runs" / "testfam" / "testplat"
+    assert not runs_dir.exists()
+
+    payload = rr.retention_report("testfam", "testplat")
+
+    assert sorted(p.name for p in candidate_dir.iterdir()) == before, "must not write a marker or anything else"
+    assert not runs_dir.exists(), "must not create a run directory"
+    assert not (repo_root / "reports" / "locks").exists() or not list((repo_root / "reports" / "locks").rglob("*")), "must not lock"
+    assert payload["old_readme_found"] is True
+    report = payload["report"]
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    old = (clone_cache / "README.md").read_text(encoding="utf-8")
+    content_ids = [u["unit_id"] for u in rr.checks.extract_old_readme_content_units(old)]
+    assert [r["unit_id"] for r in report["rows"] if r["kind"] == "content"] == content_ids
+    assert report["needs_attention"] == [], "the shared clean fixture must retain everything"
+
+
+def test_retention_report_cli_prints_markdown_and_json_and_writes_out(tmp_path, capsys):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    assert rr.main(["retention-report", "testfam", "testplat"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("# Retention report -- testfam/testplat")
+    assert "## Prose content units" in out
+
+    assert rr.main(["retention-report", "testfam", "testplat", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["family"] == "testfam" and "rows" in payload["report"]
+
+    target = tmp_path / "evidence" / "retention.md"
+    assert rr.main(["retention-report", "testfam", "testplat", "--out", str(target)]) == 0
+    assert target.read_text(encoding="utf-8").startswith("# Retention report")
+
+
+def test_ingest_candidate_and_recheck_write_the_retention_report_beside_result_json(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc06")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    report_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "retention-report.md"
+    assert report_path.is_file()
+    first = report_path.read_text(encoding="utf-8")
+    assert first.startswith("# Retention report -- testfam/testplat")
+    rr.recheck("testfam", "testplat", run_id)
+    assert report_path.read_text(encoding="utf-8") == first  # deterministic across an unchanged recheck
+
+
 def test_run_deterministic_checks_passes_live_code_units_to_api_coverage_check(tmp_path):
     # TC-05: the shared fixture's code ledger carries no api_call_fingerprint (the real live
     # shape on 354/475 entries). With the live units joined in, the gate is real: dropping the
@@ -2166,6 +2226,35 @@ def test_audit_portfolio_reports_clean_and_dirty_products(tmp_path):
     assert "required_sections" in by_key[("testfam2", "testplat2")]["hard_gate_findings"]
     assert by_key[("testfam2", "testplat2")]["hard_gate_findings"]["required_sections"] > 0
     assert result["skipped"] == []
+
+
+def test_audit_portfolio_reports_skeleton_singletons(tmp_path):
+    # TC-07 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the cross-product
+    # signal -- a second product whose At-a-Glance opens with prose (the real tex/python shape)
+    # is a singleton against the clean fixture; identical shapes produce no singleton.
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    _add_second_product(repo_root)
+    noted = _GOOD_CANDIDATE.replace(
+        "## At a Glance\n\n```mermaid", "## At a Glance\n\n*Note: the diagram below is illustrative.*\n\n```mermaid",
+    )
+    candidate_dir = rr._candidate_readme_path("testfam2", "testplat2").parent
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    (candidate_dir / "readme.md").write_text(noted, encoding="utf-8")
+    # A third product with the clean shape, so the clean opening is held by two products and
+    # only the prose-first opening is a genuine singleton.
+    _add_second_product(repo_root, family="testfam3", platform="testplat3")
+    third_dir = rr._candidate_readme_path("testfam3", "testplat3").parent
+    third_dir.mkdir(parents=True, exist_ok=True)
+    (third_dir / "readme.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+
+    result = rr.audit_portfolio()
+    at_a_glance = [s for s in result["skeleton_singletons"] if s["section"] == "At a Glance"]
+    assert [(s["product"], s["opening_shape"]) for s in at_a_glance] == [
+        ("testfam2/testplat2", ["para", "fence:mermaid"]),
+    ]
+    assert at_a_glance[0]["portfolio_size"] == 3
 
 
 def test_audit_portfolio_skips_product_with_no_candidate_yet(tmp_path):

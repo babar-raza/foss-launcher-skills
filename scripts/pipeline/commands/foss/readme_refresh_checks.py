@@ -10358,6 +10358,439 @@ def build_dependency_verification_matrix(
     return {"rows": rows, "scoped_claims": scoped_claims}
 
 
+# --- TC-06/TC-07 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): retention report
+# and portfolio skeleton oracle. Pure builders/renderers -- deliberately NOT named check_* (the
+# template-contract parity gate counts `^def check_`), never a gate, never a file write; the
+# run module owns I/O. Every "where in the candidate" verdict below reuses the exact matching
+# primitives the gates already use (`_normalize_for_verbatim_prose_match`, `_token_matches_body`,
+# `_candidate_code_fingerprint`, `_normalize_for_drop_match`, the text-diff checks themselves) --
+# the report introduces no new matching semantics, only visibility.
+
+_RETENTION_CONTENT_WORD_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]{3,}")
+# Function words of 4+ letters that carry no retention signal -- kept small and obvious; the
+# fidelity score is a reviewer aid, never a gate, so this list does not need to be complete.
+_RETENTION_STOPWORDS = frozenset(
+    "this that with from into your which their there these those have been will also when than "
+    "then them they what where were while about after before other more most such only same each "
+    "over under some very just like does done both either every much many here very".split()
+)
+_ANY_LEVEL_HEADING_RE = re.compile(r"^(#{1,3})\s+(.+?)\s*$", re.MULTILINE)
+
+
+def _retention_content_words(text: str) -> set[str]:
+    return {w.lower() for w in _RETENTION_CONTENT_WORD_RE.findall(text)} - _RETENTION_STOPWORDS
+
+
+def _retention_target_body(sections: dict[str, str], target_section: "str | None") -> str:
+    if not target_section:
+        return ""
+    key = "__preamble__" if target_section in ("Intro", "Project History") else target_section
+    return sections.get(key, "")
+
+
+def _retention_found_in(sections: dict[str, str], verbatim: "str | None") -> list[str]:
+    """Section names whose body carries the unit's verbatim (normalized) text. Deliberately NOT
+    an any-token match: generic salient tokens (`TeX`, `PDF`) match nearly every section and
+    would make the column meaningless; the ledger's own target claim is reported separately via
+    the merge gate itself (`target_traced`)."""
+    if not verbatim:
+        return []
+    return [name for name, body in sections.items() if verbatim in _normalize_for_verbatim_prose_match(body)]
+
+
+def _retention_fidelity(excerpt: str, target_body: str, candidate_text: str) -> dict:
+    """Share of the excerpt's content words present in the target section (whole-document
+    fallback), with the missing words named -- the reviewer-facing signal for a sub-claim lost
+    inside a `merged_reframed` unit (tex/python u0010: 'copy', 'collected', 'recent' missing).
+    A score, never a gate: 0.71 was a real loss and 0.62 a faithful reframe on the same file."""
+    words = _retention_content_words(excerpt)
+    if not words:
+        return {"score": None, "scope": "n/a", "missing_words": []}
+    target_words = _retention_content_words(target_body)
+    doc_words = _retention_content_words(candidate_text)
+    in_target = {w for w in words if w in target_words}
+    if target_body and len(in_target) / len(words) >= 0.5:
+        return {
+            "score": round(len(in_target) / len(words), 2), "scope": "target_section",
+            "missing_words": sorted(words - in_target),
+        }
+    in_doc = {w for w in words if w in doc_words}
+    return {
+        "score": round(len(in_doc) / len(words), 2), "scope": "document",
+        "missing_words": sorted(words - in_doc),
+    }
+
+
+def _retention_by_id(dispositions: "list[dict] | None") -> dict[str, dict]:
+    return {str(e.get("unit_id")): e for e in (dispositions or []) if isinstance(e, dict)}
+
+
+def build_retention_report(
+    old_readme_text: str, candidate_text: str, *,
+    content_dispositions: "list[dict] | None" = None,
+    structure_dispositions: "list[dict] | None" = None,
+    code_dispositions: "list[dict] | None" = None,
+    badge_dispositions: "list[dict] | None" = None,
+) -> dict:
+    """The per-unit retention table (TC-06). Rows for every content / structural / code / badge
+    unit the extractors see in the OLD README, plus every H1/H2/H3 heading (headings are not
+    units unless fenced-dominant -- the blind spot that let `### PDF output` vanish with no
+    ledger entry, cleared only by an accidental API-table substring), each with its disposition,
+    target section, where the candidate carries it, the match basis, and (for prose reframes) a
+    fidelity score with the missing content words named. "0 hard-gate findings" is a pass/fail;
+    this is what a reviewer reads to answer "is everything in the original README retained".
+
+    Verdict vocabulary (`verdict.status`): `verbatim` (exact normalized text present),
+    `reframed` (fidelity >= 0.5), `reframed_low_fidelity`, `corrected`, `excluded`,
+    `undisposed` (no ledger entry), `api_survived` / `api_dropped` (code units by live
+    fingerprint), `diagram` (a mermaid code unit, gated elsewhere), `not_found` (a verbatim/
+    merge claim with no trace anywhere), `present` / `absorbed` / `absent` (headings).
+    """
+    sections = _split_into_sections(candidate_text)
+    normalized_candidate = _normalize_for_verbatim_prose_match(candidate_text)
+    candidate_fingerprint = _candidate_code_fingerprint(candidate_text)
+    rows: list[dict] = []
+
+    content_units = extract_old_readme_content_units(old_readme_text)
+    by_id = _retention_by_id(content_dispositions)
+    for unit in content_units:
+        entry = by_id.get(unit["unit_id"])
+        disposition = (entry or {}).get("disposition")
+        target = (entry or {}).get("target_section")
+        excerpt = unit.get("excerpt") or ""
+        verbatim_norm = _normalize_for_verbatim_prose_match(excerpt)
+        is_verbatim = bool(verbatim_norm) and verbatim_norm in normalized_candidate
+        fidelity = _retention_fidelity(excerpt, _retention_target_body(sections, target), candidate_text)
+        found_in = _retention_found_in(sections, verbatim_norm if is_verbatim else None)
+        # The ledger's own target/section claim, decided by the merge gate itself (single-entry
+        # call) -- the same function the hard gate runs, never a re-implementation.
+        target_traced = (
+            bool(entry) and entry.get("disposition") in ("merged_verbatim", "merged_reframed", "corrected", "excluded")
+            and check_content_unit_merged_into_target_section(candidate_text, [entry]) == []
+        )
+        if target_traced and target and target not in found_in:
+            found_in = found_in + [f"{target} (traced)"]
+        if entry is None:
+            status, basis = "undisposed", "none"
+        elif disposition == "excluded":
+            status, basis = "excluded", "excluded_reason"
+        elif is_verbatim:
+            status, basis = "verbatim", "normalized_text"
+        elif disposition == "merged_verbatim":
+            status, basis = "not_found", "normalized_text"
+        elif disposition == "corrected":
+            status, basis = "corrected", "fidelity"
+        elif fidelity["score"] is not None and fidelity["score"] < 0.5:
+            status, basis = "reframed_low_fidelity", "fidelity"
+        else:
+            status, basis = "reframed", "fidelity"
+        rows.append({
+            "kind": "content", "unit_id": unit["unit_id"], "label": excerpt.replace("\n", " ")[:90],
+            "disposition": disposition, "target_section": target,
+            "verification_status": ((entry or {}).get("verification") or {}).get("status"),
+            "excluded_reason": (entry or {}).get("excluded_reason"),
+            "verdict": {
+                "status": status, "basis": basis, "found_in": found_in, "fidelity": fidelity,
+                "target_traced": target_traced,
+            },
+        })
+
+    structural_units = extract_old_readme_structural_units(old_readme_text)
+    by_id = _retention_by_id(structure_dispositions)
+    for unit in structural_units:
+        entry = by_id.get(unit["unit_id"])
+        disposition = (entry or {}).get("disposition")
+        text_diff = check_structural_unit_disposition_text_diff([unit], [entry] if entry else [], candidate_text)
+        block_norm = " ".join((unit.get("fenced_block_text") or "").split())
+        present = bool(block_norm) and block_norm in " ".join(candidate_text.split())
+        found_in = [name for name, body in sections.items() if block_norm and block_norm in " ".join(body.split())]
+        if entry is None:
+            status = "undisposed"
+        elif disposition == "excluded":
+            status = "excluded"
+        elif present:
+            status = "verbatim"
+        elif disposition == "merged_verbatim" and text_diff:
+            status = "not_found"
+        else:
+            status = "reframed"
+        rows.append({
+            "kind": "structural", "unit_id": unit["unit_id"],
+            "label": f"{unit.get('heading', '')} ({unit.get('kind', '')})"[:90],
+            "disposition": disposition, "target_section": (entry or {}).get("target_section"),
+            "verification_status": ((entry or {}).get("verification") or {}).get("status"),
+            "excluded_reason": (entry or {}).get("excluded_reason"),
+            "verdict": {"status": status, "basis": "whitespace_normalized_block", "found_in": found_in, "fidelity": None},
+        })
+
+    code_units = extract_old_readme_code_units(old_readme_text)
+    by_id = _retention_by_id(code_dispositions)
+    for unit in code_units:
+        entry = by_id.get(unit["unit_id"])
+        disposition = (entry or {}).get("disposition")
+        code_norm = " ".join((unit.get("code_text") or "").split())
+        present = bool(code_norm) and code_norm in " ".join(candidate_text.split())
+        fingerprint = list(unit.get("api_call_fingerprint") or [])
+        survived = [c for c in fingerprint if c in candidate_fingerprint]
+        found_in = [name for name, body in sections.items() if code_norm and code_norm in " ".join(body.split())]
+        if not found_in and survived:
+            found_in = [
+                name for name, body in sections.items()
+                if any(c in _candidate_code_fingerprint(body) for c in survived)
+            ]
+        if (unit.get("language") or "").lower() == "mermaid":
+            status, basis = "diagram", "gated_by_diagram_checks"
+        elif entry is None:
+            status, basis = "undisposed", "none"
+        elif disposition == "excluded":
+            status, basis = "excluded", "excluded_reason"
+        elif present:
+            status, basis = "verbatim", "whitespace_normalized_code"
+        elif disposition == "merged_verbatim":
+            status, basis = "not_found", "whitespace_normalized_code"
+        elif not fingerprint:
+            status, basis = "reframed", "no_api_calls_to_track"
+        elif len(survived) / len(fingerprint) >= 0.5:
+            status, basis = "api_survived", "live_fingerprint"
+        else:
+            status, basis = "api_dropped", "live_fingerprint"
+        code_lines = [
+            line.strip() for line in (unit.get("code_text") or "").splitlines()
+            if line.strip() and not line.strip().startswith(("import ", "from ", "#", "//", "using ", "package "))
+        ]
+        first_line = code_lines[0] if code_lines else ((unit.get("code_text") or "").strip().splitlines() or [""])[0]
+        rows.append({
+            "kind": "code", "unit_id": unit["unit_id"],
+            "label": f"[{unit.get('heading_context', '')}] {first_line}"[:90],
+            "disposition": disposition, "target_section": (entry or {}).get("target_section"),
+            "verification_status": ((entry or {}).get("verification") or {}).get("status"),
+            "excluded_reason": (entry or {}).get("excluded_reason"),
+            "verdict": {
+                "status": status, "basis": basis, "found_in": found_in, "fidelity": None,
+                "fingerprint": fingerprint, "survived": survived,
+            },
+        })
+
+    old_badges = extract_badges(old_readme_text)
+    new_badges = extract_badges(candidate_text)
+    by_id = _retention_by_id(badge_dispositions)
+    for badge in old_badges:
+        entry = by_id.get(badge["unit_id"])
+        action = (entry or {}).get("action")
+        credited = (entry or {}).get("new_badge_unit_id")
+        credited_real = any(b["unit_id"] == credited for b in new_badges)
+        if entry is None:
+            status = "undisposed"
+        elif action in ("preserved", "superseded_by_duplicate"):
+            status = "verbatim" if credited_real else "not_found"
+        else:
+            status = "excluded"
+        rows.append({
+            "kind": "badge", "unit_id": badge["unit_id"], "label": (badge.get("alt_text") or badge.get("raw_markdown") or "")[:90],
+            "disposition": action, "target_section": "__preamble__",
+            "verification_status": ((entry or {}).get("verification") or {}).get("status"),
+            "excluded_reason": (entry or {}).get("excluded_reason"),
+            "verdict": {"status": status, "basis": "badge_category_credit", "found_in": ["__preamble__"] if credited_real else [], "fidelity": None},
+        })
+
+    old_no_code = _ANY_FENCED_CODE_RE.sub("", old_readme_text)
+    candidate_no_code = _ANY_FENCED_CODE_RE.sub("", candidate_text)
+    candidate_headings = {
+        _normalize_for_drop_match(m.group(2)) for m in _ANY_LEVEL_HEADING_RE.finditer(candidate_no_code)
+    }
+    candidate_norm_all = _normalize_for_drop_match(candidate_no_code)
+    structural_by_heading = {u.get("heading"): u["unit_id"] for u in structural_units}
+    for index, match in enumerate(_ANY_LEVEL_HEADING_RE.finditer(old_no_code), start=1):
+        level, text = match.group(1), match.group(2).strip()
+        norm = _normalize_for_drop_match(text)
+        if norm in candidate_headings:
+            status = "present"
+        elif norm and norm in candidate_norm_all:
+            status = "absorbed"
+        else:
+            status = "absent"
+        rows.append({
+            "kind": "heading", "unit_id": f"h{index:04d}", "label": f"{level} {text}"[:90],
+            "disposition": "structural_unit" if text in structural_by_heading else None,
+            "target_section": structural_by_heading.get(text),
+            "verification_status": None, "excluded_reason": None,
+            "verdict": {"status": status, "basis": "normalized_heading_or_substring", "found_in": [], "fidelity": None},
+        })
+
+    summary: dict[str, dict[str, int]] = {}
+    for row in rows:
+        bucket = summary.setdefault(row["kind"], {})
+        bucket[row["verdict"]["status"]] = bucket.get(row["verdict"]["status"], 0) + 1
+    attention = [
+        f"{r['kind']}:{r['unit_id']}" for r in rows
+        if r["verdict"]["status"] in ("undisposed", "not_found", "reframed_low_fidelity", "api_dropped", "absent")
+    ]
+    return {"rows": rows, "summary": summary, "needs_attention": attention}
+
+
+def render_retention_report_markdown(report: dict, *, title: str = "Retention report") -> str:
+    """One markdown table per unit kind, plus the summary and the needs-attention list --
+    the reviewer artifact `ingest-candidate`/`recheck` write to `checks/retention-report.md`
+    and the `retention-report` verb prints. Deterministic for identical input."""
+    lines = [f"# {title}", ""]
+    lines.append("## Summary")
+    lines.append("")
+    for kind in ("content", "structural", "code", "badge", "heading"):
+        counts = report.get("summary", {}).get(kind, {})
+        rendered = ", ".join(f"{status}={n}" for status, n in sorted(counts.items())) or "none"
+        lines.append(f"- **{kind}**: {rendered}")
+    lines.append("")
+    attention = report.get("needs_attention") or []
+    lines.append(f"**Needs attention ({len(attention)})**: " + (", ".join(attention) if attention else "none"))
+    lines.append("")
+
+    def _cell(value: object) -> str:
+        text = "" if value is None else str(value)
+        return text.replace("|", "\\|").replace("\n", " ")
+
+    for kind, heading in (
+        ("content", "Prose content units"), ("structural", "Structural units"),
+        ("code", "Code units"), ("badge", "Badges"), ("heading", "Headings"),
+    ):
+        kind_rows = [r for r in report.get("rows", []) if r["kind"] == kind]
+        lines.append(f"## {heading} ({len(kind_rows)})")
+        lines.append("")
+        if not kind_rows:
+            lines.append("_none in the old README_")
+            lines.append("")
+            continue
+        lines.append("| unit | old content | disposition | target | verdict | found in | fidelity / missing words |")
+        lines.append("|---|---|---|---|---|---|---|")
+        for row in kind_rows:
+            verdict = row["verdict"]
+            fidelity = verdict.get("fidelity") or {}
+            if fidelity.get("score") is not None:
+                missing = ", ".join(fidelity.get("missing_words") or [])
+                fidelity_cell = f"{fidelity['score']} ({fidelity['scope']})" + (f" missing: {missing}" if missing else "")
+            elif verdict.get("fingerprint"):
+                fidelity_cell = f"{len(verdict.get('survived') or [])}/{len(verdict['fingerprint'])} calls survive"
+            else:
+                fidelity_cell = ""
+            lines.append(
+                "| " + " | ".join(_cell(v) for v in (
+                    row["unit_id"], row["label"], row["disposition"], row["target_section"],
+                    verdict["status"], ", ".join(verdict.get("found_in") or []), fidelity_cell,
+                )) + " |"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
+# TC-07: portfolio skeleton-consistency oracle. Per-section block-kind sequence of a candidate;
+# `audit-portfolio` compares every product's opening shape per section and surfaces the
+# singletons -- a shape held by exactly one product across the portfolio. This is what would
+# have caught tex/python's At-a-Glance prose WITHOUT a bespoke rule, and what surfaces the next
+# unnamed shape defect before a human reads one file. Advisory by construction: a singleton is a
+# review prompt (7 real, legitimate ones existed on 2026-09-02), never a defect verdict.
+_SKELETON_EXCLUDED_SECTIONS = frozenset({"Additional Examples"})  # legitimately varied per product
+_SKELETON_BULLET_RE = re.compile(r"^\s*[-*+]\s")
+
+
+def section_skeleton(section_body: str) -> tuple[str, ...]:
+    """Block-kind sequence of one section body: `fence:mermaid`, `fence:code`, `para`,
+    `bullets`, `table`, `quote`, `h3`, `details`, `/details` (summary lines are folded into
+    `details`). Blank lines separate blocks; a fence is one block regardless of length."""
+    out: list[str] = []
+    lines = section_body.splitlines()
+    i, n = 0, len(lines)
+    while i < n:
+        stripped = lines[i].lstrip()
+        if stripped.startswith("```"):
+            language = stripped[3:].strip().lower()
+            j = i + 1
+            while j < n and not lines[j].lstrip().startswith("```"):
+                j += 1
+            out.append("fence:mermaid" if language == "mermaid" else "fence:code")
+            i = j + 1
+            continue
+        if not stripped:
+            i += 1
+            continue
+        if re.match(r"^#{3,}\s", stripped):
+            out.append("h3")
+            i += 1
+            continue
+        if stripped.startswith("<details"):
+            out.append("details")
+            i += 1
+            continue
+        if stripped.startswith("</details"):
+            out.append("/details")
+            i += 1
+            continue
+        if stripped.startswith("<summary"):
+            i += 1
+            continue
+        if stripped.startswith("|"):
+            while i < n and lines[i].lstrip().startswith("|"):
+                i += 1
+            out.append("table")
+            continue
+        if _SKELETON_BULLET_RE.match(lines[i]):
+            while i < n and lines[i].strip() and (
+                _SKELETON_BULLET_RE.match(lines[i]) or lines[i].startswith("  ")
+            ):
+                i += 1
+            out.append("bullets")
+            continue
+        if stripped.startswith(">"):
+            while i < n and lines[i].lstrip().startswith(">"):
+                i += 1
+            out.append("quote")
+            continue
+        while i < n and lines[i].strip():
+            i += 1
+        out.append("para")
+    return tuple(out)
+
+
+def candidate_skeletons(readme_text: str) -> dict[str, tuple[str, ...]]:
+    """`{section name: skeleton}` for every `##` section of one candidate (heading line
+    excluded from the body; `__preamble__` kept as its own entry)."""
+    skeletons: dict[str, tuple[str, ...]] = {}
+    for name, text in _split_into_sections(readme_text).items():
+        body = text if name == "__preamble__" else "\n".join(text.splitlines()[1:])
+        skeletons[name] = section_skeleton(body)
+    return skeletons
+
+
+def portfolio_skeleton_singletons(
+    skeletons_by_product: dict[str, dict[str, tuple[str, ...]]], *, opening_length: int = 2,
+) -> list[dict]:
+    """Given `{product: {section: skeleton}}`, return the (product, section, opening shape)
+    triples whose OPENING shape (first `opening_length` block kinds -- the stable signal; full
+    shapes legitimately vary with example count) is held by no other product. Sections in
+    `_SKELETON_EXCLUDED_SECTIONS` and `__preamble__` are never compared. Sorted, deterministic."""
+    by_section: dict[str, dict[tuple[str, ...], list[str]]] = {}
+    for product, sections in skeletons_by_product.items():
+        for section, skeleton in sections.items():
+            if section == "__preamble__" or section in _SKELETON_EXCLUDED_SECTIONS:
+                continue
+            opening = tuple(skeleton[:opening_length])
+            by_section.setdefault(section, {}).setdefault(opening, []).append(product)
+    singletons: list[dict] = []
+    for section, openings in by_section.items():
+        total = sum(len(v) for v in openings.values())
+        if total < 2:
+            continue  # nothing to compare against
+        for opening, products in openings.items():
+            if len(products) == 1:
+                singletons.append({
+                    "product": products[0], "section": section, "opening_shape": list(opening),
+                    "portfolio_size": total,
+                    "reason": "this section's opening shape is held by no other product in the "
+                              "portfolio -- a review prompt (a real singleton can be legitimate), "
+                              "never a defect verdict",
+                })
+    singletons.sort(key=lambda s: (s["section"], s["product"]))
+    return singletons
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check At-a-glance Mermaid diagram shape (2026-08-08 simplified model: "

@@ -2194,6 +2194,10 @@ def ingest_candidate(
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
+        # TC-06: the per-unit retention table is per-run evidence, written on every ingest
+        # (pass or fail) beside result.json -- "0 hard-gate findings" is a verdict, this is the
+        # reviewer's proof of what was actually retained.
+        _write_retention_report(family, platform, run_id)
         # TC-HARDEN-12 (MT033): establish checkpoint 0 for recheck()'s change-isolation gates
         # (check_only_mermaid_block_changed / check_only_sections_changed) -- written even when
         # this candidate fails hard gates below, so the fix-and-recheck cycle that follows can
@@ -3464,12 +3468,14 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
 
     product_results: list[dict] = []
     skipped: list[dict] = []
+    skeletons_by_product: dict[str, dict] = {}
     for fam, plat in targets:
         candidate_path = _candidate_readme_path(fam, plat)
         if not candidate_path.is_file():
             skipped.append({"family": fam, "platform": plat, "reason": "no candidate file yet"})
             continue
         text = candidate_path.read_text(encoding="utf-8")
+        skeletons_by_product[f"{fam}/{plat}"] = checks.candidate_skeletons(text)
         clone_cache = _product_clone_cache(fam, plat)
         result = _run_deterministic_checks(fam, plat, text, clone_cache)
         # TC-M56-09: capture the drift finding BEFORE the marker write below overwrites its own
@@ -3539,7 +3545,72 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         "skipped": skipped,
         "candidate_tree": _candidate_tree_name,
         "non_canonical": non_canonical_tag,
+        # TC-07 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the portfolio
+        # skeleton-consistency oracle -- per-section opening shapes held by exactly one product.
+        # Advisory by construction (a singleton can be legitimate); the cross-product signal the
+        # per-product battery structurally cannot produce, and the one that would have named
+        # tex/python's At-a-Glance prose without a bespoke rule.
+        "skeleton_singletons": checks.portfolio_skeleton_singletons(skeletons_by_product),
     }
+
+
+# --- TC-06 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): retention report ---
+
+
+def _load_ledger(path: Path) -> list:
+    if not path.is_file():
+        return []
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return loaded if isinstance(loaded, list) else []
+
+
+def retention_report(family: str, platform: str) -> dict:
+    """Read-only: the per-unit retention table for one product's CURRENT candidate against the
+    old upstream README (`_resolve_old_readme_text`, so a TC-20 pinned baseline is honoured and
+    reported), joined to the four disposition ledgers. No run-id, no lock, no marker write, no
+    run directory -- pure inspection, unlike `audit-portfolio`. Returns
+    `{"family", "platform", "old_readme_baseline", "report": build_retention_report(...)}`."""
+    candidate_path = _candidate_readme_path(family, platform)
+    if not candidate_path.is_file():
+        raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+    candidate_text = candidate_path.read_text(encoding="utf-8")
+    clone_cache = _product_clone_cache(family, platform)
+    old_readme_text, old_readme_baseline = _resolve_old_readme_text(family, platform, clone_cache)
+    report = checks.build_retention_report(
+        old_readme_text or "", candidate_text,
+        content_dispositions=_load_ledger(_content_dispositions_path(family, platform)),
+        structure_dispositions=_load_ledger(_structure_dispositions_path(family, platform)),
+        code_dispositions=_load_ledger(_code_example_dispositions_path(family, platform)),
+        badge_dispositions=_load_ledger(_badge_dispositions_path(family, platform)),
+    )
+    return {
+        "family": family, "platform": platform,
+        "old_readme_baseline": old_readme_baseline,
+        "old_readme_found": bool(old_readme_text),
+        "report": report,
+    }
+
+
+def _write_retention_report(family: str, platform: str, run_id: str) -> None:
+    """Every `ingest-candidate`/`recheck` writes `checks/retention-report.md` next to
+    `result.json` -- the reviewer artifact is per-run evidence, not an on-demand favour.
+    Failure-tolerant: a report that cannot be built (no old README, unreadable ledger) must
+    never block the gate whose evidence it accompanies; the file then states why."""
+    run_root = _run_root(family, platform, run_id)
+    (run_root / "checks").mkdir(parents=True, exist_ok=True)
+    try:
+        payload = retention_report(family, platform)
+        baseline = payload.get("old_readme_baseline") or {}
+        title = f"Retention report -- {family}/{platform}"
+        if baseline:
+            title += f" (old README pinned at {baseline.get('commit', '?')})"
+        text = checks.render_retention_report_markdown(payload["report"], title=title)
+    except Exception as exc:  # noqa: BLE001 -- evidence must not block the gate
+        text = f"# Retention report -- {family}/{platform}\n\nNot built: {exc}\n"
+    atomic_write(run_root / "checks" / "retention-report.md", text)
 
 
 def _checks_snapshot_path(family: str, platform: str, run_id: str) -> Path:
@@ -3628,6 +3699,7 @@ def recheck(
         run_root = _run_root(family, platform, run_id)
         (run_root / "checks").mkdir(parents=True, exist_ok=True)
         _write_json(run_root / "checks" / "result.json", result)
+        _write_retention_report(family, platform, run_id)  # TC-06, same as ingest-candidate
         _write_checks_snapshot(family, platform, run_id, text)
         _event(family, platform, run_id, "RECHECK_COMPLETED")
         return result
@@ -4856,6 +4928,15 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     p_pin.add_argument("--session-id")
 
+    # TC-06 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): read-only, never
+    # run-scoped, never writes a marker -- the reviewer's per-unit "is everything in the old
+    # README retained" table for one product's current candidate.
+    p_ret = sub.add_parser("retention-report")
+    p_ret.add_argument("family")
+    p_ret.add_argument("platform")
+    p_ret.add_argument("--json", action="store_true", help="Print the structured rows instead of markdown.")
+    p_ret.add_argument("--out", help="Write the rendered report to this path instead of stdout.")
+
     # TC-15/17 (readme-refresh-trackb-and-followon-2026-09-01): read-only by default; --apply
     # is the only path that writes (data/readme_published_state.json only, never a product repo).
     p_recon = sub.add_parser("reconcile-publications")
@@ -4981,6 +5062,23 @@ def main(argv: "list[str] | None" = None) -> int:
                 args.family, args.platform, args.commit, args.reason, session_id=args.session_id,
             )
             _print_manifest(sidecar)
+            return 0
+        elif args.command == "retention-report":
+            payload = retention_report(args.family, args.platform)
+            if args.json:
+                rendered = json.dumps(payload, indent=2, ensure_ascii=False)
+            else:
+                baseline = payload.get("old_readme_baseline") or {}
+                title = f"Retention report -- {args.family}/{args.platform}"
+                if baseline:
+                    title += f" (old README pinned at {baseline.get('commit', '?')})"
+                rendered = checks.render_retention_report_markdown(payload["report"], title=title)
+            if args.out:
+                Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+                Path(args.out).write_text(rendered, encoding="utf-8")
+                print(f"retention report written: {args.out}")
+            else:
+                print(rendered)
             return 0
         elif args.command == "reconcile-publications":
             result = reconcile_publications(
