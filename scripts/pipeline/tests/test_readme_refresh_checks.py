@@ -2026,6 +2026,62 @@ def test_check_process_narration_smells_widened_upstream_own_pattern():
     )
 
 
+# --- TC-02 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): document-self-reference
+# confidence language. Real, captured wording from tex/python's candidate (the only product of
+# 31 carrying it), which every prior phrase pattern missed.
+
+_TEX_PYTHON_AT_A_GLANCE_NOTE = (
+    "*Note: the diagram below describes the intended API surface — see\n"
+    "[Scope and Limitations](#scope-and-limitations) for this snapshot's current packaging defect.*"
+)
+_TEX_PYTHON_SCOPE_BULLET = (
+    "- The current source snapshot has a real packaging defect (systemic indentation corruption\n"
+    "  affecting most of the package's modules) that prevents the package from importing at all, so\n"
+    "  none of the code examples above can currently be executed against this exact snapshot; the\n"
+    "  examples are checked against the source's class/method signatures and docstrings, so they\n"
+    "  describe the intended API correctly even though they cannot run until this is fixed upstream."
+)
+
+
+def test_check_process_narration_smells_flags_real_tex_python_self_reference_narration():
+    note_findings = checks.check_process_narration_smells(_TEX_PYTHON_AT_A_GLANCE_NOTE)
+    assert note_findings, "the At-a-Glance note must be flagged"
+    assert any("diagram below" in f["phrase"].lower() for f in note_findings), (
+        "the STRUCTURAL subject+verb pattern (not just a phrase) must match the note"
+    )
+    bullet_findings = checks.check_process_narration_smells(_TEX_PYTHON_SCOPE_BULLET)
+    phrases = " | ".join(f["phrase"].lower() for f in bullet_findings)
+    for expected in ("code examples above", "checked against", "describe the intended", "cannot run until"):
+        assert expected in phrases, f"expected {expected!r} to be flagged; got {phrases!r}"
+
+
+def test_check_process_narration_smells_readme_only_patterns_never_reach_issue_draft_gate():
+    # The README-only additions live in a separate list precisely so the issue-draft HARD
+    # gate (which reuses _PROCESS_NARRATION_RE verbatim) keeps accepting an honest bug report.
+    honest_report = (
+        "The Quick Start example cannot run until the package is republished; the examples "
+        "were checked against the current source and describe the intended API."
+    )
+    assert checks.check_process_narration_smells(honest_report)
+    assert checks.check_no_internal_details_leaked_into_issue_draft(honest_report) == []
+    assert not any(
+        pattern in checks._PROCESS_NARRATION_PATTERNS for pattern in checks._README_ONLY_NARRATION_PATTERNS
+    )
+
+
+def test_check_process_narration_smells_readme_only_negative_controls():
+    # Real, shipped cross-references between sections carry no epistemic/verification verb and
+    # must stay clean; a plain product fact about a "snapshot" feature is also fine when it
+    # never uses the "this snapshot" document-scope wording.
+    for clean in (
+        "These are real, runnable patterns beyond the Quick Start example above.",
+        "Additional Examples below extends this into a from-scratch showcase.",
+        "The flagship example below wires two shapes together with a connector.",
+        "Snapshots of a workbook can be exported as PNG through `Workbook.snapshot()`.",
+    ):
+        assert checks.check_process_narration_smells(clean) == [], clean
+
+
 _UPSTREAM_ISSUES_WITH_BLOCKING = """# Upstream issues
 
 ## Broken pip install

@@ -1941,22 +1941,71 @@ _PROCESS_NARRATION_PATTERNS = [
 ]
 _PROCESS_NARRATION_RE = re.compile("|".join(_PROCESS_NARRATION_PATTERNS), re.IGNORECASE)
 
+# TC-02 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): README-ONLY additions.
+# Deliberately a SEPARATE list from _PROCESS_NARRATION_PATTERNS above, for the same reason
+# _ISSUE_DRAFT_ADDITIONAL_LEAK_PATTERNS (below) is: _PROCESS_NARRATION_RE is reused verbatim by
+# check_no_internal_details_leaked_into_issue_draft, a HARD gate over public GitHub Issue
+# drafts, and a legitimate upstream bug report says exactly "the Quick Start example cannot be
+# run until the package is republished" -- adding these to the shared list would have broken
+# that gate for every honest defect report. Two contexts, two pattern sets, one mechanism.
+#
+# The defect class these target -- confirmed live on tex/python's candidate (2026-09-02), the
+# ONLY product of 31 carrying it -- is confidence-language about THIS DOCUMENT'S OWN diagram /
+# examples ("the diagram below describes the intended API surface", "none of the code examples
+# above can currently be executed against this exact snapshot; the examples are checked against
+# the source's class/method signatures ... so they describe the intended API correctly ... cannot
+# run until this is fixed upstream"). Rule 3 already forbade this category by name (confidence
+# language); every existing phrase pattern missed this wording, the same synonym-evasion shape
+# this list has recorded since MT039. The first pattern is therefore STRUCTURAL, not a phrase:
+# subject = this document's own diagram/example/section (+ above/below/in this README) followed,
+# within the same sentence, by an epistemic or verification verb -- verified against all 31 live
+# candidates to hit exactly the two tex/python sentences and nothing else (email/net's real
+# "beyond the Quick Start example above" cross-reference carries no such verb and stays clean).
+# The remaining four are the tight phrase forms of the same instance (zero other live hits).
+# `\bthis (?:exact )?(?:source |repository )?snapshot\b` is a KNOWN future false-positive shape
+# for a product with a real "snapshot" concept -- acceptable only because this check is wired
+# advisory (see the docstring below), never promoted without re-measuring.
+_README_ONLY_NARRATION_PATTERNS = [
+    r"\b(?:the|this|these|every|none of the|all of the)\s+"
+    r"(?:diagram|example|examples|snippet|snippets|code examples?|readme|document|table|section|listing)s?\s+"
+    r"(?:above|below|in this (?:readme|document|file))\b[^.\n]{0,100}"
+    r"\b(?:describ\w*|intended|verified|checked|cannot|can't|can currently|will not|won't|"
+    r"do(?:es)? not run|not runnable|unverified)\b",
+    r"\bdescribes? the intended\b",
+    r"\b(?:is|are|was|were) checked against\b",
+    r"\bcan(?:not|'t) run until\b",
+    r"\bthis (?:exact )?(?:source |repository )?snapshot\b",
+]
+_README_NARRATION_RE = re.compile(
+    "|".join(_PROCESS_NARRATION_PATTERNS + _README_ONLY_NARRATION_PATTERNS), re.IGNORECASE
+)
+
 
 def check_process_narration_smells(readme_text: str) -> list[dict]:
-    """HARD GATE as of 2026-08-08 (Rule 3: "verification facts... never leak into
-    visitor-facing prose... internal receipts, execution notes, provenance, and confidence
-    language are blocked") -- elevated from its original heuristic status, a materially
-    stronger requirement than the prior "surfaced for judgment" framing. Flags sentences
-    narrating the generation/verification *process*, an internal receipt, an execution
-    note, a provenance citation, or confidence-language about the README's own accuracy,
-    instead of stating a plain product fact (Template section, "No process/investigation-
-    log narration anywhere in the README"). A plain present-tense limitation sentence in
-    Scope and limitations is fine; the smell is the audit-trail *voice*, not the presence
-    of a caveat -- "useful limitations are rewritten as user guidance" per Rule 3, not
-    deleted.
+    """Rule 3 ("verification facts... never leak into visitor-facing prose... internal
+    receipts, execution notes, provenance, and confidence language are blocked"). Flags
+    sentences narrating the generation/verification *process*, an internal receipt, an
+    execution note, a provenance citation, or confidence-language about the README's own
+    accuracy, instead of stating a plain product fact (Template section, "No process/
+    investigation-log narration anywhere in the README"). A plain present-tense limitation
+    sentence in Scope and limitations is fine; the smell is the audit-trail *voice*, not the
+    presence of a caveat -- "useful limitations are rewritten as user guidance" per Rule 3,
+    not deleted.
+
+    **Tier, stated honestly (TC-02, 2026-09-02):** this check is wired `hard_gate: False`
+    (advisory) in `readme_refresh_run.py` and has been since it was first wired -- an earlier
+    revision of this docstring claimed "HARD GATE as of 2026-08-08", which the run's own
+    wiring never implemented (the exact "documented rule, never mechanically enforced" drift
+    this module keeps naming, here about its own tier). It must stay advisory until the two
+    shipped candidates with live `currently fails` hits (3d/typescript, words/net, measured
+    2026-09-02) are cleaned; promotion is a measured decision, never a docstring edit.
+
+    Scans `_README_NARRATION_RE` -- the shared `_PROCESS_NARRATION_PATTERNS` plus the
+    README-only `_README_ONLY_NARRATION_PATTERNS` (see that list's own comment for why the
+    issue-draft hard gate must never see the README-only additions).
     """
     findings = []
-    for match in _PROCESS_NARRATION_RE.finditer(readme_text):
+    for match in _README_NARRATION_RE.finditer(readme_text):
         start = max(0, match.start() - 40)
         end = min(len(readme_text), match.end() + 40)
         findings.append({"phrase": match.group(0), "context": readme_text[start:end].replace("\n", " ")})
