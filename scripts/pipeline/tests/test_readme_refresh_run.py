@@ -3248,3 +3248,228 @@ def test_live_published_regression_portfolio_all_scopes_to_active_non_excluded_p
     assert result["total"] == 1  # only the one active product in the fixture's products.json
     assert result["products"][0]["family"] == "testfam"
     assert result["products"][0]["platform"] == "testplat"
+
+
+# --- TC-04 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): orphaned-run adoption --
+# Real, confirmed gap: every mutating verb refuses a non-owner (correct), but nothing ever
+# released a run whose owner session had ENDED -- five products sat locked behind runs owned by
+# closed/unknown sessions with no CLI path to abandon them. `abandon --adopt-orphaned` is gated
+# on the session ledger's own liveness verdict, never on the flag alone.
+
+
+class _FakeSessionContext:
+    def __init__(self, status, manifest_path=None):
+        self.status = status
+        self.manifest_path = manifest_path
+
+
+def _start_run_as(repo_root, session_id, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", session_id)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    return rr.start_run("testfam", "testplat")
+
+
+def _run_events(repo_root, run_id):
+    path = repo_root / "reports" / "readme_refresh_runs" / "testfam" / "testplat" / run_id / "events.jsonl"
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def test_abandon_refuses_non_owner_without_adopt_flag(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("closed"),
+    )
+    # Even with the owner provably closed, the plain verb keeps refusing -- adoption is an
+    # explicit, opt-in action, never an implicit side effect of a mismatch.
+    with pytest.raises(rr.ReadmeRefreshRunError, match="pass --adopt-orphaned"):
+        rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x")
+    assert rr.status("testfam", "testplat", manifest["run_id"])["state"] == "INPUTS_PINNED"
+
+
+def test_abandon_adopt_orphaned_allowed_when_owner_ledger_closed(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    run_id = manifest["run_id"]
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("closed"),
+    )
+
+    result = rr.abandon_run(
+        "testfam", "testplat", run_id, reason="regen under hardened checks", adopt_orphaned=True,
+    )
+
+    assert result["state"] == "ABANDONED"
+    assert result["original_session_owner"] == "owner-session-a"
+    assert result["session_owner"] == "other-session-b"
+    assert result["owner_session_status"] == "closed"
+    assert "closed in the session ledger" in result["adoption_reason"]
+    assert result["adopted_at"]
+    events = _run_events(repo_root, run_id)
+    kinds = [e["event"] for e in events]
+    adopted = kinds.index("RUN_ADOPTED")
+    abandoned = [
+        i for i, e in enumerate(events)
+        if e["event"] == "STATE_TRANSITION" and e.get("current") == "ABANDONED"
+    ]
+    assert abandoned and adopted < abandoned[0], "RUN_ADOPTED must precede the ABANDONED transition"
+    assert events[adopted]["adopted_by"] == "other-session-b"
+    assert events[adopted]["original_session_owner"] == "owner-session-a"
+    assert not (repo_root / "reports" / "readme_refresh_runs" / "testfam" / "testplat" / "ACTIVE.json").exists()
+
+
+def test_abandon_adopt_orphaned_refused_when_owner_session_live(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    ledger = repo_root / "reports" / "session-state"
+    ledger.mkdir(parents=True, exist_ok=True)
+    live_manifest = ledger / "owner-session-a.json"
+    live_manifest.write_text(
+        json.dumps({"session_id": "owner-session-a", "status": "active"}), encoding="utf-8",
+    )
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("resolved", manifest_path=live_manifest),
+    )
+    with pytest.raises(rr.ReadmeRefreshRunError, match="still live"):
+        rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+    after = rr.status("testfam", "testplat", manifest["run_id"])
+    assert after["state"] == "INPUTS_PINNED"
+    assert after["session_owner"] == "owner-session-a"
+
+
+def test_abandon_adopt_orphaned_allowed_when_owner_manifest_swept_stale(tmp_path, monkeypatch):
+    # resolve_context reports a `stale` ledger manifest as "resolved" -- the verdict reads the
+    # manifest directly so a crashed, swept session is still adoptable.
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    ledger = repo_root / "reports" / "session-state"
+    ledger.mkdir(parents=True, exist_ok=True)
+    stale_manifest = ledger / "owner-session-a.json"
+    stale_manifest.write_text(
+        json.dumps({"session_id": "owner-session-a", "status": "stale"}), encoding="utf-8",
+    )
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("resolved", manifest_path=stale_manifest),
+    )
+    result = rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+    assert result["state"] == "ABANDONED"
+    assert result["owner_session_status"] == "stale"
+
+
+def test_abandon_adopt_orphaned_refused_when_owner_unknown_and_run_recent(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "mt056-proof-rerun", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("none"),
+    )
+    with pytest.raises(rr.ReadmeRefreshRunError, match="cannot tell an orphan"):
+        rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+
+
+def test_abandon_adopt_orphaned_allowed_when_owner_unknown_and_run_older_than_floor(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "mt056-proof-rerun", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    import datetime as _dt
+    later = _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(
+        hours=rr._ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS + 1
+    )
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("none"),
+        now=lambda: later,
+    )
+    result = rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+    assert result["state"] == "ABANDONED"
+    assert result["owner_session_status"] == "none"
+    assert "untouched for" in result["adoption_reason"]
+
+
+def test_abandon_adopt_orphaned_refused_on_ambiguous_owner_status(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("ambiguous"),
+    )
+    with pytest.raises(rr.ReadmeRefreshRunError, match="'ambiguous'"):
+        rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+
+
+def test_abandon_adopt_orphaned_is_noop_for_the_real_owner(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+
+    def _must_not_resolve(sid):
+        raise AssertionError("owner path must never consult the ledger")
+
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=_must_not_resolve,
+    )
+    result = rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+    assert result["state"] == "ABANDONED"
+    assert "original_session_owner" not in result
+    assert all(e["event"] != "RUN_ADOPTED" for e in _run_events(repo_root, manifest["run_id"]))
+
+
+def test_start_succeeds_after_adopted_abandon(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("closed"),
+    )
+    rr.abandon_run("testfam", "testplat", manifest["run_id"], reason="x", adopt_orphaned=True)
+    fresh = rr.start_run("testfam", "testplat")
+    assert fresh["run_id"] != manifest["run_id"]
+    assert fresh["session_owner"] == "other-session-b"
+    assert fresh["state"] == "INPUTS_PINNED"
+
+
+def test_default_owner_session_resolver_reads_ledger_under_configured_repo_root(tmp_path, monkeypatch):
+    # The real resolver (session_ledger.resolve_context) against a tmp ledger dir -- proves the
+    # configure() lockstep, not a stub.
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-real", monkeypatch)
+    ledger = repo_root / "reports" / "session-state"
+    ledger.mkdir(parents=True, exist_ok=True)
+    (ledger / "owner-session-real.json").write_text(
+        json.dumps({
+            "session_id": "owner-session-real", "status": "closed",
+            "closed_at": "2026-09-01T00:00:00Z",
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    verdict = rr._orphan_adoption_verdict(rr.status("testfam", "testplat", manifest["run_id"]))
+    assert verdict["allowed"] is True
+    assert verdict["owner_session_status"] == "closed"
+
+
+def test_abandon_cli_accepts_adopt_orphaned_flag(tmp_path, monkeypatch):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    manifest = _start_run_as(repo_root, "owner-session-a", monkeypatch)
+    monkeypatch.setenv("AGENT_SESSION_ID", "other-session-b")
+    rr.configure(
+        repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+        owner_session_resolver=lambda sid: _FakeSessionContext("closed"),
+    )
+    exit_code = rr.main([
+        "abandon", "--run-id", manifest["run_id"], "--reason", "cli adopt", "--adopt-orphaned",
+    ])
+    assert exit_code == 0
+    assert rr.status("testfam", "testplat", manifest["run_id"])["state"] == "ABANDONED"

@@ -72,8 +72,16 @@ if _LIB_DIR not in sys.path:
 _FOSS_DIR = Path(__file__).resolve().parent
 if str(_FOSS_DIR) not in sys.path:
     sys.path.insert(0, str(_FOSS_DIR))
+# TC-04 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): session_ledger lives in the
+# sibling commands/ops/ directory (it is a CLI entry point, not a lib/ module) -- the same
+# one-directory sys.path insert this header already does for _FOSS_DIR, never a copy of its
+# liveness logic (PIPELINE.md "Shared Module Rules": reuse over duplication).
+_OPS_DIR = _PIPELINE_ROOT / "commands" / "ops"
+if str(_OPS_DIR) not in sys.path:
+    sys.path.insert(0, str(_OPS_DIR))
 
 import session_identity  # noqa: E402
+import session_ledger  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write  # noqa: E402
 import backlink_targets  # noqa: E402
@@ -122,6 +130,11 @@ _candidate_tree_name = _DEFAULT_CANDIDATE_TREE_NAME
 _command_runner: Callable[..., "subprocess.CompletedProcess[str]"] = subprocess.run
 _now: Callable[[], datetime] = lambda: datetime.now(timezone.utc)
 _verification_runner: "Callable[[Path, dict], dict] | None" = None
+_owner_session_resolver: "Callable[[str], Any]" = session_ledger.resolve_context
+# TC-04: an owner id with NO session-ledger manifest at all (a synthetic id such as
+# `mt056-proof-rerun`, or a session from before the ledger existed) can only be judged by the
+# run's own age -- adoptable once its manifest has been untouched this long.
+_ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS = 24.0
 
 
 class ReadmeRefreshRunError(RuntimeError):
@@ -137,6 +150,7 @@ def configure(
     command_runner: "Callable[..., subprocess.CompletedProcess[str]] | None" = None,
     now: "Callable[[], datetime] | None" = None,
     verification_runner: "Callable[[Path, dict], dict] | None" = None,
+    owner_session_resolver: "Callable[[str], Any] | None" = None,
 ) -> None:
     """Override external boundaries for tests; call without arguments to reset.
 
@@ -155,7 +169,7 @@ def configure(
     real `reports/` root, with no copy step needed.
     """
     global _repo_root, _reports_root, _clone_cache_root, _candidate_tree_name
-    global _command_runner, _now, _verification_runner
+    global _command_runner, _now, _verification_runner, _owner_session_resolver
     _repo_root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     _reports_root = Path(reports_root) if reports_root is not None else _repo_root / "reports"
     _clone_cache_root = (
@@ -167,6 +181,13 @@ def configure(
     _command_runner = command_runner or subprocess.run
     _now = now or (lambda: datetime.now(timezone.utc))
     _verification_runner = verification_runner
+    # TC-04 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the orphaned-run
+    # adoption verdict asks the session ledger whether a run's owner session is still alive.
+    # Injectable for tests (same seam shape as verification_runner); the default is the real,
+    # pure, read-only session_ledger.resolve_context, pointed at this module's own repo_root
+    # below so a tmp_path fixture exercises the real resolver against its own
+    # reports/session-state/ directory, never the live repo's.
+    _owner_session_resolver = owner_session_resolver or session_ledger.resolve_context
     # RC-readme-refresh-freshness-guard-compliance (2026-08-30): keep freshness_guard's
     # module-level repo_root in lockstep with this module's own configure() -- the exact
     # FRESH-001 precedent in refresh_run.py/batch_reference.py. Without this, a test that
@@ -175,6 +196,7 @@ def configure(
     freshness_guard.configure(repo_root=_repo_root)
     publication_reconciler.configure(repo_root=_repo_root)
     input_manifest.configure(repo_root=_repo_root)
+    session_ledger.configure(repo_root=_repo_root)
 
 
 def _utc() -> str:
@@ -4502,12 +4524,138 @@ def verify(family: str, platform: str, run_id: str, *, session_id: "str | None" 
 # --- abandon / recover / status --------------------------------------------------------------
 
 
-def abandon_run(family: str, platform: str, run_id: str, *, reason: str, session_id: "str | None" = None) -> dict:
+def _parse_utc(value: "str | None") -> "datetime | None":
+    """`_utc()` writes `...Z`; datetime.fromisoformat needs `+00:00` (the same idiom
+    backlink_targets.py already uses). None on anything unparseable -- callers treat an
+    unreadable timestamp as "not old enough", the fail-closed direction."""
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _orphan_adoption_verdict(manifest: dict) -> dict:
+    """TC-04 (readme-refresh-at-a-glance-retention-hardening-2026-09-02). Decide whether a run
+    owned by ANOTHER session may be adopted (and abandoned) by this one -- the gate behind
+    `abandon --adopt-orphaned`.
+
+    Real, confirmed defect this closes: every mutating verb refuses a non-owner (correct -- a
+    live session must never have its run touched), but nothing ever released a run whose owner
+    session had ENDED. Confirmed live 2026-09-02: five products (tex/python, font/python,
+    pdf/typescript, slides/python owned by a session whose ledger manifest is `status: closed`;
+    page/python owned by `mt056-proof-rerun`, an id with no ledger manifest at all, locked since
+    2026-08-18) had non-terminal active runs no session could abandon, so `start` refused every
+    regeneration attempt -- the "12-day cross-session lock with no CLI abandon override" gap the
+    hardening mission of 2026-08-30 recorded as BLOCKED_EXTERNAL.
+
+    The verdict is gated on the session ledger's OWN liveness model (`session_ledger.
+    resolve_context`, pure/read-only), never on the flag alone:
+    - owner status `closed` -> adoptable (the session explicitly ended).
+    - owner status `resolved` but its manifest says `status: "stale"` -> adoptable (the sweep
+      already judged it inactive; resolve_context reports stale as resolved, so it is read
+      directly -- a disclosed gap the resolver has, handled here rather than papered over).
+    - owner status `none` (no manifest for that id) -> adoptable only when the RUN's own
+      manifest has been untouched for `_ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS` -- a synthetic or
+      pre-ledger id gives no liveness signal, so run age is the only honest proxy; the 24h floor
+      is a heuristic, disclosed as such.
+    - anything else (`resolved` + active, `ambiguous`, `no_ledger_dir`) -> refused, naming the
+      status, so a live session's run is never taken over.
+
+    Returns {"allowed": bool, "owner_session_status": str, "reason": str}. Reads
+    `manifest["updated_at"]` as stored -- callers must evaluate this BEFORE `_save_manifest`
+    rewrites that field.
+    """
+    owner = manifest["session_owner"]
+    ctx = _owner_session_resolver(owner)
+    status = getattr(ctx, "status", None) or "unknown"
+    if status == "closed":
+        return {
+            "allowed": True, "owner_session_status": "closed",
+            "reason": f"owner session {owner!r} is closed in the session ledger",
+        }
+    if status == "resolved":
+        manifest_path = getattr(ctx, "manifest_path", None)
+        ledger_status = None
+        if manifest_path is not None:
+            try:
+                ledger_status = json.loads(Path(manifest_path).read_text(encoding="utf-8")).get("status")
+            except (OSError, ValueError):
+                ledger_status = None
+        if ledger_status == "stale":
+            return {
+                "allowed": True, "owner_session_status": "stale",
+                "reason": f"owner session {owner!r} was swept to 'stale' by the session ledger",
+            }
+        return {
+            "allowed": False, "owner_session_status": "active",
+            "reason": f"owner session {owner!r} is still live in the session ledger -- not an orphan",
+        }
+    if status == "none":
+        updated_at = _parse_utc(manifest.get("updated_at"))
+        age_hours = ((_now() - updated_at).total_seconds() / 3600.0) if updated_at else 0.0
+        if age_hours >= _ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS:
+            return {
+                "allowed": True, "owner_session_status": "none",
+                "reason": (
+                    f"owner {owner!r} has no session-ledger manifest and the run has been untouched "
+                    f"for {age_hours:.1f}h (>= {_ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS:g}h floor)"
+                ),
+            }
+        return {
+            "allowed": False, "owner_session_status": "none",
+            "reason": (
+                f"owner {owner!r} has no session-ledger manifest and the run was updated only "
+                f"{age_hours:.1f}h ago (< {_ORPHAN_UNKNOWN_OWNER_MIN_AGE_HOURS:g}h floor) -- cannot "
+                "tell an orphan from a live synthetic-id session yet"
+            ),
+        }
+    return {
+        "allowed": False, "owner_session_status": status,
+        "reason": f"owner session {owner!r} liveness is {status!r} -- refusing to adopt",
+    }
+
+
+def abandon_run(
+    family: str, platform: str, run_id: str, *, reason: str, session_id: "str | None" = None,
+    adopt_orphaned: bool = False,
+) -> dict:
+    """Any non-terminal state -> ABANDONED. The owner check is unchanged; `adopt_orphaned`
+    (TC-04) is the one, explicit, ledger-gated exception -- see `_orphan_adoption_verdict`.
+    A successful adoption is recorded on the manifest (`original_session_owner`,
+    `adopted_at`, `adoption_reason`, `owner_session_status`) and as a `RUN_ADOPTED` event
+    BEFORE the abandon transition, so events.jsonl reads adopt -> abandon and the audit
+    trail never shows a run silently changing hands."""
     owner = _session_id(session_id)
     with _product_guard(family, platform):
         manifest = _load_manifest(family, platform, run_id)
-        if manifest["session_owner"] != owner:
-            raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+        prior_owner = manifest["session_owner"]
+        if prior_owner != owner:
+            if not adopt_orphaned:
+                raise ReadmeRefreshRunError(
+                    f"Run is owned by {prior_owner!r}, not {owner!r} (pass --adopt-orphaned to "
+                    "take over a run whose owner session has ended -- ledger-verified, never assumed)"
+                )
+            verdict = _orphan_adoption_verdict(manifest)
+            if not verdict["allowed"]:
+                raise ReadmeRefreshRunError(
+                    f"Run is owned by {prior_owner!r}, not {owner!r}; adoption refused: {verdict['reason']}"
+                )
+            manifest["original_session_owner"] = prior_owner
+            manifest["session_owner"] = owner
+            manifest["adopted_at"] = _utc()
+            manifest["adoption_reason"] = verdict["reason"]
+            manifest["owner_session_status"] = verdict["owner_session_status"]
+            _event(
+                family, platform, run_id, "RUN_ADOPTED",
+                adopted_by=owner, original_session_owner=prior_owner,
+                owner_session_status=verdict["owner_session_status"],
+                adoption_reason=verdict["reason"],
+            )
         _transition_abandoned(manifest, reason=reason)
         _clear_active(family, platform, run_id)
         return manifest
@@ -4628,6 +4776,15 @@ def main(argv: "list[str] | None" = None) -> int:
         cmd.add_argument("--run-id", required=True)
         cmd.add_argument("--reason", required=True)
         cmd.add_argument("--session-id")
+        if name == "abandon":
+            # TC-04: the only path that lets a non-owner touch a run -- and only after the
+            # session ledger confirms the owner session is closed/stale, or the owner id has no
+            # ledger record at all and the run has sat untouched past the age floor.
+            cmd.add_argument(
+                "--adopt-orphaned", action="store_true",
+                help="Adopt (then abandon) a run owned by a session that has ended -- verified "
+                     "against the session ledger, refused while the owner is still live.",
+            )
 
     # TC-HARDEN-05 (MT035): real, registered portfolio-wide audit -- not run-scoped (no
     # --run-id), matching this command's own read-only, no-active-run-required nature.
@@ -4888,7 +5045,10 @@ def main(argv: "list[str] | None" = None) -> int:
                 print(json.dumps(verdict, indent=2, ensure_ascii=False))
                 return 0 if verdict["converged"] else 2
             elif args.command == "abandon":
-                manifest = abandon_run(family, platform, args.run_id, reason=args.reason, session_id=args.session_id)
+                manifest = abandon_run(
+                    family, platform, args.run_id, reason=args.reason, session_id=args.session_id,
+                    adopt_orphaned=args.adopt_orphaned,
+                )
             elif args.command == "recover":
                 manifest = recover_run(family, platform, args.run_id, reason=args.reason, session_id=args.session_id)
             else:
