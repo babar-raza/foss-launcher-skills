@@ -1602,6 +1602,63 @@ def test_ingest_candidate_blocks_on_unverified_enterprise_link(tmp_path, monkeyp
     assert result["enterprise_edition_link_resolves"]["findings"][0]["reason"] == "target_mismatch"
 
 
+def test_ingest_candidate_blocks_on_prose_in_at_a_glance_section(tmp_path, monkeypatch):
+    # TC-01 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): reproduces the real
+    # tex/python shape -- an italic prose caveat between `## At a Glance` and the mermaid fence
+    # -- which every diagram check let through (the run was APPROVED with 0 hard-gate findings).
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc01")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+
+    noted = _GOOD_CANDIDATE.replace(
+        "## At a Glance\n\n```mermaid",
+        "## At a Glance\n\n*Note: the diagram below describes the intended API surface — see\n"
+        "[Scope and Limitations](#scope-and-limitations) for this snapshot's current packaging defect.*\n\n"
+        "```mermaid",
+    )
+    assert noted != _GOOD_CANDIDATE
+    _write_candidate(repo_root, noted)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+    assert rr.status("testfam", "testplat", run_id)["state"] == "PLANNED"
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["at_a_glance_section_shape"]["hard_gate"] is True
+    assert [f["reason"] for f in result["at_a_glance_section_shape"]["findings"]] == ["prose_before_diagram"]
+    # the diagram itself is untouched, so no diagram check may double-report this
+    assert result["diagram_shape"]["findings"] == []
+
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    manifest = rr.ingest_candidate("testfam", "testplat", run_id)
+    assert manifest["state"] == "VERIFYING_EXAMPLES"
+
+
+def test_run_deterministic_checks_passes_live_code_units_to_api_coverage_check(tmp_path):
+    # TC-05: the shared fixture's code ledger carries no api_call_fingerprint (the real live
+    # shape on 354/475 entries). With the live units joined in, the gate is real: dropping the
+    # only surviving `pip install` demonstration from the candidate must fire it.
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    clean = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+    assert clean["code_example_api_coverage_survives"]["hard_gate"] is True
+    assert clean["code_example_api_coverage_survives"]["findings"] == []
+
+    without_install = _GOOD_CANDIDATE.replace('pip install -e ".[dev]"', "python -m build")
+    assert without_install != _GOOD_CANDIDATE
+    _write_candidate(repo_root, without_install)
+    dirty = rr._run_deterministic_checks("testfam", "testplat", without_install, clone_cache)
+    findings = dirty["code_example_api_coverage_survives"]["findings"]
+    assert findings, "the live-extractor fingerprint must make this gate real"
+    assert all(f["fingerprint_source"] == "live_extractor" for f in findings)
+
+
 def test_ingest_candidate_blocks_on_duplicate_api_reference_row(tmp_path, monkeypatch):
     # TC-HARDEN-21 (MT034, Twentieth incident): reproduces the real cells/cpp regeneration
     # regression -- an exact-duplicate class row within one API Reference table, undetected by
@@ -2217,34 +2274,81 @@ def test_readme_matches_published_upstream_false_for_empty_inputs():
     assert rr._readme_matches_published_upstream("", "") is False
 
 
-_MT053_PRESERVATION_TRACKING_KEYS = (
-    "content_unit_disposition_coverage",
-    "content_unit_excerpt_matches_extraction",
-    "content_unit_evidence_resolves",
-    "content_unit_evidence_supports_claim",  # TC-18, MT061-2026-09-01-TRACKB-FOLLOWON-2
-    "content_unit_merged_into_target_section",
-    "content_unit_no_exact_duplicate_merge",
-    "content_unit_redundant_claim_verifiable",
-    "content_unit_classification_plausibility",
-    "content_unit_probable_duplicate",
-    "content_unit_embedded_actionable_fact",
-    "image_content_unit_excluded_reason_verified",
-    "structural_unit_disposition_coverage",
-    "structural_unit_evidence_resolves",
-    "structural_unit_merged_into_target_section",
-    "structural_unit_no_exact_duplicate_merge",
-    "structural_unit_tree_paths_plausible",
-    "code_example_disposition_coverage",
-    "code_example_evidence_resolves",
-    "code_example_no_exact_duplicate_merge",
-    "code_example_api_coverage_survives",
-    "code_example_excluded_reason_citation_too_narrow",
-    "cli_category_representation",
-    "badge_disposition_coverage",
-    "badge_evidence_resolves",
-    "badge_preserved_or_credited_in_candidate",
-    "badge_probable_duplicate_disposition",
-)
+# TC-08 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the single home for this
+# list is now readme_refresh_run._PRESERVATION_TRACKING_KEYS -- a hand-copied literal here had
+# already drifted from the run module's `else` branch by three keys (see that tuple's own
+# comment). The parity test below proves the tuple and the `else` branch agree in BOTH
+# directions, so neither can drift silently again.
+_MT053_PRESERVATION_TRACKING_KEYS = tuple(key for key, _hard_gate in rr._PRESERVATION_TRACKING_KEYS)
+
+
+def test_preservation_tracking_keys_tuple_matches_else_branch_both_directions(tmp_path):
+    """Every key the unpublished `else` branch produces from old_readme_text + a ledger is in
+    the tuple (so the published bypass skips it with the disclosed shape), and every tuple key
+    is really produced by the `else` branch (no phantom keys). The three keys that had drifted
+    before TC-08 are asserted by name as the regression anchor."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    unpublished = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+    assert unpublished["readme_already_published"]["detail"]["published"] is False
+
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+    published = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+    assert published["readme_already_published"]["detail"]["published"] is True
+
+    else_only_keys = {k for k in unpublished if k not in published or published[k].get("skipped")}
+    skipped_keys = {k for k, v in published.items() if v.get("skipped")}
+    tuple_keys = set(_MT053_PRESERVATION_TRACKING_KEYS)
+    assert skipped_keys == tuple_keys, "published bypass must skip exactly the tuple's keys"
+    assert else_only_keys == tuple_keys, (
+        f"drift: keys produced only by the else branch but not in the tuple: "
+        f"{sorted(else_only_keys - tuple_keys)}; tuple keys never produced: {sorted(tuple_keys - else_only_keys)}"
+    )
+    for drifted in (
+        "structural_unit_disposition_text_diff",
+        "candidate_section_disposition_traceability",
+        "code_example_disposition_text_diff",
+        "content_unit_disposition_text_diff",
+    ):
+        assert drifted in tuple_keys
+    # The tuple's tiers agree with what the else branch really wires.
+    for key, hard_gate in rr._PRESERVATION_TRACKING_KEYS:
+        assert unpublished[key]["hard_gate"] is hard_gate, key
+
+
+def test_check_docstring_tier_matches_run_wiring():
+    """TC-08: a check whose docstring's first words say "Hard gate"/"HARD GATE" must be wired
+    hard_gate=True by _run_deterministic_checks, and one that says "Heuristic"/"Advisory" must be
+    wired False. check_process_narration_smells' docstring claimed "HARD GATE as of 2026-08-08"
+    for weeks while the run wired it advisory -- this is the mechanical parity that drift class
+    lacked. Mapping is parsed from the run function's own source (result key -> hard_gate ->
+    checks.<function>), so a check wired under two keys or a renamed key stays covered."""
+    import inspect
+    import re as _re
+    source = inspect.getsource(rr._run_deterministic_checks)
+    pattern = _re.compile(
+        r'result\["(\w+)"\]\s*=\s*\{\s*"hard_gate":\s*(True|False)\s*,[^}]*?checks\.(check_\w+)\(', _re.S
+    )
+    pairs = [(m.group(1), m.group(2) == "True", m.group(3)) for m in pattern.finditer(source)]
+    assert len(pairs) >= 100, "the source parse must see the whole battery, not a fragment"
+    mismatches = []
+    for key, wired_hard, function_name in pairs:
+        doc = (getattr(rr.checks, function_name).__doc__ or "").strip().lower()
+        if doc.startswith("hard gate"):
+            expected = True
+        elif doc.startswith(("heuristic", "advisory")):
+            expected = False
+        else:
+            continue
+        if expected != wired_hard:
+            mismatches.append((key, function_name, wired_hard))
+    assert mismatches == [], f"docstring tier disagrees with run wiring: {mismatches}"
 
 
 def test_run_deterministic_checks_bypasses_all_preservation_keys_once_published(tmp_path):

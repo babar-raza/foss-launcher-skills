@@ -1,7 +1,7 @@
 {
-  "_comment": "TC-34 (readme-refresh-trackb-and-followon-2026-09-01), SW-F fix. The durable, in-repo, git-tracked source of truth for the /readme-refresh (S-120) README structure -- previously only lived in a 1.8MB gitignored plan file. required_sections and check_function_count are BOTH independently, mechanically verified against the real code (readme_refresh_checks.py) by scripts/ci/checks/check_readme_template_contract_parity.py -- never hand-edit either field without also re-running that check; it will fail loudly if this file drifts from the code, or if the code drifts from this file.",
-  "schema_version": 1,
-  "verified_at": "2026-09-01",
+  "_comment": "TC-34 (readme-refresh-trackb-and-followon-2026-09-01), SW-F fix. The durable, in-repo, git-tracked source of truth for the /readme-refresh (S-120) README structure -- previously only lived in a 1.8MB gitignored plan file. required_sections, check_function_count and section_shapes[].enforced_by are ALL independently, mechanically verified against the real code (readme_refresh_checks.py) by scripts/ci/checks/check_readme_template_contract_parity.py -- never hand-edit any of them without also re-running that check; it will fail loudly if this file drifts from the code, or if the code drifts from this file.",
+  "schema_version": 2,
+  "verified_at": "2026-09-02",
   "required_sections": [
     "At a Glance",
     "Key Capabilities",
@@ -21,9 +21,44 @@
     }
   ],
   "section_order": "required_sections lists the canonical order; Additional Examples, when present, sits between Quick Start and API Reference.",
+  "section_shapes": {
+    "_comment": "TC-01 (readme-refresh-at-a-glance-retention-hardening-2026-09-02). The template contract used to stop at section NAMES; every section-BODY shape was either an incident-specific check or an unwritten convention held by imitation -- At a Glance's 'only the mermaid fence' shape appeared in no template, contract or rule and broke on 1 of 31 products (tex/python) while every gate passed. This list is the durable index of section-body invariants and the check that enforces each; the parity check asserts every enforced_by name exists as a real `def check_<name>(` in readme_refresh_checks.py, so an invariant can never again be documented without a mechanical backstop.",
+    "invariants": [
+      {
+        "section": "At a Glance",
+        "invariant": "body is exactly one ```mermaid fence and nothing else (blank lines allowed); never a note, caveat or intro sentence before or after the diagram -- a whole-product limitation is a Scope and Limitations bullet, a per-capability caveat is an inline node label",
+        "enforced_by": "check_at_a_glance_section_shape"
+      },
+      {
+        "section": "Scope and Limitations",
+        "invariant": "a bulleted list of designed/declared limitations (or no list at all when none traces to a public source -- never invented filler), followed by a separate plain-prose Enterprise Edition paragraph; never prose-paragraph limitations, never a bulleted Enterprise mention",
+        "enforced_by": "check_scope_limitations_format"
+      },
+      {
+        "section": "License",
+        "invariant": "starts with the fixed template sentence (linked or unlinked form per the detected license file); real additional content may follow, free-form narration may not replace it",
+        "enforced_by": "check_license_section_matches_template"
+      },
+      {
+        "section": "API Reference",
+        "invariant": "visible intro sentence naming real hub classes, then every module table row and curated member bullet inside a <details> block, unconditionally (no row-count threshold)",
+        "enforced_by": "check_api_reference_detail_collapsed"
+      },
+      {
+        "section": "Additional Examples",
+        "invariant": "the exhaustive examples table is collapsed inside <details>; every worked example inside the disclosure carries its own real, unique, non-generic heading",
+        "enforced_by": "check_additional_example_headings"
+      },
+      {
+        "section": "Dependencies",
+        "invariant": "### Required Package Dependencies always present (bullets or the fixed 'No required third-party package dependencies.' sentence); Optional/Development sub-headings omit only when their manifest bucket is empty; Native and System Requirements present whenever native_system is non-empty",
+        "enforced_by": "check_dependency_section_subheadings_present"
+      }
+    ]
+  },
   "check_function_count": {
-    "value": 112,
+    "value": 114,
     "source": "grep-verified count of ^def check_ in scripts/pipeline/commands/foss/readme_refresh_checks.py",
-    "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect."
+    "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect. 112 -> 114 on 2026-09-02 (check_at_a_glance_section_shape, check_content_unit_disposition_text_diff)."
   }
 }

@@ -120,7 +120,59 @@ def test_main_exits_zero_when_clean(tmp_path, capsys):
     assert "OK" in capsys.readouterr().out
 
 
+def test_section_shape_enforcer_resolves_to_a_real_check(tmp_path):
+    # TC-01 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): check 4.
+    contract = {
+        **_GOOD_CONTRACT,
+        "section_shapes": {"invariants": [
+            {"section": "At a Glance", "invariant": "one fence", "enforced_by": "check_one"},
+        ]},
+    }
+    root = _fixture_repo(tmp_path, contract=contract)
+    assert parity.run(repo_root=root) == []
+
+
+def test_section_shape_enforcer_missing_from_code_is_reported(tmp_path):
+    contract = {
+        **_GOOD_CONTRACT,
+        "section_shapes": {"invariants": [
+            {"section": "At a Glance", "invariant": "one fence", "enforced_by": "check_renamed_away"},
+        ]},
+    }
+    root = _fixture_repo(tmp_path, contract=contract)
+    violations = parity.run(repo_root=root)
+    assert any("section_shapes drift" in v and "check_renamed_away" in v for v in violations)
+
+
+def test_section_shape_enforcer_must_be_a_check_function_name(tmp_path):
+    contract = {
+        **_GOOD_CONTRACT,
+        "section_shapes": {"invariants": [
+            {"section": "License", "invariant": "fixed sentence", "enforced_by": "documented in prose only"},
+        ]},
+    }
+    root = _fixture_repo(tmp_path, contract=contract)
+    violations = parity.run(repo_root=root)
+    assert any("not a check_* function name" in v for v in violations)
+
+
+def test_contract_without_section_shapes_is_still_clean(tmp_path):
+    # schema_version 1 contracts (no section_shapes) stay valid -- check 4 is additive.
+    root = _fixture_repo(tmp_path, contract=_GOOD_CONTRACT)
+    assert parity.contract_section_shape_enforcers(_GOOD_CONTRACT) == []
+    assert parity.run(repo_root=root) == []
+
+
 def test_real_repo_is_currently_clean():
     """The real, live check against this repo's own actual files -- proves the fix that was
     applied (registry.yaml 105->109) actually landed, not just the synthetic fixture tests."""
     assert parity.run() == []
+
+
+def test_real_repo_contract_declares_at_a_glance_shape_with_live_enforcer():
+    """TC-01: the live contract must carry the At-a-Glance section-body invariant and its
+    enforcer must be a real function -- the invariant that was missing for 30 products."""
+    contract = json.loads(parity._CONTRACT_PATH.read_text(encoding="utf-8"))
+    pairs = dict(parity.contract_section_shape_enforcers(contract))
+    assert pairs.get("At a Glance") == "check_at_a_glance_section_shape"
+    assert "check_at_a_glance_section_shape" in (parity.real_check_function_names() or set())

@@ -10,11 +10,12 @@
 > `scripts/ci/checks/check_readme_template_contract_parity.py` (TC-34,
 > `readme-refresh-trackb-and-followon-2026-09-01`).
 >
-> This file does not restate every one of the ~112 individual `check_*` rules — that duplication
+> This file does not restate every one of the ~114 individual `check_*` rules — that duplication
 > would itself become a second, competing source of truth, exactly the failure mode SW-F names.
-> It records the one structural fact every consumer (the composing agent, the check battery, this
+> It records the structural facts every consumer (the composing agent, the check battery, this
 > doc, `scripts/pipeline/config/registry.yaml`'s own `change_impact` description) must agree on:
-> **which sections exist, in what order, and how many checks currently enforce the rest.**
+> **which sections exist, in what order, which section-body shape invariants exist and which
+> check enforces each, and how many checks currently enforce the rest.**
 
 ## Required sections, in order
 
@@ -41,6 +42,30 @@ Every generated README must contain exactly these ten `##` sections, in this ord
 justify a dedicated section, a content-quality judgment call the check battery deliberately does
 not try to automate. `cells/cpp` is the one portfolio product that legitimately has none.
 
+## Section shape invariants
+
+> Added 2026-09-02 (`readme-refresh-at-a-glance-retention-hardening-2026-09-02`, TC-01). Until
+> then this contract stopped at section *names*; every section-*body* shape was either an
+> incident-specific check or an unwritten convention held by imitation. "At a Glance contains
+> only the mermaid fence" appeared in no template, contract or rule — it held on 30 products by
+> copying siblings and broke on the 31st (tex/python, an italic prose caveat ahead of the fence)
+> while every gate passed, because all 17 diagram checks read the diagram through a
+> document-wide regex and never the section body.
+
+Every invariant below is recorded in `data/readme_template_contract.json` → `section_shapes`
+with the `check_*` function that enforces it; `check_readme_template_contract_parity.py` (check 4)
+fails if any `enforced_by` name is not a real `def check_<name>(` in the checks module. **An
+invariant may not be added here without a check** — that is the whole point of the index.
+
+| Section | Invariant | Enforced by |
+|---|---|---|
+| At a Glance | body is exactly one ```` ```mermaid ```` fence and nothing else (blank lines allowed) — never a note, caveat or intro sentence before or after the diagram; a whole-product limitation is a Scope and Limitations bullet, a per-capability caveat is an inline node label | `check_at_a_glance_section_shape` (hard) |
+| Scope and Limitations | bulleted designed/declared limitations (or no list when none traces to a public source — never invented filler) + a separate plain-prose Enterprise Edition paragraph | `check_scope_limitations_format` (hard) |
+| License | starts with the fixed template sentence (linked/unlinked per detected license file) | `check_license_section_matches_template` (hard) |
+| API Reference | visible hub-class intro, then every table row / member bullet inside `<details>`, unconditionally | `check_api_reference_detail_collapsed` (hard) |
+| Additional Examples | exhaustive table collapsed; every worked example inside the disclosure has its own real, unique, non-generic heading | `check_additional_example_headings` (hard) |
+| Dependencies | `### Required Package Dependencies` always present; Optional/Development omit only when empty; Native and System present whenever the manifest declares one | `check_dependency_section_subheadings_present` (hard) |
+
 ## Check-function count
 
 The real, current count of `check_*` functions in `readme_refresh_checks.py` is recorded in
@@ -59,3 +84,9 @@ documentation edit — it changes what `check_required_sections_present` accepts
 products. Update `_REQUIRED_SECTIONS` in `readme_refresh_checks.py` first, then this file and
 `data/readme_template_contract.json` to match, then re-run
 `check_readme_template_contract_parity.py` to confirm all three agree before committing.
+
+Adding a section-body invariant follows the same order in reverse: write the `check_*` function
+(with tests) first, wire it in `readme_refresh_run.py`, then add the row to
+`data/readme_template_contract.json` → `section_shapes.invariants` and to the table above. The
+parity check's check 4 refuses a contract row whose `enforced_by` does not exist in code, so a
+rule can never again be "documented, never mechanically checked".

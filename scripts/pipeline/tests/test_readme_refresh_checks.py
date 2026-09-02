@@ -5822,6 +5822,78 @@ def test_scope_limitations_format_bug_fix_no_false_positive_on_wrapped_bullet_pl
     assert checks.check_scope_limitations_format(text) == []
 
 
+# --- check_at_a_glance_section_shape (TC-01, readme-refresh-at-a-glance-retention-hardening-
+# 2026-09-02): the section body is exactly one mermaid fence. Real, captured defect: tex/python's
+# candidate was the only one of 31 with prose ahead of the fence, and the run was APPROVED with
+# 0 hard-gate findings because every diagram check reads the fence document-wide.
+
+_CLEAN_AT_A_GLANCE = (
+    "## At a Glance\n\n```mermaid\nflowchart TD\n  PRODUCT[\"P\"]\n```\n\n## Key Capabilities\n\n- Does a thing.\n"
+)
+_REAL_TEX_PYTHON_AT_A_GLANCE = (
+    "## At a Glance\n\n"
+    "*Note: the diagram below describes the intended API surface — see\n"
+    "[Scope and Limitations](#scope-and-limitations) for this snapshot's current packaging defect.*\n\n"
+    "```mermaid\nflowchart TD\n  PRODUCT[\"Aspose.TeX FOSS for Python\"]\n```\n\n"
+    "## Key Capabilities\n\n- Does a thing.\n"
+)
+
+
+def test_at_a_glance_section_shape_clean_on_single_mermaid_fence():
+    assert checks.check_at_a_glance_section_shape(_CLEAN_AT_A_GLANCE) == []
+
+
+def test_at_a_glance_section_shape_flags_real_tex_python_note_before_diagram():
+    findings = checks.check_at_a_glance_section_shape(_REAL_TEX_PYTHON_AT_A_GLANCE)
+    assert [f["reason"] for f in findings] == ["prose_before_diagram"]
+    assert "describes the intended" in findings[0]["excerpt"]
+
+
+def test_at_a_glance_section_shape_flags_prose_after_diagram():
+    text = _CLEAN_AT_A_GLANCE.replace(
+        "```\n\n## Key Capabilities", "```\n\nThe diagram above is illustrative.\n\n## Key Capabilities"
+    )
+    findings = checks.check_at_a_glance_section_shape(text)
+    assert [f["reason"] for f in findings] == ["prose_after_diagram"]
+    assert "illustrative" in findings[0]["excerpt"]
+
+
+def test_at_a_glance_section_shape_flags_missing_diagram():
+    text = "## At a Glance\n\nJust a sentence.\n\n## Key Capabilities\n\n- Does a thing.\n"
+    findings = checks.check_at_a_glance_section_shape(text)
+    assert [f["reason"] for f in findings] == ["no_diagram"]
+
+
+def test_at_a_glance_section_shape_flags_multiple_mermaid_blocks():
+    text = _CLEAN_AT_A_GLANCE.replace(
+        "```\n\n## Key Capabilities", "```\n\n```mermaid\nflowchart TD\n  B[\"x\"]\n```\n\n## Key Capabilities"
+    )
+    reasons = [f["reason"] for f in checks.check_at_a_glance_section_shape(text)]
+    assert reasons == ["multiple_mermaid_blocks"]
+
+
+def test_at_a_glance_section_shape_flags_html_or_comment_before_fence():
+    text = _CLEAN_AT_A_GLANCE.replace(
+        "## At a Glance\n\n```mermaid", "## At a Glance\n\n<!-- diagram -->\n<details>\n\n```mermaid"
+    )
+    assert [f["reason"] for f in checks.check_at_a_glance_section_shape(text)] == ["prose_before_diagram"]
+
+
+def test_at_a_glance_section_shape_noop_without_section():
+    # Absence is check_required_sections' finding, never double-reported here.
+    assert checks.check_at_a_glance_section_shape("## Key Capabilities\n\n- x\n") == []
+
+
+def test_at_a_glance_section_shape_only_inspects_its_own_section():
+    text = _CLEAN_AT_A_GLANCE + "\nA paragraph after the bullets, in another section.\n"
+    assert checks.check_at_a_glance_section_shape(text) == []
+
+
+def test_at_a_glance_section_shape_tolerates_blank_lines_only():
+    text = "## At a Glance\n\n\n\n```mermaid\nflowchart TD\n  P[\"x\"]\n```\n\n\n\n## Key Capabilities\n\n- x\n"
+    assert checks.check_at_a_glance_section_shape(text) == []
+
+
 def test_dev_test_artifacts_linked_flags_missing_link():
     detected = [{
         "relative_path": "AGENTS.md", "kind": "agents_guide", "section": "Documentation & Resources",
@@ -9029,6 +9101,97 @@ def test_code_example_text_diff_skips_dangling_unit_id():
     assert checks.check_code_example_disposition_text_diff([], dispositions, "anything") == []
 
 
+# --- check_content_unit_disposition_text_diff (TC-06, readme-refresh-at-a-glance-retention-
+# hardening-2026-09-02): the PROSE twin of the code/structural text-diff gates above. Advisory
+# (103/1963 live prose merged_verbatim claims fail it across 10 products -- see docstring).
+
+_OLD_README_PROSE_FOR_TEXT_DIFF = (
+    "# aspose-tex\n\n"
+    "> **Status: Pre-Alpha.** The core engine and public API are under active\n"
+    "> development. Interfaces may change between releases.\n\n"
+    "## Requirements\n\n- Python 3.10+\n\n"
+    "`TeXJob.messages` returns a copy of the messages collected during the most\n"
+    "recent run — `\\message` and `\\write 16` append plain-text messages.\n"
+)
+
+
+def _prose_verbatim_dispositions(units, **overrides):
+    entries = []
+    for unit in units:
+        entry = {
+            "unit_id": unit["unit_id"], "disposition": "merged_verbatim",
+            "target_section": "Scope and Limitations",
+            "verification": {"status": "verified_against_source", "evidence_ref": "pyproject.toml"},
+        }
+        entry.update(overrides.get(unit["unit_id"], {}))
+        entries.append(entry)
+    return entries
+
+
+def test_content_unit_text_diff_flags_merged_verbatim_prose_absent_from_candidate():
+    units = checks.extract_old_readme_content_units(_OLD_README_PROSE_FOR_TEXT_DIFF)
+    messages_unit = next(u for u in units if "TeXJob.messages" in u["excerpt"])
+    # The candidate REWORDED the sentence (the real tex/python u0010 shape: the "returns a copy
+    # ... most recent run" clause is gone) while the ledger still claims verbatim reuse.
+    candidate = (
+        "## Key Capabilities\n\n- Collect run diagnostics via `TeXJob.messages`: `\\message` and "
+        "`\\write 16` append plain-text entries.\n"
+    )
+    findings = checks.check_content_unit_disposition_text_diff(
+        [messages_unit], _prose_verbatim_dispositions([messages_unit]), candidate,
+    )
+    assert len(findings) == 1
+    assert findings[0]["unit_id"] == messages_unit["unit_id"]
+    assert "merged_reframed" in findings[0]["reason"]
+
+
+def test_content_unit_text_diff_clean_when_verbatim_prose_present():
+    units = checks.extract_old_readme_content_units(_OLD_README_PROSE_FOR_TEXT_DIFF)
+    candidate = "## Scope and Limitations\n\n" + "\n\n".join(u["excerpt"] for u in units) + "\n"
+    assert checks.check_content_unit_disposition_text_diff(units, _prose_verbatim_dispositions(units), candidate) == []
+
+
+def test_content_unit_text_diff_tolerates_marker_case_dash_quote_and_whitespace_variance():
+    units = checks.extract_old_readme_content_units(_OLD_README_PROSE_FOR_TEXT_DIFF)
+    status_unit = next(u for u in units if "Pre-Alpha" in u["excerpt"])
+    python_unit = next(u for u in units if "3.10" in u["excerpt"])
+    messages_unit = next(u for u in units if "TeXJob.messages" in u["excerpt"])
+    candidate = (
+        "## Scope and Limitations\n\n"
+        # blockquote marker gone, wrapped differently, title-cased words changed in case
+        "- **STATUS: PRE-ALPHA.** The core engine and public API are under active development. "
+        "Interfaces may change between releases.\n"
+        # bullet marker gone (a table cell)
+        "| Python 3.10+ |\n\n"
+        # em dash -> hyphen, curly quotes, line re-wrapped
+        "`TeXJob.messages` returns a copy of the messages collected during the most recent run - "
+        "`\\message` and `\\write 16` append plain-text messages.\n"
+    )
+    assert checks.check_content_unit_disposition_text_diff(
+        [status_unit, python_unit, messages_unit],
+        _prose_verbatim_dispositions([status_unit, python_unit, messages_unit]), candidate,
+    ) == []
+
+
+def test_content_unit_text_diff_ignores_non_verbatim_dispositions():
+    # A merged_reframed unit is never checked -- which is exactly why a sub-claim lost inside a
+    # reframe (tex/python u0010) is outside this check's scope by construction; that class is
+    # surfaced by the retention report's fidelity score, not here.
+    units = checks.extract_old_readme_content_units(_OLD_README_PROSE_FOR_TEXT_DIFF)
+    reframed = _prose_verbatim_dispositions(units)
+    for entry in reframed:
+        entry["disposition"] = "merged_reframed"
+    assert checks.check_content_unit_disposition_text_diff(units, reframed, "nothing here") == []
+
+
+def test_content_unit_text_diff_skips_dangling_unit_id():
+    dispositions = [{
+        "unit_id": "u9999", "disposition": "merged_verbatim", "target_section": "Intro",
+        "verification": {"status": "verified_against_source", "evidence_ref": "x"},
+    }]
+    assert checks.check_content_unit_disposition_text_diff([], dispositions, "anything") == []
+
+
 def test_code_example_evidence_resolves_reuses_content_unit_evidence_resolves(tmp_path):
     # TC-HARDEN-74's own explicit reuse requirement: check_content_unit_evidence_resolves is
     # reused VERBATIM as the code-example evidence-resolution gate -- no new implementation.
@@ -9077,6 +9240,100 @@ def test_check_code_example_api_coverage_survives_skips_excluded_entries():
     candidate = "## Quick Start\n\n```python\nprint(1)\n```\n"
     dispositions = [_code_disposition(unit_id="c0001a", disposition="excluded", excluded_reason="not preserved, low value, no real user demand confirmed")]
     assert checks.check_code_example_api_coverage_survives(candidate, dispositions) == []
+
+
+# --- TC-05 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): extractor-authoritative
+# fingerprint. Real, confirmed defect: 354 of 475 live ledger entries omit api_call_fingerprint,
+# so this declared hard gate silently no-op'd for 24 of 27 tracked products.
+
+_OLD_README_WITH_PBR_EXAMPLE = (
+    "# Old\n\n## Create and Inspect Materials\n\n```java\n"
+    "import com.aspose.threed.PbrMaterial;\n\n"
+    "PbrMaterial pbr = new PbrMaterial();\n"
+    "pbr.setAlbedo(new Vector3(1, 1, 1));\n"
+    "pbr.setMetallicFactor(0.5);\n"
+    "pbr.setRoughnessFactor(0.3);\n"
+    "```\n"
+)
+_CANDIDATE_WITHOUT_PBR_SETTERS = (
+    "## Additional Examples\n\n```java\n"
+    "PbrMaterial pbr = new PbrMaterial();\n"
+    "scene.getRootNode().createChildNode(\"m\", new Vector3(0, 0, 0));\n"
+    "```\n"
+)
+
+
+def test_check_code_example_api_coverage_survives_uses_live_extractor_when_ledger_lacks_fingerprint():
+    code_units = checks.extract_old_readme_code_units(_OLD_README_WITH_PBR_EXAMPLE)
+    assert code_units and code_units[0]["api_call_fingerprint"], "fixture must yield a real fingerprint"
+    # The real live shape: a ledger entry with NO api_call_fingerprint field at all.
+    dispositions = [{
+        "unit_id": code_units[0]["unit_id"], "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification": {"status": "verified_against_source", "evidence_ref": "src/PbrMaterial.java"},
+    }]
+    # Legacy 2-arg call (no code_units): the ledger path, vacuous exactly as before TC-05.
+    assert checks.check_code_example_api_coverage_survives(_CANDIDATE_WITHOUT_PBR_SETTERS, dispositions) == []
+    # With the live units: the three dropped setter calls are a real finding.
+    findings = checks.check_code_example_api_coverage_survives(
+        _CANDIDATE_WITHOUT_PBR_SETTERS, dispositions, code_units=code_units,
+    )
+    assert len(findings) == 1
+    assert findings[0]["fingerprint_source"] == "live_extractor"
+    assert "pbr.setAlbedo" in findings[0]["fingerprint"]
+    assert "pbr.setAlbedo" not in findings[0]["survived"]
+
+
+def test_check_code_example_api_coverage_survives_live_fingerprint_passes_when_calls_survive():
+    code_units = checks.extract_old_readme_code_units(_OLD_README_WITH_PBR_EXAMPLE)
+    dispositions = [{
+        "unit_id": code_units[0]["unit_id"], "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification": {"status": "verified_against_source", "evidence_ref": "src/PbrMaterial.java"},
+    }]
+    candidate = "## Additional Examples\n\n" + _OLD_README_WITH_PBR_EXAMPLE.split("\n\n", 2)[2]
+    assert checks.check_code_example_api_coverage_survives(candidate, dispositions, code_units=code_units) == []
+
+
+def test_check_code_example_api_coverage_survives_skips_mermaid_units():
+    old = (
+        "# Old\n\n## At a glance\n\n```mermaid\nflowchart TD\n"
+        '  sp1["STL files (binary and ASCII)"]\n  PRODUCT["Aspose.3D"]\n'
+        '  c1["Automatic 3D format detection"]\n  sp1 --> PRODUCT --> c1\n```\n'
+    )
+    code_units = checks.extract_old_readme_code_units(old)
+    assert code_units and code_units[0]["language"] == "mermaid"
+    dispositions = [{
+        "unit_id": code_units[0]["unit_id"], "disposition": "merged_reframed",
+        "target_section": "At a Glance",
+        "verification": {"status": "verified_against_source", "evidence_ref": "src/x"},
+    }]
+    # A candidate with a completely different diagram must never be flagged on diagram-label
+    # junk tokens -- diagrams are gated by the diagram checks, not by API-call survival.
+    candidate = "## At a Glance\n\n```mermaid\nflowchart TD\n  PRODUCT[\"Aspose.3D\"]\n```\n"
+    assert checks.check_code_example_api_coverage_survives(candidate, dispositions, code_units=code_units) == []
+
+
+def test_check_code_example_api_coverage_survives_falls_back_to_ledger_for_dangling_unit_id():
+    code_units = checks.extract_old_readme_code_units(_OLD_README_WITH_PBR_EXAMPLE)
+    dispositions = [_code_disposition(
+        unit_id="c9999", disposition="merged_reframed",
+        api_call_fingerprint=("FontSubsetter.subset_for_web_with_coverage",),
+    )]
+    findings = checks.check_code_example_api_coverage_survives(
+        _CANDIDATE_WITHOUT_PBR_SETTERS, dispositions, code_units=code_units,
+    )
+    assert len(findings) == 1 and findings[0]["fingerprint_source"] == "ledger"
+
+
+def test_candidate_code_fingerprint_ignores_mermaid_fences():
+    text = (
+        "```mermaid\nflowchart TD\n  A[\"Load files (files.load)\"]\n```\n"
+        "```python\nfrom x import Loader\nLoader.open(\"a\")\n```\n"
+    )
+    fingerprint = checks._candidate_code_fingerprint(text)
+    assert "Loader.open" in fingerprint
+    assert not any("files" in call for call in fingerprint)
 
 
 # --- check_cli_category_representation (TC-HARDEN-75) ---------------------------------------

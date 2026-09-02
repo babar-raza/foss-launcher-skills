@@ -2212,6 +2212,51 @@ def ingest_candidate(
         return manifest
 
 
+# TC-08 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the ONE list of old-README
+# preservation-tracking result keys -- every key `_run_deterministic_checks`'s `else` branch
+# produces from old_readme_text + a disposition ledger, with its hard-gate tier. The published-
+# bypass branch (MT053) iterates this tuple to emit the uniform `skipped` no-op, and
+# test_readme_refresh_run.py's parity test asserts the `else` branch produces exactly these keys
+# (both directions). Before this tuple existed the skip list was a hand-copied literal inside
+# the `if readme_already_published:` block and had ALREADY drifted from the `else` branch by
+# three keys (structural_unit_disposition_text_diff, candidate_section_disposition_traceability,
+# code_example_disposition_text_diff -- each added to the `else` branch by a later mission and
+# never to the skip list), so a published product simply lacked those keys instead of carrying
+# the disclosed skipped shape. Single-home facts drift; this is the single home.
+_PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
+    ("content_unit_disposition_coverage", True),
+    ("content_unit_excerpt_matches_extraction", True),
+    ("content_unit_evidence_resolves", True),
+    ("content_unit_evidence_supports_claim", False),
+    ("content_unit_merged_into_target_section", True),
+    ("content_unit_disposition_text_diff", False),  # TC-06
+    ("content_unit_no_exact_duplicate_merge", True),
+    ("content_unit_redundant_claim_verifiable", False),
+    ("content_unit_classification_plausibility", False),
+    ("content_unit_probable_duplicate", False),
+    ("content_unit_embedded_actionable_fact", False),
+    ("image_content_unit_excluded_reason_verified", False),
+    ("structural_unit_disposition_coverage", True),
+    ("structural_unit_evidence_resolves", True),
+    ("structural_unit_merged_into_target_section", True),
+    ("structural_unit_no_exact_duplicate_merge", True),
+    ("structural_unit_disposition_text_diff", True),  # drifted key, restored
+    ("structural_unit_tree_paths_plausible", False),
+    ("candidate_section_disposition_traceability", False),  # drifted key, restored
+    ("code_example_disposition_coverage", True),
+    ("code_example_evidence_resolves", True),
+    ("code_example_no_exact_duplicate_merge", True),
+    ("code_example_disposition_text_diff", True),  # drifted key, restored
+    ("code_example_api_coverage_survives", True),
+    ("code_example_excluded_reason_citation_too_narrow", False),
+    ("cli_category_representation", False),
+    ("badge_disposition_coverage", True),
+    ("badge_evidence_resolves", True),
+    ("badge_preserved_or_credited_in_candidate", True),
+    ("badge_probable_duplicate_disposition", False),
+)
+
+
 def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache: Path) -> dict:
     result: dict[str, dict] = {}
 
@@ -2303,6 +2348,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # (<=5 capabilities = 1 column, >=6 = 2 balanced columns), both hard gates.
     result["diagram_shape"] = {
         "hard_gate": True, "findings": checks.check_diagram_shape(text),
+    }
+    # TC-01 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): every diagram check
+    # above and below reads the diagram through a document-wide regex, never the section body --
+    # prose between `## At a Glance` and the fence was invisible to the whole battery (tex/python,
+    # the only such candidate of 31, was APPROVED with 0 hard-gate findings). Section shape is
+    # a candidate-quality property, so this never enters the published-bypass skip list.
+    result["at_a_glance_section_shape"] = {
+        "hard_gate": True, "findings": checks.check_at_a_glance_section_shape(text),
     }
     result["diagram_column_balance"] = {
         "hard_gate": True, "findings": checks.check_diagram_column_balance(text),
@@ -2616,34 +2669,7 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
                 "product; see MT053"
             ),
         }
-        for _key, _hard_gate in (
-            ("content_unit_disposition_coverage", True),
-            ("content_unit_excerpt_matches_extraction", True),
-            ("content_unit_evidence_resolves", True),
-            ("content_unit_evidence_supports_claim", False),
-            ("content_unit_merged_into_target_section", True),
-            ("content_unit_no_exact_duplicate_merge", True),
-            ("content_unit_redundant_claim_verifiable", False),
-            ("content_unit_classification_plausibility", False),
-            ("content_unit_probable_duplicate", False),
-            ("content_unit_embedded_actionable_fact", False),
-            ("image_content_unit_excluded_reason_verified", False),
-            ("structural_unit_disposition_coverage", True),
-            ("structural_unit_evidence_resolves", True),
-            ("structural_unit_merged_into_target_section", True),
-            ("structural_unit_no_exact_duplicate_merge", True),
-            ("structural_unit_tree_paths_plausible", False),
-            ("code_example_disposition_coverage", True),
-            ("code_example_evidence_resolves", True),
-            ("code_example_no_exact_duplicate_merge", True),
-            ("code_example_api_coverage_survives", True),
-            ("code_example_excluded_reason_citation_too_narrow", False),
-            ("cli_category_representation", False),
-            ("badge_disposition_coverage", True),
-            ("badge_evidence_resolves", True),
-            ("badge_preserved_or_credited_in_candidate", True),
-            ("badge_probable_duplicate_disposition", False),
-        ):
+        for _key, _hard_gate in _PRESERVATION_TRACKING_KEYS:
             result[_key] = {"hard_gate": _hard_gate, "findings": [], **_skip_detail}
         # Real bug found live wiring this in (MT053): a later check outside this block --
         # check_dependency_disposition_reconciliation, added by MT041 after this preservation-
@@ -2714,6 +2740,13 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["content_unit_merged_into_target_section"] = {
             "hard_gate": True,
             "findings": checks.check_content_unit_merged_into_target_section(text, dispositions),
+        }
+        # TC-06 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the prose twin of the
+        # code/structural text-diff gates below -- advisory, with a disclosed 103/1963 portfolio
+        # baseline; see the check's own docstring for the promotion path.
+        result["content_unit_disposition_text_diff"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_disposition_text_diff(content_units, dispositions, text),
         }
         result["content_unit_no_exact_duplicate_merge"] = {
             "hard_gate": True,
@@ -2856,9 +2889,15 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
                 code_units, code_example_dispositions, text,
             ),
         }
+        # TC-05 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): pass the LIVE code
+        # units so the check joins each ledger entry to the extractor's own fingerprint -- the
+        # ledger field was absent on 354/475 live entries, leaving this hard gate vacuous for 24
+        # of 27 tracked products. See the check's own docstring for the measured impact.
         result["code_example_api_coverage_survives"] = {
             "hard_gate": True,
-            "findings": checks.check_code_example_api_coverage_survives(text, code_example_dispositions),
+            "findings": checks.check_code_example_api_coverage_survives(
+                text, code_example_dispositions, code_units=code_units,
+            ),
         }
         result["code_example_excluded_reason_citation_too_narrow"] = {
             "hard_gate": False,

@@ -207,10 +207,14 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 3  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 4  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
-# hard gate)
+# hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
+# check_at_a_glance_section_shape (hard), check_content_unit_disposition_text_diff (advisory),
+# and check_code_example_api_coverage_survives switching to the live extractor's fingerprint
+# (a pass/fail-semantics change for a hard gate that had been silently vacuous for 24 of 27
+# tracked products -- see its docstring)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -5697,6 +5701,79 @@ def check_scope_limitations_format(readme_text: str) -> list[dict]:
     return findings
 
 
+_AT_A_GLANCE_SECTION_RE = re.compile(
+    r"^##\s+At a Glance\s*$(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL | re.IGNORECASE
+)
+
+
+def check_at_a_glance_section_shape(readme_text: str) -> list[dict]:
+    """Hard gate (TC-01, readme-refresh-at-a-glance-retention-hardening-2026-09-02). The
+    `## At a Glance` section body must be exactly one ```mermaid fence and nothing else --
+    blank lines around the fence are the only other content allowed.
+
+    Real, confirmed defect this closes: tex/python's candidate opened the section with an
+    italic prose caveat (*"Note: the diagram below describes the intended API surface -- see
+    Scope and Limitations for this snapshot's current packaging defect."*) ahead of the fence
+    -- the ONLY such case in all 31 canonical candidates and all 150 candidate files across every
+    archived tree, and a documented, never-executed deletion (the template plan ordered that
+    cross-reference removed "in lockstep" with the old top-of-file blockquote it pointed at; it
+    was reworded instead and survived two regenerations in two different wordings). The run was
+    APPROVED with 0 hard-gate findings: "At a Glance contains only the mermaid block" was an
+    unwritten convention held by imitation across 30 products -- it appeared in no template, no
+    contract, and no rule -- and every one of the 17 diagram checks reads the diagram through
+    the document-wide `extract_mermaid_block` regex, never the section body, so arbitrary prose
+    between the heading and the fence was invisible to the whole battery. The original At-a-Glance
+    standard already said the right thing ("Omit rather than caveat when the limitation is
+    already clearly documented in prose elsewhere in the same file"); this is its mechanical
+    backstop, the same "documented rule, never mechanically enforced" closure shape as
+    `check_license_section_matches_template` and `check_api_reference_detail_collapsed`.
+
+    Findings (reason enum, matching `check_scope_limitations_format`'s shape): `no_diagram`
+    (zero mermaid fences in the section), `multiple_mermaid_blocks`, `prose_before_diagram`,
+    `prose_after_diagram` -- the last two carry the offending text's first 160 chars as
+    `excerpt`. Returns `[]` when the section is absent entirely (`check_required_sections` owns
+    absence, and the two gates must not double-report the same defect). Baseline measured
+    2026-09-02: 30 of 31 live candidates pass; tex/python fails `prose_before_diagram`.
+    """
+    section_match = _AT_A_GLANCE_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    body = section_match.group(1)
+    fences = list(_MERMAID_BLOCK_FULL_RE.finditer(body))
+    findings: list[dict] = []
+    if not fences:
+        findings.append({
+            "reason": "no_diagram",
+            "detail": "At a Glance must contain exactly one ```mermaid fence -- none found",
+            "excerpt": body.strip()[:160],
+        })
+        return findings
+    if len(fences) > 1:
+        findings.append({
+            "reason": "multiple_mermaid_blocks",
+            "detail": f"At a Glance must contain exactly one ```mermaid fence -- found {len(fences)}",
+            "excerpt": "",
+        })
+    before = body[:fences[0].start()].strip()
+    after = body[fences[-1].end():].strip()
+    if before:
+        findings.append({
+            "reason": "prose_before_diagram",
+            "detail": "At a Glance must open directly with its ```mermaid fence -- no note, caveat, "
+                      "or intro prose belongs here (a whole-product limitation is a Scope and "
+                      "Limitations bullet; a per-capability caveat is an inline node label)",
+            "excerpt": before[:160],
+        })
+    if after:
+        findings.append({
+            "reason": "prose_after_diagram",
+            "detail": "At a Glance must end with its ```mermaid fence -- nothing may follow the "
+                      "diagram inside this section",
+            "excerpt": after[:160],
+        })
+    return findings
+
+
 def check_dev_test_artifacts_linked(readme_text: str, detected_artifacts: list[dict]) -> list[dict]:
     """Hard gate (2026-08-09, MT029 Item 5). An 8-product clone-cache audit found real,
     recurring gaps: `AGENTS.md`/`agents.md` present but unlinked in 4 of 5 applicable repos;
@@ -8758,6 +8835,79 @@ def check_code_example_disposition_text_diff(
     return findings
 
 
+_VERBATIM_PROSE_PUNCT_TABLE = str.maketrans({
+    "—": "-", "–": "-", "‒": "-", "‐": "-",  # em/en/figure/hyphen dashes
+    "‘": "'", "’": "'", "“": '"', "”": '"',  # curly quotes
+    " ": " ",  # non-breaking space
+})
+_LINE_BLOCKQUOTE_MARKER_RE = re.compile(r"^[ \t]*>[ \t]?", re.MULTILINE)
+
+
+def _normalize_for_verbatim_prose_match(text: str) -> str:
+    """`_normalize_for_drop_match` (emoji strip, whitespace collapse, casefold, leading bullet
+    strip) plus the two variances a genuinely verbatim prose reuse legitimately shows: dash /
+    curly-quote typography and blockquote markers (stripped per physical line BEFORE the
+    whitespace collapse, since a wrapped blockquote carries `> ` on every line). Deliberately
+    nothing looser -- a reworded sentence must still fail to match."""
+    unquoted = _LINE_BLOCKQUOTE_MARKER_RE.sub("", text)
+    translated = unquoted.translate(_VERBATIM_PROSE_PUNCT_TABLE)
+    return _normalize_for_drop_match(translated).strip()
+
+
+def check_content_unit_disposition_text_diff(
+    content_units: list[dict], dispositions: list[dict], candidate_text: str,
+) -> list[dict]:
+    """Advisory (TC-06, readme-refresh-at-a-glance-retention-hardening-2026-09-02). The prose
+    twin of `check_code_example_disposition_text_diff` / `check_structural_unit_disposition_
+    text_diff` (TC-21, 2026-08-30): a `merged_verbatim` prose disposition asserts "this exact
+    old sentence survived into the candidate unchanged", and until now nothing ever tested it --
+    prose `merged_verbatim` and `merged_reframed` were verified by the identical one-token-per-
+    sentence-group test in `check_content_unit_merged_into_target_section`, so a reworded (or
+    partly dropped) sentence labelled verbatim passed exactly like a faithful one.
+
+    Compares the live unit's `excerpt` against the whole candidate after
+    `_normalize_for_verbatim_prose_match` on both sides (casefold, whitespace, dash/quote
+    typography, leading bullet or blockquote marker -- never anything looser). Only
+    `merged_verbatim` is checked: `merged_reframed`/`corrected`/`excluded` all disclose that the
+    text changed, so there is nothing exact to verify -- which also means a sub-claim lost
+    INSIDE a `merged_reframed` unit (tex/python u0010's "returns a copy of the messages
+    collected during the most recent run", the real case this mission found by hand) is, by
+    construction, outside this check's scope; that class is surfaced by the retention report's
+    per-unit fidelity score, not by any pass/fail gate.
+
+    **Advisory, disclosed baseline**: measured 2026-09-02 against all live candidates, 103 of
+    1963 prose `merged_verbatim` claims across 10 products fail this test -- real mislabels of
+    the exact shape TC-21 found for code (tex/python c0001), but far too many to hard-gate in
+    one step without dirtying a third of the portfolio at once. Promotion path: relabel each
+    product's genuinely-reworded entries `merged_reframed` (or restore the verbatim text), then
+    flip `hard_gate` once a fresh portfolio measurement is zero.
+    """
+    findings: list[dict] = []
+    by_id = {unit["unit_id"]: unit for unit in content_units}
+    normalized_candidate = _normalize_for_verbatim_prose_match(candidate_text)
+    for entry in dispositions:
+        if entry.get("disposition") != "merged_verbatim":
+            continue
+        uid = entry.get("unit_id")
+        unit = by_id.get(uid)
+        if unit is None:
+            continue  # check_content_unit_disposition_coverage's own finding to raise
+        excerpt = _normalize_for_verbatim_prose_match(unit.get("excerpt") or "")
+        if not excerpt:
+            continue
+        if excerpt not in normalized_candidate:
+            findings.append({
+                "unit_id": uid,
+                "target_section": entry.get("target_section"),
+                "excerpt": (unit.get("excerpt") or "")[:160],
+                "reason": "disposition claims merged_verbatim but this unit's old prose (normalized "
+                          "for case/whitespace/dash/quote/marker variance only) is not present "
+                          "anywhere in the candidate -- if the wording genuinely changed, the "
+                          "correct disposition is 'merged_reframed', not 'merged_verbatim'",
+            })
+    return findings
+
+
 def check_code_example_no_exact_duplicate_merge(dispositions: list[dict]) -> list[dict]:
     """Hard gate (TC-HARDEN-74). Mirrors `check_content_unit_no_exact_duplicate_merge`/`check_
     structural_unit_no_exact_duplicate_merge`, adapted to `code-example-dispositions.json`'s own
@@ -8780,6 +8930,15 @@ def check_code_example_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
     distinct source dependency the live path never touches). Same asymmetry as the content-unit
     case: true lazy duplication (one disposition copied across unit_ids without distinct
     verification) still shares one evidence_ref and remains caught.
+
+    Disclosed limit (TC-05, 2026-09-02): this reads the LEDGER's `api_call_fingerprint` and is
+    vacuous for every entry that omits it (354 of 475 live entries) -- unlike its sibling
+    `check_code_example_api_coverage_survives`, it deliberately does NOT switch to the live
+    extractor's fingerprint: a portfolio prototype of that switch produced 11 false positives
+    across 6 products (generic setup fingerprints such as `pip install`, `npm run`, `wb.Save`
+    genuinely shared by distinct blocks/sub-units). Duplication needs a richer identity than a
+    dotted-call set; until one exists this stays ledger-based and its vacuity is stated here
+    rather than hidden.
     """
     seen: dict[tuple, list] = {}
     evidence_by_key: dict[tuple, set] = {}
@@ -8819,11 +8978,18 @@ def _candidate_code_fingerprint(readme_text: str) -> set[str]:
     """
     fingerprint: set[str] = set()
     for block_match in _FENCED_CODE_WITH_LANG_RE.finditer(readme_text):
+        # TC-05 (2026-09-02): a mermaid fence is a diagram, not code -- its labels produce junk
+        # "calls" ('files', 'COLLADA', 'construction'); skipped on this side for symmetry with
+        # the unit side of check_code_example_api_coverage_survives.
+        if block_match.group(1).strip().lower() == "mermaid":
+            continue
         fingerprint.update(_code_unit_api_call_fingerprint(block_match.group(2), block_match.group(1)))
     return fingerprint
 
 
-def check_code_example_api_coverage_survives(readme_text: str, dispositions: list[dict]) -> list[dict]:
+def check_code_example_api_coverage_survives(
+    readme_text: str, dispositions: list[dict], code_units: "list[dict] | None" = None,
+) -> list[dict]:
     """Hard gate (TC-HARDEN-75, MT047/Thirty-Seventh incident, 2026-08-15). The direct,
     mechanical fix for the `FontSubsetter`-class of defect this incident's own audit found:
     `font/python`'s real old README demonstrated `FontSubsetter.subset_for_web_with_coverage`,
@@ -8842,13 +9008,39 @@ def check_code_example_api_coverage_survives(readme_text: str, dispositions: lis
     mechanically, before any human audit was needed. An `excluded` entry is never checked here
     (it claims nothing survives); an entry with an empty fingerprint (e.g. a pure setup/import
     line with no real API call of its own) is skipped -- nothing checkable to verify.
+
+    **Extractor-authoritative since TC-05 (readme-refresh-at-a-glance-retention-hardening-
+    2026-09-02).** Real, confirmed defect: this hard gate read `api_call_fingerprint` from the
+    agent-authored LEDGER entry, and 354 of 475 `code-example-dispositions.json` entries across
+    the live portfolio (24 of 27 tracked products; tex/python 12 of 12) carry no such field --
+    every one short-circuited at `if not fingerprint: continue`, so a declared hard gate had
+    been reporting "clean" while testing nothing, portfolio-wide, since it shipped (2026-08-15).
+    The live extractor (`extract_old_readme_code_units`) already computes the fingerprint for
+    every unit; derived ledgers are never source of truth over it. When `code_units` is given,
+    each entry is joined to its live unit by `unit_id` and the UNIT's fingerprint is used; a
+    `mermaid` unit is skipped outright (its labels yield junk "calls" -- confirmed on 3d/java's
+    and 3d/python's own old At-a-Glance blocks); the ledger field is only the fallback for a
+    dangling id or when `code_units` is not supplied (the pre-TC-05 behavior, kept for direct
+    callers). Findings name `fingerprint_source` so a reviewer can tell which path decided.
+    Measured impact (2026-09-02): 3d/java c0011 (3 of 5 `PbrMaterial` setter calls dropped) and
+    3d/python c0006b/e/f (mesh/glTF API demonstrations dropped) become real findings -- true
+    positives, exactly the FontSubsetter class -- and are filed, not silently absorbed.
     """
     candidate_fingerprint = _candidate_code_fingerprint(readme_text)
+    live_units = {unit.get("unit_id"): unit for unit in (code_units or [])}
     findings: list[dict] = []
     for entry in dispositions:
         if entry.get("disposition") not in _CODE_UNIT_MERGE_DISPOSITIONS:
             continue
-        fingerprint = entry.get("api_call_fingerprint") or []
+        live_unit = live_units.get(entry.get("unit_id"))
+        if live_unit is not None:
+            if (live_unit.get("language") or "").lower() == "mermaid":
+                continue
+            fingerprint = live_unit.get("api_call_fingerprint") or []
+            fingerprint_source = "live_extractor"
+        else:
+            fingerprint = entry.get("api_call_fingerprint") or []
+            fingerprint_source = "ledger"
         if not fingerprint:
             continue
         survived = [call for call in fingerprint if call in candidate_fingerprint]
@@ -8856,8 +9048,9 @@ def check_code_example_api_coverage_survives(readme_text: str, dispositions: lis
             findings.append({
                 "unit_id": entry.get("unit_id"),
                 "target_section": entry.get("target_section"),
-                "fingerprint": fingerprint,
+                "fingerprint": list(fingerprint),
                 "survived": survived,
+                "fingerprint_source": fingerprint_source,
                 "reason": "fewer than half of this code unit's fingerprinted API calls appear "
                           "anywhere in the candidate's own code blocks -- the claimed survival "
                           "does not actually resolve",
