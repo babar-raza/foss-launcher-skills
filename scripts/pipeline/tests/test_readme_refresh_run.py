@@ -2411,6 +2411,69 @@ def test_preservation_tracking_keys_tuple_matches_else_branch_both_directions(tm
         assert unpublished[key]["hard_gate"] is hard_gate, key
 
 
+def _argparse_surface_from_source() -> dict[str, set[str]]:
+    """{subcommand: {long flags}} parsed from rr.main's own argparse source -- covers the
+    loop-built subparsers (`for name in (...)`) and the `if name == ...:` conditional flags."""
+    import inspect
+    import re as _re
+    source = inspect.getsource(rr.main)
+    surface: dict[str, set[str]] = {}
+    # Split into per-subparser chunks: explicit add_parser("x") blocks and the two loops.
+    # A quoted add_parser("x") starts an explicit chunk; the loops' own `sub.add_parser(name)`
+    # must NOT start one (it would split the loop away from its flags).
+    boundaries = [m.start() for m in _re.finditer(r'(?m)^[ \t]*(?:\w+\s*=\s*sub\.add_parser\("|for name in \()', source)]
+    boundaries.append(len(source))
+    for start, end in zip(boundaries, boundaries[1:]):
+        chunk = source[start:end]
+        explicit = _re.match(r'\s*\w+\s*=\s*sub\.add_parser\("([\w-]+)"', chunk)
+        if explicit:
+            names = [explicit.group(1)]
+            flags = set(_re.findall(r'add_argument\(\s*"(--[\w-]+)"', chunk))
+            for name in names:
+                surface.setdefault(name, set()).update(flags)
+            continue
+        loop = _re.match(r'\s*for name in \(([^)]*)\)', chunk)
+        if not loop:
+            continue
+        names = _re.findall(r'"([\w-]+)"', loop.group(1))
+        # Unconditional flags apply to every name in the loop; `if name == "x":` /
+        # `if name != "x":` blocks scope their flags.
+        shared = set(_re.findall(r'(?m)^        cmd\.add_argument\(\s*"(--[\w-]+)"', chunk))
+        for name in names:
+            surface.setdefault(name, set()).update(shared)
+        for cond in _re.finditer(r'if name (==|!=) "([\w-]+)":(.*?)(?=\n        if name |\n    \w|\Z)', chunk, _re.S):
+            op, target, body = cond.group(1), cond.group(2), cond.group(3)
+            flags = set(_re.findall(r'add_argument\(\s*"(--[\w-]+)"', body))
+            for name in names:
+                if (op == "==" and name == target) or (op == "!=" and name != target):
+                    surface[name].update(flags)
+    return surface
+
+
+def test_cli_contract_matches_skill_doc():
+    """TC-08 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the skill doc's
+    "Official execution contract" bash block must name every real subcommand and every real
+    long flag, and must not name a flag the code lacks. Before this test the block had silently
+    lost `push --acting-model` (required!) plus three whole verbs."""
+    import re as _re
+    skill_doc = rr._repo_root / "skills" / "readme-refresh.md"
+    text = skill_doc.read_text(encoding="utf-8")
+    block = _re.search(r"## Official execution contract.*?```bash\n(.*?)```", text, _re.S)
+    assert block, "skill doc must carry the execution-contract bash block"
+    documented_verbs = set(_re.findall(r"readme_refresh_run\.py ([\w-]+)", block.group(1)))
+    documented_flags = set(_re.findall(r"(--[\w-]+)", block.group(1)))
+
+    surface = _argparse_surface_from_source()
+    assert len(surface) >= 15, f"argparse surface parse looks incomplete: {sorted(surface)}"
+    real_verbs = set(surface)
+    real_flags = set().union(*surface.values())
+
+    assert real_verbs - documented_verbs == set(), f"verbs missing from the skill doc: {sorted(real_verbs - documented_verbs)}"
+    assert documented_verbs - real_verbs == set(), f"verbs documented but absent in code: {sorted(documented_verbs - real_verbs)}"
+    assert real_flags - documented_flags == set(), f"flags missing from the skill doc: {sorted(real_flags - documented_flags)}"
+    assert documented_flags - real_flags == set(), f"flags documented but absent in code: {sorted(documented_flags - real_flags)}"
+
+
 def test_check_docstring_tier_matches_run_wiring():
     """TC-08: a check whose docstring's first words say "Hard gate"/"HARD GATE" must be wired
     hard_gate=True by _run_deterministic_checks, and one that says "Heuristic"/"Advisory" must be

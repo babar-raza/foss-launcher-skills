@@ -36,20 +36,30 @@ Use only the registered control plane:
   [--run-id ID] [--session-id ID] [--skip-preflight]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py plan --run-id ID [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py ingest-candidate --run-id ID [--session-id ID]
-.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py verify-examples --run-id ID [--session-id ID]
-.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py recheck --run-id ID [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py verify-examples --run-id ID \
+  [--python-runner | --typescript-runner] [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py recheck --run-id ID \
+  [--allowed-headings "A,B"] [--mermaid-only] [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py status --run-id ID
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py approve --run-id ID \
   --note TEXT [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py push --run-id ID \
-  [--session-id ID] [--dry-run]
+  --acting-model "MODEL NAME" [--acknowledge-mirror-target TEXT] [--session-id ID] [--dry-run]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py verify --run-id ID [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py abandon --run-id ID \
-  --reason TEXT [--session-id ID]
+  --reason TEXT [--adopt-orphaned] [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py recover --run-id ID \
   --reason TEXT [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py audit-portfolio \
   [--family FAMILY --platform PLATFORM] [--json] [--candidate-tree TREE]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py retention-report FAMILY PLATFORM \
+  [--json] [--out PATH]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py pin-old-readme-baseline FAMILY PLATFORM \
+  --commit SHA --reason TEXT [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py reconcile-publications \
+  (--family FAMILY --platform PLATFORM | --all) [--apply] [--json]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py live-published-regression \
+  (--family FAMILY --platform PLATFORM | --all) [--json]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py declare-scope --run-id ID \
   --issue TEXT (--areas id1,id2 | --full-rewrite) [--allowed-deps id3,id4] [--criteria TEXT] [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py accept-blocks --run-id ID \
@@ -58,6 +68,48 @@ Use only the registered control plane:
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py converge-verify --run-id ID \
   [--apply-invalidation] [--session-id ID]
 ```
+
+**This block is mechanically checked against the real argparse surface** (`test_cli_contract_
+matches_skill_doc`, `scripts/pipeline/tests/test_readme_refresh_run.py`, TC-08 of
+`readme-refresh-at-a-glance-retention-hardening-2026-09-02`): every subcommand and every long
+flag `readme_refresh_run.py` accepts must appear here, and nothing here may name a flag the
+code lacks. Before that test existed the block had silently lost `push --acting-model` (a
+*required* flag — a push built from this doc failed), `--acknowledge-mirror-target`,
+`verify-examples --python-runner/--typescript-runner`, `recheck --allowed-headings/
+--mermaid-only`, and three whole verbs (`pin-old-readme-baseline`, `reconcile-publications`,
+`live-published-regression`) — the same "two hand-maintained homes for one fact" drift this
+skill keeps finding, here about its own CLI.
+
+**`abandon --adopt-orphaned` (TC-04, 2026-09-02).** Every mutating verb refuses a run owned by
+another session — correct, and unchanged. But a run whose OWNER session has ended stayed
+locked forever: `start` refuses while a non-terminal run is active, and no verb could abandon
+it. Confirmed live 2026-09-02 on five products (tex/python, font/python, pdf/typescript,
+slides/python owned by a session whose ledger manifest is `status: closed`; page/python owned
+by the synthetic id `mt056-proof-rerun` with no ledger manifest at all, locked since
+2026-08-18 — the "12-day cross-session lock with no CLI abandon override" the 2026-08-30
+mission recorded as BLOCKED_EXTERNAL). `--adopt-orphaned` is gated on the session ledger's own
+liveness verdict (`session_ledger.resolve_context`), never on the flag alone: owner `closed`
+→ adoptable; owner manifest swept to `stale` → adoptable; owner id unknown → adoptable only
+once the run's manifest has sat untouched for 24 h (a disclosed heuristic); owner live or
+ambiguous → refused, naming the status. A takeover is recorded on the manifest
+(`original_session_owner`, `adopted_at`, `adoption_reason`, `owner_session_status`) and as a
+`RUN_ADOPTED` event that precedes the ABANDONED transition. Then `start` proceeds normally.
+
+**`retention-report FAMILY PLATFORM` (TC-06, 2026-09-02) — read-only, no run, no lock, no
+marker.** The per-unit table a reviewer reads to answer "is everything in the original README
+retained": every content / structural / code / badge unit *and every H1/H2/H3 heading* of the
+old README → disposition → target section → where the candidate carries it (verbatim location
+or the merge gate's own traced target) → verification status, plus, for reframed prose, a
+**fidelity score naming the missing content words**. "0 hard-gate findings" is a verdict; this
+is the evidence behind it — confirmed necessary on tex/python, where every gate passed while a
+`merged_reframed` unit had silently lost "returns a copy of the messages collected during the
+most recent run" (score 0.59, missing `copy`, `collected`, `recent`), a Quick Start example had
+shrunk to a 3-line fragment, and a `### PDF output` heading had vanished with no ledger entry.
+`ingest-candidate` and `recheck` write the same table to `checks/retention-report.md` beside
+`result.json` on every call, pass or fail, so it is per-run evidence, not an on-demand favour.
+A `needs_attention` list names every `undisposed` / `not_found` / `reframed_low_fidelity` /
+`api_dropped` / `absent` row; a `reframed` row with a low score and named missing words is a
+review prompt, never a gate — 0.62 was a faithful reframe and 0.59 a real loss on the same file.
 
 `audit-portfolio` (TC-HARDEN-05, MT035, 2026-08-12) is the one subcommand with no `--run-id` —
 it's read-only and portfolio-wide, not run-scoped: it re-runs every deterministic check
@@ -679,6 +731,60 @@ after convergence, re-running the same regeneration produces no further diff.
    to satisfy the section's format contract; `check_scope_limitations_format`'s zero-bullet
    carve-out (below) makes this the valid, checked shape, not a workaround.
 
+   **Designed limitations vs transient defects — and un-runnable examples (TC-03,
+   `readme-refresh-at-a-glance-retention-hardening-2026-09-02`, user decision 2026-09-02).**
+   The public-source allowlist above says *where* a limitation may come from; this says *which
+   kind* belongs in the README at all. `## Scope and Limitations` carries **designed or declared
+   limitations** — facts a reader of the public source would read as "this is not (yet) how the
+   product works": a `NotImplementedError` stub (`\halign`), a milestone note in a docstring
+   ("pass `load_format=False` until the Plain TeX cascade lands"), a data directory the package's
+   own README documents as empty (hyphenation patterns), a Pre-Alpha classifier. **Transient
+   defects are never narrated in the README**: a package that fails to import at this commit, a
+   broken build backend, an unpublished PyPI/npm name, a test suite that cannot collect. Those
+   are bugs, not product scope — they go to `upstream-issues.md` (BLOCKING/INFORMATIONAL entries,
+   never shipped) and, when real, to a GitHub issue through the MT057 upstream-issue workflow
+   (below), exactly as `html/python` already handles its broken build backend: the README gives
+   the working path and says nothing about the defect. The examples stay the correct API usage
+   per the real source signatures, **with no caveat anywhere** — not in At a Glance, not above a
+   Quick Start block, not as a Scope bullet.
+   - **Never write verification-status language about this document's own diagram or
+     examples** — "the diagram below describes the intended API surface", "the examples above
+     cannot be executed against this snapshot", "the examples are checked against the source's
+     signatures so they describe the intended API correctly". That is Rule 3's confidence
+     language with this document as its subject; it narrates *our* verification, not the
+     product. `check_process_narration_smells` now carries a structural detector for exactly
+     this subject+verb shape (README-only pattern list, advisory — see the tier note there).
+   - **BAD** (real, shipped on `tex/python` until 2026-09-02, the only instance in 31 products):
+     an italic *"Note: the diagram below describes the intended API surface — see Scope and
+     Limitations for this snapshot's current packaging defect."* under `## At a Glance`, plus a
+     Scope bullet narrating "systemic indentation corruption … none of the code examples above
+     can currently be executed against this exact snapshot; the examples are checked against
+     the source's class/method signatures and docstrings, so they describe the intended API
+     correctly even though they cannot run until this is fixed upstream."
+   - **GOOD**: `html/python`'s Installation section — the working from-source path, nothing
+     about the defect; the defect lives in its `upstream-issues.md` BLOCKING entry. For
+     `tex/python` after this rule: the At-a-Glance note deleted, the packaging bullet deleted,
+     the `load_format=False` and hyphenation bullets kept (designed limitations, statically
+     observable), and the BLOCKING import-failure entry kept in `upstream-issues.md`.
+   - When `verify-examples --python-runner` reports `UPSTREAM-BROKEN` (TC-26), that label is
+     **reviewer evidence** (`verification/result.json`) and the reviewer's pointer is
+     `upstream-issues.md` + `upstream_issue_workflow.py` — never a sentence in the candidate.
+
+   **At-a-Glance section shape — heading, one mermaid fence, nothing else (TC-01, same
+   mission).** `## At a Glance` contains exactly one ```` ```mermaid ```` fence and no other
+   content: no note, caveat, intro sentence, HTML comment or `<details>` wrapper before it, nothing
+   after it. This held on 30 of 31 products for weeks by imitation only — it appeared in no
+   template, contract or rule, and every one of the 17 diagram checks reads the diagram through a
+   document-wide regex, never the section body, so `tex/python`'s prose note was APPROVED with 0
+   hard-gate findings. The original At-a-Glance standard's `Caveat-or-omit` rule applies to
+   **node labels** (an inline parenthetical on one capability) and says to *omit* the caveat
+   when the limitation is documented elsewhere in the file; a whole-product limitation is a
+   Scope and Limitations bullet, never prose in this section. `check_at_a_glance_section_shape`
+   (hard gate, below; `data/readme_template_contract.json` → `section_shapes`) is the mechanical
+   backstop, and `audit-portfolio`'s `skeleton_singletons` (TC-07) is the cross-product tripwire
+   that names any section whose opening shape no other product shares — the signal that would
+   have caught this without a bespoke rule, and that will surface the next unnamed shape drift.
+
    **At-a-Glance diagram composition — Starting Points, Outputs, and Project Structure
    (2026-08-13, `cells/java` healing pass).** The container-chain shape is fixed
    (`Product → Core Capabilities → Outputs`, with an optional `Starting Points` container ahead
@@ -843,8 +949,10 @@ after convergence, re-running the same regeneration produces no further diff.
    exactly 2 lines (unchanged shape) for `hybrid`. See the diagram-composition guidance above for
    which formats belong there. **Hard gates** (any finding blocks the transition): required
    sections present in title case, no `forum.aspose.com`/`*.aspose.app` links, license link
-   target resolves case-sensitively on disk, the diagram matches the fixed container-chain shape
-   and column-balance rule, the diagram's column order matches the recorded `data/
+   target resolves case-sensitively on disk, (**TC-01**, 2026-09-02) the `## At a Glance`
+   section body is exactly one mermaid fence with nothing before or after it
+   (`check_at_a_glance_section_shape` — the section-shape rule above), the diagram matches
+   the fixed container-chain shape and column-balance rule, the diagram's column order matches the recorded `data/
    diagram_capability_dependencies.json` entry (no-op when none exists — edges there are now
    keyed to the *current* diagram's own node IDs, re-recorded whenever a diagram is redrawn),
    `check_diagram_starting_points_presence` enforces the archetype-general presence/count rule
@@ -965,6 +1073,22 @@ after convergence, re-running the same regeneration produces no further diff.
      the suppressed badge was actually removed from the text. Both files reuse `check_content_
      unit_evidence_resolves` UNCHANGED for evidence resolution — both key entries on `unit_id`,
      which is all that function ever reads.
+   - `code-example-dispositions.json` (TC-HARDEN-74, MT047, 2026-08-15 — enforced by the run
+     since then but never named in this document until 2026-09-02, TC-03 of
+     `readme-refresh-at-a-glance-retention-hardening-2026-09-02`) covers every fenced CODE block
+     of the old README (`extract_old_readme_code_units`, `c%04d` ids, unconditional — runs even
+     for a section the prose/structural extractors already cover). One entry per unit:
+     `disposition` ∈ `merged_verbatim` / `merged_reframed` / `relocated` / `corrected` /
+     `excluded`, a real `target_section` for every merge, `excluded_reason` (≥15 chars) for an
+     exclusion, `verification.status` + `evidence_ref`. Hard gates: coverage
+     (`check_code_example_disposition_coverage`), exact-text survival for `merged_verbatim`
+     (`check_code_example_disposition_text_diff`, TC-21), and API-call survival for every merge
+     (`check_code_example_api_coverage_survives` — since TC-05, 2026-09-02, judged against the
+     LIVE extractor's `api_call_fingerprint`, never the ledger's own field, which 354 of 475
+     live entries omit; a `mermaid` unit is skipped). A self-contained old example that comes
+     back as a fragment (imports and setup lines gone) is a real retention loss even when its
+     API calls survive elsewhere — label it `merged_reframed` honestly, or better, keep it
+     self-contained: the retention report shows exactly which lines survived.
    **(MT042, Thirty-Second incident, 2026-08-14) — the badge row has a verified FLOOR, not just
    reconciliation:** everything above stops a real OLD badge from being silently lost — it
    vacuously passes when the old README has zero badges, exactly the gap that let a real
@@ -1058,6 +1182,13 @@ after convergence, re-running the same regeneration produces no further diff.
    `go build`, `cargo`, `cmake`/`ninja`, a disposable Python venv, `tsc`) is separate, follow-on
    work, injectable via `configure(verification_runner=...)`. Only transitions
    `VERIFYING_EXAMPLES → AWAITING_REVIEW` once every block has a real, named status.
+   `--python-runner` and `--typescript-runner` (TC-25) are the real runners that exist today;
+   `--python-runner` classifies a syntax-family failure whose last traceback frame is inside
+   the installed package (not the example) as `BLOCKED-WITH-REASON: UPSTREAM-BROKEN` (TC-26)
+   rather than a generic `RUNTIME-ERROR`. **That label is reviewer evidence and an
+   `upstream-issues.md` entry — never README content** (composition rule "Designed limitations
+   vs transient defects", above): the candidate gives the correct usage per source with no
+   caveat, and the defect is reported upstream through the issue workflow.
 
 6. **`recheck`** — re-runs the deterministic checks in place after manual edits during
    `AWAITING_REVIEW`, without a state transition. Use this after applying reviewer feedback

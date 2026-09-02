@@ -67,7 +67,7 @@ enforce the contract.
 |---|---|
 | Skill gate | `skill_context.py begin --skill S-120` then follow `skills/readme-refresh.md` |
 | CLI | `PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py <verb> …` |
-| Verbs | `start FAMILY PLATFORM [--skip-preflight]` · `plan` · `ingest-candidate` · `recheck [--allowed-headings …] [--mermaid-only]` · `verify-examples [--python-runner]` · `status [--json]` · `approve --note …` · `push [--dry-run]` · `verify` · `abandon --reason …` · `recover --reason …` — all `--run-id` bound; plus `audit-portfolio [--family F --platform P] [--json]` (read-only, portfolio-wide, per-product `published` flag) |
+| Verbs | `start FAMILY PLATFORM [--skip-preflight]` · `plan` · `ingest-candidate` · `recheck [--allowed-headings …] [--mermaid-only]` · `verify-examples [--python-runner \| --typescript-runner]` · `status [--json]` · `approve --note …` · `push --acting-model … [--acknowledge-mirror-target …] [--dry-run]` · `verify` · `abandon --reason … [--adopt-orphaned]` · `recover --reason …` — all `--run-id` bound; plus the non-run-scoped `audit-portfolio [--family F --platform P] [--json]` (read-only, portfolio-wide, per-product `published` flag + `skeleton_singletons`), `retention-report FAMILY PLATFORM [--json] [--out PATH]` (read-only per-unit retention table), `pin-old-readme-baseline FAMILY PLATFORM --commit SHA --reason …`, `reconcile-publications (--family F --platform P \| --all) [--apply] [--json]`, `live-published-regression (--family F --platform P \| --all) [--json]`, `declare-scope` / `accept-blocks` / `converge-verify` (MT056 scope machinery). The full block in `skills/readme-refresh.md` is parity-tested against argparse. |
 | Scoped tests (never the full suite) | `pytest scripts/pipeline/tests/test_readme_refresh_checks.py scripts/pipeline/tests/test_readme_refresh_run.py scripts/pipeline/tests/test_dependency_extract.py -q` (795 tests, ~2.5 min) |
 | Commits in this repo | **only** `scripts/pipeline/commands/ops/git_plumb_commit.py` (isolated temp index) — never plain `git commit`; never `git reset`/`git stash` (ST-021) |
 
@@ -115,12 +115,22 @@ enforce the contract.
 4. Diagram: flat `StartingPoints? → PRODUCT → Capabilities → Outputs`; no per-node edges; no
    custom styling; Starting Points required for transform/compile, forbidden for generative,
    exactly-2-line for hybrid (fresh source re-verification each time); containers format-pure;
-   every format claim 2-of-3 corroborated; ≤28-char tokens (label-geometry hard gate landing).
+   every format claim 2-of-3 corroborated; ≤28-char tokens (label-geometry hard gate). **The
+   `## At a Glance` section body is exactly one mermaid fence — nothing before or after it**
+   (`check_at_a_glance_section_shape`, hard gate, 2026-09-02; section-body invariants are
+   indexed in `data/readme_template_contract.json` → `section_shapes`, each with its enforcing
+   check, parity-gated).
 5. Prose hygiene: no process/audit narration; no generation-mechanism narration ("the table below
-   mirrors…"); no internal artifact names (`upstream-issues.md`, `content-dispositions.json`,
-   `.clone_cache`, `reports/…`); upstream defects appear only as non-forensic pointer sentences
-   and only when stated in an approved public source of the target product; License section =
-   fixed MIT template (linked/unlinked); headings Title Case (glTF exception).
+   mirrors…"); **no verification-status language about this document's own diagram/examples**
+   ("the diagram below describes the intended API", "the examples above cannot be executed
+   against this snapshot"); no internal artifact names (`upstream-issues.md`,
+   `content-dispositions.json`, `.clone_cache`, `reports/…`); **designed limitations** (stubs,
+   milestone docstrings, documented-empty data dirs) are Scope and Limitations bullets when
+   stated in an approved public source of the target product; **transient defects** (package
+   fails to import, broken build backend, unpublished package) are never in the README — they
+   live in `upstream-issues.md` and the upstream-issue workflow (2026-09-02 rule; html/python
+   precedent); License section = fixed MIT template (linked/unlinked); headings Title Case
+   (glTF exception).
 6. Links: Enterprise link exactly once, in Scope and Limitations' closing paragraph (separate
    paragraph, never inside a bullet), anchor = `Aspose.{Family} for {Public Platform} — Enterprise
    Edition` (family-neutral only when no platform page exists), URL from the resolved target map —
