@@ -1332,6 +1332,15 @@ def test_heading_title_case_allows_minor_words_lowercase():
     assert checks.check_heading_title_case(text) == []
 
 
+def test_heading_title_case_accepts_internally_cased_proper_nouns_and_identifiers():
+    # The docstring's "internal capitals always count as correctly cased" clause was never
+    # coded until 2026-09-02 (found live on 3d/python's glTF example heading).
+    text = "### Build a Mesh From Control Points and Export It to glTF\n\n### Render With `DocumentBuilder` on macOS\n"
+    assert checks.check_heading_title_case(text) == []
+    # A plain lowercase major word is still a finding.
+    assert [f["heading"] for f in checks.check_heading_title_case("### Export to gltf files\n")] == ["Export to gltf files"]
+
+
 def test_heading_title_case_allows_all_caps_acronyms():
     text = "## API Reference\n"
     assert checks.check_heading_title_case(text) == []

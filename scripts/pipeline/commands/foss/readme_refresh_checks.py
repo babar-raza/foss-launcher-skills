@@ -4676,6 +4676,11 @@ def _is_title_case(heading_text: str) -> bool:
     if not words:
         return True
     for index, word in enumerate(words):
+        # A word cased internally (`glTF`, `iOS`, `DocumentBuilder`) is a proper noun or an
+        # identifier -- correctly cased by the contract above. Found live 2026-09-02 on
+        # 3d/python's "... Export It to glTF": the clause was documented but never coded.
+        if any(ch.isupper() for ch in word[1:]):
+            continue
         if word[0].islower() and word.lower() not in _TITLE_CASE_MINOR_WORDS:
             return False
         if index == 0 and word[0].islower():
