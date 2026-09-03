@@ -404,6 +404,28 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         fails = [f for f in findings if "published on PyPI" in f.message]
         assert fails == [], f"honest not-yet-published prose must not be flagged: {fails}"
 
+    def test_honest_not_yet_published_prose_wrapped_across_lines_not_flagged(self, tmp_path):
+        """Regression: this repo's generated markdown hard-wraps prose, so a
+        single logical sentence routinely splits the negation word ("not
+        yet") onto the physical line BEFORE the channel-name mention (e.g.
+        "...is not yet\npublished on PyPI:"). The negation guard must look
+        one line back, not just the line containing the channel mention.
+        Found live 2026-09-03, cells/rust's real launch blog posts (both
+        wrapped "the crate is not yet\npublished on crates.io):" across
+        exactly this line boundary)."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Add the package to your project (it is not yet\n"
+            "published on PyPI):\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if "published on PyPI" in f.message]
+        assert fails == [], f"honest, line-wrapped not-yet-published prose must not be flagged: {fails}"
+
 
 class TestMissingInstructionsSuggestionStaysDocsOnly:
     """Regression: the separate 'no install instructions' INFO suggestion must

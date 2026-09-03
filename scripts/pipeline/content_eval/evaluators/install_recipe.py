@@ -519,11 +519,24 @@ class InstallRecipeEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
+        # The negation check must look one physical line back too: this
+        # repo's generated markdown hard-wraps prose at a fixed width, so a
+        # single logical sentence like "...is not yet\npublished on
+        # crates.io):" routinely splits the negation word ("not yet") onto
+        # the line BEFORE the channel-name mention. Checking only the
+        # current physical line missed the negation and false-FAILed
+        # already-honest "not yet published" prose. Found live 2026-09-03,
+        # cells/rust's first install_recipe pass on its two launch blog
+        # posts (both correctly say "the crate is not yet\npublished on
+        # crates.io):", wrapped across exactly this line boundary).
+        prev_line = ""
         for line_no, line in page.prose_lines:
-            if _NOT_PUBLISHED_NEGATION_RE.search(line):
+            if _NOT_PUBLISHED_NEGATION_RE.search(prev_line + " " + line):
+                prev_line = line
                 continue
             if channel["mention_re"].search(line) or channel["install_cmd_re"].search(line):
                 _emit(line_no, line)
+            prev_line = line
 
         for link in page.links:
             if _NOT_PUBLISHED_NEGATION_RE.search(link.text):
