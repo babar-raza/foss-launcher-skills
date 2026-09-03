@@ -305,8 +305,12 @@ def _old_readme_baseline_path(family: str, platform: str) -> Path:
     `excerpt`/`unit_id` fields were actually built against, when that commit is no longer the
     clone cache's live HEAD -- absent by default (the common case: the ledger was built against
     whatever is still HEAD, so no pin is needed and `_resolve_old_readme_text` falls straight
-    through to the live file, identical to every prior call). Only ever written by `pin-old-
-    readme-baseline`, never by any check/ingest/recheck/audit-portfolio code path."""
+    through to the live file, identical to every prior call). Historically only ever written by
+    `pin-old-readme-baseline` (a human, explicit, evidence-cited CLI call); as of RRABP-04
+    (readme-refresh-audit-baseline-pinning-hardening-2026-09-03) also written automatically by
+    `push()` the moment a run reaches PUSHED (`_auto_pin_old_readme_baseline_at_push`) -- do not
+    assume every sidecar found here was human-reviewed; check its `reason` field, which an
+    auto-pin always prefixes with `"auto-pinned at push"`."""
     return _reports_root / _candidate_tree_name / family / platform / "old-readme-baseline.json"
 
 
@@ -1874,6 +1878,53 @@ def classify_target_authority(family: str, platform: str) -> dict:
     return {"authority": authority, "signals": signals}
 
 
+def _target_authority_path(family: str, platform: str) -> Path:
+    """RRABP-03 (readme-refresh-audit-baseline-pinning-hardening-2026-09-03): sibling to
+    old-readme-baseline.json, same directory. Persists `classify_target_authority()`'s verdict
+    so the pin/audit layer can consult it without re-deriving -- previously (TC-16) computed and
+    discarded once inline inside `push()`, leaving every other subsystem unable to tell a
+    mirror-classified product (git history not durable, may be wholly discarded on the next
+    resnapshot -- confirmed live for font/python) from a canonical one when deciding whether
+    local git-archaeology backfill of a missing baseline pin is safe (ST-181/ST-182)."""
+    return _reports_root / _candidate_tree_name / family / platform / "target-authority.json"
+
+
+def _persist_target_authority(
+    family: str, platform: str, authority: dict, *, session_id: "str | None" = None,
+) -> dict:
+    """Writes `classify_target_authority()`'s verdict to its durable sidecar. Always overwrites
+    with the freshest verdict -- this is a re-derivable structural fact (git shape of the clone
+    cache), not an append-only, human-cited decision record like `old-readme-baseline.json`'s
+    pin, so there is nothing to preserve across writes."""
+    record = {
+        "authority": authority["authority"],
+        "signals": authority["signals"],
+        "recorded_at": _utc(),
+        "recorded_by": _session_id(session_id),
+    }
+    path = _target_authority_path(family, platform)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Independent review: use the module's own atomic-write helper (Windows-safe replace, used
+    # for manifest.json/action-ledger rows) rather than a raw write_text -- this sidecar is now
+    # written on every real push, not just a rare manual CLI call, so torn-write risk under this
+    # repo's documented concurrent-session hazards (ST-021) is no longer negligible.
+    _write_json(path, record)
+    return record
+
+
+def _load_persisted_target_authority(family: str, platform: str) -> "dict | None":
+    """Reads the persisted verdict; `None` if never persisted (product never pushed since this
+    mechanism landed, or pushed before it existed) -- callers should fall back to a fresh
+    `classify_target_authority()` call in that case, not treat `None` as "canonical"."""
+    path = _target_authority_path(family, platform)
+    if not path.is_file():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 def _detect_license_file(clone_cache: Path) -> "dict | None":
     """TC-HARDEN-20 (MT034, Twentieth incident, 2026-08-12): the exact-20-char-prefix match
     against the literal string "MIT License" missed real license files phrased "The MIT
@@ -3409,6 +3460,275 @@ def pin_old_readme_baseline(
     return sidecar
 
 
+def _auto_pin_old_readme_baseline_at_push(manifest: dict, *, session_id: "str | None" = None) -> dict:
+    """RRABP-04 (readme-refresh-audit-baseline-pinning-hardening-2026-09-03): `pin_old_readme_
+    baseline()` invoked automatically once a run reaches PUSHED, closing the exact gap that let
+    font/python's and tex/python's disposition ledgers go unpinned after a real push
+    (ST-181/ST-182) -- `pin-old-readme-baseline` was previously reachable only via a human
+    remembering to run it manually, after the fact, with no automatic trigger at all.
+
+    Uses `manifest["pinned_inputs"]["clone_cache_head"]` -- the exact SHA `approve()`'s own
+    drift gate already re-validated as of approval -- never a fresh `git rev-parse HEAD` here,
+    which would reopen the ~35-40s post-push merge-landing race window that produced ST-181's
+    masking (both font/python's and tex/python's clone-cache HEAD moved to their own just-merged
+    PR within under a minute of push in the real incident).
+
+    Idempotent: a pin already recorded for this exact commit is a no-op. An existing pin for a
+    DIFFERENT commit is superseded only when it was itself auto-pinned by a prior run of this
+    same product (its `reason` starts with this function's own marker prefix) -- a human-authored
+    pin from `pin-old-readme-baseline`'s explicit, evidence-cited CLI path always wins and is
+    never silently overwritten.
+
+    Advisory, never raises: `push()` must not fail because this best-effort anchoring step
+    failed (e.g. no `pinned_inputs.clone_cache_head` on the manifest, or the pinned commit
+    somehow unreachable in this run's disposable clone). By the time this runs, `PUSHED` is
+    already durably saved to `manifest.json` -- a real PR was already opened -- so this must
+    never let a plain `OSError` (disk full, permission denied, a missing clone-cache directory)
+    escape and make `push()` appear to have failed when it, in fact, already succeeded (found in
+    independent review: the original version caught only `ReadmeRefreshRunError`, not the
+    broader `OSError` family `pin_old_readme_baseline`'s own `mkdir`/`write_text`/`git show` calls
+    can raise). Callers can inspect the returned `pinned` flag; failure is recorded, not silently
+    swallowed, but also never re-raised past this boundary.
+    """
+    _AUTO_PIN_REASON_PREFIX = "auto-pinned at push"
+    family, platform = manifest["family"], manifest["platform"]
+    try:
+        clone_cache_head = (manifest.get("pinned_inputs") or {}).get("clone_cache_head")
+        if not clone_cache_head:
+            return {"pinned": False, "reason": "no pinned_inputs.clone_cache_head on this manifest"}
+
+        existing_path = _old_readme_baseline_path(family, platform)
+        existing = None
+        if existing_path.is_file():
+            try:
+                existing = json.loads(existing_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                # A corrupt/unreadable sidecar is NOT the same fact as "a human deliberately
+                # pinned this" -- treating it as an untouchable manual pin would silently and
+                # permanently block auto-pinning for this product forever (found in independent
+                # review: the original version conflated these two cases via a shared `existing =
+                # {}` fallback). Falls through to re-pin with a fresh, valid sidecar instead.
+                existing = None
+        if existing is not None:
+            if existing.get("baseline_commit") == clone_cache_head:
+                return {"pinned": False, "reason": "already pinned to this exact commit", "existing": existing}
+            if not str(existing.get("reason") or "").startswith(_AUTO_PIN_REASON_PREFIX):
+                return {"pinned": False, "reason": "existing manual pin preserved", "existing": existing}
+
+        reason = f"{_AUTO_PIN_REASON_PREFIX}, run {manifest['run_id']}"
+        try:
+            sidecar = pin_old_readme_baseline(family, platform, clone_cache_head, reason, session_id=session_id)
+        except (ReadmeRefreshRunError, OSError) as exc:
+            return {"pinned": False, "reason": f"pin failed: {exc}"}
+        return {"pinned": True, "sidecar": sidecar}
+    except OSError as exc:
+        # Belt-and-suspenders: any other unexpected filesystem failure in this advisory step
+        # (e.g. resolving _old_readme_baseline_path's parent) must not propagate into push().
+        return {"pinned": False, "reason": f"auto-pin failed: {exc}"}
+
+
+# Baseline-pin coverage classifications (RRABP-01/05).
+_BASELINE_COVERAGE_NO_PUSH_YET = "no_push_yet"
+_BASELINE_COVERAGE_PINNED = "pinned"
+_BASELINE_COVERAGE_RECOVERABLE_UNPINNED = "recoverable_unpinned"
+_BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED = "unrecoverable_unpinned"
+
+
+def _latest_pushed_run_manifest(family: str, platform: str) -> "dict | None":
+    """Scans this product's run directories for the most recent manifest whose state reached
+    PUSHED, newest by the PUSHED checkpoint's own `completed_at` timestamp. `None` if the
+    product has never reached PUSHED."""
+    product_root = _product_root(family, platform)
+    if not product_root.is_dir():
+        return None
+    candidates = []
+    for run_dir in product_root.iterdir():
+        if not run_dir.is_dir():
+            continue
+        manifest_path = run_dir / "manifest.json"
+        if not manifest_path.is_file():
+            continue
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if manifest.get("state") == "PUSHED":
+            candidates.append(manifest)
+    if not candidates:
+        return None
+    candidates.sort(
+        key=lambda m: (m.get("stage_checkpoints") or {}).get("pushed", {}).get("completed_at") or "",
+        reverse=True,
+    )
+    return candidates[0]
+
+
+def _ever_receipted_as_mirror(family: str, platform: str) -> bool:
+    """RRABP-05, hardened after a live discovery running this mission's own new tooling against
+    the real portfolio: font/python's push receipt (`reports/readme_refresh_runs/font/python/
+    rr-20260902T104838Z-d00e617b6702/push/receipt.json`) records `target_authority: "mirror"`
+    (a real, human-acknowledged classification at push time -- its `acknowledge_mirror_target`
+    text cites "a weekly GitLab re-snapshot mirror"), but a FRESH `classify_target_authority()`
+    call today reads `canonical` for the same product -- because the PR that merged on top of the
+    mirror's post-reset root gave HEAD a real parent again, flipping `zero_parent_head` to False,
+    even though `orphan_root_count` (still 12) shows the underlying repo is still fundamentally a
+    periodically-resnapshotted mirror. A single live re-classification is not safe grounds to
+    treat a product's git history as durable for backfill purposes -- once mirror, always treated
+    as mirror for this decision, since the AND-of-two-structural-signals heuristic
+    `classify_target_authority` uses for the (different) push-time question can legitimately flip
+    the instant one commit lands on top of a fresh reset, while the underlying resnapshot risk has
+    not gone away. Scans every run's `push/receipt.json` for this product; any historical `mirror`
+    is sticky and never overridden by a later, more convenient live read."""
+    product_root = _product_root(family, platform)
+    if not product_root.is_dir():
+        return False
+    for run_dir in product_root.iterdir():
+        if not run_dir.is_dir():
+            continue
+        receipt_path = run_dir / "push" / "receipt.json"
+        if not receipt_path.is_file():
+            continue
+        try:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if receipt.get("target_authority") == "mirror":
+            return True
+    return False
+
+
+def _classify_baseline_coverage(family: str, platform: str) -> dict:
+    """RRABP-01/05: classifies one product's disposition-ledger baseline-pin coverage.
+
+    - `pinned`: `old-readme-baseline.json` already exists (manual or auto) -- `_resolve_old_
+      readme_text` already reads the pinned commit, not live HEAD; nothing further to do.
+    - `no_push_yet`: no PUSHED run exists for this product -- the common, already-safe case
+      (`_resolve_old_readme_text` correctly falls straight through to live HEAD, since nothing
+      has moved the goalposts).
+    - `recoverable_unpinned`: PUSHED but unpinned, target is canonical (not mirror-classified),
+      and the manifest's pinned `clone_cache_head` still resolves via `git show` in the current
+      clone cache -- the true pre-refresh old README is recoverable, just not yet recorded.
+    - `unrecoverable_unpinned`: PUSHED but unpinned, and any of: the target is currently mirror-
+      classified, the target was EVER receipted as mirror at a real past push (see
+      `_ever_receipted_as_mirror` -- sticky, never overridden by a later, more convenient live
+      re-classification), or the pinned commit is no longer resolvable at all. Deliberately never
+      attempts a guess or a partial recovery here.
+
+    Never raises: a missing/unreadable clone cache or a `git` invocation failure degrades to
+    `unrecoverable_unpinned` with a reason, the safe direction, rather than propagating (this
+    function is called from inside `audit_portfolio`'s per-product loop, which must not let one
+    product's filesystem hiccup abort the whole portfolio sweep).
+    """
+    if _old_readme_baseline_path(family, platform).is_file():
+        return {"status": _BASELINE_COVERAGE_PINNED}
+
+    pushed_manifest = _latest_pushed_run_manifest(family, platform)
+    if pushed_manifest is None:
+        return {"status": _BASELINE_COVERAGE_NO_PUSH_YET}
+
+    clone_cache_head = (pushed_manifest.get("pinned_inputs") or {}).get("clone_cache_head")
+    run_id = pushed_manifest.get("run_id")
+    if not clone_cache_head:
+        return {
+            "status": _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            "reason": "pushed run manifest has no pinned clone_cache_head",
+            "run_id": run_id,
+        }
+
+    authority = _load_persisted_target_authority(family, platform)
+    if authority is None:
+        authority = classify_target_authority(family, platform)
+    if authority.get("authority") == "mirror" or _ever_receipted_as_mirror(family, platform):
+        return {
+            "status": _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            "reason": "mirror-classified target (currently or at a past push) -- git history not durable, local git-archaeology backfill is unsafe",
+            "run_id": run_id,
+            "pinned_clone_cache_head": clone_cache_head,
+        }
+
+    try:
+        clone_cache = _product_clone_cache(family, platform)
+        proc = subprocess.run(
+            ["git", "show", f"{clone_cache_head}:README.md"],
+            cwd=str(clone_cache), capture_output=True, text=True, encoding="utf-8", errors="ignore",
+        )
+    except OSError as exc:
+        return {
+            "status": _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            "reason": f"could not check clone cache (safe direction on filesystem error): {exc}",
+            "run_id": run_id,
+            "pinned_clone_cache_head": clone_cache_head,
+        }
+    if proc.returncode != 0:
+        return {
+            "status": _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            "reason": f"pinned commit no longer resolvable in this clone cache (git show exit {proc.returncode})",
+            "run_id": run_id,
+            "pinned_clone_cache_head": clone_cache_head,
+        }
+    return {
+        "status": _BASELINE_COVERAGE_RECOVERABLE_UNPINNED,
+        "run_id": run_id,
+        "pinned_clone_cache_head": clone_cache_head,
+    }
+
+
+def backfill_old_readme_baseline(family: str, platform: str, *, session_id: "str | None" = None) -> dict:
+    """RRABP-05/06: explicit, reviewed retroactive backfill for one `recoverable_unpinned`
+    product -- pins the exact commit its most recent PUSHED run's manifest recorded, reusing
+    `pin_old_readme_baseline`'s own validation. Refuses (raises) for any other classification --
+    never silently no-ops, never guesses at a commit for an `unrecoverable_unpinned` product.
+    Callers should classify with `_classify_baseline_coverage` first (or drive this from
+    `audit_baseline_coverage`'s survey output) rather than calling this blind.
+    """
+    coverage = _classify_baseline_coverage(family, platform)
+    if coverage["status"] != _BASELINE_COVERAGE_RECOVERABLE_UNPINNED:
+        raise ReadmeRefreshRunError(
+            f"backfill refused for {family}/{platform}: status={coverage['status']!r}, not "
+            f"recoverable_unpinned ({coverage.get('reason', 'n/a')})"
+        )
+    sidecar = pin_old_readme_baseline(
+        family, platform, coverage["pinned_clone_cache_head"],
+        f"retroactive backfill from run {coverage['run_id']}, audit-baseline-coverage",
+        session_id=session_id,
+    )
+    return {"backfilled": True, "sidecar": sidecar}
+
+
+def audit_baseline_coverage(*, family: "str | None" = None, platform: "str | None" = None) -> dict:
+    """RRABP-01: read-only, portfolio-wide survey of disposition-ledger baseline-pin coverage.
+    Never writes anything -- classification only (see `backfill_old_readme_baseline` for the
+    separate, explicit write path). Mirrors `audit_portfolio`'s own product-selection discipline
+    (active, non-excluded products; optionally narrowed to one family/platform).
+    """
+    products = _load_products()
+    exclusions = _load_registry_exclusions()
+    excluded_keys = {
+        (excl.get("family"), excl.get("platform"))
+        for excl in exclusions if excl.get("match") == "family_platform"
+    }
+    targets = sorted({
+        (entry.get("family"), entry.get("platform"))
+        for entry in products
+        if entry.get("active", False)
+        and (entry.get("family"), entry.get("platform")) not in excluded_keys
+        and (family is None or entry.get("family") == family)
+        and (platform is None or entry.get("platform") == platform)
+    })
+    rows = []
+    counts = {
+        _BASELINE_COVERAGE_NO_PUSH_YET: 0,
+        _BASELINE_COVERAGE_PINNED: 0,
+        _BASELINE_COVERAGE_RECOVERABLE_UNPINNED: 0,
+        _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED: 0,
+    }
+    for fam, plat in targets:
+        coverage = _classify_baseline_coverage(fam, plat)
+        counts[coverage["status"]] = counts.get(coverage["status"], 0) + 1
+        rows.append({"family": fam, "platform": plat, **coverage})
+    return {"products": rows, "counts": counts, "total": len(rows)}
+
+
 def reconcile_publications(
     *, family: "str | None" = None, platform: "str | None" = None,
     all_products: bool = False, apply: bool = False,
@@ -3633,28 +3953,62 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         disposition_family_skipped = bool(
             result.get("content_unit_disposition_coverage", {}).get("skipped", False)
         )
-        if disposition_family_skipped:
-            disposition_tracking = "skipped_published"
+        # RRABP-05 (readme-refresh-audit-baseline-pinning-hardening-2026-09-03, ST-181/ST-182):
+        # a product that has been PUSHED but never pinned (`old-readme-baseline.json` absent)
+        # runs its real disposition-coverage checks -- whenever they run at all, i.e. whenever
+        # disposition_family_skipped is False -- against whatever the clone cache's live HEAD
+        # currently holds, which may no longer be the document the ledger was actually built to
+        # describe (exactly what happened to font/python and tex/python: the ledger was built
+        # pre-merge, the clone cache moved to the merged PR, and a later audit call ran real
+        # checks against the wrong reference frame). Only classified when the real checks would
+        # otherwise run -- a `skipped_published` product needs no reference frame at all, so its
+        # existing, already-correct handling (TC-AUDIT-01) is left untouched.
+        baseline_coverage = None
+        if not disposition_family_skipped:
+            baseline_coverage = _classify_baseline_coverage(fam, plat)
+        indeterminate = bool(
+            baseline_coverage
+            and baseline_coverage["status"] in (
+                _BASELINE_COVERAGE_RECOVERABLE_UNPINNED, _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            )
+        )
+        # RRABP-02: verification_status is the new, honest name (disposition_tracking survives
+        # as a deprecated alias so no existing consumer/test breaks); fully_verified gives a
+        # caller who only wants the strict guarantee a single boolean, matching the checked:bool
+        # precedent already proven in live_published_regression_portfolio.
+        if indeterminate:
+            verification_status = "indeterminate"
+        elif disposition_family_skipped:
+            verification_status = "skipped_published"
         elif hard_gate_findings:
-            disposition_tracking = "checked_dirty"
+            verification_status = "checked_dirty"
         else:
-            disposition_tracking = "verified"
+            verification_status = "verified"
+        disposition_tracking = verification_status
         product_results.append({
             "family": fam, "platform": plat,
-            "clean": not hard_gate_findings,
+            "clean": (not hard_gate_findings) and not indeterminate,
+            "fully_verified": verification_status == "verified",
+            "verification_status": verification_status,
             "hard_gate_findings": hard_gate_findings,
             "published": published,
             "candidate_drift": candidate_drift,
             "disposition_tracking": disposition_tracking,
+            "baseline_coverage": baseline_coverage,
         })
 
     clean_count = sum(1 for p in product_results if p["clean"])
     disposition_verified_count = sum(
-        1 for p in product_results if p["disposition_tracking"] == "verified"
+        1 for p in product_results if p["verification_status"] == "verified"
+    )
+    indeterminate_count = sum(
+        1 for p in product_results if p["verification_status"] == "indeterminate"
     )
     return {
         "products": product_results,
+        "result_schema_version": 2,
         "disposition_verified_count": disposition_verified_count,
+        "indeterminate_count": indeterminate_count,
         "clean_count": clean_count,
         "dirty_count": len(product_results) - clean_count,
         "total": len(product_results),
@@ -5041,6 +5395,10 @@ def push(
         _check_manifest_candidate_tree(manifest)
 
         authority = classify_target_authority(family, platform)
+        # RRABP-03: persist the verdict regardless of outcome (including a refused push below) --
+        # informational, and the only durable record the pin/audit layer can consult without
+        # re-deriving it (previously computed and discarded once, inline, right here).
+        _persist_target_authority(family, platform, authority, session_id=owner)
         if authority["authority"] == "mirror" and not (
             acknowledge_mirror_target and acknowledge_mirror_target.strip()
         ):
@@ -5110,6 +5468,17 @@ def push(
         # module docstring for the reconciler's own state machine (IN_SYNC/UNRECORDED_
         # PUBLICATION/REVERTED/UNCONFIRMED_REACHABILITY/UNPUBLISHED/NO_REPO_ACCESS).
         _transition(manifest, "PUSHED", checkpoint="pushed")
+        # RRABP-04: automatic baseline pinning the moment a run reaches PUSHED -- see
+        # _auto_pin_old_readme_baseline_at_push's own docstring for why this must use the
+        # manifest's already-drift-checked pinned SHA, never a fresh HEAD re-resolve. Advisory:
+        # never raises, so a pin failure cannot fail an otherwise-successful push. Independent
+        # review: the prior version discarded this result entirely, making even a clean, non-
+        # raising no-op (e.g. no pinned_inputs.clone_cache_head) invisible to every caller of
+        # push() -- recorded onto the manifest (and re-saved) so `status`/`recover` callers can
+        # see it without a separate audit-baseline-coverage run.
+        auto_pin_result = _auto_pin_old_readme_baseline_at_push(manifest, session_id=owner)
+        manifest["auto_pin_result"] = auto_pin_result
+        _save_manifest(manifest)
         return manifest
 
 
@@ -5524,6 +5893,22 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     p_pin.add_argument("--session-id")
 
+    # RRABP-01 (readme-refresh-audit-baseline-pinning-hardening-2026-09-03, ST-181/ST-182):
+    # read-only, portfolio-wide, no --run-id -- classifies every active product's disposition-
+    # ledger baseline-pin coverage (no_push_yet / pinned / recoverable_unpinned /
+    # unrecoverable_unpinned). Never writes; see backfill-old-readme-baseline for the write path.
+    p_baseline_cov = sub.add_parser("audit-baseline-coverage")
+    p_baseline_cov.add_argument("--family", help="Limit to one family (requires --platform).")
+    p_baseline_cov.add_argument("--platform", help="Limit to one platform (requires --family).")
+    p_baseline_cov.add_argument("--json", action="store_true", help="Print the full structured result.")
+
+    # RRABP-06: explicit, reviewed backfill for one recoverable_unpinned product -- refuses
+    # (non-zero exit) for any other classification; never runs unattended over the portfolio.
+    p_backfill = sub.add_parser("backfill-old-readme-baseline")
+    p_backfill.add_argument("family")
+    p_backfill.add_argument("platform")
+    p_backfill.add_argument("--session-id")
+
     # TC-06 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): read-only, never
     # run-scoped, never writes a marker -- the reviewer's per-unit "is everything in the old
     # README retained" table for one product's current candidate.
@@ -5632,6 +6017,21 @@ def main(argv: "list[str] | None" = None) -> int:
                     f"clean only because published-status skipped the check -- see "
                     f"disposition_tracking per product)"
                 )
+                # RRABP-02/05 (ST-181/ST-182): a distinct, always-printed line for the new
+                # indeterminate state -- a PUSHED-but-unpinned product whose real checks ran
+                # against an unanchored reference frame; never silently folded into "dirty" or
+                # "clean". See baseline_coverage per product, or `audit-baseline-coverage`.
+                indeterminate = [
+                    p for p in result["products"] if p.get("verification_status") == "indeterminate"
+                ]
+                if indeterminate:
+                    names = ", ".join(f"{p['family']}/{p['platform']}" for p in indeterminate)
+                    print(
+                        f"{result['indeterminate_count']}/{result['total']} products INDETERMINATE "
+                        f"(no baseline pin, real checks ran against an unanchored reference -- "
+                        f"run `audit-baseline-coverage` then `backfill-old-readme-baseline` if "
+                        f"recoverable): {names}"
+                    )
                 published = [p for p in result["products"] if p.get("published")]
                 if published:
                     names = ", ".join(f"{p['family']}/{p['platform']}" for p in published)
@@ -5644,7 +6044,12 @@ def main(argv: "list[str] | None" = None) -> int:
                     names = ", ".join(f"{p['family']}/{p['platform']}" for p in drifted)
                     print(f"Changed since last verified ({len(drifted)}): {names}")
                 for p in result["products"]:
-                    if not p["clean"]:
+                    # RRABP-05, independent review: an indeterminate product is already named on
+                    # its own dedicated line above -- printing it again here as "DIRTY ...: {}"
+                    # (necessarily empty findings, since indeterminate means the reference frame
+                    # itself is untrustworthy, not that real findings fired) would be a confusing,
+                    # self-contradictory duplicate.
+                    if not p["clean"] and p.get("verification_status") != "indeterminate":
                         tag = " [published]" if p.get("published") else ""
                         tag += " [drift]" if p.get("candidate_drift") else ""
                         print(f"  DIRTY {p['family']}/{p['platform']}{tag}: {p['hard_gate_findings']}")
@@ -5658,6 +6063,24 @@ def main(argv: "list[str] | None" = None) -> int:
                 args.family, args.platform, args.commit, args.reason, session_id=args.session_id,
             )
             _print_manifest(sidecar)
+            return 0
+        elif args.command == "audit-baseline-coverage":
+            result = audit_baseline_coverage(family=args.family, platform=args.platform)
+            if args.json:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+            else:
+                print(f"{result['total']} active products surveyed")
+                for status, count in result["counts"].items():
+                    print(f"  {status}: {count}")
+                for p in result["products"]:
+                    if p["status"] not in (_BASELINE_COVERAGE_PINNED, _BASELINE_COVERAGE_NO_PUSH_YET):
+                        print(f"  {p['status'].upper()} {p['family']}/{p['platform']}: {p.get('reason', '')}")
+            return 0
+        elif args.command == "backfill-old-readme-baseline":
+            result = backfill_old_readme_baseline(
+                args.family, args.platform, session_id=args.session_id,
+            )
+            _print_manifest(result)
             return 0
         elif args.command == "retention-report":
             payload = retention_report(args.family, args.platform)

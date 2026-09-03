@@ -301,6 +301,33 @@ def _fake_gh_command_runner(preflight_push=True):
     return _runner
 
 
+def _real_push_command_runner(pr_url="https://github.com/test-org/test-repo/pull/1"):
+    """Like _fake_gh_command_runner, but also stubs `gh pr create` -- needed by any test that
+    drives a real (non-dry-run) push all the way to PUSHED, since `gh pr create` is only ever
+    skipped for --dry-run (see test_blocked_push_can_be_recovered_and_retried_to_pushed, the
+    precedent this mirrors)."""
+    def _runner(cmd, **kwargs):
+        if cmd[0] == "git":
+            return subprocess.run(cmd, **kwargs)
+        if cmd[:2] == ["gh", "api"]:
+            class _ApiResult:
+                returncode = 0
+                stdout = json.dumps({
+                    "permissions": {"push": True, "admin": False},
+                    "default_branch": "main", "archived": False, "disabled": False,
+                })
+                stderr = ""
+            return _ApiResult()
+        if cmd[:3] == ["gh", "pr", "create"]:
+            class _PrResult:
+                returncode = 0
+                stdout = pr_url + "\n"
+                stderr = ""
+            return _PrResult()
+        raise AssertionError(f"unexpected command in test: {cmd}")
+    return _runner
+
+
 # Fifteenth incident / MT030 (2026-08-09): a real, correct disposition for both of
 # _OLD_UPSTREAM_README's 2 real content units (confirmed via extract_old_readme_content_units
 # itself, not guessed) -- u0001 ("A test product for the round-trip state machine test.") is
@@ -2738,6 +2765,408 @@ def test_audit_portfolio_marks_real_findings_as_disposition_tracking_checked_dir
     assert product["clean"] is False
     assert product["disposition_tracking"] == "checked_dirty"
     assert result["disposition_verified_count"] == 0
+
+
+def test_audit_portfolio_verification_status_and_fully_verified_match_disposition_tracking(tmp_path):
+    """RRABP-02 (readme-refresh-audit-baseline-pinning-hardening-2026-09-03): verification_status
+    is the new, honest field name; disposition_tracking survives as a deprecated alias with the
+    identical value, so no existing consumer breaks. fully_verified is True only for a genuinely
+    verified product."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    result = rr.audit_portfolio()
+    product = result["products"][0]
+    assert product["verification_status"] == "verified"
+    assert product["verification_status"] == product["disposition_tracking"]
+    assert product["fully_verified"] is True
+    assert result["result_schema_version"] == 2
+
+
+def test_audit_portfolio_skipped_published_is_not_fully_verified(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+    _write_candidate(
+        repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+        badge_dispositions=[], code_example_dispositions=[],
+    )
+
+    result = rr.audit_portfolio()
+    product = result["products"][0]
+    assert product["verification_status"] == "skipped_published"
+    assert product["fully_verified"] is False
+    assert product["clean"] is True  # unchanged: the skip's own clean:true semantics are untouched
+
+
+# --- RRABP-03/04: automatic baseline pinning at push, and its persisted mirror-authority
+# companion (ST-181/ST-182: font/python's and tex/python's disposition ledgers went unpinned
+# after a real push, because pin_old_readme_baseline() was reachable only by a human manually
+# remembering to run it) -------------------------------------------------------------------
+
+
+def test_push_auto_pins_old_readme_baseline_on_pushed_transition(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-autopin-a")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    manifest_before = rr.status("testfam", "testplat", run_id)
+    pinned_head = manifest_before["pinned_inputs"]["clone_cache_head"]
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    assert not baseline_path.is_file(), "must not be pre-pinned before this push"
+
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    assert manifest["state"] == "PUSHED"
+
+    assert baseline_path.is_file(), "push() must auto-pin the moment it reaches PUSHED"
+    sidecar = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert sidecar["baseline_commit"] == pinned_head
+    assert sidecar["reason"].startswith("auto-pinned at push")
+
+
+def test_push_auto_pin_is_idempotent_on_retry(tmp_path, monkeypatch):
+    """Calling the auto-pin step twice for the same already-pinned commit must be a true no-op
+    -- no duplicate write, no changed sidecar content."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-autopin-b")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    first_sidecar_text = baseline_path.read_text(encoding="utf-8")
+
+    result = rr._auto_pin_old_readme_baseline_at_push(manifest, session_id="test-session-autopin-b")
+    assert result["pinned"] is False
+    assert "already pinned" in result["reason"]
+    assert baseline_path.read_text(encoding="utf-8") == first_sidecar_text
+
+
+def test_push_auto_pin_never_overwrites_a_manual_pin(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-autopin-c")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    manual_commit = _run_git(["rev-parse", "HEAD"], clone_cache)
+    manual_sidecar = rr.pin_old_readme_baseline(
+        "testfam", "testplat", manual_commit, "manually pinned for a documented, cited reason",
+        session_id="human-operator",
+    )
+
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    sidecar_after = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert sidecar_after == manual_sidecar, "an auto-pin must never overwrite a human-authored pin"
+
+
+def test_push_persists_target_authority_verdict(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-authority-a")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    authority_path = rr._target_authority_path("testfam", "testplat")
+    assert not authority_path.is_file()
+
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+
+    assert authority_path.is_file()
+    persisted = json.loads(authority_path.read_text(encoding="utf-8"))
+    # The fixture's clone cache has exactly one commit (a single root, not >=2) -- correctly
+    # classifies canonical, matching classify_target_authority's own documented single-root
+    # exemption for a legitimately new repo.
+    assert persisted["authority"] == "canonical"
+    assert rr._load_persisted_target_authority("testfam", "testplat") == persisted
+
+
+# --- RRABP-05: the exact font/python/tex/python (ST-181/ST-182) regression -- a real pin must
+# be read instead of a live clone-cache file that moved after the pin was taken -----------------
+
+
+def test_pin_then_audit_content_units_extracted_against_pinned_commit_not_live_head(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-pin-drift")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    assert manifest["state"] == "PUSHED"
+
+    # Simulate exactly the ST-181/ST-182 mechanism: the clone cache's live README.md moves after
+    # the pin was taken (a later independent commit landing, or -- for a mirror target -- a
+    # resnapshot). The pin must insulate every later read from this.
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text(
+        "# Completely different, post-drift content\n\nNothing here matches the real baseline.\n",
+        encoding="utf-8",
+    )
+
+    resolved_text, baseline_info = rr._resolve_old_readme_text(
+        "testfam", "testplat", clone_cache,
+    )
+    assert baseline_info is not None, "a pin must be in effect after the auto-pinned push"
+    assert resolved_text == _OLD_UPSTREAM_README
+    assert "Completely different" not in resolved_text
+
+    coverage = rr._classify_baseline_coverage("testfam", "testplat")
+    assert coverage["status"] == "pinned"
+
+
+def test_audit_portfolio_reruns_are_stable_after_drift_once_pinned(tmp_path, monkeypatch):
+    """Direct regression test for the ST-181 symptom itself: two consecutive audit_portfolio
+    calls against an unchanged (post-pin) product must report byte-identical verification_status,
+    even after the live clone cache has drifted underneath the pin."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-rerun-stability")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    (clone_cache / "README.md").write_text("# drifted\n", encoding="utf-8")
+
+    first = rr.audit_portfolio()
+    second = rr.audit_portfolio()
+    assert first["products"][0]["verification_status"] == second["products"][0]["verification_status"]
+
+
+# --- RRABP-01/05/06: baseline-coverage survey, indeterminate classification, and reviewed
+# backfill ------------------------------------------------------------------------------------
+
+
+def test_classify_baseline_coverage_no_push_yet(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    coverage = rr._classify_baseline_coverage("testfam", "testplat")
+    assert coverage["status"] == "no_push_yet"
+
+
+def test_audit_portfolio_reports_indeterminate_for_pushed_but_unpinned_canonical_product(
+    tmp_path, monkeypatch,
+):
+    """RRABP-05: the exact gap the auto-pin (RRABP-04) closes going forward, reconstructed here
+    to prove the AUDIT side fails loudly instead of silently for any pre-existing product that
+    reached PUSHED before this mechanism existed (deleting the auto-created pin reproduces that
+    historical shape without hand-building a fake manifest)."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-indeterminate-a")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()  # reconstruct "PUSHED, never pinned"
+    _write_candidate(repo_root, _GOOD_CANDIDATE)  # a real, non-vacuous candidate for the checks to run against
+
+    coverage = rr._classify_baseline_coverage("testfam", "testplat")
+    assert coverage["status"] == "recoverable_unpinned"
+
+    result = rr.audit_portfolio()
+    product = result["products"][0]
+    assert product["verification_status"] == "indeterminate"
+    assert product["clean"] is False
+    assert product["fully_verified"] is False
+    assert result["indeterminate_count"] == 1
+    assert product["baseline_coverage"]["status"] == "recoverable_unpinned"
+
+
+def test_audit_portfolio_reports_indeterminate_and_refuses_backfill_for_mirror_target(
+    tmp_path, monkeypatch,
+):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-indeterminate-b")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()
+    # Force a persisted mirror verdict, simulating a font/python-shaped target -- this must be
+    # enough on its own to block local git-archaeology backfill, without needing a real repo
+    # shaped with orphan roots in this fixture.
+    rr._persist_target_authority(
+        "testfam", "testplat", {"authority": "mirror", "signals": {"forced": "test"}},
+    )
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    coverage = rr._classify_baseline_coverage("testfam", "testplat")
+    assert coverage["status"] == "unrecoverable_unpinned"
+    assert "mirror" in coverage["reason"]
+
+    result = rr.audit_portfolio()
+    assert result["products"][0]["verification_status"] == "indeterminate"
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="not recoverable_unpinned"):
+        rr.backfill_old_readme_baseline("testfam", "testplat")
+
+
+def test_backfill_old_readme_baseline_refuses_when_not_recoverable(tmp_path):
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    with pytest.raises(rr.ReadmeRefreshRunError, match="not recoverable_unpinned"):
+        rr.backfill_old_readme_baseline("testfam", "testplat")  # no_push_yet
+
+
+def test_backfill_old_readme_baseline_pins_the_recoverable_commit(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-backfill")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    pinned_head = manifest["pinned_inputs"]["clone_cache_head"]
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()
+
+    result = rr.backfill_old_readme_baseline("testfam", "testplat")
+    assert result["backfilled"] is True
+    assert result["sidecar"]["baseline_commit"] == pinned_head
+    assert "retroactive backfill" in result["sidecar"]["reason"]
+    assert rr._classify_baseline_coverage("testfam", "testplat")["status"] == "pinned"
+
+
+def test_audit_baseline_coverage_survey_classifies_every_state(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-survey")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+
+    survey_before_push = rr.audit_baseline_coverage()
+    assert survey_before_push["counts"]["no_push_yet"] == 1
+
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    survey_after_push = rr.audit_baseline_coverage()
+    assert survey_after_push["counts"]["pinned"] == 1  # auto-pinned by RRABP-04
+
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()
+    survey_unpinned = rr.audit_baseline_coverage()
+    assert survey_unpinned["counts"]["recoverable_unpinned"] == 1
+
+    exit_code = rr.main(["audit-baseline-coverage"])
+    assert exit_code == 0
+
+
+# --- Independent-review hardening: findings from the adversarial code-review pass are each
+# proven fixed with a dedicated regression test, not just fixed and trusted --------------------
+
+
+def test_a_historical_mirror_receipt_is_sticky_even_when_a_fresh_reclassification_says_canonical(
+    tmp_path, monkeypatch,
+):
+    """The exact live gap this mission's own audit-baseline-coverage tool found running against
+    the real portfolio: font/python's real push receipt recorded target_authority=mirror, but a
+    FRESH classify_target_authority() call today reads canonical for the same product (the PR
+    that merged on top of the mirror's post-reset root gave HEAD a real parent again). A single
+    live re-classification must not be trusted over a real, historical, human-acknowledged mirror
+    finding when deciding whether local git-archaeology backfill is safe."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-historical-mirror")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+
+    receipt_path = rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["target_authority"] = "mirror"  # simulate the real, historical font/python shape
+    receipt_path.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+
+    # No persisted target-authority.json for this scenario (simulates a push that predates
+    # RRABP-03), and the pin itself is removed to reconstruct "PUSHED, unpinned".
+    rr._target_authority_path("testfam", "testplat").unlink()
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()
+
+    # A fresh live call, exactly like font/python's real one today, reads canonical.
+    assert rr.classify_target_authority("testfam", "testplat")["authority"] == "canonical"
+
+    coverage = rr._classify_baseline_coverage("testfam", "testplat")
+    assert coverage["status"] == "unrecoverable_unpinned"
+    assert "mirror" in coverage["reason"]
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="not recoverable_unpinned"):
+        rr.backfill_old_readme_baseline("testfam", "testplat")
+
+
+def test_auto_pin_recovers_from_a_corrupted_existing_sidecar_instead_of_treating_it_as_manual(
+    tmp_path, monkeypatch,
+):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-corrupt-sidecar")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    manifest = rr.status("testfam", "testplat", run_id)
+    pinned_head = manifest["pinned_inputs"]["clone_cache_head"]
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+    baseline_path.write_text("{not valid json", encoding="utf-8")  # simulated torn/corrupt write
+
+    result = rr._auto_pin_old_readme_baseline_at_push(manifest, session_id="test-session-corrupt-sidecar")
+    assert result["pinned"] is True, "a corrupt sidecar must not be mistaken for a protected manual pin"
+    sidecar = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert sidecar["baseline_commit"] == pinned_head
+
+
+def test_auto_pin_never_raises_on_a_pin_failure(tmp_path, monkeypatch):
+    """Independent review: push() has already durably transitioned to PUSHED (and already opened
+    a real PR) by the time auto-pin runs -- a plain OSError from the best-effort pin step must
+    never propagate and make an already-successful push look like it failed. Reproduced with a
+    REAL OSError (a missing clone-cache directory makes pin_old_readme_baseline's own `git show`
+    subprocess.run(cwd=...) raise FileNotFoundError) rather than a monkeypatched internal
+    function, per AGENTS.md §16's T2 policy against patching this module's own internals."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-autopin-oserror")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    manifest = {
+        "family": "testfam", "platform": "testplat", "run_id": "rr-fake-run",
+        "pinned_inputs": {"clone_cache_head": "deadbeef"},
+    }
+
+    # Windows writes git loose objects read-only, so a plain shutil.rmtree of the clone cache's
+    # own .git/objects raises PermissionError -- reuse the module's own established fix.
+    rr._rmtree_force(rr._product_clone_cache("testfam", "testplat"))
+
+    result = rr._auto_pin_old_readme_baseline_at_push(manifest, session_id="test-session-autopin-oserror")
+    assert result["pinned"] is False
+    assert "pin failed" in result["reason"]
+
+
+def test_push_records_auto_pin_result_on_the_manifest(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-manifest-visibility")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+
+    manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    assert manifest["auto_pin_result"]["pinned"] is True
+
+    reloaded = rr.status("testfam", "testplat", run_id)
+    assert reloaded["auto_pin_result"]["pinned"] is True
+
+
+def test_audit_portfolio_cli_does_not_double_print_indeterminate_products_as_dirty(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-cli-dedup")
+    monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_real_push_command_runner())
+    run_id = _advance_to_approved(repo_root)
+    rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    rr._old_readme_baseline_path("testfam", "testplat").unlink()
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    exit_code = rr.main(["audit-portfolio"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    assert "INDETERMINATE" in out
+    assert "DIRTY testfam/testplat" not in out
 
 
 # --- Illegal transition rejection -----------------------------------------------------------

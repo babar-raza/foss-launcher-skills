@@ -58,6 +58,10 @@ Use only the registered control plane:
   [--json] [--out PATH]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py pin-old-readme-baseline FAMILY PLATFORM \
   --commit SHA --reason TEXT [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py audit-baseline-coverage \
+  [--family FAMILY --platform PLATFORM] [--json]
+.venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py backfill-old-readme-baseline FAMILY PLATFORM \
+  [--session-id ID]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py reconcile-publications \
   (--family FAMILY --platform PLATFORM | --all) [--apply] [--json]
 .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py live-published-regression \
@@ -417,6 +421,47 @@ after convergence, re-running the same regeneration produces no further diff.
    is **not** detected by this narrow check and correctly falls through to ordinary preservation-
    tracking behavior — a real, disclosed, deliberately out-of-scope in-between state, not yet
    solved.
+
+   **Automatic baseline pinning at push, mirror-aware drift-aware audit (RRABP-01..06,
+   readme-refresh-audit-baseline-pinning-hardening-2026-09-03, ST-181/ST-182, 2026-09-03).**
+   `pin_old_readme_baseline()` (TC-20) existed to anchor a disposition ledger against the exact
+   commit it was built to describe, but was reachable only via a human manually running
+   `pin-old-readme-baseline` — never triggered automatically. font/python's and tex/python's real
+   pushes (2026-09-02) each had their own PR merge land back into the clone cache within under a
+   minute of push, with no pin ever taken; a later `audit-portfolio` call then ran real
+   disposition-coverage checks against the now-moved live HEAD instead of the actual pre-refresh
+   old README, first reading `readme_already_published=True` (masking, `skipped_published`) then
+   `False` (flooding 91+50+49+3 findings on font/python, similar on tex/python) — a bug originally
+   misattributed to `publication_probe.py`'s live-network probe (refuted: that probe is not in
+   this call path at all) rather than this purely local, on-disk mechanism. Fixed:
+   - `push()` now calls `pin_old_readme_baseline()` automatically the moment a run reaches
+     `PUSHED`, keyed to the manifest's own already-drift-checked `pinned_inputs.clone_cache_head`
+     (never a fresh `git rev-parse HEAD`, which would reopen the exact race window that caused
+     this). Idempotent; never overwrites a human-authored pin.
+   - `classify_target_authority()`'s mirror-vs-canonical verdict (TC-16) is now persisted per
+     product (`target-authority.json`, sibling to `old-readme-baseline.json`) instead of computed
+     and discarded once inline inside `push()` — the pin/audit layer can now tell a mirror target
+     (git history not durable, confirmed live for font/python) from a canonical one.
+   - `audit_portfolio` gained an honest `verification_status` (`verified` / `skipped_published` /
+     `indeterminate`) and `fully_verified` bool — `clean` alone still doesn't imply verification
+     (unchanged, by design), but a caller no longer has to know to separately check
+     `disposition_tracking` (kept as a deprecated alias) to find that out. `indeterminate` is new:
+     a PUSHED-but-unpinned product whose real checks would otherwise run against an unanchored
+     reference now reports this distinctly, with `clean:false`, rather than a silently
+     untrustworthy `checked_dirty`/`verified` result.
+   - New read-only `audit-baseline-coverage` CLI verb surveys the full portfolio, classifying
+     every product `no_push_yet` / `pinned` / `recoverable_unpinned` (canonical target, the
+     manifest's pinned commit still resolves via `git show` — safe to backfill) /
+     `unrecoverable_unpinned` (mirror-classified, or the pinned commit no longer resolves — never
+     guessed at). New `backfill-old-readme-baseline` CLI verb performs the actual, explicit,
+     one-product-at-a-time backfill for a `recoverable_unpinned` product; refuses for anything
+     else.
+   - Deliberately **not** done automatically inside `audit_portfolio` itself: backfilling a
+     `recoverable_unpinned` product as a side effect of a routine, read-only portfolio sweep. That
+     write is reserved for the explicit `backfill-old-readme-baseline` verb so a routine audit
+     call never silently mutates state.
+   - Out of scope here (separate, already-known-scale missions): the actual disposition-ledger
+     content recomposition for font/python and tex/python against their moved clone-cache HEAD.
 
    **Prose quality (TC-HARDEN-22, MT034/Twentieth incident, 2026-08-12).** Every existing
    tone-adjacent check (`check_process_narration_smells`, `check_key_capabilities_quality`,
