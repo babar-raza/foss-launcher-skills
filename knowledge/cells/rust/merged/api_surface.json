@@ -13,7 +13,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "CellFormatValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellFormatValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormattingCollection",
@@ -98,7 +103,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ConditionalFormattingCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ConditionalFormattingCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormattingModel",
@@ -115,7 +125,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ConditionalFormattingModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ConditionalFormattingModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FormatConditionModel",
@@ -142,7 +157,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FormatConditionModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FormatConditionModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "NumberFormatValue",
@@ -168,7 +188,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "NumberFormatValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "NumberFormatValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DisplayFormatSectionInfo",
@@ -184,7 +209,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "DisplayFormatSectionInfo"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DisplayFormatSectionInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayTextDateFormatSupport",
@@ -595,7 +625,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DisplayTextDateFormatSupport"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DisplayTextDateFormatSupport",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayTextFormatter",
@@ -652,7 +687,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DisplayTextFormatter"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DisplayTextFormatter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayTextFormatterSupport",
@@ -941,7 +981,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DisplayTextFormatterSupport"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DisplayTextFormatterSupport",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatCondition",
@@ -1593,7 +1638,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FormatCondition"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FormatCondition",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionCollection",
@@ -1790,7 +1840,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FormatConditionCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FormatConditionCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionType",
@@ -1808,6 +1863,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "CellValue",
@@ -1874,7 +1932,9 @@
         "value": ""
       }
     ],
-    "class_import": "FormatConditionType"
+    "class_import": "FormatConditionType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "InvalidFileFormatException",
@@ -1961,6 +2021,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/InvalidFileFormatException.rs",
         "doc_source": "name_inference"
       },
       {
@@ -1970,11 +2031,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the inner message.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/InvalidFileFormatException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "InvalidFileFormatException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "InvalidFileFormatException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadFormat",
@@ -1991,6 +2058,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Auto",
@@ -2001,7 +2071,9 @@
         "value": ""
       }
     ],
-    "class_import": "LoadFormat"
+    "class_import": "LoadFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NumberFormat",
@@ -2087,7 +2159,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "NumberFormat"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "NumberFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IPackageReader",
@@ -2103,7 +2180,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "IPackageReader"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "IPackageReader",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "IPackageWriter",
@@ -2119,7 +2201,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "IPackageWriter"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "IPackageWriter",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "SaveFormat",
@@ -2136,13 +2223,18 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Xlsx",
         "value": ""
       }
     ],
-    "class_import": "SaveFormat"
+    "class_import": "SaveFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookCommentsLoader",
@@ -2355,7 +2447,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookCommentsLoader"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookCommentsLoader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookPicturesLoader",
@@ -3280,7 +3377,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookPicturesLoader"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookPicturesLoader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilter",
@@ -3370,7 +3472,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilter"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterColorFilter",
@@ -3452,7 +3559,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterColorFilter"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterColorFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilter",
@@ -3511,7 +3623,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterCustomFilter"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterCustomFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilterCollection",
@@ -3597,7 +3714,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterCustomFilterCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterCustomFilterCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterDynamicFilter",
@@ -3702,7 +3824,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterDynamicFilter"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterDynamicFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortCondition",
@@ -3862,7 +3989,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterSortCondition"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterSortCondition",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortConditionCollection",
@@ -3921,7 +4053,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterSortConditionCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterSortConditionCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortState",
@@ -4021,7 +4158,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterSortState"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterSortState",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterTop10",
@@ -4149,7 +4291,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterTop10"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterTop10",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoShapeType",
@@ -4166,6 +4313,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Unknown",
@@ -4324,7 +4474,9 @@
         "value": ""
       }
     ],
-    "class_import": "AutoShapeType"
+    "class_import": "AutoShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BorderLineStyle",
@@ -4360,6 +4512,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -4418,7 +4573,9 @@
         "value": ""
       }
     ],
-    "class_import": "BorderLineStyle"
+    "class_import": "BorderLineStyle",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Border",
@@ -4554,6 +4711,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the line style.",
         "line": 26,
+        "file": "src/Aspose.Cells_FOSS/Border.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4563,11 +4721,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the color.",
         "line": 27,
+        "file": "src/Aspose.Cells_FOSS/Border.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "Border"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Border",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BorderStyleType",
@@ -4603,6 +4767,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -4661,7 +4828,9 @@
         "value": ""
       }
     ],
-    "class_import": "BorderStyleType"
+    "class_import": "BorderStyleType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Borders",
@@ -4954,6 +5123,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the left.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4963,6 +5133,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the right.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4972,6 +5143,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the top.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4981,6 +5153,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the bottom.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4990,6 +5163,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the diagonal.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -4999,6 +5173,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the diagonal up.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       },
       {
@@ -5008,11 +5183,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the diagonal down.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/Borders.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "Borders"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Borders",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CalculationProperties",
@@ -5414,7 +5595,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CalculationProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CalculationProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cell",
@@ -5747,7 +5933,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Cell"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Cell",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellMut",
@@ -6776,7 +6967,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CellMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellArea",
@@ -6875,6 +7071,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the start row.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/CellArea.rs",
         "doc_source": "name_inference"
       },
       {
@@ -6884,6 +7081,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the end row.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/CellArea.rs",
         "doc_source": "name_inference"
       },
       {
@@ -6893,6 +7091,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the start column.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/CellArea.rs",
         "doc_source": "name_inference"
       },
       {
@@ -6902,11 +7101,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the end column.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/CellArea.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "CellArea"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellArea",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "parse_a1_range",
@@ -6923,7 +7128,10 @@
         "type": "&str"
       }
     ],
-    "return_type": "Result<CellRange, CellsError>"
+    "return_type": "Result<CellRange, CellsError>",
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValueType",
@@ -6942,6 +7150,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "IsUnknown",
@@ -6972,7 +7183,9 @@
         "value": ""
       }
     ],
-    "class_import": "CellValueType"
+    "class_import": "CellValueType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cells",
@@ -7181,7 +7394,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Cells"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Cells",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellsMut",
@@ -7456,7 +7674,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CellsMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellsMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellsException",
@@ -7543,6 +7766,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/CellsException.rs",
         "doc_source": "name_inference"
       },
       {
@@ -7552,11 +7776,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the inner message.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/CellsException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "CellsException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellsException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Chart",
@@ -7736,7 +7966,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Chart"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Chart",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartCollection",
@@ -7843,7 +8078,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ChartCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ChartCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartType",
@@ -7860,6 +8100,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Bar",
@@ -8206,7 +8449,9 @@
         "value": ""
       }
     ],
-    "class_import": "ChartType"
+    "class_import": "ChartType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartXmlTemplates",
@@ -8605,7 +8850,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ChartXmlTemplates"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ChartXmlTemplates",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Color",
@@ -8704,6 +8954,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the a.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/Color.rs",
         "doc_source": "name_inference"
       },
       {
@@ -8713,6 +8964,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the r.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/Color.rs",
         "doc_source": "name_inference"
       },
       {
@@ -8722,6 +8974,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the g.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/Color.rs",
         "doc_source": "name_inference"
       },
       {
@@ -8731,11 +8984,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the b.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/Color.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "Color"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Color",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Column",
@@ -8811,7 +9070,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Column"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Column",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColumnMut",
@@ -8942,7 +9206,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ColumnMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ColumnMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Columns",
@@ -9001,7 +9270,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Columns"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Columns",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColumnsMut",
@@ -9060,7 +9334,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ColumnsMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ColumnsMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Comment",
@@ -9305,7 +9584,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Comment"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Comment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CommentCollection",
@@ -9461,7 +9745,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CommentCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CommentCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "default",
@@ -9474,13 +9763,16 @@
     "properties": [],
     "params": [],
     "return_type": "Self",
+    "reachable": false,
     "receiver_type": "CommentData",
     "trait_impl": "Default",
     "_merged_files": [
       "src/Aspose.Cells_FOSS/CommentLive.rs",
       "src/Aspose.Cells_FOSS/Core/PageMarginsModel.rs",
       "src/Aspose.Cells_FOSS/Core/PageSetupModel.rs"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AlignmentValue",
@@ -9506,7 +9798,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AlignmentValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AlignmentValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterColorFilterModel",
@@ -9532,7 +9829,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterColorFilterModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterColorFilterModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterCustomFilterModel",
@@ -9548,7 +9850,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterCustomFilterModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterCustomFilterModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterDynamicFilterModel",
@@ -9574,7 +9881,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterDynamicFilterModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterDynamicFilterModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterModel",
@@ -9610,7 +9922,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterSortConditionModel",
@@ -9626,7 +9943,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterSortConditionModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterSortConditionModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterSortStateModel",
@@ -9662,7 +9984,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterSortStateModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterSortStateModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterTop10Model",
@@ -9688,7 +10015,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "AutoFilterTop10Model"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "AutoFilterTop10Model",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BorderSideValue",
@@ -9714,7 +10046,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "BorderSideValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "BorderSideValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BorderStyle",
@@ -9730,6 +10067,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -9788,7 +10128,9 @@
         "value": ""
       }
     ],
-    "class_import": "BorderStyle"
+    "class_import": "BorderStyle",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BordersValue",
@@ -9814,7 +10156,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "BordersValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "BordersValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CalculationPropertiesModel",
@@ -9855,7 +10202,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CalculationPropertiesModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CalculationPropertiesModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "fmt",
@@ -9873,8 +10225,11 @@
       }
     ],
     "return_type": "std::fmt::Result",
+    "reachable": false,
     "receiver_type": "CellAddress",
-    "trait_impl": "std::fmt::Display"
+    "trait_impl": "std::fmt::Display",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "parse_cell_ref_a1",
@@ -9891,7 +10246,10 @@
         "type": "&str"
       }
     ],
-    "return_type": "Result<CellRef, CellsError>"
+    "return_type": "Result<CellRef, CellsError>",
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CellRecord",
@@ -9907,7 +10265,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "CellRecord"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellRecord",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CellValueKind",
@@ -9923,6 +10286,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Blank",
@@ -9953,7 +10319,9 @@
         "value": ""
       }
     ],
-    "class_import": "CellValueKind"
+    "class_import": "CellValueKind",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ChartCompanionFile",
@@ -9969,7 +10337,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ChartCompanionFile"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ChartCompanionFile",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ChartModel",
@@ -9985,7 +10358,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ChartModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ChartModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ColorValue",
@@ -10036,6 +10414,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the a.",
         "line": 3,
+        "file": "src/Aspose.Cells_FOSS/Core/ColorValue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10045,6 +10424,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the r.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/Core/ColorValue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10054,6 +10434,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the g.",
         "line": 5,
+        "file": "src/Aspose.Cells_FOSS/Core/ColorValue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10063,11 +10444,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the b.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/Core/ColorValue.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "ColorValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ColorValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ColumnRangeModel",
@@ -10083,7 +10470,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ColumnRangeModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ColumnRangeModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CommentModel",
@@ -10099,7 +10491,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "CommentModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CommentModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CoreDocumentPropertiesModel",
@@ -10140,7 +10537,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CoreDocumentPropertiesModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CoreDocumentPropertiesModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DateSystem",
@@ -10156,6 +10558,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Windows1900",
@@ -10166,7 +10571,9 @@
         "value": ""
       }
     ],
-    "class_import": "DateSystem"
+    "class_import": "DateSystem",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DefinedNameModel",
@@ -10182,7 +10589,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "DefinedNameModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DefinedNameModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticBag",
@@ -10219,11 +10631,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the  entries.",
         "line": 3,
+        "file": "src/Aspose.Cells_FOSS/Core/DiagnosticBag.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "DiagnosticBag"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DiagnosticBag",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticEntry",
@@ -10239,7 +10657,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "DiagnosticEntry"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DiagnosticEntry",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticSeverity",
@@ -10255,6 +10678,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Warning",
@@ -10273,7 +10699,9 @@
         "value": ""
       }
     ],
-    "class_import": "DiagnosticSeverity"
+    "class_import": "DiagnosticSeverity",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DocumentPropertiesModel",
@@ -10314,7 +10742,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DocumentPropertiesModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DocumentPropertiesModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ExtendedDocumentPropertiesModel",
@@ -10355,7 +10788,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ExtendedDocumentPropertiesModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ExtendedDocumentPropertiesModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ExternalLinkModel",
@@ -10371,7 +10809,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ExternalLinkModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ExternalLinkModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FillPatternKind",
@@ -10387,6 +10830,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -10461,7 +10907,9 @@
         "value": ""
       }
     ],
-    "class_import": "FillPatternKind"
+    "class_import": "FillPatternKind",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FilterColumnModel",
@@ -10497,7 +10945,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FilterColumnModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FilterColumnModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FontValue",
@@ -10523,7 +10976,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FontValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FontValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "HorizontalAlignment",
@@ -10539,6 +10997,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "General",
@@ -10573,7 +11034,9 @@
         "value": ""
       }
     ],
-    "class_import": "HorizontalAlignment"
+    "class_import": "HorizontalAlignment",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "HyperlinkModel",
@@ -10589,7 +11052,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "HyperlinkModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "HyperlinkModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ListColumnModel",
@@ -10605,7 +11073,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListColumnModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListColumnModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ListObjectModel",
@@ -10621,7 +11094,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListObjectModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListObjectModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "MergeRegion",
@@ -10637,7 +11115,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "MergeRegion"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "MergeRegion",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PageOrientation",
@@ -10672,6 +11155,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Default",
@@ -10686,7 +11172,9 @@
         "value": ""
       }
     ],
-    "class_import": "PageOrientation"
+    "class_import": "PageOrientation",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PictureModel",
@@ -10702,7 +11190,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PictureModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PictureModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ProtectionValue",
@@ -10728,7 +11221,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ProtectionValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ProtectionValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "RowModel",
@@ -10744,7 +11242,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "RowModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RowModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ShapeImageModel",
@@ -10760,7 +11263,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ShapeImageModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ShapeImageModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ShapeModel",
@@ -10776,7 +11284,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ShapeModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ShapeModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "SharedStringRepository",
@@ -10840,6 +11353,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the  indices.",
         "line": 3,
+        "file": "src/Aspose.Cells_FOSS/Core/SharedStringRepository.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10849,11 +11363,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the  values.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/Core/SharedStringRepository.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "SharedStringRepository"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "SharedStringRepository",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "SheetVisibility",
@@ -10872,6 +11392,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Visible",
@@ -10886,7 +11409,9 @@
         "value": ""
       }
     ],
-    "class_import": "SheetVisibility"
+    "class_import": "SheetVisibility",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "StyleRepository",
@@ -10917,7 +11442,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "StyleRepository"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StyleRepository",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "StyleValue",
@@ -10943,7 +11473,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "StyleValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StyleValue",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ValidationModel",
@@ -10976,6 +11511,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the areas.",
         "line": 5,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10985,6 +11521,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the validation type.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -10994,6 +11531,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the alert style.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11003,6 +11541,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the operator.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11012,6 +11551,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the formula1.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11021,6 +11561,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the formula2.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11030,6 +11571,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the ignore blank.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11039,6 +11581,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the in cell drop down.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11048,6 +11591,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the input title.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11057,6 +11601,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the input message.",
         "line": 14,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11066,6 +11611,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the error title.",
         "line": 15,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11075,6 +11621,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the error message.",
         "line": 16,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11084,6 +11631,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the show input.",
         "line": 17,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       },
       {
@@ -11093,11 +11641,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the show error.",
         "line": 18,
+        "file": "src/Aspose.Cells_FOSS/Core/ValidationModel.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "ValidationModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ValidationModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "VerticalAlignment",
@@ -11113,6 +11667,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Bottom",
@@ -11135,7 +11692,9 @@
         "value": ""
       }
     ],
-    "class_import": "VerticalAlignment"
+    "class_import": "VerticalAlignment",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookModel",
@@ -11151,7 +11710,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookPropertiesModel",
@@ -11192,7 +11756,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookPropertiesModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookPropertiesModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookProtectionModel",
@@ -11233,7 +11802,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookProtectionModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookProtectionModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookSettingsModel",
@@ -11249,7 +11823,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookSettingsModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookSettingsModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookViewModel",
@@ -11294,7 +11873,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookViewModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookViewModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetModel",
@@ -11310,7 +11894,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetProtectionModel",
@@ -11346,7 +11935,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetProtectionModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetProtectionModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetViewModel",
@@ -11362,7 +11956,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetViewModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetViewModel",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CoreDocumentProperties",
@@ -11633,7 +12232,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "CoreDocumentProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CoreDocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedName",
@@ -11761,7 +12365,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DefinedName"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DefinedName",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedNameCollection",
@@ -11851,7 +12460,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DefinedNameCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DefinedNameCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedNameUtility",
@@ -11945,7 +12559,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DefinedNameUtility"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DefinedNameUtility",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayTextLocaleSupport",
@@ -12042,7 +12661,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DisplayTextLocaleSupport"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DisplayTextLocaleSupport",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DocumentProperties",
@@ -12280,7 +12904,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "DocumentProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "DocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExtendedDocumentProperties",
@@ -12505,7 +13134,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ExtendedDocumentProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ExtendedDocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FillPattern",
@@ -12525,6 +13159,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -12599,7 +13236,9 @@
         "value": ""
       }
     ],
-    "class_import": "FillPattern"
+    "class_import": "FillPattern",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FillValue",
@@ -12615,7 +13254,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "FillValue"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FillValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumn",
@@ -12777,7 +13421,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FilterColumn"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FilterColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumnCollection",
@@ -12873,7 +13522,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FilterColumnCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FilterColumnCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterOperatorType",
@@ -12890,6 +13544,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Equal",
@@ -12916,7 +13573,9 @@
         "value": ""
       }
     ],
-    "class_import": "FilterOperatorType"
+    "class_import": "FilterOperatorType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterValueCollection",
@@ -12975,7 +13634,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "FilterValueCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FilterValueCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Font",
@@ -13212,6 +13876,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the name.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       },
       {
@@ -13221,6 +13886,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the underline.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       },
       {
@@ -13230,6 +13896,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the is bold.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       },
       {
@@ -13239,6 +13906,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the is italic.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       },
       {
@@ -13248,6 +13916,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the is strikeout.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       },
       {
@@ -13257,11 +13926,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the color.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/Font.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "Font"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Font",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "eq",
@@ -13279,8 +13954,11 @@
       }
     ],
     "return_type": "bool",
+    "reachable": false,
     "receiver_type": "FontSize",
-    "trait_impl": "PartialEq"
+    "trait_impl": "PartialEq",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "hash",
@@ -13298,8 +13976,11 @@
       }
     ],
     "return_type": "",
+    "reachable": false,
     "receiver_type": "FontSize",
-    "trait_impl": "std::hash::Hash"
+    "trait_impl": "std::hash::Hash",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontUnderlineType",
@@ -13319,6 +14000,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -13401,7 +14085,9 @@
         "value": ""
       }
     ],
-    "class_import": "FontUnderlineType"
+    "class_import": "FontUnderlineType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormulaException",
@@ -13470,11 +14156,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/FormulaException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "FormulaException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FormulaException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Hyperlink",
@@ -13610,7 +14302,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Hyperlink"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Hyperlink",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "HyperlinkCollection",
@@ -13748,7 +14445,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "HyperlinkCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "HyperlinkCollection",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "IListObjectOwner",
@@ -13764,7 +14466,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "IListObjectOwner"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "IListObjectOwner",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IWarningCallback",
@@ -13785,12 +14492,20 @@
         "return_type": "",
         "doc": "",
         "line": 5,
-        "is_constructor": false
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/IWarningCallback.rs"
       }
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "IWarningCallback"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "IWarningCallback",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageType",
@@ -13809,6 +14524,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Unknown",
@@ -13831,7 +14549,9 @@
         "value": ""
       }
     ],
-    "class_import": "ImageType"
+    "class_import": "ImageType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumn",
@@ -14000,7 +14720,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListColumn"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumnCollection",
@@ -14059,7 +14784,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListColumnCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListColumnCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObject",
@@ -14575,7 +15305,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListObject"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListObject",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObjectCollection",
@@ -14728,7 +15463,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListObjectCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListObjectCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObjectSupport",
@@ -15029,7 +15769,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ListObjectSupport"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ListObjectSupport",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadDiagnostics",
@@ -15089,7 +15834,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "LoadDiagnostics"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "LoadDiagnostics",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadIssue",
@@ -15136,6 +15886,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the code.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15145,6 +15896,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the severity.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15154,6 +15906,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15163,6 +15916,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the repair applied.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15172,6 +15926,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the data loss risk.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15181,6 +15936,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the part uri.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15190,6 +15946,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the sheet name.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15199,6 +15956,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the cell ref.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15208,11 +15966,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the row index.",
         "line": 14,
+        "file": "src/Aspose.Cells_FOSS/LoadIssue.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "LoadIssue"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "LoadIssue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -15245,6 +16009,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the load format.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/LoadOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15254,6 +16019,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the strict mode.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/LoadOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15263,6 +16029,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the try repair package.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/LoadOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15272,6 +16039,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the try repair xml.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/LoadOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -15281,11 +16049,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the preserve unsupported parts.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/LoadOptions.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "LoadOptions"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "LoadOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OperatorType",
@@ -15303,6 +16077,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Between",
@@ -15341,7 +16118,9 @@
         "value": ""
       }
     ],
-    "class_import": "OperatorType"
+    "class_import": "OperatorType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MissingPartException",
@@ -15357,7 +16136,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "MissingPartException"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "MissingPartException",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageLoadContext",
@@ -15373,7 +16157,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PackageLoadContext"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PackageLoadContext",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageModel",
@@ -15389,7 +16178,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PackageModel"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PackageModel",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackagePartDescriptor",
@@ -15405,7 +16199,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PackagePartDescriptor"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PackagePartDescriptor",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageStructureException",
@@ -15421,7 +16220,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PackageStructureException"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PackageStructureException",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackagingConventions",
@@ -15437,7 +16241,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "PackagingConventions"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PackagingConventions",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "RelationshipDescriptor",
@@ -15453,7 +16262,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "RelationshipDescriptor"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RelationshipDescriptor",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "RelationshipResolutionException",
@@ -15469,7 +16283,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "RelationshipResolutionException"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RelationshipResolutionException",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PageOrientationType",
@@ -15504,6 +16323,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Default",
@@ -15518,7 +16340,9 @@
         "value": ""
       }
     ],
-    "class_import": "PageOrientationType"
+    "class_import": "PageOrientationType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageSetup",
@@ -16619,7 +17443,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "PageSetup"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PageSetup",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PaperSizeType",
@@ -16638,6 +17467,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Default",
@@ -16684,7 +17516,9 @@
         "value": "13"
       }
     ],
-    "class_import": "PaperSizeType"
+    "class_import": "PaperSizeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Picture",
@@ -16934,7 +17768,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Picture"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Picture",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PictureCollection",
@@ -17136,7 +17975,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "PictureCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "PictureCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Row",
@@ -17212,7 +18056,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Row"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Row",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowMut",
@@ -17343,7 +18192,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "RowMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RowMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Rows",
@@ -17402,7 +18256,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Rows"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Rows",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowsMut",
@@ -17461,7 +18320,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "RowsMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RowsMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveOptions",
@@ -17494,6 +18358,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the save format.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -17503,6 +18368,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the use shared strings.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -17512,6 +18378,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the validate before save.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -17521,6 +18388,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the compact styles.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.rs",
         "doc_source": "name_inference"
       },
       {
@@ -17530,11 +18398,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the preserve recovery metadata.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "SaveOptions"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "SaveOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape",
@@ -17776,7 +18650,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Shape"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Shape",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShapeCollection",
@@ -17888,7 +18767,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ShapeCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ShapeCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SparklineGroup",
@@ -18006,7 +18890,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "SparklineGroup"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "SparklineGroup",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SparklineGroupCollection",
@@ -18101,7 +18990,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "SparklineGroupCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "SparklineGroupCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SparklineType",
@@ -18118,6 +19012,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Line",
@@ -18132,7 +19029,9 @@
         "value": ""
       }
     ],
-    "class_import": "SparklineType"
+    "class_import": "SparklineType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Fill",
@@ -18254,6 +19153,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the pattern.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18263,6 +19163,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the foreground color.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18272,11 +19173,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the background color.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "Fill"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Fill",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellStyle",
@@ -18811,6 +19718,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the number.",
         "line": 62,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18820,6 +19728,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the custom.",
         "line": 63,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18829,6 +19738,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the number format.",
         "line": 64,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18838,6 +19748,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the horizontal alignment.",
         "line": 65,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18847,6 +19758,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the vertical alignment.",
         "line": 66,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18856,6 +19768,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the wrap text.",
         "line": 67,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18865,6 +19778,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the indent level.",
         "line": 68,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18874,6 +19788,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the text rotation.",
         "line": 69,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18883,6 +19798,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the shrink to fit.",
         "line": 70,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18892,6 +19808,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the reading order.",
         "line": 71,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18901,6 +19818,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the relative indent.",
         "line": 72,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18910,6 +19828,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the pattern.",
         "line": 73,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18919,6 +19838,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the background color.",
         "line": 74,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18928,6 +19848,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font.",
         "line": 75,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18937,6 +19858,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the fill color.",
         "line": 76,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18946,6 +19868,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the borders.",
         "line": 77,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18955,6 +19878,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the is locked.",
         "line": 78,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18964,6 +19888,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the is hidden.",
         "line": 79,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       },
       {
@@ -18973,11 +19898,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the quote prefix.",
         "line": 80,
+        "file": "src/Aspose.Cells_FOSS/Style.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "CellStyle"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellStyle",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleException",
@@ -19046,11 +19977,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/StyleException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "StyleException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StyleException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleFlag",
@@ -19749,6 +20686,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the alignments.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19758,6 +20696,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the all.",
         "line": 5,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19767,6 +20706,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the borders.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19776,6 +20716,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the bottom border.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19785,6 +20726,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the cell shading.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19794,6 +20736,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the diagonal down border.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19803,6 +20746,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the diagonal up border.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19812,6 +20756,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19821,6 +20766,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font bold.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19830,6 +20776,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font color.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19839,6 +20786,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font italic.",
         "line": 14,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19848,6 +20796,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font name.",
         "line": 15,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19857,6 +20806,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font size.",
         "line": 16,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19866,6 +20816,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font strike.",
         "line": 17,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19875,6 +20826,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the font underline.",
         "line": 18,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19884,6 +20836,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the horizontal alignment.",
         "line": 19,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19893,6 +20846,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the hidden.",
         "line": 20,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19902,6 +20856,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the indent.",
         "line": 21,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19911,6 +20866,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the left border.",
         "line": 22,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19920,6 +20876,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the locked.",
         "line": 23,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19929,6 +20886,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the number format.",
         "line": 24,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19938,6 +20896,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the quote prefix.",
         "line": 25,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19947,6 +20906,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the right border.",
         "line": 26,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19956,6 +20916,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the rotation.",
         "line": 27,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19965,6 +20926,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the shrink to fit.",
         "line": 28,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19974,6 +20936,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the text direction.",
         "line": 29,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19983,6 +20946,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the top border.",
         "line": 30,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -19992,6 +20956,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the vertical alignment.",
         "line": 31,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       },
       {
@@ -20001,11 +20966,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the wrap text.",
         "line": 32,
+        "file": "src/Aspose.Cells_FOSS/StyleFlag.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "StyleFlag"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StyleFlag",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleValueSanitizer",
@@ -20064,7 +21035,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "StyleValueSanitizer"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StyleValueSanitizer",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StylesheetLoadContext",
@@ -20080,7 +21056,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "StylesheetLoadContext"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StylesheetLoadContext",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StylesheetSaveContext",
@@ -20131,6 +21112,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the  style indices.",
         "line": 3,
+        "file": "src/Aspose.Cells_FOSS/StylesheetSaveContext.rs",
         "doc_source": "name_inference"
       },
       {
@@ -20140,11 +21122,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the  differential style indices.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/StylesheetSaveContext.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "StylesheetSaveContext"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StylesheetSaveContext",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableStyleType",
@@ -20161,6 +21149,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -20411,7 +21402,9 @@
         "value": ""
       }
     ],
-    "class_import": "TableStyleType"
+    "class_import": "TableStyleType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TargetModeType",
@@ -20429,6 +21422,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "External",
@@ -20447,7 +21443,9 @@
         "value": ""
       }
     ],
-    "class_import": "TargetModeType"
+    "class_import": "TargetModeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TotalsCalculation",
@@ -20464,6 +21462,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "None",
@@ -20506,7 +21507,9 @@
         "value": ""
       }
     ],
-    "class_import": "TotalsCalculation"
+    "class_import": "TotalsCalculation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnsupportedFeatureException",
@@ -20575,11 +21578,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/UnsupportedFeatureException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "UnsupportedFeatureException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "UnsupportedFeatureException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Validation",
@@ -20928,7 +21937,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Validation"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Validation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationMessage",
@@ -20944,7 +21958,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "ValidationMessage"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ValidationMessage",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "ValidationMessageSeverity",
@@ -20960,6 +21979,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Info",
@@ -20974,7 +21996,9 @@
         "value": ""
       }
     ],
-    "class_import": "ValidationMessageSeverity"
+    "class_import": "ValidationMessageSeverity",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "WorkbookValidator",
@@ -21009,7 +22033,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookValidator"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookValidator",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "ValidationAlertType",
@@ -21027,6 +22056,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Stop",
@@ -21041,7 +22073,9 @@
         "value": ""
       }
     ],
-    "class_import": "ValidationAlertType"
+    "class_import": "ValidationAlertType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationCollection",
@@ -21141,7 +22175,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "ValidationCollection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ValidationCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationType",
@@ -21159,6 +22198,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "AnyValue",
@@ -21193,7 +22235,9 @@
         "value": ""
       }
     ],
-    "class_import": "ValidationType"
+    "class_import": "ValidationType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VisibilityType",
@@ -21212,6 +22256,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "Visible",
@@ -21226,7 +22273,9 @@
         "value": ""
       }
     ],
-    "class_import": "VisibilityType"
+    "class_import": "VisibilityType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WarningInfo",
@@ -21250,6 +22299,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the code.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21259,6 +22309,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the severity.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21268,6 +22319,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21277,6 +22329,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the data loss risk.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21286,6 +22339,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the part uri.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21295,6 +22349,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the sheet name.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21304,6 +22359,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the cell ref.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       },
       {
@@ -21313,11 +22369,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the row index.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/WarningInfo.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WarningInfo"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WarningInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Workbook",
@@ -22069,7 +23131,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Workbook"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Workbook",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookLoadException",
@@ -22156,6 +23223,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/WorkbookLoadException.rs",
         "doc_source": "name_inference"
       },
       {
@@ -22165,11 +23233,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the inner message.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/WorkbookLoadException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WorkbookLoadException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookLoadException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProperties",
@@ -22579,7 +23653,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProtection",
@@ -23047,6 +24126,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the structure.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23056,6 +24136,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the windows.",
         "line": 5,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23065,6 +24146,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the revision.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23074,6 +24156,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the workbook password.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23083,6 +24166,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the revisions password.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23092,6 +24176,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the workbook algorithm name.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23101,6 +24186,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the workbook hash value.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23110,6 +24196,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the workbook salt value.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23119,6 +24206,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the workbook spin count.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23128,6 +24216,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the revisions algorithm name.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23137,6 +24226,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the revisions hash value.",
         "line": 14,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23146,6 +24236,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the revisions salt value.",
         "line": 15,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23155,11 +24246,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the revisions spin count.",
         "line": 16,
+        "file": "src/Aspose.Cells_FOSS/WorkbookProtection.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WorkbookProtection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookProtection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSaveException",
@@ -23246,6 +24343,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the message.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/WorkbookSaveException.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23255,11 +24353,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the inner message.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/WorkbookSaveException.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WorkbookSaveException"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookSaveException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSettings",
@@ -23380,6 +24484,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the date system.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/WorkbookSettings.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23389,11 +24494,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the display culture.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/WorkbookSettings.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WorkbookSettings"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookSettings",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookView",
@@ -23827,7 +24938,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookView"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookView",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FreezePane",
@@ -23851,6 +24967,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the row split.",
         "line": 15,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23860,11 +24977,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the column split.",
         "line": 16,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "FreezePane"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "FreezePane",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColumnProperties",
@@ -23887,6 +25010,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the width.",
         "line": 22,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23896,11 +25020,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the hidden.",
         "line": 23,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "ColumnProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "ColumnProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowProperties",
@@ -23923,6 +25053,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the height.",
         "line": 29,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       },
       {
@@ -23932,11 +25063,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the hidden.",
         "line": 30,
+        "file": "src/Aspose.Cells_FOSS/Worksheet.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "RowProperties"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "RowProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Worksheet",
@@ -25056,7 +26193,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Worksheet"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Worksheet",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Worksheets",
@@ -25197,7 +26339,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "Worksheets"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "Worksheets",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetsMut",
@@ -25431,7 +26578,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetsMut"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetsMut",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetDefinedNamesState",
@@ -25447,7 +26599,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetDefinedNamesState"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetDefinedNamesState",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetProtection",
@@ -26003,6 +27160,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the sheet.",
         "line": 4,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26012,6 +27170,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the objects.",
         "line": 5,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26021,6 +27180,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the scenarios.",
         "line": 6,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26030,6 +27190,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the format cells.",
         "line": 7,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26039,6 +27200,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the format columns.",
         "line": 8,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26048,6 +27210,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the format rows.",
         "line": 9,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26057,6 +27220,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the insert columns.",
         "line": 10,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26066,6 +27230,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the insert rows.",
         "line": 11,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26075,6 +27240,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the insert hyperlinks.",
         "line": 12,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26084,6 +27250,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the delete columns.",
         "line": 13,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26093,6 +27260,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the delete rows.",
         "line": 14,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26102,6 +27270,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the select locked cells.",
         "line": 15,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26111,6 +27280,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the sort.",
         "line": 16,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26120,6 +27290,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the auto filter.",
         "line": 17,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26129,6 +27300,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the pivot tables.",
         "line": 18,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       },
       {
@@ -26138,11 +27310,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the select unlocked cells.",
         "line": 19,
+        "file": "src/Aspose.Cells_FOSS/WorksheetProtection.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "WorksheetProtection"
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetProtection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookDefinedNames",
@@ -26325,7 +27503,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookDefinedNames"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookDefinedNames",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookProperties",
@@ -26648,7 +27831,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookProperties"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookStylesValueHelpers",
@@ -26803,7 +27991,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookStylesValueHelpers"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookStylesValueHelpers",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookStylesXml",
@@ -27286,7 +28479,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookStylesXml"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookStylesXml",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookWorksheetProtection",
@@ -27445,7 +28643,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookWorksheetProtection"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookWorksheetProtection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookWorksheetViews",
@@ -27714,7 +28917,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "XlsxWorkbookWorksheetViews"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XlsxWorkbookWorksheetViews",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SharedStringTableXmlMapper",
@@ -27767,7 +28975,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "SharedStringTableXmlMapper"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "SharedStringTableXmlMapper",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "StylesheetXmlMapper",
@@ -27820,7 +29033,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "StylesheetXmlMapper"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "StylesheetXmlMapper",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "WorkbookXmlMapper",
@@ -27881,7 +29099,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorkbookXmlMapper"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorkbookXmlMapper",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "WorksheetXmlMapper",
@@ -27934,7 +29157,12 @@
     ],
     "properties": [],
     "visibility": "public",
-    "class_import": "WorksheetXmlMapper"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "WorksheetXmlMapper",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "XmlParsingException",
@@ -27950,7 +29178,12 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "XmlParsingException"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "XmlParsingException",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "CellsError",
@@ -28054,6 +29287,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "SheetNotFound",
@@ -28096,7 +29332,9 @@
         "value": ""
       }
     ],
-    "class_import": "CellsError"
+    "class_import": "CellsError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValue",
@@ -28186,6 +29424,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "String",
@@ -28216,7 +29457,9 @@
         "value": ""
       }
     ],
-    "class_import": "CellValue"
+    "class_import": "CellValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellObjectValue",
@@ -28425,6 +29668,9 @@
     ],
     "properties": [],
     "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "String",
@@ -28447,7 +29693,9 @@
         "value": ""
       }
     ],
-    "class_import": "CellObjectValue"
+    "class_import": "CellObjectValue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellRef",
@@ -28471,6 +29719,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the row.",
         "line": 973,
+        "file": "src/Aspose.Cells_FOSS/api.rs",
         "doc_source": "name_inference"
       },
       {
@@ -28480,11 +29729,17 @@
         "access_mode": "readwrite",
         "doc": "Gets the column.",
         "line": 974,
+        "file": "src/Aspose.Cells_FOSS/api.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "CellRef"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellRef",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellRange",
@@ -28508,6 +29763,7 @@
         "access_mode": "readwrite",
         "doc": "Gets the start.",
         "line": 979,
+        "file": "src/Aspose.Cells_FOSS/api.rs",
         "doc_source": "name_inference"
       },
       {
@@ -28517,10 +29773,16 @@
         "access_mode": "readwrite",
         "doc": "Gets the end.",
         "line": 980,
+        "file": "src/Aspose.Cells_FOSS/api.rs",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
-    "class_import": "CellRange"
+    "reachable": false,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "class_import": "CellRange",
+    "module_key": "core",
+    "module_label": "Core API"
   }
 ]

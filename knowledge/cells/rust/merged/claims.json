@@ -1680,7 +1680,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9e98ce",
+    "claim_id": "CLM-cells-7b4e4e0c",
     "kind": "api_method",
     "text": "InvalidFileFormatException.message field of type String",
     "confidence": 1.0,
@@ -1694,7 +1694,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-62ff6f",
+    "claim_id": "CLM-cells-8ac584d9",
     "kind": "api_method",
     "text": "InvalidFileFormatException.inner_message field of type Option<String>",
     "confidence": 1.0,
@@ -3430,7 +3430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ac3935",
+    "claim_id": "CLM-cells-4a25f9b0",
     "kind": "api_method",
     "text": "Border.line_style field of type BorderLineStyle",
     "confidence": 1.0,
@@ -3444,7 +3444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a2a0c6",
+    "claim_id": "CLM-cells-5e4ba724",
     "kind": "api_method",
     "text": "Border.color field of type Option<String>",
     "confidence": 1.0,
@@ -3640,7 +3640,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fe4c9d",
+    "claim_id": "CLM-cells-3996a0f9",
     "kind": "api_method",
     "text": "Borders.left field of type Border",
     "confidence": 1.0,
@@ -3654,7 +3654,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0cc2af",
+    "claim_id": "CLM-cells-8ed88104",
     "kind": "api_method",
     "text": "Borders.right field of type Border",
     "confidence": 1.0,
@@ -3668,7 +3668,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2152b2",
+    "claim_id": "CLM-cells-32a18cd8",
     "kind": "api_method",
     "text": "Borders.top field of type Border",
     "confidence": 1.0,
@@ -3682,7 +3682,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5f076f",
+    "claim_id": "CLM-cells-0abf3348",
     "kind": "api_method",
     "text": "Borders.bottom field of type Border",
     "confidence": 1.0,
@@ -3696,7 +3696,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2be7de",
+    "claim_id": "CLM-cells-baa38732",
     "kind": "api_method",
     "text": "Borders.diagonal field of type Border",
     "confidence": 1.0,
@@ -3710,7 +3710,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9ae196",
+    "claim_id": "CLM-cells-f8a4da44",
     "kind": "api_method",
     "text": "Borders.diagonal_up field of type bool",
     "confidence": 1.0,
@@ -3724,7 +3724,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-788e8a",
+    "claim_id": "CLM-cells-d5623777",
     "kind": "api_method",
     "text": "Borders.diagonal_down field of type bool",
     "confidence": 1.0,
@@ -5866,7 +5866,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-701fb2",
+    "claim_id": "CLM-cells-ac6cb193",
     "kind": "api_method",
     "text": "CellArea.start_row field of type i32",
     "confidence": 1.0,
@@ -5880,7 +5880,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-767ac7",
+    "claim_id": "CLM-cells-dd059650",
     "kind": "api_method",
     "text": "CellArea.end_row field of type i32",
     "confidence": 1.0,
@@ -5894,7 +5894,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8d5ea2",
+    "claim_id": "CLM-cells-3f3a60d1",
     "kind": "api_method",
     "text": "CellArea.start_column field of type i32",
     "confidence": 1.0,
@@ -5908,7 +5908,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d21538",
+    "claim_id": "CLM-cells-712d409f",
     "kind": "api_method",
     "text": "CellArea.end_column field of type i32",
     "confidence": 1.0,
@@ -6398,7 +6398,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-05c57a",
+    "claim_id": "CLM-cells-8cb53f0a",
     "kind": "api_method",
     "text": "CellsException.message field of type String",
     "confidence": 1.0,
@@ -6412,7 +6412,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7439cd",
+    "claim_id": "CLM-cells-03b91392",
     "kind": "api_method",
     "text": "CellsException.inner_message field of type Option<String>",
     "confidence": 1.0,
@@ -7140,7 +7140,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-240f0e",
+    "claim_id": "CLM-cells-5617b7c4",
     "kind": "api_method",
     "text": "Color.a field of type u8",
     "confidence": 1.0,
@@ -7154,7 +7154,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8bea39",
+    "claim_id": "CLM-cells-d2a26729",
     "kind": "api_method",
     "text": "Color.r field of type u8",
     "confidence": 1.0,
@@ -7168,7 +7168,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-02fdaf",
+    "claim_id": "CLM-cells-df9e12d4",
     "kind": "api_method",
     "text": "Color.g field of type u8",
     "confidence": 1.0,
@@ -7182,7 +7182,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5498fa",
+    "claim_id": "CLM-cells-6d4b0e23",
     "kind": "api_method",
     "text": "Color.b field of type u8",
     "confidence": 1.0,
@@ -8232,7 +8232,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-16fffb",
+    "claim_id": "CLM-cells-68b2d4f9",
     "kind": "api_method",
     "text": "ColorValue.a field of type u8",
     "confidence": 1.0,
@@ -8246,7 +8246,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bba757",
+    "claim_id": "CLM-cells-26c3173e",
     "kind": "api_method",
     "text": "ColorValue.r field of type u8",
     "confidence": 1.0,
@@ -8260,7 +8260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0d2c0c",
+    "claim_id": "CLM-cells-72163665",
     "kind": "api_method",
     "text": "ColorValue.g field of type u8",
     "confidence": 1.0,
@@ -8274,7 +8274,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1bc33a",
+    "claim_id": "CLM-cells-a435344f",
     "kind": "api_method",
     "text": "ColorValue.b field of type u8",
     "confidence": 1.0,
@@ -8372,7 +8372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-27898f",
+    "claim_id": "CLM-cells-d9636e02",
     "kind": "api_method",
     "text": "DiagnosticBag._entries field of type Vec<DiagnosticEntry>",
     "confidence": 1.0,
@@ -8722,7 +8722,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7f54e0",
+    "claim_id": "CLM-cells-bd6d8bd6",
     "kind": "api_method",
     "text": "SharedStringRepository._indices field of type std::collections::HashMap<String, i32>",
     "confidence": 1.0,
@@ -8736,7 +8736,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-daaa83",
+    "claim_id": "CLM-cells-543971e5",
     "kind": "api_method",
     "text": "SharedStringRepository._values field of type Vec<String>",
     "confidence": 1.0,
@@ -8862,7 +8862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cfb9f9",
+    "claim_id": "CLM-cells-c42b5bf9",
     "kind": "api_method",
     "text": "ValidationModel.areas field of type Vec<CellArea>",
     "confidence": 1.0,
@@ -8876,7 +8876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-141f4a",
+    "claim_id": "CLM-cells-11fc33e4",
     "kind": "api_method",
     "text": "ValidationModel.validation_type field of type ValidationType",
     "confidence": 1.0,
@@ -8890,7 +8890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4e5faa",
+    "claim_id": "CLM-cells-6d9c12b4",
     "kind": "api_method",
     "text": "ValidationModel.alert_style field of type ValidationAlertType",
     "confidence": 1.0,
@@ -8904,7 +8904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f9319e",
+    "claim_id": "CLM-cells-51f1a794",
     "kind": "api_method",
     "text": "ValidationModel.operator field of type OperatorType",
     "confidence": 1.0,
@@ -8918,7 +8918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bcebb6",
+    "claim_id": "CLM-cells-683f72ac",
     "kind": "api_method",
     "text": "ValidationModel.formula1 field of type Option<String>",
     "confidence": 1.0,
@@ -8932,7 +8932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9471f4",
+    "claim_id": "CLM-cells-4f0538a4",
     "kind": "api_method",
     "text": "ValidationModel.formula2 field of type Option<String>",
     "confidence": 1.0,
@@ -8946,7 +8946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-297c8e",
+    "claim_id": "CLM-cells-43851a54",
     "kind": "api_method",
     "text": "ValidationModel.ignore_blank field of type bool",
     "confidence": 1.0,
@@ -8960,7 +8960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f11125",
+    "claim_id": "CLM-cells-d3ed23a1",
     "kind": "api_method",
     "text": "ValidationModel.in_cell_drop_down field of type bool",
     "confidence": 1.0,
@@ -8974,7 +8974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bd415f",
+    "claim_id": "CLM-cells-32369a76",
     "kind": "api_method",
     "text": "ValidationModel.input_title field of type Option<String>",
     "confidence": 1.0,
@@ -8988,7 +8988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1668c1",
+    "claim_id": "CLM-cells-53225116",
     "kind": "api_method",
     "text": "ValidationModel.input_message field of type Option<String>",
     "confidence": 1.0,
@@ -9002,7 +9002,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-aa20d6",
+    "claim_id": "CLM-cells-3ddb0621",
     "kind": "api_method",
     "text": "ValidationModel.error_title field of type Option<String>",
     "confidence": 1.0,
@@ -9016,7 +9016,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-cbba83",
+    "claim_id": "CLM-cells-a4885bcf",
     "kind": "api_method",
     "text": "ValidationModel.error_message field of type Option<String>",
     "confidence": 1.0,
@@ -9030,7 +9030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bcbb57",
+    "claim_id": "CLM-cells-a31f17a1",
     "kind": "api_method",
     "text": "ValidationModel.show_input field of type bool",
     "confidence": 1.0,
@@ -9044,7 +9044,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-eb1914",
+    "claim_id": "CLM-cells-1a503bfa",
     "kind": "api_method",
     "text": "ValidationModel.show_error field of type bool",
     "confidence": 1.0,
@@ -10612,7 +10612,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-746853",
+    "claim_id": "CLM-cells-9fced123",
     "kind": "api_method",
     "text": "Font.name field of type String",
     "confidence": 1.0,
@@ -10626,7 +10626,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-04c2b7",
+    "claim_id": "CLM-cells-6dcf94aa",
     "kind": "api_method",
     "text": "Font.underline field of type FontUnderlineType",
     "confidence": 1.0,
@@ -10640,7 +10640,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-86a70a",
+    "claim_id": "CLM-cells-0dc1f1a9",
     "kind": "api_method",
     "text": "Font.is_bold field of type bool",
     "confidence": 1.0,
@@ -10654,7 +10654,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-14f04a",
+    "claim_id": "CLM-cells-45d2d63c",
     "kind": "api_method",
     "text": "Font.is_italic field of type bool",
     "confidence": 1.0,
@@ -10668,7 +10668,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-98b783",
+    "claim_id": "CLM-cells-e58a1721",
     "kind": "api_method",
     "text": "Font.is_strikeout field of type bool",
     "confidence": 1.0,
@@ -10682,7 +10682,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-52de9c",
+    "claim_id": "CLM-cells-07596687",
     "kind": "api_method",
     "text": "Font.color field of type Option<String>",
     "confidence": 1.0,
@@ -10920,7 +10920,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fc7bae",
+    "claim_id": "CLM-cells-09e27c22",
     "kind": "api_method",
     "text": "FormulaException.message field of type String",
     "confidence": 1.0,
@@ -11214,7 +11214,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-92e7c0",
+    "claim_id": "CLM-cells-a07a40e1",
     "kind": "api_method",
     "text": "IWarningCallback.warning(warning_info) -> ",
     "confidence": 1.0,
@@ -12474,7 +12474,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-821766",
+    "claim_id": "CLM-cells-d98a933b",
     "kind": "api_method",
     "text": "LoadIssue.code field of type String",
     "confidence": 1.0,
@@ -12488,7 +12488,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fec721",
+    "claim_id": "CLM-cells-f93c2ab2",
     "kind": "api_method",
     "text": "LoadIssue.severity field of type DiagnosticSeverity",
     "confidence": 1.0,
@@ -12502,7 +12502,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6696e8",
+    "claim_id": "CLM-cells-21f64a54",
     "kind": "api_method",
     "text": "LoadIssue.message field of type String",
     "confidence": 1.0,
@@ -12516,7 +12516,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-75800b",
+    "claim_id": "CLM-cells-6eb8a8bf",
     "kind": "api_method",
     "text": "LoadIssue.repair_applied field of type bool",
     "confidence": 1.0,
@@ -12530,7 +12530,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ca1522",
+    "claim_id": "CLM-cells-efd9988a",
     "kind": "api_method",
     "text": "LoadIssue.data_loss_risk field of type bool",
     "confidence": 1.0,
@@ -12544,7 +12544,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c5591a",
+    "claim_id": "CLM-cells-d3b99851",
     "kind": "api_method",
     "text": "LoadIssue.part_uri field of type Option<String>",
     "confidence": 1.0,
@@ -12558,7 +12558,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9327ce",
+    "claim_id": "CLM-cells-511c5fb9",
     "kind": "api_method",
     "text": "LoadIssue.sheet_name field of type Option<String>",
     "confidence": 1.0,
@@ -12572,7 +12572,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5f28d1",
+    "claim_id": "CLM-cells-112de5b2",
     "kind": "api_method",
     "text": "LoadIssue.cell_ref field of type Option<String>",
     "confidence": 1.0,
@@ -12586,7 +12586,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fba7b0",
+    "claim_id": "CLM-cells-f38bcb9d",
     "kind": "api_method",
     "text": "LoadIssue.row_index field of type Option<i32>",
     "confidence": 1.0,
@@ -12628,7 +12628,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-580c34",
+    "claim_id": "CLM-cells-173790bd",
     "kind": "api_method",
     "text": "LoadOptions.load_format field of type LoadFormat",
     "confidence": 1.0,
@@ -12642,7 +12642,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3fab25",
+    "claim_id": "CLM-cells-90977132",
     "kind": "api_method",
     "text": "LoadOptions.strict_mode field of type bool",
     "confidence": 1.0,
@@ -12656,7 +12656,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-440b43",
+    "claim_id": "CLM-cells-b333d853",
     "kind": "api_method",
     "text": "LoadOptions.try_repair_package field of type bool",
     "confidence": 1.0,
@@ -12670,7 +12670,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4768fd",
+    "claim_id": "CLM-cells-927f6870",
     "kind": "api_method",
     "text": "LoadOptions.try_repair_xml field of type bool",
     "confidence": 1.0,
@@ -12684,7 +12684,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ecf7b6",
+    "claim_id": "CLM-cells-22ce34fe",
     "kind": "api_method",
     "text": "LoadOptions.preserve_unsupported_parts field of type bool",
     "confidence": 1.0,
@@ -14854,7 +14854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-4fa637",
+    "claim_id": "CLM-cells-c9908872",
     "kind": "api_method",
     "text": "SaveOptions.save_format field of type SaveFormat",
     "confidence": 1.0,
@@ -14868,7 +14868,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8efc32",
+    "claim_id": "CLM-cells-6f027ec9",
     "kind": "api_method",
     "text": "SaveOptions.use_shared_strings field of type bool",
     "confidence": 1.0,
@@ -14882,7 +14882,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bf2d37",
+    "claim_id": "CLM-cells-e0d4181b",
     "kind": "api_method",
     "text": "SaveOptions.validate_before_save field of type bool",
     "confidence": 1.0,
@@ -14896,7 +14896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-db7400",
+    "claim_id": "CLM-cells-5f74b5ac",
     "kind": "api_method",
     "text": "SaveOptions.compact_styles field of type bool",
     "confidence": 1.0,
@@ -14910,7 +14910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-69d3e3",
+    "claim_id": "CLM-cells-d22fb588",
     "kind": "api_method",
     "text": "SaveOptions.preserve_recovery_metadata field of type bool",
     "confidence": 1.0,
@@ -15260,7 +15260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a7f746",
+    "claim_id": "CLM-cells-86191462",
     "kind": "api_method",
     "text": "Fill.pattern field of type FillPattern",
     "confidence": 1.0,
@@ -15274,7 +15274,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3c99a0",
+    "claim_id": "CLM-cells-ba4885d4",
     "kind": "api_method",
     "text": "Fill.foreground_color field of type Option<String>",
     "confidence": 1.0,
@@ -15288,7 +15288,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e3e0cf",
+    "claim_id": "CLM-cells-648c1f60",
     "kind": "api_method",
     "text": "Fill.background_color field of type Option<String>",
     "confidence": 1.0,
@@ -15316,7 +15316,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d24a79",
+    "claim_id": "CLM-cells-06cdb088",
     "kind": "api_method",
     "text": "CellStyle.number field of type i32",
     "confidence": 1.0,
@@ -15330,7 +15330,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-802815",
+    "claim_id": "CLM-cells-c79d4229",
     "kind": "api_method",
     "text": "CellStyle.custom field of type Option<String>",
     "confidence": 1.0,
@@ -15344,7 +15344,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-eaf637",
+    "claim_id": "CLM-cells-5e0045a2",
     "kind": "api_method",
     "text": "CellStyle.number_format field of type Option<String>",
     "confidence": 1.0,
@@ -15358,7 +15358,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-600e83",
+    "claim_id": "CLM-cells-e2f42ba8",
     "kind": "api_method",
     "text": "CellStyle.horizontal_alignment field of type Option<HorizontalAlignment>",
     "confidence": 1.0,
@@ -15372,7 +15372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-674409",
+    "claim_id": "CLM-cells-1e7817bc",
     "kind": "api_method",
     "text": "CellStyle.vertical_alignment field of type Option<VerticalAlignment>",
     "confidence": 1.0,
@@ -15386,7 +15386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ad7930",
+    "claim_id": "CLM-cells-711c2c99",
     "kind": "api_method",
     "text": "CellStyle.wrap_text field of type bool",
     "confidence": 1.0,
@@ -15400,7 +15400,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-ea7627",
+    "claim_id": "CLM-cells-74ca9f7e",
     "kind": "api_method",
     "text": "CellStyle.indent_level field of type u8",
     "confidence": 1.0,
@@ -15414,7 +15414,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-59fc10",
+    "claim_id": "CLM-cells-4733b17e",
     "kind": "api_method",
     "text": "CellStyle.text_rotation field of type u16",
     "confidence": 1.0,
@@ -15428,7 +15428,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0f2e74",
+    "claim_id": "CLM-cells-d5ec62ee",
     "kind": "api_method",
     "text": "CellStyle.shrink_to_fit field of type bool",
     "confidence": 1.0,
@@ -15442,7 +15442,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6101d0",
+    "claim_id": "CLM-cells-aff4f6a2",
     "kind": "api_method",
     "text": "CellStyle.reading_order field of type u8",
     "confidence": 1.0,
@@ -15456,7 +15456,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-89273c",
+    "claim_id": "CLM-cells-4d7594f9",
     "kind": "api_method",
     "text": "CellStyle.relative_indent field of type i32",
     "confidence": 1.0,
@@ -15470,7 +15470,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3bc168",
+    "claim_id": "CLM-cells-d16ef34d",
     "kind": "api_method",
     "text": "CellStyle.pattern field of type FillPattern",
     "confidence": 1.0,
@@ -15484,7 +15484,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-68c430",
+    "claim_id": "CLM-cells-a49fbe8c",
     "kind": "api_method",
     "text": "CellStyle.background_color field of type Option<String>",
     "confidence": 1.0,
@@ -15498,7 +15498,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2b7290",
+    "claim_id": "CLM-cells-6d759cc1",
     "kind": "api_method",
     "text": "CellStyle.font field of type Font",
     "confidence": 1.0,
@@ -15512,7 +15512,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3b4972",
+    "claim_id": "CLM-cells-006eb460",
     "kind": "api_method",
     "text": "CellStyle.fill_color field of type Option<String>",
     "confidence": 1.0,
@@ -15526,7 +15526,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-943a51",
+    "claim_id": "CLM-cells-34d46da6",
     "kind": "api_method",
     "text": "CellStyle.borders field of type Borders",
     "confidence": 1.0,
@@ -15540,7 +15540,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9dd98a",
+    "claim_id": "CLM-cells-a967e8fd",
     "kind": "api_method",
     "text": "CellStyle.is_locked field of type bool",
     "confidence": 1.0,
@@ -15554,7 +15554,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f3731a",
+    "claim_id": "CLM-cells-526290ae",
     "kind": "api_method",
     "text": "CellStyle.is_hidden field of type bool",
     "confidence": 1.0,
@@ -15568,7 +15568,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e83c62",
+    "claim_id": "CLM-cells-71d30405",
     "kind": "api_method",
     "text": "CellStyle.quote_prefix field of type bool",
     "confidence": 1.0,
@@ -16296,7 +16296,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2cf7b0",
+    "claim_id": "CLM-cells-27f9a5fb",
     "kind": "api_method",
     "text": "StyleException.message field of type String",
     "confidence": 1.0,
@@ -16324,7 +16324,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-98a78a",
+    "claim_id": "CLM-cells-fe6f49a3",
     "kind": "api_method",
     "text": "StyleFlag.alignments field of type bool",
     "confidence": 1.0,
@@ -16338,7 +16338,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5aa7d7",
+    "claim_id": "CLM-cells-ff4df88e",
     "kind": "api_method",
     "text": "StyleFlag.all field of type bool",
     "confidence": 1.0,
@@ -16352,7 +16352,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5b97e2",
+    "claim_id": "CLM-cells-2bece840",
     "kind": "api_method",
     "text": "StyleFlag.borders field of type bool",
     "confidence": 1.0,
@@ -16366,7 +16366,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-85a8cb",
+    "claim_id": "CLM-cells-cfca24f1",
     "kind": "api_method",
     "text": "StyleFlag.bottom_border field of type bool",
     "confidence": 1.0,
@@ -16380,7 +16380,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-719bbe",
+    "claim_id": "CLM-cells-00d86061",
     "kind": "api_method",
     "text": "StyleFlag.cell_shading field of type bool",
     "confidence": 1.0,
@@ -16394,7 +16394,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-002d2f",
+    "claim_id": "CLM-cells-112a76c8",
     "kind": "api_method",
     "text": "StyleFlag.diagonal_down_border field of type bool",
     "confidence": 1.0,
@@ -16408,7 +16408,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7ea5e8",
+    "claim_id": "CLM-cells-0b1927cd",
     "kind": "api_method",
     "text": "StyleFlag.diagonal_up_border field of type bool",
     "confidence": 1.0,
@@ -16422,7 +16422,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-eb175f",
+    "claim_id": "CLM-cells-f161e239",
     "kind": "api_method",
     "text": "StyleFlag.font field of type bool",
     "confidence": 1.0,
@@ -16436,7 +16436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5eeb49",
+    "claim_id": "CLM-cells-c4205a9a",
     "kind": "api_method",
     "text": "StyleFlag.font_bold field of type bool",
     "confidence": 1.0,
@@ -16450,7 +16450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a7f6b4",
+    "claim_id": "CLM-cells-1e4eec37",
     "kind": "api_method",
     "text": "StyleFlag.font_color field of type bool",
     "confidence": 1.0,
@@ -16464,7 +16464,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-35494a",
+    "claim_id": "CLM-cells-c1e9dd31",
     "kind": "api_method",
     "text": "StyleFlag.font_italic field of type bool",
     "confidence": 1.0,
@@ -16478,7 +16478,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5c5e44",
+    "claim_id": "CLM-cells-1d19bf77",
     "kind": "api_method",
     "text": "StyleFlag.font_name field of type bool",
     "confidence": 1.0,
@@ -16492,7 +16492,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6147ce",
+    "claim_id": "CLM-cells-77a53e0a",
     "kind": "api_method",
     "text": "StyleFlag.font_size field of type bool",
     "confidence": 1.0,
@@ -16506,7 +16506,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-320bb2",
+    "claim_id": "CLM-cells-fafc7950",
     "kind": "api_method",
     "text": "StyleFlag.font_strike field of type bool",
     "confidence": 1.0,
@@ -16520,7 +16520,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0affc5",
+    "claim_id": "CLM-cells-f0383aaf",
     "kind": "api_method",
     "text": "StyleFlag.font_underline field of type bool",
     "confidence": 1.0,
@@ -16534,7 +16534,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-48edc9",
+    "claim_id": "CLM-cells-f23505c0",
     "kind": "api_method",
     "text": "StyleFlag.horizontal_alignment field of type bool",
     "confidence": 1.0,
@@ -16548,7 +16548,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a16f1b",
+    "claim_id": "CLM-cells-efa88d27",
     "kind": "api_method",
     "text": "StyleFlag.hidden field of type bool",
     "confidence": 1.0,
@@ -16562,7 +16562,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-755001",
+    "claim_id": "CLM-cells-09b218a8",
     "kind": "api_method",
     "text": "StyleFlag.indent field of type bool",
     "confidence": 1.0,
@@ -16576,7 +16576,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-753d06",
+    "claim_id": "CLM-cells-61831bda",
     "kind": "api_method",
     "text": "StyleFlag.left_border field of type bool",
     "confidence": 1.0,
@@ -16590,7 +16590,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-af1de8",
+    "claim_id": "CLM-cells-dccb41bf",
     "kind": "api_method",
     "text": "StyleFlag.locked field of type bool",
     "confidence": 1.0,
@@ -16604,7 +16604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f9cb93",
+    "claim_id": "CLM-cells-e0fb4267",
     "kind": "api_method",
     "text": "StyleFlag.number_format field of type bool",
     "confidence": 1.0,
@@ -16618,7 +16618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0a0f3f",
+    "claim_id": "CLM-cells-306df016",
     "kind": "api_method",
     "text": "StyleFlag.quote_prefix field of type bool",
     "confidence": 1.0,
@@ -16632,7 +16632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-296727",
+    "claim_id": "CLM-cells-413df927",
     "kind": "api_method",
     "text": "StyleFlag.right_border field of type bool",
     "confidence": 1.0,
@@ -16646,7 +16646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a2514f",
+    "claim_id": "CLM-cells-51d614db",
     "kind": "api_method",
     "text": "StyleFlag.rotation field of type bool",
     "confidence": 1.0,
@@ -16660,7 +16660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-78725f",
+    "claim_id": "CLM-cells-de430af2",
     "kind": "api_method",
     "text": "StyleFlag.shrink_to_fit field of type bool",
     "confidence": 1.0,
@@ -16674,7 +16674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-53f190",
+    "claim_id": "CLM-cells-de65ac91",
     "kind": "api_method",
     "text": "StyleFlag.text_direction field of type bool",
     "confidence": 1.0,
@@ -16688,7 +16688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d41ae8",
+    "claim_id": "CLM-cells-f9a60cdd",
     "kind": "api_method",
     "text": "StyleFlag.top_border field of type bool",
     "confidence": 1.0,
@@ -16702,7 +16702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-01c17a",
+    "claim_id": "CLM-cells-575f7d92",
     "kind": "api_method",
     "text": "StyleFlag.vertical_alignment field of type bool",
     "confidence": 1.0,
@@ -16716,7 +16716,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-263c65",
+    "claim_id": "CLM-cells-2d9f5e73",
     "kind": "api_method",
     "text": "StyleFlag.wrap_text field of type bool",
     "confidence": 1.0,
@@ -17514,7 +17514,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-712fca",
+    "claim_id": "CLM-cells-3462b2a4",
     "kind": "api_method",
     "text": "StylesheetSaveContext._style_indices field of type IReadOnlyDictionary<String, i32>",
     "confidence": 1.0,
@@ -17528,7 +17528,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1c6dc9",
+    "claim_id": "CLM-cells-9010914c",
     "kind": "api_method",
     "text": "StylesheetSaveContext._differential_style_indices field of type IReadOnlyDictionary<String, i32>",
     "confidence": 1.0,
@@ -17626,7 +17626,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-d2d582",
+    "claim_id": "CLM-cells-cf9138d6",
     "kind": "api_method",
     "text": "UnsupportedFeatureException.message field of type String",
     "confidence": 1.0,
@@ -18144,7 +18144,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-042485",
+    "claim_id": "CLM-cells-4a41e2c5",
     "kind": "api_method",
     "text": "WarningInfo.code field of type String",
     "confidence": 1.0,
@@ -18158,7 +18158,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c76d91",
+    "claim_id": "CLM-cells-7faa7bb4",
     "kind": "api_method",
     "text": "WarningInfo.severity field of type DiagnosticSeverity",
     "confidence": 1.0,
@@ -18172,7 +18172,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2e4d0b",
+    "claim_id": "CLM-cells-dc2f8e75",
     "kind": "api_method",
     "text": "WarningInfo.message field of type String",
     "confidence": 1.0,
@@ -18186,7 +18186,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a145fc",
+    "claim_id": "CLM-cells-f2cf1972",
     "kind": "api_method",
     "text": "WarningInfo.data_loss_risk field of type bool",
     "confidence": 1.0,
@@ -18200,7 +18200,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-936cd6",
+    "claim_id": "CLM-cells-cdd24485",
     "kind": "api_method",
     "text": "WarningInfo.part_uri field of type Option<String>",
     "confidence": 1.0,
@@ -18214,7 +18214,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e8ef7c",
+    "claim_id": "CLM-cells-463e5873",
     "kind": "api_method",
     "text": "WarningInfo.sheet_name field of type Option<String>",
     "confidence": 1.0,
@@ -18228,7 +18228,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-5e2062",
+    "claim_id": "CLM-cells-fab361fa",
     "kind": "api_method",
     "text": "WarningInfo.cell_ref field of type Option<String>",
     "confidence": 1.0,
@@ -18242,7 +18242,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a577be",
+    "claim_id": "CLM-cells-146247c5",
     "kind": "api_method",
     "text": "WarningInfo.row_index field of type Option<i32>",
     "confidence": 1.0,
@@ -19068,7 +19068,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1efd97",
+    "claim_id": "CLM-cells-43b6c261",
     "kind": "api_method",
     "text": "WorkbookLoadException.message field of type String",
     "confidence": 1.0,
@@ -19082,7 +19082,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-06b935",
+    "claim_id": "CLM-cells-d8f5c6fe",
     "kind": "api_method",
     "text": "WorkbookLoadException.inner_message field of type Option<String>",
     "confidence": 1.0,
@@ -19656,7 +19656,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-9f0e92",
+    "claim_id": "CLM-cells-3c77c2a9",
     "kind": "api_method",
     "text": "WorkbookProtection.structure field of type bool",
     "confidence": 1.0,
@@ -19670,7 +19670,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e3354a",
+    "claim_id": "CLM-cells-8dff39c3",
     "kind": "api_method",
     "text": "WorkbookProtection.windows field of type bool",
     "confidence": 1.0,
@@ -19684,7 +19684,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-fa75d8",
+    "claim_id": "CLM-cells-fba2ed64",
     "kind": "api_method",
     "text": "WorkbookProtection.revision field of type bool",
     "confidence": 1.0,
@@ -19698,7 +19698,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7174d6",
+    "claim_id": "CLM-cells-5b9a0353",
     "kind": "api_method",
     "text": "WorkbookProtection.workbook_password field of type String",
     "confidence": 1.0,
@@ -19712,7 +19712,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e2f2ba",
+    "claim_id": "CLM-cells-b0af3a8b",
     "kind": "api_method",
     "text": "WorkbookProtection.revisions_password field of type String",
     "confidence": 1.0,
@@ -19726,7 +19726,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-587c8b",
+    "claim_id": "CLM-cells-c06ece0e",
     "kind": "api_method",
     "text": "WorkbookProtection.workbook_algorithm_name field of type String",
     "confidence": 1.0,
@@ -19740,7 +19740,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2212d7",
+    "claim_id": "CLM-cells-b5896ea2",
     "kind": "api_method",
     "text": "WorkbookProtection.workbook_hash_value field of type String",
     "confidence": 1.0,
@@ -19754,7 +19754,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b4aedb",
+    "claim_id": "CLM-cells-a4e4ce18",
     "kind": "api_method",
     "text": "WorkbookProtection.workbook_salt_value field of type String",
     "confidence": 1.0,
@@ -19768,7 +19768,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b368db",
+    "claim_id": "CLM-cells-38744ab3",
     "kind": "api_method",
     "text": "WorkbookProtection.workbook_spin_count field of type Option<u32>",
     "confidence": 1.0,
@@ -19782,7 +19782,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0a3cf0",
+    "claim_id": "CLM-cells-5a1600e3",
     "kind": "api_method",
     "text": "WorkbookProtection.revisions_algorithm_name field of type String",
     "confidence": 1.0,
@@ -19796,7 +19796,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-69e06b",
+    "claim_id": "CLM-cells-ff294293",
     "kind": "api_method",
     "text": "WorkbookProtection.revisions_hash_value field of type String",
     "confidence": 1.0,
@@ -19810,7 +19810,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-872fbd",
+    "claim_id": "CLM-cells-44cb0b71",
     "kind": "api_method",
     "text": "WorkbookProtection.revisions_salt_value field of type String",
     "confidence": 1.0,
@@ -19824,7 +19824,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-dc2335",
+    "claim_id": "CLM-cells-51a6f724",
     "kind": "api_method",
     "text": "WorkbookProtection.revisions_spin_count field of type Option<u32>",
     "confidence": 1.0,
@@ -20426,7 +20426,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-968109",
+    "claim_id": "CLM-cells-fd7c2472",
     "kind": "api_method",
     "text": "WorkbookSaveException.message field of type String",
     "confidence": 1.0,
@@ -20440,7 +20440,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-902cfc",
+    "claim_id": "CLM-cells-068df5a5",
     "kind": "api_method",
     "text": "WorkbookSaveException.inner_message field of type Option<String>",
     "confidence": 1.0,
@@ -20482,7 +20482,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-7aebf2",
+    "claim_id": "CLM-cells-2676c907",
     "kind": "api_method",
     "text": "WorkbookSettings.date_system field of type DateSystem",
     "confidence": 1.0,
@@ -20496,7 +20496,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-bb960c",
+    "claim_id": "CLM-cells-509d32cd",
     "kind": "api_method",
     "text": "WorkbookSettings.display_culture field of type String",
     "confidence": 1.0,
@@ -21182,7 +21182,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-b79f1c",
+    "claim_id": "CLM-cells-875b46ef",
     "kind": "api_method",
     "text": "FreezePane.row_split field of type u32",
     "confidence": 1.0,
@@ -21196,7 +21196,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f588d6",
+    "claim_id": "CLM-cells-61422eb8",
     "kind": "api_method",
     "text": "FreezePane.column_split field of type u32",
     "confidence": 1.0,
@@ -21224,7 +21224,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e08a68",
+    "claim_id": "CLM-cells-ce9ecbdf",
     "kind": "api_method",
     "text": "ColumnProperties.width field of type Option<f64>",
     "confidence": 1.0,
@@ -21238,7 +21238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8b32ee",
+    "claim_id": "CLM-cells-c8d25a90",
     "kind": "api_method",
     "text": "ColumnProperties.hidden field of type bool",
     "confidence": 1.0,
@@ -21266,7 +21266,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-62d09f",
+    "claim_id": "CLM-cells-701e8383",
     "kind": "api_method",
     "text": "RowProperties.height field of type Option<f64>",
     "confidence": 1.0,
@@ -21280,7 +21280,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-e16290",
+    "claim_id": "CLM-cells-ca30ec3e",
     "kind": "api_method",
     "text": "RowProperties.hidden field of type bool",
     "confidence": 1.0,
@@ -22820,7 +22820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-a4ccdb",
+    "claim_id": "CLM-cells-79841028",
     "kind": "api_method",
     "text": "WorksheetProtection.sheet field of type bool",
     "confidence": 1.0,
@@ -22834,7 +22834,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-16c8a5",
+    "claim_id": "CLM-cells-90b00fde",
     "kind": "api_method",
     "text": "WorksheetProtection.objects field of type bool",
     "confidence": 1.0,
@@ -22848,7 +22848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c234fa",
+    "claim_id": "CLM-cells-8eaf3f9b",
     "kind": "api_method",
     "text": "WorksheetProtection.scenarios field of type bool",
     "confidence": 1.0,
@@ -22862,7 +22862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6b62c4",
+    "claim_id": "CLM-cells-82bfc719",
     "kind": "api_method",
     "text": "WorksheetProtection.format_cells field of type bool",
     "confidence": 1.0,
@@ -22876,7 +22876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-c95aa3",
+    "claim_id": "CLM-cells-3b7850fc",
     "kind": "api_method",
     "text": "WorksheetProtection.format_columns field of type bool",
     "confidence": 1.0,
@@ -22890,7 +22890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-1f639e",
+    "claim_id": "CLM-cells-41c29957",
     "kind": "api_method",
     "text": "WorksheetProtection.format_rows field of type bool",
     "confidence": 1.0,
@@ -22904,7 +22904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0d4e4b",
+    "claim_id": "CLM-cells-37803648",
     "kind": "api_method",
     "text": "WorksheetProtection.insert_columns field of type bool",
     "confidence": 1.0,
@@ -22918,7 +22918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-3cb8c7",
+    "claim_id": "CLM-cells-7a8d7629",
     "kind": "api_method",
     "text": "WorksheetProtection.insert_rows field of type bool",
     "confidence": 1.0,
@@ -22932,7 +22932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-33ea3d",
+    "claim_id": "CLM-cells-c89dee54",
     "kind": "api_method",
     "text": "WorksheetProtection.insert_hyperlinks field of type bool",
     "confidence": 1.0,
@@ -22946,7 +22946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-240eaf",
+    "claim_id": "CLM-cells-41a91661",
     "kind": "api_method",
     "text": "WorksheetProtection.delete_columns field of type bool",
     "confidence": 1.0,
@@ -22960,7 +22960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-0243c6",
+    "claim_id": "CLM-cells-bbfd6bdb",
     "kind": "api_method",
     "text": "WorksheetProtection.delete_rows field of type bool",
     "confidence": 1.0,
@@ -22974,7 +22974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-8b7be6",
+    "claim_id": "CLM-cells-85addff3",
     "kind": "api_method",
     "text": "WorksheetProtection.select_locked_cells field of type bool",
     "confidence": 1.0,
@@ -22988,7 +22988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-2eea3d",
+    "claim_id": "CLM-cells-cb34ccb5",
     "kind": "api_method",
     "text": "WorksheetProtection.sort field of type bool",
     "confidence": 1.0,
@@ -23002,7 +23002,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-409c47",
+    "claim_id": "CLM-cells-0bb20e6f",
     "kind": "api_method",
     "text": "WorksheetProtection.auto_filter field of type bool",
     "confidence": 1.0,
@@ -23016,7 +23016,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-234624",
+    "claim_id": "CLM-cells-17312e2c",
     "kind": "api_method",
     "text": "WorksheetProtection.pivot_tables field of type bool",
     "confidence": 1.0,
@@ -23030,7 +23030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-69e5db",
+    "claim_id": "CLM-cells-2e6bbac2",
     "kind": "api_method",
     "text": "WorksheetProtection.select_unlocked_cells field of type bool",
     "confidence": 1.0,
@@ -25130,7 +25130,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-f23ce0",
+    "claim_id": "CLM-cells-36d2379a",
     "kind": "api_method",
     "text": "CellRef.row field of type u32",
     "confidence": 1.0,
@@ -25144,7 +25144,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-6a63aa",
+    "claim_id": "CLM-cells-7810b86e",
     "kind": "api_method",
     "text": "CellRef.column field of type u32",
     "confidence": 1.0,
@@ -25172,7 +25172,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-973bd9",
+    "claim_id": "CLM-cells-f447c524",
     "kind": "api_method",
     "text": "CellRange.start field of type CellRef",
     "confidence": 1.0,
@@ -25186,7 +25186,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-cells-885135",
+    "claim_id": "CLM-cells-b67f0f9a",
     "kind": "api_method",
     "text": "CellRange.end field of type CellRef",
     "confidence": 1.0,
@@ -27026,6 +27026,1713 @@
       {
         "source_file": "verified_facts.txt",
         "snippet": "XlsxWorkbookStylesValueHelpers ... Methods: to_argb_hex(color) -> String"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-61839a2c",
+    "text": "The library provides full auto‑filter support, including defining filter ranges, applying custom filters, dynamic filters, top‑10 filters, and sorting via the AutoFilter family of classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "Class: AutoFilter\n  Methods: range(); set_range(value); filter_columns(); sort_state(); clear()"
+      },
+      {
+        "source_file": "src/auto_filter_custom_filter.rs",
+        "snippet": "Class: AutoFilterCustomFilter\n  Methods: get_operator(); set_operator(value); get_value(); set_value(value)"
+      },
+      {
+        "source_file": "src/auto_filter_top10.rs",
+        "snippet": "Class: AutoFilterTop10\n  Methods: get_enabled(); set_enabled(value); get_top(); set_top(value); get_percent(); set_percent(value)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-21d35914",
+    "text": "Developers can add preset geometric shapes to worksheets by selecting a value from the AutoShapeType enum, such as Rectangle, Ellipse, or Diamond.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_shape_type.rs",
+        "snippet": "Class: AutoShapeType\n  Enum values: Unknown, Rectangle, RoundedRectangle, Ellipse, Triangle, RightTriangle, Diamond, Pentagon, Hexagon, Octagon"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-06379aad",
+    "text": "Cell borders can be styled with a variety of line styles and colors using the Border class together with the BorderLineStyle enum.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/border.rs",
+        "snippet": "Class: Border\n  Methods: new(); line_style_type(); set_line_style_type(value); get_color(); set_color(value); clear_color();"
+      },
+      {
+        "source_file": "src/border_line_style.rs",
+        "snippet": "Class: BorderLineStyle\n  Enum values: None, Thin, Dotted, Dashed, Hair, Medium, MediumDashed, MediumDashDot, DashDot, DashDotDot"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-e3ed7c49",
+    "text": "Call AutoFilter::range() to obtain the A1‑style address of the worksheet range that the auto‑filter currently covers.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "Methods: range() -> &str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-34b37933",
+    "text": "Use AutoFilter::set_range(value) to assign a new filter range; the method returns a Result that must be checked for CellsError on invalid input.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "Methods: set_range(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-68da19ec",
+    "text": "Retrieve the collection of filter columns for a worksheet with AutoFilter::filter_columns(), which returns a FilterColumnCollection that can be iterated to inspect each column's filter settings.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "Methods: filter_columns() -> FilterColumnCollection<'_>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-adb226d0",
+    "text": "Invoke AutoFilter::clear() to remove all auto‑filter criteria, sort state, and top‑10 settings from the worksheet.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "Methods: clear()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-ff899d0e",
+    "text": "Create a custom filter by calling AutoFilterCustomFilter::set_operator(value) and AutoFilterCustomFilter::set_value(value) to define the comparison operator and filter text.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter_custom_filter.rs",
+        "snippet": "Methods: set_operator(value); set_value(value)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-3ace373c",
+    "text": "If AutoFilter::set_range returns an error, verify that the supplied string follows A1 notation and references an existing worksheet area; otherwise the operation will fail with CellsError.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/auto_filter.rs",
+        "snippet": "set_range(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-47f6e6c3",
+    "text": "When setting a border color with Border::set_color, provide a CSS‑compatible color string (e.g., \"#FF0000\" or \"rgb(255,0,0)\"); calling Border::clear_color removes any previously assigned color.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "src/border.rs",
+        "snippet": "Methods: set_color(value); clear_color();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-884e4670",
+    "text": "The library models the Excel object model with classes such as Cells, Cell, CellStyle, and Borders for worksheet manipulation.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It exposes an API modeled after Aspose.Cells, so the familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust programs..."
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Cells ... Methods: get(address) -> Result<Cell<'_>, CellsError>; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-0ecd43b5",
+    "text": "CellStyle lets developers apply number formats, horizontal/vertical alignment, text wrapping, indent level, and other visual properties to one or more cells.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CellStyle ... Methods: get_number_format() -> Option<&str>; set_number_format(value); get_horizontal_alignment() -> Option<HorizontalAlignment>; set_horizontal_alignment(value); get_is_text_wrapped() -> bool; set_is_text_wrapped(value); get_indent_level() -> u8"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Properties: number, custom, number_format, horizontal_alignment, vertical_alignment, wrap_text, indent_level, text_rotation, shrink_to_fit, reading_order"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-7e6e55a7",
+    "text": "Borders provides access to the five border sides (left, right, top, bottom, diagonal) and allows mutable updates via the *_mut methods.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Borders ... Methods: left() -> &Border; left_mut() -> &mut Border; right() -> &Border; right_mut() -> &mut Border; top() -> &Border; top_mut() -> &mut Border; bottom() -> &Border; bottom_mut() -> &mut Border; diagonal() -> &Border; diagonal_mut() -> &mut Border"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Properties: left, right, top, bottom, diagonal, diagonal_up, diagonal_down"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-8288161e",
+    "text": "CalculationProperties lets developers query and set workbook‑level calculation settings such as calculation mode, iteration, and reference mode.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CalculationProperties ... Methods: calculation_mode() -> &str; set_calculation_mode(value) -> Result<(), CellsError>; iterate() -> bool; set_iterate(value); reference_mode() -> &str; set_reference_mode(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-7d106f95",
+    "text": "The library reads and writes the Office Open XML .xlsx format; loading can be done from a file path, a stream, or an in‑memory byte vector, and saving produces a .xlsx file.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Create a new `Workbook` with `Workbook::new` ... load an existing `.xlsx` file from a path (`Workbook::load_xlsx`), a stream (`load_xlsx_from_stream`), or in‑memory bytes (`load_xlsx_from_bytes`)..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-801a46f1",
+    "text": "Cell::int_value() returns an Option<i32> containing the integer value of the cell if the stored value is numeric and fits in i32.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Cell ... Methods: int_value() -> Option<i32>; get_int_value() -> Option<i32>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-79284607",
+    "text": "CellArea::create_cell_area(start_row, start_column, end_row, end_column) constructs a CellArea from zero‑based indices and returns a Result that may contain CellsError on invalid ranges.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CellArea ... Methods: create_cell_area(start_row, start_column, end_row, end_column) -> Result<CellArea, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4e564741",
+    "text": "Use Cells::check_cell(address) to verify whether a given A1 address exists; the method returns Result<bool, CellsError> so errors can be handled gracefully.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Cells ... Methods: check_cell(address) -> Result<bool, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-dbebe409",
+    "text": "When changing the calculation mode, call CalculationProperties::set_calculation_mode(value) and handle the Result to catch unsupported mode strings.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CalculationProperties ... Methods: set_calculation_mode(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-c92707d4",
+    "text": "CellMut provides the same read‑only accessors as Cell (e.g., value(), int_value()) but is obtained from mutable collections to allow in‑place updates.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: CellMut ... Methods: value() -> Option<&CellValue>; int_value() -> Option<i32>; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-2c508a6b",
+    "text": "The library provides a full object model with Workbook, Worksheet, and Cells, allowing developers to manipulate spreadsheet data without requiring Microsoft Office.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "it exposes an API modeled after Aspose.Cells, so the familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust programs"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-5099dd19",
+    "text": "Chart creation is supported through Chart and ChartCollection classes, offering multiple chart types such as Bar, Area, and 3D variants.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ChartType Enum values: Bar, Area, AreaStacked, Area100PercentStacked, Area3D, Area3DStacked, Area3D100PercentStacked, BarStacked, Bar100PercentStacked, Bar3D"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-95466663",
+    "text": "Call CellsMut::get(\"A1\") to obtain a mutable reference to cell A1, handling errors via CellsError.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsMut Methods: get(address) -> Result<CellMut<'_>, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9e8902da",
+    "text": "To set the style of a range of cells, call CellsMut::set_style(style) and handle any CellsError that may be returned.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsMut Methods: set_style(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-dd1927e9",
+    "text": "Merge a rectangular block of cells by invoking CellsMut::merge(first_row, first_column, total_rows, total_columns) and check the Result for CellsError.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsMut Methods: merge(first_row, first_column, total_rows, total_columns) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-89a3ff46",
+    "text": "Add a new chart to a worksheet by calling ChartCollection::add(chart_type, data_range, upper_left_row, upper_left_column, lower_right_row, lower_right_column) and handle the possible CellsError.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ChartCollection Methods: add(chart_type, data_range, upper_left_row, upper_left_column, lower_right_row, lower_right_column) -> Result<i32, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-721cc030",
+    "text": "Retrieve the number of columns in a worksheet via Columns::count() or ColumnsMut::count(), both returning the total as usize.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: Columns Methods: count() -> usize"
+      },
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ColumnsMut Methods: count() -> usize"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-83145203",
+    "text": "If CellsMut::get returns Err(CellsError::InvalidCellReference), verify that the address string follows A1 notation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsError Enum values: ... InvalidCellReference ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-46169d2c",
+    "text": "When merging cells fails with CellsError::OverlappingMergedRange, ensure the target area does not intersect an existing merged region.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsError Enum values: ... OverlappingMergedRange ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9cddc6cb",
+    "text": "CellsError implements fmt for formatting and provides conversion methods to specific exception types such as to_cells_exception().",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: CellsError Methods: fmt(f) -> std::fmt::Result; to_cells_exception() -> CellsException"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-cb645226",
+    "text": "ChartType enum defines supported chart kinds, including Bar, AreaStacked, Bar3D, and others, which can be passed to ChartCollection::add.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ChartType Enum values: Bar, Area, AreaStacked, ... Bar3D"
+      },
+      {
+        "source_file": "API_SPEC",
+        "snippet": "Class: ChartCollection Methods: add(chart_type, data_range, ... )"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4830f441",
+    "text": "Aspose.Cells FOSS for Rust enables developers to create, load, edit, and save Excel .xlsx workbooks entirely in pure Rust without external dependencies.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Aspose.Cells FOSS for Rust is a free, open-source, pure-Rust library for creating, loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-ece9a324",
+    "text": "The library provides a full object model including Workbook, Worksheet, Cells, and styling objects, mirroring the familiar Aspose.Cells API for Rust developers.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It exposes an API modeled after Aspose.Cells, so the familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust programs."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-f00c0448",
+    "text": "DocumentProperties and its CoreDocumentProperties and ExtendedDocumentProperties classes let you read and modify standard and extended metadata of Excel files.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Class: DocumentProperties ... Methods: get_core() -> &CoreDocumentProperties; get_extended() -> &ExtendedDocumentProperties"
+      },
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Class: CoreDocumentProperties ... Methods: get_title() -> &str; set_title(value); get_subject() -> &str; set_subject(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9ea737ff",
+    "text": "ConditionalFormattingCollection allows you to add, retrieve, and remove conditional formatting rules on worksheets.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Class: ConditionalFormattingCollection ... Methods: count() -> usize; add() -> usize; get(index) -> Option<FormatConditionCollection<'_>>; remove_at(index) -> Result<(), CellsError>; remove_area(start_row, start_column, total_rows, total_columns) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-441aa838",
+    "text": "Use ConditionalFormattingCollection::add() to create a new conditional formatting rule and receive its index.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: add() -> usize;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-061e4235",
+    "text": "Retrieve a specific conditional formatting rule by calling ConditionalFormattingCollection::get(index) which returns an Option of FormatConditionCollection.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: get(index) -> Option<FormatConditionCollection<'_>>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4adf3adc",
+    "text": "Remove a conditional formatting area spanning multiple rows and columns with ConditionalFormattingCollection::remove_area(start_row, start_column, total_rows, total_columns).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: remove_area(start_row, start_column, total_rows, total_columns) -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-d5db6e93",
+    "text": "Set the workbook's title metadata via DocumentProperties::get_core_mut().set_title(\"My Report\") and retrieve it with DocumentProperties::get_core().get_title().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: get_core() -> &CoreDocumentProperties; get_core_mut() -> &mut CoreDocumentProperties;"
+      },
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Class: CoreDocumentProperties ... Methods: get_title() -> &str; set_title(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-cec53199",
+    "text": "Define a named range using DefinedNameCollection::add(name, formula) which returns the index of the new defined name.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: add(name, formula) -> Result<usize, CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-e1f25838",
+    "text": "Check if a name is reserved before adding by calling DefinedNameUtility::is_reserved_name(name).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: is_reserved_name(name) -> bool;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-1d7631fe",
+    "text": "If ConditionalFormattingCollection::remove_at(index) returns an error, ensure the index is within the collection's count() range to avoid CellsError.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: remove_at(index) -> Result<(), CellsError>;"
+      },
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: count() -> usize;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-c1742c96",
+    "text": "When setting a defined name's formula, use DefinedName::set_formula(value) and handle the Result to catch invalid formula syntax that triggers CellsError.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Methods: set_formula(value) -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-559fb3ad",
+    "text": "CoreDocumentProperties provides getters and setters for standard metadata fields such as title, subject, creator, and timestamps, with get_created() returning an Option<DateTime<Utc>>.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_docs.rs",
+        "snippet": "Class: CoreDocumentProperties ... Methods: get_title() -> &str; set_title(value); get_subject() -> &str; set_subject(value); get_creator() -> &str; set_creator(value); get_created() -> Option<DateTime<Utc>>; set_created(value)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-132c7948",
+    "text": "The library provides a full object model—including styling objects such as Font and Fill—mirroring the familiar Aspose.Cells hierarchy for Rust developers.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Font ... Class: Fill ... Represents a mutable cell style facade that can be applied to one or more cells."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-22b3343d",
+    "text": "Conditional formatting can be applied through the FormatCondition API, supporting cell‑value, expression, and top‑10 rules.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FormatCondition ... Methods: get_type() -> FormatConditionType; set_type(value); ... get_top() -> bool; set_top(value); get_percent() -> bool; set_percent(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-0c916d4a",
+    "text": "Instantiate a Fill with `Fill::new()`, set its pattern using `set_pattern(FillPattern::Solid)`, and assign foreground and background colors via `set_foreground_color(\"#FF0000\")` and `set_background_color(\"#00FF00\")` before applying it to a cell style.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Fill ... Methods: new() -> Self; set_pattern(value); set_foreground_color(value); set_background_color(value);"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FillPattern ... Enum values: None, Solid, MediumGray, DarkGray, Gray125, Gray0625, DarkHorizontal, DarkVertical, DarkDown, DarkUp"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-fddac79c",
+    "text": "Retrieve the current fill pattern of a cell style by calling `get_pattern()` on its Fill object, which returns a `FillPattern` enum value.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Fill ... Methods: get_pattern() -> FillPattern; set_pattern(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9a91f079",
+    "text": "Add a filter to a worksheet by creating a `FilterColumn` via `FilterColumnCollection::add(column_index)`, then configure its hidden button state with `set_hidden_button(true)` and reset the filter using `clear()`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FilterColumnCollection ... Methods: add(column_index) -> Result<usize, CellsError>; ..."
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FilterColumn ... Methods: hidden_button() -> bool; set_hidden_button(value); clear();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9fd2b61a",
+    "text": "Collect multiple filter values using `FilterValueCollection::add(value)` and retrieve them with `get(index)` to build custom auto‑filter rules.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FilterValueCollection ... Methods: add(value); get(index) -> Option<&str>; clear();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b2bc0b64",
+    "text": "If a `FilterColumn` does not reflect expected visibility changes, call `clear()` after modifying its criteria to reset internal state before re‑applying the filter.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FilterColumn ... Methods: clear();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-9b51446d",
+    "text": "When reusing a `Fill` object across cells, use `clear_foreground_color()` or `clear_background_color()` to remove previously set colors and avoid unintended styling carry‑over.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Fill ... Methods: clear_foreground_color(); clear_background_color();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4da804b9",
+    "text": "`FillPatternKind` enum provides the same set of pattern identifiers as `FillPattern`, allowing developers to specify fill styles in a type‑safe manner.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FillPattern ... Enum values: None, Solid, MediumGray, DarkGray, Gray125, Gray0625, DarkHorizontal, DarkVertical, DarkDown, DarkUp"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FillPatternKind ... Enum values: None, Solid, MediumGray, DarkGray, Gray125, Gray0625, DarkHorizontal, DarkVertical, DarkDown, DarkUp"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-a6dd5c97",
+    "text": "If `LoadDiagnostics::has_data_loss_risk()` returns true, review the `LoadIssue` entries via `issues()` to identify and address potential missing data before saving.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: LoadDiagnostics\n  Methods: has_data_loss_risk() -> bool; issues() -> &[LoadIssue];"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-805e8e5e",
+    "text": "When adding a ListObject, use `ListObjectSupport::validate_no_overlap` to ensure the new table’s range does not intersect existing tables, preventing runtime errors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ListObjectSupport\n  Methods: validate_no_overlap(existing, start_row, start_column, end_row, end_column, skip_index);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-12dd4261",
+    "text": "The library supports full read and write of the Office Open XML SpreadsheetML format (.xlsx) for both import and export operations.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Aspose.Cells FOSS for Rust is a free, open-source, pure-Rust library for creating, loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-1728a633",
+    "text": "Developers can manipulate worksheet print settings—including paper size, orientation, scaling, and print area—through the PageSetup class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PageSetup\n  Docstring: Represents worksheet print and page-layout settings.\n  Methods: ... paper_size() -> PaperSizeType; ... orientation() -> PageOrientationType; ... scale() -> Option<i32>; ... print_area() -> &str"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-ce92f645",
+    "text": "Pictures can be added to worksheets from raw bytes, readers, or file paths using the PictureCollection API.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PictureCollection\n  Docstring: Represents collection of pictures anchored to a worksheet.\n  Methods: add(..., image_data) -> Result<usize, CellsError>; add_from_bytes(..., image_data) -> Result<usize, CellsError>; add_from_reader(..., reader) -> Result<usize, CellsError>; add_from_file(..., path) -> Result<usize, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-da439b02",
+    "text": "To load a workbook with custom options, instantiate LoadOptions::default() and set properties such as try_repair_package before calling Workbook::load_xlsx.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: LoadOptions\n  Methods: default() -> Self\n  Properties: load_format, strict_mode, try_repair_package, try_repair_xml, preserve_unsupported_parts"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-7cd9cccd",
+    "text": "Use PageSetup::new() to obtain a PageSetup object, then call set_paper_size(PaperSizeType::PaperA4) to set the sheet to A4 paper.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PageSetup\n  Methods: new() -> Self; set_paper_size(value);"
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PaperSizeType\n  Enum values: Default, PaperLetter, PaperTabloid, PaperLegal, PaperStatement, PaperExecutive, PaperA3, PaperA4, PaperA5, PaperB4"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-47905afa",
+    "text": "Add a picture to a worksheet by calling PictureCollection::add(0, 0, 5, 5, image_bytes) and receive the index of the new picture.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PictureCollection\n  Methods: add(upper_left_row, upper_left_column, lower_right_row, lower_right_column, image_data) -> Result<usize, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-7c38da81",
+    "text": "Remove a picture from a worksheet by calling PictureCollection::remove_at(index) and handling any CellsError that may be returned.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PictureCollection\n  Methods: remove_at(index) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-bf039937",
+    "text": "If loading a corrupted .xlsx file, enable LoadOptions::try_repair_package to attempt automatic package repair and avoid a PackageStructureException.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: LoadOptions\n  Properties: ... try_repair_package, ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-74694da7",
+    "text": "When setting the first page number with PageSetup::set_first_page_number, handle the Result to catch CellsError if the value is out of the allowed range.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: PageSetup\n  Methods: set_first_page_number(value) -> Result<(), CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-e4737cb8",
+    "text": "NumberFormat::get_built_in_format(format_id) returns the built‑in format string for the given ID, for example 0 → \"General\".",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: NumberFormat\n  Methods: get_built_in_format(format_id) -> String"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-fc5142bd",
+    "text": "The library currently supports only the Xlsx save format, identified by the enum value SaveFormat::Xlsx.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SaveFormat\n  Docstring: Specifies save format.\n  Enum values: Xlsx"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-48474b60",
+    "text": "Row::index() returns the zero‑based index of a row, while Row::get_index() provides the same value for compatibility.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Row\n  Methods: index() -> u32; get_index() -> u32;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b828d88c",
+    "text": "Row::height() and Row::get_height() return the optional height of a row in points.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Row\n  Methods: ... height() -> Option<f64>; get_height() -> Option<f64>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-d66a8845",
+    "text": "RowMut::set_height(height) lets you assign a new height to a mutable row, returning a Result to capture any CellsError.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RowMut\n  Methods: ... set_height(height) -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-78436755",
+    "text": "RowMut::clear_height() removes any custom height, reverting the row to the default.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RowMut\n  Methods: ... clear_height() -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b59dc1a1",
+    "text": "To hide a row, call RowMut::hide() or set the hidden flag with RowMut::set_is_hidden(true).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RowMut\n  Methods: ... hide() -> Result<(), CellsError>; set_is_hidden(value) -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-54f52c17",
+    "text": "Row::properties() returns an optional RowProperties object that exposes the height and hidden attributes of the row.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Row\n  Methods: ... properties() -> Option<RowProperties>;"
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: RowProperties\n  Properties: height, hidden"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-d62d5ba4",
+    "text": "Shape objects represent auto‑shapes anchored to a worksheet and can be positioned via upper_left_row/column and lower_right_row/column methods.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Shape\n  Methods: upper_left_row() -> u32; upper_left_column() -> u32; lower_right_row() -> u32; lower_right_column() -> u32;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-3e4533a4",
+    "text": "You can change a shape’s type with Shape::set_auto_shape_type(value) and retrieve the current type via Shape::auto_shape_type().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Shape\n  Methods: ... auto_shape_type() -> AutoShapeType; set_auto_shape_type(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4cee1ace",
+    "text": "Shape::name() returns the shape’s name as a string slice, and Shape::set_name(value) updates it.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Shape\n  Methods: name() -> &str; set_name(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b343e23a",
+    "text": "ShapeCollection::add(...) creates a new shape on the worksheet and returns its index, or an error if the operation fails.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: ShapeCollection\n  Methods: add(upper_left_row, upper_left_column, lower_right_row, lower_right_column, shape_type) -> Result<usize, CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-33bce1e8",
+    "text": "When removing a shape, ShapeCollection::remove_at(index) returns a CellsError if the index is out of range; verify the count via ShapeCollection::count() first.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: ShapeCollection\n  Methods: remove_at(index) -> Result<(), CellsError>; count() -> usize;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-250e01c0",
+    "text": "SaveOptions::default() provides a ready‑to‑use configuration; you can adjust properties such as save_format, use_shared_strings, and compact_styles before saving a workbook.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SaveOptions\n  Methods: default() -> Self\n  Properties: save_format, use_shared_strings, validate_before_save, compact_styles, preserve_recovery_metadata"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b1f1f910",
+    "text": "SparklineGroup objects let you define a set of sparklines with a common type and data range, and you can add them via SparklineGroupCollection::add(...).",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SparklineGroupCollection\n  Methods: add(sparkline_type, data_range, location_range) -> Result<i32, CellsError>;"
+      },
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SparklineGroup\n  Methods: sparkline_type() -> SparklineType; data_range() -> &str; location_range() -> &str;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-6ee3e77d",
+    "text": "When setting a sparkline’s data range, SparklineGroup::set_data_range(value) returns a CellsError if the range string is invalid; ensure the range follows A1 notation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: SparklineGroup\n  Methods: set_data_range(value) -> Result<(), CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-bd8f5366",
+    "text": "The library provides a full object model including Workbook, Worksheet, Cells, and styling classes, allowing familiar Aspose-like development in Rust.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It exposes an API modeled after Aspose.Cells, so the familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust programs."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-d7ac9fae",
+    "text": "Data validation rules can be defined using Validation, ValidationType, and related enums to enforce cell input constraints.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Validation ... Methods: get_type() -> ValidationType; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-077bf014",
+    "text": "Use `StyleFlag::new()` and its setter methods (e.g., `set_font_bold`) to specify which style attributes should be applied when updating a `CellStyle`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: StyleFlag ... Methods: new() -> Self; set_font_bold(value); ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-453d3498",
+    "text": "Normalize a style before saving by calling `StyleRepository::normalize(style)` to obtain a `StyleValue` suitable for the stylesheet.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: StyleRepository ... Methods: normalize(style) -> StyleValue"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-bcb70bb1",
+    "text": "When writing a workbook, `StylesheetSaveContext::get_style_index(record)` returns the integer index of a style record for inclusion in the XML.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: StylesheetSaveContext ... Methods: get_style_index(record) -> i32"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-42aa2534",
+    "text": "To read or write the stylesheet XML, use `StylesheetXmlMapper::read(stream, style_repository)` and `StylesheetXmlMapper::write(stream, style_repository)`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: StylesheetXmlMapper ... Methods: read(stream, style_repository); write(stream, style_repository)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-f0efd1e9",
+    "text": "If a style property value falls outside the allowed range, `StyleValueSanitizer` can normalize indent level, text rotation, or reading order to valid integers.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: StyleValueSanitizer ... Methods: normalize_indent_level(value) -> i32; normalize_text_rotation(value) -> i32; normalize_reading_order(value) -> i32"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-78415d37",
+    "text": "When an unsupported feature is encountered, the library throws `UnsupportedFeatureException`; catch this error to provide a graceful fallback or user message.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: UnsupportedFeatureException ... Methods: new(message) -> Self; fmt(f) -> std::fmt::Result; from(value) -> Self"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-4b39681a",
+    "text": "`ValidationCollection::add(area)` inserts a new validation rule for the specified cell area and returns its index or an error.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ValidationCollection ... Methods: add(area) -> Result<usize, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-440174b3",
+    "text": "The library provides full worksheet management, allowing addition, lookup by name or index, and protection control through the Workbook and Worksheet classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: add_worksheet(name) -> Result<usize, CellsError>; worksheet(name) -> Result<&Worksheet, CellsError>; worksheet_at(index) -> Result<&Worksheet, CellsError>.\nClass: Worksheet\n  Methods: name() -> &str; set_name(name) -> Result<(), CellsError>."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-bad6dfb4",
+    "text": "Developers can query and set workbook‑level settings such as the 1904 date system and culture via WorkbookSettings.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: WorkbookSettings\n  Methods: date1904() -> bool; set_date1904(value); get_culture() -> &str; set_culture(value)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-09e5387d",
+    "text": "Use Workbook::new() to instantiate a new workbook that starts with a default worksheet.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: new() -> Self; default() -> Self;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-5168c366",
+    "text": "Add a new worksheet with a specific name by calling Workbook::add_worksheet(name) and handle the Result to obtain its index.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: add_worksheet(name) -> Result<usize, CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-f3dbff64",
+    "text": "Retrieve a worksheet by its name using Workbook::worksheet(name) which returns a Result containing a reference to the Worksheet.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: worksheet(name) -> Result<&Worksheet, CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-e3b7adf8",
+    "text": "Protect the entire workbook by invoking Workbook::protect() and later remove protection with Workbook::unprotect().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: protect(); unprotect();"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-34065b01",
+    "text": "Access and modify workbook protection options (structure, windows, revision) through Workbook::protection() which returns a WorkbookProtection object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: protection() -> WorkbookProtection; get_protection() -> WorkbookProtection; protection_mut() -> &mut WorkbookProtection;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-f732e244",
+    "text": "Read or change the workbook's code name via WorkbookProperties::code_name() and WorkbookProperties::set_code_name(value).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: WorkbookProperties\n  Methods: code_name() -> &str; get_code_name() -> &str; set_code_name(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-16c4a150",
+    "text": "If Workbook::add_worksheet returns an Err, the error is a CellsError; use pattern matching to extract the error details.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Workbook\n  Methods: add_worksheet(name) -> Result<usize, CellsError>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-81913074",
+    "text": "When a worksheet name is invalid, Worksheet::set_name_or_cells_exception(name) will raise a CellsException; prefer the non‑exception variant to handle errors safely.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: Worksheet\n  Methods: set_name_or_cells_exception(name) -> Result<(), CellsException>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-b0f042e9",
+    "text": "WorkbookProtection::workbook_password() returns the current workbook password as a string, while set_workbook_password(value) updates it.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Class: WorkbookProtection\n  Methods: workbook_password() -> &str; set_workbook_password(value);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-6283e5f3",
+    "text": "Aspose.Cells FOSS for Rust enables creating, loading, editing, and saving Excel .xlsx workbooks entirely in Rust without external dependencies.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Aspose.Cells FOSS for Rust is a free, open-source, pure-Rust library for creating, loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-ec73dce7",
+    "text": "Developers can manage multiple worksheets, set the active sheet, and retrieve sheets by index or name using the Worksheets and WorksheetsMut classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: Worksheets ... Methods: get(index) -> Result<&Worksheet, CellsError>; get_by_name(name) -> Result<&Worksheet, CellsError>; active_sheet_index() -> usize; active_sheet_name() -> String"
+      },
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: WorksheetsMut ... Methods: add(name) -> Result<usize, CellsError>; set_active_sheet_index(value) -> Result<(), CellsError>; active_sheet_name() -> String"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-cc236778",
+    "text": "Use `WorksheetsMut::add(name)` to insert a new worksheet with a custom name, receiving the new sheet's index or a `CellsError` on failure.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: WorksheetsMut ... Methods: add(name) -> Result<usize, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-fc41a9dc",
+    "text": "Retrieve a worksheet reference by index with `Worksheets::get(index)` or by name with `Worksheets::get_by_name(name)`, handling the `Result` to catch possible `CellsError`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: Worksheets ... Methods: get(index) -> Result<&Worksheet, CellsError>; get_by_name(name) -> Result<&Worksheet, CellsError>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-f421ac09",
+    "text": "Change the active worksheet by calling `WorksheetsMut::set_active_sheet_index(value)` and verify the change with `WorksheetsMut::active_sheet_name()`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: WorksheetsMut ... Methods: set_active_sheet_index(value) -> Result<(), CellsError>; active_sheet_name() -> String"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-24644862",
+    "text": "Load worksheet comments from an .xlsx package by invoking `XlsxWorkbookCommentsLoader::load_comments`, which parses both the comment XML and associated VML drawing data.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: XlsxWorkbookCommentsLoader ... Methods: load_comments(worksheet_model, archive, worksheet_uri, diagnostics, options, sheet_name)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-6445c393",
+    "text": "When a worksheet name contains spaces or special characters, wrap it with `XlsxWorkbookDefinedNames::quote_worksheet_name` before using it in a defined‑name expression.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: XlsxWorkbookDefinedNames ... Methods: quote_worksheet_name(sheet_name) -> String"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-7fd2fc35",
+    "text": "If `XlsxWorkbookStylesValueHelpers::parse_border_style` returns an unexpected value, ensure the input string matches one of the supported border style names defined by the `BorderStyle` enum.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: XlsxWorkbookStylesValueHelpers ... Methods: parse_border_style(value) -> BorderStyle"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-cells-rust-fbc5ebd3",
+    "text": "`XlsxWorkbookProperties::read_bool_attribute` reads a boolean attribute from an XML element, applying a supplied default when the attribute is missing.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.rs",
+        "snippet": "Class: XlsxWorkbookProperties ... Methods: read_bool_attribute(element, attribute_name, diagnostics, options, default_value, part_uri) -> bool"
       }
     ],
     "provenance": "enriched"

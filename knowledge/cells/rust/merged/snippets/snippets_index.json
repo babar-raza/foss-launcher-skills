@@ -387,7 +387,7 @@
     "file": "snippet_015.rs",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 75,
+    "source_line": 154,
     "classes_used": [
       "Cell",
       "CellValue",
@@ -402,6 +402,116 @@
     "formats_referenced": [
       "xlsx"
     ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 196,
+    "classes_used": [
+      "LoadOptions",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.get_load_diagnostics",
+      "Workbook.get_worksheets",
+      "Workbook.worksheet"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 219,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Column"
+    ],
+    "methods_used": [
+      "Chart.get_chart_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 240,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "CellValue",
+      "Fill",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "OperatorType"
+    ],
+    "methods_used": [
+      "Cell.get_style",
+      "FormatCondition.get_style",
+      "FormatCondition.set_priority",
+      "FormatCondition.set_style"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 262,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "Validation",
+      "ValidationType"
+    ],
+    "methods_used": [
+      "Validation.set_error_message",
+      "Validation.set_error_title",
+      "Validation.set_formula1",
+      "Validation.set_in_cell_drop_down",
+      "Validation.set_show_error",
+      "Validation.set_type"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 276,
+    "classes_used": [
+      "TableStyleType",
+      "TotalsCalculation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout"
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.rs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 290,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
     "provenance": "scout"
   }
 ]
