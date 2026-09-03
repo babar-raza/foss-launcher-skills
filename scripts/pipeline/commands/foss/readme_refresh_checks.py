@@ -4331,6 +4331,27 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     Reference section, since it must keep catching drift there; only the no-canonical-entry
     `elif` branch narrows its own text.
 
+    **readme-refresh-pdf-typescript-scale-hardening-2026-09-03.** Two real, mechanical gaps
+    found live composing pdf/typescript's candidate (32 worked TypeScript examples, a ~53KB
+    verbatim-preserved Limitations section) -- both closed, both strictly narrowing what counts
+    as "prose" so neither can introduce a new finding elsewhere, only remove false ones: (1)
+    fenced ```` ``` ```` code blocks were not stripped before the bare-word scan (only inline
+    `` ` `` spans were), so a source variable name (`const doc = ...`) inside a real code example
+    could false-positive against a same-spelled format registry entry (`DOC`); (2) a literal HTML
+    tag name written as prose markup (`<svg>`, `<img>`) was scanned as a bare word for the same
+    reason. Separately, a single incidental ALL-CAPS use of an ordinary word for emphasis (a real,
+    verbatim-preserved sentence used "program IS embedded" and "records WHICH PIXELS the key
+    matched") no longer alone qualifies a word as an acronym candidate for the no-canonical-entry
+    branch -- see `all_caps_counts` below; this is the same false-positive mechanism TC-HARDEN-28
+    already named for the API Reference section, recurring in ordinary prose purely from document
+    length. **Known, disclosed, NOT fixed by this pass**: a format whose canonical registry
+    spelling collides with a common English word (`DOC`, `DOT`) can still false-positive on
+    ordinary use of that word ("dot leaders", a typography term) -- `canonical_casing` is sourced
+    from the FULL cross-portfolio registry regardless of whether the current product's own real
+    format list includes that format at all; scoping it to the product's own verified formats
+    (or a semantic disambiguation) is a real, deferred fix, not attempted here to avoid an
+    under-tested, portfolio-wide behavior change this pass didn't have room to verify.
+
     Returns a list of {"format", "found"/"found_variants", "canonical"?, "reason"}
     findings.
     """
@@ -4347,7 +4368,23 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     # removing every occurrence -- not just the outermost -- correctly clears both the
     # inner and outer href in one pass, with no recursion needed.
     prose_only = re.sub(r"\]\([^()\s]+\)", "]", readme_text)
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: strip FENCED code blocks before
+    # the inline-backtick strip below -- confirmed live, real, on pdf/typescript's own candidate
+    # (32 worked TypeScript examples): the inline regex `` `[^`]*` `` only ever matches from one
+    # backtick to the NEXT backtick, so for a ```` ```ts\nconst doc = ...\n``` ```` fence it
+    # consumes just the first two of the three opening backticks and leaves the entire fenced
+    # body -- every `const doc = ...`/`const dot = ...`-shaped line in it -- sitting in
+    # `prose_only` as if it were real prose, false-positiving a source-code variable name
+    # against `data/format_descriptions.json`'s real "DOC"/"DOT" registry entries. A dedicated
+    # fenced-block strip (open fence, non-greedy body, close fence) removes the whole block
+    # first, so the inline-backtick regex only ever sees genuine short spans afterward.
+    prose_only = re.sub(r"^```[^\n]*\n.*?^```\s*$", "", prose_only, flags=re.MULTILINE | re.DOTALL)
     prose_only = re.sub(r"`[^`]*`", "", prose_only)
+    # Same incident: an HTML tag name written in prose as literal markup (`<svg>`, `<img>`,
+    # `<iframe>`) is syntax, not a bare English/format word -- strip the angle brackets (and
+    # everything between them) before scanning, matching the treatment link targets and inline
+    # code already get above.
+    prose_only = re.sub(r"</?[a-zA-Z][a-zA-Z0-9-]*(?:\s[^<>]*)?/?>", "", prose_only)
 
     # canonical_casing branch's occurrence map: the FULL document, unchanged -- must still
     # catch real drift anywhere, including inside the API Reference section.
@@ -4372,7 +4409,7 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
         heuristic_text = heuristic_text[:api_ref_match.start()] + heuristic_text[api_ref_match.end():]
     heuristic_text = _ANY_HEADING_LINE_RE.sub("", heuristic_text)
     heuristic_occurrences: dict[str, set[str]] = {}
-    all_caps_seen: set[str] = set()
+    all_caps_counts: "dict[str, int]" = {}
     for match in _BARE_WORD_RE.finditer(heuristic_text):
         word = match.group(1)
         key = word.upper()
@@ -4380,7 +4417,32 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
             continue
         heuristic_occurrences.setdefault(key, set()).add(word)
         if word.isupper() and len(word) >= 2:
-            all_caps_seen.add(key)
+            all_caps_counts[key] = all_caps_counts.get(key, 0) + 1
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: a SINGLE all-caps occurrence is
+    # weak evidence of "this is being used as an acronym" -- at portfolio-typical README length
+    # it was never tested against a document long enough to contain incidental bold/all-caps
+    # PROSE EMPHASIS of an ordinary word by pure chance. Confirmed live on pdf/typescript (a
+    # ~230KB candidate, its Limitations section alone verbatim-preserved ~53KB of upstream
+    # technical prose that uses bare ALL-CAPS for emphasis the way this portfolio's other
+    # candidates use **bold**): "a Type 1 program IS embedded" and "records WHICH PIXELS the key
+    # matched" each capitalize an ordinary word exactly once, colliding with hundreds of
+    # legitimate lowercase uses of the same word elsewhere -- the same false-positive mechanism
+    # TC-HARDEN-28 already named and fixed for the API Reference section's table/heading
+    # collisions, recurring here in ordinary prose purely because of document length. A genuine
+    # format acronym (SVG, PDF, ...) recurs many times in its all-caps form throughout a real
+    # README; a >=2-occurrence floor closes this class with no stoplist and no per-product
+    # exception, while leaving every multi-occurrence acronym finding (verified against the
+    # existing 12-product corpus this check's own docstring cites) completely unaffected.
+    # A word already documented in 3+ distinct real casing variants (the GLTF/glTF/Gltf case,
+    # `_KNOWN_HEADING_CASE_EXCEPTIONS`'s own motivating example) is independently strong evidence
+    # of an intentional multi-form situation even when only ONE of those variants happens to be
+    # the all-caps spelling -- the >=2-occurrence floor above is for the weaker, two-variant case
+    # (an ordinary word's one incidental ALL-CAPS emphasis vs. its many ordinary lowercase uses),
+    # not this one.
+    all_caps_seen = {
+        key for key, count in all_caps_counts.items()
+        if count >= 2 or len(heuristic_occurrences.get(key, ())) >= 3
+    }
 
     findings: list[dict] = []
     for key in sorted(set(canonical_casing) | all_caps_seen):

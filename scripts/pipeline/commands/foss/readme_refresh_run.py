@@ -1553,7 +1553,16 @@ _BADGE_LANGUAGE_VERSION_TEMPLATES: dict[str, dict] = {
     "cpp": {"label": "C%2B%2B", "color": "blue", "logo": None, "plus": False},
     "python": {"label": "Python", "color": "blue", "logo": None, "plus": True},
     "net": {"label": ".NET", "color": "blue", "logo": None, "plus": True},
-    "typescript": {"label": "TypeScript", "color": "blue", "logo": None, "plus": True},
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: labeled "Node.js", not
+    # "TypeScript" -- the real data behind this badge (`dependency_snapshot.native_system`'s
+    # version_constraint) is the npm `engines.node` constraint (confirmed live on pdf/typescript:
+    # `>=22`, from `package.json`'s real `engines` field), a RUNTIME requirement, never a
+    # TypeScript *language/compiler* version (that's a separate devDependency fact, its own
+    # semver range, e.g. `^5.5.0` for `typescript` itself). The old "TypeScript" label was never
+    # actually rendered by any shipped candidate (confirmed: zero portfolio hits) -- an inert
+    # mislabel until this mission's own badge-completeness advisory surfaced it as a real
+    # suggestion for the first time.
+    "typescript": {"label": "Node.js", "color": "blue", "logo": "node.js", "plus": True},
     "rust": {"label": "Rust", "color": "blue", "logo": None, "plus": True},
 }
 
@@ -4547,11 +4556,34 @@ def _acquire_typescript_environment(work_dir: Path, clone_cache: Path) -> dict:
     read-only clone cache with a node_modules/ install), then `npm install` for real
     (tsx/typescript are real devDependencies in every product's own package.json -- see
     cells/typescript's real package.json, confirmed live this session). Returns
-    `{"ok", "project_dir", "detail"}`."""
+    `{"ok", "project_dir", "detail"}`.
+
+    readme-refresh-pdf-typescript-scale-hardening-2026-09-03: an unpublished product whose real
+    Quick Start imports by its OWN DECLARED PACKAGE NAME (`import { Document } from
+    '@asposefoss/pdf'` -- the correct, realistic form a real reader would copy-paste, distinct
+    from the relative-import convention `_run_single_typescript_block`'s own docstring
+    documents for other products, e.g. cells/typescript's `./aspose_cells`) had never been
+    exercised by this runner before: plain `npm install` only resolves the manifest's own
+    listed dependencies, never makes a package resolvable BY ITS OWN NAME from inside its own
+    source tree -- confirmed live, `import { Document } from '@asposefoss/pdf'` raised Node's
+    real `ERR_MODULE_NOT_FOUND` on 86 of 91 real blocks before this fix. Two real, additional,
+    disposable-copy-only steps close this, both verified live end-to-end (a real `Document.New`
+    call, both via plain `node` and via `tsx`) before landing:
+    1. `npm run build` (only when the manifest declares that script) so `main`/`types`
+       (`dist/...`) actually exist -- self-import resolution fails on a missing target file even
+       once the name itself resolves.
+    2. A real, standard package self-link: `node_modules/{scope}/{name}` (parsed from
+       package.json's own `name` field, scoped or not) created as a directory symlink pointing
+       at the project dir itself -- `npm install .` was tried first and found to be silently a
+       no-op (npm detects installing a package into itself and skips it); a real filesystem
+       symlink is what `npm link`/a monorepo workspace does under the hood, and needs no admin
+       privilege on this platform (confirmed live). Harmless, and never attempted, for a product
+       whose examples never self-import (the symlink is simply unused).
+    """
     if not clone_cache.is_dir():
         return {"ok": False, "project_dir": None, "detail": "no clone cache directory available"}
-    package_json = clone_cache / "package.json"
-    if not package_json.is_file():
+    package_json_path = clone_cache / "package.json"
+    if not package_json_path.is_file():
         return {"ok": False, "project_dir": None, "detail": "clone cache has no package.json"}
 
     project_dir = work_dir / "project"
@@ -4565,7 +4597,93 @@ def _acquire_typescript_environment(work_dir: Path, clone_cache: Path) -> dict:
             "ok": False, "project_dir": None,
             "detail": f"npm install failed: {(installed.stderr or installed.stdout).strip()[-2000:]}",
         }
-    return {"ok": True, "project_dir": project_dir, "detail": "npm install completed in a disposable project copy"}
+
+    try:
+        manifest = json.loads(package_json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        manifest = {}
+    if (manifest.get("scripts") or {}).get("build"):
+        built = subprocess.run(
+            [_resolve_node_bin("npm"), "run", "build"],
+            cwd=str(project_dir), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300,
+        )
+        if built.returncode != 0:
+            return {
+                "ok": False, "project_dir": None,
+                "detail": f"npm run build failed: {(built.stderr or built.stdout).strip()[-2000:]}",
+            }
+
+    _self_link_typescript_package(project_dir, manifest.get("name"))
+    return {"ok": True, "project_dir": project_dir, "detail": "npm install (+ build, + self-link) completed in a disposable project copy"}
+
+
+def _self_link_typescript_package(project_dir: Path, package_name: "str | None") -> bool:
+    """Creates `node_modules/{scope}/{name}` inside `project_dir` as a directory symlink back
+    to `project_dir` itself, so an example that imports the product BY ITS OWN DECLARED PACKAGE
+    NAME (`import { Document } from '@asposefoss/pdf'`) resolves from inside the product's own
+    source tree -- the real, standard mechanism `npm link`/a monorepo workspace uses under the
+    hood, needing no admin privilege on this platform (confirmed live). Pure filesystem work, no
+    npm/node/network involved, which is why this is split out of `_acquire_typescript_
+    environment` as its own small, real, fast, network-independent unit to test. Returns
+    whether the link was created; `False` (no `package_name`, or a real `OSError` creating it --
+    e.g. no symlink privilege on some other platform/config) is a soft failure, never raised: a
+    product whose examples never self-import needs no link at all."""
+    if not package_name:
+        return False
+    self_link = project_dir / "node_modules" / Path(*package_name.split("/"))
+    self_link.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        self_link.symlink_to(project_dir, target_is_directory=True)
+        return True
+    except OSError:
+        return False
+
+
+def _typescript_block_starts_chain(code: str) -> bool:
+    """Same convention as `_python_block_starts_chain` (portfolio-wide: a block whose first
+    real statement is an import is a self-contained example; anything else continues the
+    previous block's example) -- TS/JS line comments are `//`, not `#`.
+
+    readme-refresh-pdf-typescript-scale-hardening-2026-09-03: confirmed live and load-bearing
+    against pdf/typescript's real, upstream-verbatim `## Additional Examples` -- the source
+    repo's own README (not a defect this mission introduced) writes 6 straight `###` sections
+    (`Encrypted PDFs` / `Encrypted output` / `Certificate-based encryption` / `Split and merge`
+    / `Content streams` / `Text stamping`) as one continuous narrative: most later fences reuse
+    an ambient `doc` established several sections earlier without redeclaring or reimporting it
+    -- real upstream authoring style, confirmed present in the same shape and order in the live
+    clone cache's `README.md`. Before this fix, the v1 runner ran every fence standalone and
+    reported `ReferenceError: doc is not defined` etc. as generic RUNTIME-ERROR on 77 of 91
+    real blocks. This heuristic will still not resolve every ambient reference (a handful of
+    the source's own snippets are deliberately abbreviated API-signature illustrations that
+    reference names -- `docA`, `docB`, `docC` in `### Split and merge` -- never defined even in
+    the published upstream text); those remain honest RUNTIME-ERROR/DEPENDS-ON-FAILED-BLOCK,
+    which is correct, not a runner gap."""
+    for line in code.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("//"):
+            continue
+        return stripped.startswith(("import ", "import{"))
+    return True
+
+
+_TS_MISSING_EXPORT_RE = re.compile(r"does not provide an export named ['\"]?([\w$]+)['\"]?")
+
+
+def _classify_typescript_failure(output: str) -> "tuple[str, str]":
+    """Analogous to `_classify_python_failure`'s TC-26 distinction (a real defect in the
+    UPSTREAM package's own source/build vs. a real defect in the example itself): Node's ESM
+    loader raises exactly `SyntaxError: The requested module '<pkg>' does not provide an
+    export named '<name>'` when a README-documented import can never resolve against the
+    package's real built entry point -- confirmed live and load-bearing on pdf/typescript's own
+    `### Use File-Based Helper Methods`, which the upstream README itself documents as
+    `import { ..., htmlFileToPdf } from '@asposefoss/pdf'`: `htmlFileToPdf` is a real, exported
+    function in the package's own `src/node.ts`, but `src/index.ts` (the package's real, only
+    entry point -- no `exports` subpath map in package.json) never re-exports it, confirmed by
+    reading both files directly. A real reader copy-pasting this exact, correctly-transcribed
+    example hits this exact error; it is not a mistake in the candidate."""
+    if _TS_MISSING_EXPORT_RE.search(output):
+        return "UPSTREAM-BROKEN", output[-2000:]
+    return "RUNTIME-ERROR", output[-2000:]
 
 
 def _run_single_typescript_block(project_dir: Path, code: str, index: int) -> dict:
@@ -4631,20 +4749,31 @@ def _run_single_typescript_block(project_dir: Path, code: str, index: int) -> di
     script_path.unlink(missing_ok=True)
     if run.returncode == 0:
         return {"index": index, "status": "COMPILED+RAN CLEAN"}
-    return {
-        "index": index, "status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR",
-        "detail": (run.stderr or run.stdout).strip()[-2000:],
-    }
+    reason, detail = _classify_typescript_failure((run.stderr or run.stdout).strip())
+    return {"index": index, "status": "BLOCKED-WITH-REASON", "reason": reason, "detail": detail}
 
 
 def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict:
     """Real for `typescript`/`ts`-tagged fenced code blocks; every other language still
     honestly reports BLOCKED-WITH-REASON: TOOLCHAIN-UNAVAILABLE. Deliberately a strict superset
-    of the stub's honesty, same posture as python_verification_runner."""
+    of the stub's honesty, same posture as python_verification_runner.
+
+    v2 (readme-refresh-pdf-typescript-scale-hardening-2026-09-03): brings the TypeScript runner
+    to the same real-fixture-staging + example-chaining capability `python_verification_runner`
+    already earned in ST-171 -- confirmed live as a genuine, generalizable gap (not specific to
+    one product): v1 ran every fence in total isolation, so pdf/typescript's real, upstream-
+    verbatim multi-section narrative examples (see `_typescript_block_starts_chain`) reported
+    `ReferenceError: ... is not defined` on most later fences in a cluster, and its real
+    `in.pdf`/`secret.pdf` input fixtures -- named in the README, present in the clone cache's
+    own `test/fixtures/` -- were never staged into the disposable project, so opening them
+    raised a generic `ENOENT` instead of the honest `FIXTURE-UNAVAILABLE` classification the
+    Python runner already has. Reuses `_stage_readme_fixtures`/`_readme_fixture_names`
+    unchanged (both already language-agnostic over `(lang, code)` pairs)."""
     text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
     blocks = [(m.group(1).strip().lower(), m.group(2)) for m in _ANY_LANG_CODE_BLOCK_RE.finditer(text)]
     family = factpack.get("family")
     platform = factpack.get("platform")
+    staging: dict = {"staged": {}, "unresolved": []}
 
     block_statuses = [
         {"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"}
@@ -4664,19 +4793,45 @@ def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict
                         "detail": acquire["detail"],
                     })
             else:
+                project_dir = acquire["project_dir"]
+                staging = _stage_readme_fixtures(project_dir, blocks, clone_cache)
+                chain_prefix: list[str] = []
+                chain_failed_at: "int | None" = None
                 for i, code in ts_blocks:
-                    block_statuses.append(
-                        _run_single_typescript_block(acquire["project_dir"], code, i)
-                    )
+                    if _typescript_block_starts_chain(code):
+                        chain_prefix, chain_failed_at = [], None
+                    if chain_failed_at is not None:
+                        block_statuses.append({
+                            "index": i, "status": "BLOCKED-WITH-REASON", "reason": "DEPENDS-ON-FAILED-BLOCK",
+                            "detail": f"continues the example started in block {chain_failed_at}, which already failed",
+                            "depends_on": chain_failed_at,
+                        })
+                        continue
+                    script = "\n".join(chain_prefix + [code]) if chain_prefix else code
+                    status = _run_single_typescript_block(project_dir, script, i)
+                    if status["status"] == "BLOCKED-WITH-REASON" and status.get("reason") == "RUNTIME-ERROR":
+                        detail = status.get("detail") or ""
+                        for name in staging["unresolved"]:
+                            if name in detail and ("ENOENT" in detail or "no such file" in detail.lower()):
+                                status["reason"] = "FIXTURE-UNAVAILABLE"
+                                status["missing_fixture"] = name
+                                break
+                    if status["status"] == "BLOCKED-WITH-REASON":
+                        chain_failed_at = i
+                    if chain_prefix or not _typescript_block_starts_chain(code):
+                        status["continues_example"] = True
+                    chain_prefix.append(code)
+                    block_statuses.append(status)
     else:
         for i, _code in ts_blocks:
             block_statuses.append({"index": i, "status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE"})
 
     block_statuses.sort(key=lambda b: b["index"])
     return {
-        "runner": "typescript_verification_runner_v1",
+        "runner": "typescript_verification_runner_v2",
         "blocks_found": len(blocks),
         "block_statuses": block_statuses,
+        "fixtures": staging,
         "all_named": True,
     }
 

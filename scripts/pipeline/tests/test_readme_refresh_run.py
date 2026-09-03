@@ -649,6 +649,26 @@ def test_detect_available_badges_package_version_unpublished_is_unavailable():
     assert result["package_version"]["available"] is False
 
 
+def test_detect_available_badges_language_version_typescript_labels_nodejs_not_typescript():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: the underlying data is
+    # `native_system`'s version_constraint -- for a typescript/npm product that's the real
+    # `engines.node` constraint (a Node.js RUNTIME requirement), never the TypeScript
+    # language/compiler version (a separate devDependency fact entirely). Confirmed real, live:
+    # pdf/typescript's own package.json declares `engines: { node: '>=22' }`; the badge template
+    # used to label this "TypeScript Version" while showing the Node constraint.
+    result = rr._detect_available_badges(
+        "pdf", "typescript", repo_full_name=None, license_file=None,
+        install_info={"published": False, "registry_type": "npm", "candidate": {"name": "@asposefoss/pdf"}},
+        dependency_snapshot={"native_system": [{"name": "node", "version_constraint": ">=22"}]},
+        dev_test_artifacts=[],
+    )
+    badge = result["language_version"]
+    assert badge["available"] is True
+    assert badge["alt_text"] == "Node.js Version"
+    assert "TypeScript" not in badge["image_url"]
+    assert "Node.js" in badge["image_url"]
+
+
 def test_detect_available_badges_package_version_go_modules_unavailable():
     # Real, disclosed correction against the original design table: Go modules are decentralized
     # -- no real package-version-registry badge exists (see the module docstring).
@@ -3497,11 +3517,56 @@ def test_typescript_verification_runner_non_typescript_blocks_stay_stub(tmp_path
         encoding="utf-8",
     )
     result = rr.typescript_verification_runner(candidate_path, {"family": "testfam", "platform": "testplat"})
-    assert result["runner"] == "typescript_verification_runner_v1"
+    assert result["runner"] == "typescript_verification_runner_v2"
     assert result["blocks_found"] == 2
     assert result["all_named"] is True
     assert all(b["status"] == "BLOCKED-WITH-REASON" and b["reason"] == "TOOLCHAIN-UNAVAILABLE"
                for b in result["block_statuses"])
+
+
+# --- readme-refresh-pdf-typescript-scale-hardening-2026-09-03: self-import resolution -------
+#
+# Real, confirmed live: pdf/typescript's own Quick Start imports by its DECLARED PACKAGE NAME
+# (`import { Document } from '@asposefoss/pdf'`) -- unlike every prior product's own relative-
+# import convention (`./aspose_cells`) this runner had ever been exercised against -- and a
+# plain `npm install` never makes an unpublished package resolvable by its own name from inside
+# its own source tree: 86 of 91 real blocks raised Node's real ERR_MODULE_NOT_FOUND before this
+# fix. `_self_link_typescript_package` is pure filesystem work (no npm/node/network), split out
+# specifically so it has a real, fast, committed-suite-safe test -- the full real npm-install-
+# and-build path stays proven by manual, one-time, real end-to-end verification (this taskcard's
+# own evidence_refs), matching this file's own established practice for the network-dependent
+# half of every acquire step.
+
+
+def test_self_link_typescript_package_creates_a_real_symlink_back_to_the_project(tmp_path):
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / "dist").mkdir()
+    (project_dir / "dist" / "index.js").write_text("export const x = 1;\n", encoding="utf-8")
+
+    created = rr._self_link_typescript_package(project_dir, "@asposefoss/pdf")
+
+    assert created is True
+    link = project_dir / "node_modules" / "@asposefoss" / "pdf"
+    assert link.is_symlink()
+    # Resolves back to the real, built dist/ -- a real reader's `import ... from
+    # '@asposefoss/pdf'` would find the actual compiled output, not an empty shell.
+    assert (link / "dist" / "index.js").read_text(encoding="utf-8") == "export const x = 1;\n"
+
+
+def test_self_link_typescript_package_handles_an_unscoped_name(tmp_path):
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    created = rr._self_link_typescript_package(project_dir, "plain-package-name")
+    assert created is True
+    assert (project_dir / "node_modules" / "plain-package-name").is_symlink()
+
+
+def test_self_link_typescript_package_is_a_noop_without_a_declared_name(tmp_path):
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    assert rr._self_link_typescript_package(project_dir, None) is False
+    assert not (project_dir / "node_modules").exists()
 
 
 def test_typescript_verification_runner_recognizes_both_typescript_and_ts_tags(tmp_path):
@@ -3519,6 +3584,59 @@ def test_typescript_verification_runner_recognizes_both_typescript_and_ts_tags(t
     # (not silently left as an unrecognized-language stub).
     assert result["blocks_found"] == 2
     assert all(b["reason"] == "ACQUIRE-FAILED" for b in result["block_statuses"])
+
+
+# --- readme-refresh-pdf-typescript-scale-hardening-2026-09-03: TS runner v2 (fixture staging
+# + example chaining, ST-171 parity) --------------------------------------------------------
+#
+# Confirmed live on the real pdf/typescript candidate: v1 ran every TypeScript fence in total
+# isolation, so the real, upstream-verbatim `## Additional Examples` narrative (six straight
+# `###` sections that share one ambient `doc` -- real authoring style in the live clone cache's
+# own README.md, not a defect introduced by composition) reported `ReferenceError: doc is not
+# defined` etc. as generic RUNTIME-ERROR on 77 of 91 real blocks, and un-staged input fixtures
+# (`in.pdf`, `secret.pdf`) reported generic RUNTIME-ERROR instead of the honest
+# FIXTURE-UNAVAILABLE/(fixture genuinely absent from the repo) classification. `_stage_readme_
+# fixtures`/`_readme_fixture_names` are reused unchanged (already language-agnostic); only
+# `_typescript_block_starts_chain` is new. Same practice as every other acquire-dependent path
+# in this file: the full real npm-install-and-run integration was proven manually end-to-end
+# against the real pdf/typescript clone cache (this mission's own evidence), not re-proven here
+# with a network call -- these tests cover the new, pure, network-independent chain-boundary
+# logic only.
+
+
+def test_typescript_block_starts_chain_on_a_leading_import():
+    assert rr._typescript_block_starts_chain("import { Document } from '@asposefoss/pdf';\nconst x = 1;\n") is True
+
+
+def test_typescript_block_starts_chain_false_for_a_continuation_fragment():
+    assert rr._typescript_block_starts_chain("const doc = Document.OpenFile('in.pdf');\ndoc.WriteTo('out.pdf');\n") is False
+
+
+def test_typescript_block_starts_chain_skips_leading_blank_lines_and_line_comments():
+    code = "\n// a leading comment\n\nimport { Document } from '@asposefoss/pdf';\n"
+    assert rr._typescript_block_starts_chain(code) is True
+    code2 = "\n// a leading comment\n\ndoc.Save();\n"
+    assert rr._typescript_block_starts_chain(code2) is False
+
+
+def test_typescript_block_starts_chain_empty_code_defaults_true():
+    assert rr._typescript_block_starts_chain("") is True
+    assert rr._typescript_block_starts_chain("   \n  \n") is True
+
+
+def test_classify_typescript_failure_names_a_missing_upstream_export_as_upstream_broken():
+    output = (
+        "SyntaxError: The requested module '@asposefoss/pdf' does not provide an export "
+        "named 'htmlFileToPdf'\n    at ModuleJob.run (...)"
+    )
+    reason, detail = rr._classify_typescript_failure(output)
+    assert reason == "UPSTREAM-BROKEN"
+    assert "htmlFileToPdf" in detail
+
+
+def test_classify_typescript_failure_stays_runtime_error_for_an_ordinary_reference_error():
+    reason, detail = rr._classify_typescript_failure("ReferenceError: doc is not defined")
+    assert reason == "RUNTIME-ERROR"
 
 
 # --- Stale-input-forces-replan at approve ---------------------------------------------------

@@ -926,6 +926,30 @@ after convergence, re-running the same regeneration produces no further diff.
        fold.
      - **GOOD**: intro sentence naming real hub classes, visible → `<details><summary>View the
        Full API Surface</summary>` → every module table + curated bullet → `</details>`.
+   - **The optional curated-detail content beneath the module table(s) must be introduced with
+     the exact heading `#### Detailed Member Reference`** (case-insensitive; readme-refresh-
+     pdf-typescript-scale-hardening-2026-09-03) — this is real, established, working portfolio
+     convention (`3d/java`, `cells/cpp`, `cells/net`, `cells/rust`, `email/cpp` and others all
+     use it), and `_parse_readme_api_tables` (the shared parser both `check_api_reference_
+     table_completeness` and `check_api_reference_public_type_count_matches_table` use) stops
+     scanning for module tables at exactly this string — it was, until this mission, undocumented
+     anywhere in this file, so a composing agent with no other way to discover it will invent its
+     own label. Confirmed real, live: a candidate that used `#### Member Quick Reference` instead
+     produced 121 `missing_class`/`unrecognized_class` findings plus a public-type-count mismatch
+     — not because the content was wrong, but because the parser never stopped, so it folded an
+     entire supplementary section (including that section's own internal `###` sub-headings) into
+     spurious extra "modules" to reconcile against `reference.aspose.org`. The content that
+     follows the marker is genuinely out of scope for both checks once the heading is right — a
+     curated `` - `ClassName` `` bullet list (the original, smallest-footprint convention) and a
+     full supplementary table (a product whose old README already shipped one, verbatim-preserved
+     rather than rebuilt as bullets) are both valid; the heading text is what matters, not the
+     shape of what follows it.
+   - **Never wrap `<summary>` text in `<strong>` or any other inline markup** — plain text only
+     (`<summary>View Additional Examples</summary>`, `<summary>View the Full API Surface</summary>`,
+     matching every real, shipped candidate). `check_heading_title_case` scans the raw `<summary>…
+     </summary>` capture including any markup inside it; a `<strong>` wrapper's own tag name
+     becomes the extracted heading's first "word" and fails the title-case check outright — a
+     real, confirmed trap the illustration two rules below used to demonstrate itself.
    - **Never continue a Limitations bullet's own sentence directly into the Enterprise Edition
      mention — always insert a blank line and start a genuinely separate paragraph.**
      `check_scope_limitations_format` (hard gate, unchanged design intent, bug-fixed below) had a
@@ -970,7 +994,7 @@ after convergence, re-running the same regeneration produces no further diff.
 
    ```markdown
    <details>
-   <summary><strong>View Additional Examples</strong></summary>
+   <summary>View Additional Examples</summary>
 
    ### Convert a 3D Scene to a Supported Format
 
@@ -1300,6 +1324,46 @@ after convergence, re-running the same regeneration produces no further diff.
    `AWAITING_REVIEW`** (result rewritten, `VERIFY_EXAMPLES_COMPLETED` re-logged,
    `last_reverified_at` set, no transition) — after a candidate edit or a runner improvement,
    re-verify the same run instead of starting a new one. Any other state is refused by name.
+
+   **TypeScript runner self-import fix (readme-refresh-pdf-typescript-scale-hardening-
+   2026-09-03).** `_acquire_typescript_environment` copies the clone cache and runs `npm install`
+   — enough for a product whose examples import by RELATIVE path into the source tree (e.g.
+   `import { Workbook } from "./aspose_cells"`), but every prior product tested happened to use
+   that convention. A product whose real Quick Start imports by its OWN DECLARED PACKAGE NAME
+   (`import { Document } from '@asposefoss/pdf'` — the correct, realistic form) raised Node's
+   real `ERR_MODULE_NOT_FOUND` on 86 of 91 real pdf/typescript blocks, because a plain `npm
+   install` never makes a package resolvable by its own name from inside its own source tree.
+   Fixed with two real, additional steps in the disposable copy only: `npm run build` (when the
+   manifest declares that script — `main`/`types` point at `dist/...`, which doesn't exist
+   without it) and a real filesystem self-link, `node_modules/{scope}/{name}` symlinked back to
+   the project directory itself (`_self_link_typescript_package` — `npm install .` was tried
+   first and found to silently no-op on a package installing into itself; a real symlink is what
+   `npm link` does under the hood and needs no admin privilege). Harmless and unused for a
+   product whose examples never self-import.
+
+   **TypeScript runner v2 — fixture staging + example chaining + UPSTREAM-BROKEN
+   (readme-refresh-pdf-typescript-scale-hardening-2026-09-03).** Brings the TypeScript runner to
+   the same capability the Python runner earned in ST-171. After the self-import fix above,
+   pdf/typescript still failed 83 of 91 real blocks — `ReferenceError: doc/page/bytes/source is
+   not defined` and generic `ENOENT` on names like `in.pdf`/`secret.pdf` — because the runner ran
+   every fenced block in total isolation. Root cause: the upstream README's own `## Additional
+   Examples` writes long runs of `###` sections as one continuous narrative sharing an ambient
+   `doc`, not as independently-runnable snippets per heading — real upstream authoring style,
+   faithfully preserved verbatim by extraction, not a composition defect. Fixed by reusing
+   `_stage_readme_fixtures`/`_readme_fixture_names` unchanged (already language-agnostic over
+   `(lang, code)` pairs) and adding `_typescript_block_starts_chain` — same "first real statement
+   is an import starts a fresh example, else continue" convention as `_python_block_starts_chain`
+   (`//` line comments instead of `#`). A name referenced in the README that resolves to no real
+   file anywhere in the clone cache reports `FIXTURE-UNAVAILABLE` naming it, never a fabricated
+   pass. The heuristic does not bridge every case — a later section that imports one *new* symbol
+   while still depending on an unrelated *earlier* section's local variable still reports
+   `RUNTIME-ERROR` (5 of 91 on pdf/typescript; ST-179, backlog) — disclosed via
+   `upstream-issues.md`, not hidden. Also added `_classify_typescript_failure` (mirrors the
+   Python runner's TC-26 `UPSTREAM-BROKEN` distinction): Node's ESM loader's exact `SyntaxError:
+   The requested module '<pkg>' does not provide an export named '<name>'` means a
+   README-documented import can never resolve against the package's real built entry point — a
+   real defect in the upstream package, not in the example (caught live: pdf/typescript's own
+   `htmlFileToPdf` is exported from `src/node.ts` but never re-exported by `src/index.ts`).
 
 6. **`recheck`** — re-runs the deterministic checks in place after manual edits during
    `AWAITING_REVIEW`, without a state transition. Use this after applying reviewer feedback

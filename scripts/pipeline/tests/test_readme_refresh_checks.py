@@ -857,6 +857,46 @@ def test_md_link_re_still_matches_plain_links():
     assert match.group(2) == "https://docs.aspose.org/foo/python/"
 
 
+def test_format_name_casing_strips_fenced_code_blocks_before_scanning():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: the inline-backtick strip
+    # (` `[^`]*` `) only ever consumes from one backtick to the next, so a real fenced block's
+    # opening ``` left its body -- every source identifier in it -- sitting in "prose". Real,
+    # confirmed live: a TypeScript example's own `const doc = ...` variable false-positived
+    # against the real format registry's DOC entry once the document had enough fenced code.
+    text = (
+        "Some prose about the API.\n\n"
+        "```ts\nconst doc = Document.OpenFile('x.pdf');\nconst dot = 1;\n```\n\n"
+        "More prose.\n"
+    )
+    findings = checks.check_format_name_casing(text, {"DOC": "DOC", "DOT": "DOT"})
+    assert findings == []
+
+
+def test_format_name_casing_strips_html_tag_names_before_scanning():
+    # Same incident: a literal HTML tag written as prose markup (`<svg>`, from discussing HTML
+    # rendering support) was scanned as a bare word, false-positiving against the SVG registry
+    # entry the moment its OWN casing (lowercase, as real markup always is) differed from the
+    # canonical form used correctly elsewhere in the same document.
+    text = "Renders an <svg> element inline. Also supports real SVG embedding via AddSVGObject."
+    findings = checks.check_format_name_casing(text, {"SVG": "SVG"})
+    assert findings == []
+
+
+def test_format_name_casing_requires_two_all_caps_occurrences_for_acronym_candidacy():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: a SINGLE all-caps occurrence of
+    # an ordinary word, written for prose emphasis ("a Type 1 program IS embedded"), is not
+    # evidence the word is being used as a format acronym -- confirmed real on pdf/typescript's
+    # own ~53KB verbatim Limitations section, where "IS" and "WHICH PIXELS" each appear
+    # all-caps exactly once against hundreds of ordinary lowercase uses. A genuine acronym
+    # recurs; one incidental bold/caps emphasis word should not.
+    text = "The file is old. The file is new. A program IS embedded here, once."
+    assert checks.check_format_name_casing(text, {}) == []
+    # Two or more independent all-caps occurrences still count as real acronym evidence.
+    text2 = "The word is used. IS this real? Yes, IS is used deliberately, twice, in caps."
+    findings = checks.check_format_name_casing(text2, {})
+    assert any(f["format"] == "IS" for f in findings)
+
+
 def test_format_name_casing_ignores_generic_project_acronyms():
     # Regression test for a real false positive found via a 30-product portfolio run: FOSS
     # (from repo/CMake-target slugs like aspose-pdf-foss / aspose_pdf_foss) and LICENSE
