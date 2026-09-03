@@ -28,13 +28,16 @@
     {
       "family": "3d",
       "platform": "python",
-      "last_known_publication": "2026-08-14",
-      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/pull/2), merged 2026-08-14T09:56:03Z",
-      "pr_number": 2,
-      "merged_at": "2026-08-14T09:56:03Z",
-      "merge_commit_sha": "ee05c1ba9153ef5916b7a108406c794f2e464d01",
-      "last_reconciled_at": "2026-09-01T05:57:48.889818Z",
-      "reconciliation_state": "IN_SYNC"
+      "last_known_publication": "2026-09-03",
+      "evidence": "reconciled by publication_reconciler.py: PR #3 (https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/pull/3), merged 2026-09-03T07:12:50Z",
+      "pr_number": 3,
+      "merged_at": "2026-09-03T07:12:50Z",
+      "merge_commit_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "last_reconciled_at": "2026-09-03T07:13:16.518437Z",
+      "reconciliation_state": "IN_SYNC",
+      "merged_by_login": "babar-raza",
+      "published_blob_sha256": "68511527d2414b51fba25c60146587000b7a18ae339962c19fac4b1250b12ac2",
+      "published_commit": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
     },
     {
       "family": "note",
