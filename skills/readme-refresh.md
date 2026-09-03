@@ -805,7 +805,8 @@ after convergence, re-running the same regeneration produces no further diff.
      `upstream-issues.md` + `upstream_issue_workflow.py` — never a sentence in the candidate.
 
 
-   **Installation by publication state (readme-refresh-publication-state-hardening-2026-09-02).**
+   **Installation by publication state (readme-refresh-publication-state-hardening-2026-09-02;
+   disclosure REVERSED by readme-refresh-pdf-typescript-scale-hardening-2026-09-03 — see below).**
    The `## Installation` section is composed from `install.publication`, never from the old
    README's own sentence and never from the checked-in flag alone:
    - **live PUBLISHED** → the registry-native install command for the real identity comes first
@@ -816,10 +817,18 @@ after convergence, re-running the same regeneration produces no further diff.
      (`published_version_matches_manifest` is clean); otherwise say which version it describes.
      PyPI publication also makes the version and Python-versions badges available — the badge
      floor (`check_badge_row_meets_verified_floor`) then expects the row to reflect it.
-   - **live NOT PUBLISHED** → the portfolio disclosure ("A PyPI package … has not yet been
-     published") plus the from-checkout path; naming the future command next to the disclosure
-     ("once published this will become `pip install x`") is fine and already precedent, but the
-     registry command is never presented as the way in on its own.
+   - **live NOT PUBLISHED** → the from-checkout path (clone + install/build), presented plainly as
+     simply how to install today. **Publication status is never disclosed** — no "has not yet
+     been published"/"is not yet published" sentence, and no preview of the future registry
+     command ("once published this will become `pip install x`") anywhere in the section.
+     **Reversed 2026-09-03, explicit user direction**: the 2026-09-02 precedent required exactly
+     that disclosure+preview pairing; found live on pdf/typescript ("`@asposefoss/pdf` has not
+     yet been published to npm… Once published this will become `npm install @asposefoss/pdf`")
+     and judged not to belong in a public README — a visitor is shown how to install today; the
+     maintainer's own publication timeline is internal information, not the reader's concern.
+     BAD (now): either sentence, in any form. GOOD: `git clone … && cd … && npm install && npm
+     run build` (or the language's equivalent) with a plain framing sentence describing the
+     mechanism ("build once and the same import specifier resolves"), nothing about publication.
    - **fallback** (`source` is not `live_probe`: offline, network error, unknown registry) → say
      exactly what the record says and note in the review that the state is unverified; the hard
      gate is vacuous on a fallback by design — a fact earns a hard gate, a fallback does not.
@@ -1267,12 +1276,15 @@ after convergence, re-running the same regeneration produces no further diff.
    sanctioned GOOD-example phrasing (composition guidance above) — the same "don't hard-gate on
    a claim category with no real verifier behind it" lesson `check_installation_matches_
    package_registry` already taught this skill (TC-HARDEN-32).
-   (**readme-refresh-publication-state-hardening-2026-09-02**) `check_installation_matches_
+   (**readme-refresh-publication-state-hardening-2026-09-02**, reversed
+   **readme-refresh-pdf-typescript-scale-hardening-2026-09-03**) `check_installation_matches_
    live_publication` — **hard gate**, the twin the checked-in-flag heuristic above could never be:
    keyed on the plan-time probe's `source == live_probe`, it requires the registry-native install
    command for the real identity (and no unpublished disclosure) when the package is live, and
-   forbids a bare registry command without the disclosure when it is not; vacuous on any fallback.
-   A look-alike name never satisfies it (`pip install aspose-3d` ≠ `aspose-3d-foss`).
+   forbids BOTH a registry command AND any "has not yet been published" disclosure sentence when
+   it is not — publication status is internal-only information and must never appear in a public
+   README, full stop; vacuous on any fallback. A look-alike name never satisfies it
+   (`pip install aspose-3d` ≠ `aspose-3d-foss`).
    `check_published_version_matches_manifest` (advisory) flags a registry version that differs
    from the manifest version — the runner then verified a different build than the one documented.
    Transitions `PLANNED → VERIFYING_EXAMPLES` only once every hard gate passes.

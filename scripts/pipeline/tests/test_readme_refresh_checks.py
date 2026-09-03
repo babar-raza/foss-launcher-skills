@@ -4033,6 +4033,13 @@ _PUBLISHED_INSTALL = (
     "Or install the latest source checkout:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
     "cd Aspose.3D-FOSS-for-Python\npython3 -m pip install -e .\n```\n\n## Quick Start\n\nx\n"
 )
+# readme-refresh-pdf-typescript-scale-hardening-2026-09-03: the new required shape when
+# unpublished -- plain, working from-checkout instructions, no publication-status narration at all.
+_CLEAN_UNPUBLISHED_INSTALL = (
+    "# X\n\n## Installation\n\nInstall directly from a local clone as an editable install:\n\n"
+    "```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+    "cd Aspose.3D-FOSS-for-Python\npython3 -m pip install -e .\n```\n\n## Quick Start\n\nx\n"
+)
 
 
 def test_live_publication_gate_flags_the_stale_not_yet_published_section_once_the_package_is_live():
@@ -4057,13 +4064,26 @@ def test_live_publication_gate_rejects_a_lookalike_package_name():
     ]
 
 
-def test_live_publication_gate_unpublished_allows_disclosure_plus_future_command_but_not_a_bare_command():
-    disclosed = _STALE_INSTALL.replace("Install the latest", "Once published this will become `pip install aspose-3d-foss`. Install the latest")
-    assert checks.check_installation_matches_live_publication(disclosed, _live_pub(False)) == []
+def test_live_publication_gate_unpublished_forbids_both_disclosure_and_future_command_preview():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03: reversed the prior "disclosure +
+    # preview is fine" precedent per explicit user direction -- publication status must never
+    # appear in a public README. _STALE_INSTALL alone already carries the disclosure sentence.
+    assert [f["reason"] for f in checks.check_installation_matches_live_publication(_STALE_INSTALL, _live_pub(False))] == [
+        "unpublished_with_disclosure_sentence",
+    ]
+    # Adding a "once published this will become `pip install x`" preview on top adds the second,
+    # independent finding (it also trips has_command, since it names the real registry command).
+    disclosed_and_previewed = _STALE_INSTALL.replace(
+        "Install the latest", "Once published this will become `pip install aspose-3d-foss`. Install the latest",
+    )
+    assert [f["reason"] for f in checks.check_installation_matches_live_publication(disclosed_and_previewed, _live_pub(False))] == [
+        "unpublished_with_registry_install_command", "unpublished_with_disclosure_sentence",
+    ]
     bare = _PUBLISHED_INSTALL  # presents pip install as the way in, no disclosure
     assert [f["reason"] for f in checks.check_installation_matches_live_publication(bare, _live_pub(False))] == [
         "unpublished_with_registry_install_command",
     ]
+    assert checks.check_installation_matches_live_publication(_CLEAN_UNPUBLISHED_INSTALL, _live_pub(False)) == []
 
 
 def test_live_publication_gate_is_vacuous_on_any_fallback_source():

@@ -92,7 +92,7 @@ flowchart TD
 
 ## Installation
 
-A PyPI package has not been published yet. Install from source:
+Install from source:
 
 ```bash
 pip install -e ".[dev]"
@@ -3070,7 +3070,13 @@ def test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says
     manifest = rr.start_run("testfam", "testplat")
     run_id = manifest["run_id"]
     rr.plan_run("testfam", "testplat", run_id)
-    _write_candidate(repo_root, _GOOD_CANDIDATE)  # "A PyPI package has not been published yet."
+    # A stale disclosure sentence (readme-refresh-pdf-typescript-scale-hardening-2026-09-03:
+    # disclosure sentences are now forbidden outright, not just when they go stale -- but a
+    # candidate that still has one, written before the package went live, must still be caught).
+    stale_disclosure_candidate = _GOOD_CANDIDATE.replace(
+        "Install from source:", "A PyPI package has not been published yet. Install from source:",
+    )
+    _write_candidate(repo_root, stale_disclosure_candidate)
     with pytest.raises(rr.ReadmeRefreshRunError, match=r"hard-gate checks: \['installation_matches_live_publication'\]"):
         rr.ingest_candidate("testfam", "testplat", run_id)
     result = json.loads((rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json").read_text(encoding="utf-8"))
@@ -3078,6 +3084,14 @@ def test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says
     assert reasons == ["published_with_unpublished_disclosure", "published_without_registry_install_command"]
     assert result["installation_matches_live_publication"]["hard_gate"] is True
     assert result["published_version_matches_manifest"]["hard_gate"] is False
+    # _GOOD_CANDIDATE itself (no disclosure sentence at all -- the new required shape) is clean
+    # against a PUBLISHED probe on the disclosure half, but still needs the registry command.
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    with pytest.raises(rr.ReadmeRefreshRunError, match=r"hard-gate checks: \['installation_matches_live_publication'\]"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+    result = json.loads((rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json").read_text(encoding="utf-8"))
+    reasons = sorted(f["reason"] for f in result["installation_matches_live_publication"]["findings"])
+    assert reasons == ["published_without_registry_install_command"]
     # The same candidate under a live-unpublished probe is clean on this gate.
     rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(False))
     rr.ingest_candidate("testfam", "testplat", run_id)
@@ -3113,7 +3127,7 @@ def test_approve_treats_a_publication_change_since_plan_as_input_drift(tmp_path,
     with pytest.raises(rr.ReadmeRefreshRunError, match="installation_matches_live_publication"):
         rr.ingest_candidate("testfam", "testplat", run_id)  # the stale "not published" text is now blocked
     _write_candidate(repo_root, _GOOD_CANDIDATE.replace(
-        "A PyPI package has not been published yet. Install from source:",
+        "Install from source:",
         "Install the published package:",
     ).replace('pip install -e ".[dev]"', "pip install testpkg"))
     rr.ingest_candidate("testfam", "testplat", run_id)

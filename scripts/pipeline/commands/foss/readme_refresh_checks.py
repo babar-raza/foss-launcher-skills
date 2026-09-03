@@ -2413,7 +2413,9 @@ def _registry_install_command_present(section_text: str, registry_type: "str | N
 
 
 def check_installation_matches_live_publication(readme_text: str, install_info: dict) -> list[dict]:
-    """Hard gate (readme-refresh-publication-state-hardening-2026-09-02). The composed
+    """Hard gate (readme-refresh-publication-state-hardening-2026-09-02; reversed
+    readme-refresh-pdf-typescript-scale-hardening-2026-09-03 per explicit user direction --
+    publication status is internal-only information, never public README content). The composed
     `## Installation` section must agree with the LIVE, unambiguous registry probe in
     `install_info["publication"]` (see `_detect_install_info` in readme_refresh_run.py):
 
@@ -2422,9 +2424,16 @@ def check_installation_matches_live_publication(readme_text: str, install_info: 
       `cargo add`, a Maven coordinate, `go get`; see `_REGISTRY_INSTALL_COMMAND_TEMPLATES`) and
       carries none of the portfolio's "has not yet been published" disclosures
       (`_UNPUBLISHED_PACKAGE_SIGNAL_RE`).
-    - live NOT PUBLISHED -> the section may not present that install command as the way in
-      without the disclosure alongside it (a "once published this will become `pip install x`"
-      sentence next to the disclosure is fine and already portfolio precedent).
+    - live NOT PUBLISHED -> the section reads as the plain, working from-checkout instructions
+      ONLY. Neither a "has not yet been published" disclosure sentence NOR a preview of the
+      future registry command (e.g. "once published this will become `pip install x`") may
+      appear anywhere in the section -- both are now forbidden, not merely one without the
+      other. **This reverses the 2026-09-02 precedent** ("disclosure + preview is fine"), found
+      live on pdf/typescript's own Installation section (`git clone` + build steps correctly
+      shown, but framed with "has not yet been published to npm" and "Once published this will
+      become `npm install @asposefoss/pdf`") and judged, by the repo owner, not to belong in a
+      public README: a visitor is shown how to install today; whether/when the package will be
+      registry-published is the maintainer's own internal timeline, not the reader's concern.
 
     Why this can be a hard gate when `check_installation_matches_package_registry` (the
     checked-in-flag twin) could not: that check's docstring downgraded itself on 2026-08-12
@@ -2437,8 +2446,8 @@ def check_installation_matches_live_publication(readme_text: str, install_info: 
     advisory twin approved it, and no badge/runner consumer knew either.
 
     Findings: {"reason": published_without_registry_install_command |
-    published_with_unpublished_disclosure | unpublished_with_registry_install_command,
-    "expected", "registry_type", "evidence_url"}.
+    published_with_unpublished_disclosure | unpublished_with_registry_install_command |
+    unpublished_with_disclosure_sentence, "expected", "registry_type", "evidence_url"}.
     """
     publication = (install_info or {}).get("publication") or {}
     if publication.get("source") != "live_probe":
@@ -2463,10 +2472,15 @@ def check_installation_matches_live_publication(readme_text: str, install_info: 
                              "detail": f"the live {registry_type} probe confirms {identity!r} is published, but the "
                                        f"Installation section still says it has not been published"})
     else:
-        if has_command and not has_disclosure:
+        if has_command:
             findings.append({**base, "reason": "unpublished_with_registry_install_command",
                              "detail": f"the live {registry_type} probe finds no published {identity!r} (404), but the "
-                                       f"Installation section presents a registry install command for it with no disclosure"})
+                                       f"Installation section names or previews a registry install command for it"})
+        if has_disclosure:
+            findings.append({**base, "reason": "unpublished_with_disclosure_sentence",
+                             "detail": f"the live {registry_type} probe finds no published {identity!r} (404); the "
+                                       f"Installation section discloses publication status, which must not appear "
+                                       f"in a public README (internal-only information)"})
     return findings
 
 
