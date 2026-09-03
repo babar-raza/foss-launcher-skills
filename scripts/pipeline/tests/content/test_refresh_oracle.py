@@ -740,3 +740,59 @@ def test_main_exits_zero_when_run_reports_no_fail(tmp_path, monkeypatch):
         sys, "argv", ["refresh_oracle.py", "pdf", "net", "--receipts", str(receipts)]
     )
     assert _call_main_get_exit_code() == 0
+
+
+def test_rust_keyword_and_std_generic_types_are_allowed(tmp_path):
+    """`Self` (contextual "the enclosing type" in a method signature, e.g.
+    `fn style(&self) -> Self`) and `Result` (std::result::Result<T, E>,
+    Rust's near-universal error-handling return type) are never a product's
+    own api_surface class. Found live 2026-09-03, cells/rust's first full
+    refresh_run oracle pass: `Self` produced 54 false INVALID_SYMBOL
+    findings across ~30 reference pages, `Result` 1 more."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "`style()` returns `Self`. Fallible calls return a `Result` that "
+        "must be checked for `CellsError`.\n",
+    )
+    api_surface = {"Style", "CellsError"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_load_api_surface_includes_method_return_and_param_types(tmp_path):
+    """A type cited ONLY via a method's return_type or a param's type (never
+    its own top-level "name" entry, and never a property type either) must
+    still be recognized -- the generated reference page's own Methods table
+    is templated directly from these same fields, so failing to index them
+    produces a false INVALID_SYMBOL finding on self-consistent, correctly
+    generated content. Found live 2026-09-03, cells/rust: `Style` (return
+    type, referenced 14 times across the API surface but never its own
+    class entry), `CultureInfo` (param type), `XDocument` (return type)."""
+    _setup(tmp_path, family="cells", platform="rust")
+    api_dir = tmp_path / "knowledge" / "cells" / "rust" / "merged"
+    api_dir.mkdir(parents=True, exist_ok=True)
+    (api_dir / "api_surface.json").write_text(
+        json.dumps([
+            {
+                "name": "FormatCondition",
+                "methods": [
+                    {"name": "style", "params": [], "return_type": "Style"},
+                    {
+                        "name": "apply_locale_directives",
+                        "params": [
+                            {"name": "section", "type": "String"},
+                            {"name": "fallback_culture", "type": "CultureInfo"},
+                        ],
+                        "return_type": "String",
+                    },
+                ],
+                "properties": [],
+            }
+        ]),
+        encoding="utf-8",
+    )
+
+    tokens = ro._load_api_surface("cells", "rust")
+    assert {"Style", "CultureInfo", "String"} <= tokens

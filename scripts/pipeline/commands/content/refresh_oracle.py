@@ -131,6 +131,26 @@ def _load_api_surface(family: str, platform: str) -> set[str]:
                         tokens.add(method["name"])
                         if name:
                             tokens.add(f"{name}.{method['name']}")
+                    # A method's return_type/params[].type can be the ONLY
+                    # place a real type appears in api_surface.json (never
+                    # its own top-level "name" entry, and never a property
+                    # type either) -- properties already contributed their
+                    # "type" below, but methods never did, so any type cited
+                    # solely via a method signature was invisible to the
+                    # validator even though the generated reference page's
+                    # own Methods table (templated from this exact field)
+                    # correctly cites it. Found live 2026-09-03, cells/rust:
+                    # `Style` (method return type, 12 findings), `CultureInfo`
+                    # (param type), `XDocument` (method return type) --
+                    # `Style` alone is referenced 14 times across the API
+                    # surface but never independently scouted as a class.
+                    return_type = method.get("return_type")
+                    if return_type:
+                        tokens.add(str(return_type).rstrip("?"))
+                    for param in method.get("params", []) or []:
+                        param_type = param.get("type") if isinstance(param, dict) else None
+                        if param_type:
+                            tokens.add(str(param_type).rstrip("?"))
                 for prop in entry.get("properties", []) or []:
                     if prop.get("name"):
                         tokens.add(prop["name"])
@@ -252,6 +272,18 @@ _LITERAL_AND_BUILTIN_TOKENS = {
     # a different evaluator, one at a time.
     "Array", "Promise", "Map", "Date", "RegExp", "JSON", "Number",
     "Uint8Array", "Buffer", "Symbol", "WeakMap", "WeakSet",
+    # Rust language keyword and std generic-wrapper types, never a product's
+    # own api_surface class -- `Self` refers contextually to "the enclosing
+    # type" in a method signature (e.g. `fn style(&self) -> Self`), and
+    # `Result` is std::result::Result<T, E>, Rust's near-universal
+    # error-handling return type, cited constantly and correctly in method
+    # signatures and examples ("returns a Result that must be checked").
+    # Found live 2026-09-03, cells/rust's first full refresh_run oracle pass
+    # (the first time a Rust product went through this check at scale):
+    # `Self` produced 54 false INVALID_SYMBOL findings across ~30 reference
+    # pages, `Result` 1 more -- the largest false-positive cluster observed
+    # for this check to date.
+    "Self", "Result",
 }
 
 # RPR-ST089-02: a token made ENTIRELY of hex digit characters (0-9, A-F), in
