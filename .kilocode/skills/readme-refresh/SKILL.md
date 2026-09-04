@@ -120,8 +120,42 @@ shrunk to a 3-line fragment, and a `### PDF output` heading had vanished with no
 `ingest-candidate` and `recheck` write the same table to `checks/retention-report.md` beside
 `result.json` on every call, pass or fail, so it is per-run evidence, not an on-demand favour.
 A `needs_attention` list names every `undisposed` / `not_found` / `reframed_low_fidelity` /
-`api_dropped` / `absent` row; a `reframed` row with a low score and named missing words is a
-review prompt, never a gate — 0.62 was a faithful reframe and 0.59 a real loss on the same file.
+`api_dropped` / `absent` row.
+
+**`check_content_unit_reframe_fidelity` (readme-refresh-pdf-typescript-scale-hardening-
+2026-09-03, retention-audit follow-up) — hard gate.** A score below 0.5 (the same threshold the
+report already used to label a row `reframed_low_fidelity`) is now a real blocking failure, not
+just a reviewer prompt — closing the exact gap that let `check_content_unit_merged_into_target_
+section`'s one-token-per-sentence-group bar pass pdf/typescript's `## Features` (69 bullets,
+11,343 words) collapsing into `## Key Capabilities` (17 bullets, 745 words, a 93% cut) with
+every hard gate green: the user caught it by hand, reading the candidate against the live
+upstream README, after this skill's own tooling reported "0 hard-gate findings." Fix a real
+`reframe_low_fidelity` finding by restoring more of the original substance into the target
+section — never by widening a check or relabeling the disposition to dodge the gate. **A score
+at or above 0.5 is not automatically fine** — 0.59 has been a real, confirmed loss on this exact
+skill's own history (tex/python, missing `copy`/`collected`/`recent`) while 0.62 was a faithful
+reframe on the same file — so the retention-report's missing-words list, for every `reframed`
+row regardless of score, is still a required read during composition and review, not an
+optional nicety the new hard gate makes obsolete.
+
+**Retaining verified content is the default; only unverifiable content may be dropped, and
+never with an explanation in the public candidate.** A content unit whose `verification.status`
+is `verified_against_source`/`verified_by_corroboration` (i.e., the claim is true) must be
+retained with real fidelity — condensing a long original section into a short overview list is
+fine, but only when the compressed form still carries the *specific* technical substance
+(exact defaults, named sub-features, edge-case behavior), not just the topic keyword. When a
+verified section is too large or too varied to summarize losslessly in a short bullet list
+(the `## Features`→`## Key Capabilities` shape is the recurring case), give it a second, fuller
+home: a collapsed `<details><summary>…</summary>` block appended after the short bullets —
+mirroring the API Reference's own established `#### Detailed Member Reference` pattern exactly
+— carrying the verified original prose at or near verbatim, organized under matching
+sub-headings. "Too granular for a bullet point" is never, on its own, a legitimate reason to
+dispose a *verified* unit `excluded`; it is a reason to put it in the detail block instead.
+`excluded` is for content that genuinely cannot be verified against the live source, is a
+duplicate/self-citation, or is a confirmed extraction artifact (a glued title, a rendering
+defect) — and even then, the public `readme.md` never states or hints at why something is
+missing; that reasoning lives only in the disposition ledger (`excluded_reason`), which is
+internal, gitignored, and never rendered.
 
 `audit-portfolio` (TC-HARDEN-05, MT035, 2026-08-12) is the one subcommand with no `--run-id` —
 it's read-only and portfolio-wide, not run-scoped: it re-runs every deterministic check

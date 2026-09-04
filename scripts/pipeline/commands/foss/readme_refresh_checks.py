@@ -207,7 +207,7 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 6  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 7  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
@@ -218,7 +218,11 @@ CHECKS_MODULE_VERSION = 6  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refr
 # subcommand-level CLI retention against the product's real argparse surface); 6 =
 # readme-refresh-publication-state-hardening-2026-09-02: check_installation_matches_live_publication
 # (HARD gate keyed on the live registry probe, vacuous on any fallback) and
-# check_published_version_matches_manifest (advisory)
+# check_published_version_matches_manifest (advisory); 7 =
+# readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up):
+# check_content_unit_reframe_fidelity (HARD gate -- promotes the retention report's own
+# word-overlap fidelity score, until now advisory-only, closing the gap that let a 93%
+# Features->Key Capabilities compression pass every prior gate)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -4285,6 +4289,18 @@ _BARE_WORD_RE = re.compile(r"(?<![./\w])([A-Za-z]{2,10})\b")
 _GENERIC_ACRONYM_STOPLIST = {
     "FOSS", "LICENSE", "API", "CLI", "URL", "SDK", "README", "CI", "FAQ", "TODO",
     "GUI", "MIT", "OSI", "ID",
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up):
+    # "ONE" is a common English number-word, not a format acronym -- confirmed live once
+    # pdf/typescript's real, verbatim-preserved original prose ("writes a page range as ONE
+    # multi-page TIFF") combined with a pre-existing, unrelated code-comment emphasis ("// ONE
+    # cell") to produce 3 distinct casing variants (ONE/One/one), independently tripping the
+    # >=3-distinct-variants signal meant for genuine multi-form technical terms (glTF/GLTF/
+    # Gltf) -- that signal cannot distinguish a deliberately multi-cased identifier from
+    # ordinary sentence-initial capitalization of a common word. Neither occurrence could be
+    # reworded (one is verbatim-preserved original content, the other pre-existing, unrelated
+    # code); the fix belongs in the check, the same reasoning as every other stoplist entry
+    # here.
+    "ONE",
 }
 # A different, narrower kind of exception (2026-08-08, found live in 3d/python/3d/typescript
 # after a portfolio-wide diagram-redraw + heading-title-case pass): a format whose real,
@@ -4358,13 +4374,19 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     matched") no longer alone qualifies a word as an acronym candidate for the no-canonical-entry
     branch -- see `all_caps_counts` below; this is the same false-positive mechanism TC-HARDEN-28
     already named for the API Reference section, recurring in ordinary prose purely from document
-    length. **Known, disclosed, NOT fixed by this pass**: a format whose canonical registry
-    spelling collides with a common English word (`DOC`, `DOT`) can still false-positive on
-    ordinary use of that word ("dot leaders", a typography term) -- `canonical_casing` is sourced
-    from the FULL cross-portfolio registry regardless of whether the current product's own real
-    format list includes that format at all; scoping it to the product's own verified formats
-    (or a semantic disambiguation) is a real, deferred fix, not attempted here to avoid an
-    under-tested, portfolio-wide behavior change this pass didn't have room to verify.
+    length. Also fixed the same day (retention-audit follow-up, once verbatim-preserved original
+    prose made rewording impossible): the specific "dot leader(s)" typesetting idiom is now
+    stripped by name before scanning (it was false-positiving against the real `DOT` registry
+    entry), and `"ONE"` (a common number-word, not an acronym) joined the generic-acronym
+    stoplist. **Known, disclosed, NOT fixed by this pass**: a format whose canonical registry
+    spelling collides with a common English word (`DOC`, `DOT`) can still false-positive on some
+    OTHER ordinary use of that word this session never encountered -- `canonical_casing` is
+    sourced from the FULL cross-portfolio registry regardless of whether the current product's
+    own real format list includes that format at all; scoping it to the product's own verified
+    formats (or a semantic disambiguation) is the real, general, deferred fix (ST-176), not
+    attempted here to avoid an under-tested, portfolio-wide behavior change this pass didn't have
+    room to verify -- today's fixes are two narrow, named, verified-safe exceptions, not that
+    general fix.
 
     Returns a list of {"format", "found"/"found_variants", "canonical"?, "reason"}
     findings.
@@ -4399,6 +4421,15 @@ def check_format_name_casing(readme_text: str, canonical_casing: dict[str, str] 
     # everything between them) before scanning, matching the treatment link targets and inline
     # code already get above.
     prose_only = re.sub(r"</?[a-zA-Z][a-zA-Z0-9-]*(?:\s[^<>]*)?/?>", "", prose_only)
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up): "dot
+    # leader"/"dot leaders" is a real, common typesetting term (the row of dots leading up to a
+    # page number in a table of contents) -- confirmed live in pdf/typescript's own verbatim-
+    # preserved original Table of Contents prose, false-positiving against the format registry's
+    # real `DOT` (Graphviz) entry. This is the ST-176-disclosed "canonical spelling collides with
+    # a common English word" class, made unavoidable here because the source text cannot be
+    # reworded (a verbatim retention requirement, not a style choice) -- a narrow, named-idiom
+    # strip, not the deferred full per-product registry-scoping fix.
+    prose_only = re.sub(r"\bdot[\s-]+leaders?\b", "", prose_only, flags=re.IGNORECASE)
 
     # canonical_casing branch's occurrence map: the FULL document, unchanged -- must still
     # catch real drift anywhere, including inside the API Reference section.
@@ -9229,6 +9260,69 @@ def check_content_unit_disposition_text_diff(
                           "for case/whitespace/dash/quote/marker variance only) is not present "
                           "anywhere in the candidate -- if the wording genuinely changed, the "
                           "correct disposition is 'merged_reframed', not 'merged_verbatim'",
+            })
+    return findings
+
+
+def check_content_unit_reframe_fidelity(
+    content_units: list[dict], dispositions: list[dict], candidate_text: str,
+) -> list[dict]:
+    """Hard gate (readme-refresh-pdf-typescript-scale-hardening-2026-09-03, retention-audit
+    follow-up). Promotes `_retention_fidelity` -- until now a reviewer-facing score inside
+    `build_retention_report`, "never a gate" by its own docstring -- to a real blocking check
+    for `merged_reframed` prose, closing the exact gap `check_content_unit_merged_into_target_
+    section`'s one-token-per-sentence-group bar leaves open: that check is satisfied the moment
+    ANY one salient token from a sentence group survives anywhere in the target section, so a
+    single compressed API-table row naming "gradients, patterns, filters, masks" passes for an
+    entire 1,700-word original bullet describing exact stop/opacity semantics, mask region
+    defaults, marker geometry, a full CSS cascade, and every named SVG filter primitive -- none
+    of which the row actually carries. Confirmed live: pdf/typescript's `## Features` (69
+    bullets, 11,343 words) collapsed into `## Key Capabilities` (17 bullets, 745 words) with
+    every hard gate green and a byte-weighted real token-coverage re-audit measuring only 68%
+    average retention, worst on the biggest bullets (SVG embedding 48%, digital signatures 44%,
+    the PDF/A+PDF/X cluster 26-53%) -- the user caught this by hand; nothing in this skill did.
+
+    Uses the SAME 0.5 threshold `build_retention_report` already uses to distinguish `reframed`
+    from `reframed_low_fidelity` (a real, portfolio-measured boundary, not invented for this
+    gate) and the SAME word-overlap scoring (`_retention_content_words`: 4+-letter alphanumeric
+    tokens minus a small stopword list; scored against the disposed `target_section`'s body
+    first, falling back to the whole document when the target-scoped score is itself below the
+    threshold -- exactly `_retention_fidelity`'s own existing, already-vetted fallback).
+
+    Only `merged_reframed` is checked: `merged_verbatim` has its own exact-text gate
+    (`check_content_unit_disposition_text_diff`, once promoted) and `corrected`/`excluded`/
+    `relocated` all disclose the text changed or moved, so there is nothing to score by fidelity
+    -- scoring them would produce nothing but false positives, the same reasoning the sibling
+    code/structural text-diff gates already use. This is a genuine strengthening of the
+    retention *bar*, not a duplicate of `check_content_unit_merged_into_target_section` (which
+    stays unchanged, still catching the "zero trace anywhere" case this one does not re-check).
+    """
+    findings: list[dict] = []
+    sections = _split_into_sections(candidate_text)
+    by_id = {unit["unit_id"]: unit for unit in content_units}
+    for entry in dispositions:
+        if entry.get("disposition") != "merged_reframed":
+            continue
+        uid = entry.get("unit_id")
+        unit = by_id.get(uid)
+        if unit is None:
+            continue  # check_content_unit_disposition_coverage's own finding to raise
+        excerpt = unit.get("excerpt") or ""
+        target = entry.get("target_section")
+        fidelity = _retention_fidelity(excerpt, _retention_target_body(sections, target), candidate_text)
+        if fidelity["score"] is not None and fidelity["score"] < 0.5:
+            findings.append({
+                "unit_id": uid,
+                "target_section": target,
+                "score": fidelity["score"],
+                "scope": fidelity["scope"],
+                "missing_words": fidelity["missing_words"],
+                "excerpt": excerpt[:200],
+                "reason": f"reframed disposition retains only {fidelity['score']:.0%} of this unit's "
+                          f"content words ({fidelity['scope']} scope) -- real explanatory detail was "
+                          f"lost, not just reworded; either restore more of the substance or, if the "
+                          f"underlying claim genuinely cannot be verified, dispose it 'excluded' with a "
+                          f"real reason instead",
             })
     return findings
 

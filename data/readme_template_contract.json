@@ -57,8 +57,8 @@
     ]
   },
   "check_function_count": {
-    "value": 117,
+    "value": 118,
     "source": "grep-verified count of ^def check_ in scripts/pipeline/commands/foss/readme_refresh_checks.py",
-    "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect. 112 -> 114 on 2026-09-02 (check_at_a_glance_section_shape, check_content_unit_disposition_text_diff); 114 -> 115 the same day (check_cli_subcommand_coverage, ST-172); 115 -> 117 the same day (check_installation_matches_live_publication hard gate + check_published_version_matches_manifest advisory, readme-refresh-publication-state-hardening-2026-09-02)."
+    "note": "This number drifts upward as missions land real new checks -- the parity check re-greps the real count on every run rather than trusting this file; a mismatch here is a doc-drift finding, not a code defect. 112 -> 114 on 2026-09-02 (check_at_a_glance_section_shape, check_content_unit_disposition_text_diff); 114 -> 115 the same day (check_cli_subcommand_coverage, ST-172); 115 -> 117 the same day (check_installation_matches_live_publication hard gate + check_published_version_matches_manifest advisory, readme-refresh-publication-state-hardening-2026-09-02); 117 -> 118 on 2026-09-03 (check_content_unit_reframe_fidelity, HARD gate -- readme-refresh-pdf-typescript-scale-hardening-2026-09-03 retention-audit follow-up)."
   }
 }

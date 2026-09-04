@@ -897,6 +897,33 @@ def test_format_name_casing_requires_two_all_caps_occurrences_for_acronym_candid
     assert any(f["format"] == "IS" for f in findings)
 
 
+def test_format_name_casing_strips_the_dot_leaders_typesetting_idiom():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up): real,
+    # verbatim-preserved original prose from pdf/typescript's own Table of Contents feature
+    # ("titles wrapped to a title column and indented by level, dot leaders, right-aligned page
+    # labels...") false-positived against the format registry's real DOT (Graphviz) entry --
+    # could not be reworded, since it is verbatim-retained source text, not this skill's prose.
+    text = "Renders a table of contents with dot leaders and right-aligned page numbers."
+    assert checks.check_format_name_casing(text, {"DOT": "DOT"}) == []
+    text2 = "The layout uses Dot Leaders before each entry's page number."
+    assert checks.check_format_name_casing(text2, {"DOT": "DOT"}) == []
+    # A genuine DOT (Graphviz) reference elsewhere must still be caught.
+    text3 = "Export the call graph as a dot file, then render it with Graphviz."
+    findings = checks.check_format_name_casing(text3, {"DOT": "DOT"})
+    assert any(f["format"] == "DOT" for f in findings)
+
+
+def test_format_name_casing_ignores_one_as_a_number_word_not_an_acronym():
+    # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up): two
+    # independent, unrelated, unreworded occurrences -- "writes a page range as ONE multi-page
+    # TIFF" (verbatim-preserved original prose) and "// ONE cell" (a pre-existing code comment)
+    # -- combined to 3 distinct casing variants (ONE/One/one), tripping the >=3-variant signal
+    # meant for genuine multi-form identifiers like glTF/GLTF/Gltf. "one" is an ordinary number
+    # word; sentence-initial "One" and all-caps "ONE" emphasis are not evidence of a real format.
+    text = "It writes a page range as ONE multi-page TIFF. One page is common. Use one file."
+    assert checks.check_format_name_casing(text, {}) == []
+
+
 def test_format_name_casing_ignores_generic_project_acronyms():
     # Regression test for a real false positive found via a 30-product portfolio run: FOSS
     # (from repo/CMake-target slugs like aspose-pdf-foss / aspose_pdf_foss) and LICENSE
@@ -9491,6 +9518,45 @@ def test_build_retention_report_marks_headings_present_absorbed_or_absent():
     assert by_label["## Requirements"] == "absorbed"  # survives only as the bold **Requirements** label
     assert by_label["### PDF output"] == "absent"
     assert "heading:h0004" in report["needs_attention"]
+
+
+# --- check_content_unit_reframe_fidelity (readme-refresh-pdf-typescript-scale-hardening-
+# 2026-09-03, retention-audit follow-up): promotes the retention report's own fidelity score
+# from advisory to a real hard gate. Reuses the same fixtures as the retention-report tests
+# above -- u0003 is the exact real tex/python u0010 class ("returns a copy of the messages
+# collected during the most recent run" reframed to "Collect run diagnostics via
+# `TeXJob.messages`") that passed check_content_unit_merged_into_target_section on the token
+# alone while genuinely losing most of the sentence's content.
+
+
+def test_content_unit_reframe_fidelity_flags_a_real_lossy_reframe():
+    content, _structure, _code, _badges = _retention_ledgers()
+    content_units = checks.extract_old_readme_content_units(_RETENTION_OLD_README)
+    findings = checks.check_content_unit_reframe_fidelity(content_units, content, _RETENTION_CANDIDATE)
+    by_id = {f["unit_id"]: f for f in findings}
+    assert "u0003" in by_id, findings
+    assert by_id["u0003"]["score"] < 0.5
+    assert "copy" in by_id["u0003"]["missing_words"]
+    assert "collected" in by_id["u0003"]["missing_words"]
+
+
+def test_content_unit_reframe_fidelity_does_not_flag_a_faithful_reframe():
+    content_units = [{
+        "unit_id": "u0099", "excerpt": "The library requires Python 3.10 or later to run.",
+    }]
+    dispositions = [{
+        "unit_id": "u0099", "disposition": "merged_reframed", "target_section": "Installation",
+    }]
+    candidate = "## Installation\n\nRequires Python 3.10 or later to run this library.\n"
+    findings = checks.check_content_unit_reframe_fidelity(content_units, dispositions, candidate)
+    assert findings == []
+
+
+def test_content_unit_reframe_fidelity_only_checks_merged_reframed():
+    content_units = [{"unit_id": "u0001", "excerpt": "Something entirely absent from the candidate text here."}]
+    for disposition in ("merged_verbatim", "corrected", "excluded", "relocated"):
+        dispositions = [{"unit_id": "u0001", "disposition": disposition, "target_section": "Installation"}]
+        assert checks.check_content_unit_reframe_fidelity(content_units, dispositions, "## Installation\n\nx\n") == []
 
 
 def test_build_retention_report_marks_missing_disposition_as_undisposed_and_verbatim_claims_not_found():

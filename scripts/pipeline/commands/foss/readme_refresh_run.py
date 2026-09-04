@@ -2377,6 +2377,7 @@ _PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
     ("content_unit_evidence_supports_claim", False),
     ("content_unit_merged_into_target_section", True),
     ("content_unit_disposition_text_diff", False),  # TC-06
+    ("content_unit_reframe_fidelity", True),  # readme-refresh-pdf-typescript-scale-hardening-2026-09-03
     ("content_unit_no_exact_duplicate_merge", True),
     ("content_unit_redundant_claim_verifiable", False),
     ("content_unit_classification_plausibility", False),
@@ -2911,6 +2912,15 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["content_unit_disposition_text_diff"] = {
             "hard_gate": False,
             "findings": checks.check_content_unit_disposition_text_diff(content_units, dispositions, text),
+        }
+        # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up):
+        # promotes the retention report's own fidelity score from reviewer-facing advisory to a
+        # real hard gate for merged_reframed prose -- the gap that let pdf/typescript's ~93%
+        # Features->Key Capabilities compression pass every existing gate. See the check's own
+        # docstring for the measured before/after.
+        result["content_unit_reframe_fidelity"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_reframe_fidelity(content_units, dispositions, text),
         }
         result["content_unit_no_exact_duplicate_merge"] = {
             "hard_gate": True,
