@@ -6080,8 +6080,8 @@ def main(argv: "list[str] | None" = None) -> int:
                 print(json.dumps(result, indent=2, ensure_ascii=False))
             else:
                 print(f"{result['total']} active products surveyed")
-                for status, count in result["counts"].items():
-                    print(f"  {status}: {count}")
+                for coverage_status, count in result["counts"].items():
+                    print(f"  {coverage_status}: {count}")
                 for p in result["products"]:
                     if p["status"] not in (_BASELINE_COVERAGE_PINNED, _BASELINE_COVERAGE_NO_PUSH_YET):
                         print(f"  {p['status'].upper()} {p['family']}/{p['platform']}: {p.get('reason', '')}")
