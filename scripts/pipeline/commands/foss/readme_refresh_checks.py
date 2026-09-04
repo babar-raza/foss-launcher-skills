@@ -2394,6 +2394,18 @@ def check_installation_matches_package_registry(readme_text: str, install_info: 
 # README must show once the package is really published. Each pattern is anchored on the real
 # identity (substituted at match time) so a look-alike (`aspose-3d` vs `aspose-3d-foss`) never
 # passes for the real one. Seeded from the forms this portfolio's published READMEs already use.
+#
+# cargo's own two patterns fixed 2026-09-04 (found live: `audit-portfolio`'s first run against
+# the real portfolio false-positived on `cells/rust`, whose real, pre-approved Installation
+# section correctly uses a git dependency, `aspose-cells-foss-rust = { git = "..." }`, because
+# the crate genuinely is not on crates.io). The original single pattern, `^\s*{ident}\s*=\s*
+# ["{]`, matched the opening `{`/`"` of ANY Cargo.toml dependency table or bare string -- it
+# could not distinguish a real registry version pin (`foo = "1.2.3"`) from a git/path source
+# dependency (`foo = { git = "..." }` / `foo = { path = "..." }`), both perfectly valid,
+# unpublished-compatible Cargo.toml syntax. Replaced with a bare-string pattern (a real version
+# literal) and a table pattern requiring `version =` while explicitly excluding any table that
+# also names `git =`/`path =` -- a real Cargo dependency table never legitimately combines a
+# crates.io version pin with a git/path source in the same entry.
 _REGISTRY_INSTALL_COMMAND_TEMPLATES: dict[str, tuple[str, ...]] = {
     "pypi": (
         r"(?:python3?\s+-m\s+)?(?:pip3?|uv\s+pip)\s+install\s+(?:[-\w.=]+\s+)*[\"']?{ident}(?:\[[^\]]*\])?(?:[=<>!~][^\s\"']*)?[\"']?",
@@ -2411,7 +2423,8 @@ _REGISTRY_INSTALL_COMMAND_TEMPLATES: dict[str, tuple[str, ...]] = {
     ),
     "cargo": (
         r"\bcargo\s+add\s+{ident}\b",
-        r"^\s*{ident}\s*=\s*[\"{{]",
+        r"^\s*{ident}\s*=\s*[\"'][^\"']+[\"']",
+        r"^\s*{ident}\s*=\s*\{{(?![^}}]*\b(?:git|path)\s*=)[^}}]*\bversion\s*=",
     ),
     "maven": (
         r"<artifactId>\s*{ident}\s*</artifactId>",

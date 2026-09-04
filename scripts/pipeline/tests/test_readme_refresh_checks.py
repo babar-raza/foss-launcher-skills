@@ -4184,6 +4184,26 @@ def test_registry_install_command_templates_cover_every_registry_type():
     assert not checks._registry_install_command_present("anything", "unknown", "x")
 
 
+def test_registry_install_command_cargo_does_not_flag_git_or_path_dependency():
+    """Real false positive found live 2026-09-04, cells/rust: the original single cargo pattern
+    matched the opening `{`/`"` of ANY dependency table, so a real, pre-approved git-dependency
+    declaration (the crate genuinely is not on crates.io) false-positived as a registry install
+    command. A path dependency must be exempted the same way."""
+    ident = "aspose-cells-foss-rust"
+    assert not checks._registry_install_command_present(
+        'aspose-cells-foss-rust = { git = "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust" }',
+        "cargo", ident,
+    )
+    assert not checks._registry_install_command_present(
+        'aspose-cells-foss-rust = { path = "../Aspose.Cells-FOSS-for-Rust" }', "cargo", ident,
+    )
+    # A real registry pin, bare or inside a table, must still be caught.
+    assert checks._registry_install_command_present('aspose-cells-foss-rust = "1.2.3"', "cargo", ident)
+    assert checks._registry_install_command_present(
+        'aspose-cells-foss-rust = { version = "1.2.3", features = ["x"] }', "cargo", ident,
+    )
+
+
 def test_published_version_matches_manifest_is_advisory_and_vacuous_unless_both_sides_real():
     assert checks.check_published_version_matches_manifest(_live_pub(True), {"version": "26.1.0"}) == []
     assert checks.check_published_version_matches_manifest(_live_pub(True), {"version": "v26.1.0"}) == []
