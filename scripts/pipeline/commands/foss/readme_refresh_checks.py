@@ -8347,12 +8347,26 @@ def check_content_unit_no_self_duplicate_in_candidate(
     appear somewhere in its section, never that they appear EXACTLY once), not
     `check_content_unit_probable_duplicate` or `check_content_unit_cross_section_restatement`
     (both compare different unit_ids to each other) -- was capable of catching this class.
+
     Portfolio-wide re-measurement (2026-09-04) found exactly one other candidate/ledger pair
-    matching the same textual signature: email/cpp's `u0061`/`u0075`, ruled a legitimate,
-    source-inherited case (the real upstream email/cpp README independently states the same
-    sentence twice, once for its MSG writer and once for its CFB writer, confirmed via direct
-    `grep -c` against the pinned source) rather than a composition defect -- a genuinely
-    different disposition entry each, correctly excluded from this check's own logic.
+    matching the same textual signature: email/cpp's `u0061`/`u0075` -- a genuinely different
+    disposition entry each, independently verified against a different real source file, whose
+    real upstream README independently states the same sentence twice on its own (confirmed via
+    direct `grep -c` against the pinned source). **A real bug in this check's first shipped
+    version (found the moment `audit-portfolio` first ran against it) is fixed here**: comparing
+    each entry's excerpt against the WHOLE candidate independently double-counted this exact
+    legitimate case -- `u0061`'s own excerpt is found twice (its own paste plus `u0075`'s
+    textually-identical one), so BOTH entries fired a false finding, contradicting this
+    docstring's own claim (in an earlier revision) that the case was "correctly excluded" when no
+    such exclusion had actually been implemented. Fixed by grouping entries by normalized excerpt
+    text first: the EXPECTED occurrence count for a shared excerpt is the number of distinct
+    disposition entries that legitimately claim it (one paste per entry), not a flat 1 -- so
+    `email/cpp`'s 2 entries sharing 1 text correctly expect 2 occurrences and do not fire, while
+    `pdf/typescript`'s lone `u0324` expects 1 and correctly fires when the real count is 2. A
+    group whose entries share one SAME `evidence_ref` is `check_content_unit_no_exact_duplicate_
+    merge`'s job (an exact-duplicate MERGE), not this check's -- this one only asks whether the
+    candidate contains MORE copies than the (single or multiple) legitimately-disposed entries
+    account for.
 
     Deliberately scoped to `content-dispositions.json` only, matching this module's existing
     per-ledger-type separation (`check_content_unit_*` vs. `check_structural_unit_*` vs.
@@ -8366,7 +8380,7 @@ def check_content_unit_no_self_duplicate_in_candidate(
     recurring phrase never trips this -- only a substantial passage genuinely pasted twice.
     """
     normalized_candidate = re.sub(r"\s+", " ", readme_text)
-    findings: list[dict] = []
+    groups: dict[str, list[dict]] = {}
     for entry in dispositions:
         if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
             continue
@@ -8374,16 +8388,23 @@ def check_content_unit_no_self_duplicate_in_candidate(
         if not excerpt or len(_retention_content_words(excerpt)) < 8:
             continue
         normalized_excerpt = re.sub(r"\s+", " ", excerpt)
-        count = normalized_candidate.count(normalized_excerpt)
-        if count >= 2:
+        groups.setdefault(normalized_excerpt, []).append(entry)
+
+    findings: list[dict] = []
+    for normalized_excerpt, entries in groups.items():
+        expected = len(entries)
+        actual = normalized_candidate.count(normalized_excerpt)
+        if actual > expected:
             findings.append({
-                "unit_id": entry.get("unit_id"),
-                "target_section": entry.get("target_section"),
-                "occurrences": count,
-                "reason": f"this unit's own excerpt appears {count} times in the candidate -- "
-                          "pasted more than once during composition, not a comparison against "
-                          "a different unit (see check_content_unit_no_exact_duplicate_merge "
-                          "for that case)",
+                "unit_ids": [e.get("unit_id") for e in entries],
+                "target_section": entries[0].get("target_section"),
+                "expected_occurrences": expected,
+                "actual_occurrences": actual,
+                "reason": f"{len(entries)} disposition entr{'y' if expected == 1 else 'ies'} "
+                          f"legitimately account for {expected} paste(s) of this excerpt, but it "
+                          f"appears {actual} times in the candidate -- pasted more than once "
+                          "during composition, not a comparison against a different unit (see "
+                          "check_content_unit_no_exact_duplicate_merge for that case)",
             })
     return findings
 

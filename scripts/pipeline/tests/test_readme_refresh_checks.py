@@ -7220,7 +7220,8 @@ def test_no_self_duplicate_flags_real_pdf_typescript_shape():
         + "## License\n"
     )
     findings = checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions)
-    assert findings and findings[0]["unit_id"] == "u0324" and findings[0]["occurrences"] == 2
+    assert findings and findings[0]["unit_ids"] == ["u0324"]
+    assert findings[0]["expected_occurrences"] == 1 and findings[0]["actual_occurrences"] == 2
 
 
 def test_no_self_duplicate_clean_when_present_once():
@@ -7229,6 +7230,40 @@ def test_no_self_duplicate_clean_when_present_once():
     dispositions = [_content_unit(unit_id="u0324", excerpt=excerpt, disposition="merged_verbatim")]
     candidate = "## Development and Testing\n\n" + excerpt + "\n\n## License\n"
     assert checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions) == []
+
+
+def test_no_self_duplicate_exempts_real_email_cpp_shape():
+    """Real, live false positive found by audit-portfolio the moment this check first ran
+    against the real portfolio (2026-09-04): email/cpp's u0061/u0075 are two DIFFERENT
+    disposition entries, each independently verified against a different real source file
+    (msg_writer.hpp / cfb_writer.hpp), whose real upstream README independently states the
+    same sentence twice on its own. 2 legitimate entries sharing 1 text expect 2 occurrences
+    in the candidate -- exactly what a correct, once-each composition produces -- and must not
+    fire, unlike the lone-entry pdf/typescript case above."""
+    excerpt = ("- `to_bytes(document) -> std::vector<std::uint8_t>`, `write_file(document, path) "
+               "-> void`, `write_stream(document, stream) -> void`")
+    dispositions = [
+        _content_unit(unit_id="u0061", excerpt=excerpt, disposition="merged_verbatim",
+                      target_section="API Reference", evidence_ref="include/aspose/email/foss/msg/msg_writer.hpp"),
+        _content_unit(unit_id="u0075", excerpt=excerpt, disposition="merged_verbatim",
+                      target_section="API Reference", evidence_ref="include/aspose/email/foss/cfb/cfb_writer.hpp"),
+    ]
+    candidate = "## API Reference\n\n" + excerpt + "\n\n" + excerpt + "\n"
+    assert checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions) == []
+
+
+def test_no_self_duplicate_flags_shared_excerpt_pasted_more_than_entries_account_for():
+    """The email/cpp exemption is narrow: if 2 legitimate entries sharing 1 text somehow ended
+    up pasted a 3rd time, that extra copy is still a real defect -- expected (2) < actual (3)
+    must still fire even when more than one entry shares the excerpt."""
+    excerpt = "A shared claim independently verified against two different real source files here."
+    dispositions = [
+        _content_unit(unit_id="u0001", excerpt=excerpt, disposition="merged_verbatim", evidence_ref="src/a.py"),
+        _content_unit(unit_id="u0002", excerpt=excerpt, disposition="merged_verbatim", evidence_ref="src/b.py"),
+    ]
+    candidate = "\n\n".join([excerpt] * 3)
+    findings = checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions)
+    assert findings and findings[0]["expected_occurrences"] == 2 and findings[0]["actual_occurrences"] == 3
 
 
 def test_no_self_duplicate_does_not_flag_short_phrase_recurring_legitimately():
