@@ -1,39 +1,39 @@
 {
   "schema_version": 2,
-  "bundle_id": "9d075247-f58a-422f-a6a4-aa81af978199",
+  "bundle_id": "462cb987-477e-4952-9b75-6730038ea5b6",
   "family": "words",
   "platform": "net",
-  "repo_sha": "572fc748b45fe5efce5d93d0684c5ac78fc8affe",
-  "generated_at": "2026-08-14T12:09:20.004965+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "repo_sha": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+  "generated_at": "2026-09-04T08:25:19.349377+00:00",
+  "generator_fingerprint": "357e0654f5c32e9eebe5593e44391ff193bb63675e29587281bbf07e9e630bf6",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "7eaf21047706b4c8737729545ee1af02a45df7b4deb99ec05564d252979a7230",
-      "bytes": 1223
+      "sha256": "e6467ae3921a97712b07e95c0f1f06050edf3773f21c782ddc241f86006c81ee",
+      "bytes": 1254
     },
     "api_surface.json": {
-      "sha256": "3acc8677fcf798997c50e034c55a5a7ab6dbc2e284d9b7d39d337f716af720e3",
-      "bytes": 2521698
+      "sha256": "5f7dfcd4b4ed5385b084b7d74a5e9d0499bf071a615ee930aa836a147af5451d",
+      "bytes": 2743986
     },
     "api_surface.md": {
-      "sha256": "7663d806b5de8bf5e12dc1b0ecbdd9401ead5c4b39ec3d46820fddd7a375e09a",
-      "bytes": 309092
+      "sha256": "329a1a54ddc748f5ecfa65f3609d61ac920b5223e630b0e9e2815d15ba65dee3",
+      "bytes": 309361
     },
     "formats.json": {
       "sha256": "2de0715e73a6cd11bee3dd416e99a8a8a49be3728089811cf8e9b98291c9cdda",
       "bytes": 22886
     },
     "formats.md": {
-      "sha256": "f5b76225026a5b8226fe910f194ba7cdaed865d98973ab5524e63ac5a586ee38",
+      "sha256": "014bdcdf39a733e56e19ec92762d013d207f13b097fda49eef5bd3e3eff135de",
       "bytes": 1618
     },
     "claims.json": {
-      "sha256": "8e6f2171394cb4c00bcae4ccdf427ae79bfba406624fc7f461b263ec355e497a",
-      "bytes": 2032119
+      "sha256": "6a15c36bf5632836e8909bc1894a1d14c46053838c47c7a1a5a504570bf02fb1",
+      "bytes": 2190277
     },
     "limitations.md": {
-      "sha256": "45aa75dbef76513dbffeb7980aa73e82c717eb5cbf3aee52f89720564f6d0071",
+      "sha256": "40e78784f03de3af77b82818402ce732d403b3cb8b42c10700d217c43867d370",
       "bytes": 5495
     },
     "install.md": {
@@ -41,8 +41,8 @@
       "bytes": 19
     },
     "merge_report.md": {
-      "sha256": "1db861da5effff8bed8278e9264dac85bd4fae4ef3f1a340ee5faf72837b7a45",
-      "bytes": 514
+      "sha256": "a9e5d18078d03496f627ec49edfa4b4df93ffbbe10da1d37e5c2c45804b6fcc1",
+      "bytes": 515
     },
     "snippets/snippet_001.cs": {
       "sha256": "ba508e9966b28100e981339019a62db0775595017131ad50a5de4d91d1f972f3",
@@ -449,6 +449,6 @@
       "bytes": 53310
     }
   },
-  "promote_run_id": "promote-20260814T120920Z",
+  "promote_run_id": "promote-20260904T082519Z",
   "status": "COMPLETE"
 }

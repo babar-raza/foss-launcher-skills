@@ -17,7 +17,7 @@
 | Aspose.Words/RW/OfficeCrypto/OpcSignatureWriterDocx.cs | 102 | OpcSignatureWriterDocx | GetCertificatePartName | `throw new NotImplementedException("Should not be called.");` |
 | Aspose.Words/RW/Vml/VmlShapeTypeReaderContext.cs | 98 | VmlShapeTypeReaderContext | MarkMissingSource | `throw new NotImplementedException("This is intended for NrxDocumentReaderBase on` |
 | Aspose.Words/RW/Vml/VmlShapeTypeReaderContext.cs | 103 | VmlShapeTypeReaderContext | GetMissingSource | `throw new NotImplementedException("This is intended for NrxDocumentReaderBase on` |
-| Aspose.Words/Model/Document/DocumentBuilder.cs | 892 | DocumentBuilder | InsertStructuredDocumentTag | `throw new NotImplementedException("Structured document tag of given type cannot ` |
+| Aspose.Words/Model/Document/DocumentBuilder.cs | 889 | DocumentBuilder | InsertStructuredDocumentTag | `throw new NotImplementedException("Structured document tag of given type cannot ` |
 | Aspose.Words/Model/Settings/CompatibilityOptions.cs | 65 | CompatibilityOptions | OptimizeFor | `throw new NotImplementedException("Please report exception.");` |
 | Aspose.Words/RW/Nrx/Writer/NrxXmlBuilder.cs | 751 | NrxXmlBuilder | WriteRevisionStart | `throw new NotImplementedException("Concrete classes should implement.");` |
 | Aspose.Words/RW/Nrx/Writer/NrxXmlBuilder.cs | 761 | NrxXmlBuilder | WriteRevisionStart | `throw new NotImplementedException("Concrete classes should implement.");` |

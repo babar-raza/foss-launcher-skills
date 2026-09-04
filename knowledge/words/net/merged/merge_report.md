@@ -1,16 +1,16 @@
 # Promote Report: words/net
-Date: 2026-08-14T12:09:20.248411+00:00
-Scout SHA: 572fc748b45fe5efce5d93d0684c5ac78fc8affe
+Date: 2026-09-04T08:25:19.643534+00:00
+Scout SHA: 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
-| Scout claims | 4136 |
-| Enriched claims (S-37) | 911 |
+| Scout claims | 4141 |
+| Enriched claims (S-37) | 1163 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 5028 |
-| Classes | 617 |
+| Total claims | 5294 |
+| Classes | 618 |
 | Forbidden claims | 32 |
 | Snippets | 100 |
 
