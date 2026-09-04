@@ -2379,6 +2379,7 @@ _PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
     ("content_unit_disposition_text_diff", False),  # TC-06
     ("content_unit_reframe_fidelity", True),  # readme-refresh-pdf-typescript-scale-hardening-2026-09-03
     ("content_unit_no_exact_duplicate_merge", True),
+    ("content_unit_no_self_duplicate_in_candidate", True),  # readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04
     ("content_unit_redundant_claim_verifiable", False),
     ("content_unit_classification_plausibility", False),
     ("content_unit_probable_duplicate", False),
@@ -2600,6 +2601,13 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     }
     result["api_reference_detail_collapsed"] = {
         "hard_gate": True, "findings": checks.check_api_reference_detail_collapsed(text),
+    }
+    # readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04: same two-tier
+    # collapse treatment, size-gated (see the check's own docstring for the two portfolio-
+    # measured thresholds) -- unconditional like its two siblings above, never skipped by the
+    # published-bypass since it only reads the composed candidate text.
+    result["scope_limitations_detail_collapsed"] = {
+        "hard_gate": True, "findings": checks.check_scope_limitations_detail_collapsed(text),
     }
     result["heading_title_case"] = {
         "hard_gate": True, "findings": checks.check_heading_title_case(text),
@@ -2927,6 +2935,14 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["content_unit_no_exact_duplicate_merge"] = {
             "hard_gate": True,
             "findings": checks.check_content_unit_no_exact_duplicate_merge(dispositions),
+        }
+        # readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04: a single
+        # entry's own text pasted twice into the candidate during composition -- a real, distinct
+        # blind spot the check above (which only ever compares different entries to each other)
+        # cannot see. Real incident: pdf/typescript's u0324. See the check's own docstring.
+        result["content_unit_no_self_duplicate_in_candidate"] = {
+            "hard_gate": True,
+            "findings": checks.check_content_unit_no_self_duplicate_in_candidate(text, dispositions),
         }
         result["content_unit_redundant_claim_verifiable"] = {
             "hard_gate": False,

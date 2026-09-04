@@ -1090,6 +1090,57 @@ after convergence, re-running the same regeneration produces no further diff.
        to {Product} FOSS — they don't carry over to [{Product} — Enterprise Edition](...), which
        adds..."*
 
+   **Scope and Limitations gets the same two-tier collapse treatment as API Reference and
+   Additional Examples, once it is portfolio-abnormally large (readme-refresh-limitations-
+   duplication-and-collapse-hardening-2026-09-04).** Found live: the user read pdf/typescript's
+   merged PR and flagged the 49-bullet, 7,964-word Scope and Limitations section (avg 162.5
+   words/bullet) as genuinely hard to scan — a real, measured outlier (every other real product
+   in the portfolio: 3-14 bullets, 100-450 words, 19.9-55.0 words/bullet average, 2026-09-04
+   survey). Unlike API Reference/Additional Examples, this is **not** an unconditional,
+   size-independent collapse — a typical 3-14-bullet section forced into a `<details>` wrapper
+   would be pure friction for zero reader benefit. Two portfolio-measured thresholds, not
+   invented round numbers, decide when and what to collapse:
+   - **Section is oversized** when its total bullet word count exceeds **800 words** (roughly
+     double the largest normal section measured, `pdf/net`'s 430). Below this, leave the section
+     exactly as a normal, fully-visible bulleted list — no `<details>` block at all, matching the
+     established "too few real snippets to justify collapsing" precedent from Additional
+     Examples.
+   - Once oversized, any **individual bullet whose own word count exceeds 60 words** (just above
+     the highest normal portfolio AVERAGE bullet length measured, `words/python`'s 55.0) is one
+     of the bullets driving that size and must move into a collapsed
+     `<details><summary>View Full Limitations Reference</summary>...</details>` block, placed
+     immediately after the short, always-visible bullets — mirroring the `#### Detailed
+     Capability Reference`/`#### Detailed Member Reference` naming convention with its own
+     `#### Detailed Limitations Reference` heading inside the `<details>` block. A bullet at or
+     under the threshold may stay visible directly under `## Scope and Limitations` even when
+     the section as a whole is oversized — the split is about giving a reader a short, scannable
+     list first, with the deep, multi-clause explanations available on demand, not about hiding
+     the section.
+   - Never trim, reword, or drop a bullet's own real, verified content to avoid the collapse —
+     this is a structural/presentation fix, not a rewrite. Every fact stays exactly as verified;
+     only where it renders (visible vs. collapsed) changes.
+   - `check_scope_limitations_detail_collapsed` (hard gate) enforces this mechanically once a
+     section crosses the size threshold; see the check's own docstring for the exact thresholds
+     and their portfolio-measurement basis.
+
+   **A single disposition entry's own text must never appear more than once in the composed
+   candidate (readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04).** Found
+   live in the same PR review: pdf/typescript's `u0324` ("Design specs and implementation plans
+   live under docs/superpowers/...") is one disposition entry, correctly `merged_verbatim`
+   exactly once — but its text was pasted into the candidate TWICE during composition, back to
+   back, immediately before `## License`. This is a distinct defect class from an exact-duplicate
+   MERGE (two different disposition entries sharing identical text, already caught by
+   `check_content_unit_no_exact_duplicate_merge`) — here there was only ever one entry; the
+   duplication happened purely in the composed Markdown. When composing or editing any section
+   from a disposition ledger, paste each unit's text exactly once; if editing an existing
+   candidate, search the surrounding section for the same passage before inserting it, the same
+   discipline §6.2's reconciliation procedure already requires when a passage might already be
+   covered under a different section. `check_content_unit_no_self_duplicate_in_candidate` (hard
+   gate) is the mechanical backstop — see its own docstring for the one real, legitimate
+   exception found in the same portfolio survey (email/cpp's `u0061`/`u0075`: two DIFFERENT
+   entries, each independently verified against a different real source file, whose real
+   upstream README states the same sentence twice on its own).
+
    **Additional-Example heading contract (readme-refresh-seo-deps-headings-hardening mission,
    2026-08-19) — a genuinely new rule, previously undocumented anywhere in this file.** Every
    worked example inside the "View Additional Examples" `<details>` disclosure must begin with

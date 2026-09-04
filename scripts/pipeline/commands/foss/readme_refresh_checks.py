@@ -207,7 +207,7 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 8  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 9  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
@@ -230,7 +230,15 @@ CHECKS_MODULE_VERSION = 8  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refr
 # just under-inclusion) and check_candidate_growth_ratio (advisory, coarse whole-document
 # tripwire -- measured weaker than expected for this specific incident once calibrated against
 # real portfolio data; see both checks' own docstrings and the mission's plan file for the full
-# root-cause account and the honest limits)
+# root-cause account and the honest limits); 9 =
+# readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04:
+# check_content_unit_no_self_duplicate_in_candidate (HARD gate -- a single disposition entry's
+# own text pasted twice into the candidate during composition, distinct from and invisible to
+# check_content_unit_no_exact_duplicate_merge, which only ever compares different entries
+# against each other; real incident, pdf/typescript's u0324) and
+# check_scope_limitations_detail_collapsed (HARD gate, size-gated -- gives Scope and
+# Limitations the same two-tier collapse API Reference/Additional Examples already have, only
+# once the section is portfolio-abnormally large; see both checks' own docstrings)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -4687,6 +4695,84 @@ def check_api_reference_detail_collapsed(readme_text: str) -> list[dict]:
     return []
 
 
+_LIMITATIONS_BULLET_RE = re.compile(
+    r"(?m)^- .+(?:\n(?![-*] |\s*$|#|<).+)*"
+)
+_LIMITATIONS_SECTION_SIZE_THRESHOLD_WORDS = 800
+_LIMITATIONS_BULLET_LENGTH_THRESHOLD_WORDS = 60
+
+
+def check_scope_limitations_detail_collapsed(readme_text: str) -> list[dict]:
+    """Hard gate (readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04).
+    Gives `## Scope and Limitations` the same two-tier "short, scannable overview + collapsed
+    detail" treatment `check_api_reference_detail_collapsed`/`check_examples_table_collapsed`
+    already give API Reference and Additional Examples -- closing the gap the user found live
+    on pdf/typescript: a 49-bullet, 7,964-word Limitations section (avg 162.5 words/bullet, vs.
+    every other portfolio product's 19.9-55.0 word average) with no collapse at all, genuinely
+    hard to scan.
+
+    Unlike its two siblings, collapsing here is NOT size-independent -- forcing a `<details>`
+    wrapper on a typical 3-14 bullet, 100-450 word section (every other real product measured,
+    2026-09-04 portfolio survey) would be pure friction for no reader benefit. Two real,
+    portfolio-measured thresholds gate this check instead of an invented round number:
+    `_LIMITATIONS_SECTION_SIZE_THRESHOLD_WORDS` (800 -- roughly double the largest normal
+    section measured, pdf/net's 430 words) decides whether the section is oversized at all;
+    `_LIMITATIONS_BULLET_LENGTH_THRESHOLD_WORDS` (60 -- just above the highest normal portfolio
+    AVERAGE bullet length measured, words/python's 55.0) decides which individual bullets are
+    the ones driving that size and must move into the collapsed block. A section under the size
+    threshold is vacuously fine with no `<details>` block at all, matching the established
+    Additional-Examples "too few real snippets to justify collapsing" precedent.
+
+    Once a section is oversized, every bullet whose own word count exceeds the per-bullet
+    threshold must be inside a `<details><summary>...</summary>` block (short bullets may stay
+    either place -- keeping a few short ones inside the collapsed block alongside long ones is
+    not itself a violation, only a long bullet sitting OUTSIDE is). Naming convention for the
+    detail heading mirrors the established `#### Detailed Capability Reference`/`#### Detailed
+    Member Reference` pattern: `#### Detailed Limitations Reference`, though this check itself
+    only verifies the `<details>` wrapping, not the heading text inside it.
+
+    Disclosed scope limit, matching this module's own established practice: the two thresholds
+    are calibrated against this portfolio's real 2026-09-04 measurement, not derived from first
+    principles -- a future product whose real Limitations section is legitimately dense in a
+    different shape (many short bullets rather than a few very long ones) could still trip the
+    section-size threshold with no single bullet over the per-bullet threshold, which this check
+    cannot itself resolve into "make it a details block" (nothing to collapse) -- a real, narrow
+    edge case, not yet seen in the real portfolio.
+    """
+    section_match = _SCOPE_LIMITATIONS_SECTION_RE.search(readme_text)
+    if not section_match:
+        return []
+    section_text = section_match.group(1)
+
+    bullets = list(_LIMITATIONS_BULLET_RE.finditer(section_text))
+    if not bullets:
+        return []
+
+    total_words = sum(len(b.group(0).split()) for b in bullets)
+    if total_words <= _LIMITATIONS_SECTION_SIZE_THRESHOLD_WORDS:
+        return []
+
+    details_blocks = list(_DETAILS_BLOCK_RE.finditer(section_text))
+
+    def _inside_any_details_block(pos: int) -> bool:
+        return any(block.start() <= pos < block.end() for block in details_blocks)
+
+    findings: list[dict] = []
+    for b in bullets:
+        word_count = len(b.group(0).split())
+        if word_count > _LIMITATIONS_BULLET_LENGTH_THRESHOLD_WORDS and not _inside_any_details_block(b.start()):
+            findings.append({
+                "bullet_preview": b.group(0)[:80].strip(),
+                "word_count": word_count,
+                "reason": f"Scope and Limitations totals {total_words} words (over the "
+                          f"{_LIMITATIONS_SECTION_SIZE_THRESHOLD_WORDS}-word threshold) and this "
+                          f"{word_count}-word bullet is not inside a <details> block -- move the "
+                          "long bullets into a collapsed '#### Detailed Limitations Reference' "
+                          "block, keeping short bullets visible above it",
+            })
+    return findings
+
+
 _EXAMPLE_HEADING_LINE_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$", re.MULTILINE)
 _GENERIC_EXAMPLE_HEADING_RE = re.compile(r"^example\s*\d*$", re.IGNORECASE)
 
@@ -8237,6 +8323,67 @@ def check_content_unit_no_exact_duplicate_merge(dispositions: list[dict]) -> lis
                 "target_section": target,
                 "reason": "identical excerpt merged into the same section under multiple "
                           "unit_ids -- exact duplicate",
+            })
+    return findings
+
+
+def check_content_unit_no_self_duplicate_in_candidate(
+    readme_text: str, dispositions: list[dict]
+) -> list[dict]:
+    """Hard gate (readme-refresh-limitations-duplication-and-collapse-hardening-2026-09-04).
+    A distinct blind spot from `check_content_unit_no_exact_duplicate_merge` just above, not a
+    variant of it: that check compares TWO DIFFERENT disposition entries against each other and
+    never reads the candidate text at all -- it is structurally unable to see a SINGLE entry
+    whose own text was pasted into the candidate more than once during composition, since there
+    is nothing to compare it against but itself.
+
+    Real, confirmed incident this closes: pdf/typescript's `u0324` ("Design specs and
+    implementation plans live under docs/superpowers/. Issue tracking uses beads...") is one
+    disposition entry, correctly `merged_verbatim` into "Development and Testing" exactly once
+    -- but its exact text (confirmed via the real upstream source, which has it exactly once)
+    appears TWICE in the composed candidate, back to back, immediately before `## License`.
+    User found this live by reading the merged PR. No existing check -- not this one's sibling,
+    not `check_content_unit_merged_into_target_section` (which only verifies a unit's tokens
+    appear somewhere in its section, never that they appear EXACTLY once), not
+    `check_content_unit_probable_duplicate` or `check_content_unit_cross_section_restatement`
+    (both compare different unit_ids to each other) -- was capable of catching this class.
+    Portfolio-wide re-measurement (2026-09-04) found exactly one other candidate/ledger pair
+    matching the same textual signature: email/cpp's `u0061`/`u0075`, ruled a legitimate,
+    source-inherited case (the real upstream email/cpp README independently states the same
+    sentence twice, once for its MSG writer and once for its CFB writer, confirmed via direct
+    `grep -c` against the pinned source) rather than a composition defect -- a genuinely
+    different disposition entry each, correctly excluded from this check's own logic.
+
+    Deliberately scoped to `content-dispositions.json` only, matching this module's existing
+    per-ledger-type separation (`check_content_unit_*` vs. `check_structural_unit_*` vs.
+    `check_code_example_unit_*`) rather than a single cross-ledger function -- a real, disclosed
+    narrower scope; the structural/code-example ledgers were not found to have this defect in
+    the same portfolio survey that found the two content-ledger cases above, but neither has an
+    equivalent check yet.
+
+    Matches `_retention_content_words`' established 8-content-word floor (the same floor
+    `check_content_unit_cross_section_restatement` already uses) so a short, generically
+    recurring phrase never trips this -- only a substantial passage genuinely pasted twice.
+    """
+    normalized_candidate = re.sub(r"\s+", " ", readme_text)
+    findings: list[dict] = []
+    for entry in dispositions:
+        if entry.get("disposition") not in ("merged_verbatim", "merged_reframed"):
+            continue
+        excerpt = (entry.get("excerpt") or "").strip()
+        if not excerpt or len(_retention_content_words(excerpt)) < 8:
+            continue
+        normalized_excerpt = re.sub(r"\s+", " ", excerpt)
+        count = normalized_candidate.count(normalized_excerpt)
+        if count >= 2:
+            findings.append({
+                "unit_id": entry.get("unit_id"),
+                "target_section": entry.get("target_section"),
+                "occurrences": count,
+                "reason": f"this unit's own excerpt appears {count} times in the candidate -- "
+                          "pasted more than once during composition, not a comparison against "
+                          "a different unit (see check_content_unit_no_exact_duplicate_merge "
+                          "for that case)",
             })
     return findings
 

@@ -1372,6 +1372,53 @@ def test_api_reference_detail_collapsed_no_false_positive_on_ordinary_prose():
     assert checks.check_api_reference_detail_collapsed(text) == []
 
 
+# --- check_scope_limitations_detail_collapsed (readme-refresh-limitations-duplication-and-
+# collapse-hardening-2026-09-04) ---------------------------------------------------------------
+
+
+def test_scope_limitations_detail_collapsed_noop_on_typical_portfolio_size():
+    """Every real product except pdf/typescript measures well under the 800-word section
+    threshold (portfolio max excluding it: pdf/net's 430 words) -- a normal-sized section, even
+    with a couple of longer-than-60-word bullets, must never be forced to collapse."""
+    text = (
+        "## Scope and Limitations\n\n"
+        "- Short bullet one describing a real limitation clearly and briefly here.\n"
+        "- " + " ".join(["word"] * 70) + "\n"
+        "- Another short bullet, still easy to scan quickly for any reader.\n\n"
+        "## Development and Testing\n"
+    )
+    assert checks.check_scope_limitations_detail_collapsed(text) == []
+
+
+def test_scope_limitations_detail_collapsed_flags_long_bullets_left_exposed():
+    long_bullet = " ".join(["word"] * 100)
+    text = "## Scope and Limitations\n\n"
+    for i in range(12):
+        text += f"- **Item {i}** -- {long_bullet}\n"
+    text += "\n## Development and Testing\n"
+    findings = checks.check_scope_limitations_detail_collapsed(text)
+    assert len(findings) == 12
+    assert all(f["word_count"] > 60 for f in findings)
+
+
+def test_scope_limitations_detail_collapsed_clean_when_long_bullets_collapsed():
+    long_bullet = " ".join(["word"] * 100)
+    text = (
+        "## Scope and Limitations\n\n"
+        "- A short, visible bullet describing the headline limitation briefly here.\n\n"
+        "<details>\n<summary>View Full Limitations Reference</summary>\n\n"
+    )
+    for i in range(12):
+        text += f"- **Item {i}** -- {long_bullet}\n"
+    text += "\n</details>\n\n## Development and Testing\n"
+    assert checks.check_scope_limitations_detail_collapsed(text) == []
+
+
+def test_scope_limitations_detail_collapsed_noop_when_no_section():
+    text = "## Development and Testing\n\nSome content.\n"
+    assert checks.check_scope_limitations_detail_collapsed(text) == []
+
+
 # --- check_heading_title_case ----------------------------------------------------------------------
 
 
@@ -7153,6 +7200,57 @@ def test_no_exact_duplicate_merge_still_flags_identical_text_and_evidence():
     ]
     findings = checks.check_content_unit_no_exact_duplicate_merge(dispositions)
     assert findings and set(findings[0]["unit_ids"]) == {"u0001", "u0002"}
+
+
+# --- check_content_unit_no_self_duplicate_in_candidate (readme-refresh-limitations-
+# duplication-and-collapse-hardening-2026-09-04) --------------------------------------------
+
+
+def test_no_self_duplicate_flags_real_pdf_typescript_shape():
+    """Real incident: pdf/typescript's u0324, one entry, pasted twice into the candidate --
+    once unwrapped, once hard-wrapped differently, the exact shape found live."""
+    excerpt = ("Design specs and implementation plans live under docs/superpowers/. Issue "
+               "tracking uses beads (bd ready, bd show <id>); see CLAUDE.md for the workflow.")
+    dispositions = [_content_unit(unit_id="u0324", excerpt=excerpt,
+                                   disposition="merged_verbatim", target_section="Development and Testing")]
+    candidate = (
+        "## Development and Testing\n\n" + excerpt + "\n\n"
+        + "Design specs and implementation plans live under docs/superpowers/. Issue\n"
+        + "tracking uses beads (bd ready, bd show <id>); see CLAUDE.md for the workflow.\n\n"
+        + "## License\n"
+    )
+    findings = checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions)
+    assert findings and findings[0]["unit_id"] == "u0324" and findings[0]["occurrences"] == 2
+
+
+def test_no_self_duplicate_clean_when_present_once():
+    excerpt = ("Design specs and implementation plans live under docs/superpowers/. Issue "
+               "tracking uses beads (bd ready, bd show <id>); see CLAUDE.md for the workflow.")
+    dispositions = [_content_unit(unit_id="u0324", excerpt=excerpt, disposition="merged_verbatim")]
+    candidate = "## Development and Testing\n\n" + excerpt + "\n\n## License\n"
+    assert checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions) == []
+
+
+def test_no_self_duplicate_does_not_flag_short_phrase_recurring_legitimately():
+    """A short, generically recurring phrase (below the 8-content-word floor) must never trip
+    this -- only a substantial, genuinely-pasted-twice passage."""
+    dispositions = [_content_unit(unit_id="u0001", excerpt="Call `Save()` when done.",
+                                   disposition="merged_verbatim")]
+    candidate = "Call `Save()` when done. Later, call `Save()` when done again elsewhere.\n"
+    assert checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions) == []
+
+
+def test_no_self_duplicate_ignores_excluded_units():
+    dispositions = [_content_unit(
+        unit_id="u0001",
+        excerpt="A genuinely long excerpt with plenty of real content words in it for the floor.",
+        disposition="excluded", target_section=None,
+    )]
+    candidate = (
+        "A genuinely long excerpt with plenty of real content words in it for the floor.\n\n"
+        "A genuinely long excerpt with plenty of real content words in it for the floor.\n"
+    )
+    assert checks.check_content_unit_no_self_duplicate_in_candidate(candidate, dispositions) == []
 
 
 # --- check_content_unit_classification_plausibility (heuristic) ---------------------------------
