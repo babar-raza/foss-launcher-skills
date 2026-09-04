@@ -2382,6 +2382,8 @@ _PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
     ("content_unit_redundant_claim_verifiable", False),
     ("content_unit_classification_plausibility", False),
     ("content_unit_probable_duplicate", False),
+    ("content_unit_cross_section_restatement", False),  # readme-refresh-retention-vs-redundancy-hardening-2026-09-04
+    ("candidate_growth_ratio", False),  # readme-refresh-retention-vs-redundancy-hardening-2026-09-04
     ("content_unit_embedded_actionable_fact", False),
     ("image_content_unit_excluded_reason_verified", False),
     ("structural_unit_disposition_coverage", True),
@@ -2937,6 +2939,23 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         result["content_unit_probable_duplicate"] = {
             "hard_gate": False,
             "findings": checks.check_content_unit_probable_duplicate(dispositions),
+        }
+        # readme-refresh-retention-vs-redundancy-hardening-2026-09-04: the cross-section sibling
+        # -- catches the exact defect class the same-section-only check above cannot see (two
+        # different content units, correctly disposed into two DIFFERENT sections, that
+        # substantively restate the same fact). Advisory only; see the check's own docstring for
+        # the disclosed rollout plan (portfolio-measure before any hard-gate promotion).
+        result["content_unit_cross_section_restatement"] = {
+            "hard_gate": False,
+            "findings": checks.check_content_unit_cross_section_restatement(dispositions),
+        }
+        # readme-refresh-retention-vs-redundancy-hardening-2026-09-04: a coarse, whole-document
+        # tripwire alongside the precise check above -- see its own docstring for why it is
+        # deliberately blunt (calibrated against a real portfolio sample, not a guessed number)
+        # and why it does not substitute for the cross-section check.
+        result["candidate_growth_ratio"] = {
+            "hard_gate": False,
+            "findings": checks.check_candidate_growth_ratio(old_readme_text, text),
         }
         # Sixteenth incident / MT031 (2026-08-10): a mixed unit (real actionable fact bundled
         # with pure hedge/CTA prose) can be classified/excluded wholesale, silently losing the

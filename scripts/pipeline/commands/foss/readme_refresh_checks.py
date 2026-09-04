@@ -207,7 +207,7 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 7  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 8  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
@@ -222,7 +222,15 @@ CHECKS_MODULE_VERSION = 7  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refr
 # readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (retention-audit follow-up):
 # check_content_unit_reframe_fidelity (HARD gate -- promotes the retention report's own
 # word-overlap fidelity score, until now advisory-only, closing the gap that let a 93%
-# Features->Key Capabilities compression pass every prior gate)
+# Features->Key Capabilities compression pass every prior gate); 8 =
+# readme-refresh-retention-vs-redundancy-hardening-2026-09-04: check_content_unit_cross_
+# section_restatement (advisory -- the fix above's own blanket remedy produced real, measured
+# cross-section content duplication on pdf/typescript, 54 real findings once this check ran
+# against its own real ledger; the missing symmetric check guarding against over-inclusion, not
+# just under-inclusion) and check_candidate_growth_ratio (advisory, coarse whole-document
+# tripwire -- measured weaker than expected for this specific incident once calibrated against
+# real portfolio data; see both checks' own docstrings and the mission's plan file for the full
+# root-cause account and the honest limits)
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -6200,6 +6208,53 @@ def _split_into_sections(markdown_text: str) -> dict[str, str]:
     return sections
 
 
+_WHOLE_DOCUMENT_GROWTH_RATIO_THRESHOLD = 2.0
+
+
+def check_candidate_growth_ratio(old_readme_text: str, candidate_text: str) -> list[dict]:
+    """Advisory (readme-refresh-retention-vs-redundancy-hardening-2026-09-04). A coarse, whole-
+    document early-warning tripwire, not a precision instrument -- flags when the candidate's
+    total byte size exceeds the pinned old README's own size by more than
+    `_WHOLE_DOCUMENT_GROWTH_RATIO_THRESHOLD`, for human review before `approve`.
+
+    Originally designed section-scoped (candidate `## Key Capabilities`, including any nested
+    detail block, vs. the old README's own Features-equivalent section) to target the exact
+    pdf/typescript incident this mission investigates. Measured directly against the real
+    pdf/typescript files before shipping and found too weak for that purpose: the section-scoped
+    ratio was only 1.08x (barely elevated) because the real defect was cross-section
+    duplication (the same fact restated in Key Capabilities AND Scope and Limitations, each
+    section individually a normal size) -- `check_content_unit_cross_section_restatement` is the
+    check that actually catches that (54 real findings on pdf/typescript's own ledger,
+    confirmed live). The whole-document ratio was a somewhat better fit at 1.15x, but a real
+    portfolio sample taken the same day found `3d/java` at 1.70x with ZERO cross-section-
+    restatement findings -- i.e. legitimate growth (a thin original source needing the
+    portfolio's standard added sections), not redundancy. `_WHOLE_DOCUMENT_GROWTH_RATIO_
+    THRESHOLD` is set well above that observed-legitimate value specifically so this check does
+    not fire on normal, healthy growth; it is deliberately a blunt "something changed a lot, a
+    human should look" prompt, not a stand-in for the redundancy check above, and growth ratio
+    and redundancy are only loosely correlated in the real data measured for this incident.
+    Vacuous (`[]`) whenever `old_readme_text` is empty (no pinned baseline to compare against).
+    """
+    old_size = len(old_readme_text or "")
+    if old_size == 0:
+        return []
+    candidate_size = len(candidate_text or "")
+    ratio = candidate_size / old_size
+    if ratio <= _WHOLE_DOCUMENT_GROWTH_RATIO_THRESHOLD:
+        return []
+    return [{
+        "old_readme_size": old_size,
+        "candidate_size": candidate_size,
+        "ratio": round(ratio, 2),
+        "threshold": _WHOLE_DOCUMENT_GROWTH_RATIO_THRESHOLD,
+        "reason": f"candidate ({candidate_size} bytes) is {ratio:.1f}x the pinned old README's "
+                  f"own size ({old_size} bytes) -- review before approving; this can be "
+                  f"legitimate (a thin source needing the portfolio's standard added sections) "
+                  f"or a sign of real duplication -- check `content_unit_cross_section_"
+                  f"restatement` findings before deciding which",
+    }]
+
+
 def check_only_sections_changed(
     old_markdown_text: str, new_markdown_text: str, allowed_headings: list[str]
 ) -> list[dict]:
@@ -8244,6 +8299,115 @@ def check_content_unit_probable_duplicate(dispositions: list[dict]) -> list[dict
                     "shared_tokens": sorted(shared),
                     "reason": "two different content units share 2+ salient tokens merged into "
                               "the same section -- likely restating the same fact twice",
+                })
+    return findings
+
+
+_CROSS_SECTION_IDENTIFIER_RE = re.compile(r"`([A-Za-z_][\w.]*(?:\([^)]*\))?)`")
+# A shared bare word (`string`, `number`, `object`, ...) is not a meaningful anchor -- only a
+# dotted member reference (`page.AddSVGObject`) or a real Capitalized/camelCase identifier of
+# some length is specific enough that two excerpts sharing it are plausibly about the SAME
+# method, not two unrelated sentences that both happen to mention a common type name.
+_CROSS_SECTION_GENERIC_IDENTIFIER_STOPLIST = frozenset({
+    "string", "number", "boolean", "object", "array", "void", "true", "false", "null",
+    "undefined", "any", "unknown", "never", "this", "options", "opts", "data", "value",
+})
+
+
+def _cross_section_restatement_identifier(token: str) -> bool:
+    if "." in token:
+        return True
+    core = token.split("(", 1)[0]
+    if core.lower() in _CROSS_SECTION_GENERIC_IDENTIFIER_STOPLIST:
+        return False
+    return len(core) >= 4 and core[:1].isupper() and not core.isupper()
+
+
+def check_content_unit_cross_section_restatement(dispositions: list[dict]) -> list[dict]:
+    """Heuristic, non-blocking (readme-refresh-retention-vs-redundancy-hardening-2026-09-04,
+    post-mortem on the pdf/typescript candidate ballooning from 235KB to 315KB -- bigger than
+    its own 276KB upstream source -- after a prior mission's retention-fidelity fix). The
+    cross-section sibling of `check_content_unit_probable_duplicate` just above: that check only
+    ever compares two entries sharing the SAME `target_section`
+    (`if entry_a.get("target_section") != entry_b.get("target_section"): continue`), which by
+    construction can never see the exact defect class this mission found: two DIFFERENT,
+    genuinely distinct old-README content units (one extracted from `## Features`, one from
+    `## Limitations`), each independently and correctly disposed `merged_verbatim`/
+    `merged_reframed` into TWO DIFFERENT candidate sections, that substantively restate the same
+    fact about the same method (pdf/typescript: `page.ToImage`'s transparency-compositing
+    behavior explained at length in both the new Key-Capabilities detail block AND Scope and
+    Limitations -- confirmed, by reading the real upstream README directly, to already exist as
+    two separate bullets there; a faithful retention, not an invented one, but still real,
+    measurable, reader-visible restatement once both sides are merged verbatim).
+
+    Deliberately a NEW function, not a modification of `check_content_unit_probable_duplicate`:
+    changing that check's already-shipped, already-tested same-section behavior risks silently
+    altering its measured portfolio footprint; this ships as its own advisory signal for a new
+    incident class instead, matching this codebase's own established pattern (a new check per
+    new defect class, not silent semantic drift in an existing one).
+
+    Signal: two entries share at least one real, specific backtick-quoted identifier (a dotted
+    member reference, e.g. `page.AddSVGObject`, or a Capitalized/camelCase identifier of 4+
+    characters that is not itself all-caps -- see `_cross_section_restatement_identifier`; a
+    bare generic word like `string`/`options` is never a meaningful anchor) AND their excerpts'
+    content-word overlap ratio (`_retention_content_words`, the SAME tokenization
+    `_retention_fidelity` already uses -- reused deliberately, not reinvented) is >= 0.6,
+    computed as `|A ∩ B| / min(|A|, |B|)`. Both excerpts must carry >= 8 content words (mirrors
+    the floor `_retention_fidelity`'s own consumers already use) so two short, incidentally
+    overlapping mentions don't trip this on thin evidence.
+
+    Deliberately does NOT fire on topical co-occurrence alone (the same identifier appearing in
+    two sections is this document family's designed shape -- Key Capabilities and API Reference
+    are SUPPOSED to both mention the same methods) -- only high excerpt-level word overlap,
+    meaning the two passages are plausibly saying the same thing rather than covering two
+    genuinely different aspects (a capability description vs. a precise behavioral limit is a
+    real, legitimate, portfolio-observed pattern and must not fire; confirmed live on
+    pdf/typescript's own upstream source, which independently discusses several capabilities in
+    both its Features and Limitations sections).
+
+    Disclosed, permanent scope limits, not bugs to chase further: (1) catches only
+    SAME-identifier restatement -- a fact restated under a DIFFERENT but related identifier
+    (`doc.Sign` vs `doc.Certify`), or under no shared identifier at all, is invisible to this
+    heuristic; (2) operates on ledger excerpts (old-README text), so it cannot see redundancy
+    against prose that was freely composed during an earlier pass with no corresponding
+    disposition entry (e.g. the API Reference table's own member descriptions) -- a real,
+    narrower blind spot than the plan's original design, disclosed rather than silently assumed
+    solved. Ships advisory-only; promotion to a hard gate needs a real portfolio-wide false-
+    positive measurement first (this codebase's own established rollout discipline -- see this
+    check's sibling `check_content_unit_reframe_fidelity` and its own docstring for why).
+    """
+    merged = [e for e in dispositions if e.get("disposition") in ("merged_verbatim", "merged_reframed")]
+    findings: list[dict] = []
+    for i, entry_a in enumerate(merged):
+        for entry_b in merged[i + 1:]:
+            if entry_a.get("target_section") == entry_b.get("target_section"):
+                continue  # same-section duplication is check_content_unit_probable_duplicate's job
+            excerpt_a = entry_a.get("excerpt") or ""
+            excerpt_b = entry_b.get("excerpt") or ""
+            if not excerpt_a or not excerpt_b:
+                continue
+            idents_a = {m for m in _CROSS_SECTION_IDENTIFIER_RE.findall(excerpt_a) if _cross_section_restatement_identifier(m)}
+            idents_b = {m for m in _CROSS_SECTION_IDENTIFIER_RE.findall(excerpt_b) if _cross_section_restatement_identifier(m)}
+            shared_identifiers = idents_a & idents_b
+            if not shared_identifiers:
+                continue
+            words_a = _retention_content_words(excerpt_a)
+            words_b = _retention_content_words(excerpt_b)
+            if len(words_a) < 8 or len(words_b) < 8:
+                continue
+            overlap = words_a & words_b
+            ratio = len(overlap) / min(len(words_a), len(words_b))
+            if ratio >= 0.6:
+                findings.append({
+                    "unit_ids": [entry_a.get("unit_id"), entry_b.get("unit_id")],
+                    "target_sections": [entry_a.get("target_section"), entry_b.get("target_section")],
+                    "shared_identifiers": sorted(shared_identifiers),
+                    "overlap_ratio": round(ratio, 2),
+                    "reason": f"two content units merged into different sections "
+                              f"({entry_a.get('target_section')!r} / {entry_b.get('target_section')!r}) "
+                              f"share the identifier(s) {sorted(shared_identifiers)} and "
+                              f"{ratio:.0%} of their content words -- likely restating the same "
+                              f"fact twice rather than covering two genuinely different aspects",
                 })
     return findings
 
@@ -10824,8 +10988,10 @@ def build_dependency_verification_matrix(
 # the report introduces no new matching semantics, only visibility.
 
 _RETENTION_CONTENT_WORD_RE = re.compile(r"[A-Za-z][A-Za-z0-9_]{3,}")
-# Function words of 4+ letters that carry no retention signal -- kept small and obvious; the
-# fidelity score is a reviewer aid, never a gate, so this list does not need to be complete.
+# Function words of 4+ letters that carry no retention signal -- kept small and obvious;
+# consumers of this word set (the fidelity score AND, since 2026-09-04, the cross-section
+# restatement check below) tolerate a slightly loose stopword list far better than a missing
+# real one, so this does not need to be exhaustive.
 _RETENTION_STOPWORDS = frozenset(
     "this that with from into your which their there these those have been will also when than "
     "then them they what where were while about after before other more most such only same each "
@@ -10859,7 +11025,15 @@ def _retention_fidelity(excerpt: str, target_body: str, candidate_text: str) -> 
     """Share of the excerpt's content words present in the target section (whole-document
     fallback), with the missing words named -- the reviewer-facing signal for a sub-claim lost
     inside a `merged_reframed` unit (tex/python u0010: 'copy', 'collected', 'recent' missing).
-    A score, never a gate: 0.71 was a real loss and 0.62 a faithful reframe on the same file."""
+
+    Stale docstring fixed 2026-09-04 (readme-refresh-retention-vs-redundancy-hardening): this
+    used to say "a score, never a gate" -- true when written, no longer true.
+    `check_content_unit_reframe_fidelity` (readme-refresh-pdf-typescript-scale-hardening-
+    2026-09-03) hard-gates on this exact score at the same 0.5 boundary used below. 0.71 was a
+    real loss and 0.62 a faithful reframe on the same file -- i.e. even a score comfortably
+    above the 0.5 gate threshold can still represent a real, human-visible loss; the
+    `missing_words` list stays worth reading for any `reframed` row, not just ones the gate
+    actually blocks."""
     words = _retention_content_words(excerpt)
     if not words:
         return {"score": None, "scope": "n/a", "missing_words": []}

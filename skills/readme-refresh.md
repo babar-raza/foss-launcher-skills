@@ -141,19 +141,57 @@ never with an explanation in the public candidate.** A content unit whose `verif
 is `verified_against_source`/`verified_by_corroboration` (i.e., the claim is true) must be
 retained with real fidelity — condensing a long original section into a short overview list is
 fine, but only when the compressed form still carries the *specific* technical substance
-(exact defaults, named sub-features, edge-case behavior), not just the topic keyword. When a
-verified section is too large or too varied to summarize losslessly in a short bullet list
-(the `## Features`→`## Key Capabilities` shape is the recurring case), give it a second, fuller
-home: a collapsed `<details><summary>…</summary>` block appended after the short bullets —
-mirroring the API Reference's own established `#### Detailed Member Reference` pattern exactly
-— carrying the verified original prose at or near verbatim, organized under matching
-sub-headings. "Too granular for a bullet point" is never, on its own, a legitimate reason to
-dispose a *verified* unit `excluded`; it is a reason to put it in the detail block instead.
+(exact defaults, named sub-features, edge-case behavior), not just the topic keyword.
 `excluded` is for content that genuinely cannot be verified against the live source, is a
 duplicate/self-citation, or is a confirmed extraction artifact (a glued title, a rendering
 defect) — and even then, the public `readme.md` never states or hints at why something is
 missing; that reasoning lives only in the disposition ledger (`excluded_reason`), which is
 internal, gitignored, and never rendered.
+
+**REVERSED, readme-refresh-retention-vs-redundancy-hardening-2026-09-04 — a real incident, not a
+style preference.** The paragraph above used to end here with a blanket instruction: when a
+verified section is too large to summarize losslessly, give it a second, fuller home — a
+collapsed detail block, mirroring `#### Detailed Member Reference`, carrying the original prose
+at or near verbatim by default. Following that instruction literally is exactly what made
+pdf/typescript's candidate balloon from 235KB to 315KB — bigger than its own 276KB upstream
+source — with real, measured cross-section duplication (`page.ToImage`'s transparency-
+compositing behavior ended up explained at length in both the new detail block and Scope and
+Limitations, each independently, correctly retained, but never checked against each other).
+Investigation showed most of that specific overlap was itself inherited from the upstream
+author's own Features-vs-Limitations writing habit — a real, defensible pattern — but the
+*process* that produced it had no way to tell that apart from genuinely self-inflicted
+duplication, and got lucky. Do not follow that instruction as a default again. Instead, on any
+`content_unit_reframe_fidelity` failure, work through this **required, ordered procedure**, one
+unit at a time — never as a batch operation across many units:
+
+1. **Check first whether the missing substance is already covered elsewhere in the candidate**,
+   in different words — read `retention-report`'s own `found_in`/fidelity fields for the unit,
+   and specifically check Scope and Limitations and the API Reference's own prose (the two
+   sections most likely to already say the same thing from a different angle). The advisory
+   check `check_content_unit_cross_section_restatement` (identifier-anchored, word-overlap-ratio
+   heuristic — see its own docstring for exactly what it catches and its disclosed limits)
+   surfaces likely candidates mechanically, but always read the actual sections yourself before
+   deciding; the check is a prompt, not a verdict.
+2. **If the substance is already there and conveys the same facts**: leave the existing
+   representation as the single source of truth. The correct disposition is `excluded` with
+   `excluded_reason` starting `"redundant_with_existing: "` naming the section that already
+   covers it — this is a legitimate, first-class exclusion reason, exactly as legitimate as
+   "genuinely unverifiable." "Too granular for a bullet point" alone is *not* a legitimate
+   reason to exclude a verified unit that has no existing coverage anywhere — that case falls to
+   step 3 or 4 below.
+3. **If the substance is missing or the existing coverage is materially thinner**: extend the
+   *existing* target section's prose with the specific missing detail, using the unit's own
+   `excerpt` for full context — add to what's there, don't duplicate it in a second location.
+4. **Only when a whole topic has zero existing coverage anywhere in the candidate** does a new
+   collapsed detail block (mirroring `#### Detailed Member Reference`) become the right choice —
+   the pattern itself is proven and fine; it is not the default remedy for every fidelity
+   failure, only for the case that has no home to extend at all.
+
+A section that is *genuinely* too large and varied for any single overview to summarize
+losslessly (the real `## Features`→`## Key Capabilities` shape) may still end up needing a
+detail block for the bulk of its content — that outcome is fine when it's the result of working
+through steps 1–3 honestly for each unit, not when it's the first move taken for all of them at
+once.
 
 `audit-portfolio` (TC-HARDEN-05, MT035, 2026-08-12) is the one subcommand with no `--run-id` —
 it's read-only and portfolio-wide, not run-scoped: it re-runs every deterministic check

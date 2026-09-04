@@ -7213,6 +7213,146 @@ def test_probable_duplicate_skips_exact_duplicates():
     assert checks.check_content_unit_probable_duplicate(dispositions) == []
 
 
+# --- check_content_unit_cross_section_restatement (readme-refresh-retention-vs-redundancy-
+# hardening-2026-09-04, heuristic) -- the cross-section sibling of check_content_unit_probable_
+# duplicate above. Fixtures are a synthetic reconstruction of the real defect shape this mission
+# found on pdf/typescript: `page.ToImage`'s transparency-group compositing behavior explained at
+# length in both the Key-Capabilities detail block AND Scope and Limitations, each independently
+# and correctly disposed from a real, distinct old-README content unit. -----------------------
+
+
+def test_cross_section_restatement_flags_a_real_restatement_pair():
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", target_section="Key Capabilities",
+            excerpt="`page.ToImage` buffers any Group that composites as a unit so overlapping "
+                    "content inside a group does not double darken when rendering to PNG.",
+        ),
+        _content_unit(
+            unit_id="u0002", target_section="Scope and Limitations",
+            excerpt="`page.ToImage` buffers any Group compositing as a unit so overlapping "
+                    "content inside the group does not double darken during rendering.",
+        ),
+    ]
+    findings = checks.check_content_unit_cross_section_restatement(dispositions)
+    assert findings and set(findings[0]["unit_ids"]) == {"u0001", "u0002"}
+    assert findings[0]["shared_identifiers"] == ["page.ToImage"]
+    assert findings[0]["overlap_ratio"] >= 0.6
+
+
+def test_cross_section_restatement_ignores_two_genuinely_different_aspects():
+    # Same identifier, same two (different) sections, but the passages describe DIFFERENT
+    # facts (raster encoding vs. transparency-group compositing) -- a real, legitimate pattern
+    # (capability overview vs. precise behavioral limit) that must never fire.
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", target_section="Key Capabilities",
+            excerpt="`page.ToImage` rasterizes the page with a pure TypeScript software "
+                    "rasterizer and encodes the result as PNG, JPEG, or a baseline strip TIFF.",
+        ),
+        _content_unit(
+            unit_id="u0002", target_section="Scope and Limitations",
+            excerpt="`page.ToImage` buffers any Group that composites as a unit so overlapping "
+                    "content inside a group does not double darken when rendering.",
+        ),
+    ]
+    assert checks.check_content_unit_cross_section_restatement(dispositions) == []
+
+
+def test_cross_section_restatement_skips_same_section_pairs():
+    # Same-section duplication is check_content_unit_probable_duplicate's job, not this one's --
+    # even with an otherwise-qualifying restatement, a same-section pair must never fire here.
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", target_section="Scope and Limitations",
+            excerpt="`page.ToImage` buffers any Group that composites as a unit so overlapping "
+                    "content inside a group does not double darken when rendering to PNG.",
+        ),
+        _content_unit(
+            unit_id="u0002", target_section="Scope and Limitations",
+            excerpt="`page.ToImage` buffers any Group compositing as a unit so overlapping "
+                    "content inside the group does not double darken during rendering.",
+        ),
+    ]
+    assert checks.check_content_unit_cross_section_restatement(dispositions) == []
+
+
+def test_cross_section_restatement_requires_a_shared_specific_identifier():
+    # High word overlap but no shared identifier at all (a bare, generic word overlap) must not
+    # fire -- this heuristic is anchored on same-identifier restatement by design.
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", target_section="Key Capabilities",
+            excerpt="The library buffers content and composites it as a unit so overlapping "
+                    "elements do not double darken when the page renders.",
+        ),
+        _content_unit(
+            unit_id="u0002", target_section="Scope and Limitations",
+            excerpt="Rendering buffers overlapping content and composites it as a unit so darker "
+                    "double-painted areas never appear on the page.",
+        ),
+    ]
+    assert checks.check_content_unit_cross_section_restatement(dispositions) == []
+
+
+def test_cross_section_restatement_requires_a_content_word_floor():
+    # A shared identifier but very short excerpts (thin evidence) must not fire.
+    dispositions = [
+        _content_unit(unit_id="u0001", target_section="Key Capabilities", excerpt="`page.ToImage` renders."),
+        _content_unit(unit_id="u0002", target_section="Scope and Limitations", excerpt="`page.ToImage` renders too."),
+    ]
+    assert checks.check_content_unit_cross_section_restatement(dispositions) == []
+
+
+def test_cross_section_restatement_ignores_generic_bare_word_identifiers():
+    # A shared bare, generic identifier-shaped word (`options`, `string`) is not a meaningful
+    # anchor -- confirmed via the stoplist, even with otherwise-high word overlap.
+    dispositions = [
+        _content_unit(
+            unit_id="u0001", target_section="Key Capabilities",
+            excerpt="Pass `options` to configure the export: quality, compression and format all "
+                    "come from that same object at call time.",
+        ),
+        _content_unit(
+            unit_id="u0002", target_section="Scope and Limitations",
+            excerpt="The `options` object configures quality, compression and format for every "
+                    "export call made against the document.",
+        ),
+    ]
+    assert checks.check_content_unit_cross_section_restatement(dispositions) == []
+
+
+# --- check_candidate_growth_ratio (readme-refresh-retention-vs-redundancy-hardening-2026-09-04,
+# heuristic) -- coarse whole-document tripwire. Threshold (2.0x) is the real, measured 3d/java
+# legitimate-growth value (1.70x, confirmed live, zero cross-section-restatement findings)
+# rounded up, not an invented number. -----------------------------------------------------------
+
+
+def test_candidate_growth_ratio_clean_under_threshold():
+    old = "x" * 1000
+    candidate = "x" * 1900  # 1.9x -- below the 2.0x threshold
+    assert checks.check_candidate_growth_ratio(old, candidate) == []
+
+
+def test_candidate_growth_ratio_flags_over_threshold():
+    old = "x" * 1000
+    candidate = "x" * 2500  # 2.5x
+    findings = checks.check_candidate_growth_ratio(old, candidate)
+    assert findings and findings[0]["ratio"] == 2.5
+    assert findings[0]["old_readme_size"] == 1000
+    assert findings[0]["candidate_size"] == 2500
+
+
+def test_candidate_growth_ratio_vacuous_with_no_old_readme():
+    assert checks.check_candidate_growth_ratio("", "x" * 5000) == []
+
+
+def test_candidate_growth_ratio_does_not_flag_shrinkage():
+    old = "x" * 5000
+    candidate = "x" * 1000
+    assert checks.check_candidate_growth_ratio(old, candidate) == []
+
+
 # --- Sixteenth incident / MT031: category-1 was too coarse -- real history and a real embedded
 # fact recovered from otherwise-narrative/CTA prose ------------------------------------------------
 # Fixtures are the real, verbatim words/net excerpts (u0021/u0025/u0026) this incident's own
