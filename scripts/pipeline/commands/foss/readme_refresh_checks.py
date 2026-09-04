@@ -5074,6 +5074,14 @@ def split_upstream_issue_entries(upstream_issues_text: str) -> list[tuple[str, s
     return [(m.group(1), m.group(2)) for m in _UPSTREAM_ISSUE_ENTRY_RE.finditer(upstream_issues_text)]
 
 
+_NOT_FIXABLE_HERE_FIELD_RE = re.compile(
+    r"\*\*Not fixable here because\*\*:\s*(.*?)(?=\n- \*\*|\n## |\Z)", re.DOTALL
+)
+_README_DESIGNATED_DISCLOSURE_RE = re.compile(
+    r"\bREADME\b.{0,120}?\b(?:document\w*|disclos\w*|states?|shows?)\b", re.IGNORECASE | re.DOTALL
+)
+
+
 def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[str]]:
     """Per real `upstream-issues.md` `## {title}` entry, extract a set of specific, rare
     fingerprint tokens: every backtick-quoted exact term in the entry body (exception/error
@@ -5122,6 +5130,19 @@ def _extract_upstream_issue_fingerprints(upstream_issues_text: str) -> list[set[
     """
     fingerprints: list[set[str]] = []
     for _title, body in split_upstream_issue_entries(upstream_issues_text):
+        # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: an entry whose OWN
+        # "Not fixable here because" field explicitly designates the README as the intended
+        # disclosure vehicle (e.g. note/python's "The README's Scope and Limitations section
+        # discloses this plainly instead", page/python's "The candidate README documents the
+        # real, working import-order workaround...") is not a leak candidate at all -- the entry
+        # itself says this content belongs in the README. Found live twice this session on two
+        # different products (both BLOCKING-severity, so the existing INFORMATIONAL-only
+        # exemption above did not apply): a real, already-live, upstream-verified caveat was
+        # nearly stripped back out of the candidate because restoring it (to fix a genuine
+        # retention gap) tripped this check against its own sanctioned source entry.
+        not_fixable_match = _NOT_FIXABLE_HERE_FIELD_RE.search(body)
+        if not_fixable_match and _README_DESIGNATED_DISCLOSURE_RE.search(not_fixable_match.group(1)):
+            continue
         # INFORMATIONAL-severity entries excluded entirely (2026-08-09, found live during
         # this check's own Phase 1 pilot rollout -- cells/go's golang.org/x/crypto note,
         # cells/cpp's bundled-sample note, html/python's [js]-extra-on-Windows note): every

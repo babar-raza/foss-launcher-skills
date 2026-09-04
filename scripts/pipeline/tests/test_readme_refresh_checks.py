@@ -4775,6 +4775,39 @@ def test_no_upstream_issue_leaked_flags_real_blockquote_instance():
     assert len(findings[0]["matched_tokens"]) >= 2
 
 
+_REAL_PAGE_PYTHON_README_DESIGNATED_UPSTREAM_ISSUES = """# Upstream issues -- Aspose.Page FOSS for Python
+
+## A Module-Import-Order Bug Breaks Several Natural Import Patterns
+- **Severity**: BLOCKING
+- **Evidence**: `aspose.page.pdf.writer` and `aspose.page.ps` import each other at module load
+  time, forming a circular import in a fresh interpreter.
+- **Impact**: a fresh-interpreter import in the wrong order raises `ImportError`.
+- **Not fixable here because**: the cycle is a structural property of the upstream package's
+  own internal module graph. The candidate README documents the real, working import-order
+  workaround directly in every example it affects, matching the one already-shipped mitigation.
+"""
+
+
+def test_no_upstream_issue_leaked_exempts_entry_that_designates_readme_as_disclosure():
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: found live twice this
+    session (note/python, page/python) -- a BLOCKING-severity entry whose own 'Not fixable here
+    because' field explicitly says the README is where this belongs must not be flagged as a
+    leak, even though its forensic tokens would otherwise concur 2+ against the same text this
+    check exists to catch. The INFORMATIONAL-only exemption above does not cover this (both real
+    cases were BLOCKING)."""
+    text = _wrap(
+        "flowchart TD\n  A --> B",
+        extra_section=(
+            "- Does a thing.\n\n"
+            "- Importing `aspose.page.pdf.writer` directly before `aspose.page.ps` raises "
+            "`ImportError` due to a circular import in a fresh interpreter.\n"
+        ),
+    )
+    assert checks.check_no_upstream_issue_leaked_into_readme(
+        text, _REAL_PAGE_PYTHON_README_DESIGNATED_UPSTREAM_ISSUES
+    ) == []
+
+
 def test_no_upstream_issue_leaked_clean_on_plain_pointer():
     text = _wrap(
         "flowchart TD\n  A --> B",
