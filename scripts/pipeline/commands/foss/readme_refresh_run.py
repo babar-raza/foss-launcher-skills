@@ -2326,6 +2326,13 @@ def ingest_candidate(
             raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
         text = candidate_path.read_text(encoding="utf-8")
         clone_cache = _product_clone_cache(family, platform)
+        # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04 (RC1/ST-183): anchor
+        # the reference commit BEFORE any check reads old_readme_text below, so this and every
+        # later recheck/audit-portfolio call compares the ledger against the commit it was
+        # actually built from, not whatever the shared clone cache happens to hold by then. See
+        # _auto_pin_old_readme_baseline_at_ingest's own docstring for why this takes a fresh
+        # `git rev-parse HEAD` rather than reusing manifest["pinned_inputs"]["clone_cache_head"].
+        _auto_pin_old_readme_baseline_at_ingest(family, platform, clone_cache, manifest, session_id=session_id)
 
         result = _run_deterministic_checks(family, platform, text, clone_cache)
         # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
@@ -2409,8 +2416,58 @@ _PRESERVATION_TRACKING_KEYS: "tuple[tuple[str, bool], ...]" = (
 )
 
 
+def _clone_cache_completeness(clone_cache: Path) -> "dict | None":
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04 (RC3/RC4). A missing or
+    incomplete local clone produces two failure modes that look nothing alike and were both found
+    live on page/python (whose `runs/.clone_cache/aspose_page_python/` does not exist on this
+    machine at all): every content/structural/code/badge disposition check floods with false
+    "missing" findings (extraction from `''` returns 0 units, so every real ledger entry looks
+    dangling), while several OTHER checks that gate on a `_detect_*` helper's return value treat
+    "found nothing" as "genuinely nothing to report" and report a false CLEAN instead -- confirmed
+    live: `check_dev_test_artifacts_linked` (a hard gate) silently passed for page/python, because
+    `_detect_dev_test_artifacts` returns `[]` for a missing directory and that check's own
+    docstring already says it's a no-op on an empty list. Nothing before this distinguished "this
+    hard gate ran and found nothing wrong" from "this hard gate silently couldn't run at all".
+
+    Returns `None` when the clone looks usable; otherwise a dict naming what's missing, so callers
+    can report one honest "couldn't verify" state instead of either flavor of false signal.
+
+    Deliberately a heuristic, not a proof of completeness -- confirms `.git` and `README.md`
+    exist and the tree isn't trivially empty; it cannot and does not confirm every specific path
+    some future check might read is present. A newly-written check that reads a new clone-cache
+    path should fail into its own "can't tell, say so" state by convention, not rely on this one
+    central gate to catch everything -- see this mission's own plan file, "Tradeoffs, risks, and
+    honest limits", for why this is disclosed as a permanent limit rather than closed off entirely
+    by a single check. A portfolio-wide survey run alongside this fix (all 32 active products)
+    found exactly one product (page/python) with a missing/incomplete local clone as of
+    2026-09-04 -- this is a real, general risk the check battery must guard against going
+    forward, not evidence that other products are silently affected today.
+    """
+    if not clone_cache.is_dir():
+        return {"reason": "no_local_clone", "detail": f"{clone_cache} does not exist"}
+    if not (clone_cache / ".git").is_dir():
+        return {"reason": "not_a_git_checkout", "detail": f"{clone_cache} has no .git directory"}
+    if not (clone_cache / "README.md").is_file():
+        return {"reason": "no_readme", "detail": f"{clone_cache}/README.md does not exist"}
+    try:
+        file_count = sum(len(files) for _, _, files in os.walk(clone_cache))
+    except OSError:
+        file_count = 0
+    if file_count < 5:
+        return {
+            "reason": "looks_empty",
+            "detail": f"only {file_count} file(s) found under {clone_cache} -- likely an interrupted/partial clone",
+        }
+    return None
+
+
 def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache: Path) -> dict:
     result: dict[str, dict] = {}
+    clone_cache_incomplete = _clone_cache_completeness(clone_cache)
+    result["clone_cache_completeness"] = {
+        "hard_gate": False,
+        "findings": [clone_cache_incomplete] if clone_cache_incomplete else [],
+    }
 
     # Thirty-First incident / MT041 (2026-08-14): computed fresh, matching this function's own
     # established "never read back from persisted factpack.json" pattern for every other
@@ -2463,10 +2520,24 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     # never made mechanical. Reuses the same _detect_license_file() result already computed for
     # the factpack (plan_run) -- recomputed fresh here, matching this function's own established
     # "never read back from persisted factpack.json" pattern for every other _detect_* value.
-    result["license_section_matches_template"] = {
-        "hard_gate": True,
-        "findings": checks.check_license_section_matches_template(text, _detect_license_file(clone_cache)),
-    }
+    # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: `_detect_license_file`
+    # also returns `None` for a MISSING clone cache, indistinguishable from "genuinely no license
+    # file" -- expecting the unlinked template on a candidate that was actually composed while a
+    # real license file was present (and so correctly uses the linked template) produces a false
+    # mismatch, not a "couldn't check" signal. Guard the same way as dev_test_artifacts_linked.
+    if clone_cache_incomplete:
+        result["license_section_matches_template"] = {
+            "hard_gate": True,
+            "findings": [{
+                "reason": "cannot verify -- local clone cache is missing/incomplete "
+                          f"({clone_cache_incomplete['reason']}), real license-file presence unknown",
+            }],
+        }
+    else:
+        result["license_section_matches_template"] = {
+            "hard_gate": True,
+            "findings": checks.check_license_section_matches_template(text, _detect_license_file(clone_cache)),
+        }
     # TC-HARDEN-19 (MT034, Twentieth incident, 2026-08-12): check_enterprise_edition_naming
     # (below, heuristic) verifies anchor text/context; it has never verified the link's real
     # TARGET (Gate Contract rule 6) -- a real clean-room pilot found a confirmed-live-404
@@ -2717,11 +2788,27 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     result["scope_limitations_format"] = {
         "hard_gate": True, "findings": checks.check_scope_limitations_format(text),
     }
+    # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: this check's own
+    # docstring already says it's a no-op when `detected_artifacts` is empty -- correct for a
+    # genuinely artifact-free product, wrong for a MISSING clone cache, where `_detect_dev_test_
+    # artifacts` also returns `[]`. Without this guard the two are indistinguishable and this hard
+    # gate silently reports "0 findings, clean" for a product nothing was actually checked
+    # against (confirmed live: page/python). Report a real, named "couldn't verify" finding
+    # instead whenever the clone cache itself is the reason nothing was found.
     dev_test_artifacts = _detect_dev_test_artifacts(clone_cache)
-    result["dev_test_artifacts_linked"] = {
-        "hard_gate": True,
-        "findings": checks.check_dev_test_artifacts_linked(text, dev_test_artifacts),
-    }
+    if clone_cache_incomplete and not dev_test_artifacts:
+        result["dev_test_artifacts_linked"] = {
+            "hard_gate": True,
+            "findings": [{
+                "reason": "cannot verify -- local clone cache is missing/incomplete "
+                          f"({clone_cache_incomplete['reason']}), not confirmed artifact-free",
+            }],
+        }
+    else:
+        result["dev_test_artifacts_linked"] = {
+            "hard_gate": True,
+            "findings": checks.check_dev_test_artifacts_linked(text, dev_test_artifacts),
+        }
     result["development_testing_collapse"] = {
         "hard_gate": False, "findings": checks.check_development_testing_collapse(text),
     }
@@ -3467,6 +3554,16 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
     return result
 
 
+# Shared reason-prefix markers so `_auto_pin_old_readme_baseline_at_push` and its ingest-time
+# sibling (readme-refresh-staleness-and-reference-frame-hardening-2026-09-04) can each recognize
+# an existing pin as "one of our own auto-pins" (safe to supersede under the rules each function
+# documents) regardless of which of the two lifecycle stages originally wrote it, while a
+# human-authored pin (any other reason string, via the `pin-old-readme-baseline` CLI verb) is
+# never superseded by either.
+_AUTO_PIN_REASON_PREFIX = "auto-pinned at push"
+_INGEST_AUTO_PIN_REASON_PREFIX = "auto-pinned at ingest"
+
+
 def pin_old_readme_baseline(
     family: str, platform: str, commit: str, reason: str, *, session_id: "str | None" = None,
 ) -> dict:
@@ -3535,7 +3632,6 @@ def _auto_pin_old_readme_baseline_at_push(manifest: dict, *, session_id: "str | 
     can raise). Callers can inspect the returned `pinned` flag; failure is recorded, not silently
     swallowed, but also never re-raised past this boundary.
     """
-    _AUTO_PIN_REASON_PREFIX = "auto-pinned at push"
     family, platform = manifest["family"], manifest["platform"]
     try:
         clone_cache_head = (manifest.get("pinned_inputs") or {}).get("clone_cache_head")
@@ -3569,6 +3665,93 @@ def _auto_pin_old_readme_baseline_at_push(manifest: dict, *, session_id: "str | 
     except OSError as exc:
         # Belt-and-suspenders: any other unexpected filesystem failure in this advisory step
         # (e.g. resolving _old_readme_baseline_path's parent) must not propagate into push().
+        return {"pinned": False, "reason": f"auto-pin failed: {exc}"}
+
+
+def _auto_pin_old_readme_baseline_at_ingest(
+    family: str, platform: str, clone_cache: Path, manifest: dict, *, session_id: "str | None" = None,
+) -> dict:
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04 (RC1, closes ST-183,
+    backlog/inbox.md:280). `pin_old_readme_baseline()` was previously reachable only at PUSH time
+    (via `_auto_pin_old_readme_baseline_at_push`, above) or through a manual CLI call -- so a
+    disposition ledger built at `ingest_candidate` time for a product that is never pushed (or
+    not pushed for a long time) had NO anchor at all. `_classify_baseline_coverage`'s own
+    docstring called this "no_push_yet" state "the common, already-safe case"; this incident (5
+    real candidates found dirty on 2026-09-04, 3 of them genuine, undetected reference-frame
+    drift) disproves that.
+
+    Unlike the push-time sibling above -- which deliberately reuses `manifest["pinned_inputs"]
+    ["clone_cache_head"]`, the exact SHA `approve()`'s own drift gate already re-validated, to
+    avoid reopening the real post-push merge-landing race window that produced ST-181's masking
+    -- this function takes a FRESH `git rev-parse HEAD` against the actual clone cache about to
+    be read for composition. Reusing the stale, run-start `pinned_inputs.clone_cache_head` here
+    would reintroduce the identical staleness bug one call earlier: real time (and a real,
+    unrelated clone-cache refresh by an unrelated /repo-scout sweep) may have passed between
+    `start()` and this `ingest_candidate` call, and there is no push-time-style race to protect
+    against at this earlier lifecycle stage.
+
+    Re-pinning on a LATER `ingest_candidate` call for the same run is not a fresh judgment call --
+    the state machine already proves it. `PLANNED` is reachable from a later state only via
+    `approve()`'s own `drift_forced_replan` transition, which always durably sets `manifest[
+    "drift_detected_at"]` before a run can ever re-enter `ingest_candidate`. So: an existing
+    auto-pin (ours, from either this function or the push-time sibling) is only ever moved
+    forward when `drift_detected_at` is newer than that pin's own `recorded_at` -- never a silent,
+    unconditional re-pin on every ingest call, and never a passive-forever advisory that would
+    keep firing even after a legitimate, deliberate recompose already happened. A human-authored
+    pin (via `pin-old-readme-baseline`) is never superseded here, matching the push-time sibling's
+    own rule exactly.
+
+    Advisory, never raises -- mirrors the push-time sibling's exact `except (ReadmeRefreshRunError,
+    OSError)` degrade-safe posture. This path is exercised immediately in real portfolio data: a
+    missing clone cache (page/python's exact condition, 2026-09-04) must not make `ingest_
+    candidate` fail because this best-effort anchoring step failed.
+    """
+    try:
+        if not clone_cache.is_dir():
+            return {"pinned": False, "reason": "no local clone cache to pin against"}
+        proc = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=str(clone_cache),
+            capture_output=True, text=True, encoding="utf-8", errors="ignore",
+        )
+        if proc.returncode != 0:
+            return {"pinned": False, "reason": f"git rev-parse HEAD failed: {proc.stderr.strip()}"}
+        fresh_head = proc.stdout.strip()
+        if not fresh_head:
+            return {"pinned": False, "reason": "git rev-parse HEAD returned no commit"}
+
+        existing_path = _old_readme_baseline_path(family, platform)
+        existing = None
+        if existing_path.is_file():
+            try:
+                existing = json.loads(existing_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                # Same reasoning as the push-time sibling: a corrupt/unreadable sidecar is not a
+                # human pin and must not permanently block auto-pinning for this product.
+                existing = None
+
+        if existing is not None:
+            if existing.get("baseline_commit") == fresh_head:
+                return {"pinned": False, "reason": "already pinned to this exact commit", "existing": existing}
+            existing_reason = str(existing.get("reason") or "")
+            is_our_own_auto_pin = existing_reason.startswith((_AUTO_PIN_REASON_PREFIX, _INGEST_AUTO_PIN_REASON_PREFIX))
+            if not is_our_own_auto_pin:
+                return {"pinned": False, "reason": "existing manual pin preserved", "existing": existing}
+            drift_detected_at = manifest.get("drift_detected_at")
+            existing_recorded_at = existing.get("recorded_at")
+            if not (drift_detected_at and (not existing_recorded_at or drift_detected_at > existing_recorded_at)):
+                return {
+                    "pinned": False,
+                    "reason": "existing auto-pin preserved (no newer drift_detected_at to justify moving it)",
+                    "existing": existing,
+                }
+
+        reason = f"{_INGEST_AUTO_PIN_REASON_PREFIX}, run {manifest['run_id']}"
+        try:
+            sidecar = pin_old_readme_baseline(family, platform, fresh_head, reason, session_id=session_id)
+        except (ReadmeRefreshRunError, OSError) as exc:
+            return {"pinned": False, "reason": f"pin failed: {exc}"}
+        return {"pinned": True, "sidecar": sidecar}
+    except OSError as exc:
         return {"pinned": False, "reason": f"auto-pin failed: {exc}"}
 
 
@@ -4011,10 +4194,18 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         baseline_coverage = None
         if not disposition_family_skipped:
             baseline_coverage = _classify_baseline_coverage(fam, plat)
+        # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: a missing/incomplete
+        # local clone is the same "we cannot currently form a verdict" shape as an unpinned
+        # baseline, folded into the same existing indeterminate vocabulary rather than a parallel
+        # boolean every downstream consumer would separately need to learn about.
+        clone_cache_incomplete = bool(result.get("clone_cache_completeness", {}).get("findings"))
         indeterminate = bool(
-            baseline_coverage
-            and baseline_coverage["status"] in (
-                _BASELINE_COVERAGE_RECOVERABLE_UNPINNED, _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+            clone_cache_incomplete
+            or (
+                baseline_coverage
+                and baseline_coverage["status"] in (
+                    _BASELINE_COVERAGE_RECOVERABLE_UNPINNED, _BASELINE_COVERAGE_UNRECOVERABLE_UNPINNED,
+                )
             )
         )
         # RRABP-02: verification_status is the new, honest name (disposition_tracking survives

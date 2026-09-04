@@ -7,6 +7,7 @@ so this test proves the gates actually fire, not just that the happy path comple
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -2227,12 +2228,18 @@ def test_dropped_content_downgrades_to_advisory_when_dispositions_exist(tmp_path
     # the one this test exists to cover). A bare trailing heading with no body produces no new
     # content unit (extract_old_readme_content_units strips headings before segmenting), so no
     # content_unit_disposition_coverage finding either -- a real, isolated dropped_heading case.
-    clone_cache_readme = (
-        repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat" / "README.md"
-    )
+    clone_cache = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    clone_cache_readme = clone_cache / "README.md"
     clone_cache_readme.write_text(
         clone_cache_readme.read_text(encoding="utf-8") + "\n## Roadmap\n", encoding="utf-8",
     )
+    # readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: ingest_candidate now
+    # auto-pins the old-README reference to a fresh `git rev-parse HEAD` (RC1/ST-183), so an
+    # uncommitted raw-file edit to the clone cache (the shape this test used before) would be
+    # invisible to _resolve_old_readme_text's now-pinned `git show <commit>:README.md` read --
+    # commit it for real, exactly like the drift-simulation fixture above does.
+    _run_git(["add", "."], clone_cache)
+    _run_git(["-c", "user.email=t@example.com", "-c", "user.name=T", "commit", "-q", "-m", "add roadmap heading"], clone_cache)
 
     manifest = rr.start_run("testfam", "testplat")
     run_id = manifest["run_id"]
@@ -2317,8 +2324,12 @@ def test_dropped_content_internal_labels_still_hard_gate_with_dispositions_prese
 
 def _add_second_product(repo_root, *, family="testfam2", platform="testplat2", active=True):
     """Extends the scratch repo's products.json with a second product entry, real enough for
-    audit_portfolio to enumerate -- no clone cache/knowledge needed, since a deliberately
-    section-incomplete candidate trips check_required_sections (a hard gate needing neither)."""
+    audit_portfolio to enumerate -- no KNOWLEDGE fixture needed, since a deliberately
+    section-incomplete candidate trips check_required_sections (a hard gate needing neither). A
+    minimal real clone cache IS created (readme-refresh-staleness-and-reference-frame-hardening-
+    2026-09-04): _clone_cache_completeness would otherwise report this product's genuinely-absent
+    clone cache as "indeterminate", which is correct in general but would swamp what this fixture
+    exists to isolate (that a real required_sections finding alone is reported checked_dirty)."""
     products_path = repo_root / "data" / "products.json"
     products = json.loads(products_path.read_text(encoding="utf-8"))
     products.append({
@@ -2328,6 +2339,20 @@ def _add_second_product(repo_root, *, family="testfam2", platform="testplat2", a
         "active": active, "discovered_via": "test",
     })
     products_path.write_text(json.dumps(products), encoding="utf-8")
+
+    upstream_dir = repo_root.parent / f"upstream-{family}-{platform}"
+    upstream_dir.mkdir(exist_ok=True)
+    (upstream_dir / "README.md").write_text("# Second Product\n\nMinimal fixture.\n", encoding="utf-8")
+    (upstream_dir / "LICENSE").write_text("MIT License\n\nCopyright ...\n", encoding="utf-8")
+    _run_git(["init", "-q", "-b", "main"], upstream_dir)
+    _run_git(["config", "user.email", "test@example.com"], upstream_dir)
+    _run_git(["config", "user.name", "Test"], upstream_dir)
+    _run_git(["add", "."], upstream_dir)
+    _run_git(["commit", "-q", "-m", "initial"], upstream_dir)
+
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / f"aspose_{family}_{platform}"
+    clone_cache_dir.parent.mkdir(parents=True, exist_ok=True)
+    _run_git(["clone", "--quiet", str(upstream_dir), str(clone_cache_dir)], repo_root)
 
 
 def _write_second_candidate(repo_root, family="testfam2", platform="testplat2"):
@@ -2808,6 +2833,13 @@ def test_audit_portfolio_skipped_published_is_not_fully_verified(tmp_path):
 
 
 def test_push_auto_pins_old_readme_baseline_on_pushed_transition(tmp_path, monkeypatch):
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04 (RC1/ST-183): a pin now
+    exists BEFORE push, written by ingest_candidate's own auto-pin -- proving push() no longer
+    has to be the sole anchor, closing the exact gap ST-183 named (a composed-but-never-pushed
+    ledger had no anchor at all). push() must still leave the baseline correctly pinned to the
+    same commit once PUSHED, whether that means writing it for the first time or confirming an
+    already-correct pin is left alone -- the observable end state, not which stage did the write,
+    is what this test verifies."""
     monkeypatch.setenv("AGENT_SESSION_ID", "test-session-autopin-a")
     monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
     repo_root, _ = _make_scratch_repo(tmp_path)
@@ -2817,15 +2849,17 @@ def test_push_auto_pins_old_readme_baseline_on_pushed_transition(tmp_path, monke
     pinned_head = manifest_before["pinned_inputs"]["clone_cache_head"]
 
     baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
-    assert not baseline_path.is_file(), "must not be pre-pinned before this push"
+    assert baseline_path.is_file(), "ingest_candidate must already have auto-pinned this product"
+    sidecar_before = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert sidecar_before["baseline_commit"] == pinned_head
+    assert sidecar_before["reason"].startswith("auto-pinned at ingest")
 
     manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
     assert manifest["state"] == "PUSHED"
 
-    assert baseline_path.is_file(), "push() must auto-pin the moment it reaches PUSHED"
+    assert baseline_path.is_file(), "the baseline must still be pinned once PUSHED"
     sidecar = json.loads(baseline_path.read_text(encoding="utf-8"))
     assert sidecar["baseline_commit"] == pinned_head
-    assert sidecar["reason"].startswith("auto-pinned at push")
 
 
 def test_push_auto_pin_is_idempotent_on_retry(tmp_path, monkeypatch):
@@ -3139,6 +3173,11 @@ def test_auto_pin_never_raises_on_a_pin_failure(tmp_path, monkeypatch):
 
 
 def test_push_records_auto_pin_result_on_the_manifest(tmp_path, monkeypatch):
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: since ingest_candidate
+    now auto-pins first (RC1/ST-183), push's own auto-pin correctly finds the commit already
+    anchored and reports `pinned: False` -- the manifest still visibly records that outcome
+    (proving push's own step ran and reported honestly), it just isn't a fresh write anymore in
+    the common, no-drift case this fixture exercises."""
     monkeypatch.setenv("AGENT_SESSION_ID", "test-session-manifest-visibility")
     monkeypatch.setenv("GH_TOKEN", "fake-token-for-local-push")
     repo_root, _ = _make_scratch_repo(tmp_path)
@@ -3146,10 +3185,74 @@ def test_push_records_auto_pin_result_on_the_manifest(tmp_path, monkeypatch):
     run_id = _advance_to_approved(repo_root)
 
     manifest = rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
-    assert manifest["auto_pin_result"]["pinned"] is True
+    assert manifest["auto_pin_result"]["pinned"] is False
+    assert "already pinned" in manifest["auto_pin_result"]["reason"]
 
     reloaded = rr.status("testfam", "testplat", run_id)
-    assert reloaded["auto_pin_result"]["pinned"] is True
+    assert reloaded["auto_pin_result"]["pinned"] is False
+
+
+def test_ingest_candidate_auto_pins_old_readme_baseline_at_a_fresh_head(tmp_path, monkeypatch):
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04 (RC1, closes ST-183):
+    the real gap this closes -- a composed-but-never-pushed ledger previously had no anchor at
+    all. Confirms ingest_candidate itself creates the pin, at the real, current clone-cache HEAD,
+    with the ingest-specific reason marker."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-ingest-autopin")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    real_head = _run_git(["rev-parse", "HEAD"], clone_cache)
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    assert not baseline_path.is_file(), "must not be pre-pinned before the product has ever been ingested"
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+
+    assert baseline_path.is_file(), "ingest_candidate must auto-pin the moment it composes/verifies a candidate"
+    sidecar = json.loads(baseline_path.read_text(encoding="utf-8"))
+    assert sidecar["baseline_commit"] == real_head
+    assert sidecar["reason"].startswith("auto-pinned at ingest")
+
+
+def test_ingest_candidate_auto_pin_does_not_raise_when_clone_cache_missing(tmp_path, monkeypatch):
+    """readme-refresh-staleness-and-reference-frame-hardening-2026-09-04: page/python's exact
+    real condition (2026-09-04) -- a product whose local clone cache does not exist at all. The
+    ingest-time auto-pin must degrade safely (mirroring _auto_pin_old_readme_baseline_at_push's
+    own established except (ReadmeRefreshRunError, OSError) posture), never raise out of
+    ingest_candidate, and clone_cache_completeness must report the gap as a real, named finding
+    rather than letting any check silently pass or flood on the missing data."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-ingest-autopin-missing")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+
+    def _force_remove_readonly(func, path, _exc_info):
+        # Windows marks real git object files read-only; plain shutil.rmtree can't unlink them.
+        os.chmod(path, 0o777)
+        func(path)
+
+    shutil.rmtree(clone_cache, onerror=_force_remove_readonly)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="hard-gate"):
+        rr.ingest_candidate("testfam", "testplat", run_id)
+
+    baseline_path = rr._old_readme_baseline_path("testfam", "testplat")
+    assert not baseline_path.is_file(), "nothing to pin against -- must not fabricate a pin"
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["clone_cache_completeness"]["findings"], "the missing clone must be a named finding"
+    assert result["dev_test_artifacts_linked"]["findings"], "must report 'cannot verify', never a silent pass"
 
 
 def test_audit_portfolio_cli_does_not_double_print_indeterminate_products_as_dirty(tmp_path, monkeypatch, capsys):
