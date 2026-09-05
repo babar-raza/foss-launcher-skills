@@ -1,0 +1,30 @@
+{
+  "seo-analysis.yml": {
+    "approved_baseline_sha256": "6e68c88c7221b84b5ab4499bb6424c11b9f6317506b0e736e1e5ceff14c3c806",
+    "baseline_recorded_at": "2026-09-05T19:29:23.732296Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-analysis.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-apply.yml": {
+    "approved_baseline_sha256": "1131e2ba2335b533413911bf00a1711739d1d1bb2e1d0f69e1b80d9ca06d26c0",
+    "baseline_recorded_at": "2026-09-05T19:29:24.628157Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-apply.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-keyword-refresh.yml": {
+    "approved_baseline_sha256": "11aa1e61d4b8303947ca552f71dd67b11fd9f87b82b6ed08bd424ec7dc93f4cb",
+    "baseline_recorded_at": "2026-09-05T19:29:25.525020Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-keyword-refresh.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-review.yml": {
+    "approved_baseline_sha256": "c4652d0b2c2f45538692c434cb0b5671b68cd18948e8c94365f1f07c00259baf",
+    "baseline_recorded_at": "2026-09-05T19:29:26.252904Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-review.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  }
+}
