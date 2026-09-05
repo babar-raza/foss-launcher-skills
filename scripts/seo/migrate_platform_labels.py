@@ -102,6 +102,11 @@ def _iter_family_files(content_sites, family):
 
 
 def migrate_families(target_families, content_sites, output_dir, state_path=None, max_calls=None):
+    # SEO-LLM-METRICS-UNIFY (Finding #59): distinguishes migration calls from
+    # get_keywords.py's own routine refresh in the shared Gemini metrics
+    # ledger -- this module rides along on get_keywords_from_gemini()'s own
+    # instrumentation, so only the consumer_id tag needs setting here.
+    get_keywords.set_metrics_consumer_id("migrate_platform_labels")
     state_path = state_path or _DEFAULT_STATE_PATH
     state = load_migration_state(state_path)
     state.setdefault("target_families", list(target_families))

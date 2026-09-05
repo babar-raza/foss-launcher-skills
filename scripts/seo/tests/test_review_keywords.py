@@ -124,6 +124,69 @@ def test_reevaluate_keywords_returns_none_after_exhausting_429_retries(monkeypat
     assert call_count["n"] == review_keywords._MAX_429_RETRIES
 
 
+class TestLlmMetricsUnify:
+    """SEO-LLM-METRICS-UNIFY (Finding #59): reevaluate_keywords() emits real
+    MetricsEvent rows tagged provider="gemini-direct", call_site_id="CS-011",
+    consumer_id="review_keywords"."""
+
+    def _fake_genai(self, monkeypatch, response_text="kw one\nkw two", raise_exc=None):
+        class _FakeResponse:
+            text = response_text
+
+        class _FakeModel:
+            def __init__(self, *a, **kw):
+                pass
+
+            def generate_content(self, prompt):
+                if raise_exc is not None:
+                    raise raise_exc
+                return _FakeResponse()
+
+        fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+        monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+        monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+        monkeypatch.setattr(review_keywords.time, "sleep", lambda *a, **kw: None)
+
+    def test_success_emits_one_success_event(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            review_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append(a),
+        )
+        self._fake_genai(monkeypatch)
+
+        review_keywords.reevaluate_keywords("Title", ["a"])
+
+        assert calls == [("CS-011", "review_keywords", "success")]
+
+    def test_exhausted_429_retries_emit_retry_then_failure(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            review_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append(a[2]),
+        )
+        self._fake_genai(monkeypatch, raise_exc=RuntimeError("429 Too Many Requests"))
+        monkeypatch.setattr(review_keywords, "_BACKOFF_BASE_SECONDS", 0)
+
+        result = review_keywords.reevaluate_keywords("Title", ["a"])
+
+        assert result is None
+        assert calls == ["retry"] * (review_keywords._MAX_429_RETRIES - 1) + ["failure"]
+
+    def test_metrics_recording_exception_never_breaks_reevaluation(self, monkeypatch):
+        """AGENTS.md §15: metrics failures must never crash or block the
+        parent pipeline job."""
+        def _boom(*a, **kw):
+            raise RuntimeError("metrics backend exploded")
+
+        monkeypatch.setattr(review_keywords.llm_metrics_adapter, "record_gemini_call", _boom)
+        self._fake_genai(monkeypatch)
+
+        result = review_keywords.reevaluate_keywords("Title", ["a"])
+
+        assert result == ["kw one", "kw two"]
+
+
 def test_process_json_files_raises_systemexit_when_every_call_fails(tmp_path, monkeypatch):
     family_file = tmp_path / "cad.json"
     family_file.write_text(

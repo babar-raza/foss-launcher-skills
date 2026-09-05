@@ -19,6 +19,22 @@ try:
 except ImportError:
     from pipeline.schema import canonical_families
 
+try:
+    from seo import llm_metrics_adapter
+except ImportError:
+    import llm_metrics_adapter
+
+
+def _emit_gemini_metrics(*args, **kwargs) -> None:
+    """AGENTS.md §15: "Metrics failures must never crash or block the parent
+    pipeline job" -- see get_keywords.py's identical wrapper for the full
+    rationale (defense-in-depth on top of record_gemini_call()'s own
+    never-raises contract)."""
+    try:
+        llm_metrics_adapter.record_gemini_call(*args, **kwargs)
+    except Exception:
+        logging.debug("review_keywords: metrics recording failed", exc_info=True)
+
 # google.generativeai is imported lazily, inside reevaluate_keywords(), not at
 # module load time -- see get_keywords.py for the same fix and its rationale.
 
@@ -93,25 +109,45 @@ def reevaluate_keywords(title, keywords, platform="net"):
         f"6. Return the revised list in plain text format, with one keyword per line.\n\n"
         f"Important: Do not justify your actions or mention limitations. Assume the best possible context and provide your most informed response."
     )
+    _metrics_model_name = "gemini-flash-lite-latest"
     for attempt in range(1, _MAX_429_RETRIES + 1):
+        _call_start = time.monotonic()
         try:
             response = model.generate_content(prompt)
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
             keywords_text = response.text
             new_keywords = [kw.strip() for kw in keywords_text.split('\n') if kw.strip()]
+            _prompt_tokens, _completion_tokens = llm_metrics_adapter.extract_gemini_token_usage(response)
+            _emit_gemini_metrics(
+                "CS-011", "review_keywords", "success",
+                model=_metrics_model_name, prompt_tokens=_prompt_tokens,
+                completion_tokens=_completion_tokens, latency_ms=_latency_ms,
+            )
             time.sleep(_RPM_PACING_SECONDS)
             return new_keywords
         except Exception as e:
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
             if "429" in str(e):
                 if attempt == _MAX_429_RETRIES:
                     logging.error(
                         f"Rate limit still active for title '{title}' after "
                         f"{_MAX_429_RETRIES} retries -- giving up on this title."
                     )
+                    _emit_gemini_metrics(
+                        "CS-011", "review_keywords", "failure",
+                        model=_metrics_model_name, latency_ms=_latency_ms,
+                        redacted_error_summary="rate_limit_exhausted",
+                    )
                     return None
                 backoff = _BACKOFF_BASE_SECONDS * attempt
                 logging.warning(
                     f"Rate limit reached (attempt {attempt}/{_MAX_429_RETRIES}), "
                     f"pausing for {backoff}s."
+                )
+                _emit_gemini_metrics(
+                    "CS-011", "review_keywords", "retry",
+                    model=_metrics_model_name, latency_ms=_latency_ms,
+                    redacted_error_summary="rate_limited_429",
                 )
                 time.sleep(backoff)
             else:
@@ -120,6 +156,11 @@ def reevaluate_keywords(title, keywords, platform="net"):
                 # instead of silently rewriting the same keywords back with a
                 # misleading "Updated keywords..." log line.
                 logging.error(f"Error during reevaluation for title '{title}': {e}")
+                _emit_gemini_metrics(
+                    "CS-011", "review_keywords", "failure",
+                    model=_metrics_model_name, latency_ms=_latency_ms,
+                    redacted_error_summary=str(e),
+                )
                 return None
     return None  # unreachable, but explicit
 

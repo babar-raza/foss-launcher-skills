@@ -27,6 +27,42 @@ try:
 except ImportError:
     from pipeline import autonomy_state
 
+try:
+    from seo import llm_metrics_adapter
+except ImportError:
+    import llm_metrics_adapter
+
+# SEO-LLM-METRICS-UNIFY (Finding #59): distinguishes get_keywords.py's own
+# direct runs from migrate_platform_labels.py's calls through this same
+# function in the shared metrics ledger, without changing
+# get_keywords_from_gemini()'s call signature (many existing tests monkeypatch
+# it with a narrow (title, platform="net") lambda; a new required/positional
+# parameter would break every one of them). migrate_platform_labels.py calls
+# set_metrics_consumer_id() once near the top of its own entry point instead.
+_metrics_consumer_id = "get_keywords"
+
+
+def set_metrics_consumer_id(consumer_id: str) -> str:
+    """Set the consumer_id tag used for Gemini metrics events emitted by
+    get_keywords_from_gemini() for the rest of this process. Returns the
+    previous value."""
+    global _metrics_consumer_id
+    previous = _metrics_consumer_id
+    _metrics_consumer_id = consumer_id
+    return previous
+
+
+def _emit_gemini_metrics(*args, **kwargs) -> None:
+    """AGENTS.md §15: "Metrics failures must never crash or block the parent
+    pipeline job" -- record_gemini_call() already never raises internally,
+    but this call-site wrapper is the defense-in-depth layer for the case
+    that contract is ever violated (a broken monkeypatch, a future refactor),
+    so a metrics failure can never propagate into keyword generation."""
+    try:
+        llm_metrics_adapter.record_gemini_call(*args, **kwargs)
+    except Exception:
+        logging.debug("get_keywords: metrics recording failed", exc_info=True)
+
 # google.generativeai is imported lazily, inside get_keywords_from_gemini(),
 # not at module load time. This is an optional, heavy dependency ("Install
 # only when SEO features are needed" per scripts/seo/requirements.txt) --
@@ -339,14 +375,24 @@ def get_keywords_from_gemini(page_title, platform="net"):
         f"using a single pipe character as the separator. "
         f"Provide only the keyword lines, with each keyword on a new line, and no additional explanations."
     )
+    _metrics_model_name = "gemini-flash-lite-latest"
     for attempt in range(1, _MAX_429_RETRIES + 1):
+        _call_start = time.monotonic()
         try:
             response = model.generate_content(prompt)
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
             keywords_text = response.text
             phrases, variants = _parse_gemini_keyword_response(keywords_text)
+            _prompt_tokens, _completion_tokens = llm_metrics_adapter.extract_gemini_token_usage(response)
+            _emit_gemini_metrics(
+                "CS-010", _metrics_consumer_id, "success",
+                model=_metrics_model_name, prompt_tokens=_prompt_tokens,
+                completion_tokens=_completion_tokens, latency_ms=_latency_ms,
+            )
             time.sleep(_RPM_PACING_SECONDS)
             return KeywordsWithVariants(phrases, variants)
         except Exception as e:
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
             if "429" in str(e):  # Check specifically for rate limit error
                 if attempt == _MAX_429_RETRIES:
                     logging.error(
@@ -354,11 +400,21 @@ def get_keywords_from_gemini(page_title, platform="net"):
                         f"{_MAX_429_RETRIES} retries -- giving up on this page "
                         f"(quota may be exhausted, not just rate-limited)."
                     )
+                    _emit_gemini_metrics(
+                        "CS-010", _metrics_consumer_id, "failure",
+                        model=_metrics_model_name, latency_ms=_latency_ms,
+                        redacted_error_summary="rate_limit_exhausted",
+                    )
                     return None
                 backoff = _BACKOFF_BASE_SECONDS * attempt
                 logging.warning(
                     f"Rate limit reached (attempt {attempt}/{_MAX_429_RETRIES}), "
                     f"pausing for {backoff}s."
+                )
+                _emit_gemini_metrics(
+                    "CS-010", _metrics_consumer_id, "retry",
+                    model=_metrics_model_name, latency_ms=_latency_ms,
+                    redacted_error_summary="rate_limited_429",
                 )
                 time.sleep(backoff)
             else:
@@ -369,6 +425,11 @@ def get_keywords_from_gemini(page_title, platform="net"):
                 # result and surface a systemic problem loudly instead of
                 # silently producing sparse/empty output for an entire run.
                 logging.error(f"Error with Gemini API for page '{page_title}': {e}")
+                _emit_gemini_metrics(
+                    "CS-010", _metrics_consumer_id, "failure",
+                    model=_metrics_model_name, latency_ms=_latency_ms,
+                    redacted_error_summary=str(e),
+                )
                 return None
     return None  # unreachable, but explicit
 

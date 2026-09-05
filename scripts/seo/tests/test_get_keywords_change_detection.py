@@ -282,3 +282,111 @@ class TestMaxCallsBudget:
             ["tex"], str(tmp_path), str(output_dir), max_calls=100
         )
         assert len(result["tex"]) == 1
+
+
+class TestLlmMetricsUnify:
+    """SEO-LLM-METRICS-UNIFY (Finding #59): get_keywords_from_gemini() emits
+    real MetricsEvent rows tagged provider="gemini-direct", without changing
+    its own call signature (many tests across this suite monkeypatch it with
+    a narrow (title, platform="net") lambda -- see the module's own comment
+    on set_metrics_consumer_id())."""
+
+    @pytest.fixture(autouse=True)
+    def _reset_consumer_id(self):
+        yield
+        get_keywords.set_metrics_consumer_id("get_keywords")
+
+    def _fake_genai(self, monkeypatch, response_text="kw one|KW One", raise_exc=None):
+        import types
+
+        class _FakeResponse:
+            text = response_text
+
+        class _FakeModel:
+            def __init__(self, *a, **kw):
+                pass
+
+            def generate_content(self, prompt):
+                if raise_exc is not None:
+                    raise raise_exc
+                return _FakeResponse()
+
+        fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+        monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+        monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+        monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
+
+    def test_success_emits_one_success_event_with_default_consumer_id(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            get_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append((a, kw)),
+        )
+        self._fake_genai(monkeypatch)
+
+        get_keywords.get_keywords_from_gemini("Some Page", platform="python")
+
+        assert len(calls) == 1
+        args, kwargs = calls[0]
+        assert args[0] == "CS-010"
+        assert args[1] == "get_keywords"
+        assert args[2] == "success"
+
+    def test_set_metrics_consumer_id_changes_the_tag(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            get_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append(a),
+        )
+        self._fake_genai(monkeypatch)
+
+        previous = get_keywords.set_metrics_consumer_id("migrate_platform_labels")
+        assert previous == "get_keywords"
+        get_keywords.get_keywords_from_gemini("Some Page")
+
+        assert calls[0][1] == "migrate_platform_labels"
+
+    def test_exhausted_429_retries_emit_retry_then_failure_events(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            get_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append((a[2], kw.get("redacted_error_summary"))),
+        )
+        self._fake_genai(monkeypatch, raise_exc=RuntimeError("429 Too Many Requests"))
+        monkeypatch.setattr(get_keywords, "_BACKOFF_BASE_SECONDS", 0)
+
+        result = get_keywords.get_keywords_from_gemini("Some Page")
+
+        assert result is None
+        statuses = [c[0] for c in calls]
+        assert statuses == ["retry"] * (get_keywords._MAX_429_RETRIES - 1) + ["failure"]
+        assert calls[-1][1] == "rate_limit_exhausted"
+
+    def test_hard_failure_emits_one_failure_event(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            get_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: calls.append((a[2], kw.get("redacted_error_summary"))),
+        )
+        self._fake_genai(monkeypatch, raise_exc=RuntimeError("404 model not found"))
+
+        result = get_keywords.get_keywords_from_gemini("Some Page")
+
+        assert result is None
+        assert calls == [("failure", "404 model not found")]
+
+    def test_a_metrics_recording_exception_never_breaks_keyword_generation(self, monkeypatch):
+        """AGENTS.md §15: metrics failures must never crash or block the
+        parent pipeline job. record_gemini_call() already never raises on
+        its own, but this proves the call-site wrapper (_emit_gemini_metrics)
+        is real defense-in-depth, not just documentation -- even a badly
+        broken metrics backend must not stop keyword generation."""
+        def _boom(*a, **kw):
+            raise RuntimeError("metrics backend exploded")
+
+        monkeypatch.setattr(get_keywords.llm_metrics_adapter, "record_gemini_call", _boom)
+        self._fake_genai(monkeypatch)
+
+        result = get_keywords.get_keywords_from_gemini("Some Page")
+
+        assert list(result) == ["kw one"]
