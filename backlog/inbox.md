@@ -289,14 +289,16 @@
 ## SEO Opportunities
 
 <!-- Populated by the seo-keyword-production-integration mission's weekly seo-analysis.yml
-     (task SEO-INREPO-ANALYSIS-WORKFLOW, not yet built). Dedup rule: an ID of the form
-     SEO-<sha256(page_path + "|" + normalized_query_cluster)[:8]> that already appears
-     anywhere below (regardless of Status) is never re-appended — the analysis run must
-     check this table before adding a row, not just check reports/seo/*.json (which is
-     ephemeral and rebuilt fresh every run). "Family/Site" is the site domain plus family
-     (e.g. "docs/pdf"), not just the domain, since opportunity volume is family-scoped.
+     (task SEO-INREPO-ANALYSIS-WORKFLOW, shipped 2026-07-29 as .github/workflows/seo-analysis.yml
+     -- corrected 2026-09-05 by MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE/F12; this
+     comment previously said "not yet built" after the workflow had already landed). Dedup
+     rule: an ID of the form SEO-<sha256(page_path + "|" + normalized_query_cluster)[:8]>
+     that already appears anywhere below (regardless of Status) is never re-appended — the
+     analysis run must check this table before adding a row, not just check reports/seo/*.json
+     (which is ephemeral and rebuilt fresh every run). "Family/Site" is the site domain plus
+     family (e.g. "docs/pdf"), not just the domain, since opportunity volume is family-scoped.
      No entries yet — this section is the structural home (SEO-BACKLOG-OPPORTUNITIES-TABLE),
-     seeded before the analysis workflow that populates it exists. -->
+     seeded before the analysis workflow that populates it had landed. -->
 
 | ID | Family/Site | Title | Status | Priority | Score | Notes | Updated |
 |----|-------------|-------|--------|----------|-------|-------|---------|
