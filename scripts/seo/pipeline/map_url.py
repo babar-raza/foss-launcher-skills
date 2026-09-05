@@ -16,6 +16,7 @@ No LLM calls. No network calls. stdlib + pathlib + pyyaml only.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import warnings
@@ -72,6 +73,72 @@ def _load_schema_b_entries(keywords_dir: Path) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Case-insensitive path resolution (F2, SEO-MAPURL-CASE-INSENSITIVE-RESOLVE)
+# ---------------------------------------------------------------------------
+#
+# Hugo lowercases every URL slug, but some content filenames are not lowercase
+# (e.g. reference.aspose.org's per-class pages: content/reference.aspose.org/
+# en/slides/net/SaveFormat.md). Every strategy below used to build a candidate
+# Path and call candidate.exists() directly -- correct-looking on this repo's
+# Windows/NTFS dev checkouts (case-insensitive at the OS level) but silently
+# wrong on the case-sensitive Linux CI runner, where a lowercase
+# "saveformat.md" candidate never matches the real "SaveFormat.md" file. This
+# resolver never calls Path.exists() on a dynamically-built candidate; it
+# walks each path component against a cached, real directory listing instead,
+# so the same case-folded match happens on every platform.
+
+_DIR_LISTING_CACHE: dict[Path, dict[str, str]] = {}
+
+
+def _listdir_casefold(directory: Path) -> dict[str, str]:
+    """Case-folded name -> real on-disk name for one directory. Cached per
+    directory so repeated lookups (one per GSC URL sharing a parent) don't
+    re-list the same directory."""
+    cached = _DIR_LISTING_CACHE.get(directory)
+    if cached is None:
+        try:
+            cached = {name.lower(): name for name in os.listdir(directory)}
+        except OSError:
+            cached = {}
+        _DIR_LISTING_CACHE[directory] = cached
+    return cached
+
+
+def _resolve_case_insensitive(base: Path, *parts: str) -> Path | None:
+    """Resolve base/parts[0]/parts[1]/... against real on-disk names,
+    case-folding every component. Returns the real (correctly-cased) Path if
+    every component matches an actual directory entry and the final
+    component is a file; None otherwise. `base` itself is assumed to already
+    exist with the case given (domain names and 'en' are fixed, always
+    lowercase by convention) -- only the dynamic, URL-derived components are
+    case-folded here."""
+    if not parts:
+        return None
+    current = base
+    if not current.is_dir():
+        return None
+    last_index = len(parts) - 1
+    for i, part in enumerate(parts):
+        names = _listdir_casefold(current)
+        real_name = names.get(part.lower())
+        if real_name is None:
+            return None
+        candidate = current / real_name
+        if i == last_index:
+            return candidate if candidate.is_file() else None
+        if not candidate.is_dir():
+            return None
+        current = candidate
+    return None
+
+
+def _resolve_relative_ci(base: Path, rel: str) -> Path | None:
+    """Case-insensitively resolve a '/'-joined relative path under base."""
+    parts = [p for p in rel.split("/") if p]
+    return _resolve_case_insensitive(base, *parts)
+
+
+# ---------------------------------------------------------------------------
 # URL -> content path resolution
 # ---------------------------------------------------------------------------
 
@@ -98,18 +165,20 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
 
     site_root = content_root / domain
 
-    if not site_root.exists():
+    if not site_root.is_dir():
         return None, "unmatched"
 
     # Strategy 1: {domain}/{path}/index.md
-    candidate1 = site_root / stripped / "index.md" if stripped else site_root / "index.md"
-    if candidate1.exists():
-        return candidate1, "exact"
+    rel1 = f"{stripped}/index.md" if stripped else "index.md"
+    hit = _resolve_relative_ci(site_root, rel1)
+    if hit is not None:
+        return hit, "exact"
 
     # Strategy 2: {domain}/{path}/_index.md
-    candidate2 = site_root / stripped / "_index.md" if stripped else site_root / "_index.md"
-    if candidate2.exists():
-        return candidate2, "alt_index"
+    rel2 = f"{stripped}/_index.md" if stripped else "_index.md"
+    hit = _resolve_relative_ci(site_root, rel2)
+    if hit is not None:
+        return hit, "alt_index"
 
     # Strategy 3: products.aspose.org and websites.aspose.org use /en/ prefix in
     # content (Finding #45: websites.aspose.org was missing from every /en/-prefix
@@ -119,12 +188,14 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
     # e.g. https://products.aspose.org/3d/ -> content/products.aspose.org/en/3d/_index.md
     #      https://websites.aspose.org/aspose/app/ -> content/websites.aspose.org/en/aspose/app/_index.md
     if domain in ("products.aspose.org", "websites.aspose.org"):
-        candidate3 = site_root / "en" / stripped / "_index.md" if stripped else site_root / "en" / "_index.md"
-        if candidate3.exists():
-            return candidate3, "exact"
-        candidate3b = site_root / "en" / stripped / "index.md" if stripped else site_root / "en" / "index.md"
-        if candidate3b.exists():
-            return candidate3b, "exact"
+        rel3 = f"en/{stripped}/_index.md" if stripped else "en/_index.md"
+        hit = _resolve_relative_ci(site_root, rel3)
+        if hit is not None:
+            return hit, "exact"
+        rel3b = f"en/{stripped}/index.md" if stripped else "en/index.md"
+        hit = _resolve_relative_ci(site_root, rel3b)
+        if hit is not None:
+            return hit, "exact"
 
     # Strategy 4: docs/kb/reference use /en/ prefix in content
     if domain in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
@@ -135,19 +206,22 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
             inner = stripped[3:]
         else:
             inner = stripped
-        candidate4 = site_root / "en" / inner / "index.md" if inner else site_root / "en" / "index.md"
-        if candidate4.exists():
-            return candidate4, "exact"
-        candidate4b = site_root / "en" / inner / "_index.md" if inner else site_root / "en" / "_index.md"
-        if candidate4b.exists():
-            return candidate4b, "alt_index"
+        rel4 = f"en/{inner}/index.md" if inner else "en/index.md"
+        hit = _resolve_relative_ci(site_root, rel4)
+        if hit is not None:
+            return hit, "exact"
+        rel4b = f"en/{inner}/_index.md" if inner else "en/_index.md"
+        hit = _resolve_relative_ci(site_root, rel4b)
+        if hit is not None:
+            return hit, "alt_index"
 
     # Strategy 5: bare .md file (non-directory URL)
     # e.g. /some/page -> content/{domain}/some/page.md
     if stripped:
-        candidate5 = site_root / (stripped.rstrip("/") + ".md")
-        if candidate5.exists():
-            return candidate5, "bare_file"
+        rel5 = stripped.rstrip("/") + ".md"
+        hit = _resolve_relative_ci(site_root, rel5)
+        if hit is not None:
+            return hit, "bare_file"
 
         # Strategy 5b: docs/kb/reference use /en/ prefix in content, same as Strategy 4 —
         # but Strategy 4 only tries index.md/_index.md forms, never a bare .md file.
@@ -155,9 +229,10 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
         #      content/docs.aspose.org/en/words/python/getting-started/installation.md
         if domain in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
             inner = stripped[3:] if stripped.startswith("en/") else stripped
-            candidate5b = site_root / "en" / (inner.rstrip("/") + ".md")
-            if candidate5b.exists():
-                return candidate5b, "bare_file"
+            rel5b = "en/" + inner.rstrip("/") + ".md"
+            hit = _resolve_relative_ci(site_root, rel5b)
+            if hit is not None:
+                return hit, "bare_file"
 
     return None, "unmatched"
 

@@ -106,6 +106,103 @@ class TestRealContentRegressionPin:
         assert match_type == "bare_file"
 
 
+class TestCaseInsensitiveResolution:
+    """F2 (SEO-MAPURL-CASE-INSENSITIVE-RESOLVE): Hugo lowercases every URL
+    slug; reference.aspose.org's per-class filenames are PascalCase (e.g.
+    SaveFormat.md). The old code called Path.exists() directly on a
+    lowercase-derived candidate, which only "worked" because this repo's
+    Windows/NTFS dev checkouts are case-insensitive at the OS level -- the
+    identical lookup fails on the case-sensitive Linux CI runner. All 7
+    reference.aspose.org GSC URLs at HEAD (7,583 impressions, 100%) were
+    unmatched in CI for exactly this reason.
+    """
+
+    def test_negative_control_naive_lowercase_candidate_fails_case_sensitive_check(
+        self, case_sensitive_exists
+    ):
+        """Prove the OLD approach (a raw candidate.exists() call) would fail
+        on a case-sensitive filesystem even though the real file exists --
+        without needing a Linux runner to demonstrate it on."""
+        naive_candidate = _CONTENT_ROOT / "reference.aspose.org" / "en" / "slides" / "net" / "saveformat.md"
+        assert not case_sensitive_exists(naive_candidate), (
+            "the real file is 'SaveFormat.md' (PascalCase); a naive lowercase "
+            "candidate must NOT satisfy a case-sensitive existence check -- "
+            "this is exactly why the old code silently failed on Linux CI"
+        )
+
+    def test_golden_real_saveformat_page_resolves_despite_pascalcase_filename(self):
+        """The exact motivating real-world case: the highest-impression page
+        in the whole mission (Finding #7 -- 'saveformat' query, 10,471
+        impressions) must resolve through the new resolver against this
+        repo's real, unmodified content/ tree."""
+        path, match_type = _resolve_url_to_content_path(
+            "https://reference.aspose.org/slides/net/saveformat/", _CONTENT_ROOT
+        )
+        assert path is not None, "the real SaveFormat.md page must resolve"
+        assert path.name == "SaveFormat.md"
+        assert match_type == "bare_file"
+
+    def test_synthetic_pascalcase_filename_resolves(self, tmp_path):
+        """Synthetic, deterministic counterpart to the golden test above --
+        does not depend on the real repo's content/ tree staying unchanged."""
+        site_root = tmp_path / "reference.aspose.org"
+        target = site_root / "en" / "slides" / "net" / "SaveFormat.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+
+        path, match_type = _resolve_url_to_content_path(
+            "https://reference.aspose.org/slides/net/saveformat/", tmp_path
+        )
+        assert path == target
+        assert match_type == "bare_file"
+
+    def test_multi_level_case_mismatch_resolves(self, tmp_path):
+        """Case-folding must apply to every path component, not just the
+        final filename -- a directory segment can be mis-cased too."""
+        site_root = tmp_path / "docs.aspose.org"
+        target = site_root / "en" / "PDF" / "Python" / "Getting-Started" / "index.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+
+        path, match_type = _resolve_url_to_content_path(
+            "https://docs.aspose.org/pdf/python/getting-started/", tmp_path
+        )
+        assert path == target
+        assert match_type == "exact"
+
+    def test_still_unmatched_when_no_case_variant_exists(self, tmp_path):
+        """Case-folding must never manufacture a false match -- a genuinely
+        absent page stays unmatched."""
+        site_root = tmp_path / "reference.aspose.org"
+        (site_root / "en" / "slides" / "net").mkdir(parents=True)
+
+        path, match_type = _resolve_url_to_content_path(
+            "https://reference.aspose.org/slides/net/nonexistentclass/", tmp_path
+        )
+        assert path is None
+        assert match_type == "unmatched"
+
+    def test_directory_listing_cache_survives_repeat_lookups(self, tmp_path):
+        """The resolver caches directory listings per directory (plan spec:
+        'cache per directory') -- a second lookup under the same directory
+        must not be defeated by a stale or missing cache entry."""
+        import seo.pipeline.map_url as map_url_module
+
+        site_root = tmp_path / "reference.aspose.org"
+        target = site_root / "en" / "slides" / "net" / "SaveFormat.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+
+        map_url_module._DIR_LISTING_CACHE.clear()
+        for _ in range(2):
+            path, match_type = _resolve_url_to_content_path(
+                "https://reference.aspose.org/slides/net/saveformat/", tmp_path
+            )
+            assert path == target
+            assert match_type == "bare_file"
+        assert (site_root / "en" / "slides" / "net") in map_url_module._DIR_LISTING_CACHE
+
+
 class TestWebsitesAsposeOrgEnPrefix:
     """Strategy 3 extended to websites.aspose.org (Finding #45): this site's
     content also lives under an /en/ prefix (e.g.
