@@ -325,6 +325,20 @@
       "merged_by_login": "babar-raza",
       "published_blob_sha256": "7e0a6b781eba1976b93d3ef97e3c4e3d90449c3b507c067e1f3b2fa6cf88ab6b",
       "published_commit": "dcf9549a935158405e96b6c99c39730ffdf4ff50"
+    },
+    {
+      "family": "pdf",
+      "platform": "typescript",
+      "last_known_publication": "2026-09-04",
+      "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript/pull/2), merged 2026-09-04T12:32:41Z",
+      "pr_number": 2,
+      "merged_at": "2026-09-04T12:32:41Z",
+      "merge_commit_sha": "92446cce4a639215de3027226fcdff50eff3bcf5",
+      "last_reconciled_at": "2026-09-05T05:23:25.605765Z",
+      "reconciliation_state": "IN_SYNC",
+      "merged_by_login": "babar-raza",
+      "published_blob_sha256": "5b9c07d32777b307ee691494737bc5b7d59e360cb78a6c5ef1e86d30107b65c3",
+      "published_commit": "92446cce4a639215de3027226fcdff50eff3bcf5"
     }
   ]
 }
