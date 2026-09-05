@@ -170,7 +170,20 @@ def _site_and_path(identifier: str) -> "tuple[str, str] | None":
     by independent review of the first version of this module: a schemeless
     content path always urlparses to an empty netloc, which can never equal
     a real site's netloc, so every Path-B candidate looked like it had no
-    site at all)."""
+    site at all).
+
+    Known, dormant limitation (found by a second independent review):
+    blog.aspose.org uses Hugo's filename-suffix locale convention
+    (index.ru.md, index.pt.md, ... alongside index.md) instead of a locale
+    *directory* segment, unlike every other site here. Two content-relative
+    paths differing only in that filename suffix collapse to the identical
+    (site, path) tuple, so is_locale_pair() would return False for them if
+    ever called with two content-relative paths directly. Not currently
+    reachable: check_cannibalization()'s only caller always supplies the
+    query-index side (`r["url"]`) as a real https:// URL from Schema B GSC
+    data, never a second content-relative path -- but a future direct
+    Path-B-vs-Path-B comparison would need this filename-suffix form handled
+    explicitly first."""
     if identifier.startswith("http://") or identifier.startswith("https://"):
         parsed = urlparse(identifier)
         return parsed.netloc, parsed.path
