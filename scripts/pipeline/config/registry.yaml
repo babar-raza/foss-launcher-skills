@@ -5644,3 +5644,474 @@ scripts:
       Window = oldest(explicit/session base, 14-day/5000-commit lookback);
       findings classed session (blocking) vs lookback (soak: warn). Consumed
       by the checker CLI and git_plumb_commit.py (temp-index mode)."
+
+
+  # ── SEO pipeline (scripts/seo/) ─ registered by SEO-TESTS-CI-WIRING, Finding #61 ─────────────
+  - path: scripts/seo/pipeline/analyze.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "no test file exists for this module despite active production use -- a real gap found while wiring scripts/seo/tests into CI (SEO-TESTS-CI-WIRING), not an intentional exemption; flagged as a follow-up rather than fixed here (writing new tests is out of this card's scope)."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/apply.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_apply_governance.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/audit_schema_a.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_audit_schema_a.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/autonomy_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_autonomy_state.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/check_merge_safety.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_check_merge_safety.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/compare.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "no test file exists for this module despite active production use -- a real gap found while wiring scripts/seo/tests into CI (SEO-TESTS-CI-WIRING), not an intentional exemption; flagged as a follow-up rather than fixed here (writing new tests is out of this card's scope)."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/demand_hints.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_demand_hints.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/faq_keyword_seeding.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_faq_keyword_seeding.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/frontmatter_grounding.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_frontmatter_grounding.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/frontmatter_grounding_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_frontmatter_grounding_audit.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/gsc_history.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "new module (SEO-TITLE-PILOT-OBSERVATION-MEASURE, it-0009) with no dedicated unit-test file yet -- exercised via its own driver script and independently reviewer-verified live-data calls (hand-checked arithmetic against real GSC snapshots); a real gap for its next real consumer (SEO-METADATA-OBSERVATION-LOOP) to close, not silently exempted."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/inventory.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "no test file exists for this module despite active production use -- a real gap found while wiring scripts/seo/tests into CI (SEO-TESTS-CI-WIRING), not an intentional exemption; flagged as a follow-up rather than fixed here (writing new tests is out of this card's scope)."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/keyword_gap_report.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_keyword_gap_report.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/keyword_lookup.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_keyword_lookup.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/keyword_page_assignment.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_keyword_page_assignment.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/map_url.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_map_url_resolution.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/quarantine_stale_entries.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_quarantine_stale_entries.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/recommend.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_metrics_recommend_adapter.py
+    requires_test: true
+    test_exempt_reason: "test_metrics_recommend_adapter.py covers recommend.py's metrics-adapter integration only, not its full recommendation logic -- partial, real coverage, not comprehensive."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/report.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "no test file exists for this module despite active production use -- a real gap found while wiring scripts/seo/tests into CI (SEO-TESTS-CI-WIRING), not an intentional exemption; flagged as a follow-up rather than fixed here (writing new tests is out of this card's scope)."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/safety.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "no test file exists for this module despite active production use -- a real gap found while wiring scripts/seo/tests into CI (SEO-TESTS-CI-WIRING), not an intentional exemption; flagged as a follow-up rather than fixed here (writing new tests is out of this card's scope)."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/schema.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_schema_classification.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/title_consistency_evaluator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_title_consistency_evaluator.py
+      - scripts/seo/tests/test_title_governance_reconcile.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/title_templates.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_title_templates.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/validate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_schema_classification.py
+    requires_test: true
+    test_exempt_reason: "validate.py is imported and exercised by test_schema_classification.py, not a dedicated test_validate.py -- real but indirect coverage."
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/pipeline/weekly_analysis.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_weekly_analysis.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/get_keywords.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_get_keywords_change_detection.py
+      - scripts/seo/tests/test_get_keywords_dedup.py
+      - scripts/seo/tests/test_get_keywords_platform_extraction.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/migrate_platform_labels.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_migrate_platform_labels.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/seo/review_keywords.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: seo-content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/seo/tests/test_review_keywords.py
+    requires_test: true
+    deprecated_since: null
+    notes: "SEO-TESTS-CI-WIRING (2026-09-05): registered as part of wiring scripts/seo/tests into pytest.ini and CI (Finding #61)."
+
+  - path: scripts/pipeline/commands/governance/taskcard_cli.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_taskcard_cli.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Thin CLI over TaskcardStore for mission taskcard ledgers (SEO-LOOP-TASKCARD-CLI, MT064 Wave 0, it-0000): latest/ready/seed/claim/advance/release/recover-expired. Registered by SEO-TESTS-CI-WIRING after check_pipeline_registration.py surfaced it as an unregistered pre-existing gap from this same mission's own earlier work."
