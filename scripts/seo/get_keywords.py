@@ -130,6 +130,39 @@ def find_existing_entry(family, source_path, title, output_dir):
     return _find_entry(data, source_path, title)
 
 
+def _merge_title_ready_variants(entry, new_keywords):
+    """UNION semantics (matches append_keywords_to_existing's own keyword
+    union): if `new_keywords` carries `.title_variants` (a real dual-field
+    Gemini call, SEO-SCHEMA-A-DUAL-FIELD-GENERATION), merge them into the
+    entry's existing map and mark schema_version 2. A plain list (legacy
+    caller, test mock, or a response with no parsed variants) leaves the
+    entry untouched -- lazy and additive, never a forced migration.
+    """
+    variants = getattr(new_keywords, "title_variants", None)
+    if not variants:
+        return
+    merged = dict(entry.get("title_ready_variants") or {})
+    merged.update(variants)
+    entry["title_ready_variants"] = merged
+    entry["schema_version"] = 2
+
+
+def _replace_title_ready_variants(entry, new_keywords):
+    """REPLACE semantics (matches replace_keywords_for_entry's own
+    keyword-replace, not union -- Finding #52): the entry's variants become
+    exactly what this call produced. If this call produced none (legacy
+    caller, test mock, or a response with no parsed variants), drop any
+    stale map left over from before -- it no longer corresponds to the
+    keywords that now exist on this entry.
+    """
+    variants = getattr(new_keywords, "title_variants", None)
+    if variants:
+        entry["title_ready_variants"] = dict(variants)
+        entry["schema_version"] = 2
+    else:
+        entry.pop("title_ready_variants", None)
+
+
 # Append new keywords to an existing entry, identified by sourcePath (falling
 # back to pageTitle for legacy entries). If the page's title has changed
 # since the entry was created, the stored pageTitle is updated in place --
@@ -148,6 +181,7 @@ def append_keywords_to_existing(family, source_path, title, new_keywords, output
     if entry is not None:
         existing_keywords = set(entry.get("keywords", []))
         entry["keywords"] = list(existing_keywords.union(new_keywords))
+        _merge_title_ready_variants(entry, new_keywords)
         if source_path:
             entry["sourcePath"] = source_path
         if entry.get("pageTitle") != title:
@@ -180,6 +214,7 @@ def replace_keywords_for_entry(family, source_path, title, new_keywords, output_
     entry = _find_entry(data, source_path, title)
     if entry is not None:
         entry["keywords"] = list(new_keywords)
+        _replace_title_ready_variants(entry, new_keywords)
         if source_path:
             entry["sourcePath"] = source_path
         entry["pageTitle"] = title
@@ -203,6 +238,56 @@ def save_family_to_json(family, data, output_dir):
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json.dump(list(data), json_file, indent=4, ensure_ascii=False)
     logging.info(f"Saved {family} data to {file_path}")
+
+
+class KeywordsWithVariants(list):
+    """A `list[str]` of raw keyword phrases -- behaves exactly like the plain
+    list every existing caller (and test) already expects `get_keywords_from_
+    gemini()` to return -- that also carries `.title_variants`, a
+    `{keyword_phrase: title_ready_variant}` mapping for whichever phrases the
+    same Gemini call also produced a natural, Title Case variant for
+    (SEO-SCHEMA-A-DUAL-FIELD-GENERATION, Finding #57 Section J). Additive and
+    lazy by construction: a plain `list` (every existing test mock, and any
+    future caller that doesn't opt into the new prompt format) has no
+    `.title_variants` attribute at all, so `getattr(keywords, "title_variants",
+    None)` cleanly distinguishes "no variants available" from "variants
+    present but empty" without needing an isinstance check at every call site.
+    """
+
+    def __init__(self, keywords=(), title_variants=None):
+        super().__init__(keywords)
+        self.title_variants = title_variants or {}
+
+
+def _parse_gemini_keyword_response(keywords_text):
+    """Parse Gemini's response into (phrases, title_variants).
+
+    Expected line format: "<keyword phrase>|<Title Ready Variant>" -- the
+    same single call now asks for both fields (SEO-SCHEMA-A-DUAL-FIELD-
+    GENERATION: no new LLM call, no new cost). Tolerant of a model that drops
+    the pipe/variant on a given line: the phrase is still kept, just without
+    a variant for that one line, rather than the whole line being discarded --
+    a formatting slip on the new, optional half of the response must never
+    regress keyword generation itself.
+    """
+    phrases = []
+    variants = {}
+    for line in keywords_text.split('\n'):
+        line = line.strip()
+        if not line:
+            continue
+        if '|' in line:
+            phrase, variant = line.split('|', 1)
+            phrase = phrase.strip()
+            variant = variant.strip()
+            if not phrase:
+                continue
+            phrases.append(phrase)
+            if variant:
+                variants[phrase] = variant
+        else:
+            phrases.append(line)
+    return phrases, variants
 
 
 # Free-tier Gemini rate limits are as low as 15 RPM (Google AI Studio free
@@ -247,16 +332,20 @@ def get_keywords_from_gemini(page_title, platform="net"):
     model = genai.GenerativeModel("gemini-flash-lite-latest")
     prompt = (
         f"Generate a concise list of SEO keywords for the product page titled '{page_title}'. "
-        f"Focus on long tail keywords related to {platform_phrase} having medium to high search volume, and low to medium competition."
-        f"Provide only the keywords, with each keyword on a new line, and no additional explanations."
+        f"Focus on long tail keywords related to {platform_phrase} having medium to high search volume, and low to medium competition. "
+        f"For EACH keyword also provide a short, natural, Title Case phrase (at most 6 words, "
+        f"same meaning, no invented facts) suitable for use in a page title. "
+        f"Output exactly one keyword per line in this format: <keyword phrase>|<Title Case phrase>, "
+        f"using a single pipe character as the separator. "
+        f"Provide only the keyword lines, with each keyword on a new line, and no additional explanations."
     )
     for attempt in range(1, _MAX_429_RETRIES + 1):
         try:
             response = model.generate_content(prompt)
             keywords_text = response.text
-            keywords = [kw.strip() for kw in keywords_text.split('\n') if kw.strip()]
+            phrases, variants = _parse_gemini_keyword_response(keywords_text)
             time.sleep(_RPM_PACING_SECONDS)
-            return keywords
+            return KeywordsWithVariants(phrases, variants)
         except Exception as e:
             if "429" in str(e):  # Check specifically for rate limit error
                 if attempt == _MAX_429_RETRIES:
@@ -416,11 +505,16 @@ def process_markdown_files_by_families(
                         call_success_count += 1
                         consecutive_failures = 0
                         if keywords:
-                            family_data[family].append({
+                            new_entry = {
                                 "pageTitle": page_title,
                                 "sourcePath": source_path,
-                                "keywords": keywords
-                            })
+                                "keywords": keywords,
+                            }
+                            variants = getattr(keywords, "title_variants", None)
+                            if variants:
+                                new_entry["title_ready_variants"] = dict(variants)
+                                new_entry["schema_version"] = 2
+                            family_data[family].append(new_entry)
 
                 if consecutive_failures >= _CIRCUIT_BREAKER_CONSECUTIVE_FAILURES:
                     logging.error(

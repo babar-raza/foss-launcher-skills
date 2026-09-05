@@ -156,6 +156,32 @@ def test_fails_on_unexpected_entry_keys(tmp_path):
     assert any("GATE 3 FAILED" in m for m in messages)
 
 
+def test_passes_with_title_ready_variants_and_schema_version_keys(tmp_path):
+    """SEO-SCHEMA-A-DUAL-FIELD-GENERATION: the two new, optional, additive
+    keys must not trip Gate 3 -- otherwise the very next scheduled Schema A
+    refresh PR that regenerates any entry loses its auto-merge eligibility."""
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(json.dumps([]), encoding="utf-8")
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([{
+            "pageTitle": "A",
+            "sourcePath": "content/x.md",
+            "keywords": ["x"],
+            "title_ready_variants": {"x": "X Title"},
+            "schema_version": 2,
+        }]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "dual-field entry")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert passed, messages
+
+
 def test_fails_on_entry_count_regression(tmp_path):
     """Real failing case for Gate 4: a run that silently drops an entry
     (e.g. a rename that fails a lookup) must not pass."""

@@ -123,6 +123,186 @@ def test_find_existing_entry_returns_none_for_new_page(tmp_path):
     assert found is None
 
 
+# --- SEO-SCHEMA-A-DUAL-FIELD-GENERATION (Finding #57 Section J) ---
+
+
+def test_keywords_with_variants_behaves_as_a_plain_list():
+    kw = get_keywords.KeywordsWithVariants(["a", "b"], {"a": "A Title"})
+    assert kw == ["a", "b"]
+    assert list(kw) == ["a", "b"]
+    assert set(kw) == {"a", "b"}
+    assert kw.title_variants == {"a": "A Title"}
+
+
+def test_parse_gemini_keyword_response_dual_field():
+    text = "keyword one|Keyword One Title\nkeyword two|Keyword Two Title"
+    phrases, variants = get_keywords._parse_gemini_keyword_response(text)
+    assert phrases == ["keyword one", "keyword two"]
+    assert variants == {"keyword one": "Keyword One Title", "keyword two": "Keyword Two Title"}
+
+
+def test_parse_gemini_keyword_response_tolerates_missing_pipe():
+    """A model that ignores the format on one line must not lose that
+    phrase -- only the (optional) variant for that one line is absent."""
+    text = "keyword one|Keyword One Title\nkeyword two\nkeyword three|Keyword Three Title"
+    phrases, variants = get_keywords._parse_gemini_keyword_response(text)
+    assert phrases == ["keyword one", "keyword two", "keyword three"]
+    assert variants == {"keyword one": "Keyword One Title", "keyword three": "Keyword Three Title"}
+
+
+def test_get_keywords_from_gemini_returns_keywords_with_variants(monkeypatch):
+    class _FakeResponse:
+        text = "quick start guide|Quick Start Guide\nsetup tutorial|Setup Tutorial"
+
+    class _FakeModel:
+        def __init__(self, *a, **kw):
+            pass
+
+        def generate_content(self, prompt):
+            return _FakeResponse()
+
+    import types
+    fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+    monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
+
+    result = get_keywords.get_keywords_from_gemini("Some Page", platform="java")
+    assert isinstance(result, get_keywords.KeywordsWithVariants)
+    assert result == ["quick start guide", "setup tutorial"]
+    assert result.title_variants == {
+        "quick start guide": "Quick Start Guide",
+        "setup tutorial": "Setup Tutorial",
+    }
+
+
+def test_append_keywords_to_existing_merges_title_ready_variants(tmp_path):
+    family_file = tmp_path / "pdf.json"
+    _write(family_file, [
+        {
+            "pageTitle": "Title",
+            "sourcePath": "content/kb.aspose.org/pdf/page.md",
+            "keywords": ["old-kw"],
+            "title_ready_variants": {"old-kw": "Old Kw Title"},
+            "schema_version": 2,
+        }
+    ])
+    new_keywords = get_keywords.KeywordsWithVariants(["new-kw"], {"new-kw": "New Kw Title"})
+
+    get_keywords.append_keywords_to_existing(
+        "pdf", "content/kb.aspose.org/pdf/page.md", "Title", new_keywords, str(tmp_path)
+    )
+
+    data = json.loads(family_file.read_text(encoding="utf-8"))
+    assert data[0]["title_ready_variants"] == {"old-kw": "Old Kw Title", "new-kw": "New Kw Title"}
+    assert data[0]["schema_version"] == 2
+
+
+def test_append_keywords_to_existing_with_plain_list_leaves_variants_untouched(tmp_path):
+    """A legacy caller / test mock that returns a plain list (no
+    .title_variants) must not disturb an entry's existing variants map."""
+    family_file = tmp_path / "pdf.json"
+    _write(family_file, [
+        {
+            "pageTitle": "Title",
+            "sourcePath": "content/kb.aspose.org/pdf/page.md",
+            "keywords": ["old-kw"],
+            "title_ready_variants": {"old-kw": "Old Kw Title"},
+            "schema_version": 2,
+        }
+    ])
+
+    get_keywords.append_keywords_to_existing(
+        "pdf", "content/kb.aspose.org/pdf/page.md", "Title", ["new-kw"], str(tmp_path)
+    )
+
+    data = json.loads(family_file.read_text(encoding="utf-8"))
+    assert data[0]["title_ready_variants"] == {"old-kw": "Old Kw Title"}
+
+
+def test_replace_keywords_for_entry_replaces_title_ready_variants(tmp_path):
+    family_file = tmp_path / "pdf.json"
+    _write(family_file, [
+        {
+            "pageTitle": "Title",
+            "sourcePath": "content/kb.aspose.org/pdf/page.md",
+            "keywords": ["wrong-kw"],
+            "title_ready_variants": {"wrong-kw": "Wrong Title"},
+            "schema_version": 2,
+        }
+    ])
+    new_keywords = get_keywords.KeywordsWithVariants(["correct-kw"], {"correct-kw": "Correct Title"})
+
+    get_keywords.replace_keywords_for_entry(
+        "pdf", "content/kb.aspose.org/pdf/page.md", "Title", new_keywords, str(tmp_path)
+    )
+
+    data = json.loads(family_file.read_text(encoding="utf-8"))
+    assert data[0]["title_ready_variants"] == {"correct-kw": "Correct Title"}
+    assert "wrong-kw" not in data[0]["title_ready_variants"]
+
+
+def test_replace_keywords_for_entry_drops_stale_variants_when_none_produced(tmp_path):
+    """A forced replace with a plain list (no variants) must not leave a
+    now-mismatched variants map (keyed to keywords that no longer exist on
+    this entry) lying around."""
+    family_file = tmp_path / "pdf.json"
+    _write(family_file, [
+        {
+            "pageTitle": "Title",
+            "sourcePath": "content/kb.aspose.org/pdf/page.md",
+            "keywords": ["wrong-kw"],
+            "title_ready_variants": {"wrong-kw": "Wrong Title"},
+            "schema_version": 2,
+        }
+    ])
+
+    get_keywords.replace_keywords_for_entry(
+        "pdf", "content/kb.aspose.org/pdf/page.md", "Title", ["correct-kw"], str(tmp_path)
+    )
+
+    data = json.loads(family_file.read_text(encoding="utf-8"))
+    assert "title_ready_variants" not in data[0]
+
+
+def test_new_entry_gets_title_ready_variants_when_gemini_provides_them(tmp_path, monkeypatch):
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+    family_dir = tmp_path / "tex"
+    family_dir.mkdir()
+    (family_dir / "page.md").write_text("---\ntitle: Brand New\n---\nBody\n", encoding="utf-8")
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    fake_result = get_keywords.KeywordsWithVariants(["kw"], {"kw": "Kw Title"})
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": fake_result)
+
+    get_keywords.process_markdown_files_by_families(["tex"], str(tmp_path), str(output_dir))
+
+    data = json.loads((output_dir / "tex.json").read_text(encoding="utf-8"))
+    assert data[0]["title_ready_variants"] == {"kw": "Kw Title"}
+    assert data[0]["schema_version"] == 2
+
+
+def test_new_entry_with_plain_list_has_no_dual_field_keys(tmp_path, monkeypatch):
+    """Every existing test mock (a plain list) must keep producing exactly
+    the old 3-key entry shape -- no silent new keys appearing."""
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+    family_dir = tmp_path / "tex"
+    family_dir.mkdir()
+    (family_dir / "page.md").write_text("---\ntitle: Brand New\n---\nBody\n", encoding="utf-8")
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": ["kw"])
+
+    get_keywords.process_markdown_files_by_families(["tex"], str(tmp_path), str(output_dir))
+
+    data = json.loads((output_dir / "tex.json").read_text(encoding="utf-8"))
+    assert set(data[0].keys()) == {"pageTitle", "sourcePath", "keywords"}
+
+
 def test_find_existing_entry_missing_file_returns_none(tmp_path):
     found = get_keywords.find_existing_entry("nope", "content/x/y.md", "Title", str(tmp_path))
     assert found is None

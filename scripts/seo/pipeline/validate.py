@@ -50,6 +50,15 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 # the canonical assumed platform is .NET (the original primary Aspose platform).
 _DEFAULT_PLATFORM = "net"
 
+# SEO-SCHEMA-A-DUAL-FIELD-GENERATION (Finding #57 Section J): the optional
+# per-entry title_ready_variants map. Real naturalness/grounding validation
+# is Contract D's job (SEO-METADATA-NATURALNESS-EVALUATOR, not yet built,
+# per that design section's point (h)) -- this is only the cheap, mechanical
+# structural check that belongs in a deterministic, no-LLM validator: a
+# variant must be keyed to a keyword this entry actually has, be a non-empty
+# string, and stay within the generation prompt's own stated word limit.
+_MAX_TITLE_READY_VARIANT_WORDS = 6
+
 # A keyword string is stale-old if the file mtime is older than this many days.
 _STALE_DAYS = 365
 
@@ -118,9 +127,45 @@ def _quality_filter_keywords(keywords: list, family_name: str) -> list[str]:
     return out
 
 
+def _validate_title_ready_variants(
+    variants: Any, valid_keywords: list[str], idx: int, issues: list[str],
+) -> dict[str, str]:
+    """Structural-only validation of the optional title_ready_variants map
+    (see _MAX_TITLE_READY_VARIANT_WORDS above). A malformed variant is
+    dropped and flagged, never fatal to the entry itself -- keywords (the
+    field every existing consumer already depends on) already validated
+    fine by the time this runs.
+    """
+    if variants is None:
+        return {}
+    if not isinstance(variants, dict):
+        issues.append(f"entry {idx}: title_ready_variants must be an object, got {type(variants).__name__}")
+        return {}
+    valid_keyword_set = set(valid_keywords)
+    clean: dict[str, str] = {}
+    for phrase, variant in variants.items():
+        if phrase not in valid_keyword_set:
+            issues.append(f"entry {idx}: title_ready_variants key {phrase!r} is not one of this entry's keywords")
+            continue
+        if not isinstance(variant, str) or not variant.strip():
+            issues.append(f"entry {idx}: title_ready_variants[{phrase!r}] must be a non-empty string")
+            continue
+        if len(variant.split()) > _MAX_TITLE_READY_VARIANT_WORDS:
+            issues.append(
+                f"entry {idx}: title_ready_variants[{phrase!r}] exceeds "
+                f"{_MAX_TITLE_READY_VARIANT_WORDS} words"
+            )
+            continue
+        clean[phrase] = variant.strip()
+    return clean
+
+
 def _deduplicate_entries(entries: list[dict]) -> list[dict]:
-    """Merge duplicate pageTitle entries (union of keywords)."""
+    """Merge duplicate pageTitle entries (union of keywords; title_ready_
+    variants maps are merged the same way, later entries winning on a key
+    collision -- matches append_keywords_to_existing's own union semantics)."""
     seen: dict[str, list[str]] = {}
+    seen_variants: dict[str, dict[str, str]] = {}
     for entry in entries:
         title = entry.get("pageTitle", "")
         kws = entry.get("keywords", [])
@@ -128,7 +173,17 @@ def _deduplicate_entries(entries: list[dict]) -> list[dict]:
             seen[title] = list(dict.fromkeys(seen[title] + kws))
         else:
             seen[title] = list(kws)
-    return [{"pageTitle": t, "keywords": kws} for t, kws in seen.items()]
+        variants = entry.get("title_ready_variants")
+        if variants:
+            seen_variants.setdefault(title, {}).update(variants)
+    out = []
+    for t, kws in seen.items():
+        record = {"pageTitle": t, "keywords": kws}
+        if seen_variants.get(t):
+            record["title_ready_variants"] = seen_variants[t]
+            record["schema_version"] = 2
+        out.append(record)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +296,13 @@ def _validate_schema_a(filename: str, raw: list, file_path: Path) -> tuple[dict,
 
         # Quality-filter keywords
         filtered_kws = _quality_filter_keywords(keywords, family)
-        valid_raw.append({"pageTitle": page_title, "keywords": filtered_kws})
+        record = {"pageTitle": page_title, "keywords": filtered_kws}
+        clean_variants = _validate_title_ready_variants(
+            entry.get("title_ready_variants"), filtered_kws, idx, issues,
+        )
+        if clean_variants:
+            record["title_ready_variants"] = clean_variants
+        valid_raw.append(record)
 
     # Deduplicate by pageTitle
     deduped = _deduplicate_entries(valid_raw)
@@ -261,8 +322,9 @@ def _validate_schema_a(filename: str, raw: list, file_path: Path) -> tuple[dict,
     }
 
     # Annotate each record with file-level metadata
-    records = [
-        {
+    records = []
+    for e in deduped:
+        record = {
             "pageTitle": e["pageTitle"],
             "keywords": e["keywords"],
             "family": family,
@@ -270,8 +332,9 @@ def _validate_schema_a(filename: str, raw: list, file_path: Path) -> tuple[dict,
             "stale": stale,
             "source_file": filename,
         }
-        for e in deduped
-    ]
+        if e.get("title_ready_variants"):
+            record["title_ready_variants"] = e["title_ready_variants"]
+        records.append(record)
     return summary, records
 
 

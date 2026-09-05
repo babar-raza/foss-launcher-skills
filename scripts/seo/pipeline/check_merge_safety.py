@@ -6,8 +6,10 @@ This exception is scoped exclusively to seo-keyword-refresh.yml's own PRs
 these gates passing. Run AFTER validate.py (schema integrity -- gate 1) and
 BEFORE any auto-merge decision:
   2. Diff is scoped exclusively to keywords/*.json (no other path changed).
-  3. Every changed entry has only {pageTitle, sourcePath, keywords} keys
-     (catches the 2026-03-27 contamination shape -- stray tags/pluginDescriptions).
+  3. Every changed entry has only {pageTitle, sourcePath, keywords,
+     title_ready_variants, schema_version} keys (catches the 2026-03-27
+     contamination shape -- stray tags/pluginDescriptions -- while accepting
+     SEO-SCHEMA-A-DUAL-FIELD-GENERATION's two new, optional, additive keys).
   4. No family's entry count decreases vs the base ref.
 
 Exits 0 only if every gate passes; exits 1 and prints exactly which gate(s)
@@ -24,7 +26,13 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
-_ALLOWED_ENTRY_KEYS = {"pageTitle", "sourcePath", "keywords"}
+# title_ready_variants/schema_version (SEO-SCHEMA-A-DUAL-FIELD-GENERATION,
+# Finding #57 Section J): additive, optional keys the weekly refresh may now
+# emit on a freshly-generated/replaced entry. Accepting them here is the
+# other half of that change -- without it, the very next scheduled Schema A
+# refresh PR that touches any regenerated entry would fail Gate 3 and lose
+# its auto-merge eligibility.
+_ALLOWED_ENTRY_KEYS = {"pageTitle", "sourcePath", "keywords", "title_ready_variants", "schema_version"}
 
 # SEO-SCHEMA-A-WORKFLOW-UPDATE Migration Plan v2: the one-time platform-label
 # migration persists its resumable progress in this single extra file. Gate 2
@@ -131,7 +139,10 @@ def run_checks(base_ref, repo_root=None):
         all_passed = False
         messages.append(f"GATE 3 FAILED (entry shape): {shape_violations}")
     else:
-        messages.append("GATE 3 passed: every changed entry has only pageTitle/sourcePath/keywords")
+        messages.append(
+            "GATE 3 passed: every changed entry has only pageTitle/sourcePath/keywords "
+            "(+ optional title_ready_variants/schema_version)"
+        )
 
     count_ok, regressions = check_no_entry_count_regression(scoped_changed, base_ref, repo_root)
     if not count_ok:
