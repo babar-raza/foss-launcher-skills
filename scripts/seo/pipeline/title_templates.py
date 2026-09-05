@@ -20,7 +20,15 @@ priority cascade -- gsc_query -> description -> formats_json -> claims_json
 task in this lane); it only knows how to plug an already-chosen clause into
 the skeleton, and how to check an existing title's shape.
 
-No LLM calls. No network calls. stdlib + pathlib + pyyaml only.
+resolve_title()/check_conformance() make no LLM calls, no network calls --
+stdlib + pathlib + pyyaml only, unchanged. resolve_title_with_composition()
+(SEO-TITLE-CLAUSE-COMPOSER, Finding #57) is the one exception: an optional,
+additive integration point that lazily delegates to
+title_clause_composer.py for the three lower grounding tiers whose raw text
+is not yet natural-title-register (formats_json/claims_json/
+curated_keywords). A caller that never passes raw_source_text/source_tier
+(every caller that predates this task) is completely unaffected --
+resolve_title() itself is not touched.
 """
 from __future__ import annotations
 
@@ -100,6 +108,56 @@ def resolve_title(
     use_fallback = entry.get("rigid", False) or not content_clause
     skeleton = entry["fallback_skeleton"] if use_fallback else entry["skeleton"]
     return _format_skeleton(skeleton, values)
+
+
+def resolve_title_with_composition(
+    page_type: str,
+    *,
+    family: str,
+    platform: str | None = None,
+    class_name: str | None = None,
+    category: str | None = None,
+    raw_source_text: str | None = None,
+    source_tier: str | None = None,
+    registry: dict | None = None,
+    compose_fn=None,
+) -> str:
+    """resolve_title(), plus one optional step: when `raw_source_text` and
+    `source_tier` are both given (a caller has already picked a grounding
+    tier for this page), route the raw text through title_clause_composer's
+    compose_natural_clause() before splicing -- for the tiers where the raw
+    text's register genuinely needs it (formats_json/claims_json/
+    curated_keywords; compose_natural_clause() itself passes gsc_query/
+    description text through unchanged, zero LLM calls). A rigid page_type,
+    or a caller that omits raw_source_text/source_tier entirely, behaves
+    exactly like resolve_title() -- this is a pure addition, never a
+    behavior change to the existing path.
+    """
+    registry = registry or load_registry()
+    entry = _page_type_entry(registry, page_type)
+
+    content_clause = raw_source_text
+    if raw_source_text and source_tier and not entry.get("rigid", False):
+        if compose_fn is None:
+            try:
+                from seo.pipeline.title_clause_composer import compose_natural_clause as compose_fn
+            except ImportError:
+                from pipeline.title_clause_composer import compose_natural_clause as compose_fn
+        max_words = registry.get("max_content_clause_words", 6)
+        content_clause = compose_fn(
+            raw_source_text, source_tier, family, platform, page_type,
+            max_words=max_words,
+        )
+
+    return resolve_title(
+        page_type,
+        family=family,
+        platform=platform,
+        class_name=class_name,
+        category=category,
+        content_clause=content_clause,
+        registry=registry,
+    )
 
 
 def _skeleton_to_conformance_regex(skeleton: str, values: dict[str, str], clause_placeholder: str, max_clause_words: int) -> re.Pattern:
