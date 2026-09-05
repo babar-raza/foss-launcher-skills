@@ -50,6 +50,17 @@ except ImportError as exc:
         "Run from repo root: python scripts/seo/pipeline/analyze.py"
     )
 
+try:
+    from scripts.seo.pipeline.keyword_page_assignment import (  # type: ignore
+        build_query_index,
+        check_cannibalization,
+    )
+except ImportError as exc:
+    sys.exit(
+        f"analyze.py: cannot import keyword_page_assignment.py — {exc}\n"
+        "Run from repo root: python scripts/seo/pipeline/analyze.py"
+    )
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -269,10 +280,18 @@ def _match_schema_a_keywords(
 def _analyze_page_path_a(
     page: dict,
     gsc_entry: dict,
+    query_index: "dict[str, list[dict]] | None" = None,
+    claimed_this_run: "dict[str, str] | None" = None,
 ) -> dict:
     """
     Analyze a page that has a matched GSC entry (Path A).
     gsc_entry is the full Schema B record (url, keywords, queries?, metrics_missing).
+
+    query_index/claimed_this_run: SEO-KEYWORD-PAGE-ASSIGNMENT (Contract B) --
+    the cross-site query index built once per run by run_analysis(), and the
+    in-run claimed-queries map threaded through the whole page loop. Both
+    default to None so direct unit-test calls of this function keep working
+    unchanged; signals["cannibalization"] is simply None in that case.
     """
     queries_raw: list[dict] = gsc_entry.get("queries", [])
     metrics_missing: bool = gsc_entry.get("metrics_missing", True)
@@ -281,7 +300,7 @@ def _analyze_page_path_a(
     if metrics_missing or not queries_raw:
         # Use Schema B keywords as the query set for structural analysis
         keywords = gsc_entry.get("keywords", [])
-        return _analyze_page_path_b(page, keywords)
+        return _analyze_page_path_b(page, keywords, query_index=query_index, claimed_this_run=claimed_this_run)
 
     # Step 1 — Noise filter
     filtered_queries = [q for q in queries_raw if q.get("impressions", 0) >= _IMPRESSION_THRESHOLD]
@@ -364,6 +383,18 @@ def _analyze_page_path_a(
     # Matched keywords = query strings from filtered_queries
     matched_kws = [q.get("query", "") for q in filtered_queries]
 
+    # Cannibalization check (Contract B) -- the page's own GSC url is the
+    # candidate; checked against the primary (highest-impression) query only,
+    # matching the existing single "primary_query" signal shape.
+    cannibalization = None
+    candidate_url = gsc_entry.get("url", "")
+    if query_index is not None and primary_query_str and candidate_url:
+        cannibalization = check_cannibalization(
+            primary_query_str, candidate_url, query_index, claimed_this_run=claimed_this_run,
+        )
+        if claimed_this_run is not None:
+            claimed_this_run.setdefault(primary_query_str, candidate_url)
+
     return {
         "page_path": page["path"],
         "site": page.get("site"),
@@ -385,6 +416,7 @@ def _analyze_page_path_a(
             "primary_ctr": primary_ctr,
             "primary_position": primary_position,
             "matched_keywords": matched_kws,
+            "cannibalization": cannibalization,
         },
         "seo_fields": {
             "seo_title": seo_title if seo_title else None,
@@ -397,10 +429,20 @@ def _analyze_page_path_a(
 def _analyze_page_path_b(
     page: dict,
     keywords: list[str],
+    query_index: "dict[str, list[dict]] | None" = None,
+    claimed_this_run: "dict[str, str] | None" = None,
 ) -> dict:
     """
     Analyze a page with no GSC metrics (Path B — structural-only).
     keywords: the keyword list to use as the query set (Schema B keywords[] or Schema A keywords).
+
+    query_index/claimed_this_run: see _analyze_page_path_a. A Path B page has
+    no observed GSC url of its own, so its own content path is used as a
+    synthetic candidate identity -- it will never match a real GSC url in
+    the index, which is exactly correct: this page has no ranking data of
+    its own, so a floor-clearing competitor for the same keyword is real
+    signal that another page already owns it (Finding #82's "is this the
+    right page" question, not just "is this page ranking well").
     """
     seo_title = page.get("seo_title") or ""
     desc = page.get("description") or ""
@@ -430,6 +472,18 @@ def _analyze_page_path_b(
         has_tags=len(tags) > 0,
     )
 
+    # Cannibalization check (Contract B) -- Schema A-matched keywords never
+    # touched GSC/query data at all before this (Finding #82's "reviewer D"
+    # gap); checked against the first (highest-confidence) matched keyword.
+    cannibalization = None
+    candidate_key = page["path"]
+    if query_index is not None and keywords:
+        cannibalization = check_cannibalization(
+            keywords[0], candidate_key, query_index, claimed_this_run=claimed_this_run,
+        )
+        if claimed_this_run is not None:
+            claimed_this_run.setdefault(keywords[0], candidate_key)
+
     return {
         "page_path": page["path"],
         "site": page.get("site"),
@@ -451,6 +505,7 @@ def _analyze_page_path_b(
             "primary_ctr": None,
             "primary_position": None,
             "matched_keywords": keywords[:10],  # cap for readability
+            "cannibalization": cannibalization,
         },
         "seo_fields": {
             "seo_title": seo_title if seo_title else None,
@@ -554,6 +609,16 @@ def run_analysis(
     schema_b_by_path = _build_schema_b_lookup(url_map, schema_b_records)
     schema_a_index = _build_schema_a_index(schema_a_records)
 
+    # Contract B (SEO-KEYWORD-PAGE-ASSIGNMENT): built once per run, memoized
+    # here rather than rebuilt per page (v14 design doc's explicit
+    # requirement) -- a frozen, cross-site-union read of every keywords/
+    # *.json file's queries[], grouped by query string. claimed_this_run
+    # tracks which query has already been assigned to which candidate this
+    # run, so two pages proposing the same brand-new query in the same batch
+    # don't both silently see the same stale "NONE" verdict.
+    query_index = build_query_index(union_all_sites=True)
+    claimed_this_run: dict[str, str] = {}
+
     # Build a page dict keyed by path for fast lookup
     pages_by_path: dict[str, dict] = {p["path"]: p for p in pages}
 
@@ -590,7 +655,7 @@ def run_analysis(
                     "tag_count": 0,
                 },
             }
-        record = _analyze_page_path_a(page, gsc_entry)
+        record = _analyze_page_path_a(page, gsc_entry, query_index=query_index, claimed_this_run=claimed_this_run)
         opportunities.append(record)
         analyzed_paths.add(content_path)
 
@@ -602,7 +667,7 @@ def run_analysis(
         kws = _match_schema_a_keywords(page.get("seo_title"), schema_a_index, family=page.get("family"))
         if not kws:
             continue  # no keyword signal — skip
-        record = _analyze_page_path_b(page, kws)
+        record = _analyze_page_path_b(page, kws, query_index=query_index, claimed_this_run=claimed_this_run)
         opportunities.append(record)
         analyzed_paths.add(page["path"])
         matched_via_schema_a += 1
