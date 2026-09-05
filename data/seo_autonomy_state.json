@@ -1,252 +1,57 @@
 {
   "3d": {
     "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
+      "actor": "autonomy-state-machine",
       "last_reviewed_sha": null,
       "source_sha": null,
+      "source_verdict": "5e98085190d594d091f5d8f44b0983150f6ad16bf3c11a59569f248fee49e78d",
       "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "barcode": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "cad": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "cells": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "diagram": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "drawing": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-05T12:49:27Z"
     }
   },
   "email": {
     "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
+      "actor": "autonomy-state-machine",
       "last_reviewed_sha": null,
       "source_sha": null,
+      "source_verdict": "c523bd7e2a387a74bcc7581295e801257368e20d1ede7b152a4bf89b5f494a4e",
       "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "finance": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "font": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "gis": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "html": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "imaging": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "note": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "ocr": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "omr": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "page": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-05T12:49:27Z"
     }
   },
   "pdf": {
     "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
+      "actor": "autonomy-state-machine",
       "last_reviewed_sha": null,
       "source_sha": null,
+      "source_verdict": "428b4c3ed934767e4b4af0aea90936f0b20eecedb81a7489f22d86c1a9f84bca",
       "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "psd": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "pub": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-05T12:49:27Z"
     }
   },
   "slides": {
     "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
+      "actor": "autonomy-state-machine",
       "last_reviewed_sha": null,
       "source_sha": null,
+      "source_verdict": "183ba9c46df79b8cf6168c9dd89f427352e0fcf9d87333e25947d397c8929995",
       "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "svg": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "tasks": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "tex": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-05T12:49:27Z"
     }
   },
   "words": {
     "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
+      "actor": "autonomy-state-machine",
       "last_reviewed_sha": null,
       "source_sha": null,
+      "source_verdict": "81449234565cef1a8c5487b5788914832082eb4747d6097186564169f2e50c77",
       "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
-    }
-  },
-  "zip": {
-    "schema_a_refresh": {
-      "actor": "mission-contract-preexisting-authorization",
-      "last_reviewed_sha": null,
-      "source_sha": null,
-      "status": "AUTONOMOUSLY_ELIGIBLE",
-      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
-      "transitioned_at": "2026-09-05T12:29:19Z"
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-05T12:49:27Z"
     }
   }
 }

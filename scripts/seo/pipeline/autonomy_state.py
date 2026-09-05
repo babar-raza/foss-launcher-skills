@@ -51,6 +51,7 @@ never a duplicate transition (v14 Contract I hardening, Reviewer F).
 from __future__ import annotations
 
 import datetime as _dt
+import hashlib
 import json
 import os
 import re
@@ -107,16 +108,22 @@ _DEFAULT_RECORD: dict[str, Any] = {
     "actor": None,
     "source_sha": None,
     "last_reviewed_sha": None,
+    "source_verdict": None,
 }
 
-# The Schema A cron's own authorized auto-merge commits, per the exact real
-# precedent cited in the v14 design doc ("Architecture contradictions" (d)):
-# PR #46/#60's real titles all follow this convention. A commit matching
-# this pattern never re-triggers REVIEW_REQUIRED on itself -- otherwise the
-# cron's own authorized writes would immediately un-clear the very autonomy
-# that produced them (an infinite flip-flop).
+# The Schema A cron's own authorized auto-merge commits. Verified directly
+# against real merged history (`git log --all -i --grep="Schema A keyword"`,
+# 2026-09-05): every real PR (#45, #46, #60, #69) carries the exact message
+# `chore(seo): refresh Schema A keywords [<date>] (#<n>)` -- word order is
+# "refresh Schema A keywords", not "Schema A keyword refresh" (an earlier
+# revision of this pattern used the wrong order and a REJECT-worthy
+# independent review caught that it would never have matched a single real
+# cron commit). A commit matching this pattern never re-triggers
+# REVIEW_REQUIRED on itself -- otherwise the cron's own authorized writes
+# would immediately un-clear the very autonomy that produced them (an
+# infinite flip-flop).
 _SELF_COMMIT_PATTERNS = (
-    re.compile(r"^chore\(seo\):\s*Schema A keyword refresh", re.IGNORECASE),
+    re.compile(r"^chore\(seo\):\s*refresh Schema A keywords", re.IGNORECASE),
 )
 
 
@@ -216,10 +223,22 @@ def transition(
     reason: str,
     actor: str,
     source_sha: "str | None" = None,
+    source_verdict: "str | None" = None,
     state_path: "Path | str | None" = None,
 ) -> dict:
     """Apply one legal state-machine transition for (family, mechanism) and
     persist it atomically. Returns the new record.
+
+    ``source_verdict`` is the SHA-256 of the real review-verdict file backing
+    this transition (required by the design doc for a real HUMAN_CLEARED
+    grant: "the state file records the verdict file's SHA-256 as
+    source_verdict"). Enforced here, not left to caller discipline: a
+    HUMAN_CLEARED transition whose ``actor`` names a review mechanism (any
+    actor containing "reviewer" or "review", case-insensitive -- covers
+    "independent-reviewer-agent" and similar) MUST carry a source_verdict,
+    or this raises -- a real clearance grant with no checksummed evidence
+    trail is exactly the gap an earlier revision of this module shipped
+    (caught by independent review) and must not be reproducible by construction.
 
     Idempotent-by-source_sha (v14 Contract I race-condition hardening,
     Reviewer F): if the record is *already* at ``to_status`` with the exact
@@ -234,6 +253,17 @@ def transition(
     """
     if to_status not in ALL_STATUSES:
         raise AutonomyStateError(f"unknown status {to_status!r}; must be one of {sorted(ALL_STATUSES)}")
+
+    if (
+        to_status == STATUS_HUMAN_CLEARED
+        and source_verdict is None
+        and ("review" in actor.lower())
+    ):
+        raise AutonomyStateError(
+            f"{family}/{mechanism}: a HUMAN_CLEARED transition from a review-actor "
+            f"({actor!r}) requires source_verdict (the SHA-256 of the real verdict "
+            f"file backing this grant) -- refusing to write an unauditable clearance"
+        )
 
     path = Path(state_path) if state_path is not None else STATE_PATH
     state = load_state(path)
@@ -263,6 +293,7 @@ def transition(
         "actor": actor,
         "source_sha": source_sha,
         "last_reviewed_sha": current.get("last_reviewed_sha") if current else None,
+        "source_verdict": source_verdict if source_verdict is not None else (current.get("source_verdict") if current else None),
     }
     if to_status == STATUS_HUMAN_CLEARED:
         record["last_reviewed_sha"] = source_sha if source_sha is not None else record["last_reviewed_sha"]
@@ -270,6 +301,64 @@ def transition(
     family_state[mechanism] = record
     save_state_atomic(state, path)
     return dict(record)
+
+
+def seed_from_product_review_log(
+    review_log_path: "Path | str",
+    mechanism: str = "schema_a_refresh",
+    *,
+    state_path: "Path | str | None" = None,
+) -> dict:
+    """Grant HUMAN_CLEARED -> AUTONOMOUSLY_ELIGIBLE for ``mechanism`` to
+    every family whose *latest* row in ``product_review_log.jsonl`` (append-
+    only; later rows for the same family, if any, supersede earlier ones)
+    carries verdict CLEARED. A family with no row, or whose latest row is
+    NOT_CLEARED, is left untouched -- UNREVIEWED by absence, never granted.
+
+    This is the checked-in, tested seeding path SEO-PER-PRODUCT-COMMIT-
+    REVIEW's own real review output is required to go through (design doc:
+    "HUMAN_CLEARED transitions are written only from a
+    product_review_log.jsonl CLEARED verdict; the state file records the
+    verdict file's SHA-256 as source_verdict"). It replaces an earlier,
+    unchecked-in ad hoc seeding pass that granted every canonical family
+    regardless of review outcome -- caught and REJECTed by independent
+    review as an unauthorized self-granted clearance that directly
+    overrode this same log's own contradicting NOT_CLEARED findings.
+
+    Returns ``{"granted": [...], "skipped_not_cleared": [...],
+    "skipped_no_review": [...]}`` for the caller's own evidence record.
+    """
+    log_path = Path(review_log_path)
+    latest_by_family: dict[str, dict] = {}
+    with open(log_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            latest_by_family[row["family"]] = row  # later rows supersede earlier ones
+
+    granted: list[str] = []
+    skipped_not_cleared: list[str] = []
+    for family, row in sorted(latest_by_family.items()):
+        if row.get("verdict") != "CLEARED":
+            skipped_not_cleared.append(family)
+            continue
+        verdict_file = Path(row["evidence_file"])
+        if not verdict_file.is_absolute():
+            verdict_file = REPO_ROOT / verdict_file
+        source_verdict = _sha256_hex(verdict_file.read_bytes())
+        reason = f"product_review_log.jsonl CLEARED ({row.get('run_id')}): {row.get('summary', '')[:200]}"
+        transition(family, mechanism, STATUS_REVIEW_PENDING, reason="queued for review-log-driven clearance", actor="autonomy-state-machine", state_path=state_path)
+        transition(family, mechanism, STATUS_HUMAN_CLEARED, reason=reason, actor=row.get("actor", "independent-reviewer-agent"), source_verdict=source_verdict, state_path=state_path)
+        transition(family, mechanism, STATUS_AUTONOMOUSLY_ELIGIBLE, reason="promoted: real HUMAN_CLEARED grant on file", actor="autonomy-state-machine", state_path=state_path)
+        granted.append(family)
+
+    return {"granted": granted, "skipped_not_cleared": skipped_not_cleared}
+
+
+def _sha256_hex(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def check_commit_for_review_required(

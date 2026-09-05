@@ -87,7 +87,8 @@ def test_is_autonomously_eligible_true_after_real_transition_chain():
     az.transition("pdf", "title_description_writes", az.STATUS_REVIEW_PENDING,
                    reason="queued", actor="test")
     az.transition("pdf", "title_description_writes", az.STATUS_HUMAN_CLEARED,
-                   reason="cleared", actor="independent-reviewer-agent", source_sha="deadbeef")
+                   reason="cleared", actor="independent-reviewer-agent", source_sha="deadbeef",
+                   source_verdict="fake-verdict-sha256-for-test")
     az.transition("pdf", "title_description_writes", az.STATUS_AUTONOMOUSLY_ELIGIBLE,
                    reason="promoted", actor="autonomy-state-machine")
     assert az.is_autonomously_eligible("pdf", "title_description_writes") is True
@@ -131,6 +132,33 @@ def test_unknown_status_raises_autonomy_state_error():
         az.transition("tex", "schema_a_refresh", "NOT_A_REAL_STATUS", reason="x", actor="test")
 
 
+# --- source_verdict enforcement on real review-actor HUMAN_CLEARED grants ---
+# (Contract I hardening added after an independent reviewer REJECTed an
+# earlier revision for seeding real AUTONOMOUSLY_ELIGIBLE grants with no
+# checksummed review-verdict provenance at all.)
+
+def test_human_cleared_from_review_actor_without_source_verdict_raises():
+    az.transition("tex", "schema_a_refresh", az.STATUS_REVIEW_PENDING, reason="x", actor="test")
+    with pytest.raises(az.AutonomyStateError):
+        az.transition("tex", "schema_a_refresh", az.STATUS_HUMAN_CLEARED,
+                       reason="cleared", actor="independent-reviewer-agent")
+
+
+def test_human_cleared_from_review_actor_with_source_verdict_succeeds():
+    az.transition("tex", "schema_a_refresh", az.STATUS_REVIEW_PENDING, reason="x", actor="test")
+    rec = az.transition("tex", "schema_a_refresh", az.STATUS_HUMAN_CLEARED,
+                         reason="cleared", actor="independent-reviewer-agent",
+                         source_verdict="abc123deadbeef")
+    assert rec["source_verdict"] == "abc123deadbeef"
+
+
+def test_human_cleared_from_non_review_actor_does_not_require_source_verdict():
+    az.transition("page", "schema_a_refresh", az.STATUS_REVIEW_PENDING, reason="x", actor="test")
+    rec = az.transition("page", "schema_a_refresh", az.STATUS_HUMAN_CLEARED, reason="x", actor="test")
+    assert rec["status"] == az.STATUS_HUMAN_CLEARED
+    assert rec["source_verdict"] is None
+
+
 def _promote_to_eligible(family, mechanism="schema_a_refresh", sha="shaX"):
     az.transition(family, mechanism, az.STATUS_REVIEW_PENDING, reason="x", actor="test")
     az.transition(family, mechanism, az.STATUS_HUMAN_CLEARED, reason="x", actor="test", source_sha=sha)
@@ -161,10 +189,18 @@ def test_transition_with_different_source_sha_after_terminal_is_illegal_not_sile
 # --- is_self_commit ----------------------------------------------------------
 
 @pytest.mark.parametrize("message,expected", [
-    ("chore(seo): Schema A keyword refresh -- tex, barcode", True),
-    ("CHORE(SEO): schema a keyword refresh weekly run", True),
+    # Real merged commit messages (git log --all -i --grep="Schema A keyword",
+    # verified 2026-09-05: PRs #45, #46, #60, #69 all use this exact form --
+    # an earlier revision of this regex used the wrong word order ("Schema A
+    # keyword refresh") and a REJECT-worthy independent review caught that it
+    # would never have matched a single real cron commit).
+    ("chore(seo): refresh Schema A keywords [2026-08-30] (#69)", True),
+    ("chore(seo): refresh Schema A keywords [2026-08-26] (#60)", True),
+    ("chore(seo): refresh Schema A keywords [2026-08-02] (#46)", True),
+    ("chore(seo): refresh Schema A keywords [2026-07] (#45)", True),
+    ("CHORE(SEO): REFRESH SCHEMA A KEYWORDS [case-insensitive check]", True),
     ("fix(seo): tex keyword contamination remediation", False),
-    ("chore(seo): Schema A keyword refresh dependency bump", True),
+    ("chore(seo): Schema A keyword refresh -- old wrong word order", False),
     (None, False),
     ("", False),
 ])
@@ -188,7 +224,7 @@ def test_check_commit_excludes_self_commit_pattern():
     _promote_to_eligible("note")
     rec = az.check_commit_for_review_required(
         "note", "schema_a_refresh", commit_sha="abc123",
-        commit_message="chore(seo): Schema A keyword refresh -- note, html",
+        commit_message="chore(seo): refresh Schema A keywords [2026-09-06] (#70)",
     )
     assert rec is None
     assert az.is_autonomously_eligible("note", "schema_a_refresh") is True
@@ -263,3 +299,92 @@ def test_family_from_page_path(path, expected):
 
 def test_family_from_page_path_accepts_windows_style_backslashes():
     assert az.family_from_page_path("content\\kb.aspose.org\\en\\pdf\\python\\faq.md") == "pdf"
+
+
+# --- seed_from_product_review_log --------------------------------------------
+# The checked-in, tested seeding path a real SEO-PER-PRODUCT-COMMIT-REVIEW
+# run's product_review_log.jsonl must go through -- replaces an earlier
+# unchecked-in ad hoc pass an independent reviewer REJECTed for granting
+# AUTONOMOUSLY_ELIGIBLE regardless of each family's real verdict.
+
+def _write_review_log(tmp_path, rows):
+    log_path = tmp_path / "product_review_log.jsonl"
+    with open(log_path, "w", encoding="utf-8") as f:
+        for row in rows:
+            f.write(json.dumps(row) + "\n")
+    return log_path
+
+
+def _write_verdict_file(tmp_path, name, content):
+    verdicts_dir = tmp_path / "verdicts"
+    verdicts_dir.mkdir(exist_ok=True)
+    path = verdicts_dir / f"{name}_verdict.json"
+    path.write_text(json.dumps(content), encoding="utf-8")
+    return path
+
+
+def test_seed_grants_only_cleared_families_and_skips_not_cleared(tmp_path):
+    cleared_verdict = _write_verdict_file(tmp_path, "email", {"family": "email", "verdict": "CLEARED"})
+    _write_verdict_file(tmp_path, "tex", {"family": "tex", "verdict": "NOT_CLEARED"})
+    log_path = _write_review_log(tmp_path, [
+        {"family": "email", "verdict": "CLEARED", "run_id": "it-0005", "actor": "independent-reviewer-agent",
+         "evidence_file": str(cleared_verdict), "summary": "clean history"},
+        {"family": "tex", "verdict": "NOT_CLEARED", "run_id": "it-0005", "actor": "independent-reviewer-agent",
+         "evidence_file": str(tmp_path / "verdicts" / "tex_verdict.json"), "summary": "contaminated"},
+    ])
+
+    result = az.seed_from_product_review_log(log_path)
+
+    assert result["granted"] == ["email"]
+    assert result["skipped_not_cleared"] == ["tex"]
+    assert az.is_autonomously_eligible("email", "schema_a_refresh") is True
+    assert az.is_autonomously_eligible("tex", "schema_a_refresh") is False
+    assert az.get_status("tex", "schema_a_refresh") == az.STATUS_UNREVIEWED
+
+
+def test_seed_records_real_verdict_file_sha256_as_source_verdict(tmp_path):
+    verdict_path = _write_verdict_file(tmp_path, "pdf", {"family": "pdf", "verdict": "CLEARED"})
+    expected_sha = az._sha256_hex(verdict_path.read_bytes())
+    log_path = _write_review_log(tmp_path, [
+        {"family": "pdf", "verdict": "CLEARED", "run_id": "it-0005", "actor": "independent-reviewer-agent",
+         "evidence_file": str(verdict_path), "summary": "clean"},
+    ])
+
+    az.seed_from_product_review_log(log_path)
+
+    rec = az.get_record("pdf", "schema_a_refresh")
+    assert rec["source_verdict"] == expected_sha
+    assert rec["status"] == az.STATUS_AUTONOMOUSLY_ELIGIBLE
+
+
+def test_seed_uses_latest_row_when_a_family_is_reviewed_twice(tmp_path):
+    """Append-only log: a later row for the same family supersedes an
+    earlier one (mirrors a real re-review after remediation)."""
+    verdict_path = _write_verdict_file(tmp_path, "cells", {"family": "cells", "verdict": "CLEARED"})
+    log_path = _write_review_log(tmp_path, [
+        {"family": "cells", "verdict": "NOT_CLEARED", "run_id": "it-0005", "actor": "independent-reviewer-agent",
+         "evidence_file": str(verdict_path), "summary": "contaminated (first pass)"},
+        {"family": "cells", "verdict": "CLEARED", "run_id": "it-0009", "actor": "independent-reviewer-agent",
+         "evidence_file": str(verdict_path), "summary": "remediated and re-cleared"},
+    ])
+
+    result = az.seed_from_product_review_log(log_path)
+
+    assert result["granted"] == ["cells"]
+    assert az.is_autonomously_eligible("cells", "schema_a_refresh") is True
+
+
+def test_seed_never_grants_title_description_writes_mechanism(tmp_path):
+    """Default mechanism is schema_a_refresh -- the review log's clearance
+    covers only the Schema A pipeline it actually inspected, never the
+    unrelated, never-yet-exercised title/description write mechanism."""
+    verdict_path = _write_verdict_file(tmp_path, "words", {"family": "words", "verdict": "CLEARED"})
+    log_path = _write_review_log(tmp_path, [
+        {"family": "words", "verdict": "CLEARED", "run_id": "it-0005", "actor": "independent-reviewer-agent",
+         "evidence_file": str(verdict_path), "summary": "clean"},
+    ])
+
+    az.seed_from_product_review_log(log_path)
+
+    assert az.is_autonomously_eligible("words", "schema_a_refresh") is True
+    assert az.is_autonomously_eligible("words", "title_description_writes") is False
