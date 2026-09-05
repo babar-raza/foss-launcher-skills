@@ -31,6 +31,14 @@ if str(_PIPELINE) not in sys.path:
 import seo.get_keywords as get_keywords  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _allow_autonomy_gate(monkeypatch):
+    """Default: every family is AUTONOMOUSLY_ELIGIBLE for schema_a_refresh,
+    so these tests exercise dedup/circuit-breaker behavior rather than
+    Contract I's own gate (covered by scripts/seo/tests/test_autonomy_state.py)."""
+    monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+
+
 def _write(path: Path, entries: list[dict]) -> None:
     path.write_text(json.dumps(entries, ensure_ascii=False), encoding="utf-8")
 

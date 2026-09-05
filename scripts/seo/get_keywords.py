@@ -22,6 +22,11 @@ try:
 except ImportError:
     from pipeline.schema import canonical_families
 
+try:
+    from seo.pipeline import autonomy_state
+except ImportError:
+    from pipeline import autonomy_state
+
 # google.generativeai is imported lazily, inside get_keywords_from_gemini(),
 # not at module load time. This is an optional, heavy dependency ("Install
 # only when SEO features are needed" per scripts/seo/requirements.txt) --
@@ -326,6 +331,23 @@ def process_markdown_files_by_families(
         family_dir = os.path.join(root_dir, family)
         if not os.path.exists(family_dir):
             logging.warning(f"Directory for family '{family}' does not exist: {family_dir}")
+            continue
+
+        # SEO-AUTONOMY-STATE-MACHINE (Contract I) read-gate: a family not yet
+        # AUTONOMOUSLY_ELIGIBLE for schema_a_refresh is skipped, not silently
+        # processed. data/seo_autonomy_state.json seeds every canonical
+        # family AUTONOMOUSLY_ELIGIBLE for this specific mechanism at build
+        # time, reconciling state with the Mission Contract's own
+        # pre-existing, already-operator-authorized blanket authorization
+        # for this cron (human_authority_boundaries) -- this gate is not a
+        # new restriction on production behavior, it is that authorization
+        # made mechanically enforceable instead of merely documented.
+        if not autonomy_state.is_autonomously_eligible(family, "schema_a_refresh"):
+            status = autonomy_state.get_status(family, "schema_a_refresh")
+            logging.warning(
+                f"Skipping family '{family}': schema_a_refresh autonomy state is "
+                f"{status}, not AUTONOMOUSLY_ELIGIBLE"
+            )
             continue
 
         logging.info(f"Processing family: {family}")

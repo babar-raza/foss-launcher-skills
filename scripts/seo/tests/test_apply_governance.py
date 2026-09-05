@@ -103,6 +103,15 @@ def _allow_no_downgrade_guard(monkeypatch):
     )
 
 
+@pytest.fixture(autouse=True)
+def _allow_autonomy_gate(monkeypatch):
+    """Default: every (family, mechanism) is AUTONOMOUSLY_ELIGIBLE, so these
+    tests exercise the gate each one names rather than Contract I's own gate
+    (covered on its own merits by scripts/seo/tests/test_autonomy_state.py
+    and its family_from_page_path/is_autonomously_eligible coverage)."""
+    monkeypatch.setattr(apply_mod.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+
+
 class TestRequiresHumanReviewGate:
     def test_rejects_true(self, tmp_path):
         page = "content/docs.aspose.org/en/x/index.md"
@@ -134,6 +143,47 @@ class TestRequiresHumanReviewGate:
 
         result = (tmp_path / page).read_text(encoding="utf-8")
         assert "New description." in result
+
+
+class TestAutonomyStateGate:
+    """SEO-AUTONOMY-STATE-MACHINE (Contract I) read-gate: a non-dry-run write
+    is only permitted when the target's family is AUTONOMOUSLY_ELIGIBLE for
+    title_description_writes. The state machine's own transition/idempotency
+    correctness lives in test_autonomy_state.py; this class only proves
+    apply.py's write path actually calls the gate."""
+
+    def test_rejects_when_not_eligible(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.autonomy_state, "is_autonomously_eligible", lambda *a, **k: False)
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        assert (tmp_path / page).read_text(encoding="utf-8") == _DOCS_FM, \
+            "a family not AUTONOMOUSLY_ELIGIBLE for title_description_writes must not be written"
+
+    def test_rejects_when_family_unresolvable(self, tmp_path):
+        # websites.aspose.org has no family/platform concept (autonomy_state.
+        # family_from_page_path returns None); an unresolvable family fails
+        # closed regardless of the autouse eligibility override.
+        page = "content/websites.aspose.org/some-page/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        assert (tmp_path / page).read_text(encoding="utf-8") == _DOCS_FM
+
+    def test_allows_when_eligible(self, tmp_path):
+        # The autouse _allow_autonomy_gate fixture grants eligibility by default.
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        assert "New description." in (tmp_path / page).read_text(encoding="utf-8")
 
 
 class TestAutoUpdatableGate:

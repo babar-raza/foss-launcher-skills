@@ -26,6 +26,14 @@ if str(_PIPELINE) not in sys.path:
 import seo.get_keywords as get_keywords  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _allow_autonomy_gate(monkeypatch):
+    """Default: every family is AUTONOMOUSLY_ELIGIBLE for schema_a_refresh,
+    so these tests exercise platform-extraction behavior rather than
+    Contract I's own gate (covered by scripts/seo/tests/test_autonomy_state.py)."""
+    monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+
+
 def _fake_genai(monkeypatch, captured):
     class _FakeResponse:
         text = "kw one\nkw two"

@@ -15,6 +15,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 _SCRIPTS = Path(__file__).resolve().parents[2]
 _PIPELINE = _SCRIPTS / "pipeline"
 if str(_SCRIPTS) not in sys.path:
@@ -25,12 +27,69 @@ if str(_PIPELINE) not in sys.path:
 import seo.get_keywords as get_keywords  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _allow_autonomy_gate(monkeypatch):
+    """Default: every family is AUTONOMOUSLY_ELIGIBLE for schema_a_refresh,
+    so these tests exercise change-detection/budget behavior rather than
+    Contract I's own gate (covered by scripts/seo/tests/test_autonomy_state.py)."""
+    monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+
+
 def _write_family_json(output_dir, family, entries):
     (output_dir / f"{family}.json").write_text(json.dumps(entries), encoding="utf-8")
 
 
 def _source_path(tmp_path, family_dir, filename):
     return Path(family_dir / filename).resolve().relative_to(tmp_path).as_posix()
+
+
+class TestAutonomyStateGate:
+    """SEO-AUTONOMY-STATE-MACHINE (Contract I) read-gate: a family not
+    AUTONOMOUSLY_ELIGIBLE for schema_a_refresh is skipped entirely, never
+    silently processed. State-machine correctness itself lives in
+    test_autonomy_state.py; this only proves get_keywords.py's per-family
+    loop actually calls the gate."""
+
+    def test_family_skipped_when_not_eligible(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: False)
+        family_dir = tmp_path / "tex"
+        family_dir.mkdir()
+        (family_dir / "page.md").write_text("---\ntitle: Some Title\n---\nBody\n", encoding="utf-8")
+        output_dir = tmp_path / "keywords"
+        output_dir.mkdir()
+
+        call_count = {"n": 0}
+
+        def _fake_call(title, platform="net"):
+            call_count["n"] += 1
+            return ["new"]
+
+        monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", _fake_call)
+
+        family_data = get_keywords.process_markdown_files_by_families(
+            ["tex"], str(tmp_path), str(output_dir)
+        )
+
+        assert call_count["n"] == 0, "an ineligible family must never reach the Gemini call"
+        assert "tex" not in family_data, "a skipped family contributes no entries at all"
+
+    def test_family_processed_when_eligible(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(get_keywords.autonomy_state, "is_autonomously_eligible", lambda *a, **k: True)
+        family_dir = tmp_path / "tex"
+        family_dir.mkdir()
+        (family_dir / "page.md").write_text("---\ntitle: Some Title\n---\nBody\n", encoding="utf-8")
+        output_dir = tmp_path / "keywords"
+        output_dir.mkdir()
+        monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": ["new"])
+
+        family_data = get_keywords.process_markdown_files_by_families(
+            ["tex"], str(tmp_path), str(output_dir)
+        )
+
+        assert "tex" in family_data
+        assert len(family_data["tex"]) == 1
 
 
 class TestSkipIfUnchanged:

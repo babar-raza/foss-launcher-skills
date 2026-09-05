@@ -1,0 +1,252 @@
+{
+  "3d": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "barcode": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "cad": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "cells": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "diagram": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "drawing": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "email": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "finance": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "font": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "gis": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "html": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "imaging": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "note": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "ocr": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "omr": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "page": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "pdf": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "psd": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "pub": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "slides": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "svg": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "tasks": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "tex": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "words": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  },
+  "zip": {
+    "schema_a_refresh": {
+      "actor": "mission-contract-preexisting-authorization",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: mechanism already operator-authorized mission-wide",
+      "transitioned_at": "2026-09-05T12:29:19Z"
+    }
+  }
+}

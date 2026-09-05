@@ -86,6 +86,14 @@ from commands.governance.no_downgrade_guard import (  # noqa: E402
     DECISION_WARN,
 )
 
+try:
+    from scripts.seo.pipeline import autonomy_state  # type: ignore  # noqa: E402
+except ImportError as exc:
+    sys.exit(
+        f"apply.py: cannot import autonomy_state.py — {exc}\n"
+        "Run from repo root: python scripts/seo/pipeline/apply.py"
+    )
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -433,6 +441,30 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             )
             skip_count += 1
             continue
+
+        # --- Governance gate 2.5: autonomy state (Contract I / Contract J
+        # invariant 11 "autonomy_state_eligible_or_dry_run") ---
+        # dry_run is never gated here (run_dry_run() is a separate code path
+        # that never calls run_apply(); Contract J explicitly permits
+        # --dry-run regardless of state) -- only the real-write path checks.
+        if not dry_run:
+            family = autonomy_state.family_from_page_path(page_path)
+            if family is None or not autonomy_state.is_autonomously_eligible(
+                family, "title_description_writes"
+            ):
+                status = (
+                    "no family resolved for this path"
+                    if family is None
+                    else autonomy_state.get_status(family, "title_description_writes")
+                )
+                log.warning(
+                    "SKIP: %s — autonomy state for title_description_writes is not "
+                    "AUTONOMOUSLY_ELIGIBLE (%s); a family not yet cleared for this "
+                    "mechanism is never auto-written",
+                    page_path, status,
+                )
+                skip_count += 1
+                continue
 
         # --- Read original ---
         try:
