@@ -163,6 +163,62 @@ class TestLocalePairExclusion:
             "https://kb.aspose.org/pt/pdf/",
         )
 
+    def test_is_locale_pair_true_for_content_path_vs_real_url(self):
+        """Regression for a real bug found by independent review: a Path-B
+        candidate is identified by its bare content path (no scheme/netloc),
+        not a real URL, since it has no observed GSC url of its own. The
+        first version of is_locale_pair() urlparsed a schemeless string to
+        an empty netloc, which could never equal a real site's netloc, so
+        locale-pair exclusion silently never fired for any Path-B page."""
+        assert is_locale_pair(
+            "content/products.aspose.org/pt/pdf/_index.md",
+            "https://products.aspose.org/ru/pdf/",
+        )
+
+    def test_is_locale_pair_true_for_two_content_paths(self):
+        assert is_locale_pair(
+            "content/products.aspose.org/pt/pdf/_index.md",
+            "content/products.aspose.org/ru/pdf/_index.md",
+        )
+
+    def test_is_locale_pair_false_for_content_path_different_family(self):
+        assert not is_locale_pair(
+            "content/products.aspose.org/pt/pdf/_index.md",
+            "content/products.aspose.org/ru/words/_index.md",
+        )
+
+    def test_hr_is_a_recognized_locale_code(self):
+        """Regression: hr (Croatian) is a real, currently-declared legacy
+        locale in every site's configs/*.toml disableLanguages list (e.g.
+        configs/products.aspose.org.toml's [languages.hr] with previously-
+        deployed Ceph pages), but was missing from the first version of
+        _LOCALE_CODES -- found by independent review."""
+        assert is_locale_pair(
+            "https://products.aspose.org/hr/pdf/",
+            "https://products.aspose.org/ru/pdf/",
+        )
+
+    def test_content_path_candidate_excluded_from_margin_check(self):
+        """End-to-end regression for the Path-B locale-exclusion bug: a
+        content-path candidate's own real locale variant must never be
+        surfaced as its competitor_url, exactly like a real-URL candidate.
+        The candidate itself has no ranking data (it's a Path-B page with no
+        observed GSC url), so the correct verdict is AMBIGUOUS (genuinely
+        low signal), not a false RISK naming the locale sibling as a rival."""
+        candidate = "content/products.aspose.org/pt/pdf/_index.md"
+        locale_variant = "https://products.aspose.org/ru/pdf/"
+        index = {
+            "aspose pdf": [
+                _ranking("aspose pdf", locale_variant, "products.aspose.org", 33, 4.97),
+            ],
+        }
+        result = check_cannibalization("aspose pdf", candidate, index)
+        assert result["verdict"] == CANNIBALIZATION_AMBIGUOUS
+        assert result["competitor_url"] is None, (
+            "the locale variant must never be surfaced as a competitor, even "
+            "when it is the only other entry in the index"
+        )
+
     def test_locale_pair_excluded_from_margin_check_despite_large_margin(self):
         candidate = "https://products.aspose.org/pt/pdf/"
         locale_variant = "https://products.aspose.org/ru/pdf/"

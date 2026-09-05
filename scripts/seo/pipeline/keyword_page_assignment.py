@@ -62,7 +62,8 @@ DEFAULT_POSITION_MARGIN = 3.0
 _LOCALE_CODES = {
     "ar", "cs", "de", "el", "es", "fa", "fr", "he", "hi", "hu", "id", "it",
     "ja", "ko", "nl", "pl", "pt", "ro", "ru", "sv", "th", "tr", "uk", "vi",
-    "zh", "en", "ca", "da", "fi", "lt", "lv", "ms", "no", "sk", "sr", "bg",
+    "zh", "en", "ca", "da", "fi", "hr", "lt", "lv", "ms", "no", "sk", "sr",
+    "bg",
 }
 
 
@@ -157,23 +158,56 @@ def _strip_leading_locale_segment(path_str: str) -> str:
     return "/".join(parts)
 
 
+def _site_and_path(identifier: str) -> "tuple[str, str] | None":
+    """Extract (site_domain, path_after_site) from either a real
+    https://{site}/... GSC URL or a content-relative path such as
+    content/{site}/{locale}/{family}/[{platform}/]_index.md.
+
+    A Path-B candidate (analyze.py's _analyze_page_path_b) has no observed
+    GSC url of its own, so it is identified by its content path instead of a
+    URL -- is_locale_pair() must recognize that shape too, or locale-pair
+    exclusion silently never fires for any Path-B page (a real defect found
+    by independent review of the first version of this module: a schemeless
+    content path always urlparses to an empty netloc, which can never equal
+    a real site's netloc, so every Path-B candidate looked like it had no
+    site at all)."""
+    if identifier.startswith("http://") or identifier.startswith("https://"):
+        parsed = urlparse(identifier)
+        return parsed.netloc, parsed.path
+    parts = identifier.split("/")
+    if len(parts) >= 2 and parts[0] == "content":
+        site = parts[1]
+        rest = parts[2:]
+        if rest and (rest[-1] == "_index.md" or rest[-1].endswith(".md")):
+            rest = rest[:-1]
+        return site, "/".join(rest)
+    return None
+
+
 def is_locale_pair(url_a: str, url_b: str) -> bool:
     """True iff url_a and url_b are the same page under two different
-    locale-prefixed paths on the same domain (e.g. /pt/pdf/ vs /ru/pdf/) --
-    legitimate locale variants, not competing content."""
+    locale-prefixed paths on the same site (e.g. /pt/pdf/ vs /ru/pdf/) --
+    legitimate locale variants, not competing content. Works for either a
+    real https:// URL or a content-relative path on either side."""
     if url_a == url_b:
         return False
-    pa, pb = urlparse(url_a), urlparse(url_b)
-    if pa.netloc != pb.netloc:
+    a = _site_and_path(url_a)
+    b = _site_and_path(url_b)
+    if a is None or b is None:
         return False
-    stripped_a = _strip_leading_locale_segment(pa.path)
-    stripped_b = _strip_leading_locale_segment(pb.path)
+    site_a, path_a = a
+    site_b, path_b = b
+    if site_a != site_b:
+        return False
+    stripped_a = _strip_leading_locale_segment(path_a)
+    stripped_b = _strip_leading_locale_segment(path_b)
     if stripped_a != stripped_b:
         return False
     # Only a genuine pair if at least one side actually had a locale prefix
-    # (two identical paths with no locale segment at all are the same URL,
-    # already excluded above; guards against an accidental empty-vs-empty match).
-    return pa.path != pb.path
+    # (two identical paths with no locale segment at all are the same
+    # identifier, already excluded above; guards against an accidental
+    # empty-vs-empty match).
+    return path_a != path_b
 
 
 # ---------------------------------------------------------------------------
