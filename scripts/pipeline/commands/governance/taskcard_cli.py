@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 _HERE = Path(__file__).resolve().parent
-_LIB_DIR = _HERE.parents[2] / "lib"  # commands/governance -> commands -> pipeline -> lib
+_LIB_DIR = _HERE.parents[1] / "lib"  # governance -> commands -> pipeline, then /lib
 if str(_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_LIB_DIR))
 
