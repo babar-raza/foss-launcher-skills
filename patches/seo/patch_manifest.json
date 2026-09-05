@@ -1,6 +1,124 @@
 {
-  "batch_id": "2026-07-29T17:42:15",
-  "generated_at": "2026-07-29",
-  "total_patches": 0,
-  "patches": []
+  "batch_id": "2026-09-05T10:29:26",
+  "generated_at": "2026-09-05",
+  "total_patches": 9,
+  "patches": [
+    {
+      "page_path": "content/reference.aspose.org/en/slides/net/SaveFormat.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "saveformat",
+          "saveformat.net"
+        ]
+      },
+      "requires_human_review": true,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/kb.aspose.org/en/3d/python/how-to-convert-fbx-to-gltf-python.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "glb to fbx using python",
+          "convert glb to fbx using python"
+        ]
+      },
+      "requires_human_review": true,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/cells/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose.cells",
+          "aspose cells"
+        ]
+      },
+      "requires_human_review": false,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/slides/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose.slides",
+          "aspose slides"
+        ]
+      },
+      "requires_human_review": false,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/words/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose word",
+          "aspose.words"
+        ]
+      },
+      "requires_human_review": false,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/slides/net/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "c# powerpoint library",
+          "net powerpoint library"
+        ]
+      },
+      "requires_human_review": false,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/imaging/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose.imaging",
+          "aspose imaging"
+        ]
+      },
+      "requires_human_review": true,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/ocr/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose ocr",
+          "aspose.ocr"
+        ]
+      },
+      "requires_human_review": true,
+      "safety_checks_passed": true
+    },
+    {
+      "page_path": "content/products.aspose.org/en/pub/_index.md",
+      "fields_to_update": {
+        "seoTitle": null,
+        "description": null,
+        "tags_to_add": [
+          "aspose pub viewer",
+          "pub file"
+        ]
+      },
+      "requires_human_review": true,
+      "safety_checks_passed": true
+    }
+  ]
 }
