@@ -94,6 +94,14 @@ except ImportError as exc:
         "Run from repo root: python scripts/seo/pipeline/apply.py"
     )
 
+try:
+    from scripts.seo.pipeline import change_budget  # type: ignore  # noqa: E402
+except ImportError as exc:
+    sys.exit(
+        f"apply.py: cannot import change_budget.py — {exc}\n"
+        "Run from repo root: python scripts/seo/pipeline/apply.py"
+    )
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -141,6 +149,73 @@ def _writable_fields_for(page_path: str) -> set[str]:
     if "content/blog.aspose.org/" in normalized:
         return {"description", "keywords", "seoTitle"}
     return {"description", "keywords"}
+
+
+def _site_from_page_path(page_path: str) -> str:
+    parts = Path(page_path.replace("\\", "/")).parts
+    if len(parts) >= 2 and parts[0] == "content":
+        return parts[1]
+    return "unknown"
+
+
+def _preflight_change_budget(patches: list[dict]) -> "tuple[bool, str]":
+    """Contract G (Finding #75/#80) batch-level pre-flight, called once per
+    batch before any write -- never per file. Static caps (change_budgets.yaml)
+    are checked against the WHOLE batch's proposed volume; the rolling-
+    baseline anomaly check is per-family (v14's own granularity), run once
+    for each family with at least one patch in this batch. Fails closed: any
+    violation refuses the entire batch, never a silent per-page truncation.
+    """
+    budgets = change_budget.load_budgets()
+
+    items_by_scope: dict[str, int] = {}
+    title_changes = 0
+    description_changes = 0
+    by_family: dict[str, dict[str, int]] = {}
+
+    for patch in patches:
+        page_path = patch["page_path"]
+        site = _site_from_page_path(page_path)
+        items_by_scope[site] = items_by_scope.get(site, 0) + 1
+
+        fields = patch.get("fields_to_update", {})
+        is_title_change = fields.get("seoTitle") is not None
+        is_description_change = fields.get("description") is not None
+        if is_title_change:
+            title_changes += 1
+        if is_description_change:
+            description_changes += 1
+
+        family = autonomy_state.family_from_page_path(page_path)
+        if family is not None:
+            counts = by_family.setdefault(family, {"items": 0, "title": 0, "description": 0})
+            counts["items"] += 1
+            counts["title"] += int(is_title_change)
+            counts["description"] += int(is_description_change)
+
+    aggregate = change_budget.ProposedChangeVolume(
+        total_items=len(patches), items_by_scope=items_by_scope,
+        title_changes=title_changes, description_changes=description_changes,
+    )
+    static_violations = change_budget.check_static_caps(aggregate, budgets, mechanism="title_description_writes")
+    if static_violations:
+        return False, f"static cap(s) exceeded for this batch: {static_violations}"
+
+    for family, counts in sorted(by_family.items()):
+        family_volume = change_budget.ProposedChangeVolume(
+            total_items=counts["items"], title_changes=counts["title"], description_changes=counts["description"],
+        )
+        anomaly_status, blocked = change_budget.check_anomaly(
+            family, "title_description_writes", family_volume, budgets,
+        )
+        log.info(
+            "change-budget anomaly check: family=%s mechanism=title_description_writes -> %s",
+            family, anomaly_status,
+        )
+        if blocked:
+            return False, f"anomaly check blocked family {family!r}: {anomaly_status}"
+
+    return True, "within budget"
 
 
 # ---------------------------------------------------------------------------
@@ -413,6 +488,28 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     skip_count = 0
     rejected_governance_count = 0
 
+    # Re-sync change_budget.py's state paths (history/cross-mechanism) to
+    # this module's own _REPO_ROOT on every call -- _REPO_ROOT is a
+    # monkeypatched test seam (see test_apply_governance.py), and without
+    # this a real-write test run would silently pollute the REAL
+    # reports/seo/change_budget_history.json instead of its own tmp_path.
+    change_budget.configure(repo_root=_REPO_ROOT)
+
+    # --- Governance gate 0: change-budget guard (Contract G) ---
+    # Batch-level, before any write; dry_run is never gated (Contract J
+    # explicitly permits --dry-run regardless of state, same as gate 2.5).
+    if not dry_run:
+        budget_ok, budget_reason = _preflight_change_budget(patches)
+        if not budget_ok:
+            log.error("REFUSE BATCH: change-budget guard blocked this run — %s", budget_reason)
+            print()
+            print("=" * 60)
+            print(f"Apply refused by change-budget guard: {budget_reason}")
+            print("=" * 60)
+            return
+
+    applied_by_family: dict[str, dict[str, int]] = {}
+
     for patch in patches:
         page_path = patch["page_path"]
         content_file = _REPO_ROOT / page_path
@@ -621,6 +718,23 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
         # Success
         log.info("APPLIED: %s — fields: %s", page_path, ", ".join(changed_fields))
         applied_count += 1
+
+        family = autonomy_state.family_from_page_path(page_path)
+        if family is not None:
+            counts = applied_by_family.setdefault(family, {"title": 0, "description": 0})
+            if "seoTitle" in changed_fields:
+                counts["title"] += 1
+            if "description" in changed_fields:
+                counts["description"] += 1
+
+    # --- Record actual applied volume into change-budget history (Contract G) ---
+    # Only real, applied counts are ever recorded -- never the pre-flight's
+    # proposed counts -- so the rolling baseline reflects what actually
+    # happened, not what a run merely intended.
+    if not dry_run:
+        for family, counts in sorted(applied_by_family.items()):
+            actual = counts["title"] + counts["description"]
+            change_budget.record_run(family, "title_description_writes", actual)
 
     # Summary
     print()

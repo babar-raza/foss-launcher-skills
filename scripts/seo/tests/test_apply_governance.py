@@ -338,3 +338,107 @@ class TestFormatPreservation:
 class TestBatchSizeCap:
     def test_max_batch_size_constant_is_50(self):
         assert apply_mod.MAX_BATCH_SIZE == 50
+
+
+class TestChangeBudgetGuard:
+    """Contract G (SEO-CHANGE-BUDGET-GUARD): apply.py's batch-level
+    pre-flight gate 0, and post-run actual-count recording."""
+
+    def _small_budgets(self, **overrides):
+        budgets = {
+            "max_pages_per_run": 15, "max_pages_per_site_per_run": 10,
+            "max_title_changes_per_run": 10, "max_description_changes_per_run": 15,
+            "max_total_metadata_changes_per_run": 20, "anomaly_multiplier": 3.0,
+            "warmup_runs": 3, "max_cross_mechanism_changes_per_family_per_week": 20,
+        }
+        budgets.update(overrides)
+        return budgets
+
+    def test_refuses_whole_batch_when_static_cap_exceeded(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets(max_pages_per_run=2))
+        pages = [f"content/docs.aspose.org/en/x/page{i}/index.md" for i in range(3)]
+        for page in pages:
+            _write_fixture(tmp_path, page, _DOCS_FM)
+        patches = [_basic_patch(page, description="New description.") for page in pages]
+
+        apply_mod.run_apply(patches, dry_run=False)
+
+        for page in pages:
+            assert (tmp_path / page).read_text(encoding="utf-8") == _DOCS_FM, \
+                "no page in a refused batch may be written, not even ones within a per-page sub-limit"
+
+    def test_proceeds_when_batch_within_static_caps(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets())
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        assert "New description." in (tmp_path / page).read_text(encoding="utf-8")
+
+    def test_refuses_when_anomaly_check_blocks_family(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets())
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        # 3 completed warm-up runs with a real mean of 0 for family "x" --
+        # any nonzero proposal is an anomaly.
+        apply_mod.change_budget.configure(repo_root=tmp_path)
+        for _ in range(3):
+            apply_mod.change_budget.record_run("x", "title_description_writes", 0)
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        assert (tmp_path / page).read_text(encoding="utf-8") == _DOCS_FM, \
+            "an anomaly-blocked family must not be written"
+
+    def test_dry_run_never_invokes_or_is_blocked_by_the_budget_gate(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets(max_pages_per_run=0))
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        # dry_run=True must never be refused by the budget gate (Contract J:
+        # --dry-run is always permitted regardless of state) -- and since
+        # run_apply's own dry-run branch writes nothing, this just proves no
+        # exception/refusal short-circuits it before reaching that branch.
+        apply_mod.run_apply([patch_dict], dry_run=True)
+
+        assert (tmp_path / page).read_text(encoding="utf-8") == _DOCS_FM
+
+    def test_records_real_applied_counts_after_successful_write(self, tmp_path, monkeypatch):
+        import json as _json
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets())
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        history_path = tmp_path / "reports" / "seo" / "change_budget_history.json"
+        assert history_path.exists(), "a real, successful apply run must record its actual volume"
+        history = _json.loads(history_path.read_text(encoding="utf-8"))
+        assert history == {"x/title_description_writes": [1]}
+
+    def test_does_not_record_when_batch_is_refused(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets(max_pages_per_run=0))
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        history_path = tmp_path / "reports" / "seo" / "change_budget_history.json"
+        assert not history_path.exists(), "a refused batch must never contribute to the rolling baseline"
+
+    def test_does_not_record_when_apply_run_touches_zero_families(self, tmp_path, monkeypatch):
+        """An empty patch list is within every static cap and has no family
+        to record against -- must not create a spurious history file."""
+        monkeypatch.setattr(apply_mod.change_budget, "load_budgets", lambda path=None: self._small_budgets())
+
+        apply_mod.run_apply([], dry_run=False)
+
+        history_path = tmp_path / "reports" / "seo" / "change_budget_history.json"
+        assert not history_path.exists()

@@ -11,6 +11,16 @@ BEFORE any auto-merge decision:
      contamination shape -- stray tags/pluginDescriptions -- while accepting
      SEO-SCHEMA-A-DUAL-FIELD-GENERATION's two new, optional, additive keys).
   4. No family's entry count decreases vs the base ref.
+  5. Change-budget guard (Contract G, SEO-CHANGE-BUDGET-GUARD): the number of
+     entries actually changed (added or modified, by sourcePath) in each
+     touched keywords/{family}.json is within change_budget.py's static caps
+     and (once that family's warm-up completes) its rolling-baseline anomaly
+     check for mechanism="schema_a_refresh". This gate only CHECKS the
+     proposed volume -- it deliberately never calls change_budget.record_run()
+     itself, since this script may be invoked more than once against the same
+     candidate diff (e.g. a CI rerun) and recording here would double-count a
+     single real merge into the rolling baseline; recording actual volume is
+     the responsibility of whatever step observes the real, merged outcome.
 
 Exits 0 only if every gate passes; exits 1 and prints exactly which gate(s)
 failed otherwise. A failing exit means the caller must leave the PR open for
@@ -25,6 +35,13 @@ import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
+
+try:
+    from seo.pipeline import change_budget  # noqa: E402
+except ImportError:
+    if str(_REPO_ROOT / "scripts" / "seo") not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT / "scripts" / "seo"))
+    from pipeline import change_budget  # type: ignore  # noqa: E402
 
 # title_ready_variants/schema_version (SEO-SCHEMA-A-DUAL-FIELD-GENERATION,
 # Finding #57 Section J): additive, optional keys the weekly refresh may now
@@ -96,6 +113,53 @@ def check_entry_shape(changed_files, repo_root):
     return (not violations), violations
 
 
+def _index_by_source_path(entries):
+    idx = {}
+    for e in entries:
+        if isinstance(e, dict) and e.get("sourcePath"):
+            idx[e["sourcePath"]] = e
+    return idx
+
+
+def _count_changed_entries(before, after):
+    """Entries in `after` that are new (sourcePath not in `before`) or whose
+    content differs from the matching `before` entry. This -- not the raw
+    entry count -- is the Schema A refresh's real "proposed change volume":
+    a regenerated entry with the same sourcePath still counts as a change
+    even though Gate 4 sees no count regression."""
+    before_idx = _index_by_source_path(before)
+    changed = 0
+    for entry in after:
+        if not isinstance(entry, dict):
+            continue
+        sp = entry.get("sourcePath")
+        if sp is None or sp not in before_idx or before_idx[sp] != entry:
+            changed += 1
+    return changed
+
+
+def check_change_budget(changed_files, base_ref, repo_root):
+    """Gate 5: per-family change-budget check (Contract G). See module
+    docstring for why this never calls record_run()."""
+    budgets = change_budget.load_budgets()
+    violations = []
+    for rel_path in changed_files:
+        family = Path(rel_path).stem
+        before = _load_at_ref(base_ref, rel_path, repo_root) or []
+        after = _load_at_ref("HEAD", rel_path, repo_root) or []
+        if not isinstance(before, list) or not isinstance(after, list):
+            continue  # shape violations already caught by check_entry_shape
+        changed_count = _count_changed_entries(before, after)
+        volume = change_budget.ProposedChangeVolume(
+            total_items=changed_count, items_by_scope={family: changed_count},
+        )
+        verdict = change_budget.check_budget(family, "schema_a_refresh", volume, budgets=budgets)
+        if not verdict.allowed:
+            detail = verdict.static_cap_violations or verdict.anomaly_status
+            violations.append(f"{rel_path} (family={family}, changed_entries={changed_count}): {verdict.reason} -- {detail}")
+    return (not violations), violations
+
+
 def check_no_entry_count_regression(changed_files, base_ref, repo_root):
     """Gate 4: no family's entry count may decrease vs base_ref."""
     regressions = []
@@ -150,6 +214,13 @@ def run_checks(base_ref, repo_root=None):
         messages.append(f"GATE 4 FAILED (entry count regression): {regressions}")
     else:
         messages.append("GATE 4 passed: no family's entry count decreased")
+
+    budget_ok, budget_violations = check_change_budget(scoped_changed, base_ref, repo_root)
+    if not budget_ok:
+        all_passed = False
+        messages.append(f"GATE 5 FAILED (change-budget guard): {budget_violations}")
+    else:
+        messages.append("GATE 5 passed: change-budget guard (static caps + anomaly check)")
 
     return all_passed, messages
 

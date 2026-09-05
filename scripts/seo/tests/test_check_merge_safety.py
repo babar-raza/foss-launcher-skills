@@ -222,6 +222,119 @@ def test_new_family_file_is_not_a_regression(tmp_path):
     assert passed, messages
 
 
+def test_fails_gate5_when_family_change_volume_exceeds_static_cap(tmp_path, monkeypatch):
+    """Real failing case for Gate 5 (Contract G): a run that regenerates more
+    entries in one family than change_budgets.yaml's max_pages_per_run
+    permits must not pass, even though Gates 2-4 are clean."""
+    import seo.pipeline.change_budget as change_budget
+    monkeypatch.setattr(
+        change_budget, "load_budgets",
+        lambda path=None: {
+            "max_pages_per_run": 2, "max_pages_per_site_per_run": 2,
+            "max_title_changes_per_run": 100, "max_description_changes_per_run": 100,
+            "max_total_metadata_changes_per_run": 100, "anomaly_multiplier": 3.0,
+            "warmup_runs": 3, "max_cross_mechanism_changes_per_family_per_week": 100,
+        },
+    )
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([
+            {"pageTitle": "A", "sourcePath": "a.md", "keywords": ["x"]},
+            {"pageTitle": "B", "sourcePath": "b.md", "keywords": ["y"]},
+            {"pageTitle": "C", "sourcePath": "c.md", "keywords": ["z"]},
+        ]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    # Regenerate all 3 entries in one run -- 3 changed entries > cap of 2.
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([
+            {"pageTitle": "A2", "sourcePath": "a.md", "keywords": ["x2"]},
+            {"pageTitle": "B2", "sourcePath": "b.md", "keywords": ["y2"]},
+            {"pageTitle": "C2", "sourcePath": "c.md", "keywords": ["z2"]},
+        ]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "regenerate all 3")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert not passed
+    assert any("GATE 5 FAILED" in m for m in messages)
+
+
+def test_passes_gate5_when_family_change_volume_within_caps(tmp_path, monkeypatch):
+    import seo.pipeline.change_budget as change_budget
+    monkeypatch.setattr(
+        change_budget, "load_budgets",
+        lambda path=None: {
+            "max_pages_per_run": 15, "max_pages_per_site_per_run": 10,
+            "max_title_changes_per_run": 10, "max_description_changes_per_run": 15,
+            "max_total_metadata_changes_per_run": 20, "anomaly_multiplier": 3.0,
+            "warmup_runs": 3, "max_cross_mechanism_changes_per_family_per_week": 20,
+        },
+    )
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([{"pageTitle": "A", "sourcePath": "a.md", "keywords": ["x"]}]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([
+            {"pageTitle": "A", "sourcePath": "a.md", "keywords": ["x"]},
+            {"pageTitle": "B", "sourcePath": "b.md", "keywords": ["y"]},
+        ]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "add one entry")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert passed, messages
+    assert any("GATE 5 passed" in m for m in messages)
+
+
+def test_gate5_counts_regenerated_entries_with_unchanged_count_as_changed(tmp_path, monkeypatch):
+    """A regenerated entry that keeps the same sourcePath and the same total
+    count (so Gate 4 sees no regression) must still count as a real change
+    for the budget check -- proves _count_changed_entries doesn't just diff
+    len(before) vs len(after)."""
+    import seo.pipeline.change_budget as change_budget
+    monkeypatch.setattr(
+        change_budget, "load_budgets",
+        lambda path=None: {
+            "max_pages_per_run": 0, "max_pages_per_site_per_run": 0,
+            "max_title_changes_per_run": 100, "max_description_changes_per_run": 100,
+            "max_total_metadata_changes_per_run": 100, "anomaly_multiplier": 3.0,
+            "warmup_runs": 3, "max_cross_mechanism_changes_per_family_per_week": 100,
+        },
+    )
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([{"pageTitle": "A", "sourcePath": "a.md", "keywords": ["x"]}]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    # Same sourcePath, same count, different content -- a real regeneration.
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([{"pageTitle": "A-regenerated", "sourcePath": "a.md", "keywords": ["x-new"]}]),
+        encoding="utf-8",
+    )
+    _commit_all(repo, "regenerate in place")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert not passed
+    assert any("GATE 5 FAILED" in m and "changed_entries=1" in m for m in messages)
+
+
 def test_no_diff_passes_trivially(tmp_path):
     repo = _init_repo(tmp_path)
     (repo / "keywords").mkdir()
