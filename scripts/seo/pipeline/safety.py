@@ -14,14 +14,17 @@ All checks are deterministic — no LLM, no network calls.
 stdlib + pyyaml only.
 
 Check order (first failure = reject):
-  1. stale_since      — model.yaml stale check
-  2. path_guard       — content/ prefix + allowed site
-  3. evidence_block   — no writes to evidence/model_sha/claims/apis/formats fields
-  4. length_gate      — seoTitle 50-70, description 130-160
-  5. keyword_density  — no phrase > 2x in proposed text
-  6. api_name_leak    — no new API names introduced
-  7. over_opt_cap     — trim to top 4 field-level recs (not a rejection)
-  8. requires_human   — set flag (not a rejection)
+  1. stale_since         — model.yaml stale check
+  2. path_guard          — content/ prefix + allowed site
+  3. evidence_block      — no writes to evidence/model_sha/claims/apis/formats fields
+  4. length_gate         — seoTitle 50-70, description 130-160
+  5. keyword_density     — no phrase > 2x in proposed text
+  6. api_name_leak       — no new API names introduced
+  7. placement_decision  — SEO-KEYWORD-INTENT-CONTRACT backstop: reject a proposal that
+                           injects its own source query despite that query's own upstream
+                           placement disposition being do_not_use/human_review
+  8. over_opt_cap        — trim to top 4 field-level recs (not a rejection)
+  9. requires_human      — set flag (not a rejection)
 """
 from __future__ import annotations
 
@@ -374,9 +377,58 @@ def _check_api_name_leak(
     return True, "", ""
 
 
+# SEO-KEYWORD-INTENT-CONTRACT (Contract A): dispositions that must never
+# reach a proposal injecting the literal source query. Kept as a plain
+# string set here, not an import of keyword_intent.py's PlacementDecision
+# enum -- this module's own docstring promises "no LLM, no network calls,
+# stdlib + pyyaml only" and every existing check already reads recommend.py's
+# output structurally rather than importing its producer; the upstream
+# disposition value is already a plain string once it reaches this file.
+_PLACEMENT_BLOCKING_VALUES = {"do_not_use", "human_review"}
+
+
+def _check_placement_decision(r: dict) -> tuple[bool, str, str]:
+    """
+    Check 7 (per-rec): never trust an upstream stage's placement decision
+    without a downstream re-check (this file's existing philosophy, applied
+    to the new contract). Hard-fails any recommendation whose own
+    signals['placement'] says do_not_use/human_review but which nonetheless
+    proposes injecting that literal source query into the proposed text.
+    Absent signals/placement (every existing recommendation shape, and any
+    field this contract doesn't classify, e.g. tags) is not itself a
+    violation -- there is nothing to re-check.
+    """
+    signals = r.get("signals")
+    if not isinstance(signals, dict):
+        return True, "", ""
+
+    placement = signals.get("placement")
+    if placement not in _PLACEMENT_BLOCKING_VALUES:
+        return True, "", ""
+
+    proposed = r.get("proposed")
+    if not isinstance(proposed, str) or not proposed:
+        return True, "", ""
+
+    source_query = signals.get("source_query")
+    if not isinstance(source_query, str) or not source_query.strip():
+        return True, "", ""
+
+    if source_query.strip().lower() in proposed.lower():
+        return (
+            False,
+            "placement_decision_bypass",
+            (
+                f"proposed text injects source query {source_query!r} despite "
+                f"its own upstream placement disposition {placement!r}"
+            ),
+        )
+    return True, "", ""
+
+
 def _apply_over_opt_cap(rec: dict) -> dict:
     """
-    Check 7: trim to _MAX_RECS_PER_PAGE field-level recommendations.
+    Check 8: trim to _MAX_RECS_PER_PAGE field-level recommendations.
     Not a rejection — modifies rec in-place (returns same dict).
     Keeps highest-priority fields first: seoTitle > description > tags.
     """
@@ -402,7 +454,7 @@ def _apply_over_opt_cap(rec: dict) -> dict:
 
 def _apply_requires_human(rec: dict) -> dict:
     """
-    Check 8: set requires_human_review=True if any condition is met.
+    Check 9: set requires_human_review=True if any condition is met.
     Not a rejection — modifies rec in-place.
     """
     recs = rec.get("recommendations", [])
@@ -514,15 +566,27 @@ def _gate_recommendation(
             field_rejected = True
             break
 
+        # Check 7: SEO-KEYWORD-INTENT-CONTRACT placement-decision backstop
+        passed, code, detail = _check_placement_decision(r)
+        if not passed:
+            rejections.append({
+                "page_path": page_path,
+                "field": field,
+                "reason_code": code,
+                "detail": detail,
+            })
+            field_rejected = True
+            break
+
     if field_rejected:
         return False, rejections
 
     # --- Non-rejection adjustments ---
 
-    # Check 7: over-optimisation cap (trim, not reject)
+    # Check 8: over-optimisation cap (trim, not reject)
     _apply_over_opt_cap(rec)
 
-    # Check 8: requires_human flag (set, not reject)
+    # Check 9: requires_human flag (set, not reject)
     _apply_requires_human(rec)
 
     return True, []

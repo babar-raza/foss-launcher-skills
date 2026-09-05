@@ -40,11 +40,20 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
+_SEO_SCRIPTS = _REPO_ROOT / "scripts" / "seo"
+if str(_SEO_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SEO_SCRIPTS))
+
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
 from commands.ops.llm_router import EndpointStatus, LLMCallContext, LLMRouter  # noqa: E402
 _METRICS_AVAILABLE = True  # compatibility: router always exposes metrics events
+
+try:
+    from seo.pipeline import keyword_intent  # noqa: E402
+except ImportError:
+    from pipeline import keyword_intent  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -225,6 +234,61 @@ def _pick_primary_keyword(signals: dict) -> str:
     return kws[0] if kws else ""
 
 
+# ---------------------------------------------------------------------------
+# SEO-KEYWORD-INTENT-CONTRACT (Contract A) integration
+# ---------------------------------------------------------------------------
+
+_INTENT_SCHEMA = {
+    "family": "str|null", "platform": "str|null", "action": "str|null",
+    "source_format": "str|null", "target_format": "str|null",
+}
+
+
+def _keyword_intent_llm_call(litellm_key: "str | None"):
+    """Adapter routing keyword_intent.py's cached LLM fallback through this
+    module's own already-registered LLMRouter call site (_call_llm,
+    operation='seo_recommendation') -- Contract A never opens a second,
+    unregistered professionalize call site of its own (AGENTS.md Sec.15's
+    metrics obligation is satisfied by reuse, not a new registration)."""
+    if not litellm_key:
+        return None
+
+    def _call(prompt: str) -> "dict | None":
+        return _call_llm(prompt, _LLM_MODEL_MEDIUM, _INTENT_SCHEMA, litellm_key)
+
+    return _call
+
+
+def _compute_placement(
+    primary_kw: str,
+    family: "str | None",
+    platform: "str | None",
+    page_path: str,
+    signals: dict,
+    litellm_key: "str | None",
+):
+    """Classify the primary keyword's search intent and decide whether it
+    should even be attempted, before any composition prompt is built.
+    Returns (decision, confidence, reasons); decision is None only when
+    there is no primary keyword at all to classify."""
+    if not primary_kw:
+        return None, None, []
+    intent = keyword_intent.parse_search_intent(
+        primary_kw, family_hint=family, platform_hint=platform,
+        llm_call=_keyword_intent_llm_call(litellm_key),
+    )
+    return keyword_intent.decide_placement(intent, page=page_path, signals=signals)
+
+
+def _placement_signals_block(placement_decision, placement_confidence, placement_reasons, primary_kw):
+    return {
+        "placement": placement_decision.value if placement_decision else None,
+        "confidence": placement_confidence,
+        "reasons": placement_reasons,
+        "source_query": primary_kw,
+    }
+
+
 def _tag_proposals_from_signals(signals: dict, current_tags: list[str]) -> list[str]:
     """
     Deterministically propose top-N matched keywords as new tags,
@@ -269,6 +333,13 @@ def _gen_high_recommendations(
     family = opp.get("family")
     platform = opp.get("platform")
     primary_kw = _pick_primary_keyword(signals)
+    placement_decision, placement_confidence, placement_reasons = _compute_placement(
+        primary_kw, family, platform, page_path, signals, litellm_key,
+    )
+    placement_blocks_llm = placement_decision in keyword_intent.NO_LLM_CALL_DISPOSITIONS
+    signals_block = _placement_signals_block(
+        placement_decision, placement_confidence, placement_reasons, primary_kw,
+    )
 
     recs: list[dict] = []
     llm_skipped = litellm_key is None
@@ -279,7 +350,7 @@ def _gen_high_recommendations(
     title_aligned = signals.get("title_aligned", True)
 
     if current_title and not title_aligned:
-        if litellm_key:
+        if litellm_key and not placement_blocks_llm:
             prompt = _build_seo_title_rewrite_prompt(
                 current_title, primary_kw, family, platform
             )
@@ -296,6 +367,14 @@ def _gen_high_recommendations(
                 proposed_title = None
                 rationale = "LLM call failed — human review required."
                 llm_skipped = True
+        elif placement_blocks_llm:
+            proposed_title = None
+            rationale = (
+                f"Keyword intent analysis returned {placement_decision.value} "
+                f"({'; '.join(placement_reasons) or 'no reasons recorded'}) — "
+                "LLM rewrite skipped."
+            )
+            llm_skipped = True
         else:
             proposed_title = None
             rationale = "LLM router operation unavailable — human must draft."
@@ -309,6 +388,7 @@ def _gen_high_recommendations(
             "char_count": len(proposed_title) if proposed_title else None,
             "source_keywords": source_kws[:5],
             "rationale": rationale,
+            "signals": signals_block,
         })
     elif not current_title:
         recs.append({
@@ -326,7 +406,7 @@ def _gen_high_recommendations(
     current_desc = seo_fields.get("description")
     desc_ok = signals.get("description_ok", True)
 
-    if not desc_ok and current_desc and litellm_key and not llm_skipped:
+    if not desc_ok and current_desc and litellm_key and not llm_skipped and not placement_blocks_llm:
         prompt = _build_description_rewrite_prompt(
             current_desc, primary_kw, family, platform
         )
@@ -344,7 +424,13 @@ def _gen_high_recommendations(
             desc_rationale = "LLM call failed — human review required."
     else:
         proposed_desc = None
-        if not desc_ok:
+        if not desc_ok and placement_blocks_llm:
+            desc_rationale = (
+                f"Keyword intent analysis returned {placement_decision.value} "
+                f"({'; '.join(placement_reasons) or 'no reasons recorded'}) — "
+                "LLM rewrite skipped."
+            )
+        elif not desc_ok:
             desc_len = signals.get("description_len", 0)
             if desc_len < _DESC_MIN:
                 desc_rationale = (
@@ -368,6 +454,7 @@ def _gen_high_recommendations(
             "char_count": len(proposed_desc) if proposed_desc else None,
             "source_keywords": source_kws[:5],
             "rationale": desc_rationale,
+            "signals": signals_block,
         })
 
     # 3. tag additions (deterministic)
@@ -424,6 +511,13 @@ def _gen_medium_recommendations(
     platform = opp.get("platform")
     primary_kw = _pick_primary_keyword(signals)
     source_kws = signals.get("matched_keywords") or []
+    placement_decision, placement_confidence, placement_reasons = _compute_placement(
+        primary_kw, family, platform, page_path, signals, litellm_key,
+    )
+    placement_blocks_llm = placement_decision in keyword_intent.NO_LLM_CALL_DISPOSITIONS
+    signals_block = _placement_signals_block(
+        placement_decision, placement_confidence, placement_reasons, primary_kw,
+    )
 
     recs: list[dict] = []
     llm_skipped = litellm_key is None
@@ -433,7 +527,7 @@ def _gen_medium_recommendations(
 
     # seoTitle rewrite: only if title present but misaligned
     if current_title and not title_aligned:
-        if litellm_key:
+        if litellm_key and not placement_blocks_llm:
             prompt = _build_seo_title_rewrite_prompt(
                 current_title, primary_kw, family, platform
             )
@@ -456,6 +550,14 @@ def _gen_medium_recommendations(
                 proposed_title = None
                 rationale = "LLM call failed after retries — human review required."
                 llm_skipped = True
+        elif placement_blocks_llm:
+            proposed_title = None
+            rationale = (
+                f"Keyword intent analysis returned {placement_decision.value} "
+                f"({'; '.join(placement_reasons) or 'no reasons recorded'}) — "
+                "LLM rewrite skipped."
+            )
+            llm_skipped = True
         else:
             proposed_title = None
             rationale = "LLM router operation unavailable — human must draft."
@@ -469,6 +571,7 @@ def _gen_medium_recommendations(
             "char_count": len(proposed_title) if proposed_title else None,
             "source_keywords": source_kws[:5],
             "rationale": rationale,
+            "signals": signals_block,
         })
     elif not current_title:
         # MEDIUM with no title — treat as add_seo_title
