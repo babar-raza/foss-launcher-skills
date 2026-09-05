@@ -98,17 +98,33 @@ def _split_segments(text: str) -> "list[str]":
     return [s.strip() for s in _SEGMENT_SPLIT_RE.split(text) if s.strip()]
 
 
+_SIBILANT_ENDINGS = ("s", "x", "z", "ch", "sh")
+
+
+def _third_person_singular(base: str) -> str:
+    """Standard English 3rd-person-singular inflection: verbs ending in a
+    sibilant (s/x/z/ch/sh) take -es, not a bare -s -- 'compress' ->
+    'compresses', never 'compresss'. Found live (independent review,
+    it-0023): the bare base+'s' rule silently failed to recognize this
+    conjugation of 'compress' (one of Contract A's own 14 action verbs),
+    letting a plausible LLM-composed sentence using it bypass the
+    repeated-verb-frame detector entirely."""
+    if base.endswith(_SIBILANT_ENDINGS):
+        return base + "es"
+    return base + "s"
+
+
 def _segment_leading_verb(segment: str) -> "str | None":
     """Returns the segment's leading verb if its first word is a known
-    action verb (Contract A's vocabulary) or a simple -s/-ing inflection of
-    one -- deterministic, no fuzzy "close synonym" matching (this module
-    stays in Contract A's no-new-NLU-dependency tradition)."""
+    action verb (Contract A's vocabulary) or a simple -s/-es/-ing/-ed
+    inflection of one -- deterministic, no fuzzy "close synonym" matching
+    (this module stays in Contract A's no-new-NLU-dependency tradition)."""
     tokens = _tokenize(segment)
     if not tokens:
         return None
     first = tokens[0]
     for base in ACTION_VERBS:
-        if first == base or first == base + "s" or first == base + "ing" or first == base + "ed":
+        if first == base or first == _third_person_singular(base) or first == base + "ing" or first == base + "ed":
             return base
     return None
 

@@ -111,6 +111,27 @@ class TestStageARepeatedVerbFrameFinding79:
         text = "Convert PDF to Word, create new documents, and extract text easily."
         assert ne._check_repeated_verb_frame(text) is None
 
+    def test_sibilant_ending_verb_3rd_person_singular_inflection(self):
+        """Regression pin (found live by independent review, it-0023): a
+        verb ending in a sibilant (s/x/z/ch/sh) takes -es for 3rd-person-
+        singular, not a bare -s -- 'compress' -> 'compresses', never
+        'compresss'. The bare-'s' rule silently missed this conjugation of
+        one of Contract A's own 14 action verbs, letting a plausible
+        LLM-composed sentence bypass the detector entirely."""
+        text = (
+            "Compresses video files and compresses audio files and "
+            "compresses image files without losing quality."
+        )
+        assert ne._segment_leading_verb("Compresses video files") == "compress"
+        result = ne._check_repeated_verb_frame(text)
+        assert result is not None
+        assert "compress" in result
+
+    def test_third_person_singular_helper_uses_es_for_sibilant_endings(self):
+        assert ne._third_person_singular("compress") == "compresses"
+        assert ne._third_person_singular("convert") == "converts"
+        assert ne._third_person_singular("create") == "creates"
+
 
 class TestStageAStopwordRatio:
     def test_high_stopword_ratio_warns(self):
