@@ -1097,9 +1097,21 @@ def reconcile(
     original_message = _git(
         ["log", "-1", "--format=%B", commit_sha], repo_root=root,
     ).stdout.rstrip("\n")
+    # A --remote value may be a full x-access-token URL (the pattern this
+    # repo's own CLAUDE.md documents for GH_TOKEN-authenticated pushes) --
+    # unlike every OTHER site that builds a message from raw args/output
+    # (see _redact_credentials' own docstring, 2026-08-08), this merge
+    # commit message becomes PERMANENT, PUSHED git history, not a
+    # transient stderr print, making an unredacted leak here worse than
+    # the original 2026-08-08 incident it was meant to close. Real
+    # incident, found live 2026-09-06: an agent passed a full
+    # x-access-token URL as --remote to recover from a non-fast-forward
+    # push, and the resulting merge commit message embedded the live
+    # GH_TOKEN in plaintext on Aspose/aspose.org's main branch.
+    safe_remote = _redact_credentials(remote)
     merge_message = (
         f"{original_message}\n\n"
-        f"Reconciled (non-fast-forward) against {remote}/{branch}@{remote_tip[:12]} "
+        f"Reconciled (non-fast-forward) against {safe_remote}/{branch}@{remote_tip[:12]} "
         f"via git_plumb_commit.reconcile()."
     )
     merge_commit_sha = _git(

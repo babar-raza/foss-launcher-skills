@@ -262,6 +262,53 @@ def test_reconcile_handles_a_deleted_file_correctly(tmp_path):
     assert "unrelated.txt" in tree_files
 
 
+def test_reconcile_never_leaks_a_credentialed_remote_into_the_merge_commit_message(tmp_path):
+    """Real incident, found live 2026-09-06: an agent passed a full
+    x-access-token URL as `remote` (this repo's own CLAUDE.md-documented
+    GH_TOKEN-authenticated-push convention) to recover from a non-fast-
+    forward push. reconcile()'s merge_message embedded that URL -- token
+    included -- verbatim, and the resulting merge commit was pushed to
+    Aspose/aspose.org's real main branch, leaking the live credential into
+    PERMANENT git history (worse than the original 2026-08-08 incident
+    _redact_credentials was built for, since that one only ever reached a
+    transient stderr print). `url.<base>.insteadOf` lets this test drive a
+    REAL fetch/push (no git mocking, matching this file's own convention)
+    through a literal credentialed URL string while it actually resolves to
+    the local bare repo.
+    """
+    work, bare = _init_repo_with_remote(tmp_path)
+    other = _clone(bare, tmp_path / "other")
+
+    (other / "other_file.txt").write_text("from the other session", encoding="utf-8")
+    _git(other, "add", "other_file.txt")
+    _git(other, "commit", "-q", "-m", "other session's commit")
+    assert _git(other, "push", "origin", "main").returncode == 0
+
+    stale_head = _git(work, "rev-parse", "HEAD").stdout.strip()
+    (work / "mine.txt").write_text("mine", encoding="utf-8")
+    _git(work, "add", "mine.txt")
+    _git(work, "commit", "-q", "-m", "my commit")
+    my_commit_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    fake_token = "ghp_FAKESECRETTOKENFORTESTONLY1234"
+    credentialed_remote = f"https://x-access-token:{fake_token}@fake.example.invalid/repo.git"
+    _git(work, "config", f"url.{bare}.insteadOf", credentialed_remote)
+
+    result = gpc.reconcile(
+        my_commit_sha, ["mine.txt"], repo_root=work, branch="main",
+        remote=credentialed_remote, old_parent_sha=stale_head,
+    )
+
+    assert result["fast_forward"] is False
+    merge_sha = result["commit_sha"]
+    remote_tip = _git(bare, "rev-parse", "main").stdout.strip()
+    assert remote_tip == merge_sha  # really pushed, not just built locally
+
+    merge_message = _git(work, "log", "-1", "--format=%B", merge_sha).stdout
+    assert fake_token not in merge_message
+    assert "<redacted>" in merge_message
+
+
 def test_reconcile_retried_with_a_stale_parent_after_it_already_landed_fails_safe(tmp_path):
     """Recovery/idempotency boundary: if a caller retries reconcile() for
     the SAME (commit_sha, old_parent_sha) pair after the first call already
