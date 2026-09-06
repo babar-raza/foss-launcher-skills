@@ -5645,6 +5645,253 @@ scripts:
       findings classed session (blocking) vs lookback (soak: warn). Consumed
       by the checker CLI and git_plumb_commit.py (temp-index mode)."
 
+  # ── lib/example_verification/ (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION,
+  # ── taskcards C1-C4) ── the shared example-verification package owned by S-63 ────────────────
+  - path: scripts/pipeline/lib/example_verification/code_fences.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_code_fences.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C1: the ONE canonical CommonMark-conformant fenced-code-block
+      tokenizer, replacing ~40 independent regex fence parsers found across
+      this pipeline (RC6/RC19). stdlib-only, zero repo imports. Not yet
+      wired into content_eval/models.py -- a portfolio-wide parity pilot
+      found 320/158,863 files diverge, all traced to a pre-existing
+      orphaned-fence content defect, not a tokenizer defect (see
+      reports/plan_state/MT065-.../evidence/it-0001-.../)."
+
+  - path: scripts/pipeline/lib/example_verification/registry.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_registry.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C2: PLATFORM_CONTRACT / RUNNABLE_LANGS_BY_PLATFORM /
+      NON_EXECUTABLE_LANGS -- the code-side truth platform_capabilities.yaml's
+      example_verification site (C4) mirrors. Bumped per-platform when a
+      real runner lands (C5, C11-C14)."
+
+  - path: scripts/pipeline/lib/example_verification/syntax.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_syntax.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C2: the ONE shared tree-sitter loader (RC17 fix), replacing two
+      independently-diverging copies in smoke_test.py and
+      code_syntax_check.py. check_syntax() -> PASS tier 1 | SYNTAX-ERROR |
+      loud GRAMMAR-UNAVAILABLE, never a silent PASS. smoke_test.py already
+      wired (C2); code_syntax_check.py deliberately NOT yet wired (needs
+      an EVALUATOR_LOGIC_VERSION/EVALUATOR_FREEZE_VERSION bump, C8's scope,
+      plus triage of a measured 533-block FAIL delta -- see
+      evidence/it-0002-.../C2_code_syntax_check_corpus_finding.md)."
+
+  - path: scripts/pipeline/lib/example_verification/result.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_result.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C2: BlockIdentity/BlockResult/VerificationReport, the shared
+      status+reason vocabulary, and to_legacy_s120()/to_smoke() adapters
+      producing the exact dict shapes test_readme_refresh_run.py and
+      smoke_test.py already assert. No live caller yet -- C7/C4 wire the
+      first real ones."
+
+  - path: scripts/pipeline/lib/example_verification/policy.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_policy.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C2/C3: Policy (max_tier/allow_acquire/Timeouts/chain_mode/
+      env_allowlist) + ProductContext (from_factpack/from_knowledge) +
+      clone_cache_path() (same layout as S-120's _product_clone_cache,
+      since this package has no configure()-seam global)."
+
+  - path: scripts/pipeline/lib/example_verification/cache.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_cache.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C2: ResultCache at runs/.example_verification/{family}_{platform}/
+      cache.json -- content-keyed cache_key(), hit/miss/stale matrix, and a
+      never-cache list enforced for TOOLCHAIN-UNAVAILABLE/TIMEOUT/
+      BUDGET-EXHAUSTED/GRAMMAR-UNAVAILABLE/ACQUIRE-*. stale_reason() names
+      the first differing component (clone_head -> toolchain_version ->
+      runners_version -> snippet_edited)."
+
+  - path: scripts/pipeline/lib/example_verification/toolchain.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_toolchain.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C3: shared toolchain discovery -- find()/version_of() (the
+      _resolve_node_bin WinError-2 shutil.which fix generalized to every
+      tool), maven_java_version() (mvn resolves its OWN JDK, confirmed
+      different from PATH java on this machine), msvc_env() (vswhere +
+      vcvarsall capture -- correctly returns None on this machine, since
+      the VS install here has no C++ build workload; see the governing
+      plan's corrected toolchain inventory), exec_env() (Round 3 H
+      allow-list, never leaks this repo's own PYTHONPATH), fingerprint()."
+
+  - path: scripts/pipeline/lib/example_verification/acquire.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_acquire.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C3: language-agnostic fixture staging, a faithful port of
+      S-120's _stage_readme_fixtures/_readme_fixture_names
+      (readme_refresh_run.py:4874-4923), proven at direct parity against
+      the real, unmodified S-120 functions."
+
+  - path: scripts/pipeline/lib/example_verification/runners/python.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_runners_python.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C3: faithful port of S-120's real Python verification runner
+      (readme_refresh_run.py:4725-5115). Proven at real end-to-end parity
+      against the actual pdf/python clone cache (real venv + real
+      `pip install -e` + real execution, byte-identical to the original
+      S-120 function). readme_refresh_run.py itself is untouched -- C7
+      wires the real dispatch."
+
+  - path: scripts/pipeline/lib/example_verification/runners/typescript.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_runners_typescript.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C3: faithful port of S-120's real TypeScript verification
+      runner (readme_refresh_run.py:5144-5426). Proven at real end-to-end
+      parity against the actual pdf/typescript clone cache (real npm
+      install + real tsc + real tsx, byte-identical to the original S-120
+      function modulo an inherently-different tempfile.TemporaryDirectory
+      name)."
+
+  - path: scripts/pipeline/lib/example_verification/runners/base.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_runners_base.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C3 fast-follow: the shared tier ladder (syntax -> cache ->
+      acquire -> chain grouping -> compile -> execute) every future
+      per-language runner (C5 Go/.NET, C11-C14 Java/Rust/C++) climbs by
+      implementing only the 5-method LanguageRunner protocol. NOT yet
+      retrofitted onto runners/python.py/typescript.py (deliberate --
+      those are proven ports of live production code; this is new,
+      synthetically-tested code). Independent review found and this was
+      fixed: the cache key must hash chain_prefix+code for a tier-2/3
+      result, not just the block's own isolated code_sha256, or a
+      byte-identical chain-continuation block can silently serve a stale
+      result after an earlier block in its own chain changed."
+
 
   # ── SEO pipeline (scripts/seo/) ─ registered by SEO-TESTS-CI-WIRING, Finding #61 ─────────────
   - path: scripts/seo/pipeline/analyze.py

@@ -380,6 +380,65 @@ def check_reachability_enforced(caps: dict, platforms: list) -> list[dict]:
     return findings
 
 
+def check_example_verification(caps: dict, platforms: list) -> list[dict]:
+    """MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION (taskcard C4):
+    the `example_verification` site's one, single code-side source is
+    `lib/example_verification/registry.py::PLATFORM_CONTRACT` -- diffed
+    here the same way `check_reachability_enforced` diffs against
+    `reference_filter.REACHABILITY_ENFORCED_PLATFORMS`, replacing the
+    earlier design's separate JSON contract + parity script (the
+    governing plan's Phase 1 item 1) with one source, one YAML mirror,
+    one check."""
+    findings: list[dict] = []
+    registry = _pipeline_module("lib.example_verification.registry")
+    for platform in platforms:
+        decl = caps["platforms"][platform].get("example_verification")
+        if decl is None:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                "YAML has no example_verification block for this platform",
+            ))
+            continue
+        contract = registry.PLATFORM_CONTRACT.get(platform)
+        if contract is None:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                "YAML declares example_verification but registry.PLATFORM_CONTRACT has no entry",
+            ))
+            continue
+        if decl.get("max_tier") != contract.max_tier:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                f"YAML max_tier={decl.get('max_tier')!r} != registry.PLATFORM_CONTRACT[{platform!r}].max_tier {contract.max_tier!r}",
+            ))
+        if decl.get("offline_tier") != contract.offline_tier:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                f"YAML offline_tier={decl.get('offline_tier')!r} != registry offline_tier {contract.offline_tier!r}",
+            ))
+        if decl.get("runner_module") != contract.runner:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                f"YAML runner_module={decl.get('runner_module')!r} != registry runner {contract.runner!r}",
+            ))
+        if decl.get("precommit_blocking") != contract.precommit_blocking:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                f"YAML precommit_blocking={decl.get('precommit_blocking')!r} != registry precommit_blocking {contract.precommit_blocking!r}",
+            ))
+    # Every platform registry.py declares must also appear in the YAML --
+    # a platform added to PLATFORM_CONTRACT but never mirrored here would
+    # otherwise pass silently (the loop above only iterates the YAML's own
+    # `platforms` list).
+    for platform in registry.PLATFORM_CONTRACT:
+        if platform not in platforms:
+            findings.append(_finding(
+                "value_mismatch", platform, "example_verification",
+                "registry.PLATFORM_CONTRACT declares this platform but it has no row in platform_capabilities.yaml",
+            ))
+    return findings
+
+
 _SITE_CHECKS = (
     check_class_func_module_kinds,
     check_doc_style,
@@ -392,6 +451,7 @@ _SITE_CHECKS = (
     check_trouble_platform,
     check_coverage_policy,
     check_reachability_enforced,
+    check_example_verification,
 )
 
 

@@ -150,6 +150,21 @@ capability_sites:
       across every language and family" -- formats.py's own Pass 1e
       comment); `camel_identifier` (Pass 1g) is gated to
       `language in ("typescript", "javascript")` only.
+  example_verification:
+    source: scripts/pipeline/lib/example_verification/registry.py:PLATFORM_CONTRACT
+    description: >
+      MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION (taskcard C4):
+      what this platform's shared example-verification package can
+      currently prove. `max_tier` (highest proof_tier a real runner can
+      reach today: 0 none, 1 syntax, 2 compiled/type-checked, 3 executed),
+      `offline_tier` (highest tier reachable with allow_acquire=False),
+      `runner_module` (the runners/{name}.py module, or null if unbuilt),
+      `precommit_blocking` (whether a pre-commit hook already blocks on
+      this platform's examples -- go's check_go_code_blocks.py predates
+      this package entirely). This is the one code-side source
+      (registry.py) this YAML site mirrors, replacing the earlier design's
+      separate JSON contract + parity script (Phase 1 item 1) with a
+      single source + one CI check (check_example_verification()).
 
 # ---------------------------------------------------------------------------
 # Per-platform declarations
@@ -205,6 +220,11 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
       modes_note: "Pass 1e runs unconditionally but rarely matches snake_case Python identifiers in practice; no camel_identifier (Pass 1g is TS/JS-gated only)."
+    example_verification:
+      max_tier: 3
+      offline_tier: 1
+      runner_module: python
+      precommit_blocking: false
 
   net:
     language: csharp
@@ -265,6 +285,11 @@ platforms:
       enforced_note: "Not in REACHABILITY_ENFORCED_PLATFORMS; no test_reference_filter.py pin exists for net specifically (only python/rust are pinned as 'not enforced yet') -- net's own reachability signal is real but unconsulted today."
     format_recognizer_style:
       modes: [pascal_verb]
+    example_verification:
+      max_tier: 1
+      offline_tier: 1
+      runner_module: null
+      precommit_blocking: false
 
   java:
     language: java
@@ -310,6 +335,11 @@ platforms:
       enforced: false
     format_recognizer_style:
       modes: [pascal_verb]
+    example_verification:
+      max_tier: 1
+      offline_tier: 1
+      runner_module: null
+      precommit_blocking: false
 
   cpp:
     language: cpp
@@ -373,6 +403,11 @@ platforms:
       enforced: false
     format_recognizer_style:
       modes: [pascal_verb]
+    example_verification:
+      max_tier: 1
+      offline_tier: 1
+      runner_module: null
+      precommit_blocking: false
 
   go:
     language: go
@@ -407,20 +442,20 @@ platforms:
     smoke_test_langs:
       declared: false
       reason: >
-        No 'go' key in ANY of the three real code homes checked
-        (content_eval/config.py:PLATFORM_EXPECTED_LANGS,
-        smoke_test.py:_PLATFORM_LANGS, code_syntax_check.py:_TS_LANGS) --
-        confirmed consistent across all three, not a one-off oversight in a
-        single file. smoke_test.py's _PLATFORM_LANGS.get(platform,
-        frozenset({"python"})) fallback means a go product's code blocks
-        would be smoke-tested as if they were PYTHON if this were ever
-        invoked with platform="go" (a real latent defect, not exercised
-        today because SH-14's completeness gate is TS-specific and no other
-        caller passes platform="go" to smoke_test.py yet). code_syntax_check
-        does include "go" in the separate, looser _BRACE_LANGS heuristic
-        fallback set (brace-matching only, not a real tree-sitter parse).
-        Out of scope for this card (none of these three files are
-        touchable here).
+        PARTIALLY FIXED 2026-09-06 (MT065 taskcard C4): smoke_test.py's
+        own _PLATFORM_LANGS/_TS_LANG_MAP are now derived from the shared
+        lib/example_verification/registry.py, which declares "go"/"golang"
+        -- the previous fallback-to-python defect (a go product's code
+        blocks silently smoke-tested as Python) is closed, see
+        smoke_test_py_matches below. `declared` stays false here because
+        the PRIMARY cross-check this site asserts is against
+        content_eval/config.py:PLATFORM_EXPECTED_LANGS, a DIFFERENT,
+        still-unfixed dict (still has no 'go' key) -- that file is not in
+        this taskcard's touchable-files list. code_syntax_check.py's
+        _TS_LANGS also still has no 'go' key (same file-scope reason);
+        "go" still falls to that evaluator's looser _BRACE_LANGS heuristic
+        there, unrelated to this fix.
+      smoke_test_py_matches: true
     kb_suffix:
       declared: false
       reason: "No 'go' key in KB_PLATFORM_SUFFIX -- KB_PLATFORM_SUFFIX.get('go', 'go') falls back to the platform string itself ('go'), not an error."
@@ -442,6 +477,12 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
       modes_note: "Go is the PRIMARY motivating case named in formats.py's own Pass 1e root-cause comment (Page.AddSVG / Document.LoadSVG)."
+    example_verification:
+      max_tier: 1
+      offline_tier: 1
+      runner_module: null
+      precommit_blocking: true
+      precommit_blocking_note: "The only platform with a real, proven pre-commit compile gate today (check_go_code_blocks.py, Step 18) -- predates this package entirely."
 
   rust:
     language: rust
@@ -491,6 +532,11 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
       modes_note: "Pass 1e runs unconditionally but rarely matches snake_case Rust identifiers in practice; no camel_identifier (Pass 1g is TS/JS-gated only)."
+    example_verification:
+      max_tier: 1
+      offline_tier: 1
+      runner_module: null
+      precommit_blocking: false
 
   typescript:
     language: typescript
@@ -560,3 +606,8 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb, camel_identifier]
       modes_note: "The only platform with BOTH modes: Pass 1e (universal) plus Pass 1g (TC-MT040-14, gated to language in ('typescript','javascript') only)."
+    example_verification:
+      max_tier: 3
+      offline_tier: 1
+      runner_module: typescript
+      precommit_blocking: false

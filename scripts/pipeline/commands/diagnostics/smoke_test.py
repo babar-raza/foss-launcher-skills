@@ -45,6 +45,7 @@ _LIB_DIR = Path(__file__).resolve().parents[2] / "lib"
 if str(_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_LIB_DIR))
 
+from example_verification import registry as _ev_registry  # noqa: E402
 from example_verification import syntax as _ev_syntax  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -61,29 +62,38 @@ _CODE_FENCE_ANY_RE = re.compile(
     re.DOTALL,
 )
 
+# C4 (RC20 fix): both dicts below used to be independent, hand-maintained
+# copies that silently lacked "go" -- a Go product's blocks fell through
+# `_PLATFORM_LANGS.get(platform, frozenset({"python"}))`'s default and were
+# checked as if they were Python. Both are now derived from the shared
+# `lib/example_verification/registry.py` (the same source
+# platform_capabilities.yaml's `example_verification` site mirrors), so a
+# new platform/tag only needs to be declared once. Confirmed byte-identical
+# to the old hardcoded dicts for every pre-existing key (see
+# test_smoke_test.py's existing per-platform assertions), plus "go" is
+# picked up automatically since registry.py already declares it.
+
 # Non-Python language tags handled by tree-sitter.
 # Maps content-file tag → canonical tree-sitter parser key.
 _TS_LANG_MAP: dict[str, str] = {
-    "java":       "java",
-    "csharp":     "csharp",
-    "cs":         "csharp",
-    "c#":         "csharp",
-    "typescript": "typescript",
-    "ts":         "typescript",
-    "cpp":        "cpp",
-    "c++":        "cpp",
-    "rust":       "rust",
-    "rs":         "rust",
+    tag: canon
+    for _contract in _ev_registry.PLATFORM_CONTRACT.values()
+    for tag in _contract.fence_tags
+    if (canon := _ev_syntax.canonical_for(tag)) is not None
 }
 
-# Platform name → frozenset of language tags to extract.
+# Platform name → frozenset of language tags to extract. A platform's fence
+# tags that have no real tree-sitter grammar (e.g. python's own "bash"/"sh"/
+# "shell", which are runnable via S-120 but never syntax-checkable here) are
+# excluded -- this is a "can smoke_test check it" set, not "can this
+# platform's example-verification runner execute it" (registry.py's own
+# concept, a superset).
 _PLATFORM_LANGS: dict[str, frozenset[str]] = {
-    "python":     frozenset({"python"}),
-    "java":       frozenset({"java"}),
-    "net":        frozenset({"csharp", "cs", "c#"}),
-    "typescript": frozenset({"typescript", "ts"}),
-    "cpp":        frozenset({"cpp", "c++"}),
-    "rust":       frozenset({"rust", "rs"}),
+    platform: checkable
+    for platform, _contract in _ev_registry.PLATFORM_CONTRACT.items()
+    if (checkable := frozenset(
+        tag for tag in _contract.fence_tags if _ev_syntax.canonical_for(tag) is not None
+    ))
 }
 
 # ---------------------------------------------------------------------------

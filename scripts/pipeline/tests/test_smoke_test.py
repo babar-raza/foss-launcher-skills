@@ -392,6 +392,22 @@ class TestNonPythonBlocks:
     def test_platform_langs_cpp_is_cpp(self):
         assert "cpp" in _PLATFORM_LANGS["cpp"]
 
+    def test_platform_langs_go_is_declared(self):
+        # C4/RC20 fix: "go" used to be entirely absent from _PLATFORM_LANGS,
+        # so a Go product's blocks silently fell through
+        # `_PLATFORM_LANGS.get(platform, frozenset({"python"}))` and were
+        # checked as if they were Python.
+        assert "go" in _PLATFORM_LANGS
+        assert "go" in _PLATFORM_LANGS["go"]
+        assert "golang" in _PLATFORM_LANGS["go"]
+
+    def test_go_block_is_syntax_checked_not_treated_as_python(self, tmp_path):
+        md = tmp_path / "page.md"
+        md.write_text("```go\npackage main\n\nfunc main() {\n\tprintln(\"hi\")\n}\n```\n", encoding="utf-8")
+        result = check_file(md, langs=_PLATFORM_LANGS["go"])
+        assert result.blocks_checked == 1
+        assert result.results[0].status == "PASS"
+
     # ------------------------------------------------------------------
     # _TS_LANG_MAP completeness
     # ------------------------------------------------------------------

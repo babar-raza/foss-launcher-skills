@@ -45,6 +45,7 @@ from lib.reference_filter import (
     _passes_platform_scope,
     filter_api_surface,
 )
+from lib.example_verification import registry as ev_registry
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import batch_reference as _br  # noqa: E402
@@ -139,7 +140,7 @@ _REQUIRED_SITE_KEYS = {
     "doc_style", "install_parser", "package_managers", "foreign_prose_patterns",
     "primary_language", "smoke_test_langs", "kb_suffix", "trouble_platform",
     "coverage_policy", "case_convention", "reachability_adapter",
-    "format_recognizer_style",
+    "format_recognizer_style", "example_verification",
 }
 
 
@@ -362,15 +363,29 @@ class TestSmokeTestLangsMatrix:
             f"{expect_present} but real _TS_LANGS membership is {present}"
         )
 
-    def test_go_is_the_undeclared_platform_everywhere(self):
-        """Pins the one real, consistent, pre-existing gap found while
-        building this file: 'go' has no entry in PLATFORM_EXPECTED_LANGS,
-        smoke_test._PLATFORM_LANGS, or code_syntax_check._TS_LANGS -- all
-        three independently confirmed absent, not a single-file oversight."""
+    def test_go_is_partially_fixed_not_fully_undeclared_anymore(self):
+        """REWRITTEN 2026-09-06 (MT065 taskcard C4, RC20 fix): this
+        originally pinned 'go' as absent from all three of
+        PLATFORM_EXPECTED_LANGS / smoke_test._PLATFORM_LANGS /
+        code_syntax_check._TS_LANGS. smoke_test.py's own _PLATFORM_LANGS
+        (and _TS_LANG_MAP) are now derived from the shared
+        lib/example_verification/registry.py, which declares "go"/"golang"
+        -- the previous fallback-to-python defect (a go product's code
+        blocks silently smoke-tested as Python) is closed. The other two
+        dicts are unfixed (different files, out of this taskcard's scope):
+        content_eval/config.py:PLATFORM_EXPECTED_LANGS and
+        code_syntax_check.py:_TS_LANGS both still have no 'go' key -- this
+        is why platform_capabilities.yaml's go.smoke_test_langs stays
+        `declared: false` (that site's primary value cross-checks
+        PLATFORM_EXPECTED_LANGS specifically) while its new
+        `smoke_test_py_matches: true` field reflects the real, fixed
+        smoke_test.py state."""
         assert "go" not in PLATFORM_EXPECTED_LANGS
-        assert "go" not in st._PLATFORM_LANGS
+        assert "go" in st._PLATFORM_LANGS
+        assert "golang" in st._PLATFORM_LANGS["go"]
         assert "go" not in csc._TS_LANGS
         assert CAPS["platforms"]["go"]["smoke_test_langs"]["declared"] is False
+        assert CAPS["platforms"]["go"]["smoke_test_langs"]["smoke_test_py_matches"] is True
 
 
 # --- kb_suffix -----------------------------------------------------------------
@@ -473,6 +488,39 @@ class TestReachabilityAdapterMatrix:
             f"(None, None) stub, but it returned ({names!r}, {root!r}) -- a "
             f"real adapter may have landed; update the YAML"
         )
+
+
+# --- example_verification -----------------------------------------------------
+#
+# MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION (taskcard C4): the
+# one code-side source of truth is lib/example_verification/registry.py;
+# check_platform_capabilities.py::check_example_verification() is the CI
+# gate, this class is the pytest reproduction (same "declarative YAML vs
+# real code, both checked, two independent surfaces" pattern every other
+# site in this file already follows).
+
+
+class TestExampleVerificationMatrix:
+    @pytest.mark.parametrize("platform", PLATFORMS)
+    def test_every_field_matches_registry_platform_contract(self, platform):
+        decl = CAPS["platforms"][platform]["example_verification"]
+        contract = ev_registry.PLATFORM_CONTRACT[platform]
+        assert decl["max_tier"] == contract.max_tier
+        assert decl["offline_tier"] == contract.offline_tier
+        assert decl["runner_module"] == contract.runner
+        assert decl["precommit_blocking"] == contract.precommit_blocking
+
+    def test_every_registry_platform_has_a_yaml_row(self):
+        missing = set(ev_registry.PLATFORM_CONTRACT) - set(PLATFORMS)
+        assert not missing, f"registry.PLATFORM_CONTRACT declares platforms with no YAML row: {missing}"
+
+    def test_python_and_typescript_are_the_only_real_runners_today(self):
+        real_runners = {p for p, c in ev_registry.PLATFORM_CONTRACT.items() if c.runner is not None}
+        assert real_runners == {"python", "typescript"}
+
+    def test_go_is_the_only_precommit_blocking_platform_today(self):
+        blocking = {p for p, c in ev_registry.PLATFORM_CONTRACT.items() if c.precommit_blocking}
+        assert blocking == {"go"}
 
 
 class TestReachabilityAdapterRealAdaptersAreFunctional:
