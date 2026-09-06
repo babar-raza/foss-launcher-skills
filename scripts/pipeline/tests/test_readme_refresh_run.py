@@ -1849,6 +1849,66 @@ def test_run_deterministic_checks_passes_live_code_units_to_api_coverage_check(t
     assert all(f["fingerprint_source"] == "live_extractor" for f in findings)
 
 
+def _write_stale_hybrid_archetype(repo_root):
+    (repo_root / "data" / "diagram_archetypes.json").write_text(json.dumps([
+        {
+            "family": "testfam", "platform": "testplat", "archetype": "hybrid",
+            "evidence": "real evidence", "decided_at": "2020-01-01",
+        },
+    ]), encoding="utf-8")
+
+
+# ST-188: check_diagram_starting_points_presence requires a hybrid archetype's Starting Points
+# container to carry EXACTLY 2 nodes (one real format, one the fixed "Nothing -- authored from
+# scratch" hybrid literal) -- _GOOD_CANDIDATE's own diagram only has 1 (built for its default,
+# non-hybrid archetype). A hybrid-scoped variant is needed so these tests reproduce the
+# diagram_hybrid_reverification defect in isolation, without also tripping that unrelated gate.
+_HYBRID_CANDIDATE = _GOOD_CANDIDATE.replace(
+    '  subgraph StartingPoints["Starting Points"]\n'
+    '    I1["An existing TXT file"]\n'
+    "  end\n",
+    '  subgraph StartingPoints["Starting Points"]\n'
+    '    I1["An existing TXT file"]\n'
+    '    I2["Nothing -- authored from scratch"]\n'
+    "  end\n",
+)
+assert _HYBRID_CANDIDATE != _GOOD_CANDIDATE
+
+
+def test_diagram_hybrid_reverification_hard_gates_stale_entry_for_real_run(tmp_path):
+    """ST-188 non-regression: ingest_candidate/recheck's real, plan-bound call (is_audit_sweep
+    default/False) must keep hard-gating a stale hybrid decided_at exactly as before that fix."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_stale_hybrid_archetype(repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    _write_candidate(repo_root, _HYBRID_CANDIDATE)
+
+    result = rr._run_deterministic_checks("testfam", "testplat", _HYBRID_CANDIDATE, clone_cache)
+
+    entry = result["diagram_hybrid_reverification"]
+    assert entry["hard_gate"] is True
+    assert entry["findings"] and "was not refreshed" in entry["findings"][0]["reason"]
+
+
+def test_diagram_hybrid_reverification_is_advisory_for_audit_sweep(tmp_path):
+    """ST-188: the identical stale entry, run through audit_portfolio's is_audit_sweep=True path,
+    must NOT hard-gate -- but the finding must still be present in the returned dict."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_stale_hybrid_archetype(repo_root)
+    clone_cache = rr._product_clone_cache("testfam", "testplat")
+    _write_candidate(repo_root, _HYBRID_CANDIDATE)
+
+    result = rr._run_deterministic_checks(
+        "testfam", "testplat", _HYBRID_CANDIDATE, clone_cache, is_audit_sweep=True,
+    )
+
+    entry = result["diagram_hybrid_reverification"]
+    assert entry["hard_gate"] is False
+    assert entry["findings"] and "was not refreshed" in entry["findings"][0]["reason"]
+
+
 def test_ingest_candidate_blocks_on_duplicate_api_reference_row(tmp_path, monkeypatch):
     # TC-HARDEN-21 (MT034, Twentieth incident): reproduces the real cells/cpp regeneration
     # regression -- an exact-duplicate class row within one API Reference table, undetected by
@@ -2790,6 +2850,22 @@ def test_audit_portfolio_marks_real_findings_as_disposition_tracking_checked_dir
     assert product["clean"] is False
     assert product["disposition_tracking"] == "checked_dirty"
     assert result["disposition_verified_count"] == 0
+
+
+def test_audit_portfolio_stale_hybrid_decided_at_no_longer_reported_dirty(tmp_path):
+    """ST-188 end-to-end reproduction: a hybrid-archetype product whose decided_at is not
+    today's date must report clean via audit_portfolio -- the exact false-daily-dirty defect,
+    fixed with zero edits to data/diagram_archetypes.json's decided_at itself."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_stale_hybrid_archetype(repo_root)
+    _write_candidate(repo_root, _HYBRID_CANDIDATE)
+
+    result = rr.audit_portfolio(family="testfam", platform="testplat")
+
+    product = result["products"][0]
+    assert "diagram_hybrid_reverification" not in product["hard_gate_findings"]
+    assert product["clean"] is True
 
 
 def test_audit_portfolio_verification_status_and_fully_verified_match_disposition_tracking(tmp_path):

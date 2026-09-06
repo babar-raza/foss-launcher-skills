@@ -2334,7 +2334,7 @@ def ingest_candidate(
         # `git rev-parse HEAD` rather than reusing manifest["pinned_inputs"]["clone_cache_head"].
         _auto_pin_old_readme_baseline_at_ingest(family, platform, clone_cache, manifest, session_id=session_id)
 
-        result = _run_deterministic_checks(family, platform, text, clone_cache)
+        result = _run_deterministic_checks(family, platform, text, clone_cache, is_audit_sweep=False)
         # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
         # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
         _apply_scope_enforcement(result, family, platform, run_id, text)
@@ -2461,7 +2461,9 @@ def _clone_cache_completeness(clone_cache: Path) -> "dict | None":
     return None
 
 
-def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache: Path) -> dict:
+def _run_deterministic_checks(
+    family: str, platform: str, text: str, clone_cache: Path, *, is_audit_sweep: bool = False,
+) -> dict:
     result: dict[str, dict] = {}
     clone_cache_incomplete = _clone_cache_completeness(clone_cache)
     result["clone_cache_completeness"] = {
@@ -2618,12 +2620,32 @@ def _run_deterministic_checks(family: str, platform: str, text: str, clone_cache
         "hard_gate": True,
         "findings": checks.check_diagram_matches_capability_dependencies(text, pipeline_edges),
     }
+    # ST-188 (2026-09-06): hard_gate is True below for ingest_candidate/recheck -- real, plan-
+    # bound composition steps; see check_diagram_hybrid_reverification's own docstring for why
+    # THOSE callers must force same-day re-verification. It is downgraded to advisory only when
+    # this function is invoked from audit_portfolio's read-only, on-demand, non-run-bound sweep
+    # (no "plan" is ever in progress there). Before this fix, every hybrid-archetype product
+    # (pdf/cpp, pdf/go, page/python -- the only 3 hybrid rows in data/diagram_archetypes.json)
+    # went checked_dirty on this ONE check every calendar day nobody happened to hand-re-date
+    # decided_at that exact day, with zero real content change. The finding itself is unchanged
+    # and still returned either way (never hidden from ingest-candidate's/recheck's own
+    # checks/result.json) -- only whether it counts toward hard_gate_findings/clean changes.
+    #
+    # Kept as a literal "hard_gate": True below (not an inline `not is_audit_sweep` expression)
+    # so test_check_docstring_tier_matches_run_wiring's source-regex parity check keeps covering
+    # this key against the check's own docstring-declared "Hard gate" tier -- that regex only
+    # matches a literal True/False token immediately after "hard_gate":, and would silently stop
+    # seeing this pair (not fail loudly) if the literal were replaced with an expression. The
+    # audit-sweep downgrade is applied as an explicit follow-up statement instead, invisible to
+    # (and so never weakening) that regex.
     result["diagram_hybrid_reverification"] = {
         "hard_gate": True,
         "findings": checks.check_diagram_hybrid_reverification(
             text, _detect_archetype_entry_raw(family, platform), _now().date().isoformat()
         ),
     }
+    if is_audit_sweep:
+        result["diagram_hybrid_reverification"]["hard_gate"] = False
     known_format_names = (
         set(_canonical_format_casing().values()) | checks._DIAGRAM_SUPPLEMENTARY_FORMAT_NAMES
     )
@@ -4141,7 +4163,7 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         text = candidate_path.read_text(encoding="utf-8")
         skeletons_by_product[f"{fam}/{plat}"] = checks.candidate_skeletons(text)
         clone_cache = _product_clone_cache(fam, plat)
-        result = _run_deterministic_checks(fam, plat, text, clone_cache)
+        result = _run_deterministic_checks(fam, plat, text, clone_cache, is_audit_sweep=True)
         # TC-M56-09: capture the drift finding BEFORE the marker write below overwrites its own
         # basis for comparison. This is advisory (hard_gate=False) by deliberate design (a
         # legitimate edit-then-ingest workflow always shows "changed" and that's correct, not a
@@ -4392,7 +4414,7 @@ def recheck(
         candidate_path = _candidate_readme_path(family, platform)
         text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
         clone_cache = _product_clone_cache(family, platform)
-        result = _run_deterministic_checks(family, platform, text, clone_cache)
+        result = _run_deterministic_checks(family, platform, text, clone_cache, is_audit_sweep=False)
         _apply_change_isolation_checks(
             result, family, platform, run_id, text,
             allowed_headings=allowed_headings, mermaid_only=mermaid_only,

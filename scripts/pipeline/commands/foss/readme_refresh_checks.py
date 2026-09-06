@@ -207,7 +207,7 @@ from dataclasses import dataclass, field
 # diverge -- the same mechanism class as `published_readme_current`'s republication-staleness
 # tripwire, applied to this pipeline's OWN check coverage instead of the target repo's upstream
 # state. Bump this by 1 whenever new check_* functions land (do not renumber retroactively).
-CHECKS_MODULE_VERSION = 9  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
+CHECKS_MODULE_VERSION = 10  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refresh-seo-deps-
 # headings-hardening's 3 new checks; 3 = MT061-2026-09-01-TRACKB-FOLLOWON-2 TC-17's
 # check_live_published_regression (advisory -- see its own docstring for why it is not yet a
 # hard gate); 4 = readme-refresh-at-a-glance-retention-hardening-2026-09-02:
@@ -238,7 +238,14 @@ CHECKS_MODULE_VERSION = 9  # 1 = snapshot at MT056 (2026-08-18); 2 = readme-refr
 # against each other; real incident, pdf/typescript's u0324) and
 # check_scope_limitations_detail_collapsed (HARD gate, size-gated -- gives Scope and
 # Limitations the same two-tier collapse API Reference/Additional Examples already have, only
-# once the section is portfolio-abnormally large; see both checks' own docstrings)
+# once the section is portfolio-abnormally large; see both checks' own docstrings); 10 = ST-188
+# (2026-09-06): check_diagram_hybrid_reverification's own pass/fail LOGIC is unchanged, but
+# _run_deterministic_checks (readme_refresh_run.py) now wires its "hard_gate" value
+# conditionally -- True for ingest_candidate/recheck (real, plan-bound runs), False for
+# audit_portfolio's read-only, non-run-bound sweep -- closing a false-daily-checked_dirty defect
+# that hit all 3 hybrid-archetype products (pdf/cpp, pdf/go, page/python) every calendar day
+# nobody hand-edited data/diagram_archetypes.json's decided_at that exact day. See ST-188 and
+# this check's own docstring for the full trace.
 
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)
 _MERMAID_BLOCK_FULL_RE = re.compile(r"```mermaid\s*\n.*?```", re.DOTALL)
@@ -799,6 +806,21 @@ def check_diagram_hybrid_reverification(
     Returns a list of {"reason": ...} findings; empty when either no Starting Points container
     is present, the archetype isn't (recorded as) hybrid, or it is hybrid with fresh, evidenced
     classification.
+
+    ST-188 (2026-09-06): this function's own freshness test is UNCHANGED by that fix -- the
+    3-condition hybrid test above still requires `decided_at` to equal `plan_run_date` byte-for-
+    byte, no tolerance window, no exceptions. What changed is one level up, in
+    `_run_deterministic_checks` (readme_refresh_run.py): this check's `"hard_gate"` classification
+    is now `True` for `ingest_candidate`/`recheck` (real, plan-bound composition -- this
+    docstring's "as part of THIS plan run" language is about them) but `False` when the caller is
+    `audit_portfolio`'s read-only, on-demand, non-run-bound sweep -- there is no "plan" for a
+    same-day `decided_at` to be freshly re-confirmed AS PART OF. Before this fix, every hybrid-
+    archetype product (pdf/cpp, pdf/go, page/python -- the only 3 hybrid rows in
+    data/diagram_archetypes.json) reported a false checked_dirty on this ONE check every
+    calendar day nobody happened to hand-edit decided_at that same day, even with zero real
+    content change. The finding text/reason is unchanged and still returned in either case (never
+    hidden) -- it just no longer trips hard_gate_findings/clean:false for a read-only sweep. See
+    ST-188 (backlog/inbox.md) for the full incident trace.
     """
     mermaid_text = extract_mermaid_block(markdown_text)
     if mermaid_text is None:
