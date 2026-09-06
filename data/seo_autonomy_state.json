@@ -8,6 +8,15 @@
       "status": "AUTONOMOUSLY_ELIGIBLE",
       "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
       "transitioned_at": "2026-09-05T12:49:27Z"
+    },
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "5e98085190d594d091f5d8f44b0983150f6ad16bf3c11a59569f248fee49e78d",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
     }
   },
   "email": {
@@ -19,6 +28,37 @@
       "status": "AUTONOMOUSLY_ELIGIBLE",
       "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
       "transitioned_at": "2026-09-05T12:49:27Z"
+    },
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "c523bd7e2a387a74bcc7581295e801257368e20d1ede7b152a4bf89b5f494a4e",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
+    }
+  },
+  "html": {
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "2005d18aaa25977d27393a3a1bae56278a5ba8c5ab3440850779cda2d0620142",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
+    }
+  },
+  "note": {
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "753252ebd7d034b51b17711075d2c2ef88108eaafa70b90491d3c68c225436b2",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
     }
   },
   "pdf": {
@@ -30,6 +70,15 @@
       "status": "AUTONOMOUSLY_ELIGIBLE",
       "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
       "transitioned_at": "2026-09-05T12:49:27Z"
+    },
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "428b4c3ed934767e4b4af0aea90936f0b20eecedb81a7489f22d86c1a9f84bca",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
     }
   },
   "slides": {
@@ -41,6 +90,26 @@
       "status": "AUTONOMOUSLY_ELIGIBLE",
       "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
       "transitioned_at": "2026-09-05T12:49:27Z"
+    },
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "183ba9c46df79b8cf6168c9dd89f427352e0fcf9d87333e25947d397c8929995",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
+    }
+  },
+  "tex": {
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "d76bf2cb087d0ee749fad88c69b7ef2e19d251512547f0b3bc54783d7e04f14a",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
     }
   },
   "words": {
@@ -52,6 +121,15 @@
       "status": "AUTONOMOUSLY_ELIGIBLE",
       "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
       "transitioned_at": "2026-09-05T12:49:27Z"
+    },
+    "title_description_writes": {
+      "actor": "autonomy-state-machine",
+      "last_reviewed_sha": null,
+      "source_sha": null,
+      "source_verdict": "81449234565cef1a8c5487b5788914832082eb4747d6097186564169f2e50c77",
+      "status": "AUTONOMOUSLY_ELIGIBLE",
+      "transition_reason": "promoted: real HUMAN_CLEARED grant on file",
+      "transitioned_at": "2026-09-06T18:19:49Z"
     }
   }
 }
