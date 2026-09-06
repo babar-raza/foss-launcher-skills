@@ -31,6 +31,25 @@ this exact codebase. `forbidden_claims_check.scan()`/`newly_introduced()`
 stays as a secondary denylist backstop (real, just not sufficient alone --
 defense in depth, not the primary gate).
 
+**Per-entity enumeration membership [SEO-CHECK-GROUNDING-PRESERVATION-
+ENTITY-COVERAGE-RESOLVER-1, safety-critical]**: `check_grounding_
+preservation`'s aggregate token-overlap floor can be "paid for" by real
+anchors, leaving any OTHER enumerated item in the composed text completely
+unchecked -- confirmed live against a real LLM candidate for the flagship
+SaveFormat.md page, which enumerated 6 real SaveFormat export formats plus
+one FABRICATED one ("SVG", confirmed absent from `claims.json` and
+`formats.json`) and passed the aggregate check cleanly, since the 6 real
+anchors already cleared its floor. A wider aggregate floor cannot fix this
+(it can never distinguish "N real + 1 fake" from "N+1 real"), so this is a
+SEPARATE, additional gate: `title_clause_composer.check_enumeration_
+membership()` detects a 3+-item comma/and/or-joined run of short tokens
+(the syntactic shape a format-name enumeration actually takes) and requires
+every item in it to be a member of a real, closed vocabulary --
+`formats.json`'s real member list (`load_real_format_names()`) unioned with
+the grounding text's own tokens (so a legitimately grounded non-format item
+still passes). Never modifies `check_grounding_preservation` itself, which
+stays proven and reused as-is.
+
 **Numeral-must-trace rule**: any digit sequence (a number, a scale claim, a
 version number) appearing in composed description text must trace to a real
 number present in the grounding text (current description + search keyword +
@@ -153,7 +172,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "2"
+COMPOSER_VERSION = "3"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -391,6 +410,42 @@ def load_sibling_descriptions(
         return []
 
 
+def _formats_json_path(family: str, platform: str, repo_root: Path) -> Path:
+    return repo_root / "knowledge" / family / platform / "merged" / "formats.json"
+
+
+def load_real_format_names(
+    family: "str | None", platform: "str | None", *, repo_root: "Path | None" = None,
+) -> "set[str]":
+    """Real, closed vocabulary of this page's family/platform format names
+    (lowercase), sourced from `formats.json`'s real `format` field --
+    confirmed live (SEO-CHECK-GROUNDING-PRESERVATION-ENTITY-COVERAGE-
+    RESOLVER-1) to be the authoritative enum-member list, sourced from the
+    FOSS repo's own real source file (e.g. `SaveFormat.cs`). Feeds
+    `check_enumeration_membership`'s real_vocabulary -- never raises; an
+    empty set is a legitimate, fail-closed result matching this module's
+    established loader convention."""
+    root = repo_root if repo_root is not None else REPO_ROOT
+    if not family or not platform:
+        return set()
+    try:
+        path = _formats_json_path(family, platform, root)
+        if not path.exists():
+            return set()
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            return set()
+        names: "set[str]" = set()
+        for entry in data:
+            if isinstance(entry, dict):
+                fmt = entry.get("format")
+                if isinstance(fmt, str) and fmt.strip():
+                    names.add(fmt.strip().lower())
+        return names
+    except Exception:
+        return set()
+
+
 # ---------------------------------------------------------------------------
 # Numeral-must-trace rule
 # ---------------------------------------------------------------------------
@@ -400,6 +455,19 @@ _NUMBER_RE = re.compile(r"\d[\d,.]*\d|\d")
 
 def _extract_numbers(text: "str | None") -> "set[str]":
     return set(_NUMBER_RE.findall(text)) if text else set()
+
+
+# Same tokenizer shape as title_clause_composer.py's own _TOKEN_RE (which
+# itself matches analyze.py's Track-2 heuristic) -- duplicated per this
+# codebase's own established convention (title_clause_composer.py's own
+# docstring: "reused, not reinvented" refers to the SHAPE, not a shared
+# import; every module that needs it defines its own copy) rather than
+# reaching into another module's underscore-prefixed private name.
+_ENUM_VOCAB_TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+
+def _tokenize_for_enum_vocabulary(text: "str | None") -> "set[str]":
+    return set(_ENUM_VOCAB_TOKEN_RE.findall(text.lower())) if text else set()
 
 
 def numerals_trace(composed: str, grounding_text: str) -> bool:
@@ -558,6 +626,19 @@ def compose_description(
     )
 
     if not title_clause_composer.check_grounding_preservation(proposed, grounding_text):
+        return None
+
+    # SEO-CHECK-GROUNDING-PRESERVATION-ENTITY-COVERAGE-RESOLVER-1: the
+    # aggregate check above can be "paid for" by real anchors while leaving
+    # ONE other enumerated item (e.g. a fabricated format name) completely
+    # unchecked -- confirmed live against a real LLM candidate for
+    # SaveFormat.md. This is a real, closed-vocabulary per-entity gate, not
+    # a modification to the reused aggregate check.
+    enum_vocabulary = (
+        load_real_format_names(family, platform, repo_root=root)
+        | _tokenize_for_enum_vocabulary(grounding_text)
+    )
+    if not title_clause_composer.check_enumeration_membership(proposed, enum_vocabulary):
         return None
 
     if not numerals_trace(proposed, grounding_text):

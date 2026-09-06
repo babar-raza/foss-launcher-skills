@@ -254,6 +254,91 @@ class TestTokenOverlapGrounding:
 
 
 # ---------------------------------------------------------------------------
+# SEO-CHECK-GROUNDING-PRESERVATION-ENTITY-COVERAGE-RESOLVER-1: per-entity
+# enumeration membership, wired into compose_description end-to-end
+# ---------------------------------------------------------------------------
+
+
+class TestEnumerationMembershipEndToEnd:
+    def _write_formats_json(self, tmp_path, family, platform, formats):
+        path = tmp_path / "knowledge" / family / platform / "merged" / "formats.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps([{"format": f, "enum": "SaveFormat"} for f in formats]),
+            encoding="utf-8",
+        )
+
+    def test_reproduces_the_real_saveformat_fabrication_and_rejects_it(self, tmp_path):
+        """Exact real candidate that passed every other gate for the real
+        content/reference.aspose.org/en/slides/net/SaveFormat.md page
+        (it-0055) -- 6 real formats + 1 fabricated ("SVG") closed with a
+        generic wrap-up. Length (149 chars), grounding, and naturalness all
+        independently pass on this real text; only the new enumeration gate
+        catches it."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "slides", "net",
+            ["Ppt", "Pdf", "Xps", "Pptx", "Ppsx", "Tiff", "Odp", "Pptm", "Ppsm",
+             "Potx", "Potm", "Html", "Swf", "Otp", "Pps", "Pot", "Fodp", "Gif",
+             "Html5", "Md", "Xml"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.Slides FOSS for .NET, "
+            "enabling export of presentations to PPT, PDF, XPS, PPTX, HTML, "
+            "SVG and other formats."
+        )
+        claims = ["Class SaveFormat defined in src/Export/SaveFormat.cs"]
+        result = compose_description(
+            "content/reference.aspose.org/en/slides/net/SaveFormat.md",
+            "`SaveFormat` enum", "saveformat", claims, "slides", "net",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
+    def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.Slides FOSS for .NET, "
+            "enabling export of presentations to PPT, PDF, XPS, PPTX, Html "
+            "and other real formats today."
+        )
+        claims = ["Class SaveFormat defined in src/Export/SaveFormat.cs"]
+        result = compose_description(
+            "content/reference.aspose.org/en/slides/net/SaveFormat.md",
+            "`SaveFormat` enum", "saveformat", claims, "slides", "net",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is not None
+
+    def test_no_formats_json_falls_back_to_grounding_text_tokens_only(self, tmp_path):
+        """A family/platform with no real formats.json (load_real_format_
+        names returns an empty set) must not crash -- an enumeration is
+        then checked purely against grounding-text tokens, and ordinary
+        non-enumeration candidates are unaffected either way."""
+        dc.configure(repo_root=tmp_path)
+        result = compose_description(
+            "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
+            llm_call=_good_call,
+        )
+        assert result == DescriptionCandidate(
+            text=_GOOD_DESC, rationale="Improves clarity and includes the primary keyword."
+        )
+
+    def test_load_real_format_names_reads_real_fixture(self, tmp_path):
+        self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf"])
+        names = dc.load_real_format_names("slides", "net", repo_root=tmp_path)
+        assert names == {"ppt", "pdf"}
+
+    def test_load_real_format_names_missing_file_returns_empty_set(self, tmp_path):
+        assert dc.load_real_format_names("slides", "net", repo_root=tmp_path) == set()
+
+    def test_load_real_format_names_missing_family_or_platform_returns_empty_set(self, tmp_path):
+        assert dc.load_real_format_names(None, "net", repo_root=tmp_path) == set()
+        assert dc.load_real_format_names("slides", None, repo_root=tmp_path) == set()
+
+
+# ---------------------------------------------------------------------------
 # Acceptance check: numeral-must-trace rule
 # ---------------------------------------------------------------------------
 

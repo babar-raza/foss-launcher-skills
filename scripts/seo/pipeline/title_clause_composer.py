@@ -240,6 +240,110 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
     return len(composed_tokens & raw_tokens) >= required
 
 
+# ---------------------------------------------------------------------------
+# Per-entity enumeration membership check [SEO-CHECK-GROUNDING-PRESERVATION-
+# ENTITY-COVERAGE-RESOLVER-1, safety-critical, discovered live against the
+# real content/reference.aspose.org/en/slides/net/SaveFormat.md target]:
+# check_grounding_preservation's min(2, len(raw_tokens)) floor is an
+# AGGREGATE bar -- once real anchors clear it, every OTHER token in the
+# composed text goes completely unchecked. Confirmed live: a real LLM
+# candidate enumerating 6 genuine SaveFormat export formats plus one
+# FABRICATED one ("SVG", confirmed absent from claims.json and formats.json)
+# passed check_grounding_preservation cleanly, since the 6 real anchors
+# "paid for" the 2-token floor and left the 7th, fabricated entity
+# completely unchecked. A wider aggregate floor cannot fix this -- it can
+# never distinguish "N real + 1 fake" from "N+1 real". This is a separate,
+# additional gate, not a modification to check_grounding_preservation
+# itself (that function is proven and reused by callers with a genuinely
+# different, single-source-item shape -- see this function's own docstring
+# on scope).
+# ---------------------------------------------------------------------------
+
+# Pure glue between two real enumerated items -- never itself a checked
+# item, never breaks run adjacency (so both "X, Y, Z" and the common
+# Oxford-comma "X, Y, and Z" phrasing are recognized as one run).
+_ENUM_CONNECTORS = frozenset({"and", "or"})
+_ENUM_CONNECTOR_RE = re.compile(r"\b(?:and|or)\b", re.IGNORECASE)
+
+# A run-closing word: real LLM output commonly closes a genuine enumeration
+# with a generic wrap-up ("...PPTX, HTML and other formats") -- this word
+# and everything after it must never be swept into the checked run (an
+# ordinary category noun like "formats"/"options" is not itself a claimed
+# item and would otherwise cause a false rejection of an entirely real,
+# correctly-grounded enumeration). The run captured BEFORE the terminator
+# is still checked in full -- this only stops it from growing further, it
+# does not exempt anything already captured (the real SVG case is
+# terminator-closed by "other" and still correctly rejected, since SVG was
+# already in the run before "other" was reached).
+_ENUM_TERMINATORS = frozenset({
+    "other", "others", "more", "additional", "various", "etc",
+    "such", "similar", "also",
+})
+
+# Real short tokens (format names, class names, extensions): 2-10 chars,
+# starts with a letter, letters/digits/"+" only (covers "C++").
+_ENUM_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9+]{1,9}")
+
+
+def _run_all_grounded(run: "list[str]", real_vocabulary: "set[str]") -> bool:
+    """A run shorter than 3 is never checked -- a coincidental single comma
+    or "and" in ordinary prose (not a genuine enumeration) must not trigger
+    a false rejection; 3+ consecutive comma/and/or-joined short tokens is a
+    distinctive, deliberate syntactic pattern real prose rarely produces by
+    accident."""
+    if len(run) < 3:
+        return True
+    return all(w.lower() in real_vocabulary for w in run)
+
+
+def check_enumeration_membership(composed: str, real_vocabulary: "set[str]") -> bool:
+    """Every token inside a detected 3+-item enumeration (comma and/or
+    "and"/"or"-joined short tokens, e.g. a list of file-format names) must
+    be a member of `real_vocabulary` (must already be lowercase) -- a real,
+    closed vocabulary the caller supplies (e.g. `formats.json`'s real
+    member list, unioned with the composer's own grounding-text tokens).
+    Tokens outside a detected enumeration are never checked here (that is
+    `check_grounding_preservation`'s job). Returns True (nothing to check,
+    or every checked run passed) or False (a real, detected enumeration run
+    contains at least one item absent from the real vocabulary -- reject,
+    matching this module's own "any doubt -> None" fallback philosophy).
+    Never raises; a real_vocabulary of None/empty set makes every non-
+    trivial run fail closed rather than silently pass unchecked."""
+    vocabulary = real_vocabulary or set()
+    run: "list[str]" = []
+    prev_end = None
+    for m in _ENUM_TOKEN_RE.finditer(composed):
+        word = m.group(0)
+        low = word.lower()
+        if low in _ENUM_TERMINATORS:
+            if not _run_all_grounded(run, vocabulary):
+                return False
+            run = []
+            prev_end = None
+            continue
+        if low in _ENUM_CONNECTORS:
+            continue  # glue only -- never a run member, never resets prev_end
+        joined = False
+        if prev_end is not None:
+            gap_raw = composed[prev_end:m.start()]
+            has_comma = "," in gap_raw
+            has_connector = bool(_ENUM_CONNECTOR_RE.search(gap_raw))
+            residual = _ENUM_CONNECTOR_RE.sub("", gap_raw).replace(",", "").strip()
+            # A separator must actually be PRESENT (comma or and/or) --
+            # plain whitespace alone (ordinary prose between two unrelated
+            # words) must never count as "joined" just because nothing is
+            # left after stripping it.
+            joined = (has_comma or has_connector) and residual == ""
+        if joined:
+            run.append(word)
+        else:
+            if not _run_all_grounded(run, vocabulary):
+                return False
+            run = [word]
+        prev_end = m.end()
+    return _run_all_grounded(run, vocabulary)
+
+
 def normalize_casing(clause: str) -> str:
     """Title-case safety net -- cheap, deterministic, catches the common
     case even if the LLM already got it right. Preserves any word that is

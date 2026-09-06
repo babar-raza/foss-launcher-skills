@@ -27,6 +27,7 @@ import seo.pipeline.title_clause_composer as tcc  # noqa: E402
 import seo.pipeline.title_templates as tt  # noqa: E402
 from seo.pipeline.title_clause_composer import (  # noqa: E402
     TIERS_REQUIRING_COMPOSITION,
+    check_enumeration_membership,
     check_grounding_preservation,
     compose_natural_clause,
     normalize_casing,
@@ -122,6 +123,77 @@ class TestFabricationCaught:
         the bar scales to min(2, len(raw_tokens))."""
         assert check_grounding_preservation("Glb Format Support", "glb")
         assert not check_grounding_preservation("Totally Different Word", "glb")
+
+
+# ---------------------------------------------------------------------------
+# SEO-CHECK-GROUNDING-PRESERVATION-ENTITY-COVERAGE-RESOLVER-1: per-entity
+# enumeration membership (safety-critical -- discovered live, real
+# fabricated "SVG" export format riding along with 6 real ones)
+# ---------------------------------------------------------------------------
+
+
+class TestCheckEnumerationMembership:
+    _REAL_FORMATS = {"ppt", "pdf", "xps", "pptx", "ppsx", "tiff", "odp", "html"}
+
+    def test_reproduces_the_real_svg_fabrication_and_rejects_it(self):
+        """Exact real candidate that passed check_grounding_preservation for
+        SaveFormat.md (it-0055) -- 6 real formats + 1 fabricated ("SVG",
+        confirmed absent from claims.json and formats.json) closed with a
+        generic "and other formats" wrap-up. Must now be rejected."""
+        composed = (
+            "Explore the SaveFormat enum in Aspose.Slides FOSS for .NET, "
+            "enabling export of presentations to PPT, PDF, XPS, PPTX, HTML, "
+            "SVG and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_all_real_enumeration_passes(self):
+        composed = "Exports to PPT, PDF, XPS, PPTX, HTML and other formats."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_oxford_comma_all_real_enumeration_passes(self):
+        composed = "Exports to PPT, PDF, and XPS for archival."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_fabricated_last_item_before_and_is_caught(self):
+        """The fabricated item as the literal last Oxford-comma-joined item,
+        not just mid-list -- must still be checked, not skipped."""
+        composed = "Exports to PPT, PDF, and FAKE for archival."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_two_item_list_is_never_checked(self):
+        """Only a 3+-item run is a genuine enumeration signal -- 2 comma-
+        joined words is far too weak a signal to safely reject on (ordinary
+        prose can produce this by accident)."""
+        composed = "Exports to PPT, NOTREAL for testing."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_ordinary_prose_with_no_enumeration_never_flagged(self):
+        """Plain whitespace-separated words, even short ones, must never be
+        mistaken for a comma/and-or-joined enumeration."""
+        composed = "Learn about the SaveFormat enum in Aspose Slides for the FOSS NET library today."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_terminator_word_stops_the_run_without_being_checked_itself(self):
+        """"other"/"more"/etc. close a real enumeration with a generic
+        category noun -- neither the terminator word nor whatever follows
+        it (e.g. "formats") may be swept into the checked run, or a fully
+        real, correctly-grounded candidate would be falsely rejected."""
+        composed = "Exports to PPT, PDF, XPS and other useful formats today."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_empty_vocabulary_fails_a_real_enumeration_closed(self):
+        """No real vocabulary supplied -> every 3+-item run fails closed,
+        matching this module's own 'any doubt -> reject' philosophy."""
+        composed = "Exports to PPT, PDF, XPS for archival."
+        assert not check_enumeration_membership(composed, set())
+
+    def test_no_enumeration_at_all_passes_regardless_of_vocabulary(self):
+        assert check_enumeration_membership("A short natural clause.", set())
+
+    def test_case_insensitive_membership(self):
+        composed = "Exports to ppt, Pdf, XPS for archival."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
 
 # ---------------------------------------------------------------------------
