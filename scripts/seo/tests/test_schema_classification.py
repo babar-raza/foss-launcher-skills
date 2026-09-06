@@ -55,22 +55,36 @@ _EXPECTED_SCHEMA_A = {
     "barcode.json",
     "cad.json",
     "cells.json",
+    "diagram.json",
+    "drawing.json",
     "email.json",
+    "finance.json",
     "font.json",
+    "gis.json",
     "home.json",
     "html.json",
     "imaging.json",
     "note.json",
     "ocr.json",
+    "omr.json",
     "page.json",
     "pdf.json",
     "psd.json",
+    "pub.json",
     "slides.json",
+    "svg.json",
     "tasks.json",
     "tex.json",
     "words.json",
     "zip.json",
 }
+# SEO-SCHEMA-A-FAMILY-SET-TEST-DRIFT-RESOLVER-1 (2026-09-06): commit
+# b68089586a (2026-08-02) landed 7 more real Schema A family files --
+# diagram, drawing, finance, gis, omr, pub, svg -- that this set never
+# tracked, silently drifting until scripts/seo/tests was wired into CI
+# (SEO-TESTS-CI-WIRING) and the resulting real failure made the drift
+# impossible to ignore. All 7 independently confirmed to classify as
+# SCHEMA_A by real file shape (classify_keyword_path), not by filename.
 
 # SEO-SCHEMA-A-QUARANTINE-STALE-ENTRIES (2026-07-29) quarantined 7 files'
 # entries (100% drifted_title_mismatch, confirmed by audit_schema_a.py) to
@@ -170,7 +184,7 @@ class TestFileClassification:
         )
         assert classify_keyword_path(path) == SCHEMA_A
 
-    def test_all_26_real_files_accounted_for(self):
+    def test_all_33_real_files_accounted_for(self):
         real_files = {p.name for p in _real_keyword_files()}
         assert real_files == _EXPECTED_SCHEMA_B | _EXPECTED_SCHEMA_A, (
             "keywords/ directory contents changed -- update this test's expected "
