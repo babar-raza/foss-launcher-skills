@@ -41,6 +41,12 @@ import textwrap
 from pathlib import Path
 from typing import Any, NamedTuple
 
+_LIB_DIR = Path(__file__).resolve().parents[2] / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+
+from example_verification import syntax as _ev_syntax  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -83,100 +89,20 @@ _PLATFORM_LANGS: dict[str, frozenset[str]] = {
 # ---------------------------------------------------------------------------
 # Tree-sitter parser cache
 # ---------------------------------------------------------------------------
-
-_TS_PARSER_CACHE: dict[str, Any] = {}
-_TS_LOADED = False
-
-
-def _load_ts_parsers() -> None:
-    """Attempt to load all tree-sitter language parsers; populate _TS_PARSER_CACHE."""
-    global _TS_LOADED
-    if _TS_LOADED:
-        return
-    _TS_LOADED = True
-
-    try:
-        from tree_sitter import Language, Parser  # type: ignore[import]
-    except ImportError:
-        return  # tree-sitter core not available — all parsers will be None
-
-    def _make(lang_fn: Any) -> Any:
-        try:
-            return Parser(Language(lang_fn()))
-        except Exception:
-            return None
-
-    def _get_lp_parser(name: str) -> Any:
-        try:
-            import tree_sitter_language_pack as _lp  # type: ignore[import]
-            return _lp.get_parser(name)
-        except Exception:
-            return None
-
-    try:
-        import tree_sitter_java as _tsj
-        p = _make(_tsj.language)
-        if p:
-            _TS_PARSER_CACHE["java"] = p
-    except ImportError:
-        p = _get_lp_parser("java")
-        if p:
-            _TS_PARSER_CACHE["java"] = p
-
-    try:
-        import tree_sitter_c_sharp as _tscs
-        p = _make(_tscs.language)
-        if p:
-            for tag in ("csharp", "cs", "c#"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        p = _get_lp_parser("c_sharp")
-        if p:
-            for tag in ("csharp", "cs", "c#"):
-                _TS_PARSER_CACHE[tag] = p
-
-    try:
-        import tree_sitter_typescript as _tsts
-        # Note: tree_sitter_typescript exposes language_typescript, NOT .language
-        p = _make(_tsts.language_typescript)
-        if p:
-            for tag in ("typescript", "ts"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        p = _get_lp_parser("typescript")
-        if p:
-            for tag in ("typescript", "ts"):
-                _TS_PARSER_CACHE[tag] = p
-
-    try:
-        import tree_sitter_cpp as _tscpp
-        p = _make(_tscpp.language)
-        if p:
-            for tag in ("cpp", "c++"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        p = _get_lp_parser("cpp")
-        if p:
-            for tag in ("cpp", "c++"):
-                _TS_PARSER_CACHE[tag] = p
-
-    try:
-        import tree_sitter_rust as _tsrs
-        p = _make(_tsrs.language)
-        if p:
-            for tag in ("rust", "rs"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        p = _get_lp_parser("rust")
-        if p:
-            for tag in ("rust", "rs"):
-                _TS_PARSER_CACHE[tag] = p
+#
+# RC17/Phase-0-item-9: this used to be an independent copy of the same
+# loader content_eval/evaluators/code_syntax_check.py also carried, and the
+# two disagreed on which languages got a tree_sitter_language_pack fallback
+# when the standalone wheel was absent (confirmed live: code_syntax_check's
+# copy resolved only rust that way, this one resolved java/csharp/
+# typescript/cpp/rust) -- a Java page could get a real parse in one
+# subsystem and a silent skip in the other. Both now delegate to the same
+# lib/example_verification/syntax.py loader.
 
 
 def _ts_parser_for(lang_tag: str) -> Any | None:
     """Return a cached tree-sitter Parser for lang_tag, or None if unavailable."""
-    _load_ts_parsers()
-    return _TS_PARSER_CACHE.get(lang_tag)
+    return _ev_syntax.parser_for(lang_tag)
 
 
 def _first_error_node(node: Any) -> Any | None:
@@ -419,18 +345,22 @@ def check_file(
                 pass_count += 1
 
         else:
-            # Non-Python: tree-sitter syntax check (PASS/FAIL only, no WARN)
+            # Non-Python: tree-sitter syntax check (PASS/FAIL, or a loud WARN
+            # when no grammar is available -- Round 3 A / Phase 0 item 9: a
+            # missing grammar and a genuinely clean parse must never look
+            # the same to a caller deciding whether a block has real proof
+            # behind it. This used to silently report PASS here.
             parser = _ts_parser_for(lang)
             if parser is None:
-                # tree-sitter package unavailable for this language — treat as PASS
+                lang_display = _LANG_DISPLAY.get(lang, lang.title())
                 results.append(BlockResult(
                     file=str(md_path),
                     block_index=idx,
                     start_line=start_line,
-                    status="PASS",
-                    message="",
+                    status="WARN",
+                    message=f"GRAMMAR-UNAVAILABLE: no tree-sitter grammar available for {lang_display}",
                 ))
-                pass_count += 1
+                warn_count += 1
                 continue
 
             syntax_ok, syntax_msg = _run_ts_parse(raw_code, parser)
