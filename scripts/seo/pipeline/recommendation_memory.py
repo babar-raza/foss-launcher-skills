@@ -49,7 +49,6 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 try:
     from seo.pipeline import pipeline_state  # noqa: E402
@@ -196,21 +195,28 @@ def record_result(page_path: str, field: str, signal_hash: str, proposal: dict,
             "updated_at": now,
         }
         _save_atomic(state)
-        # Registered in SEO-STATE-MANIFEST's pipeline_state.json index, per
-        # this module's own acceptance criteria; record_stage_write() is
-        # itself non-fatal, so a registration failure here can never block
-        # the real store write above, which has already succeeded. Synced
-        # to this module's OWN repo root first -- otherwise a test that
-        # only calls this module's configure() would silently leak a
-        # registration write into the real, shared pipeline_state.json,
-        # the same test-isolation hazard SEO-CHANGE-BUDGET-GUARD already
-        # found and fixed for change_budget.py/apply.py.
-        pipeline_state.configure(repo_root=REPO_ROOT)
-        pipeline_state.record_stage_write("recommendation_memory", path=_STORE_RELPATH)
-        return True
     except Exception:
         log.warning("recommendation_memory.py: record_result(%r, %r) failed", page_path, field, exc_info=True)
         return False
+    # Registered in SEO-STATE-MANIFEST's pipeline_state.json index, per this
+    # module's own acceptance criteria. Kept in its own try/except, outside
+    # the save above: record_stage_write() is itself non-fatal, but a
+    # registration-side failure here must never turn the return value of an
+    # already-successful proposal save into a false "the save failed" --
+    # the caller's contract is specifically about whether the proposal
+    # itself was durably persisted. Synced to this module's OWN repo root
+    # first -- otherwise a test that only calls this module's configure()
+    # would silently leak a registration write into the real, shared
+    # pipeline_state.json, the same test-isolation hazard
+    # SEO-CHANGE-BUDGET-GUARD already found and fixed for
+    # change_budget.py/apply.py.
+    try:
+        pipeline_state.configure(repo_root=REPO_ROOT)
+        pipeline_state.record_stage_write("recommendation_memory", path=_STORE_RELPATH)
+    except Exception:
+        log.warning("recommendation_memory.py: pipeline_state registration failed for %r/%r",
+                    page_path, field, exc_info=True)
+    return True
 
 
 def record_outcome(page_path: str, field: str, outcome: str) -> bool:

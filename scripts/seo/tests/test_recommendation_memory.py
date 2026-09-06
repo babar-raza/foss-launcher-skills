@@ -185,16 +185,17 @@ class TestRecordResult:
         assert manifest["stages"]["recommendation_memory"]["path"] == "reports/seo/recommendation_memory.json"
 
     def test_does_not_leak_into_the_real_shared_tree(self, _isolated_repo_root):
-        rm.record_result("content/a.md", "seoTitle", "hash", {"proposed_title": "T"})
         real_store = rm._DEFAULT_REPO_ROOT / "reports" / "seo" / "recommendation_memory.json"
+        before = real_store.read_bytes() if real_store.exists() else None
+
+        rm.record_result("content/a.md", "seoTitle", "hash", {"proposed_title": "T"})
+
         tmp_store = _isolated_repo_root / "reports" / "seo" / "recommendation_memory.json"
         assert tmp_store.exists()
-        # The real store must be untouched by this test: either it doesn't
-        # exist, or its content is unaffected (this page_path is never used
-        # by any real production data, so it must not appear there).
-        if real_store.exists():
-            real_data = json.loads(real_store.read_text(encoding="utf-8"))
-            assert "content/a.md" not in real_data.get("entries", {})
+        after = real_store.read_bytes() if real_store.exists() else None
+        # The real store must be byte-for-byte unaffected by this test --
+        # unchanged if it existed before, still absent if it didn't.
+        assert after == before
 
 
 class TestRecordOutcome:
