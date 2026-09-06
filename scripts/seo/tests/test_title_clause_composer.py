@@ -348,14 +348,14 @@ class TestEnumerationMembershipRound4LongCandidatesFixed:
         composed = "Exports using DOCX or FlatOpcTemplateMacroEnabled formats today."
         assert check_enumeration_membership(composed, real_formats)
 
-    def test_long_lowercase_word_never_becomes_a_candidate(self):
-        """Disclosed residual limitation: the long tier requires
-        capitalization by design (avoids a false-positive flood from
-        ordinary long lowercase English prose) -- a long fabrication
-        written in fully lowercase mid-sentence is not caught by this
-        specific gate. Documented here as an accepted trade-off, not a
-        silent gap."""
-        assert check_enumeration_membership(
+    def test_long_lowercase_fabrication_is_now_caught(self):
+        """Superseded by rework 8: this test used to document a disclosed
+        residual limitation (a long lowercase fabrication evading the old
+        long tier's capitalization requirement) -- round 8 proved that
+        premise itself false (real long lowercase formats like "markdown"
+        exist) and merged the tiers into one case-insensitive design with
+        no length cap, so this exact shape is now correctly caught."""
+        assert not check_enumeration_membership(
             "Exports documents to doc, docx, rtf, odt and wordperfect formats today.",
             {"doc", "docx", "rtf", "odt"},
         )
@@ -490,6 +490,44 @@ class TestEnumerationMembershipRound7UnboundedUnderscoreLengthFixed:
     def test_arbitrarily_long_fabrication_is_still_caught(self):
         composed = "Exports to GLTF_BINARY and A_VERY_LONG_ENTIRELY_FABRICATED_FORMAT_NAME formats today."
         assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS)
+
+
+class TestEnumerationMembershipRound8LongLowercaseTokensFixed:
+    """Round-8 independent review (agentId ab561aefdad8ec886) REJECT: the
+    long tier's uppercase-first-letter requirement -- rework 4's own
+    false-positive control, justified in-code as "genuinely unnatural LLM
+    phrasing for a long compound identifier to be lowercase" -- was
+    empirically disproven: 16 real lowercase, non-underscore, 7+ char
+    format values exist across 6 real family/platform combos (markdown,
+    unicode, bilevel, shading, scratch, percent, reference, absolute).
+    Live-reproduced: fabricated "wordperfect" (all lowercase) passed
+    compose_description() undetected alongside the real "markdown" export
+    member on cells/python; a second isolated repro used real "unicode" +
+    fabricated "postscript" on pdf/python. Fixed by merging the short and
+    long tiers into a single case-insensitive, unbounded-length tier --
+    the real, sole, load-bearing false-positive control across this
+    entire 8-round cycle has always been the curated common-word exempt
+    list, never casing or length."""
+
+    def test_long_lowercase_fabrication_alongside_real_long_lowercase_word_is_caught(self):
+        real_cells_formats = {"markdown", "xlsx", "csv"}
+        composed = "Exports documents to XLSX, CSV, Markdown and wordperfect formats today."
+        assert not check_enumeration_membership(composed, real_cells_formats)
+
+    def test_long_lowercase_fabrication_all_caps_is_also_caught(self):
+        real_pdf_formats = {"unicode", "pdf"}
+        composed = "Full Unicode and POSTSCRIPT support for text rendering."
+        assert not check_enumeration_membership(composed, real_pdf_formats, exempt={"pdf"})
+
+    def test_genuine_long_lowercase_format_name_passes(self):
+        real_formats = {"markdown", "xlsx"}
+        composed = "Exports using XLSX or Markdown formats today."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_genuine_long_lowercase_format_name_passes_even_when_lowercase_in_prose(self):
+        real_formats = {"markdown", "xlsx"}
+        composed = "Exports using xlsx or markdown formats today."
+        assert check_enumeration_membership(composed, real_formats)
 
 
 # ---------------------------------------------------------------------------

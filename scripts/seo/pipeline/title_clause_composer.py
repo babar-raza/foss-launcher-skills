@@ -308,100 +308,61 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # `.NET` page's own `platform` exemption already covers it correctly.
 # ---------------------------------------------------------------------------
 
-# Candidate tokens, in two length tiers -- both checked unconditionally
-# across the whole composed text, deliberately NOT gated behind first
-# detecting "this looks like an enumeration" (see rework note above: a
-# syntax-based detector has real, LLM-plausible blind spots a position-
-# independent scan does not).
+# Candidate tokens, checked unconditionally across the whole composed
+# text, deliberately NOT gated behind first detecting "this looks like an
+# enumeration" (see rework note above: a syntax-based detector has real,
+# LLM-plausible blind spots a position-independent scan does not).
 #
-# **Rework 4** [round-4 independent review, agentId `a48cf84e1790ab29e`,
-# REJECT]: the original single-tier design capped candidates at 6
-# characters, reasoning real format names/extensions are short
-# abbreviations. The reviewer proved this false by scanning the real
-# portfolio: `formats.json` values range up to 27 characters
-# ("FlatOpcTemplateMacroEnabled", real Word SaveFormat-adjacent options).
-# A 7+ character fabricated format name (e.g. "WordPerfect", "PostScript")
-# was completely invisible to the check -- never even became a candidate.
-# Widening the cap outright to cover realistic long values would explode
-# false-positive risk from ordinary long lowercase English prose words
-# (ordinary marketing copy is full of them: "developers", "reliable",
-# "comprehensive", ...), which a hand-curated common-word list cannot
-# realistically keep pace with at that length. Real long format
-# identifiers, in contrast, are essentially always written capitalized
-# (PascalCase or ALL-CAPS) in any authentic English text, including in
-# `formats.json` itself -- unlike a short acronym, nobody naturally
-# lowercases "PostScript" or "WordPerfect" mid-sentence. So: SHORT
-# candidates (2-6 chars) stay fully case-insensitive (round 2/3's fix,
-# still needed since short acronyms genuinely do appear lowercased in
-# real prose); LONG candidates (7-30 chars) require the token to START
-# with an uppercase letter, closing the length gap without reopening
-# round 2's original casing-only false-positive flood at long lengths. A
-# fully-lowercase LONG fabrication (e.g. "wordperfect" written in all
-# lowercase mid-sentence) remains a disclosed, narrow residual limitation
-# -- genuinely unnatural LLM phrasing for a long compound identifier,
-# unlike the short-token lowercase case round 2 found realistic.
-#
-# **Rework 5** [round-5 independent review, agentId `a93883f7ded3e9031`,
-# REJECT]: neither character class included "_" -- but "_" IS a `\w`
-# character for Python regex's own `\b` purposes, so a word-boundary
-# anchor can never fire on EITHER side of it. Any underscore-joined token
-# (real or fabricated) was therefore entirely invisible to BOTH regexes,
-# not merely split at the underscore. Confirmed real, not contrived:
-# `3d/python` (22 members) and `font/python` (1 member) use exactly this
-# underscore-joined ALL-CAPS convention for real format values
-# ("GLTF_BINARY", "MAYA_ASCII", "MAYA_BINARY", "FBX7700_BINARY"), and this
-# pipeline's own real generated content
-# (`content/reference.aspose.org/en/3d/python/FileFormat.md`) already
-# writes these verbatim. Live-reproduced: a fabricated "MAYA_TEXT" passed
-# undetected alongside real GLTF_BINARY/MAYA_ASCII/MAYA_BINARY on a real
-# 3d/python page. Added "_" to both character classes -- `real_vocabulary`
-# already stores format values with underscores intact (lowercased, via
-# `load_real_format_names()`), so a whole underscore-joined token now
-# matches or fails exactly like any other candidate, no other logic
-# change needed.
-#
-# **Rework 6** [round-6 independent review, agentId `a556e2632b85f7236`,
-# REJECT]: adding "_" to both character classes (rework 5) fixed
-# ALL-CAPS underscore compounds ("GLTF_BINARY") but not LOWERCASE ones
-# ("gltf_binary", "maya_text"): the long tier still requires the FIRST
-# character to be uppercase, and a lowercase underscore compound is too
-# long for the short tier's 6-char cap -- so it satisfies neither tier
-# and is invisible to both, exactly like round 5's original bug, just for
-# the other casing. Confirmed real, not contrived: this pipeline's own
-# real generated content
-# (`content/reference.aspose.org/en/3d/java/DracoFormat.md`) already
-# writes these exact identifiers in lowercase natural prose ("Gets the
-# gltf binary."). A THIRD, dedicated tier fixes this cleanly: underscores
-# essentially never appear in ordinary English prose (unlike common
-# lowercase words, which is why the long tier needs a casing requirement
-# at all), so "this token contains an underscore" is itself a safe,
-# sufficient signal -- no casing requirement needed, closing the gap for
-# BOTH casings without reopening rework 4's original false-positive
-# concern (which was specifically about ordinary lowercase prose WORDS,
-# never about underscore-joined identifiers). "_" is removed from the
-# short/long tiers' own character classes -- the underscore tier now
-# owns every underscore-containing candidate exclusively, avoiding
-# duplicate/overlapping matches across tiers.
-#
-# **Rework 7** [round-7 independent review, agentId `a8415fbf915158f66`,
-# REJECT]: the underscore tier's own upper bound (`{2,30}`) was reused
-# from the long tier's cap without re-deriving it for underscore-joined
-# RECOMBINATIONS. Because "_" is a `\w` character, no tier can match any
-# fragment of an underscore-connected run longer than its own cap (there
-# is no interior `\b` to anchor a partial match on) -- so a 31+ character
-# underscore-joined fabrication was entirely invisible to ALL THREE
-# tiers, the same failure shape as rounds 4-6 just at this tier's own
-# untested upper boundary. Live-reproduced: a natural recombination of
-# real 3d/python fragments ("MICROSOFT_3MF" + the real, frequently-
-# repeated "_BINARY" suffix + one qualifier word = 31 chars) passed
-# undetected. Fix: remove the upper bound entirely for this tier -- the
-# same reasoning that removed its casing requirement (underscores
-# essentially never appear in ordinary English prose, so there is no
-# false-positive risk from ordinary long prose to control) applies
-# equally to length; there is no length past which an underscore-joined
-# token becomes a plausible ordinary English phrase requiring exemption.
-_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
-_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9]{6,29}\b")
+# **Reworks 4-8 consolidated history** [round 4, agentId
+# `a48cf84e1790ab29e`; round 5, `a93883f7ded3e9031`; round 6,
+# `a556e2632b85f7236`; round 7, `a8415fbf915158f66`; round 8,
+# `ab561aefdad8ec886`; all REJECT]: this module went through 5 more
+# review rounds converging on the final design below, each finding a
+# real, live-reproduced bug in a LENGTH-CAP-plus-CASING-REQUIREMENT
+# combination used as a false-positive control:
+#   - R4: a single 6-char cap missed real 7-27 char format names
+#     ("FlatOpcTemplateMacroEnabled") -- fixed by adding a "long" tier
+#     (7-30 chars) gated on an uppercase first letter, reasoning long
+#     format identifiers are "always" capitalized in practice.
+#   - R5: neither tier's character class included "_" -- but "_" IS a
+#     `\w` character for Python's own `\b` purposes, so a word-boundary
+#     anchor can never fire on either side of it, making EVERY
+#     underscore-joined token (real families 3d/python, font/python use
+#     this convention, e.g. "GLTF_BINARY") entirely invisible to both
+#     tiers -- fixed by adding "_" to both character classes.
+#   - R6: that fix only covered the ALL-CAPS case; a lowercase
+#     underscore compound ("maya_text") was still invisible (too long
+#     for the short tier, fails the long tier's uppercase-first check;
+#     this pipeline's own real content already writes these lowercase)
+#     -- fixed with a THIRD, dedicated, casing-independent tier for any
+#     underscore-containing token (underscores essentially never appear
+#     in ordinary English prose, so their presence alone is a safe
+#     signal needing no casing requirement).
+#   - R7: that new tier's own upper bound (reused from the long tier's
+#     cap without re-deriving it) missed a natural 31-char recombination
+#     of real fragments ("MICROSOFT_3MF" + the real "_BINARY" suffix) --
+#     fixed by removing the underscore tier's upper bound entirely (same
+#     reasoning as the casing fix: no false-positive risk to control).
+#   - R8: the ORIGINAL "long format identifiers are always capitalized"
+#     premise from R4 was itself empirically false -- 16 real lowercase,
+#     non-underscore, 7+ char format values exist across 6 real
+#     families/platforms ("markdown", "unicode", "bilevel", ...),
+#     confirming lowercase long fabrications ("wordperfect") are a
+#     realistic, natural LLM register this pipeline's own data already
+#     uses. The short tier's OWN case-insensitive design (rework 2, never
+#     itself found unsound in 8 rounds) was the right approach all along;
+#     the long tier's casing gate was a false-positive control for a
+#     false-positive class that never actually existed. Fixed by merging
+#     the short/long tiers into ONE fully case-insensitive tier with no
+#     upper bound at all -- removing the length-cap/casing-requirement
+#     combination that produced 4 of the last 5 real findings (R4, R6,
+#     R7, R8), rather than continuing to patch it. False-positive control
+#     for ALL lengths is `_ENUM_COMMON_WORDS`/`_ENUM_UNIVERSAL_EXEMPT` --
+#     already the proven, load-bearing mechanism (never itself the
+#     subject of a live-exploitable-fabrication finding across 8 rounds,
+#     only ever a source of expected, disclosed, fail-closed over-
+#     rejection when a genuine word is missing from it).
+_ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9+]*[A-Za-z])[A-Za-z0-9+]{2,}\b")
 _ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,}\b")
 
 # Acronyms that are never themselves a file/document format, however
@@ -524,34 +485,46 @@ _ENUM_COMMON_WORDS = frozenset({
     "complete", "essential", "multiple", "several", "numerous",
     "including", "excluding", "throughout", "regardless", "however",
     "therefore", "moreover", "furthermore", "meanwhile", "otherwise",
+    # rework 8: the short/long tier split (and its length caps) is gone --
+    # any ordinary English word, of any length, containing no underscore
+    # is now a candidate, so this list must cover common words regardless
+    # of length, not just the 2-6/7-30 ranges the old tiers implied.
+    "documents", "document", "fidelity", "converted", "developers",
+    "building", "workflows", "automation", "pipelines", "supporting",
+    "formats", "results", "archival", "natural", "options", "enabling",
+    "presentations", "libraries", "solutions", "platforms", "projects",
+    "workflow", "capabilities", "applications", "performances",
+    "efficiently", "reliably", "seamlessly", "professionally",
+    "comprehensively", "powerfully", "additional", "various", "several",
+    "numerous", "essential", "fundamental", "primary", "secondary",
+    "alternative", "typically", "generally", "specifically",
+    "particularly", "especially", "including", "excluding",
 })
 
 
 def check_enumeration_membership(
     composed: str, real_vocabulary: "set[str]", *, exempt: "set[str] | None" = None,
 ) -> bool:
-    """Every candidate token in `composed` must be a member of
+    r"""Every candidate token in `composed` must be a member of
     `real_vocabulary` (must already be lowercase -- a real, closed
     vocabulary the caller supplies, e.g. `formats.json`'s real member list)
     UNLESS it is a common English word (`_ENUM_COMMON_WORDS`), a
     universally-known non-format acronym (`_ENUM_UNIVERSAL_EXEMPT`), or one
     of the caller's own `exempt` tokens (e.g. this page's own family/
-    platform slug -- never itself a claimed format). Three candidate tiers
-    (see `_ENUM_SHORT_CANDIDATE_RE`/`_ENUM_LONG_CANDIDATE_RE`/
-    `_ENUM_UNDERSCORE_CANDIDATE_RE` above): short (2-6 char) tokens are
-    checked fully case-insensitively; long (7-30 char) tokens must start
-    with an uppercase letter (real format identifiers this long are
-    essentially always written capitalized); underscore-containing tokens
-    (2+ chars, no upper bound) are checked fully case-insensitively
-    regardless of length (underscores essentially never appear in
-    ordinary English prose, so their mere presence is itself a safe
-    signal with no
-    false-positive risk to control via casing). Checked across the WHOLE
-    text unconditionally, independent of position or surrounding
-    punctuation -- see the rework notes above for why syntax-based
-    detection, ALL-CAPS-only shape, a single fixed length cap, and
-    underscore mishandling (twice) were each replaced/fixed in turn.
-    Returns True (nothing to check,
+    platform slug -- never itself a claimed format). Two candidate
+    patterns (see `_ENUM_CANDIDATE_RE`/`_ENUM_UNDERSCORE_CANDIDATE_RE`
+    above), both checked fully case-insensitively with NO upper length
+    bound: one for ordinary alphanumeric tokens, one (matched separately
+    since "_" is a `\w` character and defeats `\b` boundary matching
+    otherwise) for underscore-containing tokens. Checked across the WHOLE
+    text unconditionally, independent of position, length, or casing --
+    see the rework notes above for the 8-round history (syntax-based
+    detection, ALL-CAPS-only shape, a fixed length cap, underscore
+    mishandling twice over, and a long-token casing requirement that
+    turned out to be an unfounded false-positive control) that converged
+    on this simpler, casing-and-length-independent design. False-positive
+    control at every length is `_ENUM_COMMON_WORDS`/
+    `_ENUM_UNIVERSAL_EXEMPT` alone. Returns True (nothing to check,
     or every candidate passed) or False (at least one non-exempt candidate
     is absent from the real vocabulary -- reject, matching this module's
     own "any doubt -> None" fallback philosophy). Never raises; a
@@ -559,7 +532,7 @@ def check_enumeration_membership(
     fail closed rather than silently pass unchecked."""
     vocabulary = real_vocabulary or set()
     exempt_set = _ENUM_UNIVERSAL_EXEMPT | _ENUM_COMMON_WORDS | {e.lower() for e in (exempt or set())}
-    for pattern in (_ENUM_SHORT_CANDIDATE_RE, _ENUM_LONG_CANDIDATE_RE, _ENUM_UNDERSCORE_CANDIDATE_RE):
+    for pattern in (_ENUM_CANDIDATE_RE, _ENUM_UNDERSCORE_CANDIDATE_RE):
         for m in pattern.finditer(composed):
             token = m.group(0).lower()
             if token in exempt_set:

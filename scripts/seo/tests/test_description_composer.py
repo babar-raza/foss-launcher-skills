@@ -452,6 +452,35 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_long_lowercase_fabrication_does_not_ground_end_to_end(self, tmp_path):
+        """Round-8 review REJECT, real end-to-end reproduction: the long
+        tier's uppercase-first-letter requirement (rework 4's own
+        false-positive control) was empirically false -- real lowercase
+        7+ char format values exist in the live portfolio (e.g.
+        "markdown" for cells/python). A fabricated lowercase long token
+        ("wordperfect") sitting right next to the genuine lowercase
+        "markdown" member was invisible to the old tiered design. Fixed
+        by merging the short/long tiers into one case-insensitive,
+        unbounded tier."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "cells", "python",
+            ["xlsx", "csv", "markdown", "ods"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.Cells FOSS for Python, "
+            "enabling export of spreadsheets to XLSX, CSV, Markdown, ODS "
+            "and wordperfect formats today."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/cells/python/FileFormatType.md",
+            "SaveFormat enum", "cells save format export",
+            ["SaveFormat lists the supported output formats for workbooks."],
+            "cells", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
