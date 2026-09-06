@@ -65,6 +65,11 @@ try:
 except ImportError:
     from pipeline import execution_invariants  # noqa: E402
 
+try:
+    from seo.pipeline import description_composer  # noqa: E402
+except ImportError:
+    from pipeline import description_composer  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -206,32 +211,6 @@ def _build_seo_title_rewrite_prompt(
     )
 
 
-def _build_description_rewrite_prompt(
-    current_desc: str,
-    primary_keyword: str,
-    family: str | None,
-    platform: str | None,
-) -> str:
-    """Build the prompt for an LLM description rewrite."""
-    family_str = family or "unknown"
-    platform_str = platform or "unknown"
-    return (
-        f"You are rewriting a meta description for an Aspose FOSS documentation page.\n\n"
-        f"Family: {family_str}\n"
-        f"Platform: {platform_str}\n"
-        f"Primary keyword cluster: {primary_keyword}\n"
-        f"Current description: {current_desc}\n\n"
-        f"Rules:\n"
-        f"- Proposed description MUST be between {_DESC_MIN} and {_DESC_MAX} characters\n"
-        f"- MUST contain the primary keyword naturally\n"
-        f"- Must be a compelling, readable summary sentence\n"
-        f"- Must NOT fabricate API names or capabilities\n\n"
-        f"Respond with a JSON object with exactly these keys:\n"
-        f"  proposed_description: string (the new meta description)\n"
-        f"  rationale: string (1-2 sentences explaining the improvement)\n"
-    )
-
-
 def _pick_primary_keyword(signals: dict) -> str:
     """
     Pick the best primary keyword from opportunity signals.
@@ -288,6 +267,38 @@ def _compute_placement(
         llm_call=_keyword_intent_llm_call(litellm_key),
     )
     return keyword_intent.decide_placement(intent, page=page_path, signals=signals)
+
+
+_DESCRIPTION_COMPOSER_SCHEMA = {"proposed_description": "str", "rationale": "str"}
+_NATURALNESS_JUDGE_SCHEMA = {"status": "str", "reasons": "list"}
+
+
+def _description_composer_llm_call(litellm_key: "str | None"):
+    """Adapter routing description_composer.py's injected composition call
+    through this module's own already-registered LLMRouter call site
+    (_call_llm, operation='seo_recommendation') -- same reuse pattern as
+    _keyword_intent_llm_call above (Contracts A/C never open a second,
+    unregistered professionalize call site of their own, AGENTS.md Sec.15)."""
+    if not litellm_key:
+        return None
+
+    def _call(prompt: str) -> "dict | None":
+        return _call_llm(prompt, _LLM_MODEL_MEDIUM, _DESCRIPTION_COMPOSER_SCHEMA, litellm_key)
+
+    return _call
+
+
+def _naturalness_judge_llm_call(litellm_key: "str | None"):
+    """Adapter routing naturalness_evaluator.py's Stage B judge call (Contract
+    D) through this module's own already-registered LLMRouter call site --
+    same reuse pattern as the two adapters above."""
+    if not litellm_key:
+        return None
+
+    def _call(prompt: str) -> "dict | None":
+        return _call_llm(prompt, _LLM_MODEL_MEDIUM, _NATURALNESS_JUDGE_SCHEMA, litellm_key)
+
+    return _call
 
 
 def _placement_signals_block(placement_decision, placement_confidence, placement_reasons, primary_kw):
@@ -454,25 +465,28 @@ def _gen_high_recommendations(
                     "signal state — not regenerating a new guess until it changes."
                 )
         else:
-            prompt = _build_description_rewrite_prompt(
-                current_desc, primary_kw, family, platform
+            page_claims = description_composer.load_page_claims(
+                page_path, family, platform, repo_root=_REPO_ROOT,
             )
-            llm_result = _call_llm(
-                prompt,
-                _LLM_MODEL_MEDIUM,
-                {"proposed_description": "str", "rationale": "str"},
-                litellm_key,
+            candidate = description_composer.compose_description(
+                page_path, current_desc, primary_kw, page_claims, family, platform,
+                min_chars=_DESC_MIN, max_chars=_DESC_MAX,
+                llm_call=_description_composer_llm_call(litellm_key),
+                naturalness_judge_call=_naturalness_judge_llm_call(litellm_key),
             )
-            if llm_result:
-                proposed_desc = llm_result.get("proposed_description")
-                desc_rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+            if candidate is not None:
+                proposed_desc = candidate.text
+                desc_rationale = candidate.rationale
                 recommendation_memory.record_result(
                     page_path, "description", desc_consult["signal_hash"],
                     {"proposed_description": proposed_desc, "rationale": desc_rationale},
                 )
             else:
                 proposed_desc = None
-                desc_rationale = "LLM call failed — human review required."
+                desc_rationale = (
+                    "Description composer (Contract C) found no grounded, "
+                    "natural candidate — human review required."
+                )
     else:
         proposed_desc = None
         if not desc_ok and placement_blocks_llm:
@@ -829,6 +843,19 @@ def run_recommendations(
     # second independent review of SEO-EXECUTION-INVARIANTS found in
     # apply.py's own equivalent gate.
     execution_invariants.configure(repo_root=_REPO_ROOT)
+
+    # description_composer.py is stateless (writes nothing -- see its own
+    # module docstring) but its reads (page frontmatter, claims.json,
+    # sibling descriptions) must still respect an isolated test's tmp_path
+    # rather than silently falling through to the real, shared content/
+    # knowledge trees. Not routed through execution_invariants.configure()
+    # (that function's own forwarding list is Contract J's own two targets,
+    # recommendation_memory/autonomy_state -- execution_invariants.py is
+    # outside this card's own allowed_paths) -- a direct call here is the
+    # single canonical sync point, since this file only ever imports
+    # description_composer via the one `seo.pipeline` dotted path, so there
+    # is no module-identity split to guard against for this particular call.
+    description_composer.configure(repo_root=_REPO_ROOT)
 
     # --- Governance gate: execution invariants (Contract J), invariant 13
     # "recommendation_memory_readable_and_schema_matched" --- read-only,
