@@ -108,7 +108,19 @@ def find_snapshot_asof(
     commits = list_snapshot_commits(site)
     if target_date.tzinfo is None:
         target_date = target_date.replace(tzinfo=timezone.utc)
-    candidates = [c for c in commits if (c["date"] <= target_date) == (direction == "before")]
+    # Both directions are inclusive of an exact match, matching this
+    # docstring's own "on or before" / "on or after" language -- found live
+    # (SEO-GSC-HISTORY-ASOF-BOUNDARY-RESOLVER-1) as an asymmetry where
+    # direction="after" silently used a strict `>` (via `(date <= target) ==
+    # (direction == "before")`, which resolves to `date > target` when
+    # direction != "before"), excluding a commit whose timestamp exactly
+    # equalled target_date. Written as two explicit branches rather than the
+    # earlier boolean-equality one-liner so the intended inclusive boundary
+    # on each side is visible at the call site, not just in the docstring.
+    if direction == "before":
+        candidates = [c for c in commits if c["date"] <= target_date]
+    else:
+        candidates = [c for c in commits if c["date"] >= target_date]
     if not candidates:
         return None
     return max(candidates, key=lambda c: c["date"]) if direction == "before" else min(
