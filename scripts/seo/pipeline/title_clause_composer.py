@@ -359,8 +359,32 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # `load_real_format_names()`), so a whole underscore-joined token now
 # matches or fails exactly like any other candidate, no other logic
 # change needed.
-_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])[A-Za-z0-9_+]{2,6}\b")
-_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9_]{6,29}\b")
+#
+# **Rework 6** [round-6 independent review, agentId `a556e2632b85f7236`,
+# REJECT]: adding "_" to both character classes (rework 5) fixed
+# ALL-CAPS underscore compounds ("GLTF_BINARY") but not LOWERCASE ones
+# ("gltf_binary", "maya_text"): the long tier still requires the FIRST
+# character to be uppercase, and a lowercase underscore compound is too
+# long for the short tier's 6-char cap -- so it satisfies neither tier
+# and is invisible to both, exactly like round 5's original bug, just for
+# the other casing. Confirmed real, not contrived: this pipeline's own
+# real generated content
+# (`content/reference.aspose.org/en/3d/java/DracoFormat.md`) already
+# writes these exact identifiers in lowercase natural prose ("Gets the
+# gltf binary."). A THIRD, dedicated tier fixes this cleanly: underscores
+# essentially never appear in ordinary English prose (unlike common
+# lowercase words, which is why the long tier needs a casing requirement
+# at all), so "this token contains an underscore" is itself a safe,
+# sufficient signal -- no casing requirement needed, closing the gap for
+# BOTH casings without reopening rework 4's original false-positive
+# concern (which was specifically about ordinary lowercase prose WORDS,
+# never about underscore-joined identifiers). "_" is removed from the
+# short/long tiers' own character classes -- the underscore tier now
+# owns every underscore-containing candidate exclusively, avoiding
+# duplicate/overlapping matches across tiers.
+_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
+_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9]{6,29}\b")
+_ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,30}\b")
 
 # Acronyms that are never themselves a file/document format, however
 # plausible-looking -- confirmed common in real Aspose FOSS prose
@@ -494,15 +518,21 @@ def check_enumeration_membership(
     UNLESS it is a common English word (`_ENUM_COMMON_WORDS`), a
     universally-known non-format acronym (`_ENUM_UNIVERSAL_EXEMPT`), or one
     of the caller's own `exempt` tokens (e.g. this page's own family/
-    platform slug -- never itself a claimed format). Two candidate tiers
-    (see `_ENUM_SHORT_CANDIDATE_RE`/`_ENUM_LONG_CANDIDATE_RE` above): short
-    (2-6 char) tokens are checked fully case-insensitively; long (7-30
-    char) tokens must start with an uppercase letter (real format
-    identifiers this long are essentially always written capitalized).
-    Checked across the WHOLE text unconditionally, independent of
-    position or surrounding punctuation -- see the rework notes above for
-    why syntax-based detection, ALL-CAPS-only shape, and a single fixed
-    length cap were each replaced in turn. Returns True (nothing to check,
+    platform slug -- never itself a claimed format). Three candidate tiers
+    (see `_ENUM_SHORT_CANDIDATE_RE`/`_ENUM_LONG_CANDIDATE_RE`/
+    `_ENUM_UNDERSCORE_CANDIDATE_RE` above): short (2-6 char) tokens are
+    checked fully case-insensitively; long (7-30 char) tokens must start
+    with an uppercase letter (real format identifiers this long are
+    essentially always written capitalized); underscore-containing tokens
+    (2-30 chars) are checked fully case-insensitively regardless of
+    length (underscores essentially never appear in ordinary English
+    prose, so their mere presence is itself a safe signal with no
+    false-positive risk to control via casing). Checked across the WHOLE
+    text unconditionally, independent of position or surrounding
+    punctuation -- see the rework notes above for why syntax-based
+    detection, ALL-CAPS-only shape, a single fixed length cap, and
+    underscore mishandling (twice) were each replaced/fixed in turn.
+    Returns True (nothing to check,
     or every candidate passed) or False (at least one non-exempt candidate
     is absent from the real vocabulary -- reject, matching this module's
     own "any doubt -> None" fallback philosophy). Never raises; a
@@ -510,7 +540,7 @@ def check_enumeration_membership(
     fail closed rather than silently pass unchecked."""
     vocabulary = real_vocabulary or set()
     exempt_set = _ENUM_UNIVERSAL_EXEMPT | _ENUM_COMMON_WORDS | {e.lower() for e in (exempt or set())}
-    for pattern in (_ENUM_SHORT_CANDIDATE_RE, _ENUM_LONG_CANDIDATE_RE):
+    for pattern in (_ENUM_SHORT_CANDIDATE_RE, _ENUM_LONG_CANDIDATE_RE, _ENUM_UNDERSCORE_CANDIDATE_RE):
         for m in pattern.finditer(composed):
             token = m.group(0).lower()
             if token in exempt_set:

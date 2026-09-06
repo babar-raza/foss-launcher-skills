@@ -405,6 +405,52 @@ class TestEnumerationMembershipRound5UnderscoreTokensFixed:
         assert not check_enumeration_membership(without_underscore, self._REAL_3D_FORMATS)
 
 
+class TestEnumerationMembershipRound6LowercaseUnderscoreTokensFixed:
+    """Round-6 independent review (agentId a556e2632b85f7236) REJECT:
+    rework 5's fix added "_" to both character classes, closing the
+    ALL-CAPS underscore case (GLTF_BINARY) -- but the long tier still
+    requires an uppercase FIRST character, so a fully LOWERCASE
+    underscore compound (e.g. "maya_text") is too long for the short tier
+    and fails the long tier's casing check, remaining invisible to both,
+    exactly like round 5's bug just for the other casing. Real, live-
+    confirmed shape: this pipeline's own real generated content already
+    writes these exact identifiers in lowercase natural prose ("Gets the
+    gltf binary."). Fixed with a dedicated, casing-independent underscore
+    tier -- underscores essentially never appear in ordinary English
+    prose, so their presence alone is a safe signal needing no casing
+    requirement."""
+
+    _REAL_3D_FORMATS = {"gltf", "gltf_binary", "maya_ascii", "maya_binary", "stl_binary", "obj"}
+
+    def test_lowercase_fabricated_underscore_token_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to gltf_binary, maya_ascii, maya_binary, "
+            "maya_text and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_lowercase_genuine_underscore_formats_pass(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to gltf_binary, maya_ascii and maya_binary "
+            "formats today."
+        )
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_mixed_case_underscore_fabrication_is_also_caught(self):
+        composed = "Exports to Gltf_Binary, Maya_Ascii and Maya_Text formats."
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS)
+
+    def test_ordinary_lowercase_prose_with_no_underscores_still_unaffected(self):
+        """The new tier requires an underscore to fire at all -- ordinary
+        long lowercase prose words remain governed by the long tier's own
+        casing requirement, unaffected by this fix."""
+        assert check_enumeration_membership(
+            "Convert documents easily using reliable comprehensive tools today.", set(),
+        )
+
+
 # ---------------------------------------------------------------------------
 # Acceptance check: over-length-retries-then-falls-back
 # ---------------------------------------------------------------------------

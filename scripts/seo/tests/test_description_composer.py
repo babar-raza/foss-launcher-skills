@@ -399,6 +399,32 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_lowercase_underscore_fabrication_does_not_ground_end_to_end(self, tmp_path):
+        """Round-6 review REJECT, real end-to-end reproduction: rework 5's
+        fix closed the ALL-CAPS underscore case but a fully LOWERCASE
+        underscore compound (e.g. "maya_text") was still invisible to
+        both tiers -- real, live-confirmed shape: this pipeline's own
+        real generated content already writes these exact identifiers in
+        lowercase natural prose."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "3d", "python",
+            ["GLTF", "GLTF_BINARY", "MAYA_ASCII", "MAYA_BINARY", "STL_BINARY", "OBJ"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to gltf_binary, maya_ascii, maya_binary, "
+            "maya_text and other formats."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/3d/python/FileFormat.md",
+            "SaveFormat enum", "3d save format export",
+            ["SaveFormat lists the supported output formats for 3D scenes."],
+            "3d", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
