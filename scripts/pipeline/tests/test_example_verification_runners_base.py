@@ -234,14 +234,73 @@ def test_cache_miss_on_different_clone_head(tmp_path):
     assert runner.acquire_calls == 2  # different clone_head -- must re-acquire, not reuse the stale cache entry
 
 
-def test_deterministic_failure_is_cached_and_reused():
+def test_without_a_cache_every_call_reexecutes():
     runner = FakeRunner()
     runner.execute_results[0] = {"status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR", "detail": "boom"}
     base = BaseRunner(runner, cache=None)
-    # Without a cache at all, every call re-executes -- sanity baseline.
     base.run(_blocks("import os\nprint(1)"), Policy(max_tier=3, allow_acquire=True), ProductContext())
     base.run(_blocks("import os\nprint(1)"), Policy(max_tier=3, allow_acquire=True), ProductContext())
     assert runner.acquire_calls == 2
+
+
+def test_deterministic_failure_is_cached_and_reused(tmp_path):
+    runner = FakeRunner()
+    runner.execute_results[0] = {"status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR", "detail": "boom"}
+    cache = ResultCache("testfam", "python", root=tmp_path)
+    base = BaseRunner(runner, cache=cache)
+    options = RunOptions(clone_head="head1")
+
+    base.run(_blocks("import os\nprint(1)"), Policy(max_tier=3, allow_acquire=True), ProductContext(), options=options)
+    assert runner.acquire_calls == 1
+
+    results = base.run(_blocks("import os\nprint(1)"), Policy(max_tier=3, allow_acquire=True), ProductContext(), options=options)
+    assert results[0].status == "BLOCKED-WITH-REASON"
+    assert results[0].reason == "RUNTIME-ERROR"
+    assert results[0].provenance == "cache"
+    assert runner.acquire_calls == 1  # unchanged -- the cached failure was reused, not re-executed
+
+
+def test_chain_continuation_cache_key_reflects_chain_prefix_not_just_own_hash(tmp_path):
+    # Regression test for a real bug found by independent review: a
+    # continuation block's cache key used to be keyed on ONLY its own
+    # code_sha256, ignoring chain_prefix -- but the actual unit that gets
+    # compiled/executed for a continuation block is `chain_prefix + code`
+    # (see BaseRunner._climb). A byte-identical continuation block must
+    # NOT reuse a stale cache entry from a run where an EARLIER block in
+    # the same chain had different content.
+    cache = ResultCache("testfam", "python", root=tmp_path)
+    options = RunOptions(clone_head="head1")
+
+    head_v1 = "import os\nhelper_val = 1"
+    continuation = "assert helper_val == 1"  # only ever valid if helper_val == 1
+
+    runner1 = FakeRunner()
+    runner1.execute_results[0] = {"status": "COMPILED+RAN CLEAN"}
+    runner1.execute_results[1] = {"status": "COMPILED+RAN CLEAN"}
+    base1 = BaseRunner(runner1, cache=cache)
+    r1 = base1.run(_blocks(head_v1, continuation), Policy(max_tier=3, allow_acquire=True), ProductContext(), options=options)
+    assert r1[0].status == "PASS"
+    assert r1[1].status == "PASS"
+
+    # Second run: the chain HEAD changes (helper_val = 2), but the
+    # continuation block's own text is byte-identical to run 1. The real
+    # concatenated script for the continuation is now different
+    # ("helper_val = 2\nassert helper_val == 1" would actually fail) --
+    # the fake runner models this explicitly via execute_results[1].
+    head_v2 = "import os\nhelper_val = 2"
+    runner2 = FakeRunner()
+    runner2.execute_results[0] = {"status": "COMPILED+RAN CLEAN"}
+    runner2.execute_results[1] = {"status": "BLOCKED-WITH-REASON", "reason": "RUNTIME-ERROR", "detail": "AssertionError"}
+    base2 = BaseRunner(runner2, cache=cache)
+    r2 = base2.run(_blocks(head_v2, continuation), Policy(max_tier=3, allow_acquire=True), ProductContext(), options=options)
+
+    assert r2[0].status == "PASS"  # head changed -> new hash -> correctly re-executed
+    # The continuation block must be RE-EXECUTED (chain prefix changed),
+    # never silently served run 1's stale cached PASS.
+    assert 1 in runner2.execute_calls, "continuation block was never re-executed -- stale cache hit"
+    assert r2[1].status == "BLOCKED-WITH-REASON"
+    assert r2[1].reason == "RUNTIME-ERROR"
+    assert r2[1].provenance != "cache"
 
 
 def test_language_runner_is_a_runtime_checkable_protocol():

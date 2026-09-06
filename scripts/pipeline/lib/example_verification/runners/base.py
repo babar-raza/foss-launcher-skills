@@ -151,9 +151,13 @@ class BaseRunner:
 
         return results
 
-    def _cache_key_for(self, code_sha256: str, options: RunOptions) -> str:
+    def _content_sha256(self, text: str) -> str:
+        import hashlib
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    def _cache_key_for(self, content_sha256: str, options: RunOptions) -> str:
         return cache_key(
-            code_sha256, self.runner.canonical_lang, options.clone_head,
+            content_sha256, self.runner.canonical_lang, options.clone_head,
             options.toolchain_fp, options.runners_module_version,
         )
 
@@ -162,21 +166,42 @@ class BaseRunner:
         policy: Policy, product: ProductContext, options: RunOptions, syntax_result: Any,
     ) -> BlockResult:
         if syntax_result.status == "GRAMMAR-UNAVAILABLE":
+            # Environment-dependent (a missing grammar, not a property of
+            # the code) -- never cached, per result.py's own contract.
             return BlockResult(
                 identity=identity, status="BLOCKED-WITH-REASON", reason="GRAMMAR-UNAVAILABLE",
                 detail=syntax_result.message, proof_tier=0,
             )
         if syntax_result.status == "SYNTAX-ERROR":
-            return BlockResult(
+            # Tier 1 validates `code` in isolation (chain_prefix is never
+            # part of what check_syntax() saw), so the cache key here is
+            # keyed on the block's own identity hash, not the chain-scoped
+            # one tier 2/3 uses below.
+            result = BlockResult(
                 identity=identity, status="BLOCKED-WITH-REASON", reason="SYNTAX-ERROR",
                 detail=syntax_result.message, proof_tier=1,
             )
+            self._maybe_cache(identity.code_sha256, options, result)
+            return result
         # PASS at tier 1 -- proceed up the ladder if the policy/runner allow it.
         if policy.max_tier <= 1:
             return BlockResult(identity=identity, status="PASS", proof_tier=1)
 
+        # Tier 2/3 both compile/execute `chain_prefix + code` as one script
+        # (see below) -- the cache identity MUST reflect that combined
+        # content, not just this block's own isolated code_sha256.
+        # Confirmed live bug (fast-follow to the fast-follow): keying on
+        # identity.code_sha256 alone let a byte-identical continuation
+        # block silently reuse a stale cache entry after an EARLIER block
+        # in the same chain changed content -- the actual executed script
+        # differs, but the tail block's own hash doesn't, so the wrong
+        # (stale) result served silently. This is exactly the failure mode
+        # cache.py's own module contract says must never happen.
+        script = "\n".join([*chain_prefix, code]) if chain_prefix else code
+        script_sha256 = self._content_sha256(script)
+
         if self.cache is not None and options.use_cache:
-            key = self._cache_key_for(identity.code_sha256, options)
+            key = self._cache_key_for(script_sha256, options)
             cached = self.cache.get(key, policy.max_tier)
             if cached is not None:
                 return self._entry_to_result(identity, cached)
@@ -192,8 +217,6 @@ class BaseRunner:
                     detail=acquired.get("detail", ""), proof_tier=0,
                 )
 
-            script = "\n".join([*chain_prefix, code]) if chain_prefix else code
-
             compile_failure = self.runner.compile(acquired, script, identity.index)
             if compile_failure is not None:
                 result = BlockResult(
@@ -201,17 +224,17 @@ class BaseRunner:
                     reason=compile_failure.get("reason", "COMPILE-ERROR"),
                     detail=compile_failure.get("detail", ""), proof_tier=2,
                 )
-                self._maybe_cache(identity, options, result)
+                self._maybe_cache(script_sha256, options, result)
                 return result
 
             if policy.max_tier < 3 or self.runner.ceiling_tier < 3:
                 result = BlockResult(identity=identity, status="PASS", proof_tier=2)
-                self._maybe_cache(identity, options, result)
+                self._maybe_cache(script_sha256, options, result)
                 return result
 
             executed = self.runner.execute(acquired, script, identity.index)
             result = self._executed_to_result(identity, executed)
-            self._maybe_cache(identity, options, result)
+            self._maybe_cache(script_sha256, options, result)
             return result
 
     def _executed_to_result(self, identity: BlockIdentity, executed: dict) -> BlockResult:
@@ -229,15 +252,23 @@ class BaseRunner:
             detail=entry.detail, proof_tier=entry.proof_tier, provenance="cache",
         )
 
-    def _maybe_cache(self, identity: BlockIdentity, options: RunOptions, result: BlockResult) -> None:
+    def _maybe_cache(self, content_sha256: str, options: RunOptions, result: BlockResult) -> None:
+        """`content_sha256` must be the hash of whatever was ACTUALLY
+        validated for this result: the block's own `code_sha256` for a
+        tier-1-only outcome (check_syntax() never sees chain_prefix), or
+        the chain-scoped script hash for a tier-2/3 outcome (compile()/
+        execute() run `chain_prefix + code` as one unit) -- callers must
+        never pass the block's isolated identity hash for a chained
+        tier-2/3 result, or a later run can silently reuse a stale entry
+        computed against a different, now-changed chain prefix."""
         if self.cache is None or not result.is_cacheable():
             return
-        key = self._cache_key_for(identity.code_sha256, options)
+        key = self._cache_key_for(content_sha256, options)
         self.cache.put(key, CacheEntry(
             status=result.status, proof_tier=result.proof_tier, reason=result.reason,
             detail=result.detail, clone_head=options.clone_head,
             toolchain_version=options.toolchain_fp, runners_module_version=options.runners_module_version,
-            code_sha256=identity.code_sha256,
+            code_sha256=content_sha256,
         ))
 
 
