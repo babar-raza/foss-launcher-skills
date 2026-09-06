@@ -105,6 +105,19 @@ class TestNoIndexAtAll:
 
         assert ExampleExecutionEvaluator().evaluate(page, knowledge) == []
 
+    def test_shell_family_blocks_are_skipped_not_grammar_unavailable_noise(self, tmp_path):
+        """Independent-review finding (round 1): syntax.py has no tree-sitter
+        grammar for any shell-family language, so without this exclusion
+        every install-command bash block in the whole portfolio would
+        produce a permanent, predictable GRAMMAR-UNAVAILABLE WARN -- not a
+        real signal, just noise. A page with ONLY a bash block must produce
+        no findings at all (not even the SKIP INFO, since there are no
+        in-scope blocks to check)."""
+        page = _make_page(tmp_path, "acme", "python", "```bash\npip install acme\n```\n")
+        knowledge = _make_knowledge(tmp_path, "acme", "python", snippet_index=None)
+
+        assert ExampleExecutionEvaluator().evaluate(page, knowledge) == []
+
 
 class TestLookupProof:
     """Once a product's index HAS code_sha256 populated (a future, not yet
@@ -227,6 +240,26 @@ class TestLiveSyntaxCheck:
         assert not any(f.level == "FAIL" for f in findings)
         assert any("no tree-sitter grammar available" in f.message
                    for f in findings if f.level == "WARN")
+
+    def test_fail_line_number_points_at_the_actual_broken_line(self, tmp_path):
+        """Independent-review finding (round 1): block.start_line is the
+        OPENING FENCE line itself, so content line 1 is start_line + 1 --
+        an earlier draft computed start_line + (error_line - 1), landing
+        one line short (on the fence line itself when the error was on the
+        block's first content line). This body places the real syntax
+        error on line 3 of the block's own content."""
+        body = "```python\nx = 1\ndef f(x, y:\n    return x + y\n```\n"
+        page = _make_page(tmp_path, "acme", "python", body)
+        # frontmatter is "---\ntitle: test\n---\n\n" = 4 lines, then the
+        # fence opens on file line 5; content line 2 ("def f(x, y:",
+        # tree-sitter's own 1-based error_line) is file line 7.
+        knowledge = _make_knowledge(tmp_path, "acme", "python", snippet_index=None)
+
+        findings = ExampleExecutionEvaluator().evaluate(page, knowledge)
+
+        fails = [f for f in findings if f.level == "FAIL"]
+        assert len(fails) == 1
+        assert fails[0].line_no == 7
 
     def test_broken_java_produces_fail(self, tmp_path):
         page = _make_page(

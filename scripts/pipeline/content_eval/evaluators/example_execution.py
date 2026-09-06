@@ -70,6 +70,18 @@ from lib.example_verification.code_fences import enumerate_code_blocks  # noqa: 
 from lib.example_verification.registry import NON_EXECUTABLE_LANGS  # noqa: E402
 from lib.example_verification.syntax import check_syntax  # noqa: E402
 
+# Independent-review finding (round 1): registry.NON_EXECUTABLE_LANGS is a
+# "never executable in any language" set and does not include shell-family
+# tags -- unlike the sibling code_syntax_check.py evaluator's own
+# `_SKIP_LANGS`, which already excludes bash/shell/sh. syntax.py's
+# tree-sitter loader has no grammar entry for any shell-family language at
+# all (see its `_CANONICAL_TAGS`), so every shell/install-command block in
+# the entire portfolio would otherwise get a permanent, predictable
+# GRAMMAR-UNAVAILABLE WARN forever -- not a real signal, just noise.
+# registry.py is out of this taskcard's allowed_paths, so this supplements
+# NON_EXECUTABLE_LANGS locally rather than editing the shared set.
+_SHELL_LANGS = frozenset({"bash", "sh", "shell", "powershell", "bat", "cmd"})
+
 # --- Test seam (configure() pattern; see module_compilability.py precedent) ---
 _MAX_TIER = 2
 _ALLOW_ACQUIRE = False
@@ -153,7 +165,9 @@ class ExampleExecutionEvaluator(BaseEvaluator):
 
         blocks = [
             b for b in enumerate_code_blocks(page.body, line_offset=page.body_offset)
-            if b.content.strip() and b.canonical_lang not in NON_EXECUTABLE_LANGS
+            if b.content.strip()
+            and b.canonical_lang not in NON_EXECUTABLE_LANGS
+            and b.canonical_lang not in _SHELL_LANGS
         ]
         if not blocks:
             return findings
@@ -221,7 +235,10 @@ class ExampleExecutionEvaluator(BaseEvaluator):
 
             result = check_syntax(block.canonical_lang or block.lang, block.content)
             if result.status == "SYNTAX-ERROR":
-                error_line = block.start_line + (result.error_line - 1 if result.error_line else 0)
+                # block.start_line is the opening fence line itself (e.g. the
+                # ```python line), so content line 1 is start_line + 1 --
+                # result.error_line is already 1-based within the content.
+                error_line = block.start_line + (result.error_line or 1)
                 findings.append(Finding(
                     level="FAIL", category="EX", filepath=str(page.filepath),
                     line_no=error_line,
