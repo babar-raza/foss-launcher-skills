@@ -357,11 +357,28 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 #     upper bound at all -- removing the length-cap/casing-requirement
 #     combination that produced 4 of the last 5 real findings (R4, R6,
 #     R7, R8), rather than continuing to patch it. False-positive control
-#     for ALL lengths is `_ENUM_COMMON_WORDS`/`_ENUM_UNIVERSAL_EXEMPT` --
-#     already the proven, load-bearing mechanism (never itself the
-#     subject of a live-exploitable-fabrication finding across 8 rounds,
-#     only ever a source of expected, disclosed, fail-closed over-
-#     rejection when a genuine word is missing from it).
+#     for ALL lengths is now `_ENUM_COMMON_WORDS`/`_ENUM_UNIVERSAL_EXEMPT`
+#     alone.
+#
+# **Rework 9** [round-9 independent review, agentId `a7c391fe0d84b562f`,
+# REJECT]: rework 8 made `_ENUM_COMMON_WORDS` the SOLE false-positive
+# control at every token length -- raising the stakes of any latent
+# defect in a list whose inclusion test ("is this an ordinary English
+# word") is orthogonal to "could this exact word be a plausible
+# fabricated format name." Two pre-existing entries (not added by rework
+# 8, present since round 2/3 and unnoticed for 6 subsequent rounds) were
+# found to be both: "one" (Microsoft OneNote's real `.one` extension) and
+# "step" (the real STEP/.stp neutral CAD interchange format), neither yet
+# a real member of any portfolio family's `formats.json`. Live-
+# reproduced: fabricated "STEP" passed alongside 4 real 3d/java formats;
+# fabricated "ONE" passed alongside 3 real note/python OneNote formats.
+# Fixed by removing both from `_ENUM_COMMON_WORDS` (same remedy shape as
+# round 3's `doc`/`text`/`words`/etc. removals) -- confirming this list
+# CAN be the subject of a live-exploitable-fabrication finding, same as
+# any other part of this mechanism, and must be curated against real-
+# world plausible format names, not just this portfolio's own current
+# `formats.json` values or whatever a given round's failing test fixture
+# happens to need.
 _ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9+]*[A-Za-z])[A-Za-z0-9+]{2,}\b")
 _ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,}\b")
 
@@ -426,7 +443,7 @@ _ENUM_COMMON_WORDS = frozenset({
     "along", "among", "around", "before", "behind", "between", "within",
     "not", "no", "yes", "do", "does", "did", "has", "have", "had", "can",
     "could", "will", "would", "shall", "should", "may", "might", "must",
-    "one", "two", "all", "any", "each", "every", "more", "most", "less",
+    "two", "all", "any", "each", "every", "more", "most", "less",
     "least", "many", "much", "some", "such", "both", "only",
     "just", "also", "very", "well", "up", "down", "out", "off", "again",
     "here", "there", "now", "today", "still", "even", "too",
@@ -448,7 +465,7 @@ _ENUM_COMMON_WORDS = frozenset({
     "page", "pages", "site", "sites", "way", "ways", "time", "guide",
     "user", "users", "input", "output", "project", "format", "class",
     "field", "method", "object", "module", "sample", "sample", "basic",
-    "extra", "part", "parts", "step", "steps", "level", "levels", "size",
+    "extra", "part", "parts", "steps", "level", "levels", "size",
     "range", "point", "group", "groups", "index", "table",
     "sheet", "sheets", "cell", "cells", "row", "rows", "column", "columns",
     "image", "audio", "video", "media", "print", "view",

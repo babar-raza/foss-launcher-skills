@@ -481,6 +481,34 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_real_world_format_word_fabrication_does_not_ground_end_to_end(self, tmp_path):
+        """Round-9 review REJECT, real end-to-end reproduction: rework 8
+        made _ENUM_COMMON_WORDS the sole false-positive control at every
+        length, exposing 2 pre-existing entries ("one", "step") that are
+        ordinary English words but ALSO real, well-known industry-
+        standard format identifiers (OneNote's .one, STEP/.stp CAD
+        interchange) not yet present in this portfolio's own
+        formats.json -- confirmed live against real knowledge/3d/java
+        merged/formats.json (no "step" member)."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "3d", "java",
+            ["obj", "fbx", "stl", "gltf"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Java, "
+            "enabling export to OBJ, FBX, STL, glTF and STEP formats "
+            "reliably for developers today."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/3d/java/FileFormat.md",
+            "SaveFormat enum", "3d save format export",
+            ["SaveFormat lists the supported output formats for 3D scenes."],
+            "3d", "java",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])

@@ -530,6 +530,39 @@ class TestEnumerationMembershipRound8LongLowercaseTokensFixed:
         assert check_enumeration_membership(composed, real_formats)
 
 
+class TestEnumerationMembershipRound9RealWorldFormatWordsFixed:
+    """Round-9 independent review (agentId a7c391fe0d84b562f) REJECT:
+    rework 8 made `_ENUM_COMMON_WORDS` the sole false-positive control at
+    every token length. Two pre-existing entries -- "one" (Microsoft
+    OneNote's real .one extension) and "step" (the real STEP/.stp CAD
+    interchange format) -- are ordinary English words but ALSO real,
+    well-known, industry-standard format identifiers not yet present in
+    this portfolio's own formats.json, making them realistic fabrication
+    targets. Live-reproduced: fabricated "STEP" alongside real 3d/java
+    formats, fabricated "ONE" alongside real note/python OneNote formats.
+    Fixed by removing both from `_ENUM_COMMON_WORDS`."""
+
+    def test_step_fabrication_alongside_real_3d_formats_is_caught(self):
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert between OBJ, FBX, STL, glTF, and STEP formats easily."
+        assert not check_enumeration_membership(composed, real_3d_formats)
+
+    def test_one_fabrication_alongside_real_onenote_formats_is_caught(self):
+        real_note_formats = {"onenote2007", "onenote2010", "onenoteonline", "pdf"}
+        composed = "Convert OneNote2007, OneNote2010, OneNoteOnline, PDF, and ONE files easily."
+        assert not check_enumeration_membership(composed, real_note_formats)
+
+    def test_step_is_still_caught_lowercase(self):
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert between obj, fbx, stl, gltf, and step formats easily."
+        assert not check_enumeration_membership(composed, real_3d_formats)
+
+    def test_genuine_step_format_passes_once_real(self):
+        real_3d_formats = {"obj", "step"}
+        composed = "Convert between OBJ and STEP formats easily."
+        assert check_enumeration_membership(composed, real_3d_formats)
+
+
 # ---------------------------------------------------------------------------
 # Acceptance check: over-length-retries-then-falls-back
 # ---------------------------------------------------------------------------
