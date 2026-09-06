@@ -15,12 +15,17 @@ secret is used by).
 `GH_TOKEN`/`REPO_TOKEN` silently expired on 2026-03-23 and went undetected until
 2026-08-09 — nearly 5 months — because nothing checked the token's validity independent
 of whether a scheduled workflow happened to run and fail loudly. A pre-flight `gh api
-user` liveness check was added to each of the 4 SEO workflows as a reactive fix, but that
-still only catches an expired token on the *next* scheduled run; a token that dies during
-a quiet week with no scheduled runs would still go undetected for the whole quiet week.
-This document is the proactive half of the fix: a fixed rotation cadence so no credential
-is ever left unrotated long enough to expire silently in the first place. (The other half
-— an independent daily liveness probe, decoupled from whether any pipeline workflow
+user` liveness check was added to 3 of the 4 local SEO workflow templates in this repo
+(`seo-analysis.yml`, `seo-apply.yml`, `seo-review.yml`) as a reactive fix — the 4th,
+`seo-keyword-refresh.yml`, still carries the pre-fix `GH_TOKEN`-primary token order with
+no liveness check in its local, git-tracked copy, a known, separately-tracked drift issue
+(`SEO-WORKFLOW-DEPLOY-REFRESH-KEYWORD-REFRESH-TEMPLATE-RESOLVER-1`) between this repo's
+template and its live deployed copy. Even where present, the liveness check still only
+catches an expired token on the *next* scheduled run; a token that dies during a quiet
+week with no scheduled runs would still go undetected for the whole quiet week. This
+document is the proactive half of the fix: a fixed rotation cadence so no credential is
+ever left unrotated long enough to expire silently in the first place. (The other half —
+an independent daily liveness probe, decoupled from whether any pipeline workflow
 actually runs that day — is a separate, dependent task: `SEO-TOKEN-LIVENESS-CHECK`.)
 
 ## Rotation cadence
