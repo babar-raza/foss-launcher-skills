@@ -447,6 +447,30 @@ def _median(values: "list[float]") -> "float | None":
     return s[mid] if n % 2 else (s[mid - 1] + s[mid]) / 2
 
 
+# Hardened after independent review (round 1 REJECT): a treated page with
+# ZERO real change (stable position/CTR, well over the floor) was
+# live-reproduced to FAIL when its control set consisted of same-site pages
+# at 1 impression each showing an unrelated synthetic swing --
+# select_control_set()'s own "has real GSC data in both windows" filter
+# only requires impressions > 0 (aggregate_metrics's own floor), never the
+# SAME _IMPRESSION_FLOOR the treated page itself must clear. A "control"
+# baseline built from noisy, near-zero-signal pages is not a reliable
+# comparator and must never be allowed to swing a FAIL verdict -- which
+# directly triggers autonomy_state.suspend(), the single most consequential
+# action this module can take.
+_MIN_RELIABLE_CONTROL_URLS = 2
+
+
+def _reliable_control_entries(control_set: "list[dict]") -> "list[dict]":
+    """Control-set members meeting the SAME impression floor the treated
+    page itself must clear, in BOTH windows."""
+    return [
+        c for c in control_set
+        if c["pre_metrics"]["impressions"] >= _IMPRESSION_FLOOR
+        and c["post_metrics"]["impressions"] >= _IMPRESSION_FLOOR
+    ]
+
+
 def compute_verdict(
     before_metrics: "dict | None", after_metrics: "dict | None", control_set: "list[dict]",
 ) -> dict:
@@ -465,15 +489,29 @@ def compute_verdict(
     position_delta = _position_delta(before_metrics["position"], after_metrics["position"])
     ctr_delta = _relative_ctr_delta(before_metrics["ctr"], after_metrics["ctr"])
 
-    control_position_deltas = [
-        _position_delta(c["pre_metrics"]["position"], c["post_metrics"]["position"]) for c in control_set
-    ]
-    control_ctr_deltas = [
-        d for d in (_relative_ctr_delta(c["pre_metrics"]["ctr"], c["post_metrics"]["ctr"]) for c in control_set)
-        if d is not None
-    ]
-    control_position_baseline = _median(control_position_deltas) or 0.0
-    control_ctr_baseline = _median(control_ctr_deltas) or 0.0
+    # Only reliable (>= floor, both windows) control entries may inform the
+    # adjustment baseline. Fewer than _MIN_RELIABLE_CONTROL_URLS of them ->
+    # no adjustment at all (baseline 0.0) rather than letting a thin or
+    # noisy comparator set silently determine the verdict -- the treated
+    # page's own (already floor-checked, above) signal is judged on its own
+    # merits against the absolute thresholds in that case, exactly as it
+    # would be if this hardening had never been added.
+    reliable_control = _reliable_control_entries(control_set)
+    if len(reliable_control) >= _MIN_RELIABLE_CONTROL_URLS:
+        control_position_deltas = [
+            _position_delta(c["pre_metrics"]["position"], c["post_metrics"]["position"]) for c in reliable_control
+        ]
+        control_ctr_deltas = [
+            d for d in (
+                _relative_ctr_delta(c["pre_metrics"]["ctr"], c["post_metrics"]["ctr"]) for c in reliable_control
+            )
+            if d is not None
+        ]
+        control_position_baseline = _median(control_position_deltas) or 0.0
+        control_ctr_baseline = _median(control_ctr_deltas) or 0.0
+    else:
+        control_position_baseline = 0.0
+        control_ctr_baseline = 0.0
 
     # "Excess" degradation: the treated page's own delta beyond what the
     # control group itself experienced over the same period -- isolates a
@@ -503,7 +541,12 @@ def compute_verdict(
         "ctr_delta": ctr_delta,
         "control_position_baseline": control_position_baseline,
         "control_ctr_baseline": control_ctr_baseline,
-        "control_url_count": len(control_set),
+        # The RELIABLE count actually used to inform the verdict (0 when
+        # fewer than _MIN_RELIABLE_CONTROL_URLS cleared the floor, even if
+        # control_set itself was non-empty) -- not the raw input size, so a
+        # caller/evidence-reader can tell an unadjusted verdict from an
+        # adjusted one at a glance.
+        "control_url_count": len(reliable_control),
     }
 
 

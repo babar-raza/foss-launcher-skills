@@ -108,21 +108,73 @@ class TestComputeVerdict:
         before = {**_GOOD, "position": 10.0}
         after = {**_GOOD, "position": 25.0}
         control = [
-            {"url": "u1", "pre_metrics": {"position": 10.0, "ctr": 0.05}, "post_metrics": {"position": 25.0, "ctr": 0.05}},
-            {"url": "u2", "pre_metrics": {"position": 10.0, "ctr": 0.05}, "post_metrics": {"position": 25.0, "ctr": 0.05}},
+            {"url": "u1", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 25.0, "ctr": 0.05}},
+            {"url": "u2", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 25.0, "ctr": 0.05}},
         ]
         result = oe.compute_verdict(before, after, control)
         assert result["decision"] == "PASS"
         assert result["control_position_baseline"] == 15.0
+        assert result["control_url_count"] == 2
 
     def test_page_specific_excess_degradation_still_fails_despite_control(self):
         before = {**_GOOD, "position": 10.0}
         after = {**_GOOD, "position": 30.0}
         control = [
-            {"url": "u1", "pre_metrics": {"position": 10.0, "ctr": 0.05}, "post_metrics": {"position": 12.0, "ctr": 0.05}},
+            {"url": "u1", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 12.0, "ctr": 0.05}},
+            {"url": "u2", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 13.0, "ctr": 0.05}},
         ]
         result = oe.compute_verdict(before, after, control)
         assert result["decision"] == "FAIL"
+        assert result["control_url_count"] == 2
+
+    def test_below_floor_control_entries_are_excluded_and_never_swing_the_verdict(self):
+        """Defect A (round-1 independent review, agentId ae4138710c9568802):
+        a stable, well-signaled treated page must never FAIL purely because
+        its "control" set consists of noisy, below-floor same-site pages --
+        the exact live-reproduced case that triggered autonomy_state.
+        suspend() for a family/mechanism that did nothing wrong."""
+        before = {**_GOOD, "position": 5.0}
+        after = {**_GOOD, "position": 5.0}  # zero real change
+        noisy_control = [
+            {"url": "u1", "pre_metrics": {"impressions": 1, "position": 50.0, "ctr": 0.0}, "post_metrics": {"impressions": 1, "position": 5.0, "ctr": 0.0}},
+            {"url": "u2", "pre_metrics": {"impressions": 1, "position": 45.0, "ctr": 0.0}, "post_metrics": {"impressions": 1, "position": 5.0, "ctr": 0.0}},
+            {"url": "u3", "pre_metrics": {"impressions": 1, "position": 40.0, "ctr": 0.0}, "post_metrics": {"impressions": 1, "position": 5.0, "ctr": 0.0}},
+        ]
+        result = oe.compute_verdict(before, after, noisy_control)
+        assert result["decision"] == "PASS"
+        assert result["control_position_baseline"] == 0.0
+        assert result["control_url_count"] == 0
+
+    def test_fewer_than_minimum_reliable_control_urls_falls_back_to_unadjusted(self):
+        """A single reliable control URL (below _MIN_RELIABLE_CONTROL_URLS)
+        must not be trusted as a baseline on its own -- falls back to the
+        unadjusted absolute-threshold check, same as an empty control set."""
+        before = {**_GOOD, "position": 10.0}
+        after = {**_GOOD, "position": 10.5}  # within the unadjusted threshold
+        one_reliable_control = [
+            {"url": "u1", "pre_metrics": {"impressions": 100, "position": 5.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 50.0, "ctr": 0.05}},
+        ]
+        result = oe.compute_verdict(before, after, one_reliable_control)
+        assert result["decision"] == "PASS"
+        assert result["control_position_baseline"] == 0.0
+        # control_url_count reports the real reliable count (1), even
+        # though 1 < _MIN_RELIABLE_CONTROL_URLS meant it wasn't used as an
+        # adjustment baseline -- distinguishing "0 reliable entries at all"
+        # from "some reliable entries, just not enough to trust".
+        assert result["control_url_count"] == 1
+
+    def test_mixed_reliable_and_unreliable_control_entries_only_uses_reliable_ones(self):
+        before = {**_GOOD, "position": 10.0}
+        after = {**_GOOD, "position": 25.0}
+        control = [
+            {"url": "reliable1", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 25.0, "ctr": 0.05}},
+            {"url": "reliable2", "pre_metrics": {"impressions": 100, "position": 10.0, "ctr": 0.05}, "post_metrics": {"impressions": 100, "position": 25.0, "ctr": 0.05}},
+            {"url": "unreliable", "pre_metrics": {"impressions": 1, "position": 5.0, "ctr": 0.0}, "post_metrics": {"impressions": 1, "position": 200.0, "ctr": 0.0}},
+        ]
+        result = oe.compute_verdict(before, after, control)
+        assert result["decision"] == "PASS"
+        assert result["control_position_baseline"] == 15.0
+        assert result["control_url_count"] == 2
 
 
 # ---------------------------------------------------------------------------
