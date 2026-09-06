@@ -18,13 +18,20 @@ Check order (first failure = reject):
   2. path_guard          — content/ prefix + allowed site
   3. evidence_block      — no writes to evidence/model_sha/claims/apis/formats fields
   4. length_gate         — seoTitle 50-70, description 130-160
+  4.5. page_metadata_consistency — SEO-PAGE-METADATA-CONSISTENCY (Contract E): WARN-only
+                           title/description/subtitle consistency (never rejects; sets
+                           requires_human_review). Mechanically applied once per page
+                           entry, not per-field (needs both title AND description
+                           sub-recs side by side) — same non-rejecting position as
+                           checks 8-9 below, listed here at its conceptual position
+                           in the design doc's own ordering.
   5. keyword_density     — no phrase > 2x in proposed text
   6. api_name_leak       — no new API names introduced
   7. placement_decision  — SEO-KEYWORD-INTENT-CONTRACT backstop: reject a proposal that
                            injects its own source query despite that query's own upstream
                            placement disposition being do_not_use/human_review
   8. over_opt_cap        — trim to top 4 field-level recs (not a rejection)
-  9. requires_human      — set flag (not a rejection)
+  9. requires_human      — set flag (not a rejection; folds in check 4.5's findings)
 """
 from __future__ import annotations
 
@@ -46,6 +53,14 @@ _REPO_ROOT = _THIS_FILE.parents[3]       # .../aspose.org
 
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+
+_SEO_SCRIPTS = _REPO_ROOT / "scripts" / "seo"
+if str(_SEO_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SEO_SCRIPTS))
+try:
+    from seo.pipeline import metadata_consistency
+except ImportError:
+    from pipeline import metadata_consistency
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -426,6 +441,62 @@ def _check_placement_decision(r: dict) -> tuple[bool, str, str]:
     return True, "", ""
 
 
+def _effective_field_value(recs: list[dict], field: str) -> str | None:
+    """The value this page's title/description would actually carry once
+    this recommendation entry is applied -- the proposed value if a
+    sub-rec for `field` exists and proposes a string, else that sub-rec's
+    own current value. None if no sub-rec for this field exists at all in
+    this entry (e.g. a LOW-tier, tags-only entry)."""
+    for r in recs:
+        if r.get("field") == field:
+            proposed = r.get("proposed")
+            if isinstance(proposed, str) and proposed:
+                return proposed
+            current = r.get("current")
+            return current if isinstance(current, str) else None
+    return None
+
+
+def _proposed_field_value(recs: list[dict], field: str) -> str | None:
+    """The genuinely NEW proposed value for `field` in this entry, or None
+    if this entry proposes no change to it (distinct from
+    _effective_field_value, which falls back to the current value)."""
+    for r in recs:
+        if r.get("field") == field:
+            proposed = r.get("proposed")
+            return proposed if isinstance(proposed, str) and proposed else None
+    return None
+
+
+def _check_page_metadata_consistency(rec: dict) -> list[metadata_consistency.ConsistencyFinding]:
+    """Check 4.5 (page-level, WARN-only, never a rejection): SEO-PAGE-
+    METADATA-CONSISTENCY (Contract E). Compares the page's EFFECTIVE
+    post-application title/description (proposed-or-current, per field),
+    plus -- for a family-root page -- its real current `subtitle` against
+    a genuinely newly-proposed title. Returns [] when there is nothing to
+    flag (including when the entry carries neither a title nor a
+    description sub-rec at all)."""
+    recs = rec.get("recommendations", [])
+    title = _effective_field_value(recs, "seoTitle")
+    description = _effective_field_value(recs, "description")
+    if title is None and description is None:
+        return []
+
+    proposed_title = _proposed_field_value(recs, "seoTitle")
+    subtitle = metadata_consistency.load_current_subtitle(rec.get("page_path", ""))
+
+    source_keywords: list[str] = []
+    for r in recs:
+        if r.get("field") in ("seoTitle", "description"):
+            source_keywords.extend(r.get("source_keywords") or [])
+
+    report = metadata_consistency.check_page_metadata_consistency(
+        rec.get("page_path", ""), title, description, subtitle,
+        source_keywords=source_keywords, proposed_title=proposed_title,
+    )
+    return report.findings
+
+
 def _apply_over_opt_cap(rec: dict) -> dict:
     """
     Check 8: trim to _MAX_RECS_PER_PAGE field-level recommendations.
@@ -455,13 +526,18 @@ def _apply_over_opt_cap(rec: dict) -> dict:
 def _apply_requires_human(rec: dict) -> dict:
     """
     Check 9: set requires_human_review=True if any condition is met.
-    Not a rejection — modifies rec in-place.
+    Not a rejection — modifies rec in-place. Folds in check 4.5's
+    page-metadata-consistency findings (SEO-PAGE-METADATA-CONSISTENCY,
+    Contract E) -- a WARN there is exactly the kind of judgment call this
+    flag exists to route to a human, matching this check's own established
+    precedent for llm_skipped/add_seo_title/missing-proposal.
     """
     recs = rec.get("recommendations", [])
     requires = (
         rec.get("llm_skipped", False)
         or any(r.get("action") == "add_seo_title" for r in recs)
         or any(r.get("proposed") is None for r in recs)
+        or bool(rec.get("metadata_consistency_findings"))
     )
     rec["requires_human_review"] = requires
     return rec
@@ -582,6 +658,14 @@ def _gate_recommendation(
         return False, rejections
 
     # --- Non-rejection adjustments ---
+
+    # Check 4.5: page metadata consistency (SEO-PAGE-METADATA-CONSISTENCY,
+    # Contract E) -- WARN-only, never rejects; stores findings for check 9
+    # to fold into requires_human_review.
+    findings = _check_page_metadata_consistency(rec)
+    rec["metadata_consistency_findings"] = [
+        {"code": f.code, "detail": f.detail} for f in findings
+    ]
 
     # Check 8: over-optimisation cap (trim, not reject)
     _apply_over_opt_cap(rec)
