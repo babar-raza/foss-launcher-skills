@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "a2148035-d467-42ae-8997-17859ae46690",
+  "bundle_id": "4adb337d-1976-4417-9fb1-d5043038ed3b",
   "family": "pdf",
   "platform": "go",
-  "repo_sha": "4a8d9cd1df39dce3f05d6ede8fb06c4ce39f2096",
-  "generated_at": "2026-08-14T11:53:51.658937+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "repo_sha": "2306eeb06216be4d9cb663adcb85155594572c11",
+  "generated_at": "2026-09-06T15:20:37.299682+00:00",
+  "generator_fingerprint": "1307a98d936bc698c6b3ec3027e12176fb3a5ce9cb39b22ee092c11785932031",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "298954801938c55bd96e456fdc27360a1bdb2b31379e87e69ec369353670eeb2",
-      "bytes": 1211
+      "sha256": "52e2d674211152092342cb07f8a0bc600830c359322ddc454a9dd571c05c044e",
+      "bytes": 1240
     },
     "api_surface.json": {
-      "sha256": "2c9770700c18087f944c95ad36256ccae5ddd0a830e93d5040c82c3ef9992fe1",
-      "bytes": 1120941
+      "sha256": "b21d4158e7929aedec8f81036fe958f6c155f4b47f58a8098698556d3e4520c5",
+      "bytes": 1253858
     },
     "api_surface.md": {
-      "sha256": "2a1f7c7c712b5cda16e5163654eddfde59330310717cd6f57eaeef4165c01e49",
+      "sha256": "e448fab12e035266af01f402af0e76f1b31c2abbbaac187070ace953d07d4e8f",
       "bytes": 62215
     },
     "formats.json": {
@@ -25,12 +25,12 @@
       "bytes": 3935
     },
     "formats.md": {
-      "sha256": "2911c8834d4aeb4bb6f922db031f68449391bc7caa64c92c133cd08b2406a09d",
+      "sha256": "e553d554f64fb3c9e7b1f00e347bf6f741833b2dd9c6ec195e6039491a4fa671",
       "bytes": 564
     },
     "claims.json": {
-      "sha256": "a01b2e8ed1bf42a3a84823e5c9ddb2a8ef2050a0469d6b4964de0d5cd7d56bd2",
-      "bytes": 1742005
+      "sha256": "6c54a85532af6b7b10289abb8437f236988fa9c8a2a7f317bd62d42272d90387",
+      "bytes": 1800394
     },
     "limitations.md": {
       "sha256": "103058f234191c741e570f5c17996894d581ef1658f789bc028d29d9b6355a14",
@@ -41,8 +41,8 @@
       "bytes": 228
     },
     "merge_report.md": {
-      "sha256": "05dfee1801cdb7e1d5e2b2c97dbb43ea2b78eb8ee01a5f95fc59c7dd201a4fb5",
-      "bytes": 512
+      "sha256": "02b128e6b8c5b8050e19f6f1cef3bd8998b3dde0b2b027e7534ea3af44259b93",
+      "bytes": 511
     },
     "snippets/snippet_001.go": {
       "sha256": "a7c8b3c9ae7b5fd1b2ad7d3573359d81bbd8647170827473ab787f5c19333d2b",
@@ -333,28 +333,28 @@
       "bytes": 509
     },
     "snippets/snippet_073.go": {
-      "sha256": "b5d602c913ae3be7f4ca25b44a856dbfd1bfbabad10185fd30c771c0bb65b2c9",
-      "bytes": 403
+      "sha256": "8536e6b9c75c55f96bc9c1774679f3d93af075e4f5f77f1fc887a1f9afd5ea4e",
+      "bytes": 622
     },
     "snippets/snippet_074.go": {
-      "sha256": "520ab3eb0f19b521ece8ca9318d77d5d1477fe418244ab4c0bec9772e3903148",
-      "bytes": 648
+      "sha256": "859779e829408bd69af12f6858baa8deefa082f66caff900677589ba4b5d8189",
+      "bytes": 422
     },
     "snippets/snippet_075.go": {
-      "sha256": "1ee79c6c8313c16ec89e990024303a2a24850a2beb5eebdb4a5c2f815e4b2205",
-      "bytes": 181
+      "sha256": "0abdecf2daa322b56af451538cc7f329ffad48ae5508a883a18f983a37476591",
+      "bytes": 499
     },
     "snippets/snippet_076.go": {
-      "sha256": "5c8d82a236c18ea28c1addb82e176dc97089c358b2670a060c8c4a813d99c3fc",
-      "bytes": 247
+      "sha256": "460b004066bdcc7d460f2bf6d34711946503b515500a62d68675862a2c549c8e",
+      "bytes": 925
     },
     "snippets/snippet_077.go": {
-      "sha256": "e97b1d0627476a5372396cc3f06edf7a479d4569729dc6505a92ed0578a9ee1d",
-      "bytes": 471
+      "sha256": "4fc0970e91f43d78ab4e7e1b0a6d931c90bf7f5745fe5a6724c97641ce999de4",
+      "bytes": 906
     },
     "snippets/snippet_078.go": {
-      "sha256": "0f4e0719248cb0266511bdf534cddc1610617b932dde2e8ecf275a6a814c83b9",
-      "bytes": 336
+      "sha256": "b19578c48ce71349909c237db551ed5b7d3323b882d128c96bd393f4eb28e5e5",
+      "bytes": 362
     },
     "snippets/snippet_079.go": {
       "sha256": "071dc698675b3f5efcfa09206a0d2c36a4d5ba988eed3200e686135e8bafa62a",
@@ -445,10 +445,10 @@
       "bytes": 1447
     },
     "snippets/snippets_index.json": {
-      "sha256": "850f38962118b1afb91ceade9ad8aab2d6be449327cdc42e91cde9a5b88d2ef7",
-      "bytes": 53511
+      "sha256": "316475f6e3d24591c0c269061e928f7b21c7c0c0dc23975868e6a812a845e82e",
+      "bytes": 57182
     }
   },
-  "promote_run_id": "promote-20260814T115352Z",
+  "promote_run_id": "promote-20260906T152037Z",
   "status": "COMPLETE"
 }

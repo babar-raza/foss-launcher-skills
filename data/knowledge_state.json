@@ -700,10 +700,10 @@
   },
   "note/python": {
     "accepted_baseline": {
-      "accepted_at": "2026-07-17T00:00:00Z",
-      "repo_sha": "6d97a522a9ed24708687911f1aabb76e2dea2da7",
-      "run_id": "MIGRATE-C04",
-      "sha_source": "manual-recovery"
+      "accepted_at": "2026-08-28T11:38:27.911687+00:00",
+      "repo_sha": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+      "run_id": "rebuild-all-2026-09-06T15:21:03.440454Z",
+      "sha_source": "model.yaml"
     },
     "family": "note",
     "platform": "python"
@@ -730,31 +730,38 @@
   },
   "pdf/go": {
     "accepted_baseline": {
-      "accepted_at": "2026-08-14T11:53:51.848397+00:00",
-      "repo_sha": "4a8d9cd1df39dce3f05d6ede8fb06c4ce39f2096",
-      "run_id": "promote-20260814T115351Z",
+      "accepted_at": "2026-09-06T15:20:37.547882+00:00",
+      "repo_sha": "2306eeb06216be4d9cb663adcb85155594572c11",
+      "run_id": "rebuild-all-2026-09-06T15:21:03.461668Z",
       "sha_source": "model.yaml"
     },
     "evidence_skips": {
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\blog.aspose.org\\pdf\\go\\blog-pdf-go-overview\\index.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:53:57.250196Z"
+        "recorded_at": "2026-08-31T14:32:02.405878Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\docs.aspose.org\\en\\pdf\\go\\docs-pdf-go-overview.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:53:57.166456Z"
+        "recorded_at": "2026-08-31T14:32:02.295024Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\kb.aspose.org\\en\\pdf\\go\\kb-pdf-go-overview.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:53:57.627012Z"
+        "recorded_at": "2026-08-31T14:32:02.883046Z"
       },
       "D:\\onedrive\\Documents\\GitHub\\aspose.org\\content\\reference.aspose.org\\en\\pdf\\go\\Metadata.md": {
         "reason": "draft",
-        "recorded_at": "2026-08-14T11:53:55.458538Z"
+        "recorded_at": "2026-08-31T14:32:00.002405Z"
       }
     },
     "family": "pdf",
-    "platform": "go"
+    "platform": "go",
+    "truth_audit": {
+      "fail_count": 0,
+      "recorded_at": "2026-08-31T14:33:45.712343Z",
+      "report_path": "reports\\audit\\pdf-go-truth-20260831.md",
+      "verdict": "PASS",
+      "warn_count": 4
+    }
   },
   "pdf/java": {
     "accepted_baseline": {

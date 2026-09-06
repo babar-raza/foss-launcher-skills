@@ -1,16 +1,11 @@
-// From a file path
-doc, err := pdf.Open("input.pdf")
+doc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)
+flow := doc.NewFlow(pdf.FlowOptions{})
+flow.AddHeading(1, "Quarterly Report", pdf.TextStyle{})
+flow.AddParagraph("Revenue grew in every region this quarter.", pdf.TextStyle{Size: 11})
+flow.AddList([]string{"North: +12%", "South: +8%"}, false, pdf.TextStyle{Size: 11})
 
-// From an io.Reader (stream, HTTP response, etc.)
-doc, err = pdf.OpenStream(r)
-
-// Encrypted files: returns ErrEncrypted from plain Open; supply a password
-doc, err = pdf.Open("locked.pdf")
-if errors.Is(err, pdf.ErrEncrypted) {
-    doc, err = pdf.OpenWithPassword("locked.pdf", "secret")
+pages, err := flow.Render()
+if err != nil {
+	log.Fatal(err)
 }
-
-// OpenWithPassword also works on plain PDFs (password is silently ignored),
-// so it's a safe drop-in for code that doesn't know up front whether the
-// input is encrypted. The password is tried as both user and owner.
-doc, err = pdf.OpenWithPassword("maybe-encrypted.pdf", "secret")
+fmt.Println("pages:", pages)

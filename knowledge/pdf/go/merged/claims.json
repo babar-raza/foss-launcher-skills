@@ -14,7 +14,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-def0c9",
+    "claim_id": "CLM-pdf-0ff65b1b",
     "kind": "api_method",
     "text": "ChatOptions.Document field of type *pdf.Document",
     "confidence": 1.0,
@@ -28,7 +28,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c06b77",
+    "claim_id": "CLM-pdf-e8ffd77c",
     "kind": "api_method",
     "text": "ChatOptions.Documents field of type []*pdf.Document",
     "confidence": 1.0,
@@ -42,7 +42,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e8013e",
+    "claim_id": "CLM-pdf-d8397cf9",
     "kind": "api_method",
     "text": "ChatOptions.Texts field of type []string",
     "confidence": 1.0,
@@ -56,7 +56,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7debe6",
+    "claim_id": "CLM-pdf-8090ccc7",
     "kind": "api_method",
     "text": "ChatOptions.SystemPrompt field of type string",
     "confidence": 1.0,
@@ -70,7 +70,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f2d550",
+    "claim_id": "CLM-pdf-b03399ab",
     "kind": "api_method",
     "text": "ChatOptions.MaxContextRunes field of type int",
     "confidence": 1.0,
@@ -84,7 +84,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2649d9",
+    "claim_id": "CLM-pdf-bd06537b",
     "kind": "api_method",
     "text": "ChatOptions.Temperature field of type *float64",
     "confidence": 1.0,
@@ -252,7 +252,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f58086",
+    "claim_id": "CLM-pdf-5fbac892",
     "kind": "api_method",
     "text": "AIClient.Complete(ctx, req) -> (*CompletionResponse, error)",
     "confidence": 1.0,
@@ -280,7 +280,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-42f65d",
+    "claim_id": "CLM-pdf-7af628d7",
     "kind": "api_method",
     "text": "Message.Role field of type string",
     "confidence": 1.0,
@@ -294,7 +294,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5796e5",
+    "claim_id": "CLM-pdf-bda30ae6",
     "kind": "api_method",
     "text": "Message.Text field of type string",
     "confidence": 1.0,
@@ -308,7 +308,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ca6b36",
+    "claim_id": "CLM-pdf-cdc6486d",
     "kind": "api_method",
     "text": "Message.Images field of type []MessageImage",
     "confidence": 1.0,
@@ -336,7 +336,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3bb05c",
+    "claim_id": "CLM-pdf-421f131d",
     "kind": "api_method",
     "text": "MessageImage.MIME field of type string",
     "confidence": 1.0,
@@ -350,7 +350,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f834f7",
+    "claim_id": "CLM-pdf-2de048ba",
     "kind": "api_method",
     "text": "MessageImage.Data field of type []byte",
     "confidence": 1.0,
@@ -378,7 +378,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bebeb6",
+    "claim_id": "CLM-pdf-f6f075cc",
     "kind": "api_method",
     "text": "CompletionRequest.Messages field of type []Message",
     "confidence": 1.0,
@@ -392,7 +392,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-67d42c",
+    "claim_id": "CLM-pdf-8a6342f2",
     "kind": "api_method",
     "text": "CompletionRequest.Temperature field of type *float64",
     "confidence": 1.0,
@@ -406,7 +406,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0266f0",
+    "claim_id": "CLM-pdf-779457fb",
     "kind": "api_method",
     "text": "CompletionRequest.MaxTokens field of type int",
     "confidence": 1.0,
@@ -434,7 +434,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-412609",
+    "claim_id": "CLM-pdf-cb308a19",
     "kind": "api_method",
     "text": "Usage.PromptTokens field of type int",
     "confidence": 1.0,
@@ -448,7 +448,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-25b3fa",
+    "claim_id": "CLM-pdf-4a518ac6",
     "kind": "api_method",
     "text": "Usage.CompletionTokens field of type int",
     "confidence": 1.0,
@@ -462,7 +462,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-295b46",
+    "claim_id": "CLM-pdf-214323f0",
     "kind": "api_method",
     "text": "Usage.TotalTokens field of type int",
     "confidence": 1.0,
@@ -490,7 +490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-531f5b",
+    "claim_id": "CLM-pdf-b4f7befd",
     "kind": "api_method",
     "text": "CompletionResponse.Text field of type string",
     "confidence": 1.0,
@@ -504,7 +504,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-64412a",
+    "claim_id": "CLM-pdf-862bb3e5",
     "kind": "api_method",
     "text": "CompletionResponse.Usage field of type Usage",
     "confidence": 1.0,
@@ -532,7 +532,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7a4427",
+    "claim_id": "CLM-pdf-fecc61a5",
     "kind": "api_method",
     "text": "APIError.Status field of type int",
     "confidence": 1.0,
@@ -546,7 +546,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-790ec8",
+    "claim_id": "CLM-pdf-f5d07e5f",
     "kind": "api_method",
     "text": "APIError.Code field of type string",
     "confidence": 1.0,
@@ -560,7 +560,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-efbfab",
+    "claim_id": "CLM-pdf-eed3a07b",
     "kind": "api_method",
     "text": "APIError.Message field of type string",
     "confidence": 1.0,
@@ -616,7 +616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a8b59c",
+    "claim_id": "CLM-pdf-679b529f",
     "kind": "api_method",
     "text": "ImageDescriptionOptions.Language field of type string",
     "confidence": 1.0,
@@ -630,7 +630,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-638c78",
+    "claim_id": "CLM-pdf-e23eb845",
     "kind": "api_method",
     "text": "ImageDescriptionOptions.MaxWords field of type int",
     "confidence": 1.0,
@@ -644,7 +644,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b3eb51",
+    "claim_id": "CLM-pdf-7d81f161",
     "kind": "api_method",
     "text": "ImageDescriptionOptions.Prompt field of type string",
     "confidence": 1.0,
@@ -770,7 +770,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c82d2e",
+    "claim_id": "CLM-pdf-55dd37e6",
     "kind": "api_method",
     "text": "OCREngine.Recognize(ctx, img) -> (*OCRResult, error)",
     "confidence": 1.0,
@@ -798,7 +798,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cebd16",
+    "claim_id": "CLM-pdf-f352c52e",
     "kind": "api_method",
     "text": "OCRBox.Left field of type float64",
     "confidence": 1.0,
@@ -812,7 +812,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-eae6ae",
+    "claim_id": "CLM-pdf-14c53d92",
     "kind": "api_method",
     "text": "OCRBox.Top field of type float64",
     "confidence": 1.0,
@@ -826,7 +826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c09a2c",
+    "claim_id": "CLM-pdf-44c8a49b",
     "kind": "api_method",
     "text": "OCRBox.Right field of type float64",
     "confidence": 1.0,
@@ -840,7 +840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0d2307",
+    "claim_id": "CLM-pdf-588ec761",
     "kind": "api_method",
     "text": "OCRBox.Bottom field of type float64",
     "confidence": 1.0,
@@ -868,7 +868,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-397e7b",
+    "claim_id": "CLM-pdf-ba1f70a1",
     "kind": "api_method",
     "text": "OCRResult.Lines field of type []OCRLine",
     "confidence": 1.0,
@@ -896,7 +896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-399d89",
+    "claim_id": "CLM-pdf-c20302dd",
     "kind": "api_method",
     "text": "OCRLine.Text field of type string",
     "confidence": 1.0,
@@ -910,7 +910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-817740",
+    "claim_id": "CLM-pdf-1a2d7add",
     "kind": "api_method",
     "text": "OCRLine.Box field of type *OCRBox",
     "confidence": 1.0,
@@ -924,7 +924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cf6b7f",
+    "claim_id": "CLM-pdf-7fcf8ac4",
     "kind": "api_method",
     "text": "OCRLine.Words field of type []OCRWord",
     "confidence": 1.0,
@@ -952,7 +952,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3569f6",
+    "claim_id": "CLM-pdf-95401d13",
     "kind": "api_method",
     "text": "OCRWord.Text field of type string",
     "confidence": 1.0,
@@ -966,7 +966,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cd6332",
+    "claim_id": "CLM-pdf-c8d3f336",
     "kind": "api_method",
     "text": "OCRWord.Box field of type OCRBox",
     "confidence": 1.0,
@@ -994,7 +994,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8e4fd2",
+    "claim_id": "CLM-pdf-5a30a940",
     "kind": "api_method",
     "text": "LLMOCROptions.Language field of type string",
     "confidence": 1.0,
@@ -1036,7 +1036,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-16b5df",
+    "claim_id": "CLM-pdf-93bd720b",
     "kind": "api_method",
     "text": "OcrOptions.Document field of type *pdf.Document",
     "confidence": 1.0,
@@ -1050,7 +1050,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d4b22a",
+    "claim_id": "CLM-pdf-f050fa09",
     "kind": "api_method",
     "text": "OcrOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -1064,7 +1064,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-28123b",
+    "claim_id": "CLM-pdf-355965ee",
     "kind": "api_method",
     "text": "OcrOptions.All field of type bool",
     "confidence": 1.0,
@@ -1078,7 +1078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e656aa",
+    "claim_id": "CLM-pdf-48e25660",
     "kind": "api_method",
     "text": "OcrOptions.DPI field of type float64",
     "confidence": 1.0,
@@ -1092,7 +1092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-62ce3e",
+    "claim_id": "CLM-pdf-a93cbe81",
     "kind": "api_method",
     "text": "OcrOptions.Font field of type pdf.Font",
     "confidence": 1.0,
@@ -1120,7 +1120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f1632d",
+    "claim_id": "CLM-pdf-f18c656a",
     "kind": "api_method",
     "text": "TextRecognitionResult.PageNumber field of type int",
     "confidence": 1.0,
@@ -1134,7 +1134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-aad3b8",
+    "claim_id": "CLM-pdf-1813332f",
     "kind": "api_method",
     "text": "TextRecognitionResult.Text field of type string",
     "confidence": 1.0,
@@ -1148,7 +1148,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0edb82",
+    "claim_id": "CLM-pdf-7428f416",
     "kind": "api_method",
     "text": "TextRecognitionResult.Lines field of type []OCRLine",
     "confidence": 1.0,
@@ -1358,7 +1358,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-63038e",
+    "claim_id": "CLM-pdf-aca1eb5d",
     "kind": "api_method",
     "text": "OpenAIClientOptions.BaseURL field of type string",
     "confidence": 1.0,
@@ -1372,7 +1372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3032ea",
+    "claim_id": "CLM-pdf-39de5200",
     "kind": "api_method",
     "text": "OpenAIClientOptions.APIKey field of type string",
     "confidence": 1.0,
@@ -1386,7 +1386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-04286c",
+    "claim_id": "CLM-pdf-f7649717",
     "kind": "api_method",
     "text": "OpenAIClientOptions.Model field of type string",
     "confidence": 1.0,
@@ -1400,7 +1400,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-22473a",
+    "claim_id": "CLM-pdf-62c56136",
     "kind": "api_method",
     "text": "OpenAIClientOptions.HTTPClient field of type *http.Client",
     "confidence": 1.0,
@@ -1414,7 +1414,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0d7901",
+    "claim_id": "CLM-pdf-5964c996",
     "kind": "api_method",
     "text": "OpenAIClientOptions.MaxRetries field of type int",
     "confidence": 1.0,
@@ -1554,7 +1554,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2a20a5",
+    "claim_id": "CLM-pdf-cb343568",
     "kind": "api_method",
     "text": "SummaryOptions.Document field of type *pdf.Document",
     "confidence": 1.0,
@@ -1568,7 +1568,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-19c967",
+    "claim_id": "CLM-pdf-512f3bd5",
     "kind": "api_method",
     "text": "SummaryOptions.Documents field of type []*pdf.Document",
     "confidence": 1.0,
@@ -1582,7 +1582,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-09da77",
+    "claim_id": "CLM-pdf-939f53e8",
     "kind": "api_method",
     "text": "SummaryOptions.Texts field of type []string",
     "confidence": 1.0,
@@ -1596,7 +1596,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5b061e",
+    "claim_id": "CLM-pdf-e3bf5a0f",
     "kind": "api_method",
     "text": "SummaryOptions.Language field of type string",
     "confidence": 1.0,
@@ -1610,7 +1610,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-161f22",
+    "claim_id": "CLM-pdf-0882caa8",
     "kind": "api_method",
     "text": "SummaryOptions.MaxWords field of type int",
     "confidence": 1.0,
@@ -1624,7 +1624,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2e095d",
+    "claim_id": "CLM-pdf-5932be6c",
     "kind": "api_method",
     "text": "SummaryOptions.Prompt field of type string",
     "confidence": 1.0,
@@ -1638,7 +1638,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f3645d",
+    "claim_id": "CLM-pdf-90fb9378",
     "kind": "api_method",
     "text": "SummaryOptions.Markdown field of type bool",
     "confidence": 1.0,
@@ -1890,7 +1890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-14b1d4",
+    "claim_id": "CLM-pdf-a7d91234",
     "kind": "api_method",
     "text": "Annotation.AnnotationType() -> AnnotationType",
     "confidence": 1.0,
@@ -1904,7 +1904,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d5f71d",
+    "claim_id": "CLM-pdf-afa17fdd",
     "kind": "api_method",
     "text": "Annotation.Rect() -> Rectangle",
     "confidence": 1.0,
@@ -1918,7 +1918,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0d1d70",
+    "claim_id": "CLM-pdf-80864b9d",
     "kind": "api_method",
     "text": "Annotation.SetRect(r) -> ",
     "confidence": 1.0,
@@ -1932,7 +1932,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2af574",
+    "claim_id": "CLM-pdf-2667affa",
     "kind": "api_method",
     "text": "Annotation.Color() -> *Color",
     "confidence": 1.0,
@@ -1946,7 +1946,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fa2819",
+    "claim_id": "CLM-pdf-d50ccd5c",
     "kind": "api_method",
     "text": "Annotation.SetColor(c) -> ",
     "confidence": 1.0,
@@ -1960,7 +1960,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ba23b1",
+    "claim_id": "CLM-pdf-98902804",
     "kind": "api_method",
     "text": "Annotation.Title() -> string",
     "confidence": 1.0,
@@ -1974,7 +1974,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-56da07",
+    "claim_id": "CLM-pdf-b438048c",
     "kind": "api_method",
     "text": "Annotation.SetTitle(s) -> ",
     "confidence": 1.0,
@@ -1988,7 +1988,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5fd51a",
+    "claim_id": "CLM-pdf-77814e01",
     "kind": "api_method",
     "text": "Annotation.Contents() -> string",
     "confidence": 1.0,
@@ -2002,7 +2002,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-439381",
+    "claim_id": "CLM-pdf-2e09ca92",
     "kind": "api_method",
     "text": "Annotation.SetContents(s) -> ",
     "confidence": 1.0,
@@ -2016,7 +2016,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ccca04",
+    "claim_id": "CLM-pdf-65acf0d8",
     "kind": "api_method",
     "text": "Annotation.PageIndex() -> int",
     "confidence": 1.0,
@@ -2030,7 +2030,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7003a9",
+    "claim_id": "CLM-pdf-ae4237c8",
     "kind": "api_method",
     "text": "Annotation.Flatten() -> error",
     "confidence": 1.0,
@@ -2338,7 +2338,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ef4906",
+    "claim_id": "CLM-pdf-68db3d0f",
     "kind": "api_method",
     "text": "Action.ActionType() -> ActionType",
     "confidence": 1.0,
@@ -2870,7 +2870,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-10c3f1",
+    "claim_id": "CLM-pdf-6aabde18",
     "kind": "api_method",
     "text": "Point.X field of type float64",
     "confidence": 1.0,
@@ -2884,7 +2884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7ccdbb",
+    "claim_id": "CLM-pdf-b1ca2e4c",
     "kind": "api_method",
     "text": "Point.Y field of type float64",
     "confidence": 1.0,
@@ -4676,7 +4676,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fece21",
+    "claim_id": "CLM-pdf-e5aca75f",
     "kind": "api_method",
     "text": "QuadPoint.X1 field of type float64",
     "confidence": 1.0,
@@ -4690,7 +4690,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-611943",
+    "claim_id": "CLM-pdf-bcf7ddd6",
     "kind": "api_method",
     "text": "QuadPoint.Y1 field of type float64",
     "confidence": 1.0,
@@ -4704,7 +4704,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cc6c2d",
+    "claim_id": "CLM-pdf-c594fb6c",
     "kind": "api_method",
     "text": "QuadPoint.X2 field of type float64",
     "confidence": 1.0,
@@ -4718,7 +4718,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d289e4",
+    "claim_id": "CLM-pdf-c9bf06a5",
     "kind": "api_method",
     "text": "QuadPoint.Y2 field of type float64",
     "confidence": 1.0,
@@ -4732,7 +4732,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0de891",
+    "claim_id": "CLM-pdf-8d130e5b",
     "kind": "api_method",
     "text": "QuadPoint.X3 field of type float64",
     "confidence": 1.0,
@@ -4746,7 +4746,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2cc610",
+    "claim_id": "CLM-pdf-df7754d2",
     "kind": "api_method",
     "text": "QuadPoint.Y3 field of type float64",
     "confidence": 1.0,
@@ -4760,7 +4760,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ba0fbc",
+    "claim_id": "CLM-pdf-c0b5b6d9",
     "kind": "api_method",
     "text": "QuadPoint.X4 field of type float64",
     "confidence": 1.0,
@@ -4774,7 +4774,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1e4667",
+    "claim_id": "CLM-pdf-a7911c1e",
     "kind": "api_method",
     "text": "QuadPoint.Y4 field of type float64",
     "confidence": 1.0,
@@ -7924,7 +7924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-17c050",
+    "claim_id": "CLM-pdf-9b50f734",
     "kind": "api_method",
     "text": "Color.R field of type float64",
     "confidence": 1.0,
@@ -7938,7 +7938,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d24e8a",
+    "claim_id": "CLM-pdf-dfa5cd77",
     "kind": "api_method",
     "text": "Color.G field of type float64",
     "confidence": 1.0,
@@ -7952,7 +7952,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-24941c",
+    "claim_id": "CLM-pdf-e0c27820",
     "kind": "api_method",
     "text": "Color.B field of type float64",
     "confidence": 1.0,
@@ -7966,7 +7966,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4ad34b",
+    "claim_id": "CLM-pdf-e1cca903",
     "kind": "api_method",
     "text": "Color.A field of type float64",
     "confidence": 1.0,
@@ -8022,7 +8022,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ed992e",
+    "claim_id": "CLM-pdf-03277ee1",
     "kind": "api_method",
     "text": "TextStyle.Font field of type Font",
     "confidence": 1.0,
@@ -8036,7 +8036,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-932c04",
+    "claim_id": "CLM-pdf-f700c65a",
     "kind": "api_method",
     "text": "TextStyle.Size field of type float64",
     "confidence": 1.0,
@@ -8050,7 +8050,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ae714b",
+    "claim_id": "CLM-pdf-9e16fe66",
     "kind": "api_method",
     "text": "TextStyle.Color field of type *Color",
     "confidence": 1.0,
@@ -8064,7 +8064,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-adce34",
+    "claim_id": "CLM-pdf-9f5ee981",
     "kind": "api_method",
     "text": "TextStyle.Background field of type *Color",
     "confidence": 1.0,
@@ -8078,7 +8078,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-029064",
+    "claim_id": "CLM-pdf-fd189d02",
     "kind": "api_method",
     "text": "TextStyle.HAlign field of type HAlign",
     "confidence": 1.0,
@@ -8092,7 +8092,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3f71f0",
+    "claim_id": "CLM-pdf-247cc9dd",
     "kind": "api_method",
     "text": "TextStyle.VAlign field of type VAlign",
     "confidence": 1.0,
@@ -8106,7 +8106,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-936745",
+    "claim_id": "CLM-pdf-eacbb177",
     "kind": "api_method",
     "text": "TextStyle.LineSpacing field of type float64",
     "confidence": 1.0,
@@ -8120,7 +8120,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f3b6bb",
+    "claim_id": "CLM-pdf-1762b5d6",
     "kind": "api_method",
     "text": "TextStyle.Underline field of type bool",
     "confidence": 1.0,
@@ -8134,7 +8134,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2238cb",
+    "claim_id": "CLM-pdf-4e58537a",
     "kind": "api_method",
     "text": "TextStyle.Strikethrough field of type bool",
     "confidence": 1.0,
@@ -8148,7 +8148,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4903b3",
+    "claim_id": "CLM-pdf-cf6f732e",
     "kind": "api_method",
     "text": "TextStyle.Rotation field of type float64",
     "confidence": 1.0,
@@ -8162,7 +8162,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-514e81",
+    "claim_id": "CLM-pdf-541ab2f1",
     "kind": "api_method",
     "text": "TextStyle.Behind field of type bool",
     "confidence": 1.0,
@@ -8176,7 +8176,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ceb1b5",
+    "claim_id": "CLM-pdf-37410ea5",
     "kind": "api_method",
     "text": "TextStyle.RTL field of type bool",
     "confidence": 1.0,
@@ -8190,7 +8190,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-222928",
+    "claim_id": "CLM-pdf-1cc692f1",
     "kind": "api_method",
     "text": "TextStyle.Skew field of type float64",
     "confidence": 1.0,
@@ -8204,7 +8204,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1672a4",
+    "claim_id": "CLM-pdf-40661c2b",
     "kind": "api_method",
     "text": "TextStyle.Invisible field of type bool",
     "confidence": 1.0,
@@ -9268,7 +9268,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e983d9",
+    "claim_id": "CLM-pdf-c070bb9a",
     "kind": "api_method",
     "text": "PageFormat.Width field of type float64",
     "confidence": 1.0,
@@ -9282,7 +9282,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9fcecf",
+    "claim_id": "CLM-pdf-d4f6592b",
     "kind": "api_method",
     "text": "PageFormat.Height field of type float64",
     "confidence": 1.0,
@@ -9898,7 +9898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5e6f16",
+    "claim_id": "CLM-pdf-90d627d6",
     "kind": "api_method",
     "text": "DocSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -9912,7 +9912,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fa7202",
+    "claim_id": "CLM-pdf-1edd4a03",
     "kind": "api_method",
     "text": "DocSaveOptions.Mode field of type DocRecognitionMode",
     "confidence": 1.0,
@@ -9926,7 +9926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0dda1e",
+    "claim_id": "CLM-pdf-7343f838",
     "kind": "api_method",
     "text": "DocSaveOptions.NoImages field of type bool",
     "confidence": 1.0,
@@ -9940,7 +9940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2234e1",
+    "claim_id": "CLM-pdf-22d27fb1",
     "kind": "api_method",
     "text": "DocSaveOptions.NoPageBreaks field of type bool",
     "confidence": 1.0,
@@ -10402,7 +10402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d4dcb7",
+    "claim_id": "CLM-pdf-956f0de0",
     "kind": "api_method",
     "text": "Permissions.AllowPrint field of type bool",
     "confidence": 1.0,
@@ -10416,7 +10416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8b88b0",
+    "claim_id": "CLM-pdf-394c4198",
     "kind": "api_method",
     "text": "Permissions.AllowModify field of type bool",
     "confidence": 1.0,
@@ -10430,7 +10430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2c56bc",
+    "claim_id": "CLM-pdf-62a2a40c",
     "kind": "api_method",
     "text": "Permissions.AllowCopy field of type bool",
     "confidence": 1.0,
@@ -10444,7 +10444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b19ad5",
+    "claim_id": "CLM-pdf-20df5a66",
     "kind": "api_method",
     "text": "Permissions.AllowAnnotations field of type bool",
     "confidence": 1.0,
@@ -10458,7 +10458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7b14cf",
+    "claim_id": "CLM-pdf-6e717397",
     "kind": "api_method",
     "text": "Permissions.AllowFormFill field of type bool",
     "confidence": 1.0,
@@ -10472,7 +10472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1034c7",
+    "claim_id": "CLM-pdf-26b9953b",
     "kind": "api_method",
     "text": "Permissions.AllowAccessibility field of type bool",
     "confidence": 1.0,
@@ -10486,7 +10486,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-12b418",
+    "claim_id": "CLM-pdf-783b0d7b",
     "kind": "api_method",
     "text": "Permissions.AllowAssembly field of type bool",
     "confidence": 1.0,
@@ -10500,7 +10500,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f3de40",
+    "claim_id": "CLM-pdf-ed4297d1",
     "kind": "api_method",
     "text": "Permissions.AllowPrintHighRes field of type bool",
     "confidence": 1.0,
@@ -10542,7 +10542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-231315",
+    "claim_id": "CLM-pdf-b2144745",
     "kind": "api_method",
     "text": "EncryptionOptions.UserPassword field of type string",
     "confidence": 1.0,
@@ -10556,7 +10556,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0b3af6",
+    "claim_id": "CLM-pdf-0ebfbb41",
     "kind": "api_method",
     "text": "EncryptionOptions.OwnerPassword field of type string",
     "confidence": 1.0,
@@ -10570,7 +10570,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4c9563",
+    "claim_id": "CLM-pdf-bae7d41f",
     "kind": "api_method",
     "text": "EncryptionOptions.Permissions field of type *Permissions",
     "confidence": 1.0,
@@ -10584,7 +10584,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fa1457",
+    "claim_id": "CLM-pdf-aadd8366",
     "kind": "api_method",
     "text": "EncryptionOptions.Algorithm field of type EncryptionAlgorithm",
     "confidence": 1.0,
@@ -11620,7 +11620,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fd62df",
+    "claim_id": "CLM-pdf-e4bf4c0e",
     "kind": "api_method",
     "text": "EpubSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -11634,7 +11634,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8d5a2f",
+    "claim_id": "CLM-pdf-132e676a",
     "kind": "api_method",
     "text": "EpubSaveOptions.Title field of type string",
     "confidence": 1.0,
@@ -11648,7 +11648,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d0a5e8",
+    "claim_id": "CLM-pdf-e405d4a0",
     "kind": "api_method",
     "text": "EpubSaveOptions.NoImages field of type bool",
     "confidence": 1.0,
@@ -12320,7 +12320,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cba297",
+    "claim_id": "CLM-pdf-10ae5cb4",
     "kind": "api_method",
     "text": "FlowOptions.Format field of type PageFormat",
     "confidence": 1.0,
@@ -12334,7 +12334,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7ffd75",
+    "claim_id": "CLM-pdf-6c491c9f",
     "kind": "api_method",
     "text": "FlowOptions.MarginLeft field of type float64",
     "confidence": 1.0,
@@ -12348,7 +12348,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6cf883",
+    "claim_id": "CLM-pdf-06064646",
     "kind": "api_method",
     "text": "FlowOptions.MarginRight field of type float64",
     "confidence": 1.0,
@@ -12362,7 +12362,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-120199",
+    "claim_id": "CLM-pdf-e3cd6e9d",
     "kind": "api_method",
     "text": "FlowOptions.MarginTop field of type float64",
     "confidence": 1.0,
@@ -12376,7 +12376,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4c3e9e",
+    "claim_id": "CLM-pdf-6d1d752e",
     "kind": "api_method",
     "text": "FlowOptions.MarginBottom field of type float64",
     "confidence": 1.0,
@@ -12390,7 +12390,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5af849",
+    "claim_id": "CLM-pdf-dbd80c63",
     "kind": "api_method",
     "text": "FlowOptions.ParagraphSpacing field of type float64",
     "confidence": 1.0,
@@ -12404,7 +12404,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b1f8af",
+    "claim_id": "CLM-pdf-2c308cce",
     "kind": "api_method",
     "text": "FlowOptions.Columns field of type int",
     "confidence": 1.0,
@@ -12418,7 +12418,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-358a2f",
+    "claim_id": "CLM-pdf-a969cd9e",
     "kind": "api_method",
     "text": "FlowOptions.ColumnGap field of type float64",
     "confidence": 1.0,
@@ -12432,7 +12432,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3854d0",
+    "claim_id": "CLM-pdf-f4410a9d",
     "kind": "api_method",
     "text": "FlowOptions.Tagged field of type *TaggedContent",
     "confidence": 1.0,
@@ -13104,7 +13104,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e8d103",
+    "claim_id": "CLM-pdf-2a8a18e4",
     "kind": "api_method",
     "text": "Font.BaseFont() -> string",
     "confidence": 1.0,
@@ -13118,7 +13118,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1e50ff",
+    "claim_id": "CLM-pdf-93b7e028",
     "kind": "api_method",
     "text": "Font.IsEmbedded() -> bool",
     "confidence": 1.0,
@@ -13524,7 +13524,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-aadcac",
+    "claim_id": "CLM-pdf-64c81470",
     "kind": "api_method",
     "text": "Field.PartialName() -> string",
     "confidence": 1.0,
@@ -13538,7 +13538,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d521c9",
+    "claim_id": "CLM-pdf-45c4a374",
     "kind": "api_method",
     "text": "Field.FullName() -> string",
     "confidence": 1.0,
@@ -13552,7 +13552,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a2ff46",
+    "claim_id": "CLM-pdf-0338cfb8",
     "kind": "api_method",
     "text": "Field.Value() -> string",
     "confidence": 1.0,
@@ -13566,7 +13566,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-66aea5",
+    "claim_id": "CLM-pdf-5cae2b1b",
     "kind": "api_method",
     "text": "Field.SetValue(s) -> error",
     "confidence": 1.0,
@@ -13580,7 +13580,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f2d7e6",
+    "claim_id": "CLM-pdf-cf4d28d7",
     "kind": "api_method",
     "text": "Field.IsReadOnly() -> bool",
     "confidence": 1.0,
@@ -13594,7 +13594,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-79aaa1",
+    "claim_id": "CLM-pdf-53076173",
     "kind": "api_method",
     "text": "Field.IsRequired() -> bool",
     "confidence": 1.0,
@@ -13608,7 +13608,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-54c17a",
+    "claim_id": "CLM-pdf-cc148660",
     "kind": "api_method",
     "text": "Field.PageIndex() -> int",
     "confidence": 1.0,
@@ -13622,7 +13622,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5bdb2b",
+    "claim_id": "CLM-pdf-a1973460",
     "kind": "api_method",
     "text": "Field.Rect() -> Rectangle",
     "confidence": 1.0,
@@ -13636,7 +13636,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4751ed",
+    "claim_id": "CLM-pdf-5054f670",
     "kind": "api_method",
     "text": "Field.SetStyle(s) -> error",
     "confidence": 1.0,
@@ -13650,7 +13650,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-978244",
+    "claim_id": "CLM-pdf-2f4be8a7",
     "kind": "api_method",
     "text": "Field.Style() -> FieldStyle",
     "confidence": 1.0,
@@ -13664,7 +13664,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d82da6",
+    "claim_id": "CLM-pdf-2f221ccf",
     "kind": "api_method",
     "text": "Field.Flatten() -> error",
     "confidence": 1.0,
@@ -13888,7 +13888,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fa224f",
+    "claim_id": "CLM-pdf-7135ef87",
     "kind": "api_method",
     "text": "ButtonAppearance.Caption field of type string",
     "confidence": 1.0,
@@ -13902,7 +13902,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6a7e93",
+    "claim_id": "CLM-pdf-a327a641",
     "kind": "api_method",
     "text": "ButtonAppearance.RolloverText field of type string",
     "confidence": 1.0,
@@ -13916,7 +13916,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b3bba1",
+    "claim_id": "CLM-pdf-d482bf98",
     "kind": "api_method",
     "text": "ButtonAppearance.DownText field of type string",
     "confidence": 1.0,
@@ -13930,7 +13930,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-96c82c",
+    "claim_id": "CLM-pdf-b63676f8",
     "kind": "api_method",
     "text": "ButtonAppearance.IconPath field of type string",
     "confidence": 1.0,
@@ -13944,7 +13944,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-99c7f9",
+    "claim_id": "CLM-pdf-8038bf23",
     "kind": "api_method",
     "text": "ButtonAppearance.IconPosition field of type ButtonIconPosition",
     "confidence": 1.0,
@@ -13958,7 +13958,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dffe7b",
+    "claim_id": "CLM-pdf-b1933b0b",
     "kind": "api_method",
     "text": "ButtonAppearance.TextColor field of type *Color",
     "confidence": 1.0,
@@ -13972,7 +13972,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-df8be1",
+    "claim_id": "CLM-pdf-fb061e5d",
     "kind": "api_method",
     "text": "ButtonAppearance.FaceColor field of type *Color",
     "confidence": 1.0,
@@ -13986,7 +13986,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1149dc",
+    "claim_id": "CLM-pdf-402e63fe",
     "kind": "api_method",
     "text": "ButtonAppearance.BorderColor field of type *Color",
     "confidence": 1.0,
@@ -14602,7 +14602,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-228ece",
+    "claim_id": "CLM-pdf-04b5e002",
     "kind": "api_method",
     "text": "RadioItem.PageNum field of type int",
     "confidence": 1.0,
@@ -14616,7 +14616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-71f482",
+    "claim_id": "CLM-pdf-4216def8",
     "kind": "api_method",
     "text": "RadioItem.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -14630,7 +14630,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-57693f",
+    "claim_id": "CLM-pdf-0ddd4c2f",
     "kind": "api_method",
     "text": "RadioItem.Export field of type string",
     "confidence": 1.0,
@@ -14728,7 +14728,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2c644d",
+    "claim_id": "CLM-pdf-e34fe07a",
     "kind": "api_method",
     "text": "ChoiceOption.Value field of type string",
     "confidence": 1.0,
@@ -14742,7 +14742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-82b527",
+    "claim_id": "CLM-pdf-38ac3e8e",
     "kind": "api_method",
     "text": "ChoiceOption.Export field of type string",
     "confidence": 1.0,
@@ -15302,7 +15302,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9d7e95",
+    "claim_id": "CLM-pdf-04a8d479",
     "kind": "api_method",
     "text": "NumberFormatOptions.Decimals field of type int",
     "confidence": 1.0,
@@ -15316,7 +15316,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-30e203",
+    "claim_id": "CLM-pdf-61e6d90c",
     "kind": "api_method",
     "text": "NumberFormatOptions.UseSeparator field of type bool",
     "confidence": 1.0,
@@ -15330,7 +15330,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c585aa",
+    "claim_id": "CLM-pdf-5497f48b",
     "kind": "api_method",
     "text": "NumberFormatOptions.CurrencySymbol field of type string",
     "confidence": 1.0,
@@ -15344,7 +15344,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bc0cad",
+    "claim_id": "CLM-pdf-d46fb76d",
     "kind": "api_method",
     "text": "NumberFormatOptions.CurrencyPrepend field of type bool",
     "confidence": 1.0,
@@ -15582,7 +15582,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3c893d",
+    "claim_id": "CLM-pdf-56ec06c7",
     "kind": "api_method",
     "text": "JSONExportOptions.Indent field of type bool",
     "confidence": 1.0,
@@ -15596,7 +15596,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-db05f8",
+    "claim_id": "CLM-pdf-9172abd1",
     "kind": "api_method",
     "text": "JSONExportOptions.OmitEmpty field of type bool",
     "confidence": 1.0,
@@ -15764,7 +15764,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4293c1",
+    "claim_id": "CLM-pdf-e3140126",
     "kind": "api_method",
     "text": "FieldStyle.BorderColor field of type *Color",
     "confidence": 1.0,
@@ -15778,7 +15778,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f1b612",
+    "claim_id": "CLM-pdf-e6cc0071",
     "kind": "api_method",
     "text": "FieldStyle.BackgroundColor field of type *Color",
     "confidence": 1.0,
@@ -15792,7 +15792,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7b5fd2",
+    "claim_id": "CLM-pdf-beb5c11e",
     "kind": "api_method",
     "text": "FieldStyle.TextColor field of type *Color",
     "confidence": 1.0,
@@ -15806,7 +15806,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bbfe8c",
+    "claim_id": "CLM-pdf-1e10bb03",
     "kind": "api_method",
     "text": "FieldStyle.BorderWidth field of type float64",
     "confidence": 1.0,
@@ -15820,7 +15820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f3aacd",
+    "claim_id": "CLM-pdf-ed6b2788",
     "kind": "api_method",
     "text": "FieldStyle.BorderStyle field of type BorderStyle",
     "confidence": 1.0,
@@ -15834,7 +15834,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-85f762",
+    "claim_id": "CLM-pdf-0d27e67a",
     "kind": "api_method",
     "text": "FieldStyle.DashPattern field of type []float64",
     "confidence": 1.0,
@@ -15848,7 +15848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2bd154",
+    "claim_id": "CLM-pdf-e034bc88",
     "kind": "api_method",
     "text": "FieldStyle.TextFont field of type Font",
     "confidence": 1.0,
@@ -15862,7 +15862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ab6065",
+    "claim_id": "CLM-pdf-1b90f08a",
     "kind": "api_method",
     "text": "FieldStyle.TextSize field of type float64",
     "confidence": 1.0,
@@ -15876,7 +15876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-540880",
+    "claim_id": "CLM-pdf-3daf69e6",
     "kind": "api_method",
     "text": "FieldStyle.TextAlign field of type HAlign",
     "confidence": 1.0,
@@ -16604,7 +16604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4a7996",
+    "claim_id": "CLM-pdf-4ba2c530",
     "kind": "api_method",
     "text": "HTMLSaveOptions.DPI field of type float64",
     "confidence": 1.0,
@@ -16618,7 +16618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7379c2",
+    "claim_id": "CLM-pdf-e57c2aef",
     "kind": "api_method",
     "text": "HTMLSaveOptions.Title field of type string",
     "confidence": 1.0,
@@ -16632,7 +16632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-11223b",
+    "claim_id": "CLM-pdf-7b2fc693",
     "kind": "api_method",
     "text": "HTMLSaveOptions.Mode field of type HTMLMode",
     "confidence": 1.0,
@@ -16646,7 +16646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-93db22",
+    "claim_id": "CLM-pdf-757f436c",
     "kind": "api_method",
     "text": "HTMLSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -16660,7 +16660,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7e02df",
+    "claim_id": "CLM-pdf-13fd1c7c",
     "kind": "api_method",
     "text": "HTMLSaveOptions.NoFontEmbedding field of type bool",
     "confidence": 1.0,
@@ -16674,7 +16674,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e27d80",
+    "claim_id": "CLM-pdf-da8799fe",
     "kind": "api_method",
     "text": "HTMLSaveOptions.InteractiveForms field of type bool",
     "confidence": 1.0,
@@ -16688,7 +16688,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8074f2",
+    "claim_id": "CLM-pdf-aa032e5a",
     "kind": "api_method",
     "text": "HTMLSaveOptions.ResourceWriter field of type func(name string, data []byte) (url string, err error)",
     "confidence": 1.0,
@@ -16702,7 +16702,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e33955",
+    "claim_id": "CLM-pdf-07392715",
     "kind": "api_method",
     "text": "HTMLSaveOptions.ResourceDir field of type string",
     "confidence": 1.0,
@@ -16716,7 +16716,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dd5955",
+    "claim_id": "CLM-pdf-9c6f1bb1",
     "kind": "api_method",
     "text": "HTMLSaveOptions.SplitPages field of type bool",
     "confidence": 1.0,
@@ -16730,7 +16730,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b195d8",
+    "claim_id": "CLM-pdf-48b4a225",
     "kind": "api_method",
     "text": "HTMLSaveOptions.OutlineNav field of type bool",
     "confidence": 1.0,
@@ -17178,7 +17178,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4c6c7d",
+    "claim_id": "CLM-pdf-98c89b6f",
     "kind": "api_method",
     "text": "Image.Data field of type []byte",
     "confidence": 1.0,
@@ -17192,7 +17192,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3d9f16",
+    "claim_id": "CLM-pdf-6ae96054",
     "kind": "api_method",
     "text": "Image.Format field of type ImageFormat",
     "confidence": 1.0,
@@ -17206,7 +17206,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-11636c",
+    "claim_id": "CLM-pdf-3c39d50c",
     "kind": "api_method",
     "text": "Image.Width field of type int",
     "confidence": 1.0,
@@ -17220,7 +17220,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9c8426",
+    "claim_id": "CLM-pdf-300eeb3b",
     "kind": "api_method",
     "text": "Image.Height field of type int",
     "confidence": 1.0,
@@ -17234,7 +17234,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4f1f15",
+    "claim_id": "CLM-pdf-5304ef46",
     "kind": "api_method",
     "text": "Image.BPC field of type int",
     "confidence": 1.0,
@@ -17248,7 +17248,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-09ff2e",
+    "claim_id": "CLM-pdf-5f014e62",
     "kind": "api_method",
     "text": "Image.ColorSpace field of type ImageColorSpace",
     "confidence": 1.0,
@@ -17262,7 +17262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c60575",
+    "claim_id": "CLM-pdf-e9bb0934",
     "kind": "api_method",
     "text": "Image.X field of type float64",
     "confidence": 1.0,
@@ -17276,7 +17276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7a1653",
+    "claim_id": "CLM-pdf-05ec32f8",
     "kind": "api_method",
     "text": "Image.Y field of type float64",
     "confidence": 1.0,
@@ -17290,7 +17290,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-04b7ca",
+    "claim_id": "CLM-pdf-dadc6827",
     "kind": "api_method",
     "text": "Image.PageWidth field of type float64",
     "confidence": 1.0,
@@ -17304,7 +17304,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9030a1",
+    "claim_id": "CLM-pdf-eaa9e58e",
     "kind": "api_method",
     "text": "Image.PageHeight field of type float64",
     "confidence": 1.0,
@@ -17318,7 +17318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d0bbc9",
+    "claim_id": "CLM-pdf-38d75ea4",
     "kind": "api_method",
     "text": "Image.Inline field of type bool",
     "confidence": 1.0,
@@ -17346,7 +17346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c0afd3",
+    "claim_id": "CLM-pdf-68aa9f74",
     "kind": "api_method",
     "text": "ImageInfo.Width field of type int",
     "confidence": 1.0,
@@ -17360,7 +17360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-44479f",
+    "claim_id": "CLM-pdf-0d8f8230",
     "kind": "api_method",
     "text": "ImageInfo.Height field of type int",
     "confidence": 1.0,
@@ -17374,7 +17374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a3f77a",
+    "claim_id": "CLM-pdf-5391c74d",
     "kind": "api_method",
     "text": "ImageInfo.BPC field of type int",
     "confidence": 1.0,
@@ -17388,7 +17388,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4f0709",
+    "claim_id": "CLM-pdf-ed38ce45",
     "kind": "api_method",
     "text": "ImageInfo.ColorSpace field of type ImageColorSpace",
     "confidence": 1.0,
@@ -17402,7 +17402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-01de76",
+    "claim_id": "CLM-pdf-faa7ee28",
     "kind": "api_method",
     "text": "ImageInfo.Format field of type ImageFormat",
     "confidence": 1.0,
@@ -17416,7 +17416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4a0190",
+    "claim_id": "CLM-pdf-142204b8",
     "kind": "api_method",
     "text": "ImageInfo.X field of type float64",
     "confidence": 1.0,
@@ -17430,7 +17430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9da02e",
+    "claim_id": "CLM-pdf-62842d1e",
     "kind": "api_method",
     "text": "ImageInfo.Y field of type float64",
     "confidence": 1.0,
@@ -17444,7 +17444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-77cda3",
+    "claim_id": "CLM-pdf-3d6c5437",
     "kind": "api_method",
     "text": "ImageInfo.PageWidth field of type float64",
     "confidence": 1.0,
@@ -17458,7 +17458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9572bc",
+    "claim_id": "CLM-pdf-e74901d8",
     "kind": "api_method",
     "text": "ImageInfo.PageHeight field of type float64",
     "confidence": 1.0,
@@ -17472,7 +17472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e4398d",
+    "claim_id": "CLM-pdf-8b735e78",
     "kind": "api_method",
     "text": "ImageInfo.Inline field of type bool",
     "confidence": 1.0,
@@ -17486,7 +17486,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8dd239",
+    "claim_id": "CLM-pdf-762c4efa",
     "kind": "api_method",
     "text": "ImageInfo.Name field of type string",
     "confidence": 1.0,
@@ -17752,7 +17752,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8c79df",
+    "claim_id": "CLM-pdf-0e296383",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.PageWidth field of type float64",
     "confidence": 1.0,
@@ -17766,7 +17766,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-126dfa",
+    "claim_id": "CLM-pdf-ad161359",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.PageHeight field of type float64",
     "confidence": 1.0,
@@ -17780,7 +17780,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-103f88",
+    "claim_id": "CLM-pdf-0f6d6624",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.MarginLeft field of type float64",
     "confidence": 1.0,
@@ -17794,7 +17794,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-228816",
+    "claim_id": "CLM-pdf-58224013",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.MarginRight field of type float64",
     "confidence": 1.0,
@@ -17808,7 +17808,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4f9228",
+    "claim_id": "CLM-pdf-08aba538",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.MarginTop field of type float64",
     "confidence": 1.0,
@@ -17822,7 +17822,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-46edb7",
+    "claim_id": "CLM-pdf-44bcefa0",
     "kind": "api_method",
     "text": "ImageToDocumentOptions.MarginBottom field of type float64",
     "confidence": 1.0,
@@ -18438,7 +18438,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-071b21",
+    "claim_id": "CLM-pdf-49930cc8",
     "kind": "api_method",
     "text": "OptimizeImageOptions.MaxDPI field of type float64",
     "confidence": 1.0,
@@ -18452,7 +18452,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1c5318",
+    "claim_id": "CLM-pdf-08fdab41",
     "kind": "api_method",
     "text": "OptimizeImageOptions.JPEGQuality field of type int",
     "confidence": 1.0,
@@ -18466,7 +18466,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e7a5bf",
+    "claim_id": "CLM-pdf-6fae6ae2",
     "kind": "api_method",
     "text": "OptimizeImageOptions.ConvertPNGToJPEG field of type bool",
     "confidence": 1.0,
@@ -18956,7 +18956,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0f9a2d",
+    "claim_id": "CLM-pdf-7c37a01d",
     "kind": "api_method",
     "text": "NUpOptions.Rows field of type int",
     "confidence": 1.0,
@@ -18970,7 +18970,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-578eb7",
+    "claim_id": "CLM-pdf-de4b541e",
     "kind": "api_method",
     "text": "NUpOptions.Cols field of type int",
     "confidence": 1.0,
@@ -18984,7 +18984,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1ba371",
+    "claim_id": "CLM-pdf-d9b50dc4",
     "kind": "api_method",
     "text": "NUpOptions.PageSize field of type PageFormat",
     "confidence": 1.0,
@@ -18998,7 +18998,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0486b1",
+    "claim_id": "CLM-pdf-0afe5e15",
     "kind": "api_method",
     "text": "NUpOptions.Margin field of type float64",
     "confidence": 1.0,
@@ -19012,7 +19012,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3e2570",
+    "claim_id": "CLM-pdf-ba4cbc5c",
     "kind": "api_method",
     "text": "NUpOptions.Gutter field of type float64",
     "confidence": 1.0,
@@ -19026,7 +19026,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-17b109",
+    "claim_id": "CLM-pdf-56a1dcc4",
     "kind": "api_method",
     "text": "NUpOptions.Order field of type NUpOrder",
     "confidence": 1.0,
@@ -19040,7 +19040,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c8a83b",
+    "claim_id": "CLM-pdf-7538ee26",
     "kind": "api_method",
     "text": "NUpOptions.DrawBorder field of type bool",
     "confidence": 1.0,
@@ -19082,7 +19082,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cb9fe0",
+    "claim_id": "CLM-pdf-8a7bb55e",
     "kind": "api_method",
     "text": "BookletOptions.PageSize field of type PageFormat",
     "confidence": 1.0,
@@ -19096,7 +19096,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-75ad08",
+    "claim_id": "CLM-pdf-3799a93c",
     "kind": "api_method",
     "text": "BookletOptions.Binding field of type BookletBinding",
     "confidence": 1.0,
@@ -19754,7 +19754,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dbac46",
+    "claim_id": "CLM-pdf-5e071804",
     "kind": "api_method",
     "text": "MarkdownOptions.Format field of type PageFormat",
     "confidence": 1.0,
@@ -19768,7 +19768,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-06c0ca",
+    "claim_id": "CLM-pdf-4520f7f3",
     "kind": "api_method",
     "text": "MarkdownOptions.Margin field of type float64",
     "confidence": 1.0,
@@ -19782,7 +19782,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-59a6bb",
+    "claim_id": "CLM-pdf-d866b58d",
     "kind": "api_method",
     "text": "MarkdownOptions.BaseFont field of type Font",
     "confidence": 1.0,
@@ -19796,7 +19796,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-09eb05",
+    "claim_id": "CLM-pdf-525d8b29",
     "kind": "api_method",
     "text": "MarkdownOptions.BoldFont field of type Font",
     "confidence": 1.0,
@@ -19810,7 +19810,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3c1830",
+    "claim_id": "CLM-pdf-4db70d16",
     "kind": "api_method",
     "text": "MarkdownOptions.ItalicFont field of type Font",
     "confidence": 1.0,
@@ -19824,7 +19824,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-11b05b",
+    "claim_id": "CLM-pdf-a9b0c712",
     "kind": "api_method",
     "text": "MarkdownOptions.BoldItalicFont field of type Font",
     "confidence": 1.0,
@@ -19838,7 +19838,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bb08a3",
+    "claim_id": "CLM-pdf-099b3e88",
     "kind": "api_method",
     "text": "MarkdownOptions.CodeFont field of type Font",
     "confidence": 1.0,
@@ -19852,7 +19852,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b73377",
+    "claim_id": "CLM-pdf-30941780",
     "kind": "api_method",
     "text": "MarkdownOptions.BaseSize field of type float64",
     "confidence": 1.0,
@@ -19866,7 +19866,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-50f504",
+    "claim_id": "CLM-pdf-1c7b1bf8",
     "kind": "api_method",
     "text": "MarkdownOptions.FontFamily field of type string",
     "confidence": 1.0,
@@ -19880,7 +19880,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6afb6f",
+    "claim_id": "CLM-pdf-915d26ac",
     "kind": "api_method",
     "text": "MarkdownOptions.CodeFontFamily field of type string",
     "confidence": 1.0,
@@ -19894,7 +19894,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e7cb3b",
+    "claim_id": "CLM-pdf-50ef6583",
     "kind": "api_method",
     "text": "MarkdownOptions.BasePath field of type string",
     "confidence": 1.0,
@@ -19908,7 +19908,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7b4f95",
+    "claim_id": "CLM-pdf-79e7f2f3",
     "kind": "api_method",
     "text": "MarkdownOptions.Tagged field of type bool",
     "confidence": 1.0,
@@ -19922,7 +19922,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7787bd",
+    "claim_id": "CLM-pdf-8e95198a",
     "kind": "api_method",
     "text": "MarkdownOptions.Title field of type string",
     "confidence": 1.0,
@@ -19936,7 +19936,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-08bfae",
+    "claim_id": "CLM-pdf-dda521bb",
     "kind": "api_method",
     "text": "MarkdownOptions.Language field of type string",
     "confidence": 1.0,
@@ -20034,7 +20034,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7dc8cd",
+    "claim_id": "CLM-pdf-0e0941f7",
     "kind": "api_method",
     "text": "MarkdownSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -20048,7 +20048,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-253e0c",
+    "claim_id": "CLM-pdf-5e5fa967",
     "kind": "api_method",
     "text": "MarkdownSaveOptions.ImageDir field of type string",
     "confidence": 1.0,
@@ -20062,7 +20062,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bc0b4f",
+    "claim_id": "CLM-pdf-67c38c07",
     "kind": "api_method",
     "text": "MarkdownSaveOptions.ImageWriter field of type func(name string, data []byte) (url string, err error)",
     "confidence": 1.0,
@@ -20076,7 +20076,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c4385c",
+    "claim_id": "CLM-pdf-3787ae9d",
     "kind": "api_method",
     "text": "MarkdownSaveOptions.EmbedImages field of type bool",
     "confidence": 1.0,
@@ -20090,7 +20090,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7adb34",
+    "claim_id": "CLM-pdf-8f8ca983",
     "kind": "api_method",
     "text": "MarkdownSaveOptions.NoImages field of type bool",
     "confidence": 1.0,
@@ -20384,7 +20384,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7a3935",
+    "claim_id": "CLM-pdf-78eef103",
     "kind": "api_method",
     "text": "DocumentInfo.Title field of type string",
     "confidence": 1.0,
@@ -20398,7 +20398,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c53859",
+    "claim_id": "CLM-pdf-adaa726f",
     "kind": "api_method",
     "text": "DocumentInfo.Author field of type string",
     "confidence": 1.0,
@@ -20412,7 +20412,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ddffda",
+    "claim_id": "CLM-pdf-cc6d8e6c",
     "kind": "api_method",
     "text": "DocumentInfo.Subject field of type string",
     "confidence": 1.0,
@@ -20426,7 +20426,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d7782b",
+    "claim_id": "CLM-pdf-f2f2bd36",
     "kind": "api_method",
     "text": "DocumentInfo.Keywords field of type string",
     "confidence": 1.0,
@@ -20440,7 +20440,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d737f3",
+    "claim_id": "CLM-pdf-8f19ce64",
     "kind": "api_method",
     "text": "DocumentInfo.Creator field of type string",
     "confidence": 1.0,
@@ -20454,7 +20454,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-13815f",
+    "claim_id": "CLM-pdf-50186828",
     "kind": "api_method",
     "text": "DocumentInfo.Producer field of type string",
     "confidence": 1.0,
@@ -20468,7 +20468,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-56e6f8",
+    "claim_id": "CLM-pdf-d00b1f72",
     "kind": "api_method",
     "text": "DocumentInfo.CreationDate field of type string",
     "confidence": 1.0,
@@ -20482,7 +20482,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fb3384",
+    "claim_id": "CLM-pdf-44d00c4f",
     "kind": "api_method",
     "text": "DocumentInfo.ModDate field of type string",
     "confidence": 1.0,
@@ -20496,7 +20496,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-57927c",
+    "claim_id": "CLM-pdf-1ce01e81",
     "kind": "api_method",
     "text": "DocumentInfo.Custom field of type map[string]string",
     "confidence": 1.0,
@@ -21476,7 +21476,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0d08e5",
+    "claim_id": "CLM-pdf-e6a710bb",
     "kind": "api_method",
     "text": "OptimizationOptions.RemoveUnusedObjects field of type bool",
     "confidence": 1.0,
@@ -21490,7 +21490,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4c73f6",
+    "claim_id": "CLM-pdf-808f20fe",
     "kind": "api_method",
     "text": "OptimizationOptions.SubsetFonts field of type bool",
     "confidence": 1.0,
@@ -21504,7 +21504,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-63b598",
+    "claim_id": "CLM-pdf-2ff33979",
     "kind": "api_method",
     "text": "OptimizationOptions.CompressStreams field of type bool",
     "confidence": 1.0,
@@ -21518,7 +21518,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4a9de3",
+    "claim_id": "CLM-pdf-0c323f22",
     "kind": "api_method",
     "text": "OptimizationOptions.RemoveDuplicateStreams field of type bool",
     "confidence": 1.0,
@@ -21532,7 +21532,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e92925",
+    "claim_id": "CLM-pdf-1b618ee1",
     "kind": "api_method",
     "text": "OptimizationOptions.Images field of type *OptimizeImageOptions",
     "confidence": 1.0,
@@ -21560,7 +21560,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-045661",
+    "claim_id": "CLM-pdf-68a05a20",
     "kind": "api_method",
     "text": "OptimizationResult.RemovedObjects field of type int",
     "confidence": 1.0,
@@ -21574,7 +21574,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8ac279",
+    "claim_id": "CLM-pdf-1f78330d",
     "kind": "api_method",
     "text": "OptimizationResult.SubsettedFonts field of type int",
     "confidence": 1.0,
@@ -21588,7 +21588,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5a10d5",
+    "claim_id": "CLM-pdf-d3de696b",
     "kind": "api_method",
     "text": "OptimizationResult.OptimizedImages field of type int",
     "confidence": 1.0,
@@ -21602,7 +21602,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-41a83c",
+    "claim_id": "CLM-pdf-5149ab8b",
     "kind": "api_method",
     "text": "OptimizationResult.CompressedStreams field of type int",
     "confidence": 1.0,
@@ -21616,7 +21616,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-79a290",
+    "claim_id": "CLM-pdf-7ea2e08b",
     "kind": "api_method",
     "text": "OptimizationResult.DeduplicatedStreams field of type int",
     "confidence": 1.0,
@@ -22260,7 +22260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-105379",
+    "claim_id": "CLM-pdf-7ae6bbd0",
     "kind": "api_method",
     "text": "Destination.DestinationType() -> DestinationType",
     "confidence": 1.0,
@@ -22274,7 +22274,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-96eb39",
+    "claim_id": "CLM-pdf-09cc3505",
     "kind": "api_method",
     "text": "Destination.Page() -> *Page",
     "confidence": 1.0,
@@ -23604,7 +23604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c4729c",
+    "claim_id": "CLM-pdf-c934a6fc",
     "kind": "api_method",
     "text": "PageSize.Width field of type float64",
     "confidence": 1.0,
@@ -23618,7 +23618,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-198c63",
+    "claim_id": "CLM-pdf-9096adb4",
     "kind": "api_method",
     "text": "PageSize.Height field of type float64",
     "confidence": 1.0,
@@ -24122,7 +24122,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c4e802",
+    "claim_id": "CLM-pdf-570be1f2",
     "kind": "api_method",
     "text": "PageLabelRange.StartPage field of type int",
     "confidence": 1.0,
@@ -24136,7 +24136,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3cc96b",
+    "claim_id": "CLM-pdf-cd6371ed",
     "kind": "api_method",
     "text": "PageLabelRange.Style field of type PageLabelStyle",
     "confidence": 1.0,
@@ -24150,7 +24150,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-86151a",
+    "claim_id": "CLM-pdf-345bd4bb",
     "kind": "api_method",
     "text": "PageLabelRange.Prefix field of type string",
     "confidence": 1.0,
@@ -24164,7 +24164,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-da891a",
+    "claim_id": "CLM-pdf-efc1457a",
     "kind": "api_method",
     "text": "PageLabelRange.StartNum field of type int",
     "confidence": 1.0,
@@ -24318,7 +24318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d2bfe7",
+    "claim_id": "CLM-pdf-b78e1255",
     "kind": "api_method",
     "text": "PageRange.From field of type int",
     "confidence": 1.0,
@@ -24332,7 +24332,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-82efb1",
+    "claim_id": "CLM-pdf-121847bf",
     "kind": "api_method",
     "text": "PageRange.To field of type int",
     "confidence": 1.0,
@@ -24444,7 +24444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0ec39b",
+    "claim_id": "CLM-pdf-8736265e",
     "kind": "api_method",
     "text": "MarkupParagraph.Text field of type string",
     "confidence": 1.0,
@@ -24458,7 +24458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-de378c",
+    "claim_id": "CLM-pdf-e86e7a11",
     "kind": "api_method",
     "text": "MarkupParagraph.Rectangle field of type Rectangle",
     "confidence": 1.0,
@@ -24472,7 +24472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f3c718",
+    "claim_id": "CLM-pdf-cd6f6ede",
     "kind": "api_method",
     "text": "MarkupParagraph.Lines field of type []TextLine",
     "confidence": 1.0,
@@ -24500,7 +24500,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c6f5c2",
+    "claim_id": "CLM-pdf-8feafec9",
     "kind": "api_method",
     "text": "MarkupSection.Rectangle field of type Rectangle",
     "confidence": 1.0,
@@ -24514,7 +24514,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-56b2e4",
+    "claim_id": "CLM-pdf-d34ba05a",
     "kind": "api_method",
     "text": "MarkupSection.Paragraphs field of type []MarkupParagraph",
     "confidence": 1.0,
@@ -24542,7 +24542,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-aa1aed",
+    "claim_id": "CLM-pdf-85f99928",
     "kind": "api_method",
     "text": "PageMarkup.PageNumber field of type int",
     "confidence": 1.0,
@@ -24556,7 +24556,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f0d006",
+    "claim_id": "CLM-pdf-c77b90c5",
     "kind": "api_method",
     "text": "PageMarkup.Sections field of type []MarkupSection",
     "confidence": 1.0,
@@ -25074,7 +25074,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7543b6",
+    "claim_id": "CLM-pdf-d44f6932",
     "kind": "api_method",
     "text": "Rectangle.LLX field of type float64",
     "confidence": 1.0,
@@ -25088,7 +25088,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f617f1",
+    "claim_id": "CLM-pdf-f7877aa5",
     "kind": "api_method",
     "text": "Rectangle.LLY field of type float64",
     "confidence": 1.0,
@@ -25102,7 +25102,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-72ba45",
+    "claim_id": "CLM-pdf-86695b98",
     "kind": "api_method",
     "text": "Rectangle.URX field of type float64",
     "confidence": 1.0,
@@ -25116,7 +25116,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ccc0c7",
+    "claim_id": "CLM-pdf-89316d15",
     "kind": "api_method",
     "text": "Rectangle.URY field of type float64",
     "confidence": 1.0,
@@ -25956,7 +25956,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-eaa06f",
+    "claim_id": "CLM-pdf-464743e7",
     "kind": "api_method",
     "text": "RenderOptions.DPI field of type float64",
     "confidence": 1.0,
@@ -25970,7 +25970,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-815771",
+    "claim_id": "CLM-pdf-40af3787",
     "kind": "api_method",
     "text": "RenderOptions.Background field of type *Color",
     "confidence": 1.0,
@@ -25998,7 +25998,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-564258",
+    "claim_id": "CLM-pdf-6997b859",
     "kind": "api_method",
     "text": "Resolution.DPI field of type float64",
     "confidence": 1.0,
@@ -27062,7 +27062,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8f6536",
+    "claim_id": "CLM-pdf-c08aa972",
     "kind": "api_method",
     "text": "ReplaceOptions.CaseInsensitive field of type bool",
     "confidence": 1.0,
@@ -27076,7 +27076,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-462fe1",
+    "claim_id": "CLM-pdf-d764e6b3",
     "kind": "api_method",
     "text": "ReplaceOptions.Regex field of type bool",
     "confidence": 1.0,
@@ -27300,7 +27300,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8b0abe",
+    "claim_id": "CLM-pdf-ac9173df",
     "kind": "api_method",
     "text": "SignOptions.Certificate field of type *x509.Certificate",
     "confidence": 1.0,
@@ -27314,7 +27314,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bcb7a9",
+    "claim_id": "CLM-pdf-b7c14e73",
     "kind": "api_method",
     "text": "SignOptions.PrivateKey field of type crypto.Signer",
     "confidence": 1.0,
@@ -27328,7 +27328,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8cf5e3",
+    "claim_id": "CLM-pdf-88e07a85",
     "kind": "api_method",
     "text": "SignOptions.Chain field of type []*x509.Certificate",
     "confidence": 1.0,
@@ -27342,7 +27342,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-69b181",
+    "claim_id": "CLM-pdf-011c73ba",
     "kind": "api_method",
     "text": "SignOptions.Reason field of type string",
     "confidence": 1.0,
@@ -27356,7 +27356,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-692222",
+    "claim_id": "CLM-pdf-8b2c89b1",
     "kind": "api_method",
     "text": "SignOptions.Location field of type string",
     "confidence": 1.0,
@@ -27370,7 +27370,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-06406f",
+    "claim_id": "CLM-pdf-fa5a7b1d",
     "kind": "api_method",
     "text": "SignOptions.ContactInfo field of type string",
     "confidence": 1.0,
@@ -27384,7 +27384,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-23aa91",
+    "claim_id": "CLM-pdf-59425aa5",
     "kind": "api_method",
     "text": "SignOptions.Name field of type string",
     "confidence": 1.0,
@@ -27398,7 +27398,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2050b7",
+    "claim_id": "CLM-pdf-56bd57f7",
     "kind": "api_method",
     "text": "SignOptions.SigningTime field of type time.Time",
     "confidence": 1.0,
@@ -27412,7 +27412,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-09d7a8",
+    "claim_id": "CLM-pdf-4b972e13",
     "kind": "api_method",
     "text": "SignOptions.Visible field of type bool",
     "confidence": 1.0,
@@ -27426,7 +27426,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-406aa3",
+    "claim_id": "CLM-pdf-3b9d2b22",
     "kind": "api_method",
     "text": "SignOptions.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -27440,7 +27440,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-520b37",
+    "claim_id": "CLM-pdf-3affa63e",
     "kind": "api_method",
     "text": "SignOptions.Page field of type int",
     "confidence": 1.0,
@@ -27454,7 +27454,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-344d18",
+    "claim_id": "CLM-pdf-fff24867",
     "kind": "api_method",
     "text": "SignOptions.Appearance field of type *SignatureAppearance",
     "confidence": 1.0,
@@ -27468,7 +27468,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-66f271",
+    "claim_id": "CLM-pdf-a8692098",
     "kind": "api_method",
     "text": "SignOptions.PAdES field of type bool",
     "confidence": 1.0,
@@ -27482,7 +27482,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6070e7",
+    "claim_id": "CLM-pdf-d39b8427",
     "kind": "api_method",
     "text": "SignOptions.Certify field of type CertifyPermission",
     "confidence": 1.0,
@@ -27496,7 +27496,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bbfb29",
+    "claim_id": "CLM-pdf-e84d4e35",
     "kind": "api_method",
     "text": "SignOptions.TimestampURL field of type string",
     "confidence": 1.0,
@@ -27510,7 +27510,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-efd3d8",
+    "claim_id": "CLM-pdf-b5043923",
     "kind": "api_method",
     "text": "SignOptions.Incremental field of type bool",
     "confidence": 1.0,
@@ -27552,7 +27552,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2a9ab7",
+    "claim_id": "CLM-pdf-7affa8b9",
     "kind": "api_method",
     "text": "SignatureAppearance.ShowName field of type bool",
     "confidence": 1.0,
@@ -27566,7 +27566,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-349c01",
+    "claim_id": "CLM-pdf-3be2b88e",
     "kind": "api_method",
     "text": "SignatureAppearance.ShowDate field of type bool",
     "confidence": 1.0,
@@ -27580,7 +27580,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-82862b",
+    "claim_id": "CLM-pdf-25fbbd39",
     "kind": "api_method",
     "text": "SignatureAppearance.ShowReason field of type bool",
     "confidence": 1.0,
@@ -27594,7 +27594,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fcdcb9",
+    "claim_id": "CLM-pdf-d2fc929c",
     "kind": "api_method",
     "text": "SignatureAppearance.ShowLocation field of type bool",
     "confidence": 1.0,
@@ -27608,7 +27608,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5d91cc",
+    "claim_id": "CLM-pdf-1c384ed0",
     "kind": "api_method",
     "text": "SignatureAppearance.Font field of type Font",
     "confidence": 1.0,
@@ -27622,7 +27622,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-68e27f",
+    "claim_id": "CLM-pdf-b29c358a",
     "kind": "api_method",
     "text": "SignatureAppearance.FontSize field of type float64",
     "confidence": 1.0,
@@ -27636,7 +27636,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5fd4dc",
+    "claim_id": "CLM-pdf-0988f8d3",
     "kind": "api_method",
     "text": "SignatureAppearance.Color field of type *Color",
     "confidence": 1.0,
@@ -27874,7 +27874,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-74e28c",
+    "claim_id": "CLM-pdf-39aa6463",
     "kind": "api_method",
     "text": "SignatureVerification.FieldName field of type string",
     "confidence": 1.0,
@@ -27888,7 +27888,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-68c093",
+    "claim_id": "CLM-pdf-9e7a1195",
     "kind": "api_method",
     "text": "SignatureVerification.SignerName field of type string",
     "confidence": 1.0,
@@ -27902,7 +27902,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-98e177",
+    "claim_id": "CLM-pdf-64567fa6",
     "kind": "api_method",
     "text": "SignatureVerification.Reason field of type string",
     "confidence": 1.0,
@@ -27916,7 +27916,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9dc9d5",
+    "claim_id": "CLM-pdf-3890ace1",
     "kind": "api_method",
     "text": "SignatureVerification.Location field of type string",
     "confidence": 1.0,
@@ -27930,7 +27930,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-eff16c",
+    "claim_id": "CLM-pdf-ca12aa85",
     "kind": "api_method",
     "text": "SignatureVerification.SigningTime field of type time.Time",
     "confidence": 1.0,
@@ -27944,7 +27944,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-75b857",
+    "claim_id": "CLM-pdf-bfeb38c4",
     "kind": "api_method",
     "text": "SignatureVerification.Valid field of type bool",
     "confidence": 1.0,
@@ -27958,7 +27958,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-afcbd1",
+    "claim_id": "CLM-pdf-0a4c0cde",
     "kind": "api_method",
     "text": "SignatureVerification.IntegrityOK field of type bool",
     "confidence": 1.0,
@@ -27972,7 +27972,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3909e3",
+    "claim_id": "CLM-pdf-2d38b151",
     "kind": "api_method",
     "text": "SignatureVerification.CoversWholeDocument field of type bool",
     "confidence": 1.0,
@@ -27986,7 +27986,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-99cddf",
+    "claim_id": "CLM-pdf-f1e88c61",
     "kind": "api_method",
     "text": "SignatureVerification.Certificate field of type *x509.Certificate",
     "confidence": 1.0,
@@ -28000,7 +28000,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-393009",
+    "claim_id": "CLM-pdf-8625fefd",
     "kind": "api_method",
     "text": "SignatureVerification.Err field of type error",
     "confidence": 1.0,
@@ -28196,7 +28196,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f9f35c",
+    "claim_id": "CLM-pdf-75b6f2ef",
     "kind": "api_method",
     "text": "TextStamp.Value field of type string",
     "confidence": 1.0,
@@ -28210,7 +28210,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-790117",
+    "claim_id": "CLM-pdf-09b7a4d6",
     "kind": "api_method",
     "text": "TextStamp.TextStyle field of type TextStyle",
     "confidence": 1.0,
@@ -28238,7 +28238,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b3adf6",
+    "claim_id": "CLM-pdf-97c1896f",
     "kind": "api_method",
     "text": "PageNumberStamp.Format field of type string",
     "confidence": 1.0,
@@ -28252,7 +28252,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dd6456",
+    "claim_id": "CLM-pdf-950f4333",
     "kind": "api_method",
     "text": "PageNumberStamp.StartingNumber field of type int",
     "confidence": 1.0,
@@ -28266,7 +28266,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-90ad8b",
+    "claim_id": "CLM-pdf-fd039424",
     "kind": "api_method",
     "text": "PageNumberStamp.TextStyle field of type TextStyle",
     "confidence": 1.0,
@@ -29358,7 +29358,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-41854f",
+    "claim_id": "CLM-pdf-8645af84",
     "kind": "api_method",
     "text": "SVGSaveOptions.DPI field of type float64",
     "confidence": 1.0,
@@ -29372,7 +29372,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-af520d",
+    "claim_id": "CLM-pdf-21d9a986",
     "kind": "api_method",
     "text": "SVGSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -29386,7 +29386,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-84af73",
+    "claim_id": "CLM-pdf-b3a4e232",
     "kind": "api_method",
     "text": "SVGSaveOptions.ResourceWriter field of type func(name string, data []byte) (url string, err error)",
     "confidence": 1.0,
@@ -31864,7 +31864,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-266fec",
+    "claim_id": "CLM-pdf-add06910",
     "kind": "api_method",
     "text": "BorderInfo.Sides field of type BorderSide",
     "confidence": 1.0,
@@ -31878,7 +31878,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ca6607",
+    "claim_id": "CLM-pdf-4e6f6f01",
     "kind": "api_method",
     "text": "BorderInfo.Width field of type float64",
     "confidence": 1.0,
@@ -31892,7 +31892,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a1941f",
+    "claim_id": "CLM-pdf-5ac295a2",
     "kind": "api_method",
     "text": "BorderInfo.Color field of type *Color",
     "confidence": 1.0,
@@ -31920,7 +31920,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6234bb",
+    "claim_id": "CLM-pdf-3b5ee090",
     "kind": "api_method",
     "text": "MarginInfo.Top field of type float64",
     "confidence": 1.0,
@@ -31934,7 +31934,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f5134d",
+    "claim_id": "CLM-pdf-5255373a",
     "kind": "api_method",
     "text": "MarginInfo.Right field of type float64",
     "confidence": 1.0,
@@ -31948,7 +31948,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c760ed",
+    "claim_id": "CLM-pdf-9710e317",
     "kind": "api_method",
     "text": "MarginInfo.Bottom field of type float64",
     "confidence": 1.0,
@@ -31962,7 +31962,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5c0565",
+    "claim_id": "CLM-pdf-67a9a092",
     "kind": "api_method",
     "text": "MarginInfo.Left field of type float64",
     "confidence": 1.0,
@@ -32844,7 +32844,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2bab80",
+    "claim_id": "CLM-pdf-ba88f377",
     "kind": "api_method",
     "text": "AbsorbedTable.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -32858,7 +32858,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-246121",
+    "claim_id": "CLM-pdf-28c7c55e",
     "kind": "api_method",
     "text": "AbsorbedTable.PageNumber field of type int",
     "confidence": 1.0,
@@ -32886,7 +32886,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-97f3bd",
+    "claim_id": "CLM-pdf-308a3d8b",
     "kind": "api_method",
     "text": "AbsorbedRow.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -32914,7 +32914,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4e452f",
+    "claim_id": "CLM-pdf-f65d5757",
     "kind": "api_method",
     "text": "AbsorbedCell.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -32928,7 +32928,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-851fd7",
+    "claim_id": "CLM-pdf-34cfe462",
     "kind": "api_method",
     "text": "AbsorbedCell.RowSpan field of type int",
     "confidence": 1.0,
@@ -32942,7 +32942,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-77b71d",
+    "claim_id": "CLM-pdf-58759df7",
     "kind": "api_method",
     "text": "AbsorbedCell.ColSpan field of type int",
     "confidence": 1.0,
@@ -32956,7 +32956,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a8a171",
+    "claim_id": "CLM-pdf-c1cf1b39",
     "kind": "api_method",
     "text": "AbsorbedCell.Covered field of type bool",
     "confidence": 1.0,
@@ -32970,7 +32970,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dccc95",
+    "claim_id": "CLM-pdf-d362d89d",
     "kind": "api_method",
     "text": "AbsorbedCell.Shading field of type *Color",
     "confidence": 1.0,
@@ -35042,7 +35042,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1c6f54",
+    "claim_id": "CLM-pdf-87101663",
     "kind": "api_method",
     "text": "TextExtractOptions.Mode field of type TextExtractionMode",
     "confidence": 1.0,
@@ -35686,7 +35686,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7b1ae3",
+    "claim_id": "CLM-pdf-5598cbeb",
     "kind": "api_method",
     "text": "TextFragment.Text field of type string",
     "confidence": 1.0,
@@ -35700,7 +35700,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-1ada0a",
+    "claim_id": "CLM-pdf-863cdea4",
     "kind": "api_method",
     "text": "TextFragment.X field of type float64",
     "confidence": 1.0,
@@ -35714,7 +35714,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-36cf21",
+    "claim_id": "CLM-pdf-91ec9ded",
     "kind": "api_method",
     "text": "TextFragment.Y field of type float64",
     "confidence": 1.0,
@@ -35728,7 +35728,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c0d652",
+    "claim_id": "CLM-pdf-bda0392c",
     "kind": "api_method",
     "text": "TextFragment.Width field of type float64",
     "confidence": 1.0,
@@ -35742,7 +35742,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a8d8be",
+    "claim_id": "CLM-pdf-48e0b226",
     "kind": "api_method",
     "text": "TextFragment.FontName field of type string",
     "confidence": 1.0,
@@ -35756,7 +35756,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-409cc5",
+    "claim_id": "CLM-pdf-05ede40b",
     "kind": "api_method",
     "text": "TextFragment.FontSize field of type float64",
     "confidence": 1.0,
@@ -35770,7 +35770,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7cf678",
+    "claim_id": "CLM-pdf-34afa433",
     "kind": "api_method",
     "text": "TextFragment.Height field of type float64",
     "confidence": 1.0,
@@ -35784,7 +35784,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-670ea0",
+    "claim_id": "CLM-pdf-74ae55a4",
     "kind": "api_method",
     "text": "TextFragment.Bold field of type bool",
     "confidence": 1.0,
@@ -35798,7 +35798,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5f03b7",
+    "claim_id": "CLM-pdf-1e44d11a",
     "kind": "api_method",
     "text": "TextFragment.Italic field of type bool",
     "confidence": 1.0,
@@ -35812,7 +35812,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-edb68a",
+    "claim_id": "CLM-pdf-289f8b6e",
     "kind": "api_method",
     "text": "TextFragment.CharSpacing field of type float64",
     "confidence": 1.0,
@@ -35826,7 +35826,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-48aec0",
+    "claim_id": "CLM-pdf-cb78cadf",
     "kind": "api_method",
     "text": "TextFragment.Color field of type Color",
     "confidence": 1.0,
@@ -35840,7 +35840,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-924af3",
+    "claim_id": "CLM-pdf-41a7e7a2",
     "kind": "api_method",
     "text": "TextFragment.IsSubscript field of type bool",
     "confidence": 1.0,
@@ -35854,7 +35854,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-790f2f",
+    "claim_id": "CLM-pdf-270c8c1e",
     "kind": "api_method",
     "text": "TextFragment.IsSuperscript field of type bool",
     "confidence": 1.0,
@@ -35868,7 +35868,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-6a97d0",
+    "claim_id": "CLM-pdf-11a67fda",
     "kind": "api_method",
     "text": "TextFragment.Rotation field of type float64",
     "confidence": 1.0,
@@ -35896,7 +35896,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-51fb74",
+    "claim_id": "CLM-pdf-a38dbe78",
     "kind": "api_method",
     "text": "TextLine.Text field of type string",
     "confidence": 1.0,
@@ -35910,7 +35910,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-53b213",
+    "claim_id": "CLM-pdf-7df499fe",
     "kind": "api_method",
     "text": "TextLine.Y field of type float64",
     "confidence": 1.0,
@@ -35924,7 +35924,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-93bc43",
+    "claim_id": "CLM-pdf-3e39b91c",
     "kind": "api_method",
     "text": "TextLine.Fragments field of type []TextFragment",
     "confidence": 1.0,
@@ -36162,7 +36162,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-eccc61",
+    "claim_id": "CLM-pdf-36b3e3de",
     "kind": "api_method",
     "text": "SearchOptions.CaseInsensitive field of type bool",
     "confidence": 1.0,
@@ -36176,7 +36176,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-17c820",
+    "claim_id": "CLM-pdf-580630b3",
     "kind": "api_method",
     "text": "SearchOptions.Regex field of type bool",
     "confidence": 1.0,
@@ -36190,7 +36190,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-00e7a4",
+    "claim_id": "CLM-pdf-9d615954",
     "kind": "api_method",
     "text": "SearchOptions.Rectangle field of type *Rectangle",
     "confidence": 1.0,
@@ -36204,7 +36204,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0668b6",
+    "claim_id": "CLM-pdf-218e267c",
     "kind": "api_method",
     "text": "SearchOptions.SearchInAnnotations field of type bool",
     "confidence": 1.0,
@@ -36232,7 +36232,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0dc22c",
+    "claim_id": "CLM-pdf-fb71108b",
     "kind": "api_method",
     "text": "TextMatch.Text field of type string",
     "confidence": 1.0,
@@ -36246,7 +36246,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-44a9c6",
+    "claim_id": "CLM-pdf-e859ec37",
     "kind": "api_method",
     "text": "TextMatch.PageNumber field of type int",
     "confidence": 1.0,
@@ -36260,7 +36260,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d54e89",
+    "claim_id": "CLM-pdf-2b3e2ae4",
     "kind": "api_method",
     "text": "TextMatch.Rect field of type Rectangle",
     "confidence": 1.0,
@@ -36708,7 +36708,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-acc5f6",
+    "claim_id": "CLM-pdf-43ed8282",
     "kind": "api_method",
     "text": "TOCEntry.Title field of type string",
     "confidence": 1.0,
@@ -36722,7 +36722,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-32b346",
+    "claim_id": "CLM-pdf-2cd029f7",
     "kind": "api_method",
     "text": "TOCEntry.Level field of type int",
     "confidence": 1.0,
@@ -36736,7 +36736,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bb723f",
+    "claim_id": "CLM-pdf-70f714b6",
     "kind": "api_method",
     "text": "TOCEntry.Page field of type *Page",
     "confidence": 1.0,
@@ -36750,7 +36750,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9d8760",
+    "claim_id": "CLM-pdf-e171e286",
     "kind": "api_method",
     "text": "TOCEntry.Label field of type string",
     "confidence": 1.0,
@@ -36778,7 +36778,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-79c4fc",
+    "claim_id": "CLM-pdf-d95faac4",
     "kind": "api_method",
     "text": "TOCOptions.Title field of type string",
     "confidence": 1.0,
@@ -36792,7 +36792,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-afc054",
+    "claim_id": "CLM-pdf-644584c8",
     "kind": "api_method",
     "text": "TOCOptions.TitleStyle field of type TextStyle",
     "confidence": 1.0,
@@ -36806,7 +36806,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-3ffcb6",
+    "claim_id": "CLM-pdf-ea48a9d4",
     "kind": "api_method",
     "text": "TOCOptions.EntryStyle field of type TextStyle",
     "confidence": 1.0,
@@ -36820,7 +36820,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-23ffe6",
+    "claim_id": "CLM-pdf-b023d43b",
     "kind": "api_method",
     "text": "TOCOptions.IndentStep field of type float64",
     "confidence": 1.0,
@@ -36834,7 +36834,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cf1e7f",
+    "claim_id": "CLM-pdf-3e099335",
     "kind": "api_method",
     "text": "TOCOptions.LineSpacing field of type float64",
     "confidence": 1.0,
@@ -36848,7 +36848,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-169a28",
+    "claim_id": "CLM-pdf-e1f28b16",
     "kind": "api_method",
     "text": "TOCOptions.Margin field of type float64",
     "confidence": 1.0,
@@ -36862,7 +36862,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-86bec7",
+    "claim_id": "CLM-pdf-192c0535",
     "kind": "api_method",
     "text": "TOCOptions.NoPageNumbers field of type bool",
     "confidence": 1.0,
@@ -36876,7 +36876,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-036ade",
+    "claim_id": "CLM-pdf-c48a6dff",
     "kind": "api_method",
     "text": "TOCOptions.NoLeader field of type bool",
     "confidence": 1.0,
@@ -36890,7 +36890,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-b1ed07",
+    "claim_id": "CLM-pdf-b9df5345",
     "kind": "api_method",
     "text": "TOCOptions.NoLinks field of type bool",
     "confidence": 1.0,
@@ -37254,7 +37254,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-00ffce",
+    "claim_id": "CLM-pdf-bb2494e2",
     "kind": "api_method",
     "text": "ValidationIssue.Code field of type string",
     "confidence": 1.0,
@@ -37268,7 +37268,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0a48b8",
+    "claim_id": "CLM-pdf-7ac95abf",
     "kind": "api_method",
     "text": "ValidationIssue.Message field of type string",
     "confidence": 1.0,
@@ -37296,7 +37296,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ae7db9",
+    "claim_id": "CLM-pdf-063171da",
     "kind": "api_method",
     "text": "ValidationReport.Valid field of type bool",
     "confidence": 1.0,
@@ -37310,7 +37310,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8b7ab9",
+    "claim_id": "CLM-pdf-1bfb0ede",
     "kind": "api_method",
     "text": "ValidationReport.Issues field of type []ValidationIssue",
     "confidence": 1.0,
@@ -37394,7 +37394,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8386a6",
+    "claim_id": "CLM-pdf-60347c31",
     "kind": "api_method",
     "text": "PDFAIssue.Rule field of type string",
     "confidence": 1.0,
@@ -37408,7 +37408,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-cbf5bf",
+    "claim_id": "CLM-pdf-942b9871",
     "kind": "api_method",
     "text": "PDFAIssue.Message field of type string",
     "confidence": 1.0,
@@ -37436,7 +37436,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0da906",
+    "claim_id": "CLM-pdf-36513d29",
     "kind": "api_method",
     "text": "PDFAValidationReport.Format field of type PDFAFormat",
     "confidence": 1.0,
@@ -37450,7 +37450,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-22acb1",
+    "claim_id": "CLM-pdf-1674ad0d",
     "kind": "api_method",
     "text": "PDFAValidationReport.Conformant field of type bool",
     "confidence": 1.0,
@@ -37464,7 +37464,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-aaa1de",
+    "claim_id": "CLM-pdf-cfb12b9a",
     "kind": "api_method",
     "text": "PDFAValidationReport.Issues field of type []PDFAIssue",
     "confidence": 1.0,
@@ -37590,7 +37590,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d73f1d",
+    "claim_id": "CLM-pdf-ae726ecc",
     "kind": "api_method",
     "text": "PDFUAIssue.Rule field of type string",
     "confidence": 1.0,
@@ -37604,7 +37604,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fcd480",
+    "claim_id": "CLM-pdf-c74d4a96",
     "kind": "api_method",
     "text": "PDFUAIssue.Message field of type string",
     "confidence": 1.0,
@@ -37632,7 +37632,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-dcc0ce",
+    "claim_id": "CLM-pdf-94603196",
     "kind": "api_method",
     "text": "PDFUAValidationReport.Conformant field of type bool",
     "confidence": 1.0,
@@ -37646,7 +37646,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-784a01",
+    "claim_id": "CLM-pdf-5208202b",
     "kind": "api_method",
     "text": "PDFUAValidationReport.Issues field of type []PDFUAIssue",
     "confidence": 1.0,
@@ -37856,7 +37856,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-77a566",
+    "claim_id": "CLM-pdf-dc59d2f8",
     "kind": "api_method",
     "text": "LineStyle.Color field of type *Color",
     "confidence": 1.0,
@@ -37870,7 +37870,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-909794",
+    "claim_id": "CLM-pdf-3be204c2",
     "kind": "api_method",
     "text": "LineStyle.Width field of type float64",
     "confidence": 1.0,
@@ -37884,7 +37884,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-374dbd",
+    "claim_id": "CLM-pdf-4a142c4d",
     "kind": "api_method",
     "text": "LineStyle.DashPattern field of type []float64",
     "confidence": 1.0,
@@ -37898,7 +37898,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fcd505",
+    "claim_id": "CLM-pdf-e69b19f4",
     "kind": "api_method",
     "text": "LineStyle.DashPhase field of type float64",
     "confidence": 1.0,
@@ -37912,7 +37912,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-de1bb7",
+    "claim_id": "CLM-pdf-5948257a",
     "kind": "api_method",
     "text": "LineStyle.Cap field of type LineCap",
     "confidence": 1.0,
@@ -37926,7 +37926,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-c2250e",
+    "claim_id": "CLM-pdf-bc14b3cf",
     "kind": "api_method",
     "text": "LineStyle.Join field of type LineJoin",
     "confidence": 1.0,
@@ -37940,7 +37940,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-35ac17",
+    "claim_id": "CLM-pdf-f5e33197",
     "kind": "api_method",
     "text": "LineStyle.MiterLimit field of type float64",
     "confidence": 1.0,
@@ -37968,7 +37968,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-d824cd",
+    "claim_id": "CLM-pdf-272c22f1",
     "kind": "api_method",
     "text": "ShapeStyle.FillColor field of type *Color",
     "confidence": 1.0,
@@ -37982,7 +37982,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-339043",
+    "claim_id": "CLM-pdf-51af5a3f",
     "kind": "api_method",
     "text": "ShapeStyle.FillPattern field of type string",
     "confidence": 1.0,
@@ -37996,7 +37996,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a09428",
+    "claim_id": "CLM-pdf-9a275510",
     "kind": "api_method",
     "text": "ShapeStyle.FillGradient field of type Gradient",
     "confidence": 1.0,
@@ -38010,7 +38010,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9f01c5",
+    "claim_id": "CLM-pdf-2053a67a",
     "kind": "api_method",
     "text": "ShapeStyle.FillTiling field of type *TilingPattern",
     "confidence": 1.0,
@@ -38262,7 +38262,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9f6cf3",
+    "claim_id": "CLM-pdf-eacc311d",
     "kind": "api_method",
     "text": "GradientStop.Offset field of type float64",
     "confidence": 1.0,
@@ -38276,7 +38276,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-188e5e",
+    "claim_id": "CLM-pdf-61efc2e0",
     "kind": "api_method",
     "text": "GradientStop.Color field of type Color",
     "confidence": 1.0,
@@ -38318,7 +38318,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-0116ac",
+    "claim_id": "CLM-pdf-db3fa17d",
     "kind": "api_method",
     "text": "LinearGradient.X1 field of type float64",
     "confidence": 1.0,
@@ -38332,7 +38332,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bf36dd",
+    "claim_id": "CLM-pdf-4fb4741e",
     "kind": "api_method",
     "text": "LinearGradient.Y1 field of type float64",
     "confidence": 1.0,
@@ -38346,7 +38346,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-32dd22",
+    "claim_id": "CLM-pdf-dc5e946b",
     "kind": "api_method",
     "text": "LinearGradient.X2 field of type float64",
     "confidence": 1.0,
@@ -38360,7 +38360,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-9f87cd",
+    "claim_id": "CLM-pdf-c4fee00d",
     "kind": "api_method",
     "text": "LinearGradient.Y2 field of type float64",
     "confidence": 1.0,
@@ -38374,7 +38374,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-bd6462",
+    "claim_id": "CLM-pdf-96082166",
     "kind": "api_method",
     "text": "LinearGradient.Stops field of type []GradientStop",
     "confidence": 1.0,
@@ -38402,7 +38402,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-df4c9e",
+    "claim_id": "CLM-pdf-8eaab62d",
     "kind": "api_method",
     "text": "RadialGradient.CX field of type float64",
     "confidence": 1.0,
@@ -38416,7 +38416,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7de30e",
+    "claim_id": "CLM-pdf-34780cf8",
     "kind": "api_method",
     "text": "RadialGradient.CY field of type float64",
     "confidence": 1.0,
@@ -38430,7 +38430,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-e675c6",
+    "claim_id": "CLM-pdf-b77fd455",
     "kind": "api_method",
     "text": "RadialGradient.R field of type float64",
     "confidence": 1.0,
@@ -38444,7 +38444,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-fbae40",
+    "claim_id": "CLM-pdf-0322c961",
     "kind": "api_method",
     "text": "RadialGradient.FX field of type float64",
     "confidence": 1.0,
@@ -38458,7 +38458,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-8beef3",
+    "claim_id": "CLM-pdf-383a35c2",
     "kind": "api_method",
     "text": "RadialGradient.FY field of type float64",
     "confidence": 1.0,
@@ -38472,7 +38472,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f6fd25",
+    "claim_id": "CLM-pdf-d567c3b8",
     "kind": "api_method",
     "text": "RadialGradient.Stops field of type []GradientStop",
     "confidence": 1.0,
@@ -39284,7 +39284,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5f046a",
+    "claim_id": "CLM-pdf-63855932",
     "kind": "api_method",
     "text": "XlsxSaveOptions.Pages field of type []int",
     "confidence": 1.0,
@@ -39298,7 +39298,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-5c24d3",
+    "claim_id": "CLM-pdf-d140bd95",
     "kind": "api_method",
     "text": "XlsxSaveOptions.Mode field of type XlsxRecognitionMode",
     "confidence": 1.0,
@@ -39312,7 +39312,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-28b3b9",
+    "claim_id": "CLM-pdf-18e85fa3",
     "kind": "api_method",
     "text": "XlsxSaveOptions.NoStyles field of type bool",
     "confidence": 1.0,
@@ -39326,7 +39326,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f6ef90",
+    "claim_id": "CLM-pdf-56d1df92",
     "kind": "api_method",
     "text": "XlsxSaveOptions.NoImages field of type bool",
     "confidence": 1.0,
@@ -39438,7 +39438,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-875732",
+    "claim_id": "CLM-pdf-c0c5d4b7",
     "kind": "api_method",
     "text": "XMPProperty.Namespace field of type string",
     "confidence": 1.0,
@@ -39452,7 +39452,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-eab5d2",
+    "claim_id": "CLM-pdf-ab3f1a6c",
     "kind": "api_method",
     "text": "XMPProperty.Prefix field of type string",
     "confidence": 1.0,
@@ -39466,7 +39466,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-a7a05a",
+    "claim_id": "CLM-pdf-e048813c",
     "kind": "api_method",
     "text": "XMPProperty.Name field of type string",
     "confidence": 1.0,
@@ -39480,7 +39480,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-51cbd7",
+    "claim_id": "CLM-pdf-2b26e7df",
     "kind": "api_method",
     "text": "XMPProperty.Value field of type string",
     "confidence": 1.0,
@@ -39508,7 +39508,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2f75f2",
+    "claim_id": "CLM-pdf-6e481605",
     "kind": "api_method",
     "text": "XMPMetadata.Title field of type string",
     "confidence": 1.0,
@@ -39522,7 +39522,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-2fa98b",
+    "claim_id": "CLM-pdf-ab578128",
     "kind": "api_method",
     "text": "XMPMetadata.Authors field of type []string",
     "confidence": 1.0,
@@ -39536,7 +39536,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-f919f1",
+    "claim_id": "CLM-pdf-5e00bcb8",
     "kind": "api_method",
     "text": "XMPMetadata.Description field of type string",
     "confidence": 1.0,
@@ -39550,7 +39550,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-4ec89f",
+    "claim_id": "CLM-pdf-8bfabfb2",
     "kind": "api_method",
     "text": "XMPMetadata.Keywords field of type []string",
     "confidence": 1.0,
@@ -39564,7 +39564,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-ab44ab",
+    "claim_id": "CLM-pdf-a54ba22d",
     "kind": "api_method",
     "text": "XMPMetadata.CreatorTool field of type string",
     "confidence": 1.0,
@@ -39578,7 +39578,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-89a0d5",
+    "claim_id": "CLM-pdf-6814df1b",
     "kind": "api_method",
     "text": "XMPMetadata.Producer field of type string",
     "confidence": 1.0,
@@ -39592,7 +39592,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-7cc0aa",
+    "claim_id": "CLM-pdf-55cb488f",
     "kind": "api_method",
     "text": "XMPMetadata.CreateDate field of type string",
     "confidence": 1.0,
@@ -39606,7 +39606,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-57a725",
+    "claim_id": "CLM-pdf-96e2ee30",
     "kind": "api_method",
     "text": "XMPMetadata.ModifyDate field of type string",
     "confidence": 1.0,
@@ -39620,7 +39620,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-655f1c",
+    "claim_id": "CLM-pdf-184d54c4",
     "kind": "api_method",
     "text": "XMPMetadata.MetadataDate field of type string",
     "confidence": 1.0,
@@ -39634,7 +39634,7 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-pdf-aae484",
+    "claim_id": "CLM-pdf-5ec0d854",
     "kind": "api_method",
     "text": "XMPMetadata.Custom field of type []XMPProperty",
     "confidence": 1.0,
@@ -63193,6 +63193,1561 @@
       {
         "source_file": "verified_facts",
         "snippet": "Class: XMPProperty\n  Properties: Namespace, Prefix, Name, Value\nClass: XMPMetadata\n  Properties: ... Custom"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-895c3c3f",
+    "text": "Export a PDF document to a raster image.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Rendering to raster images"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-6594ca75",
+    "text": "Import a Markdown file and convert it to a PDF.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "HTML, SVG, and Markdown conversion"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-5c7b8463",
+    "text": "Validate a DOCX file using the python-docx library.",
+    "kind": "feature",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tools/validate_docx.py",
+        "snippet": "python-docx round-trip (opens the package, walks paragraphs)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-db784825",
+    "text": "Validate a DOCX file using LibreOffice headless render.",
+    "kind": "feature",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tools/validate_docx.py",
+        "snippet": "LibreOffice headless render (docx -> pdf) when soffice is on PATH"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-65820f25",
+    "text": "The Aspose.PDF FOSS for Go library supports importing and exporting PDF documents in various formats, including DOCX, XLSX, EPUB, HTML, SVG, Markdown, and Plain Text.",
+    "kind": "format",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "convert to and from Markdown, HTML, and SVG"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-f3c135fb",
+    "text": "The Aspose.PDF FOSS for Go library supports encryption and digital signatures using PKCS#7, PAdES, and timestamps.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "apply digital signatures (PKCS#7, PAdES, timestamps)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-00bbdd0c",
+    "text": "The Aspose.PDF FOSS for Go library supports importing Markdown files.",
+    "kind": "format",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Markdown"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b14c414a",
+    "text": "The Aspose.PDF FOSS for Go library provides a way to convert Markdown files to PDF.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Markdown"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-d6c5c08f",
+    "text": "The Aspose.PDF FOSS for Go library supports converting PDF documents to and from various formats, including HTML, SVG, Markdown, and Plain Text.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Conversion to and from various formats"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-c3019296",
+    "text": "The IsReadOnly class enables developers to check if a PDF document is read-only.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "VERIFIED FACTS — the ONLY APIs that exist in this library:"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-ae63e64e",
+    "text": "The IsRequired class enables developers to check if a field is required.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "VERIFIED FACTS — the ONLY APIs that exist in this library:"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-6ee04c07",
+    "text": "The JSONExportOptions class enables developers to control the export of a PDF document as JSON.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e394e1de",
+    "text": "The JavaScriptAction class enables developers to attach a JavaScript snippet to an annotation.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-c75cdae4",
+    "text": "The JavaScriptCollection class enables developers to store and retrieve JavaScript snippets across the document.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b34b1a89",
+    "text": "The Document.Split() method enables developers to split a PDF document into multiple files.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tools/validate_docx.py",
+        "snippet": "def validate_xsd(schema, fn):"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-ecab81d4",
+    "text": "The Document.validate_docx() method enables developers to validate a DOCX file against the ECMA-376 schema.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tools/validate_docx.py",
+        "snippet": "def validate_xsd(schema, fn):"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-556f29b2",
+    "text": "The Document.render() method enables developers to render a PDF document using LibreOffice.",
+    "kind": "feature",
+    "page_role": "docs",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tools/validate_docx.py",
+        "snippet": "def find_soffice():"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e023f75b",
+    "text": "The library supports the import and export of PDF files.",
+    "kind": "format",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-8a56b1a4",
+    "text": "The library supports the export of PDF files in various formats.",
+    "kind": "format",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-62a38d3e",
+    "text": "The library supports the import of PDF files from various formats.",
+    "kind": "format",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "# Aspose.PDF FOSS for Go"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e4f4d244",
+    "text": "Markdown conversion is a first‑class capability: Markdown files can be turned into PDFs and PDFs can be saved as Markdown.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "\"HTML, SVG, and Markdown conversion\""
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: MarkdownToDocument\nDocstring: MarkdownToDocument renders a Markdown file as a new PDF document."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: MarkdownSaveOptions\nDocstring: MarkdownSaveOptions configures SaveMarkdown / WriteMarkdown."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-0514bebf",
+    "text": "N‑up imposition lets you place multiple source pages onto a single sheet with configurable rows, columns, margins, gutters, order, and optional border drawing.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NUpOptions\nDocstring: NUpOptions configures NUp imposition.\nProperties: Rows, Cols, PageSize, Margin, Gutter, Order, DrawBorder"
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NUpOrder\nDocstring: NUpOrder controls the order in which source pages fill the grid cells of an N-up sheet."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-ab4e3422",
+    "text": "To convert a Markdown file to PDF, instantiate MarkdownToDocument with the file path and then call Document.Save(\"output.pdf\").",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: MarkdownToDocument\nDocstring: MarkdownToDocument renders a Markdown file as a new PDF document."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-3ed125a6",
+    "text": "When saving a PDF as Markdown, set MarkdownSaveOptions.EmbedImages = true to embed images as base64 data URLs, or set ImageDir to store them as separate files.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Property: EmbedImages (MarkdownSaveOptions)\nProperty: ImageDir (MarkdownSaveOptions)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-9a5c4b32",
+    "text": "Create a caret annotation by calling NewCaretAnnotation(rect) and then add the returned annotation to a page's Annotations collection.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewCaretAnnotation\nDocstring: NewCaretAnnotation builds an unbound caret annotation occupying rect."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-83d003c5",
+    "text": "If images are missing after saving to Markdown, verify that EmbedImages is false and that ImageDir points to a writable location, because the library does not embed images by default.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Property: EmbedImages (MarkdownSaveOptions)\nProperty: ImageDir (MarkdownSaveOptions)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b8e5cb7f",
+    "text": "It can convert PDFs to HTML, SVG, Markdown, plain text, and Office formats (DOCX, XLSX, EPUB) directly from Go code.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... HTML (single‑file), SVG, Markdown, Plain text, DOCX (Word), XLSX (Excel), and EPUB"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-c67c45c2",
+    "text": "NewFileAttachmentAnnotation() returns an unbound file‑attachment annotation that can later be placed on a page.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: NewFileAttachmentAnnotation\n  Docstring: NewFileAttachmentAnnotation builds an unbound file-attachment annotation."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-58ea7065",
+    "text": "When rendering to GIF, use NewGifDevice(resolution) to obtain a GifDevice; ensure the resolution matches your target image size to avoid blurry output.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: NewGifDevice\n  Docstring: NewGifDevice returns a GifDevice for the given resolution."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-0ac75e8f",
+    "text": "Destination classes such as NewDestinationFitH and NewDestinationXYZ control how a PDF viewer positions the view; use the *Unchanged variants to preserve the current zoom level.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: NewDestinationFitH\nClass: NewDestinationFitHUnchanged\nClass: NewDestinationXYZ\nClass: NewDestinationXYZUnchanged"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-34b48dfa",
+    "text": "NewFloatingBox() creates an empty floating box container that can hold positioned elements on a page.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: NewFloatingBox\n  Docstring: NewFloatingBox creates an empty floating box."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-bd9119e3",
+    "text": "All PDF operations are performed with the Go standard library only, requiring Go 1.24+ and no CGo or third‑party packages.",
+    "kind": "install",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "[![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8?logo=go)]"
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "A pure Go PDF library — no CGo, no native libraries, no third‑party package dependencies (standard library only)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-8c69a94a",
+    "text": "Use NewImageStamp to create a stamp from a PNG or JPEG file and apply it to a page with NewPdfPageStamp.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewImageStamp\n  Docstring: NewImageStamp creates an image stamp from a PNG/JPEG file."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewPdfPageStamp\n  Docstring: NewPdfPageStamp creates a stamp that draws page srcPageNum (1‑based) of srcDoc."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-43548e86",
+    "text": "Create a clickable hyperlink by building a NewLinkAnnotation and attaching it to a page or another annotation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewLinkAnnotation\n  Docstring: NewLinkAnnotation builds an unbound link annotation."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-83f67801",
+    "text": "Generate automatic page numbers with NewPageNumberStamp and add the stamp to each page of a document.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewPageNumberStamp\n  Docstring: NewPageNumberStamp creates a page‑number stamp."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-1f39bf04",
+    "text": "Embed JavaScript actions in a PDF by constructing a NewJavaScriptAction with the script text and attaching it to a page or annotation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewJavaScriptAction\n  Docstring: NewJavaScriptAction builds a /JavaScript action carrying the given script."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-d907e5ce",
+    "text": "If NewJpegDevice receives a quality value outside the 1‑100 range, it defaults to 90, so provide a value within the range to control output quality.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewJpegDevice\n  Docstring: NewJpegDevice returns a JpegDevice; quality outside 1..100 defaults to 90."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-96c76b5f",
+    "text": "When creating an image stamp from a stream, use NewImageStampFromStream; providing a non‑PNG/JPEG reader will cause a runtime error, so verify the image format before calling.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewImageStampFromStream\n  Docstring: NewImageStampFromStream creates an image stamp from a PNG/JPEG reader."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-49c13b20",
+    "text": "NewLinearGradient builds a linear gradient between two points (x1, y1) and (x2, y2) with specified color stops for use in drawing operations.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewLinearGradient\n  Docstring: NewLinearGradient builds a linear gradient from (x1, y1) to (x2, y2) with the given stops."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-36025d40",
+    "text": "The library can import PNG and JPEG images for stamps and export rendered pages as JPEG via NewJpegDevice, supporting both import and export of these raster formats.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewImageStamp\n  Docstring: NewImageStamp creates an image stamp from a PNG/JPEG file."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewImageStampFromStream\n  Docstring: NewImageStampFromStream creates an image stamp from a PNG/JPEG reader."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: NewJpegDevice\n  Docstring: NewJpegDevice returns a JpegDevice; quality outside 1..100 defaults to 90."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-a9e8b5a5",
+    "text": "Use NewResolution(dpi) to create a Resolution object that specifies the DPI for rasterization devices.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewResolution returns a Resolution of the given DPI."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7506fd02",
+    "text": "Create a PNG image of a PDF page by passing a Resolution to NewPngDevice and rendering the page with the device.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewPngDevice returns a PngDevice for the given resolution."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewResolution returns a Resolution of the given DPI."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-662ca05e",
+    "text": "Add a free‑form polygon annotation by constructing NewPolygonAnnotation with a slice of PDF‑user‑space vertices and attaching it to a page.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewPolygonAnnotation builds an unbound polygon annotation through the given vertices (PDF user space)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b673ba10",
+    "text": "Redact sensitive content by building a NewRedactAnnotation and adding it to the page before saving the document.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewRedactAnnotation builds an unbound redact annotation."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-fa8862ed",
+    "text": "If you need to generate a multi‑page TIFF, use NewTiffDevice with a Resolution; the device will produce a TIFF image for each rendered page.",
+    "kind": "api",
+    "page_role": "kb",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewTiffDevice returns a TiffDevice for the given resolution."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewResolution returns a Resolution of the given DPI."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7f61e5b4",
+    "text": "NewSummaryCopilot returns a copilot object that can summarize document content using the supplied client and options.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "NewSummaryCopilot returns a copilot summarizing the content in opts via client."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-5f43f540",
+    "text": "The library requires only the Go standard library and works with Go 1.24 or newer.",
+    "kind": "install",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "[![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8?logo=go)]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-50cc2ff6",
+    "text": "Developers can open an existing PDF file from a file path using the Open function, which returns a Document object.",
+    "kind": "format",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: Open\n  Docstring: Open opens a PDF file and returns a Document."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-3e2eb1c5",
+    "text": "Password‑protected PDFs can be opened with OpenWithPassword or OpenStreamWithPassword, providing the same Document interface.",
+    "kind": "format",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OpenWithPassword\n  Docstring: OpenWithPassword opens a password-protected PDF file."
+      },
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OpenStreamWithPassword\n  Docstring: OpenStreamWithPassword reads a password-protected PDF from r."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-759bc83f",
+    "text": "The NumberField class represents a form field that formats its value as a number, with methods such as Value(), SetValue(), MaxLen(), and IsMultiline().",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: NumberField\n  Docstring: NumberField is a text field with a JavaScript number-format action, so viewers display and validate the value as a formatted number.\n  Methods: Value() -> string; SetValue(s) -> error; MaxLen() -> int; IsMultiline() -> bool;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-605aaea3",
+    "text": "NumberFormatOptions lets you configure how a NumberField displays numbers, exposing properties Decimals, UseSeparator, CurrencySymbol, and CurrencyPrepend.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: NumberFormatOptions\n  Docstring: NumberFormatOptions configures a NumberField's display formatting (maps to Acrobat's AFNumber_Format).\n  Properties: Decimals, UseSeparator, CurrencySymbol, CurrencyPrepend"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-3678d46f",
+    "text": "OCRResult.Text() returns the full recognized text of the page, while its Lines property provides a slice of OCRLine objects for line‑by‑line access.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OCRResult\n  Docstring: OCRResult is the recognized content of one page image.\n  Methods: Text() -> string\n  Properties: Lines"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-1a5eb85f",
+    "text": "AI copilots are available via OcrCopilot, which can extract text from scanned pages (GetTextRecognition) and make PDFs searchable (MakeSearchable).",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OcrCopilot\n  Docstring: OcrCopilot recognizes text on scanned pages.\n  Methods: GetTextRecognition(ctx) -> ([]TextRecognitionResult, error); MakeSearchable(ctx) -> (int, error)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-dfa540f9",
+    "text": "OptimizationOptions allows developers to select which reductions Document.Optimize will apply, such as removing unused objects, subsetting fonts, compressing streams, and optimizing images.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OptimizationOptions\n  Docstring: OptimizationOptions selects which reductions Document.Optimize applies.\n  Properties: RemoveUnusedObjects, SubsetFonts, CompressStreams, RemoveDuplicateStreams, Images"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e5fb3fb3",
+    "text": "The library currently only supports opening PDF files; attempting to open other document types will result in an error.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "PDF documents (file path or in-memory stream)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-871401ff",
+    "text": "OutlineItemCollection provides methods to navigate and modify PDF bookmarks, including Title(), SetTitle(), Add(), Insert(), and Remove().",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api.go",
+        "snippet": "Class: OutlineItemCollection\n  Docstring: OutlineItemCollection represents an outline entry and the collection of its children.\n  Methods: Title() -> string; SetTitle(s); Add(child) -> error; Insert(index, child) -> error; Remove(child) -> bool"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-6e335e40",
+    "text": "The library validates PDF/A conformance via Document.ValidatePDFA, which returns a PDFAValidationReport containing the PDF/A format, a conformance flag, and a list of PDFAIssue objects.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PDFAValidationReport\n  Docstring: PDFAValidationReport is returned by (*Document).ValidatePDFA.\n  Properties: Format, Conformant, Issues"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-79790324",
+    "text": "PDFAIssue describes a single PDF/A conformance violation and provides the rule identifier and a human‑readable message.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PDFAIssue\n  Docstring: PDFAIssue describes a single PDF/A conformance violation.\n  Properties: Rule, Message"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-037ca046",
+    "text": "PDFUAValidationReport reports PDF/UA accessibility validation results with a Conformant flag and a slice of PDFUAIssue objects.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PDFUAValidationReport\n  Docstring: PDFUAValidationReport is returned by (*Document).ValidatePDFUA.\n  Properties: Conformant, Issues"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-163eab4d",
+    "text": "The Page class provides a live view of a PDF page and supports rendering to BMP, adding images, forms, floating boxes, markdown, layers, and extracting embedded images.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Page\n  Methods: RenderBMP(w, opts) -> error; AddFloatingBox(box, rect) -> error; Forms() -> []*XForm; AddForm(form, rect) -> error; ExtractImages() -> ([]Image, error); ImageInfos() -> ([]ImageInfo, error); AddImage(path, rect) -> error; AddImageFromStream(r, rect) -> error; AddInlineImage(path, rect) -> error; AddInlineImageFromStream(r, rect) -> error; AddMarkdown(md, rect, opts) -> error; BeginLayer(layer) -> error; EndLayer() -> error; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-13d8ce59",
+    "text": "Page.RenderBMP writes a BMP representation of the page to the supplied writer and returns an error if rendering fails.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Method: RenderBMP(w, opts) -> error"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7f4d33e6",
+    "text": "Permissions controls viewer capabilities on encrypted PDFs through boolean properties such as AllowPrint, AllowCopy, AllowModify, and AllowAccessibility.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Permissions\n  Properties: AllowPrint, AllowModify, AllowCopy, AllowAnnotations, AllowFormFill, AllowAccessibility, AllowAssembly, AllowPrintHighRes"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-2b186f38",
+    "text": "Path methods return the Path object itself, allowing fluent chaining; forgetting to call Close may leave an open sub‑path which can cause rendering artifacts.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Path\n  Methods: MoveTo(x, y) -> *Path; LineTo(x, y) -> *Path; Close() -> *Path; CurveTo(... ) -> *Path; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-d0e8c779",
+    "text": "The library supports importing raster images from file paths or streams via Page.AddImage and Page.AddImageFromStream, and exporting rendered pages to PNG using PngDevice.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Method: AddImage(path, rect) -> error; AddImageFromStream(r, rect) -> error; Class: PngDevice Method: Process(page, w) -> error"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7f70a45d",
+    "text": "It enables conversion of PDFs to HTML, SVG, Markdown, and to Office formats like DOCX and XLSX.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... o3[\"HTML (single‑file)\"], o4[\"SVG\"], o5[\"Markdown\"], o6[\"Plain text\"], o7[\"DOCX (Word), XLSX (Excel), and EPUB\"]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-d02a0c28",
+    "text": "Use the PolygonAnnotation class to draw a closed polygon with a stroked border and optional fill by setting its vertices and calling RegenerateAppearance().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: PolygonAnnotation ... Methods: AnnotationType() -> AnnotationType; RegenerateAppearance()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-944a3845",
+    "text": "PolylineAnnotation lets you create open polylines, customize start and end line endings via SetStartLineEnding and SetEndLineEnding, and refresh its visual representation with RegenerateAppearance().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: PolylineAnnotation ... Methods: StartLineEnding() -> LineEndingStyle; EndLineEnding() -> LineEndingStyle; SetStartLineEnding(s); SetEndLineEnding(s); RegenerateAppearance()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-c006ea8b",
+    "text": "RedactAnnotation provides methods to define redaction regions (SetQuadPoints), set overlay text (SetOverlayText), and apply the changes by calling RegenerateAppearance().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: RedactAnnotation ... Methods: QuadPoints() -> []QuadPoint; SetQuadPoints(qp); RegenerateAppearance(); OverlayText() -> string; SetOverlayText(s)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b7e00c23",
+    "text": "RenderOptions allows you to control rasterization DPI and background color when rendering pages to images.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: RenderOptions ... Properties: DPI, Background"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-1fb21cbc",
+    "text": "ReplaceOptions lets you configure case‑insensitive or regular‑expression based text replacement via its CaseInsensitive and Regex properties.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: ReplaceOptions ... Properties: CaseInsensitive, Regex"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7fbf8352",
+    "text": "When working with radio button groups, retrieve the selected option by iterating RadioButtonField.Options() and checking each RadioButtonOptionField.Selected().",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: RadioButtonField ... Methods: Options() -> []*RadioButtonOptionField; Class: RadioButtonOptionField ... Methods: Selected() -> bool"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-0f177b50",
+    "text": "If you need to reset form fields to their default values, use ResetFormAction, set the target field names with SetFieldNames, and execute the action.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: ResetFormAction ... Methods: ActionType() -> ActionType; FieldNames() -> []string; SetFieldNames(f)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-59d51ceb",
+    "text": "The Point class represents a single coordinate in PDF user‑space with X and Y properties.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "API_LIST",
+        "snippet": "Class: Point ... Properties: X, Y"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-20879e36",
+    "text": "The library imports and exports PDF files as the primary format, and can export rendered pages to PNG, JPEG, GIF, BMP, TIFF, HTML, SVG, and Markdown.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... o1[\"PDF documents (file path or in‑memory stream)\"]; o2[\"PNG, JPEG, GIF, BMP, and TIFF raster images\"]; o3[\"HTML (single‑file)\"]; o4[\"SVG\"]; o5[\"Markdown\"]"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-cb10fec2",
+    "text": "It also provides conversion to and from SVG, HTML, and Markdown, enabling seamless workflow integration.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... \"HTML (single-file)\", \"SVG\", \"Markdown\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-1c68e66c",
+    "text": "Use the Row class to build tables; call Row.AddCell(text) to add a single cell or Row.AddCells(texts) to add multiple cells at once.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.98,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Methods: AddCell(text) -> *Cell; AddCells(texts) -> []*Cell"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b8ec620f",
+    "text": "After adding cells, you can adjust the row height with Row.SetHeight(h) and retrieve it via Row.Height().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Methods: SetHeight(h) -> *Row; Height() -> float64"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-b7fb8752",
+    "text": "Row.SetBackground(col) applies a background color to the entire row, and Row.Background() returns the current Color.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Methods: SetBackground(col) -> *Row; Background() -> *Color"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e25e7135",
+    "text": "To style text within a row, use Row.SetTextStyle(s) and retrieve the style with Row.TextStyle().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Methods: SetTextStyle(s) -> *Row; TextStyle() -> *TextStyle"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-7098953b",
+    "text": "Row.SetBorder(b) assigns a BorderInfo to the row, enabling custom border definitions.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "api_spec.txt",
+        "snippet": "Methods: SetBorder(b) -> *Row; Border() -> *BorderInfo"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-8f807c28",
+    "text": "SetTitle writes the /T entry of an annotation to store the author or reviewer name; passing an empty string removes the entry.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SetTitle\n  Docstring: SetTitle writes /T (the annotation author / reviewer name); empty string removes the entry."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-f2d5de8f",
+    "text": "ShapeStyle combines a LineStyle stroke with optional fill properties such as FillColor, FillPattern, FillGradient, and FillTiling.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ShapeStyle\n  Docstring: ShapeStyle combines a stroke (LineStyle) with an optional fill color.\n  Properties: FillColor, FillPattern, FillGradient, FillTiling, Color, Width, DashPattern, DashPhase, Cap, Join"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-a015ea77",
+    "text": "SignOptions configures a digital signature, allowing you to set the certificate, private key, reason, location, visible flag, and signature rectangle.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SignOptions\n  Docstring: SignOptions configures a digital signature.\n  Properties: Certificate, PrivateKey, Chain, Reason, Location, ContactInfo, Name, SigningTime, Visible, Rect"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e54315f7",
+    "text": "SignatureAppearance controls which signature details are shown in the visible signature block, such as name, date, reason, and location, and lets you set font, size, and color.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SignatureAppearance\n  Docstring: SignatureAppearance controls the visible signature block's content and styling.\n  Properties: ShowName, ShowDate, ShowReason, ShowLocation, Font, FontSize, Color"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-f032c3d0",
+    "text": "SquareAnnotation draws a rectangular annotation; you can query its type with AnnotationType(), get or set its interior color via InteriorColor() and SetInteriorColor(), and refresh its appearance with RegenerateAppearance().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SquareAnnotation\n  Docstring: SquareAnnotation draws a rectangular annotation with stroked border and optional interior fill.\n  Methods: AnnotationType() -> AnnotationType; InteriorColor() -> *Color; SetInteriorColor(c); RegenerateAppearance()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-9bda645a",
+    "text": "StampAnnotation is a rubber‑stamp annotation; you can assign a predefined StampName, replace it with a custom image using SetCustomImage(path) or SetCustomImageFromStream(r), and call RegenerateAppearance() to update the visual.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: StampAnnotation\n  Docstring: StampAnnotation is a rubber-stamp annotation.\n  Methods: AnnotationType() -> AnnotationType; Name() -> StampName; SetName(n); RawName() -> string; SetRawName(s); HasCustomImage() -> bool; RegenerateAppearance(); SetCustomImage(path) -> error; SetCustomImageFromStream(r) -> error; ClearCustomImage()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-11aa42e3",
+    "text": "If SetCustomImage returns an error, verify that the image file exists, the path is absolute, and the process has read permissions; the method does not perform automatic path resolution.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "SetCustomImage(path) -> error"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-5808304e",
+    "text": "When using SetVertices, provide the coordinates as a flat slice (e.g., []float64{x1, y1, x2, y2, …}); the API automatically recomputes the field's bounding rectangle.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SetVertices\n  Docstring: SetVertices writes /Vertices (a flat x y x y … array), recomputes /Rect, and regenerates /AP/N."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-c2c16a95",
+    "text": "SignatureVerification exposes properties such as Valid, IntegrityOK, and CoversWholeDocument, enabling developers to programmatically assess the trustworthiness of a digital signature.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SignatureVerification\n  Docstring: SignatureVerification is the result of verifying one digital signature.\n  Properties: FieldName, SignerName, Reason, Location, SigningTime, Valid, IntegrityOK, CoversWholeDocument, Certificate, Err"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-51b6a538",
+    "text": "The library supports PDF import and export only; all operations are performed on PDF files, and no other document formats are listed in the API surface.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It creates, edits, renders, signs, encrypts, converts, and validates PDF documents"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-d769648d",
+    "text": "Aspose.PDF FOSS for Go enables developers to create and edit PDF documents using the Document class.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Document.Split()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-052d0667",
+    "text": "Aspose.PDF FOSS for Go provides a high-level feature for converting Markdown to PDF.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Markdown"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-dafb258d",
+    "text": "The library supports PDF/A validation and structural integrity checks via the Validate class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Validate\n  Docstring: Validate checks a PDF file for structural integrity."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-bed92229",
+    "text": "Token usage for OpenAI‑compatible endpoints can be inspected through the Usage class, which reports PromptTokens, CompletionTokens, and TotalTokens.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Usage\n  Docstring: Usage reports token counts when the provider returns them.\n  Properties: PromptTokens, CompletionTokens, TotalTokens"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-dfaa5ac0",
+    "text": "Use XForm.Canvas() to obtain a Page canvas for drawing reusable form XObjects, and XForm.Size() to retrieve its width and height.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: XForm\n  Methods: Canvas() -> *Page; Size() -> (width, height float64)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-56803c04",
+    "text": "Create a repeating fill pattern by calling TilingPattern.Canvas() to draw the cell content and SetStep(xstep, ystep) to define the tiling offset.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: TilingPattern\n  Docstring: TilingPattern is a repeating fill (PatternType 1, ISO 32000-1 §8.7.3.1): a small cell of content tiled across whatever shape it fills.\n  Methods: Canvas() -> *Page; SetStep(xstep, ystep)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-458260a0",
+    "text": "Call Title() on an annotation to retrieve the /T entry, which contains the author or reviewer name.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Title\n  Docstring: Title returns /T (the annotation author / reviewer name)."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e01c9678",
+    "text": "UnderlineAnnotation provides its type via AnnotationType(), its location via QuadPoints(), and allows updating the quad points with SetQuadPoints(qp).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: UnderlineAnnotation\n  Docstring: UnderlineAnnotation draws a horizontal line under text.\n  Methods: AnnotationType() -> AnnotationType; QuadPoints() -> []QuadPoint; SetQuadPoints(qp)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-1600a205",
+    "text": "If ValidationReport.Valid is false, iterate ValidationReport.Issues to examine each ValidationIssue.Code and Message for troubleshooting PDF structural problems.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ValidationReport\n  Docstring: ValidationReport is returned by Validate and summarises the structural integrity of a PDF.\n  Properties: Valid, Issues\nClass: ValidationIssue\n  Docstring: ValidationIssue describes a single problem found in a PDF file.\n  Properties: Code, Message"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-92a698bb",
+    "text": "When XMPMetadata.IsEmpty() returns true, the document lacks an XMP packet; populate fields such as Title, Authors, Description, etc., before saving to ensure metadata is present.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: XMPMetadata\n  Methods: IsEmpty() -> bool\n  Properties: Title, Authors, Description, Keywords, CreatorTool, Producer, CreateDate, ModifyDate, MetadataDate, Custom"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-pdf-go-e370b3ac",
+    "text": "WidgetAnnotation.AnnotationType() returns the specific AnnotationType for a form widget, useful when iterating over an AnnotationCollection.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: WidgetAnnotation\n  Docstring: WidgetAnnotation is the read-only view of a form widget annotation surfaced through AnnotationCollection.\n  Methods: AnnotationType() -> AnnotationType"
       }
     ],
     "provenance": "enriched"

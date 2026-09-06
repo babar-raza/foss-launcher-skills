@@ -35,7 +35,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2efc182f4fd4f9a97dfd54cfa2454382abd60c77bfd602a3d5053d3f85c188c6",
+      "norm": "2efc182f4fd4f9a97dfd54cfa2454382abd60c77bfd602a3d5053d3f85c188c6"
+    }
   },
   {
     "id": "snippet_002",
@@ -56,7 +60,11 @@
       "json",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c6235dbbce87e07be6771ebe0a4c44111ae39b9f8b71916107cdf00ea8d1cec2",
+      "norm": "c6235dbbce87e07be6771ebe0a4c44111ae39b9f8b71916107cdf00ea8d1cec2"
+    }
   },
   {
     "id": "snippet_003",
@@ -80,7 +88,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6cd44db62383f439f6557880ecc5f44981d6f1e764c71365b4599907550adb00",
+      "norm": "6cd44db62383f439f6557880ecc5f44981d6f1e764c71365b4599907550adb00"
+    }
   },
   {
     "id": "snippet_004",
@@ -103,7 +115,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d8871dcbe7f85a18dbe58352cadb46591debd9291e801c6f16c5714dcd18ff3f",
+      "norm": "d8871dcbe7f85a18dbe58352cadb46591debd9291e801c6f16c5714dcd18ff3f"
+    }
   },
   {
     "id": "snippet_005",
@@ -130,7 +146,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f5d7ff14cda08b03aa3621461184f66c5f210c3f4c24e43df72402a4fbb0da1d",
+      "norm": "f5d7ff14cda08b03aa3621461184f66c5f210c3f4c24e43df72402a4fbb0da1d"
+    }
   },
   {
     "id": "snippet_006",
@@ -154,7 +174,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dfc8b38e6c06b339e251e27d59e8ded76e8c6fcc95124e95a59e0357b7a55b92",
+      "norm": "dfc8b38e6c06b339e251e27d59e8ded76e8c6fcc95124e95a59e0357b7a55b92"
+    }
   },
   {
     "id": "snippet_007",
@@ -183,7 +207,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc08454f5e50f8d4de0a1e82a1158495eb41f1fa1bbb349708981f48db228f3f",
+      "norm": "fc08454f5e50f8d4de0a1e82a1158495eb41f1fa1bbb349708981f48db228f3f"
+    }
   },
   {
     "id": "snippet_008",
@@ -213,7 +241,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3a6c67fac2133bb0b3d5338fde372584b81bd3d6c7d7b55f4d83a8ffc76947a8",
+      "norm": "3a6c67fac2133bb0b3d5338fde372584b81bd3d6c7d7b55f4d83a8ffc76947a8"
+    }
   },
   {
     "id": "snippet_009",
@@ -277,7 +309,11 @@
       "pdf",
       "svg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2fd6686e0363fc35e2bfa8608687b3d596b889baf1118fc0133285e2b93a7da8",
+      "norm": "3cd62023f168e7208a72e9a93e695149bd0bd473caaa73fa59b3cb418905aada"
+    }
   },
   {
     "id": "snippet_010",
@@ -303,7 +339,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "465dc9d5b3c9723c1e683de638e4e89726695fb57473272db78c61fce1b9ffbb",
+      "norm": "465dc9d5b3c9723c1e683de638e4e89726695fb57473272db78c61fce1b9ffbb"
+    }
   },
   {
     "id": "snippet_011",
@@ -317,7 +357,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c4e0deed3d6f3eeb51c75e0deae4a72ff5b3c64fedc59a14371ed81e69a5dc2",
+      "norm": "3c4e0deed3d6f3eeb51c75e0deae4a72ff5b3c64fedc59a14371ed81e69a5dc2"
+    }
   },
   {
     "id": "snippet_012",
@@ -330,7 +374,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "10cfb9bae9deba4f85d84348b7dc4f0ecbeee54f53de947a12c6962df000b63f",
+      "norm": "10cfb9bae9deba4f85d84348b7dc4f0ecbeee54f53de947a12c6962df000b63f"
+    }
   },
   {
     "id": "snippet_013",
@@ -349,7 +397,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e56bddcc6cf9ac65a499f25ae25fee9b75786721ca0ee58fd1e7dc83aaccc9b5",
+      "norm": "e56bddcc6cf9ac65a499f25ae25fee9b75786721ca0ee58fd1e7dc83aaccc9b5"
+    }
   },
   {
     "id": "snippet_014",
@@ -367,7 +419,11 @@
       "pdf",
       "tiff"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "98f541bcd7925d0e4e88eb3ec99adebc7a7f641b5335188eb23a77f8ed5e451d",
+      "norm": "98f541bcd7925d0e4e88eb3ec99adebc7a7f641b5335188eb23a77f8ed5e451d"
+    }
   },
   {
     "id": "snippet_015",
@@ -381,7 +437,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "20543534aae80423d399d38fb717de8c457f46665224498bbc0124accf2f3d8f",
+      "norm": "20543534aae80423d399d38fb717de8c457f46665224498bbc0124accf2f3d8f"
+    }
   },
   {
     "id": "snippet_016",
@@ -405,7 +465,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65aa5adcb07155c77cd085f1d818e6df5891e6b57039bb4a5736b9f31b95e48b",
+      "norm": "65aa5adcb07155c77cd085f1d818e6df5891e6b57039bb4a5736b9f31b95e48b"
+    }
   },
   {
     "id": "snippet_017",
@@ -423,7 +487,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65d28ee5143e2c3108392f7bf14644f9392ba040e0d06ece1b23221a39d82cab",
+      "norm": "65d28ee5143e2c3108392f7bf14644f9392ba040e0d06ece1b23221a39d82cab"
+    }
   },
   {
     "id": "snippet_018",
@@ -443,7 +511,11 @@
       "json",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a357ced17b86e40cee3f46f4188bfa7cb8018e9c59ae0863f4713334323086aa",
+      "norm": "a357ced17b86e40cee3f46f4188bfa7cb8018e9c59ae0863f4713334323086aa"
+    }
   },
   {
     "id": "snippet_019",
@@ -484,7 +556,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c38e6db68775c8526a195efb677b589c17dbec71eb186317beea99f92c05a6e3",
+      "norm": "c38e6db68775c8526a195efb677b589c17dbec71eb186317beea99f92c05a6e3"
+    }
   },
   {
     "id": "snippet_020",
@@ -497,7 +573,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "997d605e767e2fac3a667a38a4674e894a37ee9714dee0356f14b4c6608dffb3",
+      "norm": "997d605e767e2fac3a667a38a4674e894a37ee9714dee0356f14b4c6608dffb3"
+    }
   },
   {
     "id": "snippet_021",
@@ -535,7 +615,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2efc182f4fd4f9a97dfd54cfa2454382abd60c77bfd602a3d5053d3f85c188c6",
+      "norm": "2efc182f4fd4f9a97dfd54cfa2454382abd60c77bfd602a3d5053d3f85c188c6"
+    }
   },
   {
     "id": "snippet_022",
@@ -556,7 +640,11 @@
       "json",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c6235dbbce87e07be6771ebe0a4c44111ae39b9f8b71916107cdf00ea8d1cec2",
+      "norm": "c6235dbbce87e07be6771ebe0a4c44111ae39b9f8b71916107cdf00ea8d1cec2"
+    }
   },
   {
     "id": "snippet_023",
@@ -580,7 +668,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6cd44db62383f439f6557880ecc5f44981d6f1e764c71365b4599907550adb00",
+      "norm": "6cd44db62383f439f6557880ecc5f44981d6f1e764c71365b4599907550adb00"
+    }
   },
   {
     "id": "snippet_024",
@@ -603,7 +695,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d8871dcbe7f85a18dbe58352cadb46591debd9291e801c6f16c5714dcd18ff3f",
+      "norm": "d8871dcbe7f85a18dbe58352cadb46591debd9291e801c6f16c5714dcd18ff3f"
+    }
   },
   {
     "id": "snippet_025",
@@ -630,7 +726,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f5d7ff14cda08b03aa3621461184f66c5f210c3f4c24e43df72402a4fbb0da1d",
+      "norm": "f5d7ff14cda08b03aa3621461184f66c5f210c3f4c24e43df72402a4fbb0da1d"
+    }
   },
   {
     "id": "snippet_026",
@@ -654,7 +754,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dfc8b38e6c06b339e251e27d59e8ded76e8c6fcc95124e95a59e0357b7a55b92",
+      "norm": "dfc8b38e6c06b339e251e27d59e8ded76e8c6fcc95124e95a59e0357b7a55b92"
+    }
   },
   {
     "id": "snippet_027",
@@ -683,7 +787,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc08454f5e50f8d4de0a1e82a1158495eb41f1fa1bbb349708981f48db228f3f",
+      "norm": "fc08454f5e50f8d4de0a1e82a1158495eb41f1fa1bbb349708981f48db228f3f"
+    }
   },
   {
     "id": "snippet_028",
@@ -713,7 +821,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3a6c67fac2133bb0b3d5338fde372584b81bd3d6c7d7b55f4d83a8ffc76947a8",
+      "norm": "3a6c67fac2133bb0b3d5338fde372584b81bd3d6c7d7b55f4d83a8ffc76947a8"
+    }
   },
   {
     "id": "snippet_029",
@@ -777,7 +889,11 @@
       "pdf",
       "svg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2fd6686e0363fc35e2bfa8608687b3d596b889baf1118fc0133285e2b93a7da8",
+      "norm": "3cd62023f168e7208a72e9a93e695149bd0bd473caaa73fa59b3cb418905aada"
+    }
   },
   {
     "id": "snippet_030",
@@ -803,7 +919,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "465dc9d5b3c9723c1e683de638e4e89726695fb57473272db78c61fce1b9ffbb",
+      "norm": "465dc9d5b3c9723c1e683de638e4e89726695fb57473272db78c61fce1b9ffbb"
+    }
   },
   {
     "id": "snippet_031",
@@ -817,7 +937,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c4e0deed3d6f3eeb51c75e0deae4a72ff5b3c64fedc59a14371ed81e69a5dc2",
+      "norm": "3c4e0deed3d6f3eeb51c75e0deae4a72ff5b3c64fedc59a14371ed81e69a5dc2"
+    }
   },
   {
     "id": "snippet_032",
@@ -830,7 +954,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "10cfb9bae9deba4f85d84348b7dc4f0ecbeee54f53de947a12c6962df000b63f",
+      "norm": "10cfb9bae9deba4f85d84348b7dc4f0ecbeee54f53de947a12c6962df000b63f"
+    }
   },
   {
     "id": "snippet_033",
@@ -849,7 +977,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e56bddcc6cf9ac65a499f25ae25fee9b75786721ca0ee58fd1e7dc83aaccc9b5",
+      "norm": "e56bddcc6cf9ac65a499f25ae25fee9b75786721ca0ee58fd1e7dc83aaccc9b5"
+    }
   },
   {
     "id": "snippet_034",
@@ -867,7 +999,11 @@
       "pdf",
       "tiff"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "98f541bcd7925d0e4e88eb3ec99adebc7a7f641b5335188eb23a77f8ed5e451d",
+      "norm": "98f541bcd7925d0e4e88eb3ec99adebc7a7f641b5335188eb23a77f8ed5e451d"
+    }
   },
   {
     "id": "snippet_035",
@@ -881,7 +1017,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "20543534aae80423d399d38fb717de8c457f46665224498bbc0124accf2f3d8f",
+      "norm": "20543534aae80423d399d38fb717de8c457f46665224498bbc0124accf2f3d8f"
+    }
   },
   {
     "id": "snippet_036",
@@ -905,7 +1045,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65aa5adcb07155c77cd085f1d818e6df5891e6b57039bb4a5736b9f31b95e48b",
+      "norm": "65aa5adcb07155c77cd085f1d818e6df5891e6b57039bb4a5736b9f31b95e48b"
+    }
   },
   {
     "id": "snippet_037",
@@ -923,7 +1067,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65d28ee5143e2c3108392f7bf14644f9392ba040e0d06ece1b23221a39d82cab",
+      "norm": "65d28ee5143e2c3108392f7bf14644f9392ba040e0d06ece1b23221a39d82cab"
+    }
   },
   {
     "id": "snippet_038",
@@ -943,7 +1091,11 @@
       "json",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a357ced17b86e40cee3f46f4188bfa7cb8018e9c59ae0863f4713334323086aa",
+      "norm": "a357ced17b86e40cee3f46f4188bfa7cb8018e9c59ae0863f4713334323086aa"
+    }
   },
   {
     "id": "snippet_039",
@@ -984,7 +1136,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c38e6db68775c8526a195efb677b589c17dbec71eb186317beea99f92c05a6e3",
+      "norm": "c38e6db68775c8526a195efb677b589c17dbec71eb186317beea99f92c05a6e3"
+    }
   },
   {
     "id": "snippet_040",
@@ -997,7 +1153,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "997d605e767e2fac3a667a38a4674e894a37ee9714dee0356f14b4c6608dffb3",
+      "norm": "997d605e767e2fac3a667a38a4674e894a37ee9714dee0356f14b4c6608dffb3"
+    }
   },
   {
     "id": "snippet_041",
@@ -1013,7 +1173,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cbca7ac3b3ac4d25521cfe1fd8ba70ca990df3e8e2012fb8dcbda5354efacb06",
+      "norm": "cbca7ac3b3ac4d25521cfe1fd8ba70ca990df3e8e2012fb8dcbda5354efacb06"
+    }
   },
   {
     "id": "snippet_042",
@@ -1037,7 +1201,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8c22b7473eb5034ef8d038d5bdc369a85b7dcbdd71597fdd39257e0ec0c479c1",
+      "norm": "8c22b7473eb5034ef8d038d5bdc369a85b7dcbdd71597fdd39257e0ec0c479c1"
+    }
   },
   {
     "id": "snippet_043",
@@ -1059,7 +1227,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae747fa68e5a464d757ec62580c635275c2d7e17bdc8d3a962ac7e0d84cf4091",
+      "norm": "ae747fa68e5a464d757ec62580c635275c2d7e17bdc8d3a962ac7e0d84cf4091"
+    }
   },
   {
     "id": "snippet_044",
@@ -1088,7 +1260,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "83fc1c853a194351a28c1118f24f36a1145a0f1c63aed5bc95ed07acbaa51474",
+      "norm": "83fc1c853a194351a28c1118f24f36a1145a0f1c63aed5bc95ed07acbaa51474"
+    }
   },
   {
     "id": "snippet_045",
@@ -1106,7 +1282,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "026e48807bc585e48ffebb6e50ec2892026aed036c2dd8748b3942407584a88a",
+      "norm": "026e48807bc585e48ffebb6e50ec2892026aed036c2dd8748b3942407584a88a"
+    }
   },
   {
     "id": "snippet_046",
@@ -1127,7 +1307,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "979d66b017d763978400cfe60ee319c99296aa6b6ae41449d0839ec2f46279f2",
+      "norm": "979d66b017d763978400cfe60ee319c99296aa6b6ae41449d0839ec2f46279f2"
+    }
   },
   {
     "id": "snippet_047",
@@ -1147,7 +1331,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5263c238eebc52451de9a696cb95ea8c012d5ec2b55191d243d44a3a8621dd75",
+      "norm": "5263c238eebc52451de9a696cb95ea8c012d5ec2b55191d243d44a3a8621dd75"
+    }
   },
   {
     "id": "snippet_048",
@@ -1168,7 +1356,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d9aa6f71ddc8c22616d26e2d208698de76f7986107a8b7758d787fa704120bd",
+      "norm": "3d9aa6f71ddc8c22616d26e2d208698de76f7986107a8b7758d787fa704120bd"
+    }
   },
   {
     "id": "snippet_049",
@@ -1194,7 +1386,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1a39f2f4d51f496dbc42ebedd5c9c6042126ec6f56185c40801322eaeba5bd0",
+      "norm": "d1a39f2f4d51f496dbc42ebedd5c9c6042126ec6f56185c40801322eaeba5bd0"
+    }
   },
   {
     "id": "snippet_050",
@@ -1214,7 +1410,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f9ee58e73b595213063f079374a4df8e4d42d9fcb1c2b2d6b54e19f7293d8026",
+      "norm": "f9ee58e73b595213063f079374a4df8e4d42d9fcb1c2b2d6b54e19f7293d8026"
+    }
   },
   {
     "id": "snippet_051",
@@ -1232,7 +1432,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e6ac0c59d80e615d2645410aa6b9e824f382b4aa046d3ab8cbbdefcf23914831",
+      "norm": "e6ac0c59d80e615d2645410aa6b9e824f382b4aa046d3ab8cbbdefcf23914831"
+    }
   },
   {
     "id": "snippet_052",
@@ -1253,7 +1457,11 @@
       "pdf",
       "svg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b3ab14ba7c19615f8fa49447311e00511c121526f16d5517484a3b0989fde8cf",
+      "norm": "b3ab14ba7c19615f8fa49447311e00511c121526f16d5517484a3b0989fde8cf"
+    }
   },
   {
     "id": "snippet_053",
@@ -1276,7 +1484,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2309a857008d43ce339be2bf8f446124c228ab02fd3b67d57f558d6196abdba",
+      "norm": "e2309a857008d43ce339be2bf8f446124c228ab02fd3b67d57f558d6196abdba"
+    }
   },
   {
     "id": "snippet_054",
@@ -1300,7 +1512,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1660b8559c4483932a2e3fd62d3a3815c530411a7e6654b288c73a3ceec61cf4",
+      "norm": "1660b8559c4483932a2e3fd62d3a3815c530411a7e6654b288c73a3ceec61cf4"
+    }
   },
   {
     "id": "snippet_055",
@@ -1313,7 +1529,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "00c8a1bd1fab0e1251fcb69317ba6ad7cc0c83323810b379446200ba6d85a0c4",
+      "norm": "00c8a1bd1fab0e1251fcb69317ba6ad7cc0c83323810b379446200ba6d85a0c4"
+    }
   },
   {
     "id": "snippet_056",
@@ -1351,7 +1571,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7dda42056db9dc17e7a1954e93ae9a19b68364542a21f9e8a095635b310f2942",
+      "norm": "7dda42056db9dc17e7a1954e93ae9a19b68364542a21f9e8a095635b310f2942"
+    }
   },
   {
     "id": "snippet_057",
@@ -1377,7 +1601,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9c8ac7b72f2781a086a389f8dc8d26a9a3e7e00fb921020f17a0595f32e58b5a",
+      "norm": "9c8ac7b72f2781a086a389f8dc8d26a9a3e7e00fb921020f17a0595f32e58b5a"
+    }
   },
   {
     "id": "snippet_058",
@@ -1405,7 +1633,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "42e9a4cbdc3a81ddf51207f6819ee71eac77dd7cae772ec096d71e39df84ec55",
+      "norm": "42e9a4cbdc3a81ddf51207f6819ee71eac77dd7cae772ec096d71e39df84ec55"
+    }
   },
   {
     "id": "snippet_059",
@@ -1440,7 +1672,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4fd7ec89238fa87e675592c7266627c77eed329cbf4ac99035188ed052888ff",
+      "norm": "c4fd7ec89238fa87e675592c7266627c77eed329cbf4ac99035188ed052888ff"
+    }
   },
   {
     "id": "snippet_060",
@@ -1466,7 +1702,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "493b2c2dbdcf57b4aa20b0b1cb0bb9320e2a6653e22c0cbd324f89caa41197d4",
+      "norm": "493b2c2dbdcf57b4aa20b0b1cb0bb9320e2a6653e22c0cbd324f89caa41197d4"
+    }
   },
   {
     "id": "snippet_061",
@@ -1492,7 +1732,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b9610933dd49ef8a2f81c82639c0919fa33285c95cefa90d9a65ddc868eb47ae",
+      "norm": "b9610933dd49ef8a2f81c82639c0919fa33285c95cefa90d9a65ddc868eb47ae"
+    }
   },
   {
     "id": "snippet_062",
@@ -1519,7 +1763,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d485904819255f40cf410b8459a7f800bb65a3829f3cb7a2cbe16ddf8240a00c",
+      "norm": "d485904819255f40cf410b8459a7f800bb65a3829f3cb7a2cbe16ddf8240a00c"
+    }
   },
   {
     "id": "snippet_063",
@@ -1547,7 +1795,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b815bc555948f3b37a1252362d05188d91df6460b0f2123da712eec01d04eef0",
+      "norm": "b815bc555948f3b37a1252362d05188d91df6460b0f2123da712eec01d04eef0"
+    }
   },
   {
     "id": "snippet_064",
@@ -1572,7 +1824,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dbf755e3e9656452bbc744d66d2891564a65fce2513eba937d751ba81bcb9f39",
+      "norm": "dbf755e3e9656452bbc744d66d2891564a65fce2513eba937d751ba81bcb9f39"
+    }
   },
   {
     "id": "snippet_065",
@@ -1592,7 +1848,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5173219262a038ced21f9d0b3b2c28a6d6d459e1e7b6503937984242470ceb3c",
+      "norm": "5173219262a038ced21f9d0b3b2c28a6d6d459e1e7b6503937984242470ceb3c"
+    }
   },
   {
     "id": "snippet_066",
@@ -1612,7 +1872,11 @@
       "markdown",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d8636489128676c2f69a3a5a52be9ae0f72cbc0ca54ebd6fbb720d084f5dcfe4",
+      "norm": "d8636489128676c2f69a3a5a52be9ae0f72cbc0ca54ebd6fbb720d084f5dcfe4"
+    }
   },
   {
     "id": "snippet_067",
@@ -1640,7 +1904,11 @@
       "pdf",
       "svg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0931cbf40068faf0ec66790990a8ae628d846955f45201a33b2bd5125759bd2e",
+      "norm": "0931cbf40068faf0ec66790990a8ae628d846955f45201a33b2bd5125759bd2e"
+    }
   },
   {
     "id": "snippet_068",
@@ -1668,7 +1936,11 @@
       "html",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cfd62bf889a5c38fc75be3f03db518edcbac2671516789fb6508a4fb063d4b8b",
+      "norm": "cfd62bf889a5c38fc75be3f03db518edcbac2671516789fb6508a4fb063d4b8b"
+    }
   },
   {
     "id": "snippet_069",
@@ -1696,7 +1968,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b27829af075f48f3873a51ae951c6c0c3dece3fb381767c4b357dd3166c46bc",
+      "norm": "5b27829af075f48f3873a51ae951c6c0c3dece3fb381767c4b357dd3166c46bc"
+    }
   },
   {
     "id": "snippet_070",
@@ -1724,7 +2000,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2b573abb33292e3055ce5c812c76650b75e11c93c05808ba80ab6a563869905e",
+      "norm": "2b573abb33292e3055ce5c812c76650b75e11c93c05808ba80ab6a563869905e"
+    }
   },
   {
     "id": "snippet_071",
@@ -1757,7 +2037,11 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bc553554818f56a254a6ca3bab1730ac04aeb2909d33b95551e2479493302765",
+      "norm": "bc553554818f56a254a6ca3bab1730ac04aeb2909d33b95551e2479493302765"
+    }
   },
   {
     "id": "snippet_072",
@@ -1782,465 +2066,127 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8130920eacc9ee29394388a9b6c79c4adfad6e4e0e0f561770874101c1a0dc7b",
+      "norm": "8130920eacc9ee29394388a9b6c79c4adfad6e4e0e0f561770874101c1a0dc7b"
+    }
   },
   {
     "id": "snippet_073",
     "file": "snippet_073.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 23,
-    "classes_used": [],
+    "source_line": 217,
+    "classes_used": [
+      "Page"
+    ],
     "methods_used": [],
     "formats_referenced": [
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5a870ee1e07a002d0d08837d0ca89a55f16c7fb2a5a5b496eff8aedd53de3247",
+      "norm": "ed32786d5fc9fc8a315bae35e4c80deb85305a15a4aa925bdb503fef4d8cba37"
+    }
   },
   {
     "id": "snippet_074",
     "file": "snippet_074.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 117,
-    "classes_used": [],
-    "methods_used": [],
+    "source_line": 279,
+    "classes_used": [
+      "Document",
+      "Flow",
+      "FlowOptions",
+      "Form",
+      "Page",
+      "PageFormat",
+      "TextStyle"
+    ],
+    "methods_used": [
+      "Document.NewFlow",
+      "Flow.AddHeading",
+      "Flow.AddList",
+      "Flow.AddParagraph",
+      "Flow.Render"
+    ],
     "formats_referenced": [
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6279e86e751e28589618284097057e8d0ebde6f7e09a627d8d80da5a6b1f7a38",
+      "norm": "5d99c39e99dbeb658ddff9d0dc9d5fba9e35b96c7557f0360a0446d1e8abbd56"
+    }
   },
   {
     "id": "snippet_075",
     "file": "snippet_075.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 138,
-    "classes_used": [],
-    "methods_used": [],
+    "source_line": 303,
+    "classes_used": [
+      "Document",
+      "EncryptionOptions",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Permissions"
+    ],
+    "methods_used": [
+      "Document.SetEncryption",
+      "Document.WriteTo"
+    ],
     "formats_referenced": [
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "66b9b029d1b2ecc68c2d2c23c51ae17e8649495054c8aa966de3dda5fc0a9454",
+      "norm": "06076bbb3a8a0084d200364c4893323f3ed958135ce0ce1884a50f7e6aba08a5"
+    }
   },
   {
     "id": "snippet_076",
     "file": "snippet_076.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 150,
+    "source_line": 325,
     "classes_used": [
+      "Document",
+      "Form",
       "Page",
-      "PageRange"
+      "PageFormat",
+      "SignOptions",
+      "Usage"
     ],
-    "methods_used": [],
+    "methods_used": [
+      "Document.Sign",
+      "Document.VerifySignatures",
+      "Document.WriteTo"
+    ],
     "formats_referenced": [
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "34770001148db1d121bf8148a0b8f32606a008be615237d09713f63fe806c10b",
+      "norm": "7292df3b2bb25cda3a2a030fa47765b2d80e9402eb8f9a3287f84b2188956b69"
+    }
   },
   {
     "id": "snippet_077",
     "file": "snippet_077.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 163,
-    "classes_used": [
-      "BookletOptions",
-      "NUpOptions",
-      "Row"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_078",
-    "file": "snippet_078.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 190,
-    "classes_used": [
-      "Page"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_079",
-    "file": "snippet_079.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 205,
-    "classes_used": [
-      "Page",
-      "PageSize"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_080",
-    "file": "snippet_080.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 222,
-    "classes_used": [
-      "Page",
-      "PageLabelRange"
-    ],
-    "methods_used": [
-      "Page.Label"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_081",
-    "file": "snippet_081.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 239,
-    "classes_used": [
-      "Document",
-      "DocumentInfo"
-    ],
-    "methods_used": [
-      "Document.ClearInfo",
-      "Document.Info",
-      "Document.Save",
-      "Document.SetInfo"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_082",
-    "file": "snippet_082.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 265,
-    "classes_used": [
-      "Document",
-      "XMPProperty"
-    ],
-    "methods_used": [
-      "Document.ClearXMP",
-      "Document.Save",
-      "Document.SetXMP",
-      "Document.SetXMPRaw",
-      "Document.SyncInfoToXMP",
-      "Document.XMP"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_083",
-    "file": "snippet_083.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 291,
-    "classes_used": [
-      "Document",
-      "EncryptionOptions",
-      "Field",
-      "Permissions",
-      "TextStyle"
-    ],
-    "methods_used": [
-      "Document.AddTextWatermark",
-      "Document.ChangePassword",
-      "Document.Permissions",
-      "Document.RemoveEncryption",
-      "Document.Save",
-      "Document.SetEncryption",
-      "Document.SetPassword",
-      "Document.SetPermissions"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_084",
-    "file": "snippet_084.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 354,
-    "classes_used": [
-      "Document",
-      "Field",
-      "Form",
-      "Page",
-      "Rectangle",
-      "SignOptions",
-      "Usage"
-    ],
-    "methods_used": [
-      "Document.Save",
-      "Document.Sign",
-      "Document.VerifySignatures"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_085",
-    "file": "snippet_085.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 419,
-    "classes_used": [
-      "ButtonField",
-      "CheckboxField",
-      "ComboBoxField",
-      "Field",
-      "Form",
-      "ListBoxField",
-      "RadioButtonField",
-      "TextBoxField"
-    ],
-    "methods_used": [
-      "ButtonField.SetValue",
-      "ButtonField.Value",
-      "CheckboxField.SetChecked",
-      "CheckboxField.SetValue",
-      "CheckboxField.Value",
-      "ComboBoxField.Options",
-      "ComboBoxField.SetSelected",
-      "ComboBoxField.SetValue",
-      "ComboBoxField.Value",
-      "Field.FullName",
-      "Field.SetValue",
-      "Field.Value",
-      "Form.Field",
-      "Form.Fields",
-      "ListBoxField.MultiSelect",
-      "ListBoxField.Options",
-      "ListBoxField.SetSelected",
-      "ListBoxField.SetValue",
-      "ListBoxField.Value",
-      "RadioButtonField.Options",
-      "RadioButtonField.SetValue",
-      "RadioButtonField.Value",
-      "TextBoxField.SetValue",
-      "TextBoxField.Value"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_086",
-    "file": "snippet_086.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 459,
-    "classes_used": [
-      "Form",
-      "JSONExportOptions"
-    ],
-    "methods_used": [
-      "Form.ExportJSON",
-      "Form.ImportJSON"
-    ],
-    "formats_referenced": [
-      "doc",
-      "json",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_087",
-    "file": "snippet_087.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 471,
-    "classes_used": [
-      "Field",
-      "Form"
-    ],
-    "methods_used": [
-      "Form.ExportFDF",
-      "Form.ExportXFDF",
-      "Form.ImportFDF",
-      "Form.ImportXFDF"
-    ],
-    "formats_referenced": [
-      "doc"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_088",
-    "file": "snippet_088.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 481,
-    "classes_used": [
-      "ButtonAppearance",
-      "ChoiceOption",
-      "Color",
-      "Document",
-      "Field",
-      "FieldStyle",
-      "Form",
-      "Page",
-      "Path",
-      "RadioItem",
-      "Rectangle"
-    ],
-    "methods_used": [
-      "Document.Form",
-      "Document.Save",
-      "Field.SetStyle",
-      "Field.SetValue",
-      "Form.AddCheckbox",
-      "Form.AddComboBox",
-      "Form.AddPushButton",
-      "Form.AddRadioGroup",
-      "Form.AddTextField",
-      "Form.RemoveField"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_089",
-    "file": "snippet_089.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 540,
-    "classes_used": [
-      "Color",
-      "Destination",
-      "DestinationFit",
-      "DestinationXYZ",
-      "OutlineItemCollection",
-      "Page"
-    ],
-    "methods_used": [
-      "Destination.Page",
-      "DestinationFit.Page",
-      "DestinationXYZ.Page",
-      "OutlineItemCollection.Add",
-      "OutlineItemCollection.SetBold",
-      "OutlineItemCollection.SetColor",
-      "OutlineItemCollection.SetDestination",
-      "OutlineItemCollection.SetTitle"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_090",
-    "file": "snippet_090.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 563,
-    "classes_used": [
-      "Destination",
-      "DestinationFit",
-      "DestinationFitH",
-      "NamedDestination",
-      "NamedDestinations",
-      "OutlineItemCollection"
-    ],
-    "methods_used": [
-      "NamedDestinations.Add",
-      "OutlineItemCollection.Add",
-      "OutlineItemCollection.SetDestination",
-      "OutlineItemCollection.SetTitle"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_091",
-    "file": "snippet_091.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 578,
-    "classes_used": [
-      "TOCOptions",
-      "Table"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_092",
-    "file": "snippet_092.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 589,
-    "classes_used": [
-      "Page",
-      "Rectangle",
-      "TOCEntry",
-      "TOCOptions"
-    ],
-    "methods_used": [
-      "Page.AddTOC"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_093",
-    "file": "snippet_093.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 613,
+    "source_line": 356,
     "classes_used": [
       "BorderInfo",
       "BorderSide",
@@ -2271,202 +2217,42 @@
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "959de1ca808c7ada72bfc04bd0a4725776cd7423db68496aaba565f87cfdf930",
+      "norm": "7fda2fc692954f1c6370ff91f2b55ab19c56a885fca69c3a4826fbf7d0c1aece"
+    }
   },
   {
-    "id": "snippet_094",
-    "file": "snippet_094.go",
+    "id": "snippet_078",
+    "file": "snippet_078.go",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 641,
+    "source_line": 384,
     "classes_used": [
-      "BorderInfo",
-      "BorderSide",
-      "Cell",
-      "HAlign",
-      "Rectangle",
-      "Row",
-      "Table"
-    ],
-    "methods_used": [
-      "Cell.SetColSpan",
-      "Cell.SetHAlign",
-      "Row.AddCell",
-      "Row.AddCells",
-      "Table.AddRow"
-    ],
-    "formats_referenced": [
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_095",
-    "file": "snippet_095.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 666,
-    "classes_used": [
-      "Cell",
-      "Color",
-      "Image",
-      "Rectangle",
-      "Row",
-      "Table"
-    ],
-    "methods_used": [
-      "Cell.SetBackground",
-      "Cell.SetImage",
-      "Row.AddCell",
-      "Row.SetBackground",
-      "Table.AddRow",
-      "Table.AddRows"
-    ],
-    "formats_referenced": [
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_096",
-    "file": "snippet_096.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 697,
-    "classes_used": [
-      "Color",
       "Document",
-      "Gradient",
-      "GradientStop",
-      "LineStyle",
-      "LinearGradient",
+      "Form",
+      "Image",
       "Page",
-      "Path",
-      "Point",
-      "RadialGradient",
+      "PageFormat",
       "Rectangle",
-      "ShapeStyle"
+      "RenderOptions",
+      "TextStyle"
     ],
     "methods_used": [
       "Document.Page",
-      "Document.Save",
-      "Page.DrawCircle",
-      "Page.DrawLine",
-      "Page.DrawPath",
-      "Page.DrawRectangle",
-      "Page.DrawRoundedRectangle"
+      "Document.RenderImage",
+      "Page.AddText",
+      "Page.RenderImage"
     ],
     "formats_referenced": [
       "doc",
       "pdf"
     ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_097",
-    "file": "snippet_097.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 752,
-    "classes_used": [
-      "Page",
-      "Rectangle",
-      "SVG"
-    ],
-    "methods_used": [
-      "Page.AddSVG",
-      "Page.AddSVGObject"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf",
-      "svg"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_098",
-    "file": "snippet_098.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 790,
-    "classes_used": [
-      "Font",
-      "SVG",
-      "SVGFontResolver"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "doc",
-      "pdf",
-      "svg"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_099",
-    "file": "snippet_099.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 805,
-    "classes_used": [
-      "Annotation",
-      "Field",
-      "Form",
-      "Page"
-    ],
-    "methods_used": [
-      "Annotation.Flatten",
-      "Field.Flatten",
-      "Form.Field",
-      "Form.Flatten",
-      "Page.Annotations"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_100",
-    "file": "snippet_100.go",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 826,
-    "classes_used": [
-      "Action",
-      "Annotation",
-      "AnnotationType",
-      "Color",
-      "Form",
-      "GoToURIAction",
-      "HighlightAnnotation",
-      "LinkAnnotation",
-      "Page",
-      "Point",
-      "QuadPoint",
-      "Rectangle",
-      "SubmitFormAction"
-    ],
-    "methods_used": [
-      "Annotation.AnnotationType",
-      "Annotation.SetColor",
-      "Annotation.SetContents",
-      "Annotation.SetTitle",
-      "GoToURIAction.URI",
-      "HighlightAnnotation.AnnotationType",
-      "HighlightAnnotation.SetQuadPoints",
-      "LinkAnnotation.Action",
-      "LinkAnnotation.AnnotationType",
-      "LinkAnnotation.SetAction",
-      "LinkAnnotation.SetHighlight",
-      "Page.Annotations"
-    ],
-    "formats_referenced": [
-      "doc",
-      "pdf"
-    ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cb6fa2f8e1cfd9d3b8c54999f3a412b9247eb9d776b69fd9dd993de0cb3819de",
+      "norm": "4bd2a038b68c25113afdfc084e50f8f022468b06cbf97d067e14cf93a6c0793f"
+    }
   }
 ]
