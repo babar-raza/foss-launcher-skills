@@ -62,16 +62,20 @@ _JAVA_STACK_LOCATION_RE = re.compile(r'\(([\w./\\-]+\.java):\d+\)')
 
 _CLASS_DECL_RE = re.compile(r'^\s*(public\s+)?(?:final\s+)?class\s+(\w+)', re.MULTILINE)
 
-# String/char literals ALWAYS matched first (leftmost alternative that can match at a
-# given position wins in Python's re) so a `/*`/`//` sequence INSIDE a literal (e.g.
-# `"/* not a comment */"`) is consumed as part of the literal, never mistaken for the
-# start of a real comment -- independent-reviewer finding (round 2): the original
-# `_strip_comments` matched `/\*.*?\*/` completely literal-unaware, so a string literal
-# containing an unterminated-looking `/*` let the non-greedy regex span all the way to
-# an unrelated, LATER real `*/`, deleting real code (including a real `public class`
-# declaration) along with it.
+# Text blocks (Java 15+, `"""..."""`) tried BEFORE a plain string literal (leftmost
+# alternative that can match at a given position wins in Python's re) -- otherwise the
+# plain-string alternative would consume only the first two quotes of the opening
+# `"""` as an empty string, leaving the third stray. String/char literals (and text
+# blocks) are matched before the comment alternatives for the same reason: so a
+# `/*`/`//` sequence INSIDE one (e.g. `"/* not a comment */"`) is consumed as part of
+# the literal, never mistaken for the start of a real comment -- independent-reviewer
+# finding (round 2): the original `_strip_comments` matched `/\*.*?\*/` completely
+# literal-unaware, so a string literal containing an unterminated-looking `/*` let the
+# non-greedy regex span all the way to an unrelated, LATER real `*/`, deleting real
+# code (including a real `public class` declaration) along with it.
 _JAVA_STRING_OR_COMMENT_RE = re.compile(
-    r'"(?:\\.|[^"\\])*"'
+    r'"""(?:\\.|(?!""").)*?"""'
+    r'|"(?:\\.|[^"\\])*"'
     r"|'(?:\\.|[^'\\])*'"
     r'|/\*.*?\*/'
     r'|//[^\n]*',
@@ -82,12 +86,25 @@ _JAVA_STRING_OR_COMMENT_RE = re.compile(
 def _strip_comments(code: str) -> str:
     """A `class X` mention inside a comment (a line comment, or explanatory
     prose in a block comment) must never be mistaken for a real declaration
-    -- independent-reviewer finding, fixed here. String/char literals are
-    matched and preserved verbatim (see `_JAVA_STRING_OR_COMMENT_RE`'s own
-    docstring) rather than being blind to what they contain."""
+    -- independent-reviewer finding, fixed here.
+
+    Independent-reviewer finding (round 3), fixed here: string/char
+    literals (and text blocks) were preserved VERBATIM -- which correctly
+    stopped the comment-stripping regex from being fooled by comment-like
+    characters inside one (round 2's fix), but left the literal's own
+    CONTENT fully visible to the later `_CLASS_DECL_RE` scan. A `class X`
+    mention embedded inside a string/text-block value (e.g. example Java
+    source stored as documentation text) was therefore still mistaken for
+    a real declaration -- the exact defect this function exists to
+    prevent, via a different trigger. Every string/char/text-block match
+    is now replaced with a neutral, non-matching placeholder instead of
+    being preserved -- their CONTENT is never needed by either caller
+    (`_needs_wrap`/`_class_name_for` only care whether/where a REAL `class`
+    keyword exists), only their span, so the safe fix is to erase it, not
+    keep it."""
     def _replace(m: "re.Match[str]") -> str:
         text = m.group(0)
-        return text if text[0] in ('"', "'") else ''
+        return '""' if text[0] in ('"', "'") else ''
     return _JAVA_STRING_OR_COMMENT_RE.sub(_replace, code)
 
 
@@ -158,7 +175,16 @@ def _wrap_fragment(code: str) -> str:
     -- a leading `/* ... */` block comment (which can itself span multiple
     lines) stopped hoisting early, landing the import back inside `main()`.
     `in_block_comment` tracks an open, not-yet-closed `/*` across lines the
-    same way a real Java tokenizer would."""
+    same way a real Java tokenizer would.
+
+    Independent-reviewer finding (round 3), fixed here: the round-2 fix
+    unconditionally hoisted an ENTIRE line starting with `/*`, even when
+    real code follows the comment's own closing `*/` later on that same
+    line (`/* note */ System.out.println("hi");` is ordinary, legal Java
+    inside a method body) -- silently dropping that trailing code from the
+    generated program instead of treating it as body content. Now checks
+    whether anything real follows the closing `*/` on the same line before
+    deciding to hoist it."""
     import_lines: list[str] = []
     body_lines: list[str] = []
     past_imports = False
@@ -172,9 +198,19 @@ def _wrap_fragment(code: str) -> str:
                     in_block_comment = False
                 continue
             if stripped.startswith("/*"):
-                import_lines.append(line)
-                if "*/" not in stripped[2:]:
+                close_idx = stripped.find("*/", 2)
+                if close_idx == -1:
+                    import_lines.append(line)
                     in_block_comment = True
+                    continue
+                if stripped[close_idx + 2:].strip() == "":
+                    # The whole line is just a (self-closing) comment.
+                    import_lines.append(line)
+                    continue
+                # Real code follows the comment's own close on this same
+                # line -- body content, not hoistable preamble.
+                past_imports = True
+                body_lines.append(line)
                 continue
             if stripped.startswith("//"):
                 import_lines.append(line)
@@ -221,7 +257,25 @@ class JavaRunner:
     implementation. One instance = one product (`family` fixed at
     construction, matching `GoRunner`/`DotNetRunner`'s own convention,
     though `family` is unused today -- see the module docstring's disclosed
-    scope limit: no real product JAR is acquired yet)."""
+    scope limit: no real product JAR is acquired yet).
+
+    Disclosed, accepted scope limit on `_wrap_fragment`/`_class_name_for`/
+    `_strip_comments` (three independent-review rounds fixed real bugs in
+    this area: illegal-import-in-body, wrong-class-name-from-a-helper-
+    class, comment-hidden class mentions, block-comment-led imports,
+    string-literal-fooled comment stripping, same-line comment-then-code,
+    and a text-block-embedded fake class mention): these are line/regex
+    -based heuristics, not a real Java grammar parser. They are proven,
+    by real content-driven fixes across those three rounds, against every
+    *realistic* Quick Start snippet shape encountered so far. They are NOT
+    proven against every conceivable Java syntax -- e.g. an annotation on
+    the same line as a class declaration (`@Deprecated public class X`),
+    records, sealed classes, or a class nested inside another class as the
+    FIRST declaration. A genuinely complete fix needs a real tokenizer/
+    parser, which is out of scope for this taskcard; further exotic
+    failures in this specific area, if a real one is ever found against
+    real content, should be fixed the same way these were -- reproduced
+    for real, fixed, regression-tested -- not preemptively guessed at."""
 
     canonical_lang = "java"
     ceiling_tier = 3
