@@ -5732,8 +5732,14 @@ scripts:
     notes: "C2: BlockIdentity/BlockResult/VerificationReport, the shared
       status+reason vocabulary, and to_legacy_s120()/to_smoke() adapters
       producing the exact dict shapes test_readme_refresh_run.py and
-      smoke_test.py already assert. No live caller yet -- C7/C4 wire the
-      first real ones."
+      smoke_test.py already assert. Still no live caller as of C4's close:
+      C4's own disclosed scope decision was to rebuild smoke_test.py's CLI
+      surface (--max-tier/--json/language auto-detection) without wiring
+      it to this module or to lib/example_verification/api.py -- that
+      entrypoint doesn't exist yet and isn't assigned to any taskcard in
+      the current C1-C14 rollout (a real gap in the plan itself, not
+      silently papered over; see C4_promotion_gate_decision.md). C7 (S-120
+      dispatch wiring) remains the next candidate caller."
 
   - path: scripts/pipeline/lib/example_verification/policy.py
     kind: library
